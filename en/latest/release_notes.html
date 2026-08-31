@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="release_notes.html.md" />
-    <title>PUDL Release Notes &#8212; PUDL 2026.8.1.dev26 documentation</title>
+    <title>PUDL Release Notes &#8212; PUDL 2026.8.1.dev27 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="_static/documentation_options.js?v=ce7935ec"></script>
+    <script src="_static/documentation_options.js?v=6739418a"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev26 documentation - Home"/>
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev26 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev27 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev27 documentation - Home"/>
   
   
 </a></div>
@@ -615,6 +615,9 @@ issue <a class="reference external" href="https://github.com/catalyst-cooperativ
 Markdown builds attempting to clean up the same dynamically generated output files at
 the end of their build. Fixed by setting <code class="docutils literal notranslate"><span class="pre">llms_txt_build_parallel</span> <span class="pre">=</span> <span class="pre">False</span></code>. See
 issue <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/5502">#5502</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5516">#5516</a>.</p></li>
+<li><p>Changed <code class="docutils literal notranslate"><span class="pre">subplant_id</span></code> in <a class="reference internal" href="data_dictionaries/pudl_db.html#core-epa-assn-eia-epacamd-subplant-ids"><span class="std std-ref">core_epa__assn_eia_epacamd_subplant_ids</span></a> to be
+1-indexed instead of 0-indexed within each <code class="docutils literal notranslate"><span class="pre">plant_id_eia</span></code>, so the first subplant at
+a plant is now <code class="docutils literal notranslate"><span class="pre">1</span></code> rather than <code class="docutils literal notranslate"><span class="pre">0</span></code>. See issue <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/5499">#5499</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5541">#5541</a>.</p></li>
 </ul>
 </section>
 <section id="performance-improvements">
