@@ -146,7 +146,7 @@ Module Contents
    Canonical field namespace identifiers used by PUDL resources.
 
 .. py:data:: FIELD_NAMESPACES
-   :type:  tuple[FieldNamespace, Ellipsis]
+   :type:  tuple[FieldNamespace, ...]
 
    All valid PUDL field namespace identifiers.
 
@@ -155,7 +155,7 @@ Module Contents
    Canonical ETL group identifiers used by PUDL resources.
 
 .. py:data:: ETL_GROUPS
-   :type:  tuple[EtlGroup, Ellipsis]
+   :type:  tuple[EtlGroup, ...]
 
    All valid PUDL ETL group identifiers.
 

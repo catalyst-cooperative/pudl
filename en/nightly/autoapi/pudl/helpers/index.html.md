@@ -1064,7 +1064,7 @@ won’t show which of the many values changed.
 So we melt the table based on some sort of primary key columns then diff
 the old and new values.
 
-### pudl.helpers.retry(func: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable), retry_on: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[type](../metadata/classes/index.html.md#pudl.metadata.classes.Field.type)[[BaseException](https://docs.python.org/3/library/exceptions.html#BaseException)], Ellipsis], max_retries=5, base_delay_sec=1, \*\*kwargs)
+### pudl.helpers.retry(func: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable), retry_on: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[type](../metadata/classes/index.html.md#pudl.metadata.classes.Field.type)[[BaseException](https://docs.python.org/3/library/exceptions.html#BaseException)], ...], max_retries=5, base_delay_sec=1, \*\*kwargs)
 
 Retry a function with a short sleep between each try.
 

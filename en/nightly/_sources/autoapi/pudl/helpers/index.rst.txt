@@ -1114,7 +1114,7 @@ Module Contents
    the old and new values.
 
 
-.. py:function:: retry(func: collections.abc.Callable, retry_on: tuple[type[BaseException], Ellipsis], max_retries=5, base_delay_sec=1, **kwargs)
+.. py:function:: retry(func: collections.abc.Callable, retry_on: tuple[type[BaseException], ...], max_retries=5, base_delay_sec=1, **kwargs)
 
    Retry a function with a short sleep between each try.
 

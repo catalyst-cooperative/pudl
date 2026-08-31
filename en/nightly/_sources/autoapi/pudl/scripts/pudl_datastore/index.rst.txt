@@ -45,7 +45,7 @@ Module Contents
    into: {k1:v1, k2:v2, k3:v3, ...}
 
 
-.. py:function:: main(datasets: tuple[str, Ellipsis], all_datasets: bool, validate: bool, list_partitions: bool, partition: dict[str, int | str], cloud_cache_path: str, bypass_local_cache: bool, logfile: pathlib.Path, loglevel: str) -> int
+.. py:function:: main(datasets: tuple[str, ...], all_datasets: bool, validate: bool, list_partitions: bool, partition: dict[str, int | str], cloud_cache_path: str, bypass_local_cache: bool, logfile: pathlib.Path, loglevel: str) -> int
 
    Manage the raw data inputs to the PUDL data processing pipeline.
 

@@ -44,12 +44,12 @@ Module Contents
    latest version associated with the same concept DOI.
 
 
-.. py:function:: update_yaml_dois(yaml_file: pathlib.Path, datasets: tuple[str, Ellipsis]) -> dict[str, dict]
+.. py:function:: update_yaml_dois(yaml_file: pathlib.Path, datasets: tuple[str, ...]) -> dict[str, dict]
 
    Check all DOIs and update to latest record versions.
 
 
-.. py:function:: main(ctx: click.Context, datasets: tuple[str, Ellipsis]) -> None
+.. py:function:: main(ctx: click.Context, datasets: tuple[str, ...]) -> None
 
    Auto-update Zenodo DOIs to the latest value. Use 'all' to update all DOIs.
 

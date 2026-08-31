@@ -132,7 +132,7 @@ Allows [`list`](https://docs.python.org/3/library/stdtypes.html#list), [`tuple`]
 
 Canonical field namespace identifiers used by PUDL resources.
 
-### pudl.metadata.classes.FIELD_NAMESPACES *: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[FieldNamespace](#pudl.metadata.classes.FieldNamespace), Ellipsis]*
+### pudl.metadata.classes.FIELD_NAMESPACES *: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[FieldNamespace](#pudl.metadata.classes.FieldNamespace), ...]*
 
 All valid PUDL field namespace identifiers.
 
@@ -140,7 +140,7 @@ All valid PUDL field namespace identifiers.
 
 Canonical ETL group identifiers used by PUDL resources.
 
-### pudl.metadata.classes.ETL_GROUPS *: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[EtlGroup](#pudl.metadata.classes.EtlGroup), Ellipsis]*
+### pudl.metadata.classes.ETL_GROUPS *: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[EtlGroup](#pudl.metadata.classes.EtlGroup), ...]*
 
 All valid PUDL ETL group identifiers.
 

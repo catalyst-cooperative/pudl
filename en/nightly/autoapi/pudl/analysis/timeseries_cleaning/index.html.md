@@ -54,7 +54,7 @@ described at:
 | [`utc_dataframe_to_aligned`](#pudl.analysis.timeseries_cleaning.utc_dataframe_to_aligned)(...)                              | Return DataFrame with `datetime_utc` shifted by offset to align timeseries'.                         |
 | [`pivot_aligned_timeseries_dataframe`](#pudl.analysis.timeseries_cleaning.pivot_aligned_timeseries_dataframe)(...)                    | Pivot aligned timeseries dataframe into timeseries matrix and pad if needed.                         |
 | [`melt_imputed_timeseries_matrix`](#pudl.analysis.timeseries_cleaning.melt_imputed_timeseries_matrix)(...)                        | Melt imputed timeseries matrix and flag matrix to time-aligned dataframe.                            |
-| [`slice_axis`](#pudl.analysis.timeseries_cleaning.slice_axis)(→ tuple[slice, Ellipsis])                       | Return an index that slices an array along an axis.                                                  |
+| [`slice_axis`](#pudl.analysis.timeseries_cleaning.slice_axis)(→ tuple[slice, ...])                            | Return an index that slices an array along an axis.                                                  |
 | [`array_diff`](#pudl.analysis.timeseries_cleaning.array_diff)(→ numpy.ndarray)                                | First discrete difference of array elements.                                                         |
 | [`encode_run_length`](#pudl.analysis.timeseries_cleaning.encode_run_length)(→ tuple[numpy.ndarray, numpy.ndarray])   | Encode vector with run-length encoding.                                                              |
 | [`insert_run_length`](#pudl.analysis.timeseries_cleaning.insert_run_length)(→ numpy.ndarray)                         | Insert run-length encoded values into a vector.                                                      |
@@ -251,7 +251,7 @@ Flags values (if not already flagged) and nulls flagged values.
   * **mask** – Boolean mask of the values to flag.
   * **flag** – Flag name.
 
-### pudl.analysis.timeseries_cleaning.slice_axis(x: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), start: [int](https://docs.python.org/3/library/functions.html#int) = None, end: [int](https://docs.python.org/3/library/functions.html#int) = None, step: [int](https://docs.python.org/3/library/functions.html#int) = None, axis: [int](https://docs.python.org/3/library/functions.html#int) = 0) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[slice](https://docs.python.org/3/library/functions.html#slice), Ellipsis]
+### pudl.analysis.timeseries_cleaning.slice_axis(x: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), start: [int](https://docs.python.org/3/library/functions.html#int) = None, end: [int](https://docs.python.org/3/library/functions.html#int) = None, step: [int](https://docs.python.org/3/library/functions.html#int) = None, axis: [int](https://docs.python.org/3/library/functions.html#int) = 0) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[slice](https://docs.python.org/3/library/functions.html#slice), ...]
 
 Return an index that slices an array along an axis.
 
