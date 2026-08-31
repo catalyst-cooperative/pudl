@@ -369,6 +369,9 @@ def core_epa__assn_eia_epacamd_subplant_ids(
         .reset_index(drop=True)
         .pipe(manually_update_subplant_id)
     )
+    # the subplant_ids are currently zero-indexed, which results in less intuitive
+    # alignments between subplant_ids and generator_ids. Increment all subplant_ids by 1
+    subplant_ids_updated["subplant_id"] = subplant_ids_updated["subplant_id"] + 1
     # check for duplicates in sudo-PKs. These are not the actual PKs because there are
     # some nulls in generator_id, so this won't be checked during the db construction
     if (
