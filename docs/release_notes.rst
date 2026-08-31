@@ -133,6 +133,12 @@ Performance Improvements
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^
 
+* Added ``ferceqr_pipeline_diagnostics``, a metadata-only Dagster asset that
+  compiles the extraction stats and schema-check results already recorded for
+  every :doc:`FERC EQR <data_sources/ferceqr>` quarter into one wide table, so
+  anomalies like missing tables, rejected records, or primary-key violations
+  are visible across the whole backfill without opening each quarter's
+  materialization individually. See PR :pr:`5457`.
 * Fixed several issues with how ``dbt_helper update-tables`` renders ``schema.yml``
   (:mod:`pudl.dbt_schema`): long ``description:`` fields are now wrapped into readable
   paragraph blocks and strings that need quoting prefer double quotes. This now matches
