@@ -214,12 +214,14 @@ def core_epa__assn_eia_epacamd(
             core_eia__entity_generators[["plant_id_eia", "generator_id"]],
             on=["plant_id_eia", "generator_id"],
             how="inner",
+            validate="m:1",
         )
         crosswalk_clean = pd.merge(
             crosswalk_clean,
             core_eia__entity_boilers[["plant_id_eia", "boiler_id"]],
             on=["plant_id_eia", "boiler_id"],
             how="inner",
+            validate="m:1",
         )
     # TODO: Add manual crosswalk cleanup from @grgmiller
     return crosswalk_clean

@@ -9,6 +9,23 @@ sources:
               arguments:
                 table_name: core_epa__assn_eia_epacamd
                 partition_expr: report_year
+          - dbt_expectations.expect_compound_columns_to_be_unique:
+              arguments:
+                column_list:
+                  - report_year
+                  - plant_id_eia
+                  - plant_id_epa
+                  - emissions_unit_id_epa
+                  - generator_id
+                description: |-
+                  Within a report_year, the same (plant_id_eia, plant_id_epa, emissions_unit_id_epa,
+                  generator_id) association sometimes appears more than once, differing only in EPA's own
+                  generator_id_epa/boiler_id naming. pudl.dagster.assets.core.glue.make_subplant_ids
+                  explicitly deduplicates on this basis before building its graph, so a small, stable
+                  number of these isn't a correctness problem downstream, and this test only fails if the
+                  count grows. There were 65 such duplicate groups as of 2026-08-30.
+              config:
+                error_if: ">65"
         columns:
           - name: report_year
           - name: plant_id_epa

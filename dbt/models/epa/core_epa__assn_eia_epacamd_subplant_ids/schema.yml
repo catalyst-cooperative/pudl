@@ -19,10 +19,89 @@ sources:
                 description: |-
                   Each association should be unique, but some generator_id values are null so this cannot
                   be used as a natural primary key.
+          - one_value_per_key:
+              arguments:
+                column_name: cast(plant_id_eia as varchar) || '_' || generator_id
+                other_column_name: subplant_id
+              description: |-
+                Every (plant_id_eia, generator_id) should map to exactly one subplant_id, even when a
+                generator reports through more than one EPA CAMD unit and so appears on multiple rows of
+                this table -- one per emissions_unit_id_epa it's matched to. Mirrors
+                test_every_eia_generator_gets_exactly_one_subplant_id in
+                tests/unit/transform/glue_test.py.
+          - one_value_per_key:
+              arguments:
+                column_name: cast(plant_id_eia as varchar) || '_' || emissions_unit_id_epa
+                other_column_name: subplant_id
+              description: |-
+                Every (plant_id_eia, emissions_unit_id_epa) should map to exactly one subplant_id, even
+                when an EPA unit feeds more than one EIA generator and so appears on multiple rows of
+                this table. Mirrors test_every_epa_emissions_unit_gets_exactly_one_subplant_id in
+                tests/unit/transform/glue_test.py.
+          - one_value_per_key:
+              arguments:
+                column_name: cast(plant_id_eia as varchar) || '_' || cast(unit_id_pudl as varchar)
+                other_column_name: subplant_id
+              description: |-
+                Generators/units that EIA-860's boiler-generator association (BGA) table says share a
+                unit_id_pudl should always end up reconciled into the same subplant_id within a plant,
+                even if the EPA crosswalk didn't connect them directly -- that's what
+                pudl.dagster.assets.core.glue.update_subplant_ids/connect_ids is for. Mirrors
+                test_shared_unit_id_pudl_reconciliation_handles_multiple_groups in
+                tests/unit/transform/glue_test.py, the regression test for the connect_ids bug fixed in
+                PR :pr:`XXXX`.
         columns:
           - name: plant_id_eia
+            data_tests:
+              - not_null
           - name: plant_id_epa
+            data_tests:
+              - not_null
           - name: subplant_id
+            data_tests:
+              - not_null:
+                  description: |-
+                    Every row of this table is supposed to have been assigned to some subplant by
+                    make_subplant_ids. Unlike generator_id (see below), there's no known legitimate reason
+                    for subplant_id to be null, so any occurrence is a hard failure.
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 1
+                    max_value: 1
+                    group_by:
+                      - plant_id_eia
+                  description: |-
+                    subplant_id should start at 1 within each plant_id_eia (see PR :pr:`XXXX`, which fixed
+                    the previous zero-indexed scheme, where the minimum was 0). Together with the
+                    sequential_values check below, this mirrors
+                    test_subplant_id_is_one_indexed_and_contiguous_per_plant in
+                    tests/unit/transform/glue_test.py.
+              - dbt_utils.sequential_values:
+                  arguments:
+                    interval: 1
+                    group_by_columns:
+                      - plant_id_eia
+                  description: |-
+                    subplant_id should have no gaps within a plant_id_eia once sorted in ascending order --
+                    i.e. it should be a contiguous 1..n sequence, not just start at 1.
           - name: unit_id_pudl
           - name: emissions_unit_id_epa
+            data_tests:
+              - not_null
           - name: generator_id
+            data_tests:
+              - dbt_utils.not_null_proportion:
+                  arguments:
+                    at_least: 0.97
+                  description: |-
+                    generator_id is null for EPA units that never match an EIA generator, which is expected
+                    for a small share of rows -- but if fewer than 97% of rows are non-null, something is
+                    systemically wrong and should hard-fail rather than warn. The 97% floor is empirically
+                    grounded: measured directly (not taken from this table's docstring, which only says
+                    "~2%") at 1.80% null / 98.20% non-null as of 2026-08-30, giving roughly a 1.2
+                    percentage-point margin above the measured value. This table has no report_year/year
+                    column (it's a single all-years crosswalk), so a true per-year breakdown isn't possible
+                    here -- see core_epacems__hourly_emissions's expect_grouped_unmatched_rate_to_be_below
+                    test for that, which checks the same underlying phenomenon (unmatched EPA CAMD units)
+                    with year-level granularity so that one bad year can't get diluted away in this
+                    table-wide aggregate.

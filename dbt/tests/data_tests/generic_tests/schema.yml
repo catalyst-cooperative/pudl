@@ -305,3 +305,38 @@ macros:
       - name: max_differing_fuel_rate
         type: float
         description: Maximum acceptable fraction of units mapping to multiple fuels. (optional; default 0.01)
+
+  - name: test_expect_grouped_unmatched_rate_to_be_below
+    description: >
+      Check that the fraction of distinct keys in one table that fail to find a
+      non-null match in another table stays below a threshold, computed separately
+      within each group of a grouping column. A "match" means the key is present in
+      other_table and other_match_column is non-null for that row. Designed for
+      tracking join/matching coverage over time -- e.g. the fraction of EPA CAMD
+      units per CEMS reporting year that never get matched to an EIA generator in
+      the EPA/EIA subplant crosswalk -- so that a regression in one group (one bad
+      year) is caught even if it would be diluted away in a table-wide aggregate
+      check.
+    arguments:
+      - name: group_by_column
+        type: string
+        description: Column in model to group by, e.g. a year column.
+      - name: key_column
+        type: string
+        description: Key column (or expression) in model whose match coverage is being checked.
+      - name: other_table
+        type: dbt source or ref reference
+        description: >
+          The table to look for matches in, passed as a Jinja expression, e.g.
+          source('pudl', 'core_epa__assn_eia_epacamd_subplant_ids').
+      - name: other_key_column
+        type: string
+        description: Key column (or expression) in other_table to join against key_column.
+      - name: other_match_column
+        type: string
+        description: >
+          Column in other_table that must be non-null for a joined row to count as a
+          match, e.g. generator_id.
+      - name: max_unmatched_ratio
+        type: float
+        description: Maximum acceptable fraction of unmatched keys within any single group.

@@ -8,3 +8,47 @@ sources:
               arguments:
                 table_name: core_epacems__hourly_emissions
                 partition_expr: year
+          # Declared at the table level rather than attached to emissions_unit_id_epa,
+          # since column_name is a composite (plant_id_eia, emissions_unit_id_epa)
+          # expression rather than a single real column.
+          - relationships:
+              arguments:
+                column_name: "cast(plant_id_eia as varchar) || '_' || emissions_unit_id_epa"
+                to: source('pudl', 'core_epa__assn_eia_epacamd_subplant_ids')
+                field: "cast(plant_id_eia as varchar) || '_' || emissions_unit_id_epa"
+              description: |-
+                Every EPA CAMD unit that ever reports to CEMS should show up somewhere in the EPA/EIA
+                subplant crosswalk, even units that never match an EIA generator -- the small share of
+                EPA CAMD records that never get a generator_id, tracked by
+                core_epa__assn_eia_epacamd_subplant_ids's not_null_proportion test on generator_id --
+                via the outer merge in pudl.dagster.assets.core.glue.augment_crosswalk_with_epacamd_ids.
+                relationships checks the reverse direction from usual here (this table's keys covered
+                *by* the crosswalk, rather than the crosswalk's keys covered by this table), so it's
+                declared here rather than on the crosswalk itself. Mirrors
+                test_every_epa_emissions_unit_appears_with_a_subplant_id in
+                tests/unit/transform/glue_test.py.
+          # Declared at the table level rather than attached to emissions_unit_id_epa,
+          # since key_column is a composite (plant_id_eia, emissions_unit_id_epa)
+          # expression rather than a single real column.
+          - expect_grouped_unmatched_rate_to_be_below:
+              arguments:
+                group_by_column: year
+                key_column: "cast(plant_id_eia as varchar) || '_' || emissions_unit_id_epa"
+                other_table: source('pudl', 'core_epa__assn_eia_epacamd_subplant_ids')
+                other_key_column: "cast(plant_id_eia as varchar) || '_' || emissions_unit_id_epa"
+                other_match_column: generator_id
+                max_unmatched_ratio: 0.20
+              description: |-
+                Codifies a concrete baseline for EPA/EIA crosswalk match coverage, checked per CEMS
+                reporting year rather than as a single table-wide aggregate, so that a regression
+                confined to one year isn't diluted away by all the other years the way it would be in
+                core_epa__assn_eia_epacamd_subplant_ids's table-wide not_null_proportion check on
+                generator_id. Measured directly as of 2026-08-30: the unmatched rate (the fraction of a
+                year's distinct (plant_id_eia, emissions_unit_id_epa) units with no matching non-null
+                generator_id) ranges from about 4.2% in the most recent years (2021-2024) up to about
+                15.4% in 1999, trending steadily better in more recent years -- match coverage has been
+                improving over time and we want that trend to continue, not reverse. max_unmatched_ratio
+                is set to 0.20, comfortably above the worst year on record (1999, ~15.4%) so normal
+                reprocessing of old, inherently-worse-matched years doesn't trip this test, while still
+                catching a genuine regression -- e.g. a matching step breaking for a whole year's worth
+                of units, or degrading well past what's ever been observed.

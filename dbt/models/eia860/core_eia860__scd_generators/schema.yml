@@ -60,6 +60,27 @@ sources:
               arguments:
                 table_name: core_eia860__scd_generators
                 partition_expr: EXTRACT(YEAR FROM report_date)
+          - relationships:
+              arguments:
+                column_name: cast(plant_id_eia as varchar) || '_' || generator_id
+                to: source('pudl', 'core_epa__assn_eia_epacamd_subplant_ids')
+                field: cast(plant_id_eia as varchar) || '_' || generator_id
+              description: |-
+                Every generator EIA-860 knows about should show up in the EPA/EIA subplant crosswalk,
+                via the outer merge in
+                pudl.dagster.assets.core.glue.augment_crosswalk_with_generators_eia860. This is checked
+                against core_eia860__scd_generators specifically -- not the broader
+                core_eia__entity_generators entity table -- because scd_generators is the actual table
+                augment_crosswalk_with_generators_eia860 merges against in the ETL. entity_generators is
+                harvested across both EIA-860 and EIA-923, so it can include generator_ids that were
+                never fed into that merge at all (e.g. ones only ever referenced via EIA-923). Testing
+                against entity_generators would produce false-positive "missing" failures for those
+                generators, which were never supposed to appear in the crosswalk in the first place.
+                relationships checks the reverse direction from usual here (this table's keys covered
+                *by* the crosswalk, rather than the crosswalk's keys covered by this table), so it's
+                declared here rather than on the crosswalk itself. Mirrors
+                test_every_eia_generator_appears_with_a_subplant_id in
+                tests/unit/transform/glue_test.py.
         columns:
           - name: plant_id_eia
           - name: generator_id
