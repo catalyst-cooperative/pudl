@@ -13,6 +13,7 @@ import os
 import pathlib
 import re
 import shutil
+import subprocess
 import tempfile
 import time
 from collections import defaultdict
@@ -53,6 +54,35 @@ otherwise we'll get unrealistic heat rates.
 """
 
 logger = pudl.logging_helpers.get_logger(__name__)
+
+
+def run_git(args: list[str], cwd: Path | None = None) -> str:
+    """Run a git subcommand and return its stdout, logging stderr on failure.
+
+    Shared by every git-shelling-out call in PUDL, so there's one place that knows
+    how to invoke git and report failures consistently. Always runs ``git``, so
+    ``args`` should be the subcommand and its arguments only, e.g.
+    ``["rev-parse", "HEAD"]`` rather than ``["git", "rev-parse", "HEAD"]``.
+
+    Args:
+        args: The git subcommand and arguments to run, e.g. ``["rev-parse", "HEAD"]``.
+        cwd: Working directory to run the command in. Defaults to the current
+            process's working directory.
+
+    Returns:
+        The command's stdout, unstripped.
+
+    Raises:
+        subprocess.CalledProcessError: If the command exits non-zero.
+    """
+    cmd = ["git", *args]
+    try:
+        return subprocess.run(  # noqa: S603
+            cmd, cwd=cwd, check=True, capture_output=True, text=True
+        ).stdout
+    except subprocess.CalledProcessError as exc:
+        logger.error(f"Command failed: {' '.join(cmd)}\n{exc.stderr}")
+        raise
 
 
 def label_map(

@@ -27,7 +27,8 @@ from pydantic import BaseModel, ConfigDict, model_validator
 from upath import UPath
 
 from pudl import PUDL_ROOT_PATH
-from pudl.deploy.zenodo_metadata import get_latest_release_tag, run_git
+from pudl.deploy.zenodo_metadata import get_latest_release_tag
+from pudl.helpers import run_git
 from pudl.logging_helpers import configure_root_logger, get_logger
 
 logger = get_logger(__name__)

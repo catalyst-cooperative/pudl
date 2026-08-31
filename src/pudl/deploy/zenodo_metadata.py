@@ -21,6 +21,7 @@ from pathlib import Path
 
 from bs4 import BeautifulSoup
 
+from pudl.helpers import run_git
 from pudl.logging_helpers import get_logger
 from pudl.metadata.constants import LICENSES
 from pudl.metadata.sources import SOURCES
@@ -100,36 +101,6 @@ def get_data_license_id() -> str:
         f"SOURCES['pudl']['license_pudl'] ({license_pudl!r}) doesn't match any "
         f"entry in LICENSES -- can't determine the Zenodo license ID."
     )
-
-
-def run_git(args: list[str], cwd: Path | None = None) -> str:
-    """Run a git subcommand and return its stdout, logging stderr on failure.
-
-    Shared by every git-shelling-out call in ``pudl.deploy`` (branch updates, build
-    lookups, this module's tag verification/lookup), so there's one place that knows
-    how to invoke git and report failures consistently. Always runs ``git``, so
-    ``args`` should be the subcommand and its arguments only, e.g.
-    ``["rev-parse", "HEAD"]`` rather than ``["git", "rev-parse", "HEAD"]``.
-
-    Args:
-        args: The git subcommand and arguments to run, e.g. ``["rev-parse", "HEAD"]``.
-        cwd: Working directory to run the command in. Defaults to the current
-            process's working directory.
-
-    Returns:
-        The command's stdout, unstripped.
-
-    Raises:
-        subprocess.CalledProcessError: If the command exits non-zero.
-    """
-    cmd = ["git", *args]
-    try:
-        return subprocess.run(  # noqa: S603
-            cmd, cwd=cwd, check=True, capture_output=True, text=True
-        ).stdout
-    except subprocess.CalledProcessError as exc:
-        logger.error(f"Command failed: {' '.join(cmd)}\n{exc.stderr}")
-        raise
 
 
 def get_latest_release_tag(repo_root: Path) -> str:
@@ -283,10 +254,10 @@ def build_related_resources(
 
     items = [
         f'<li><a href="{data_dictionary_url}">PUDL {version_tag} '
-        f"Data Dictionary</a></li>",
+        "Data Dictionary</a></li>",
         f'<li><a href="{docs_url}">PUDL {version_tag} Documentation</a></li>',
         f'<li><a href="{AWS_OPEN_DATA_REGISTRY_URL}">PUDL in the AWS Open Data '
-        f"Registry</a></li>",
+        "Registry</a></li>",
         f"<li>PUDL {version_tag} in a free, public AWS S3 bucket: {s3_path}</li>",
         f"<li>PUDL {version_tag} in a requester-pays GCS bucket: {gcs_path}</li>",
     ]
@@ -297,7 +268,7 @@ def build_related_resources(
     if github_archive_doi_url is not None:
         items.append(
             f'<li><a href="{github_archive_doi_url}">Zenodo archive of the PUDL '
-            f"GitHub repo for this release</a></li>"
+            "GitHub repo for this release</a></li>"
         )
         related_identifiers.append(
             {
@@ -309,7 +280,7 @@ def build_related_resources(
 
     items.append(
         f'<li><a href="{github_release_url}">PUDL {version_tag} release on '
-        f"GitHub</a></li>"
+        "GitHub</a></li>"
     )
     related_identifiers.append(
         {

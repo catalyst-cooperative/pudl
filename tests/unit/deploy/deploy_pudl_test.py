@@ -350,7 +350,7 @@ def test_update_git_branch():
     """Test git branch update merges tag and pushes."""
     nightly_tag = "nightly-2026-02-09"
     stable_tag = "v2026.2.9"
-    with patch("pudl.deploy.zenodo_metadata.subprocess.run") as mock_run:
+    with patch("pudl.helpers.subprocess.run") as mock_run:
         mock_run.retudeploymentvalue = MagicMock(returncode=0)
         update_git_branch(
             tag="nightly-2026-02-09",
@@ -411,7 +411,7 @@ def test_update_git_branch():
 
 def test_update_git_branch_staging():
     """Test git branch update skips push when staging."""
-    with patch("pudl.deploy.zenodo_metadata.subprocess.run") as mock_run:
+    with patch("pudl.helpers.subprocess.run") as mock_run:
         mock_run.retudeploymentvalue = MagicMock(returncode=0)
 
         update_git_branch(
