@@ -40,7 +40,6 @@ from pudl.metadata.classes import Resource
 logger = get_logger(__name__)
 
 _EXTRACTION_STATS_ASSET_KEY = dg.AssetKey(["raw_ferceqr__extract_errors"])
-_EXTRACTION_STATS_METADATA_KEY = "extraction_stats"
 _EXTRACTION_STATS_FETCH_LIMIT = 500
 """Comfortably more than the number of ferceqr quarters, even with some
 re-materialized more than once -- ``fetch_materializations`` returns
@@ -53,7 +52,6 @@ _CORE_FERCEQR_TABLE_LABELS: dict[dg.AssetKey, str] = {
     dg.AssetKey(["core_ferceqr__transactions"]): "transactions",
     dg.AssetKey(["core_ferceqr__quarterly_index_pub"]): "index_pub",
 }
-_PANDERA_CHECK_NAME = "pandera_schema_check"
 _CHECK_EVALUATION_FETCH_LIMIT = 2000
 """4 core ferceqr tables x ~52 quarters, with headroom for re-run partitions."""
 
@@ -434,7 +432,7 @@ def _latest_extraction_stats_by_quarter(
         materialization = record.asset_materialization
         if materialization is None:
             continue
-        metadata_value = materialization.metadata.get(_EXTRACTION_STATS_METADATA_KEY)
+        metadata_value = materialization.metadata.get("extraction_stats")
         if isinstance(metadata_value, dg.JsonMetadataValue) and isinstance(
             metadata_value.data, dict
         ):
@@ -450,11 +448,19 @@ def _latest_check_evaluations_by_quarter(
     Reads ``pandera_schema_check`` asset check evaluations for the four
     ``core_ferceqr__*`` tables directly from this Dagster instance's event log --
     no Parquet data is read.
+
+    Unlike asset materializations, check evaluation events don't carry a
+    ``partition_key`` field on the record itself -- the partition instead lives
+    on the ``AssetCheckEvaluation`` payload, so this reads events generically
+    (across *all* assets and checks in the instance, hence the high
+    ``_CHECK_EVALUATION_FETCH_LIMIT``) and filters down to the four
+    ``core_ferceqr__*`` tables' ``pandera_schema_check`` results itself, rather
+    than being able to ask the instance for exactly those upfront.
     """
     records = instance.get_event_records(
         dg.EventRecordsFilter(event_type=dg.DagsterEventType.ASSET_CHECK_EVALUATION),
         limit=_CHECK_EVALUATION_FETCH_LIMIT,
-        ascending=False,
+        ascending=False,  # most recent first, so first-seen per table+quarter wins
     )
     evaluations_by_quarter: dict[str, dict[str, dg.AssetCheckEvaluation]] = {}
     for record in records:
@@ -463,42 +469,51 @@ def _latest_check_evaluations_by_quarter(
             continue
         evaluation = dagster_event.event_specific_data
         if not isinstance(evaluation, dg.AssetCheckEvaluation):
-            continue
+            continue  # some other event type slipped through the type filter
+
+        # Narrow down to pandera_schema_check evaluations for one of the four
+        # core ferceqr tables, on a real (partitioned) quarter -- ignoring
+        # every other check and asset present in the instance's event log.
         table_label = _CORE_FERCEQR_TABLE_LABELS.get(evaluation.asset_key)
         year_quarter = evaluation.partition
         if (
-            evaluation.check_name != _PANDERA_CHECK_NAME
+            evaluation.check_name != "pandera_schema_check"
             or table_label is None
             or year_quarter is None
         ):
             continue
+
+        # Keep only the first (i.e. most recent, per the ascending=False order
+        # above) evaluation seen for each quarter+table combination.
         seen_for_quarter = evaluations_by_quarter.setdefault(year_quarter, {})
         if table_label not in seen_for_quarter:
             seen_for_quarter[table_label] = evaluation
     return evaluations_by_quarter
 
 
-def _summarize_check_failures(evaluation: dg.AssetCheckEvaluation) -> str:
-    """Return a short human-readable summary of a failed check, or "" if it passed."""
-    if evaluation.passed:
-        return ""
-    detailed_errors = evaluation.metadata.get("detailed_errors")
-    if not isinstance(detailed_errors, dg.JsonMetadataValue) or not isinstance(
-        detailed_errors.data, list
-    ):
-        return "FAILED (no detail available)"
-    parts = [
-        f"{error['failure_case_count']}x {error['check']} ({error['error_message']})"
-        for error in detailed_errors.data
-    ]
-    return "; ".join(parts)
-
-
 def _build_ferceqr_diagnostics_rows(
     extraction_stats_by_quarter: dict[str, dict[str, Any]],
     check_evaluations_by_quarter: dict[str, dict[str, dg.AssetCheckEvaluation]],
 ) -> list[dict[str, Any]]:
-    """Flatten per-quarter extraction stats and check results into one wide table."""
+    """Flatten per-quarter extraction stats and check results into one wide table.
+
+    Each input dict is keyed by ``year_quarter`` but has a different, and
+    possibly incomplete, set of keys underneath (e.g. a quarter can have
+    extraction stats but no check evaluations yet, or vice versa). This
+    produces one row per quarter seen in *either* input, with a fixed,
+    predictable set of columns -- computed upfront from the *union* of
+    per-quarter table/reject-reason keys actually observed -- so every row has
+    the same shape and missing values show up as ``0``/``None`` rather than
+    a missing column.
+    """
+    # Deferred to break a circular import: pudl.dagster.asset_checks imports
+    # pudl.dagster.assets, which imports every pudl.transform module -- including
+    # this one -- to build the Dagster asset graph.
+    from pudl.dagster.asset_checks import summarize_check_failures  # noqa: PLC0415
+
+    # Column sets are derived from the data itself (not a fixed schema) since
+    # table types and rejection reasons can vary release to release; the core
+    # table labels are fixed, since they're the four known ferceqr assets.
     all_quarters = sorted(
         set(extraction_stats_by_quarter) | set(check_evaluations_by_quarter)
     )
@@ -520,8 +535,12 @@ def _build_ferceqr_diagnostics_rows(
 
     rows = []
     for year_quarter in all_quarters:
-        stats = extraction_stats_by_quarter.get(year_quarter)
         row: dict[str, Any] = {"year_quarter": year_quarter}
+
+        # Extraction-stats columns: filled in only if this quarter has stats
+        # at all: table/reason columns default to 0 for combinations that
+        # weren't present in this particular quarter's raw filings.
+        stats = extraction_stats_by_quarter.get(year_quarter)
         if stats is not None:
             row["total_filings"] = stats["total_filings"]
             row["corrupt_filings"] = stats["corrupt_filings"]
@@ -532,6 +551,10 @@ def _build_ferceqr_diagnostics_rows(
                     "rejected_record_counts"
                 ].get(reason, 0)
 
+        # Schema-check columns: one row count and one failure summary per core
+        # table, collected across all four tables into a single
+        # semicolon-delimited ``check_failures`` column so a failing quarter
+        # is visible without inspecting each table individually.
         evaluations = check_evaluations_by_quarter.get(year_quarter, {})
         failure_summaries = []
         for table_label in all_core_tables:
@@ -546,7 +569,7 @@ def _build_ferceqr_diagnostics_rows(
                 and isinstance(asset_shape.data, list)
                 else None
             )
-            summary = _summarize_check_failures(evaluation)
+            summary = summarize_check_failures(evaluation)
             if summary:
                 failure_summaries.append(f"{table_label}: {summary}")
         row["check_failures"] = "; ".join(failure_summaries)

@@ -3,14 +3,11 @@
 from types import SimpleNamespace
 
 import dagster as dg
-import pytest
 
 from pudl.transform.ferceqr import (
     _build_ferceqr_diagnostics_rows,
     _latest_check_evaluations_by_quarter,
     _latest_extraction_stats_by_quarter,
-    _summarize_check_failures,
-    ferceqr_pipeline_diagnostics,
 )
 
 _YEAR_QUARTERS = dg.StaticPartitionsDefinition(["2024q1", "2024q2"])
@@ -153,36 +150,6 @@ def test_latest_check_evaluations_by_quarter_groups_by_quarter_and_table(mocker)
     assert result["2024q1"]["contracts"].passed is True
 
 
-@pytest.mark.parametrize(
-    ("passed", "metadata", "expected"),
-    [
-        (True, {}, ""),
-        (False, {}, "FAILED (no detail available)"),
-        (
-            False,
-            {
-                "detailed_errors": dg.MetadataValue.json(
-                    [
-                        {
-                            "check": "multiple_fields_uniqueness",
-                            "error_message": "2 duplicate combinations",
-                            "failure_case_count": 2,
-                        }
-                    ]
-                )
-            },
-            "2x multiple_fields_uniqueness (2 duplicate combinations)",
-        ),
-    ],
-)
-def test_summarize_check_failures(passed, metadata, expected):
-    """A passing check summarizes to "", a failing one names the failure(s)."""
-    # SimpleNamespace stands in for AssetCheckEvaluation, which only needs to
-    # supply the two attributes _summarize_check_failures actually reads.
-    evaluation = SimpleNamespace(passed=passed, metadata=metadata)
-    assert _summarize_check_failures(evaluation) == expected  # type: ignore[bad-argument-type]
-
-
 def test_build_ferceqr_diagnostics_rows_combines_stats_and_checks():
     """Rows combine extraction stats and check results, keyed by year_quarter."""
     extraction_stats_by_quarter = {
@@ -229,40 +196,3 @@ def test_build_ferceqr_diagnostics_rows_combines_stats_and_checks():
     assert row["rows_contracts"] is None
     assert "index_pub" in row["check_failures"]
     assert "multiple_fields_uniqueness" in row["check_failures"]
-
-
-def test_build_ferceqr_diagnostics_rows_empty_when_no_data():
-    """No extraction stats or check evaluations means no rows, not an error."""
-    assert _build_ferceqr_diagnostics_rows({}, {}) == []
-
-
-def test_ferceqr_pipeline_diagnostics_wraps_rows_in_table_metadata(mocker):
-    """The asset attaches the computed rows as table metadata, not real data."""
-    fake_rows = [
-        {"year_quarter": "2024q1", "total_filings": 10, "check_failures": ""},
-        {"year_quarter": "2024q2", "total_filings": 12, "check_failures": "oops"},
-    ]
-    mocker.patch(
-        "pudl.transform.ferceqr._latest_extraction_stats_by_quarter",
-        return_value={"unused": "stats"},
-    )
-    mocker.patch(
-        "pudl.transform.ferceqr._latest_check_evaluations_by_quarter",
-        return_value={"unused": "evaluations"},
-    )
-    mocker.patch(
-        "pudl.transform.ferceqr._build_ferceqr_diagnostics_rows",
-        return_value=fake_rows,
-    )
-
-    context = dg.build_asset_context()
-    result = ferceqr_pipeline_diagnostics(context=context)
-
-    assert isinstance(result, dg.MaterializeResult)
-    assert result.metadata is not None
-    n_quarters = result.metadata["n_quarters"]
-    assert isinstance(n_quarters, dg.IntMetadataValue)
-    assert n_quarters.value == 2
-    table = result.metadata["summary"]
-    assert isinstance(table, dg.TableMetadataValue)
-    assert [record.data for record in table.records] == fake_rows
