@@ -49,6 +49,11 @@ TABLE_DESCRIPTIONS = {
     "index_pub": {
         "additional_summary_text": "electricity market price indices that individual EQR filers"
         " reported transactions to.",
+        "additional_primary_key_text": (
+            "The primary key ought to be ['year_quarter', 'company_id_ferc', 'filer_unique_id'], "
+            "where filer_unique_id is an employee-level ID. However, there are two quarters "
+            "in which these columns are not unique for 1-2 combinations of values."
+        ),
         "usage_warnings": ["experimental_wip"],
     },
 }
@@ -186,11 +191,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "seller_company_name",
                 "index_price_publisher_name",
                 "transactions_reported",
-            ],
-            "primary_key": [
-                "year_quarter",
-                "company_id_ferc",
-                "filer_unique_id",
             ],
         },
         "create_database_schema": False,
