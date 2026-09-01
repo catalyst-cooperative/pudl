@@ -180,6 +180,7 @@ jobs:
             --machine-type e2-standard-8 \
             --disk-gb 100 \
             --disk-type hyperdisk-balanced \
+            --batch-job-id "${{ env.BUILD_ID }}" \
             --output batch_job.json
 
       - name: Kick off batch job

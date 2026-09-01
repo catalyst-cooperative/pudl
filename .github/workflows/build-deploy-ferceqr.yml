@@ -155,6 +155,7 @@ jobs:
             --machine-type c4d-highmem-16 \
             --disk-gb 1000 \
             --disk-type hyperdisk-balanced \
+            --batch-job-id "build-deploy-ferceqr-${{ env.BATCH_JOB_ID }}" \
             --output ${{ env.BATCH_JOB_JSON }}
 
       - name: Launch Google Batch job

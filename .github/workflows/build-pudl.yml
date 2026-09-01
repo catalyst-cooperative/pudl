@@ -187,6 +187,7 @@ jobs:
             --machine-type c4d-highmem-16 \
             --disk-gb 250 \
             --disk-type hyperdisk-balanced \
+            --batch-job-id "${{ env.BUILD_ID }}" \
             --output ${{ env.BATCH_JOB_JSON }}
 
       # Start the batch job

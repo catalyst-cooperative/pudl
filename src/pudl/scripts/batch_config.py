@@ -118,6 +118,7 @@ def to_config(
     memory_mib: int,
     disk_gb: int,
     disk_type: str,
+    batch_job_id: str,
 ) -> dict[str, Any]:
     """Munge arguments into a configuration dictionary."""
     if not container_image:
@@ -155,12 +156,20 @@ def to_config(
             "serviceAccount": {
                 "email": "deploy-pudl-vm-service-account@catalyst-cooperative-pudl.iam.gserviceaccount.com"
             },
+            # Explicitly set rather than relying on Batch to auto-label VM instances
+            # with the job ID: it used to (older jobs' VMs carried a `batch-job-id`
+            # user label Cloud Monitoring dashboards group by), but recent VMs no
+            # longer do -- Batch's behavior here apparently changed. Setting it
+            # ourselves is the only way to guarantee dashboards can group per-VM
+            # metrics by job regardless of what Batch does internally.
+            "labels": {"batch-job-id": batch_job_id},
             "instances": [
                 {
+                    "installOpsAgent": True,
                     "policy": {
                         "machineType": machine_type,
                         "bootDisk": {"type": disk_type, "sizeGb": str(disk_gb)},
-                    }
+                    },
                 }
             ],
         },
@@ -206,6 +215,15 @@ def to_config(
     help="Boot disk type (e.g. pd-ssd, pd-balanced, hyperdisk-balanced).",
 )
 @click.option(
+    "--batch-job-id",
+    required=True,
+    help=(
+        "Value for the batch-job-id label attached to created VM instances, used "
+        "to group per-VM Cloud Monitoring metrics by job. Should match the job "
+        "name passed to `gcloud batch jobs submit`."
+    ),
+)
+@click.option(
     "--output",
     required=True,
     type=click.Path(path_type=Path),
@@ -219,6 +237,7 @@ def main(
     machine_type: str,
     disk_gb: int,
     disk_type: str,
+    batch_job_id: str,
     output: Path,
 ) -> None:
     """Generate a Batch configuration file."""
@@ -233,6 +252,7 @@ def main(
         memory_mib=memory_mib,
         disk_gb=disk_gb,
         disk_type=disk_type,
+        batch_job_id=batch_job_id,
     )
 
     logger.info(f"Writing to {output}")
