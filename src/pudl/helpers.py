@@ -2049,7 +2049,12 @@ def scale_by_ownership(
         gens: table with records at the generator level and generator attributes
             to be scaled by ownership, must have columns ``plant_id_eia``,
             ``generator_id``, and ``report_date``
-        own_eia860: the ``core_eia860__scd_ownership`` table
+        own_eia860: the ``core_eia860__scd_ownership`` table or the denormalized
+            :ref:`out_eia860__yearly_ownership` table. If the denormalized table
+            is given and ``gens`` contains ``utility_id_pudl`` or
+            ``utility_name_eia`` columns, the owner's PUDL utility ID and EIA
+            utility name are swapped in alongside the owner's
+            ``utility_id_eia``.
         scale_cols: a list of columns in the generator table to slice by ownership
             fraction
         validate: how to validate merging the ownership table onto the
@@ -2064,6 +2069,25 @@ def scale_by_ownership(
         the same 2-owner 200 MW generator as above, each owner will have a
         records with 200 MW).
     """
+    # Map columns in gens which describe the operator utility to the columns in
+    # own_eia860 which describe the same attribute of the owner utility. Every
+    # column in this map gets swapped for the owner's version, so that the
+    # records of jointly owned generators describe their owners rather than all
+    # inheriting the operator's IDs and name. See:
+    # https://github.com/catalyst-cooperative/pudl/issues/5430
+    operator_owner_col_map = {"utility_id_eia": "owner_utility_id_eia"}
+    # In the denormalized ownership table, utility_id_pudl describes the owner.
+    if "utility_id_pudl" in gens.columns and "utility_id_pudl" in own_eia860.columns:
+        operator_owner_col_map["utility_id_pudl"] = "owner_utility_id_pudl"
+        own_eia860 = own_eia860.rename(
+            columns={"utility_id_pudl": "owner_utility_id_pudl"}
+        )
+    if (
+        "utility_name_eia" in gens.columns
+        and "owner_utility_name_eia" in own_eia860.columns
+    ):
+        operator_owner_col_map["utility_name_eia"] = "owner_utility_name_eia"
+
     # grab the ownership table, and reduce it to only the columns we need
     own860 = own_eia860[
         [
@@ -2071,30 +2095,28 @@ def scale_by_ownership(
             "generator_id",
             "report_date",
             "fraction_owned",
-            "owner_utility_id_eia",
         ]
+        + list(operator_owner_col_map.values())
     ].pipe(pudl.helpers.convert_cols_dtypes, "eia")
     # we're left merging BC we've removed the retired gens, which are
     # reported in the ownership table
+    gens = gens.merge(
+        own860,
+        how="left",
+        on=["plant_id_eia", "generator_id", "report_date"],
+        validate=validate,
+    )
+    # gens that don't show up in the ownership table are assumed to be owned
+    # 100% by their operator, so the operator's utility columns carry over
+    unowned = gens.owner_utility_id_eia.isna()
+    gens["fraction_owned"] = gens["fraction_owned"].fillna(value=1)
+    for operator_col, owner_col in operator_owner_col_map.items():
+        gens[owner_col] = gens[owner_col].where(~unowned, gens[operator_col])
+    # swap in the owner as the utility
     gens = (
-        gens.merge(
-            own860,
-            how="left",
-            on=["plant_id_eia", "generator_id", "report_date"],
-            validate=validate,
-        )
-        .assign(  # assume gens that don't show up in the own table have one 100% owner
-            fraction_owned=lambda x: x.fraction_owned.fillna(value=1),
-            # assign the operator id as the owner if null bc if a gen isn't
-            # reported in the own_eia860 table we can assume the operator
-            # is the owner
-            owner_utility_id_eia=lambda x: x.owner_utility_id_eia.fillna(
-                x.utility_id_eia
-            ),
-            ownership_record_type="owned",
-        )  # swap in the owner as the utility
-        .drop(columns=["utility_id_eia"])
-        .rename(columns={"owner_utility_id_eia": "utility_id_eia"})
+        gens.assign(ownership_record_type="owned")
+        .drop(columns=list(operator_owner_col_map))
+        .rename(columns={v: k for k, v in operator_owner_col_map.items()})
     )
 
     # duplicate all of these "owned" records, assign 1 to all of the
