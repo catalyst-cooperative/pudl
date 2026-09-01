@@ -179,7 +179,7 @@ jobs:
             --container-env GCP_BILLING_PROJECT=${{ secrets.GCP_BILLING_PROJECT }} \
             --machine-type e2-standard-8 \
             --disk-gb 100 \
-            --disk-type hyperdisk-balanced \
+            --disk-type pd-balanced \
             --batch-job-id "${{ env.BUILD_ID }}" \
             --output batch_job.json
 
