@@ -119,6 +119,7 @@ def to_config(
     disk_gb: int,
     disk_type: str,
     batch_job_id: str,
+    pipeline: str,
 ) -> dict[str, Any]:
     """Munge arguments into a configuration dictionary."""
     if not container_image:
@@ -161,8 +162,11 @@ def to_config(
             # user label Cloud Monitoring dashboards group by), but recent VMs no
             # longer do -- Batch's behavior here apparently changed. Setting it
             # ourselves is the only way to guarantee dashboards can group per-VM
-            # metrics by job regardless of what Batch does internally.
-            "labels": {"batch-job-id": batch_job_id},
+            # metrics by job regardless of what Batch does internally. `pipeline`
+            # (e.g. "ferceqr", "pudl", "pudl-deploy") lets a single dashboard switch
+            # between pipelines via a template variable, instead of needing separate
+            # per-pipeline dashboards or widgets.
+            "labels": {"batch-job-id": batch_job_id, "pipeline": pipeline},
             "instances": [
                 {
                     "installOpsAgent": True,
@@ -234,6 +238,15 @@ def to_config(
     ),
 )
 @click.option(
+    "--pipeline",
+    required=True,
+    help=(
+        "Value for the pipeline label attached to created VM instances (e.g. "
+        "ferceqr, pudl, pudl-deploy), used to switch the resource-usage dashboard "
+        "between pipelines via a template variable."
+    ),
+)
+@click.option(
     "--output",
     required=True,
     type=click.Path(path_type=Path),
@@ -248,6 +261,7 @@ def main(
     disk_gb: int,
     disk_type: str,
     batch_job_id: str,
+    pipeline: str,
     output: Path,
 ) -> None:
     """Generate a Batch configuration file."""
@@ -263,6 +277,7 @@ def main(
         disk_gb=disk_gb,
         disk_type=disk_type,
         batch_job_id=batch_job_id,
+        pipeline=pipeline,
     )
 
     logger.info(f"Writing to {output}")

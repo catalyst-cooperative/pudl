@@ -181,6 +181,7 @@ jobs:
             --disk-gb 100 \
             --disk-type pd-balanced \
             --batch-job-id "${{ env.BUILD_ID }}" \
+            --pipeline pudl-deploy \
             --output batch_job.json
 
       - name: Kick off batch job

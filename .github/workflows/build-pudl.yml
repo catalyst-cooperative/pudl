@@ -188,6 +188,7 @@ jobs:
             --disk-gb 250 \
             --disk-type hyperdisk-balanced \
             --batch-job-id "${{ env.BUILD_ID }}" \
+            --pipeline pudl \
             --output ${{ env.BATCH_JOB_JSON }}
 
       # Start the batch job
