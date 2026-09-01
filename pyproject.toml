@@ -243,6 +243,7 @@ bash -c 'shopt -s nullglob; rm -rf \
     docs/data_sources/eia*.rst \
     docs/data_sources/epacems*.rst \
     docs/data_sources/epacamd*.rst \
+    docs/data_sources/epamats*.rst \
     docs/data_sources/ferc*.rst \
     docs/data_sources/gridpathratoolkit*.rst \
     docs/data_sources/nrelatb*.rst \
