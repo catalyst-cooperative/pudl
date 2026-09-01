@@ -149,6 +149,10 @@ jobs:
         if: ${{ env.SKIP_BUILD != 'true' }}
         uses: google-github-actions/setup-gcloud@v3
 
+      - name: Set up uv
+        if: ${{ env.SKIP_BUILD != 'true' }}
+        uses: astral-sh/setup-uv@v10.0.1
+
       # Deploy PUDL image to GCE
       # Dagster Postgres connection configured in builds/dagster.yaml - otherwise we get a str for port num
       - name: Make GCP Batch config file
@@ -156,7 +160,7 @@ jobs:
         env:
           PUDL_GCS_OUTPUT: ${{ env.GCS_OUTPUT_BUCKET }}/${{ env.BUILD_ID }}
         run: |-
-          ./devtools/generate_batch_config.py \
+          uv run src/pudl/scripts/batch_config.py \
             --container-image "docker.io/catalystcoop/pudl-etl@${{ steps.docker-build.outputs.digest }}" \
             --container-command "pixi" \
             --container-arg="run" \
@@ -180,6 +184,9 @@ jobs:
             --container-env ZENODO_TARGET_ENV=${{ (startsWith(github.ref_name, 'v20') && 'production') || 'sandbox' }} \
             --container-env ZENODO_TOKEN_UPLOAD=${{ secrets.ZENODO_TOKEN_UPLOAD }} \
             --container-env PUDL_FORCE_FERC_TO_SQLITE="true" \
+            --machine-type c2d-highmem-8 \
+            --disk-gb 250 \
+            --disk-type pd-balanced \
             --output ${{ env.BATCH_JOB_JSON }}
 
       # Start the batch job

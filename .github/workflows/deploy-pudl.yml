@@ -157,9 +157,12 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v3
 
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v10.0.1
+
       - name: Make GCP Batch config file
         run: |-
-          ./devtools/generate_batch_config.py \
+          uv run src/pudl/scripts/batch_config.py \
             --container-image "${{ steps.container-image.outputs.image }}" \
             --container-command "pixi" \
             --container-arg="run" \
@@ -174,9 +177,9 @@ jobs:
             --container-env ZULIP_API_KEY=${{ secrets.ZULIP_API_KEY }} \
             --container-env BATCH_JOB_NAME=${{ env.BUILD_ID }} \
             --container-env GCP_BILLING_PROJECT=${{ secrets.GCP_BILLING_PROJECT }} \
-            --vcpu=8 \
-            --mem-gb=31 \
-            --disk-gb=100 \
+            --machine-type e2-standard-8 \
+            --disk-gb 100 \
+            --disk-type pd-balanced \
             --output batch_job.json
 
       - name: Kick off batch job
