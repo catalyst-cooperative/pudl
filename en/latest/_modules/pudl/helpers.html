@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.helpers &#8212; PUDL 2026.8.1.dev28 documentation</title>
+    <title>pudl.helpers &#8212; PUDL 2026.8.1.dev29 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../_static/documentation_options.js?v=c54eb0cd"></script>
+    <script src="../../_static/documentation_options.js?v=6c0ec4ab"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev28 documentation - Home"/>
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev28 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev29 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev29 documentation - Home"/>
   
   
 </a></div>
@@ -3086,7 +3086,12 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        gens: table with records at the generator level and generator attributes</span>
 <span class="sd">            to be scaled by ownership, must have columns ``plant_id_eia``,</span>
 <span class="sd">            ``generator_id``, and ``report_date``</span>
-<span class="sd">        own_eia860: the ``core_eia860__scd_ownership`` table</span>
+<span class="sd">        own_eia860: the ``core_eia860__scd_ownership`` table or the denormalized</span>
+<span class="sd">            :ref:`out_eia860__yearly_ownership` table. If the denormalized table</span>
+<span class="sd">            is given and ``gens`` contains ``utility_id_pudl`` or</span>
+<span class="sd">            ``utility_name_eia`` columns, the owner's PUDL utility ID and EIA</span>
+<span class="sd">            utility name are swapped in alongside the owner's</span>
+<span class="sd">            ``utility_id_eia``.</span>
 <span class="sd">        scale_cols: a list of columns in the generator table to slice by ownership</span>
 <span class="sd">            fraction</span>
 <span class="sd">        validate: how to validate merging the ownership table onto the</span>
@@ -3101,6 +3106,25 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        the same 2-owner 200 MW generator as above, each owner will have a</span>
 <span class="sd">        records with 200 MW).</span>
 <span class="sd">    """</span>
+    <span class="c1"># Map columns in gens which describe the operator utility to the columns in</span>
+    <span class="c1"># own_eia860 which describe the same attribute of the owner utility. Every</span>
+    <span class="c1"># column in this map gets swapped for the owner's version, so that the</span>
+    <span class="c1"># records of jointly owned generators describe their owners rather than all</span>
+    <span class="c1"># inheriting the operator's IDs and name. See:</span>
+    <span class="c1"># https://github.com/catalyst-cooperative/pudl/issues/5430</span>
+    <span class="n">operator_owner_col_map</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"utility_id_eia"</span><span class="p">:</span> <span class="s2">"owner_utility_id_eia"</span><span class="p">}</span>
+    <span class="c1"># In the denormalized ownership table, utility_id_pudl describes the owner.</span>
+    <span class="k">if</span> <span class="s2">"utility_id_pudl"</span> <span class="ow">in</span> <span class="n">gens</span><span class="o">.</span><span class="n">columns</span> <span class="ow">and</span> <span class="s2">"utility_id_pudl"</span> <span class="ow">in</span> <span class="n">own_eia860</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">operator_owner_col_map</span><span class="p">[</span><span class="s2">"utility_id_pudl"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"owner_utility_id_pudl"</span>
+        <span class="n">own_eia860</span> <span class="o">=</span> <span class="n">own_eia860</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">"utility_id_pudl"</span><span class="p">:</span> <span class="s2">"owner_utility_id_pudl"</span><span class="p">}</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="s2">"utility_name_eia"</span> <span class="ow">in</span> <span class="n">gens</span><span class="o">.</span><span class="n">columns</span>
+        <span class="ow">and</span> <span class="s2">"owner_utility_name_eia"</span> <span class="ow">in</span> <span class="n">own_eia860</span><span class="o">.</span><span class="n">columns</span>
+    <span class="p">):</span>
+        <span class="n">operator_owner_col_map</span><span class="p">[</span><span class="s2">"utility_name_eia"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"owner_utility_name_eia"</span>
+
     <span class="c1"># grab the ownership table, and reduce it to only the columns we need</span>
     <span class="n">own860</span> <span class="o">=</span> <span class="n">own_eia860</span><span class="p">[</span>
         <span class="p">[</span>
@@ -3108,30 +3132,28 @@ window.runMermaid = runMermaid;</script>
             <span class="s2">"generator_id"</span><span class="p">,</span>
             <span class="s2">"report_date"</span><span class="p">,</span>
             <span class="s2">"fraction_owned"</span><span class="p">,</span>
-            <span class="s2">"owner_utility_id_eia"</span><span class="p">,</span>
         <span class="p">]</span>
+        <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">operator_owner_col_map</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
     <span class="p">]</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">convert_cols_dtypes</span><span class="p">,</span> <span class="s2">"eia"</span><span class="p">)</span>
     <span class="c1"># we're left merging BC we've removed the retired gens, which are</span>
     <span class="c1"># reported in the ownership table</span>
+    <span class="n">gens</span> <span class="o">=</span> <span class="n">gens</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+        <span class="n">own860</span><span class="p">,</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span>
+        <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"generator_id"</span><span class="p">,</span> <span class="s2">"report_date"</span><span class="p">],</span>
+        <span class="n">validate</span><span class="o">=</span><span class="n">validate</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># gens that don't show up in the ownership table are assumed to be owned</span>
+    <span class="c1"># 100% by their operator, so the operator's utility columns carry over</span>
+    <span class="n">unowned</span> <span class="o">=</span> <span class="n">gens</span><span class="o">.</span><span class="n">owner_utility_id_eia</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span>
+    <span class="n">gens</span><span class="p">[</span><span class="s2">"fraction_owned"</span><span class="p">]</span> <span class="o">=</span> <span class="n">gens</span><span class="p">[</span><span class="s2">"fraction_owned"</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">operator_col</span><span class="p">,</span> <span class="n">owner_col</span> <span class="ow">in</span> <span class="n">operator_owner_col_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">gens</span><span class="p">[</span><span class="n">owner_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">gens</span><span class="p">[</span><span class="n">owner_col</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">~</span><span class="n">unowned</span><span class="p">,</span> <span class="n">gens</span><span class="p">[</span><span class="n">operator_col</span><span class="p">])</span>
+    <span class="c1"># swap in the owner as the utility</span>
     <span class="n">gens</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">gens</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
-            <span class="n">own860</span><span class="p">,</span>
-            <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span>
-            <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"generator_id"</span><span class="p">,</span> <span class="s2">"report_date"</span><span class="p">],</span>
-            <span class="n">validate</span><span class="o">=</span><span class="n">validate</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="o">.</span><span class="n">assign</span><span class="p">(</span>  <span class="c1"># assume gens that don't show up in the own table have one 100% owner</span>
-            <span class="n">fraction_owned</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">fraction_owned</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
-            <span class="c1"># assign the operator id as the owner if null bc if a gen isn't</span>
-            <span class="c1"># reported in the own_eia860 table we can assume the operator</span>
-            <span class="c1"># is the owner</span>
-            <span class="n">owner_utility_id_eia</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">owner_utility_id_eia</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span>
-                <span class="n">x</span><span class="o">.</span><span class="n">utility_id_eia</span>
-            <span class="p">),</span>
-            <span class="n">ownership_record_type</span><span class="o">=</span><span class="s2">"owned"</span><span class="p">,</span>
-        <span class="p">)</span>  <span class="c1"># swap in the owner as the utility</span>
-        <span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"utility_id_eia"</span><span class="p">])</span>
-        <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">"owner_utility_id_eia"</span><span class="p">:</span> <span class="s2">"utility_id_eia"</span><span class="p">})</span>
+        <span class="n">gens</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">ownership_record_type</span><span class="o">=</span><span class="s2">"owned"</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">operator_owner_col_map</span><span class="p">))</span>
+        <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">operator_owner_col_map</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
     <span class="p">)</span>
 
     <span class="c1"># duplicate all of these "owned" records, assign 1 to all of the</span>
