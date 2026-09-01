@@ -1,0 +1,84 @@
+{% extends "data_source_parent.rst.jinja" %}
+{% block database_text %}
+Clicking on the links will show you a description of the table as well as the names and
+descriptions of each of its fields. Due to the size of the MATS data we do not publish
+it as part of our SQLite database, but it is available through all of our other
+:doc:`data access methods <../data_access>`.
+{% endblock %}
+
+{% block background %}
+
+The EPA `Mercury and Air Toxics Standards
+<https://www.epa.gov/stationary-sources-air-pollution/mercury-and-air-toxics-standards>`__
+(MATS) dataset provides detailed information on emissions of hazardous air pollutants,
+specifically mercury (Hg), hydrogen chloride (HCl), and hydrogen fluoride (HF), from
+coal- and oil-fired power plants in the United States.
+Established under the Clean Air Act, MATS requires affected units to install and operate
+monitoring systems to track pollutant output rates and mass emissions.
+MATS aims to reduce air pollution and its associated health risks by setting limits on
+the emissions of mercury, acid gases, and other hazardous air pollutants from coal- and
+oil-fired power plants.
+As with CEMS, the connection between EPA emissions units and EIA boilers isn't perfect.
+See :ref:`epa-units-vs-eia-units`.
+
+MATS serves as a critical resource for policymakers, researchers, and environmental
+organizations to assess the effectiveness of pollution control measures, monitor
+compliance, and evaluate the environmental and public health impacts of power plant
+emissions.
+{% endblock %}
+
+{% block download_docs %}
+{% for filename in download_paths -%}
+* :download:`{{ filename.stem.replace("_", " ").title() }} ({{ filename.suffix.replace('.', '').upper() }})
+  <{{ filename }}>`
+{% endfor %}
+{% endblock %}
+
+{% block availability %}
+We integrate all years of EPA MATS hourly data, including all reporting states.
+
+EPA releases the hourly MATS data on a quarterly basis, with a lag of 2-3 months. We
+update the MATS data within PUDL on a quarterly schedule.
+{% endblock %}
+
+{% block respondents_title %}
+Who is required to report under the MATS rule?
+----------------------------------------------
+{% endblock %}
+
+{% block respondents %}
+
+`Part 63
+<https://www.ecfr.gov/current/title-40/chapter-I/subchapter-C/part-63/subpart-UUUUU>`__
+of the Code of Federal Regulations (CFR) requires quarterly reporting of hourly
+emissions of hazardous air pollutants (HAP) for all coal and oil-fired electric utility
+steam generating units (EGUs) with a capacity of 25MW or greater, through the use of a
+continuous monitoring system (CMS) or sorbent trap monitoring system.
+There are separate measurement and reporting requirements for each pollutant, and the
+exact qualifications and procedures are littered with exceptions.
+{% endblock %}
+
+{% block original_data %}
+EPA CAMD publishes the MATS data in an online `data portal <https://campd.epa.gov/>`__.
+The files are available in a prepackaged format, accessible via a `user interface
+<https://campd.epa.gov/data/custom-data-download>`__, and also through the
+`EPA Clean Air Markets API <https://www.epa.gov/power-sector/cam-api-portal>`__ (which
+we use to produce archives of the data).
+{% endblock %}
+
+{% block notable_irregularities %}
+
+Early years are incomplete
+--------------------------
+
+MATS required that coal-fired electricity generating units (EGUs) start reporting hourly
+MATS emissions and operations data as early as April 2015, but provided extensions for
+many EGUs until April 2016 or 2017. Therefore, complete MATS data are not available
+until calendar year 2018.
+
+Emissions units vs. generation units
+------------------------------------
+
+See the CEMS documentation for :ref:`epa-units-vs-eia-units`.
+
+{% endblock %}
