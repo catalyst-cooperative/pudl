@@ -18,6 +18,8 @@ instances update-container``.
 
 import json
 import logging
+import shutil
+import subprocess
 from collections import OrderedDict
 from pathlib import Path
 from typing import Any
@@ -49,6 +51,62 @@ def _parse_container_env(container_env: tuple[str, ...]) -> "OrderedDict[str, st
     return env_dict
 
 
+def _lookup_machine_spec(machine_type: str) -> tuple[int, int]:
+    """Return ``(cpuMilli, memoryMib)`` for a real GCE machine type, via ``gcloud``.
+
+    Batch's ``computeResource.cpuMilli``/``memoryMib`` default to 2000/2000 (2 vCPU,
+    2 GB) if left unset -- regardless of the machine type pinned in
+    ``allocationPolicy``. That mismatch is exactly what shows up as an
+    apparently-tiny job in the Cloud Console's job list and Batch API, even though
+    the VM Batch actually provisions has the pinned machine type's real resources.
+
+    Newer machine families don't use clean per-vCPU memory ratios (e.g.
+    c4d-highmem-16 is 126 GiB for 16 vCPU -- 7.875 GiB/vCPU, not 8), so hardcoding a
+    ratio table here would silently drift wrong as new families launch. A machine
+    type's vCPU/memory shape is identical in every zone that offers it, so a single
+    global lookup (no zone/region needed) via the ``gcloud`` CLI -- already
+    authenticated in every workflow that calls this script -- gets the real,
+    always-current numbers directly from GCE itself.
+    """
+    gcloud_path = shutil.which("gcloud")
+    if gcloud_path is None:
+        raise click.ClickException(
+            "gcloud CLI not found -- looking up machine type resources requires an "
+            "authenticated gcloud (see google-github-actions/setup-gcloud)."
+        )
+
+    try:
+        result = subprocess.run(  # noqa: S603
+            [
+                gcloud_path,
+                "compute",
+                "machine-types",
+                "list",
+                "--filter",
+                f"name={machine_type}",
+                "--limit",
+                "1",
+                "--format",
+                "json",
+            ],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+    except subprocess.CalledProcessError as exc:
+        raise click.ClickException(
+            f"gcloud lookup for machine type {machine_type!r} failed: {exc.stderr}"
+        ) from exc
+
+    matches = json.loads(result.stdout)
+    if not matches:
+        raise click.ClickException(
+            f"No machine type found matching {machine_type!r}. Check the spelling, "
+            "or that it's offered in at least one zone."
+        )
+    return matches[0]["guestCpus"] * 1000, matches[0]["memoryMb"]
+
+
 def to_config(
     *,
     container_image: str,
@@ -56,6 +114,8 @@ def to_config(
     container_command: str,
     container_arg: tuple[str, ...],
     machine_type: str,
+    cpu_milli: int,
+    memory_mib: int,
     disk_gb: int,
     disk_type: str,
 ) -> dict[str, Any]:
@@ -83,6 +143,8 @@ def to_config(
                         },
                     ],
                     "computeResource": {
+                        "cpuMilli": cpu_milli,
+                        "memoryMib": memory_mib,
                         "bootDiskMib": disk_gb * 1024,
                     },
                     "maxRunDuration": f"{60 * 60 * 12}s",
@@ -141,7 +203,7 @@ def to_config(
     "--disk-type",
     default=DEFAULT_DISK_TYPE,
     show_default=True,
-    help="Boot disk type (e.g. pd-ssd, pd-balanced, hyperdisk-standard).",
+    help="Boot disk type (e.g. pd-ssd, pd-balanced, hyperdisk-balanced).",
 )
 @click.option(
     "--output",
@@ -160,12 +222,15 @@ def main(
     output: Path,
 ) -> None:
     """Generate a Batch configuration file."""
+    cpu_milli, memory_mib = _lookup_machine_spec(machine_type)
     config = to_config(
         container_image=container_image,
         container_command=container_command,
         container_env=container_env,
         container_arg=container_arg,
         machine_type=machine_type,
+        cpu_milli=cpu_milli,
+        memory_mib=memory_mib,
         disk_gb=disk_gb,
         disk_type=disk_type,
     )
