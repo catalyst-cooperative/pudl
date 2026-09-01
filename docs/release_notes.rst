@@ -85,6 +85,12 @@ FERC EQR
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Fixed a bug in :ref:`out_eia__yearly_generators_by_ownership` where every ownership
+  record for a jointly owned generator reported the plant operator's
+  ``utility_id_pudl`` and ``utility_name_eia`` instead of the owner's. When ownership
+  slices are generated, the owner's PUDL utility ID and EIA utility name are now
+  swapped in alongside the owner's ``utility_id_eia``. See issue :issue:`5430` and PR
+  :pr:`5506`.
 * Fixed ``set_gcs_temporary_hold`` only protecting the top level of a versioned
   release path from deletion. It shelled out to ``gcloud storage objects update
   gs://bucket/prefix/*``, and that glob only matches one path segment, so anything
