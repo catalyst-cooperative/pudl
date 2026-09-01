@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_MACHINE_TYPE = "e2-highmem-8"
 DEFAULT_DISK_GB = 250
-DEFAULT_DISK_TYPE = "pd-balanced"
+DEFAULT_DISK_TYPE = "hyperdisk-balanced"
 
 
 def _parse_container_env(container_env: tuple[str, ...]) -> "OrderedDict[str, str]":
@@ -141,7 +141,7 @@ def to_config(
     "--disk-type",
     default=DEFAULT_DISK_TYPE,
     show_default=True,
-    help="Boot disk type (e.g. pd-ssd, pd-balanced, pd-standard).",
+    help="Boot disk type (e.g. pd-ssd, pd-balanced, hyperdisk-standard).",
 )
 @click.option(
     "--output",

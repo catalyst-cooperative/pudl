@@ -186,7 +186,7 @@ jobs:
             --container-env PUDL_FORCE_FERC_TO_SQLITE="true" \
             --machine-type c4d-highmem-16 \
             --disk-gb 250 \
-            --disk-type pd-balanced \
+            --disk-type hyperdisk-balanced \
             --output ${{ env.BATCH_JOB_JSON }}
 
       # Start the batch job

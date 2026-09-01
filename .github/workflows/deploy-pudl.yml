@@ -179,7 +179,7 @@ jobs:
             --container-env GCP_BILLING_PROJECT=${{ secrets.GCP_BILLING_PROJECT }} \
             --machine-type e2-standard-8 \
             --disk-gb 100 \
-            --disk-type pd-balanced \
+            --disk-type hyperdisk-balanced \
             --output batch_job.json
 
       - name: Kick off batch job

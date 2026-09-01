@@ -152,9 +152,9 @@ jobs:
             --container-env GITHUB_ACTION_TRIGGER=${{ github.event_name }} \
             --container-env OMP_NUM_THREADS=16 \
             --container-env PUDL_BOT_PAT=${{ secrets.PUDL_BOT_PAT }} \
-            --machine-type c2d-highmem-16 \
+            --machine-type c4d-highmem-16 \
             --disk-gb 1000 \
-            --disk-type pd-ssd \
+            --disk-type hyperdisk-balanced \
             --output ${{ env.BATCH_JOB_JSON }}
 
       - name: Launch Google Batch job
