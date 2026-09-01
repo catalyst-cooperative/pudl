@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.dagster.assets.core.glue &#8212; PUDL 2026.8.1.dev26 documentation</title>
+    <title>pudl.dagster.assets.core.glue &#8212; PUDL 2026.8.1.dev28 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../../../_static/documentation_options.js?v=ce7935ec"></script>
+    <script src="../../../../../_static/documentation_options.js?v=c54eb0cd"></script>
     <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev26 documentation - Home"/>
-    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev26 documentation - Home"/>
+    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev28 documentation - Home"/>
+    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev28 documentation - Home"/>
   
   
 </a></div>
@@ -1262,6 +1262,9 @@ window.runMermaid = runMermaid;</script>
         <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">manually_update_subplant_id</span><span class="p">)</span>
     <span class="p">)</span>
+    <span class="c1"># the subplant_ids are currently zero-indexed, which results in less intuitive</span>
+    <span class="c1"># alignments between subplant_ids and generator_ids. Increment all subplant_ids by 1</span>
+    <span class="n">subplant_ids_updated</span><span class="p">[</span><span class="s2">"subplant_id"</span><span class="p">]</span> <span class="o">=</span> <span class="n">subplant_ids_updated</span><span class="p">[</span><span class="s2">"subplant_id"</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
     <span class="c1"># check for duplicates in sudo-PKs. These are not the actual PKs because there are</span>
     <span class="c1"># some nulls in generator_id, so this won't be checked during the db construction</span>
     <span class="k">if</span> <span class="p">(</span>

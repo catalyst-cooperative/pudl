@@ -25512,7 +25512,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Contains information about contracts between companies selling and buying electricity market products.
 
 Most-recent data:
-: 2026q1
+: 2026q2
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -25624,7 +25624,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Quarterly time series of individuals who filed FERC EQR for a company in a given quarter.
 
 Most-recent data:
-: 2026q1
+: 2026q2
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -25718,7 +25718,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Quarterly time series of electricity market price indices that individual EQR filers reported transactions to.
 
 Most-recent data:
-: 2026q1
+: 2026q2
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -25727,7 +25727,7 @@ Source:
 : FERC Form 920 – Electric Quarterly Report (EQR)
 
 Primary key:
-: year_quarter, company_id_ferc, filer_unique_id
+: This table has no primary key. The primary key ought to be [‘year_quarter’, ‘company_id_ferc’, ‘filer_unique_id’], where filer_unique_id is an employee-level ID. However, there are two quarters in which these columns are not unique for 1-2 combinations of values.
 
 ### Usage Warnings
 
@@ -25804,7 +25804,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Contains information about individual electricity market transactions that took place during a given reporting quarter. Reported by the seller.
 
 Most-recent data:
-: 2026q1
+: 2026q2
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
