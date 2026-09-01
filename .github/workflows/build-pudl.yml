@@ -175,7 +175,7 @@ jobs:
             --container-env GCP_BILLING_PROJECT=${{ secrets.GCP_BILLING_PROJECT }} \
             --container-env GITHUB_ACTION_TRIGGER=${{ github.event_name }} \
             --container-env GIT_TAG=${{ env.GIT_TAG }} \
-            --container-env OMP_NUM_THREADS=4 \
+            --container-env OMP_NUM_THREADS=8 \
             --container-env PUDL_BOT_PAT=${{ secrets.PUDL_BOT_PAT }} \
             --container-env PUDL_GCS_OUTPUT=${{ env.PUDL_GCS_OUTPUT }} \
             --container-env DG_NIGHTLY_CONFIG="src/pudl/package_data/settings/dg_nightly.yml" \
