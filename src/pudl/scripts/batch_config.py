@@ -168,7 +168,17 @@ def to_config(
                     "installOpsAgent": True,
                     "policy": {
                         "machineType": machine_type,
-                        "bootDisk": {"type": disk_type, "sizeGb": str(disk_gb)},
+                        # Batch's default boot image is Container-Optimized OS, but
+                        # Google's own installOpsAgent bootstrap script only supports
+                        # Debian/CentOS/Rocky (it shells out to apt/yum, neither of
+                        # which exist on COS) -- confirmed via job logs showing the
+                        # agent install silently doing nothing on COS. Pin the
+                        # Debian image explicitly so installOpsAgent actually works.
+                        "bootDisk": {
+                            "image": "batch-debian",
+                            "type": disk_type,
+                            "sizeGb": str(disk_gb),
+                        },
                     },
                 }
             ],
