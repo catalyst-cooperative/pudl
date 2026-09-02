@@ -188,8 +188,14 @@ def to_config(
             ],
         },
         "logsPolicy": {"destination": "CLOUD_LOGGING"},
+        # Batch copies these job-level labels onto every `batch_task_logs` entry
+        # (as `labels.<key>`), unlike the `allocationPolicy` instance labels above
+        # which only surface on VM metrics. Repeating `pipeline` here lets the
+        # dashboard's Logs widget filter by pipeline via the `${pipeline}`
+        # template variable, matching the behavior of the metric widgets.
         "labels": {
             "component": "build",
+            "pipeline": pipeline,
         },
     }
 

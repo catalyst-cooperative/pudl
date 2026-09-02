@@ -150,9 +150,8 @@ jobs:
             --container-env GCP_BILLING_PROJECT=${{ secrets.GCP_BILLING_PROJECT }} \
             --container-env GCS_LOGS_BUCKET=${{ env.GCS_LOGS_BUCKET }} \
             --container-env GITHUB_ACTION_TRIGGER=${{ github.event_name }} \
-            --container-env OMP_NUM_THREADS=16 \
             --container-env PUDL_BOT_PAT=${{ secrets.PUDL_BOT_PAT }} \
-            --machine-type c4d-highmem-16 \
+            --machine-type c4d-standard-32 \
             --disk-gb 1000 \
             --disk-type hyperdisk-balanced \
             --batch-job-id "build-deploy-ferceqr-${{ env.BATCH_JOB_ID }}" \
