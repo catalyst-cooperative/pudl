@@ -180,13 +180,15 @@ gh = ">=2.96.0,<3"
 detect-secrets = ">=1.5"
 
 [tool.pixi.feature.dev.dependencies]
+anthropic = "*"
 duckdb-cli = ">=1.5,<1.6"
 jq = ">=1.8" # Primarily for agent skills use
 marimo = ">=0.23.15"
 matplotx = ">=0.3.10"
 plotly = ">=6.6"
-ripgrep = ">=15" # Primarily for agent skills use
+pydantic-ai-slim = "*"
 pyrefly = ">=1.2.0" # Experimental, also for agent skills use
+ripgrep = ">=15" # Primarily for agent skills use
 types-pyyaml = ">=6.0.12"
 types-pytz = ">=2026.3.1"
 types-python-dateutil = ">=2.9.0"
