@@ -4,10 +4,16 @@ sources:
     tables:
       - name: core_eia930__hourly_subregion_demand
         data_tests:
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - balancing_authority_code_eia
+                pk_table_name: source('pudl', 'core_eia__codes_balancing_authorities')
+                pk_column_names:
+                  - code
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
               arguments:
-                table_name: core_eia930__hourly_subregion_demand
                 partition_expr: EXTRACT(YEAR FROM datetime_utc)
         columns:
           - name: datetime_utc
