@@ -36,10 +36,7 @@ DEFAULT_DISK_TYPE = "hyperdisk-balanced"
 def _parse_container_env(container_env: tuple[str, ...]) -> dict[str, str]:
     """Parse --container-env KEY=VALUE pairs into a dict.
 
-    Raises if the same key is given more than once. A repeated key almost always
-    means a bug in the calling workflow (e.g. two steps setting the same envvar)
-    rather than an intentional override -- silently keeping only the last value
-    previously made that kind of bug invisible.
+    Raises if the same key is given more than once.
     """
     env_dict: dict[str, str] = {}
     for pair in sorted(container_env):

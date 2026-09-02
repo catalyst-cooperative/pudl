@@ -28,23 +28,20 @@ class TestParseContainerEnv:
             batch_config._parse_container_env(("FOO=1", "FOO=2"))
 
 
-def _to_config(**overrides):
-    """Call ``to_config`` with valid defaults, overridable per-test."""
-    kwargs = {
-        "container_image": "docker.io/catalystcoop/pudl-etl@sha256:abc",
-        "container_env": (),
-        "container_command": "pixi",
-        "container_arg": (),
-        "machine_type": "c4d-highmem-16",
-        "cpu_milli": 16000,
-        "memory_mib": 129024,
-        "disk_gb": 1000,
-        "disk_type": "hyperdisk-balanced",
-        "batch_job_id": "nightly-2026-09-02-abc123",
-        "pipeline": "build-pudl",
-    }
-    kwargs.update(overrides)
-    return batch_config.to_config(**kwargs)
+DEFAULT_BATCH_CONFIG = {
+    "container_image": "docker.io/catalystcoop/pudl-etl@sha256:abc",
+    "container_env": (),
+    "container_command": "pixi",
+    "container_arg": (),
+    "machine_type": "c4d-highmem-16",
+    "cpu_milli": 16000,
+    "memory_mib": 129024,
+    "disk_gb": 1000,
+    "disk_type": "hyperdisk-balanced",
+    "batch_job_id": "nightly-2026-09-02-abc123",
+    "pipeline": "build-pudl",
+}
+"""Valid ``to_config`` arguments; merge per-test overrides in at the call site."""
 
 
 class TestToConfigValidation:
@@ -56,11 +53,11 @@ class TestToConfigValidation:
 
     def test_missing_container_image_raises(self):
         with pytest.raises(ValueError, match="container_image is required"):
-            _to_config(container_image="")
+            batch_config.to_config(**(DEFAULT_BATCH_CONFIG | {"container_image": ""}))
 
     def test_missing_container_command_raises(self):
         with pytest.raises(ValueError, match="container_command is required"):
-            _to_config(container_command="")
+            batch_config.to_config(**(DEFAULT_BATCH_CONFIG | {"container_command": ""}))
 
 
 class TestMain:
