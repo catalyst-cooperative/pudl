@@ -10,7 +10,6 @@ sources:
                   has_green_pricing: EXTRACT(year FROM report_date) = 2012
           - check_row_counts_per_partition:
               arguments:
-                table_name: core_eia861__yearly_short_form
                 partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: sales_revenue
