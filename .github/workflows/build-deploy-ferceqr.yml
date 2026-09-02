@@ -125,12 +125,9 @@ jobs:
         id: "gcloud-sdk"
         uses: google-github-actions/setup-gcloud@v3
 
-      - name: Set up uv
-        uses: astral-sh/setup-uv@v10.0.1
-
       - name: Make GCP Batch config file
         run: |-
-          uv run src/pudl/scripts/batch_config.py \
+          ./devtools/generate_batch_config.py \
             --container-image "docker.io/catalystcoop/pudl-etl@${{ steps.docker-build.outputs.digest }}" \
             --container-command "pixi" \
             --container-arg="run" \
@@ -150,12 +147,11 @@ jobs:
             --container-env GCP_BILLING_PROJECT=${{ secrets.GCP_BILLING_PROJECT }} \
             --container-env GCS_LOGS_BUCKET=${{ env.GCS_LOGS_BUCKET }} \
             --container-env GITHUB_ACTION_TRIGGER=${{ github.event_name }} \
+            --container-env OMP_NUM_THREADS=8 \
             --container-env PUDL_BOT_PAT=${{ secrets.PUDL_BOT_PAT }} \
-            --machine-type c4d-standard-32 \
+            --vcpu 8 \
+            --mem-gb 63 \
             --disk-gb 1000 \
-            --disk-type hyperdisk-balanced \
-            --batch-job-id "build-deploy-ferceqr-${{ env.BATCH_JOB_ID }}" \
-            --pipeline ferceqr \
             --output ${{ env.BATCH_JOB_JSON }}
 
       - name: Launch Google Batch job

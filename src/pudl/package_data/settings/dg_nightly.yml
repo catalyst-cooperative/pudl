@@ -25,6 +25,6 @@ resources:
       global_data_config_path: src/pudl/package_data/settings/etl_full.yml
   runtime_settings:
     config:
-      xbrl_num_workers: 4
+      xbrl_num_workers: 8
       xbrl_batch_size: 50
       xbrl_loglevel: DEBUG

@@ -149,10 +149,6 @@ jobs:
         if: ${{ env.SKIP_BUILD != 'true' }}
         uses: google-github-actions/setup-gcloud@v3
 
-      - name: Set up uv
-        if: ${{ env.SKIP_BUILD != 'true' }}
-        uses: astral-sh/setup-uv@v10.0.1
-
       # Deploy PUDL image to GCE
       # Dagster Postgres connection configured in builds/dagster.yaml - otherwise we get a str for port num
       - name: Make GCP Batch config file
@@ -160,7 +156,7 @@ jobs:
         env:
           PUDL_GCS_OUTPUT: ${{ env.GCS_OUTPUT_BUCKET }}/${{ env.BUILD_ID }}
         run: |-
-          uv run src/pudl/scripts/batch_config.py \
+          ./devtools/generate_batch_config.py \
             --container-image "docker.io/catalystcoop/pudl-etl@${{ steps.docker-build.outputs.digest }}" \
             --container-command "pixi" \
             --container-arg="run" \
@@ -176,7 +172,6 @@ jobs:
             --container-env GITHUB_ACTION_TRIGGER=${{ github.event_name }} \
             --container-env GIT_TAG=${{ env.GIT_TAG }} \
             --container-env OMP_NUM_THREADS=4 \
-            --container-env OMP_WAIT_POLICY=passive \
             --container-env PUDL_BOT_PAT=${{ secrets.PUDL_BOT_PAT }} \
             --container-env PUDL_GCS_OUTPUT=${{ env.PUDL_GCS_OUTPUT }} \
             --container-env DG_NIGHTLY_CONFIG="src/pudl/package_data/settings/dg_nightly.yml" \
@@ -185,17 +180,12 @@ jobs:
             --container-env ZENODO_TARGET_ENV=${{ (startsWith(github.ref_name, 'v20') && 'production') || 'sandbox' }} \
             --container-env ZENODO_TOKEN_UPLOAD=${{ secrets.ZENODO_TOKEN_UPLOAD }} \
             --container-env PUDL_FORCE_FERC_TO_SQLITE="true" \
-            --machine-type c4d-highmem-16 \
-            --disk-gb 1000 \
-            --disk-type hyperdisk-balanced \
-            --batch-job-id "${{ env.BUILD_ID }}" \
-            --pipeline pudl \
             --output ${{ env.BATCH_JOB_JSON }}
 
       # Start the batch job
       - name: Kick off batch job
         if: ${{ env.SKIP_BUILD != 'true' }}
-        run: gcloud batch jobs submit ${{ env.BUILD_ID }} --config ${{ env.BATCH_JOB_JSON }} --location us-east1
+        run: gcloud batch jobs submit ${{ env.BUILD_ID }} --config ${{ env.BATCH_JOB_JSON }} --location us-west1
 
       - name: Status emoji
         if: ${{ env.SKIP_BUILD != 'true' }}
