@@ -826,7 +826,7 @@ SOURCES: dict[str, Any] = {
         ],
         "working_partitions": {
             "year_quarters": _year_quarter_range(
-                start_quarter="2013q3", end_quarter="2026q1"
+                start_quarter="2013q3", end_quarter="2026q2"
             ),
         },
         "license_raw": LICENSES["us-govt"],
