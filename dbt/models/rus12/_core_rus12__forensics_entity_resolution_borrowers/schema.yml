@@ -3,6 +3,14 @@ sources:
   - name: pudl
     tables:
       - name: _core_rus12__forensics_entity_resolution_borrowers
+        data_tests:
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - borrower_id_rus
+                pk_table_name: source('pudl', 'core_rus12__entity_borrowers')
+                pk_column_names:
+                  - borrower_id_rus
         columns:
           - name: borrower_id_rus
           - name: report_date

@@ -163,6 +163,20 @@ Developer Experience
   plant/utility IDs missing from the manual PUDL ID mapping spreadsheet. CSVs are saved
   with other build outputs on ``builds.catalyst.coop`` and fail the ETL if they are
   non-empty. See issue :issue:`4338` and PR :pr:`XXXX`.
+* Do foreign key constraint validation with dbt instead of SQLite. Update our
+  ``dbt_helper`` script to autogenerate FK constraint tests based on the PUDL metadata.
+  Remove the SQLite based FK checking infrastructure. Also add sensible defaults for
+  our row-count expectation checking test so we can remove boilerplate test specs.
+  See issues :issue:`4564,5208` and PR :pr:`5519`.
+* Automated updating the Zenodo deposition metadata (creators, keywords, version,
+  description, and structured resource links) for monthly PUDL data releases, which
+  previously had to be hand-edited in the Zenodo web UI every month. Creators and
+  keywords are now read from ``.zenodo.json``, and the description is assembled from
+  the built release notes for that version plus a footer of release-specific resource
+  links (versioned docs, data dictionary, S3/GCS paths, the GitHub release, and the
+  corresponding GitHub-repo Zenodo software archive), which are also populated as
+  structured ``related_identifiers`` for better DataCite/OpenAIRE indexing. See issue
+  :issue:`3326` and PR :pr:`5484`.
 
 .. _release-v2026.8.0:
 

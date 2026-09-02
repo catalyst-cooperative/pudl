@@ -528,6 +528,13 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "core_eia861__yearly_utility_data_nerc",
                     "core_eia861__yearly_utility_data_rto",
                     "out_sec10k__quarterly_company_information",
+                    # FERC-714 respondents keep reporting under a historical
+                    # utility_id_eia even for report years where core_eia860__scd_utilities
+                    # has no matching record for that utility (e.g. it stopped
+                    # filing EIA-860, merged, etc.), so this FK is structurally
+                    # too strict for this table.
+                    # See: https://github.com/catalyst-cooperative/pudl/issues/5515
+                    "out_ferc714__georeferenced_respondents",
                 ],
             },
         },
