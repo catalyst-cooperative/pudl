@@ -4,10 +4,7 @@ sources:
       - name: core_sec10k__quarterly_company_information
         data_tests:
           - expect_columns_not_all_null
-          - check_row_counts_per_partition:
-              arguments:
-                table_name: core_sec10k__quarterly_company_information
-                partition_expr: null
+          - check_row_counts_per_partition
         columns:
           - name: fiscal_year_end
             data_tests:

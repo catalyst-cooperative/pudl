@@ -29,7 +29,7 @@ from copy import deepcopy
 from typing import Any, Literal
 
 import duckdb.sqltypes
-import geoarrow.pyarrow as ga
+import geoarrow.pyarrow as geoarrow
 import geopandas
 import pandas as pd
 import polars as pl
@@ -79,7 +79,7 @@ FIELD_DTYPES_PYARROW: dict[str, pa.DataType] = {
     "boolean": pa.bool_(),
     "date": pa.date32(),
     "datetime": pa.timestamp("us"),
-    "geometry": ga.wkb(),
+    "geometry": geoarrow.wkb(),
     "integer": pa.int64(),
     "number": pa.float64(),
     "string": pa.string(),

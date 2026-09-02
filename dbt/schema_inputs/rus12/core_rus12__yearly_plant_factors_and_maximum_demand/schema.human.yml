@@ -5,7 +5,6 @@ sources:
         data_tests:
           - check_row_counts_per_partition:
               arguments:
-                table_name: core_rus12__yearly_plant_factors_and_maximum_demand
                 partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: capacity_factor

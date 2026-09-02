@@ -70,19 +70,13 @@ Quality of Life Improvements
 - [ ] Verify `s3://pudl.catalyst.coop/vYYYY.M.x` has the new expected data.
 - [ ] Verify `s3://pudl.catalyst.coop/stable` has the new expected data.
 - [ ] Verify that draft deposition for [this Zenodo archive](https://doi.org/10.5281/zenodo.3653158) has the new expected data
-- [ ] Update Zenodo description and other metadata based on release notes (see task list below)
-- [ ] Manually publish the new Zenodo deposition with the updated metadata
+- [ ] Review and manually publish the new Zenodo deposition if all looks well.
 - [ ] Notify team we're clear of the release, and remind them to move any release notes in open PRs to the next release section
 - [ ] Create an Announcement for the release in [our GitHub Discussions](https://github.com/orgs/catalyst-cooperative/discussions)
 - [ ] Update the [release documentation](https://docs.catalyst.coop/pudl/en/nightly/dev/run_a_release.html) to better reflect the actual process for next time
 
 ### Zenodo Metadata Tasks
 
-- [ ] Zenodo PUDL data archive
-  - [ ] Make sure all Catalyst members are listed in creators (automate!)
-  - [ ] Update description to reflect current release (automate!)
-  - [ ] Update keywords to match prior releases (automate!)
-  - [ ] Set correct version (automate!)
 - [ ] Zenodo PUDL repo archive: fix links in release notes (cut-and-paste from GitHub release changelog)
 
 ### Issues that we ran into
