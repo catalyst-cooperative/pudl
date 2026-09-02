@@ -6,7 +6,6 @@ sources:
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
               arguments:
-                table_name: out_ferc1__yearly_steam_plants_fuel_sched402
                 partition_expr: report_year
         columns:
           - name: fuel_cost_per_mmbtu

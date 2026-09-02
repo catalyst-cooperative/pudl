@@ -6,7 +6,6 @@ sources:
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
               arguments:
-                table_name: core_epacems__hourly_emissions
                 partition_expr: year
           # Declared at the table level rather than attached to emissions_unit_id_epa,
           # since column_name is a composite (plant_id_eia, emissions_unit_id_epa)
