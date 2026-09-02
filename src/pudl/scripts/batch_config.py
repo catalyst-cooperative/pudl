@@ -20,7 +20,6 @@ import json
 import logging
 import shutil
 import subprocess
-from collections import OrderedDict
 from pathlib import Path
 from typing import Any
 
@@ -34,15 +33,15 @@ DEFAULT_DISK_GB = 250
 DEFAULT_DISK_TYPE = "hyperdisk-balanced"
 
 
-def _parse_container_env(container_env: tuple[str, ...]) -> "OrderedDict[str, str]":
-    """Parse --container-env KEY=VALUE pairs into an ordered dict.
+def _parse_container_env(container_env: tuple[str, ...]) -> dict[str, str]:
+    """Parse --container-env KEY=VALUE pairs into a dict.
 
     Raises if the same key is given more than once. A repeated key almost always
     means a bug in the calling workflow (e.g. two steps setting the same envvar)
     rather than an intentional override -- silently keeping only the last value
     previously made that kind of bug invisible.
     """
-    env_dict: OrderedDict[str, str] = OrderedDict()
+    env_dict: dict[str, str] = {}
     for pair in sorted(container_env):
         name, value = pair.split("=", maxsplit=1)
         if name in env_dict:
@@ -163,9 +162,10 @@ def to_config(
             # longer do -- Batch's behavior here apparently changed. Setting it
             # ourselves is the only way to guarantee dashboards can group per-VM
             # metrics by job regardless of what Batch does internally. `pipeline`
-            # (e.g. "ferceqr", "pudl", "pudl-deploy") lets a single dashboard switch
-            # between pipelines via a template variable, instead of needing separate
-            # per-pipeline dashboards or widgets.
+            # (the name of the GitHub Actions workflow that launched the job, e.g.
+            # "build-pudl", "deploy-pudl", "build-deploy-ferceqr") lets a single
+            # dashboard switch between pipelines via a template variable, instead
+            # of needing separate per-pipeline dashboards or widgets.
             "labels": {"batch-job-id": batch_job_id, "pipeline": pipeline},
             "instances": [
                 {
@@ -247,9 +247,10 @@ def to_config(
     "--pipeline",
     required=True,
     help=(
-        "Value for the pipeline label attached to created VM instances (e.g. "
-        "ferceqr, pudl, pudl-deploy), used to switch the resource-usage dashboard "
-        "between pipelines via a template variable."
+        "Value for the pipeline label attached to created VM instances and task "
+        "logs. Use the name of the launching GitHub Actions workflow (e.g. "
+        "build-pudl, deploy-pudl, build-deploy-ferceqr), used to switch the "
+        "resource-usage dashboard between pipelines via a template variable."
     ),
 )
 @click.option(

@@ -151,11 +151,11 @@ jobs:
             --container-env GCS_LOGS_BUCKET=${{ env.GCS_LOGS_BUCKET }} \
             --container-env GITHUB_ACTION_TRIGGER=${{ github.event_name }} \
             --container-env PUDL_BOT_PAT=${{ secrets.PUDL_BOT_PAT }} \
-            --machine-type c4d-standard-32 \
-            --disk-gb 1000 \
+            --machine-type c4d-highcpu-32 \
+            --disk-gb 500 \
             --disk-type hyperdisk-balanced \
             --batch-job-id "build-deploy-ferceqr-${{ env.BATCH_JOB_ID }}" \
-            --pipeline ferceqr \
+            --pipeline build-deploy-ferceqr \
             --output ${{ env.BATCH_JOB_JSON }}
 
       - name: Launch Google Batch job
