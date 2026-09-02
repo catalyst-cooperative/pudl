@@ -65,6 +65,12 @@ This is the upcoming PUDL release.
 
 ### Bug Fixes & Data Cleaning
 
+* Fixed a bug in [out_eia_\_yearly_generators_by_ownership](data_dictionaries/pudl_db.html.md#out-eia-yearly-generators-by-ownership) where every ownership
+  record for a jointly owned generator reported the plant operator’s
+  `utility_id_pudl` and `utility_name_eia` instead of the owner’s. When ownership
+  slices are generated, the owner’s PUDL utility ID and EIA utility name are now
+  swapped in alongside the owner’s `utility_id_eia`. See issue [#5430](https://github.com/catalyst-cooperative/pudl/issues/5430) and PR
+  [#5506](https://github.com/catalyst-cooperative/pudl/pull/5506).
 * Fixed `set_gcs_temporary_hold` only protecting the top level of a versioned
   release path from deletion. It shelled out to `gcloud storage objects update
   gs://bucket/prefix/*`, and that glob only matches one path segment, so anything
