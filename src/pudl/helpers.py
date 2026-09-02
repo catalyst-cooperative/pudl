@@ -61,8 +61,7 @@ def run_git(args: list[str], cwd: Path | None = None) -> str:
     """Run a git subcommand and return its stdout, logging stderr on failure.
 
     Shared by every git-shelling-out call in PUDL, so there's one place that knows
-    how to invoke git and report failures consistently. Always runs ``git``, so
-    ``args`` should be the subcommand and its arguments only.
+    how to invoke git and report failures consistently.
 
     Args:
         args: The git subcommand and arguments to run, e.g. ``["rev-parse", "HEAD"]``.
