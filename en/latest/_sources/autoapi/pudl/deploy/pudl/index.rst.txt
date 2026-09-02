@@ -46,7 +46,6 @@ Functions
    pudl.deploy.pudl._compress_sqlite_file
    pudl.deploy.pudl.download_build_outputs
    pudl.deploy.pudl.prepare_outputs_for_distribution
-   pudl.deploy.pudl._run
    pudl.deploy.pudl.clear_deployment_path
    pudl.deploy.pudl._upload_to_path
    pudl.deploy.pudl._assert_permanent_paths_are_empty
@@ -250,11 +249,6 @@ Module Contents
                       ``download_build_outputs``, which this prepares for distribution in place.
    :param build_path: Remote path the raw build outputs came from -- only used here to
                       derive the build ID for the provenance marker file.
-
-
-.. py:function:: _run(cmd: list[str]) -> str | None
-
-   Wrap subprocess.run so we see error output.
 
 
 .. py:function:: clear_deployment_path(fs, path: str) -> None

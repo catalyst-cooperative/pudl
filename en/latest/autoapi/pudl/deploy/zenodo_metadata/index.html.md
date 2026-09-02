@@ -1,0 +1,171 @@
+# pudl.deploy.zenodo_metadata
+
+Gather Zenodo deposition metadata for a PUDL data release from repo sources.
+
+Every monthly PUDL data release requires updating the Zenodo deposition’s creators,
+keywords, version, and description. This module assembles that metadata
+programmatically from files already checked into the repo, instead of hand-editing it
+in the Zenodo web UI:
+
+* Creators and keywords come from `.zenodo.json` (the same file GitHub’s own Zenodo
+  integration uses to archive the repository itself), so there’s a single canonical
+  place to update either list.
+* The description body is extracted from the built Sphinx docs
+  (`docs/_build/html/release_notes.html`) rather than re-implemented with a
+  standalone RST-to-HTML converter, since the release notes use Sphinx-specific roles
+  (`:pr:`, `:issue:`, `:user:`, `:doc:`, autoapi cross-references) that only
+  Sphinx itself can resolve correctly.
+
+## Attributes
+
+| [`logger`](#pudl.deploy.zenodo_metadata.logger)                     |    |
+|-----------------------------------------------------------------------------|----|
+| [`DOCS_BASE_URL`](#pudl.deploy.zenodo_metadata.DOCS_BASE_URL)              |    |
+| [`GITHUB_REPO_URL`](#pudl.deploy.zenodo_metadata.GITHUB_REPO_URL)            |    |
+| [`AWS_OPEN_DATA_REGISTRY_URL`](#pudl.deploy.zenodo_metadata.AWS_OPEN_DATA_REGISTRY_URL) |    |
+| [`S3_BUCKET_URL`](#pudl.deploy.zenodo_metadata.S3_BUCKET_URL)              |    |
+| [`GCS_BUCKET_URL`](#pudl.deploy.zenodo_metadata.GCS_BUCKET_URL)             |    |
+| [`CONTACT_US_HTML`](#pudl.deploy.zenodo_metadata.CONTACT_US_HTML)            |    |
+
+## Functions
+
+| [`load_zenodo_json`](#pudl.deploy.zenodo_metadata.load_zenodo_json)(→ tuple[list[dict], list[str]])   | Read creators and keywords out of `.zenodo.json`.                                |
+|-----------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
+| [`get_data_license_id`](#pudl.deploy.zenodo_metadata.get_data_license_id)(→ str)                         | Get the Zenodo license ID for the PUDL data release.                             |
+| [`get_latest_release_tag`](#pudl.deploy.zenodo_metadata.get_latest_release_tag)(→ str)                      | Get the most recently released PUDL version tag reachable from `HEAD`.           |
+| [`verify_git_tag_checked_out`](#pudl.deploy.zenodo_metadata.verify_git_tag_checked_out)(→ None)                 | Raise if the working tree at `repo_root` isn't exactly the given git tag.        |
+| [`render_release_notes_html`](#pudl.deploy.zenodo_metadata.render_release_notes_html)(→ str)                   | Extract one version's section out of the built release notes HTML.               |
+| [`build_related_resources`](#pudl.deploy.zenodo_metadata.build_related_resources)(→ tuple[str, list[dict]])  | Build the "Other Resources" description footer and matching related_identifiers. |
+
+## Module Contents
+
+### pudl.deploy.zenodo_metadata.logger
+
+### pudl.deploy.zenodo_metadata.DOCS_BASE_URL *= 'https://docs.catalyst.coop/pudl/en'*
+
+### pudl.deploy.zenodo_metadata.GITHUB_REPO_URL *= 'https://github.com/catalyst-cooperative/pudl'*
+
+### pudl.deploy.zenodo_metadata.AWS_OPEN_DATA_REGISTRY_URL *= 'https://registry.opendata.aws/catalyst-cooperative-pudl/'*
+
+### pudl.deploy.zenodo_metadata.S3_BUCKET_URL *= 's3://pudl.catalyst.coop'*
+
+### pudl.deploy.zenodo_metadata.GCS_BUCKET_URL *= 'gs://pudl.catalyst.coop'*
+
+### pudl.deploy.zenodo_metadata.CONTACT_US_HTML *= Multiline-String*
+
+<details><summary>Show Value</summary>
+```python
+"""<h1><strong>Contact Us</strong></h1>
+<p><strong>If you're using PUDL, we would love to hear from you!</strong> Even if it's just a note to let us know that you exist, and how you're using the software or data. Here's a bunch of different ways to get in touch:</p>
+<ul>
+<li><a href="https://github.com/catalyst-cooperative">Follow us on GitHub</a></li>
+<li>Use the <a href="https://github.com/catalyst-cooperative/pudl/issues">PUDL Github issue tracker</a> to let us know about any bugs or data issues you encounter</li>
+<li><a href="https://github.com/orgs/catalyst-cooperative/discussions">GitHub Discussions</a> is where we provide user support.</li>
+<li>Watch our <a href="https://github.com/orgs/catalyst-cooperative/projects/9">GitHub Project</a> to see what we're working on.</li>
+<li>Email us at <a href="mailto:hello@catalyst.coop">hello@catalyst.coop</a> for private communications.</li>
+<li>On Mastodon: <a href="https://mastodon.energy/@catalystcoop">@CatalystCoop@mastodon.energy</a></li>
+<li>On BlueSky: <a href="https://bsky.app/profile/catalyst.coop">@catalyst.coop</a></li>
+<li>Connect with us <a href="https://www.linkedin.com/company/catalyst-cooperative/">on LinkedIn</a></li>
+<li>Play with our data and notebooks <a href="https://www.kaggle.com/catalystcooperative">on Kaggle</a></li>
+<li>Combine our data with ML models <a href="https://huggingface.co/catalystcooperative">on HuggingFace</a></li>
+<li>Learn more about us on our website: <a href="https://catalyst.coop">https://catalyst.coop</a></li>
+<li>Subscribe to our announcements list for <a href="https://catalyst.coop/updates">email updates</a>.</li>
+</ul>"""
+```
+
+</details>
+
+### pudl.deploy.zenodo_metadata.load_zenodo_json(path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)], [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]]
+
+Read creators and keywords out of `.zenodo.json`.
+
+* **Parameters:**
+  **path** – Path to the repo’s `.zenodo.json` file.
+* **Returns:**
+  A `(creators, keywords)` tuple. `creators` entries are already in the
+  shape the Zenodo deposit API expects (`name`, `affiliation`, `orcid`).
+
+### pudl.deploy.zenodo_metadata.get_data_license_id() → [str](https://docs.python.org/3/library/stdtypes.html#str)
+
+Get the Zenodo license ID for the PUDL data release.
+
+`pudl.metadata.sources.SOURCES["pudl"]["license_pudl"]` is the authoritative
+record of what license PUDL’s own outputs (as opposed to the raw inputs we
+archive, which can carry their own separate licenses) are released under. This
+looks up which `pudl.metadata.constants.LICENSES` key that entry corresponds to,
+since that key (e.g. `"cc-by-4.0"`) is the ID Zenodo’s API expects.
+
+* **Returns:**
+  The Zenodo license ID, e.g. `"cc-by-4.0"`.
+
+### pudl.deploy.zenodo_metadata.get_latest_release_tag(repo_root: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+
+Get the most recently released PUDL version tag reachable from `HEAD`.
+
+Used as a stand-in release tag for sandbox test runs, which aren’t publishing a
+real new version and so have no real release tag of their own to look up release
+notes for.
+
+* **Parameters:**
+  **repo_root** – Path to the repo’s working tree.
+* **Returns:**
+  The most recent reachable release tag, e.g. `"v2026.8.0"`.
+
+### pudl.deploy.zenodo_metadata.verify_git_tag_checked_out(tag: [str](https://docs.python.org/3/library/stdtypes.html#str), repo_root: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [None](https://docs.python.org/3/library/constants.html#None)
+
+Raise if the working tree at `repo_root` isn’t exactly the given git tag.
+
+Release notes, creators, and keywords are all read live from the working tree
+rather than from Zenodo or any other tag-pinned source, so producing metadata for
+a specific release requires actually having that release’s tag checked out –
+running from a later (or earlier) commit can silently pick up different release
+notes text, a different author/keyword list, etc.
+
+* **Parameters:**
+  * **tag** – The expected git tag, e.g. `"v2026.8.0"`.
+  * **repo_root** – Path to the repo’s working tree to check.
+* **Raises:**
+  [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – If `tag` can’t be resolved, or doesn’t point at the working
+  tree’s current `HEAD`.
+
+### pudl.deploy.zenodo_metadata.render_release_notes_html(docs_html_dir: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), version_tag: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+
+Extract one version’s section out of the built release notes HTML.
+
+Sphinx wraps every heading in a `<section>` and appends a `headerlink`
+permalink anchor to each heading; both are stripped here so the output matches
+the flat `<h1>/<h2>/<h3>` shape used in the Zenodo description. Sphinx numbers
+these headings starting from `<h2>` (the version heading), since `<h1>` is
+reserved for the page’s own “PUDL Release Notes” title; since the description is
+its own standalone document rather than a subsection of that page, every heading
+is bumped up one level so the version heading becomes the top-level `<h1>`.
+Relative links (to other docs pages, or same-page anchors) are rewritten to
+absolute URLs under the versioned docs site, since the description lives outside
+the docs site.
+
+* **Parameters:**
+  * **docs_html_dir** – Path to a built Sphinx HTML output directory (i.e.
+    `docs/_build/html`), produced by `pixi run docs-build`.
+  * **version_tag** – The release version tag, e.g. `"v2026.8.0"`.
+* **Returns:**
+  An HTML fragment containing just that version’s release notes.
+* **Raises:**
+  [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – If the given version’s section can’t be found.
+
+### pudl.deploy.zenodo_metadata.build_related_resources(version_tag: [str](https://docs.python.org/3/library/stdtypes.html#str), github_archive_doi_url: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)]]
+
+Build the “Other Resources” description footer and matching related_identifiers.
+
+The same three release-specific URLs (versioned docs, GitHub release tag, and the
+GitHub-repo Zenodo software archive) are surfaced twice: once as human-readable
+links in the description footer, and once as structured Zenodo
+`related_identifiers` entries so DataCite/OpenAIRE can index the relationships.
+
+* **Parameters:**
+  * **version_tag** – The release version tag, e.g. `"v2026.8.0"`.
+  * **github_archive_doi_url** – Resolvable DOI URL of the GitHub-repo Zenodo software
+    archive for this release (e.g. `https://doi.org/10.5281/zenodo.XXXXX`),
+    or `None` on the sandbox server, where GitHub’s Zenodo integration never
+    publishes.
+* **Returns:**
+  A `(footer_html, related_identifiers)` tuple.

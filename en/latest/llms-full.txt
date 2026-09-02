@@ -7963,6 +7963,7 @@ Deployment helpers for publishing PUDL build artifacts and services.
 ## Submodules
 
 * [pudl.deploy.pudl](autoapi/pudl/deploy/pudl/index.html.md)
+* [pudl.deploy.zenodo_metadata](autoapi/pudl/deploy/zenodo_metadata/index.html.md)
 
 
 # autoapi/pudl/deploy/pudl/index.html.md
@@ -8000,7 +8001,6 @@ This module handles distribution of completed ETL builds to public cloud storage
 | [`_compress_sqlite_file`](autoapi/pudl/deploy/pudl/index.html.md#pudl.deploy.pudl._compress_sqlite_file)(→ None)                              | Compress a SQLite database into a zip file and remove the original.                   |
 | [`download_build_outputs`](autoapi/pudl/deploy/pudl/index.html.md#pudl.deploy.pudl.download_build_outputs)(→ None)                             | Download raw ETL build outputs from builds.catalyst.coop to local disk.               |
 | [`prepare_outputs_for_distribution`](autoapi/pudl/deploy/pudl/index.html.md#pudl.deploy.pudl.prepare_outputs_for_distribution)(→ None)                   | Prepare already-downloaded ETL outputs for distribution.                              |
-| [`_run`](autoapi/pudl/deploy/pudl/index.html.md#pudl.deploy.pudl._run)(→ str | None)                                         | Wrap subprocess.run so we see error output.                                           |
 | [`clear_deployment_path`](autoapi/pudl/deploy/pudl/index.html.md#pudl.deploy.pudl.clear_deployment_path)(→ None)                              | Empty a cloud storage prefix before writing fresh deployment outputs.                 |
 | [`_upload_to_path`](autoapi/pudl/deploy/pudl/index.html.md#pudl.deploy.pudl._upload_to_path)(→ None)                                    | Clear (if requested) and upload all outputs to one destination path.                  |
 | [`_assert_permanent_paths_are_empty`](autoapi/pudl/deploy/pudl/index.html.md#pudl.deploy.pudl._assert_permanent_paths_are_empty)(→ None)                  | Refuse to deploy to a permanent, version-tagged path that already has content.        |
@@ -8159,10 +8159,6 @@ them.
     `download_build_outputs`, which this prepares for distribution in place.
   * **build_path** – Remote path the raw build outputs came from – only used here to
     derive the build ID for the provenance marker file.
-
-### pudl.deploy.pudl.\_run(cmd: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)
-
-Wrap subprocess.run so we see error output.
 
 ### pudl.deploy.pudl.clear_deployment_path(fs, path: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [None](https://docs.python.org/3/library/constants.html#None)
 
@@ -8427,6 +8423,181 @@ Build a markdown Zulip message summarizing deployment stage statuses.
 ### pudl.deploy.pudl.send_zulip_message(message: [str](https://docs.python.org/3/library/stdtypes.html#str), api_key: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [None](https://docs.python.org/3/library/constants.html#None)
 
 Post a message to the pudl-deployments Zulip stream.
+
+
+# autoapi/pudl/deploy/zenodo_metadata/index.html.md
+
+# pudl.deploy.zenodo_metadata
+
+Gather Zenodo deposition metadata for a PUDL data release from repo sources.
+
+Every monthly PUDL data release requires updating the Zenodo deposition’s creators,
+keywords, version, and description. This module assembles that metadata
+programmatically from files already checked into the repo, instead of hand-editing it
+in the Zenodo web UI:
+
+* Creators and keywords come from `.zenodo.json` (the same file GitHub’s own Zenodo
+  integration uses to archive the repository itself), so there’s a single canonical
+  place to update either list.
+* The description body is extracted from the built Sphinx docs
+  (`docs/_build/html/release_notes.html`) rather than re-implemented with a
+  standalone RST-to-HTML converter, since the release notes use Sphinx-specific roles
+  (`:pr:`, `:issue:`, `:user:`, `:doc:`, autoapi cross-references) that only
+  Sphinx itself can resolve correctly.
+
+## Attributes
+
+| [`logger`](autoapi/pudl/deploy/zenodo_metadata/index.html.md#pudl.deploy.zenodo_metadata.logger)                     |    |
+|-----------------------------------------------------------------------------|----|
+| [`DOCS_BASE_URL`](autoapi/pudl/deploy/zenodo_metadata/index.html.md#pudl.deploy.zenodo_metadata.DOCS_BASE_URL)              |    |
+| [`GITHUB_REPO_URL`](autoapi/pudl/deploy/zenodo_metadata/index.html.md#pudl.deploy.zenodo_metadata.GITHUB_REPO_URL)            |    |
+| [`AWS_OPEN_DATA_REGISTRY_URL`](autoapi/pudl/deploy/zenodo_metadata/index.html.md#pudl.deploy.zenodo_metadata.AWS_OPEN_DATA_REGISTRY_URL) |    |
+| [`S3_BUCKET_URL`](autoapi/pudl/deploy/zenodo_metadata/index.html.md#pudl.deploy.zenodo_metadata.S3_BUCKET_URL)              |    |
+| [`GCS_BUCKET_URL`](autoapi/pudl/deploy/zenodo_metadata/index.html.md#pudl.deploy.zenodo_metadata.GCS_BUCKET_URL)             |    |
+| [`CONTACT_US_HTML`](autoapi/pudl/deploy/zenodo_metadata/index.html.md#pudl.deploy.zenodo_metadata.CONTACT_US_HTML)            |    |
+
+## Functions
+
+| [`load_zenodo_json`](autoapi/pudl/deploy/zenodo_metadata/index.html.md#pudl.deploy.zenodo_metadata.load_zenodo_json)(→ tuple[list[dict], list[str]])   | Read creators and keywords out of `.zenodo.json`.                                |
+|-----------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
+| [`get_data_license_id`](autoapi/pudl/deploy/zenodo_metadata/index.html.md#pudl.deploy.zenodo_metadata.get_data_license_id)(→ str)                         | Get the Zenodo license ID for the PUDL data release.                             |
+| [`get_latest_release_tag`](autoapi/pudl/deploy/zenodo_metadata/index.html.md#pudl.deploy.zenodo_metadata.get_latest_release_tag)(→ str)                      | Get the most recently released PUDL version tag reachable from `HEAD`.           |
+| [`verify_git_tag_checked_out`](autoapi/pudl/deploy/zenodo_metadata/index.html.md#pudl.deploy.zenodo_metadata.verify_git_tag_checked_out)(→ None)                 | Raise if the working tree at `repo_root` isn't exactly the given git tag.        |
+| [`render_release_notes_html`](autoapi/pudl/deploy/zenodo_metadata/index.html.md#pudl.deploy.zenodo_metadata.render_release_notes_html)(→ str)                   | Extract one version's section out of the built release notes HTML.               |
+| [`build_related_resources`](autoapi/pudl/deploy/zenodo_metadata/index.html.md#pudl.deploy.zenodo_metadata.build_related_resources)(→ tuple[str, list[dict]])  | Build the "Other Resources" description footer and matching related_identifiers. |
+
+## Module Contents
+
+### pudl.deploy.zenodo_metadata.logger
+
+### pudl.deploy.zenodo_metadata.DOCS_BASE_URL *= 'https://docs.catalyst.coop/pudl/en'*
+
+### pudl.deploy.zenodo_metadata.GITHUB_REPO_URL *= 'https://github.com/catalyst-cooperative/pudl'*
+
+### pudl.deploy.zenodo_metadata.AWS_OPEN_DATA_REGISTRY_URL *= 'https://registry.opendata.aws/catalyst-cooperative-pudl/'*
+
+### pudl.deploy.zenodo_metadata.S3_BUCKET_URL *= 's3://pudl.catalyst.coop'*
+
+### pudl.deploy.zenodo_metadata.GCS_BUCKET_URL *= 'gs://pudl.catalyst.coop'*
+
+### pudl.deploy.zenodo_metadata.CONTACT_US_HTML *= Multiline-String*
+
+<details><summary>Show Value</summary>
+```python
+"""<h1><strong>Contact Us</strong></h1>
+<p><strong>If you're using PUDL, we would love to hear from you!</strong> Even if it's just a note to let us know that you exist, and how you're using the software or data. Here's a bunch of different ways to get in touch:</p>
+<ul>
+<li><a href="https://github.com/catalyst-cooperative">Follow us on GitHub</a></li>
+<li>Use the <a href="https://github.com/catalyst-cooperative/pudl/issues">PUDL Github issue tracker</a> to let us know about any bugs or data issues you encounter</li>
+<li><a href="https://github.com/orgs/catalyst-cooperative/discussions">GitHub Discussions</a> is where we provide user support.</li>
+<li>Watch our <a href="https://github.com/orgs/catalyst-cooperative/projects/9">GitHub Project</a> to see what we're working on.</li>
+<li>Email us at <a href="mailto:hello@catalyst.coop">hello@catalyst.coop</a> for private communications.</li>
+<li>On Mastodon: <a href="https://mastodon.energy/@catalystcoop">@CatalystCoop@mastodon.energy</a></li>
+<li>On BlueSky: <a href="https://bsky.app/profile/catalyst.coop">@catalyst.coop</a></li>
+<li>Connect with us <a href="https://www.linkedin.com/company/catalyst-cooperative/">on LinkedIn</a></li>
+<li>Play with our data and notebooks <a href="https://www.kaggle.com/catalystcooperative">on Kaggle</a></li>
+<li>Combine our data with ML models <a href="https://huggingface.co/catalystcooperative">on HuggingFace</a></li>
+<li>Learn more about us on our website: <a href="https://catalyst.coop">https://catalyst.coop</a></li>
+<li>Subscribe to our announcements list for <a href="https://catalyst.coop/updates">email updates</a>.</li>
+</ul>"""
+```
+
+</details>
+
+### pudl.deploy.zenodo_metadata.load_zenodo_json(path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)], [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]]
+
+Read creators and keywords out of `.zenodo.json`.
+
+* **Parameters:**
+  **path** – Path to the repo’s `.zenodo.json` file.
+* **Returns:**
+  A `(creators, keywords)` tuple. `creators` entries are already in the
+  shape the Zenodo deposit API expects (`name`, `affiliation`, `orcid`).
+
+### pudl.deploy.zenodo_metadata.get_data_license_id() → [str](https://docs.python.org/3/library/stdtypes.html#str)
+
+Get the Zenodo license ID for the PUDL data release.
+
+`pudl.metadata.sources.SOURCES["pudl"]["license_pudl"]` is the authoritative
+record of what license PUDL’s own outputs (as opposed to the raw inputs we
+archive, which can carry their own separate licenses) are released under. This
+looks up which `pudl.metadata.constants.LICENSES` key that entry corresponds to,
+since that key (e.g. `"cc-by-4.0"`) is the ID Zenodo’s API expects.
+
+* **Returns:**
+  The Zenodo license ID, e.g. `"cc-by-4.0"`.
+
+### pudl.deploy.zenodo_metadata.get_latest_release_tag(repo_root: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+
+Get the most recently released PUDL version tag reachable from `HEAD`.
+
+Used as a stand-in release tag for sandbox test runs, which aren’t publishing a
+real new version and so have no real release tag of their own to look up release
+notes for.
+
+* **Parameters:**
+  **repo_root** – Path to the repo’s working tree.
+* **Returns:**
+  The most recent reachable release tag, e.g. `"v2026.8.0"`.
+
+### pudl.deploy.zenodo_metadata.verify_git_tag_checked_out(tag: [str](https://docs.python.org/3/library/stdtypes.html#str), repo_root: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [None](https://docs.python.org/3/library/constants.html#None)
+
+Raise if the working tree at `repo_root` isn’t exactly the given git tag.
+
+Release notes, creators, and keywords are all read live from the working tree
+rather than from Zenodo or any other tag-pinned source, so producing metadata for
+a specific release requires actually having that release’s tag checked out –
+running from a later (or earlier) commit can silently pick up different release
+notes text, a different author/keyword list, etc.
+
+* **Parameters:**
+  * **tag** – The expected git tag, e.g. `"v2026.8.0"`.
+  * **repo_root** – Path to the repo’s working tree to check.
+* **Raises:**
+  [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – If `tag` can’t be resolved, or doesn’t point at the working
+  tree’s current `HEAD`.
+
+### pudl.deploy.zenodo_metadata.render_release_notes_html(docs_html_dir: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), version_tag: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+
+Extract one version’s section out of the built release notes HTML.
+
+Sphinx wraps every heading in a `<section>` and appends a `headerlink`
+permalink anchor to each heading; both are stripped here so the output matches
+the flat `<h1>/<h2>/<h3>` shape used in the Zenodo description. Sphinx numbers
+these headings starting from `<h2>` (the version heading), since `<h1>` is
+reserved for the page’s own “PUDL Release Notes” title; since the description is
+its own standalone document rather than a subsection of that page, every heading
+is bumped up one level so the version heading becomes the top-level `<h1>`.
+Relative links (to other docs pages, or same-page anchors) are rewritten to
+absolute URLs under the versioned docs site, since the description lives outside
+the docs site.
+
+* **Parameters:**
+  * **docs_html_dir** – Path to a built Sphinx HTML output directory (i.e.
+    `docs/_build/html`), produced by `pixi run docs-build`.
+  * **version_tag** – The release version tag, e.g. `"v2026.8.0"`.
+* **Returns:**
+  An HTML fragment containing just that version’s release notes.
+* **Raises:**
+  [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – If the given version’s section can’t be found.
+
+### pudl.deploy.zenodo_metadata.build_related_resources(version_tag: [str](https://docs.python.org/3/library/stdtypes.html#str), github_archive_doi_url: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)]]
+
+Build the “Other Resources” description footer and matching related_identifiers.
+
+The same three release-specific URLs (versioned docs, GitHub release tag, and the
+GitHub-repo Zenodo software archive) are surfaced twice: once as human-readable
+links in the description footer, and once as structured Zenodo
+`related_identifiers` entries so DataCite/OpenAIRE can index the relationships.
+
+* **Parameters:**
+  * **version_tag** – The release version tag, e.g. `"v2026.8.0"`.
+  * **github_archive_doi_url** – Resolvable DOI URL of the GitHub-repo Zenodo software
+    archive for this release (e.g. `https://doi.org/10.5281/zenodo.XXXXX`),
+    or `None` on the sandbox server, where GitHub’s Zenodo integration never
+    publishes.
+* **Returns:**
+  A `(footer_html, related_identifiers)` tuple.
 
 
 # autoapi/pudl/extract/censusdp1tract/index.html.md
@@ -12076,8 +12247,9 @@ with cleaning and restructuring dataframes.
 
 ## Functions
 
-| [`label_map`](autoapi/pudl/helpers/index.html.md#pudl.helpers.label_map)(→ collections.defaultdict[str, ...)          | Build a mapping dictionary from two columns of a labeling / coding dataframe.                                                                                                                                                                                     |
+| [`run_git`](autoapi/pudl/helpers/index.html.md#pudl.helpers.run_git)(→ str)                                         | Run a git subcommand and return its stdout, logging stderr on failure.                                                                                                                                                                                            |
 |---------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`label_map`](autoapi/pudl/helpers/index.html.md#pudl.helpers.label_map)(→ collections.defaultdict[str, ...)          | Build a mapping dictionary from two columns of a labeling / coding dataframe.                                                                                                                                                                                     |
 | [`multi_index_stack`](autoapi/pudl/helpers/index.html.md#pudl.helpers.multi_index_stack)(→ pandas.DataFrame)                  | Stack multiple data columns - create categorical columns and data columns.                                                                                                                                                                                        |
 | [`find_new_ferc1_strings`](autoapi/pudl/helpers/index.html.md#pudl.helpers.find_new_ferc1_strings)(→ set[str])                     | Identify as-of-yet uncategorized freeform strings in FERC Form 1.                                                                                                                                                                                                 |
 | [`find_foreign_key_errors`](autoapi/pudl/helpers/index.html.md#pudl.helpers.find_foreign_key_errors)(→ list[dict[str, Any]])        | Report foreign key violations from a dictionary of dataframes.                                                                                                                                                                                                    |
@@ -12162,6 +12334,22 @@ generation is reported normally, then the fuel consumption for the year needs to
 otherwise we’ll get unrealistic heat rates.
 
 ### pudl.helpers.logger
+
+### pudl.helpers.run_git(args: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], cwd: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+
+Run a git subcommand and return its stdout, logging stderr on failure.
+
+Shared by every git-shelling-out call in PUDL, so there’s one place that knows
+how to invoke git and report failures consistently.
+
+* **Parameters:**
+  * **args** – The git subcommand and arguments to run, e.g. `["rev-parse", "HEAD"]`.
+  * **cwd** – Working directory to run the command in. Defaults to the current
+    process’s working directory.
+* **Returns:**
+  The command’s stdout, unstripped.
+* **Raises:**
+  [**subprocess.CalledProcessError**](https://docs.python.org/3/library/subprocess.html#subprocess.CalledProcessError) – If the command exits non-zero.
 
 ### pudl.helpers.label_map(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), from_col: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'code', to_col: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'label', null_value: [str](https://docs.python.org/3/library/stdtypes.html#str) | pandas._libs.missing.NAType = pd.NA) → [collections.defaultdict](https://docs.python.org/3/library/collections.html#collections.defaultdict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str) | pandas._libs.missing.NAType]
 
@@ -21179,11 +21367,13 @@ Run `zenodo_data_release --help` for CLI usage instructions.
 
 ## Attributes
 
-| [`SANDBOX`](autoapi/pudl/scripts/zenodo_data_release/index.html.md#pudl.scripts.zenodo_data_release.SANDBOX)                |    |
-|-------------------------------------------------------------------------|----|
-| [`PRODUCTION`](autoapi/pudl/scripts/zenodo_data_release/index.html.md#pudl.scripts.zenodo_data_release.PRODUCTION)             |    |
-| [`RETRYABLE_STATUS_CODES`](autoapi/pudl/scripts/zenodo_data_release/index.html.md#pudl.scripts.zenodo_data_release.RETRYABLE_STATUS_CODES) |    |
-| [`logger`](autoapi/pudl/scripts/zenodo_data_release/index.html.md#pudl.scripts.zenodo_data_release.logger)                 |    |
+| [`SANDBOX`](autoapi/pudl/scripts/zenodo_data_release/index.html.md#pudl.scripts.zenodo_data_release.SANDBOX)                   |    |
+|----------------------------------------------------------------------------|----|
+| [`PRODUCTION`](autoapi/pudl/scripts/zenodo_data_release/index.html.md#pudl.scripts.zenodo_data_release.PRODUCTION)                |    |
+| [`GITHUB_ARCHIVE_CONCEPT_ID`](autoapi/pudl/scripts/zenodo_data_release/index.html.md#pudl.scripts.zenodo_data_release.GITHUB_ARCHIVE_CONCEPT_ID) |    |
+| [`DATA_RECORD_TITLE`](autoapi/pudl/scripts/zenodo_data_release/index.html.md#pudl.scripts.zenodo_data_release.DATA_RECORD_TITLE)         |    |
+| [`RETRYABLE_STATUS_CODES`](autoapi/pudl/scripts/zenodo_data_release/index.html.md#pudl.scripts.zenodo_data_release.RETRYABLE_STATUS_CODES)    |    |
+| [`logger`](autoapi/pudl/scripts/zenodo_data_release/index.html.md#pudl.scripts.zenodo_data_release.logger)                    |    |
 
 ## Classes
 
@@ -21202,15 +21392,20 @@ Run `zenodo_data_release --help` for CLI usage instructions.
 
 ## Functions
 
-| [`build_zenodo_release_zulip_message`](autoapi/pudl/scripts/zenodo_data_release/index.html.md#pudl.scripts.zenodo_data_release.build_zenodo_release_zulip_message)(→ str)   | Build a markdown Zulip message summarizing a Zenodo release attempt.   |
-|----------------------------------------------------------------------------------------------|------------------------------------------------------------------------|
-| [`main`](autoapi/pudl/scripts/zenodo_data_release/index.html.md#pudl.scripts.zenodo_data_release.main)(→ int)                                 | Publish a new PUDL data release to Zenodo.                             |
+| [`get_github_archive_doi_url`](autoapi/pudl/scripts/zenodo_data_release/index.html.md#pudl.scripts.zenodo_data_release.get_github_archive_doi_url)(→ str | None)   | Look up the DOI of the latest GitHub-repo Zenodo software archive.   |
+|---------------------------------------------------------------------------------------------|----------------------------------------------------------------------|
+| [`build_zenodo_release_zulip_message`](autoapi/pudl/scripts/zenodo_data_release/index.html.md#pudl.scripts.zenodo_data_release.build_zenodo_release_zulip_message)(→ str)  | Build a markdown Zulip message summarizing a Zenodo release attempt. |
+| [`main`](autoapi/pudl/scripts/zenodo_data_release/index.html.md#pudl.scripts.zenodo_data_release.main)(→ int)                                | Publish a new PUDL data release to Zenodo.                           |
 
 ## Module Contents
 
 ### pudl.scripts.zenodo_data_release.SANDBOX *= 'sandbox'*
 
 ### pudl.scripts.zenodo_data_release.PRODUCTION *= 'production'*
+
+### pudl.scripts.zenodo_data_release.GITHUB_ARCHIVE_CONCEPT_ID *= 3404014*
+
+### pudl.scripts.zenodo_data_release.DATA_RECORD_TITLE *= 'Public Utility Data Liberation Project (PUDL) Data Release'*
 
 ### pudl.scripts.zenodo_data_release.RETRYABLE_STATUS_CODES
 
@@ -21400,11 +21595,19 @@ Values of private attributes set on the model instance.
 
 #### creators *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)]*
 
+#### keywords *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= []*
+
 #### license *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= 'cc-by-4.0'*
+
+#### language *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= 'eng'*
+
+#### version *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= ''*
 
 #### publication_date *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= ''*
 
 #### description *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= ''*
+
+#### related_identifiers *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)]* *= []*
 
 ### *class* pudl.scripts.zenodo_data_release.\_LegacyDeposition(/, \*\*data: Any)
 
@@ -21678,7 +21881,9 @@ Values of private attributes set on the model instance.
 
 #### id_ *: [int](https://docs.python.org/3/library/functions.html#int)* *= None*
 
-#### files *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[\_NewFile](autoapi/pudl/scripts/zenodo_data_release/index.html.md#pudl.scripts.zenodo_data_release._NewFile)]*
+#### doi *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= ''*
+
+#### files *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[\_NewFile](autoapi/pudl/scripts/zenodo_data_release/index.html.md#pudl.scripts.zenodo_data_release._NewFile)]* *= []*
 
 ### *class* pudl.scripts.zenodo_data_release.ZenodoClient(env: [str](https://docs.python.org/3/library/stdtypes.html#str))
 
@@ -21691,6 +21896,8 @@ need some of the unreleased new API endpoints too:
 [https://inveniordm.docs.cern.ch/reference/rest_api_drafts_records/](https://inveniordm.docs.cern.ch/reference/rest_api_drafts_records/)
 
 #### auth_headers
+
+#### env
 
 #### retry_request(, method, url, max_tries: [int](https://docs.python.org/3/library/functions.html#int) = 6, request_timeout: [float](https://docs.python.org/3/library/functions.html#float) | [None](https://docs.python.org/3/library/constants.html#None) = None, data_factory: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[], IO[[bytes](https://docs.python.org/3/library/stdtypes.html#bytes)]] | [None](https://docs.python.org/3/library/constants.html#None) = None, \*\*kwargs) → requests.Response
 
@@ -21773,6 +21980,13 @@ longer has a pending publish action – even though the publish itself
 succeeded. Rather than fail on that specific 404, check whether the
 deposition is actually already published before giving up.
 
+### pudl.scripts.zenodo_data_release.get_github_archive_doi_url(zenodo_client: [ZenodoClient](autoapi/pudl/scripts/zenodo_data_release/index.html.md#pudl.scripts.zenodo_data_release.ZenodoClient)) → [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)
+
+Look up the DOI of the latest GitHub-repo Zenodo software archive.
+
+Returns `None` on the sandbox server, since GitHub’s Zenodo integration only
+ever publishes the software archive to production.
+
 ### *class* pudl.scripts.zenodo_data_release.State
 
 Parent class for dataset states.
@@ -21795,12 +22009,29 @@ Represent initial dataset state.
 At this point, we don’t know if there is an existing draft or not - the only thing
 we can do is try to get a fresh draft.
 
+#### \_get_or_create_draft() → [\_NewRecord](autoapi/pudl/scripts/zenodo_data_release/index.html.md#pudl.scripts.zenodo_data_release._NewRecord)
+
+Get the existing draft for this dataset’s concept, creating one if needed.
+
+Uses the new API to get or create the draft; `new_record_version` is
+idempotent, so if a draft already exists (e.g. an in-progress review) it’s
+returned as-is rather than creating another one.
+
 #### get_empty_draft() → [EmptyDraft](autoapi/pudl/scripts/zenodo_data_release/index.html.md#pudl.scripts.zenodo_data_release.EmptyDraft)
 
 Get an empty draft for this dataset.
 
 Use new API to get any draft, then use legacy API to delete any files
 in the draft.
+
+#### get_existing_draft() → [ContentComplete](autoapi/pudl/scripts/zenodo_data_release/index.html.md#pudl.scripts.zenodo_data_release.ContentComplete)
+
+Get the existing draft for this dataset, without touching its files.
+
+For updating just the metadata on a draft that already has its data files in
+place (e.g. fixing up a production draft’s metadata before it’s reviewed and
+published) – skips `get_empty_draft`’s file deletion and the
+`sync_directory` upload step entirely.
 
 ### *class* pudl.scripts.zenodo_data_release.EmptyDraft
 
@@ -21848,22 +22079,23 @@ Bases: [`State`](autoapi/pudl/scripts/zenodo_data_release/index.html.md#pudl.scr
 
 Now that we’ve uploaded all the data, we need to update metadata.
 
-#### update_metadata()
+#### update_metadata(version_tag: [str](https://docs.python.org/3/library/stdtypes.html#str), docs_html_dir: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), zenodo_json_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [CompleteDraft](autoapi/pudl/scripts/zenodo_data_release/index.html.md#pudl.scripts.zenodo_data_release.CompleteDraft)
 
-Copy over old metadata and update publication date.
+Build and set fresh deposition metadata for this release.
 
-We need to make sure there is complete metadata, including a publication date.
+* creators & keywords: `.zenodo.json`
+* description: the built release notes HTML for `version_tag`, plus a
+  footer of release-specific resource links and a static contact-us section
+* license: `pudl.metadata.sources.SOURCES["pudl"]["license_pudl"]`, the
+  authoritative record of what license PUDL’s own data outputs are released
+  under (via `get_data_license_id()`)
 
-To do this, we:
-
-1. use the *legacy* API to get the concept record ID associated with the draft
-2. use the *new* API to get the latest record associated with the concept
-3. use the *legacy* API to get the metadata from the latest record
-4. use the *legacy* API to update the draft’s metadata
-
-Since we are using the legacy API to publish, we need the legacy
-metadata format. But the legacy concept DOI -> published record mapping
-is broken, so we have to take a detour through the new API.
+* **Parameters:**
+  * **version_tag** – The PUDL release version tag, e.g. `"v2026.8.0"`.
+  * **docs_html_dir** – Path to a built Sphinx HTML output directory (i.e.
+    `docs/_build/html`), used to extract this version’s release notes.
+  * **zenodo_json_path** – Path to the repo’s `.zenodo.json`, used for creators
+    and keywords.
 
 ### *class* pudl.scripts.zenodo_data_release.CompleteDraft
 
@@ -21888,7 +22120,7 @@ visible, so a misconfigured run is obvious at a glance, and links to the
 resulting record when the release succeeded – the live record if `publish`
 was requested, otherwise the draft awaiting manual review.
 
-### pudl.scripts.zenodo_data_release.main(env: [str](https://docs.python.org/3/library/stdtypes.html#str), source_dir: [str](https://docs.python.org/3/library/stdtypes.html#str), publish: [bool](https://docs.python.org/3/library/functions.html#bool), ignore: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [int](https://docs.python.org/3/library/functions.html#int)
+### pudl.scripts.zenodo_data_release.main(env: [str](https://docs.python.org/3/library/stdtypes.html#str), source_dir: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None), publish: [bool](https://docs.python.org/3/library/functions.html#bool), ignore: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str)], metadata_only: [bool](https://docs.python.org/3/library/functions.html#bool), pudl_version: [str](https://docs.python.org/3/library/stdtypes.html#str), docs_html_dir: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path) | [None](https://docs.python.org/3/library/constants.html#None), skip_git_check: [bool](https://docs.python.org/3/library/functions.html#bool)) → [int](https://docs.python.org/3/library/functions.html#int)
 
 Publish a new PUDL data release to Zenodo.
 
@@ -77162,33 +77394,56 @@ data/code out into the world. By the end of this, we’d like for:
    and ensure they’re all listed in the notes.
    Populate the top of the release notes with a blank
    section for the subsequent release.
-3. Once the release notes update is in, push a git tag `vYYYY.M.x` that points at
-   the head of `main`. Pushing the tag will trigger the `build-pudl` workflow. If
-   there is already a successful build from the tagged commit, then the build will be
-   skipped and it will immediately trigger a deployment.
-4. Verify that a new release with that tag has appeared on GitHub.
-5. Verify that a new archive of the PUDL repository has appeared on Zenodo.
-6. Once the `deploy-pudl` action is complete, verify the following:
+3. Check that `.zenodo.json` lists the current Catalyst membership and an
+   up-to-date set of keywords – the `zenodo-data-release` action reads creators
+   and keywords directly from this file, so it needs to be current *before* the
+   release tag is pushed, not fixed up after the fact.
+4. Once the release notes and `.zenodo.json` updates are in, push a git tag
+   `vYYYY.M.x` that points at the head of `main`. Pushing the tag will trigger
+   the `build-pudl` workflow. If there is already a successful build from the
+   tagged commit, then the build will be skipped and it will immediately trigger a
+   deployment.
+5. Verify that a new release with that tag has appeared on GitHub.
+6. Verify that a new archive of the PUDL repository has appeared on Zenodo.
+7. Once the `deploy-pudl` action is complete, verify the following:
    * GCS/AWS distribution buckets have the appropriate data
    * `stable` and `vYYYY.M.x` point at the same Git ref
    * GitHub Pages for `stable` and `vYYYY.M.x` versions have the latest
      changes in the release notes
    * GitHub Releases has the new version with appropriate release notes.
-7. Verify that the Zenodo draft deposition has all the expected data (raw FERC
+8. Verify that the Zenodo draft deposition has all the expected data (raw FERC
    databases, PUDL database, everything the right size. Compare to the files in
    the GCS/S3 distribution buckets). If the `zenodo-data-release` action failed,
    you can re-run it manually with settings:
    * Zenodo server environment: `production`
    * Path to publish: path for the release tag
    * Ignore regex: default
+   * PUDL version: `vYYYY.M.x`
+   * Metadata only: unchecked
    * Automatically publish: `no-publish`
 
    If Zenodo is extra cranky, upload the files to the draft deposition manually.
-8. Update the Zenodo metadata to include the description from the release notes and
-   update the links to other resources related to the release. Make sure all the
-   metadata fields are complete and accurate.
-9. Publish the Zenodo deposition! Wahoo! You’re now done!
-10. Tell #team that the release is complete, and they can resume merges to `main`.
+9. Verify the Zenodo deposition’s metadata (creators, keywords, version, license,
+   description, and related resource links) looks right. The `zenodo-data-release`
+   action populates all of this automatically from `.zenodo.json`,
+   `pudl.metadata.sources`, and the release notes for this version – it doesn’t
+   need to be edited by hand. If something’s off (e.g. a typo slipped into the
+   release notes after this ran, or someone was added to `.zenodo.json` late), fix
+   the underlying source and re-run the metadata step without re-uploading the data:
+   ```console
+   pixi run zenodo_data_release \
+     --env production \
+     --pudl-version vYYYY.M.x \
+     --metadata-only \
+     --no-publish
+   ```
+
+   This must be run from a checkout of the `vYYYY.M.x` tag itself (`git checkout
+   vYYYY.M.x` first) – creators, keywords, and the release notes text are all read
+   live from the working tree, and the script refuses to run against production from
+   a mismatched checkout.
+10. Publish the Zenodo deposition! Wahoo! You’re now done!
+11. Tell #team that the release is complete, and they can resume merges to `main`.
     Remind folks that release notes in open PRs may need to be adjusted to make sure
     the notes are filed under the correct release number.
 
@@ -78929,6 +79184,15 @@ This is the upcoming PUDL release.
   failures. A pytest collection hook enforces the ETL/no-ETL split. Also fixed a live
   Zulip notification firing from the test suite and tightened the dbt `schema.yml`
   round-trip test. See issue [#5508](https://github.com/catalyst-cooperative/pudl/issues/5508) and PR [#5507](https://github.com/catalyst-cooperative/pudl/pull/5507).
+* Automated updating the Zenodo deposition metadata (creators, keywords, version,
+  description, and structured resource links) for monthly PUDL data releases, which
+  previously had to be hand-edited in the Zenodo web UI every month. Creators and
+  keywords are now read from `.zenodo.json`, and the description is assembled from
+  the built release notes for that version plus a footer of release-specific resource
+  links (versioned docs, data dictionary, S3/GCS paths, the GitHub release, and the
+  corresponding GitHub-repo Zenodo software archive), which are also populated as
+  structured `related_identifiers` for better DataCite/OpenAIRE indexing. See issue
+  [#3326](https://github.com/catalyst-cooperative/pudl/issues/3326) and PR [#5484](https://github.com/catalyst-cooperative/pudl/pull/5484).
 
 <a id="release-v2026-8-0"></a>
 

@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="run_a_release.html.md" />
-    <title>Run a Versioned Release &#8212; PUDL 2026.8.1.dev29 documentation</title>
+    <title>Run a Versioned Release &#8212; PUDL 2026.8.1.dev30 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../_static/documentation_options.js?v=6c0ec4ab"></script>
+    <script src="../_static/documentation_options.js?v=2b628423"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev29 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev29 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev30 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev30 documentation - Home"/>
   
   
 </a></div>
@@ -526,6 +526,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../autoapi/pudl/definitions/index.html">pudl.definitions</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/deploy/index.html">pudl.deploy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/deploy/pudl/index.html">pudl.deploy.pudl</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/deploy/zenodo_metadata/index.html">pudl.deploy.zenodo_metadata</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/extract/index.html">pudl.extract</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -883,10 +884,15 @@ Review <a class="reference external" href="https://github.com/catalyst-cooperati
 and ensure they’re all listed in the notes.
 Populate the top of the release notes with a blank
 section for the subsequent release.</p></li>
-<li><p>Once the release notes update is in, push a git tag <code class="docutils literal notranslate"><span class="pre">vYYYY.M.x</span></code> that points at
-the head of <code class="docutils literal notranslate"><span class="pre">main</span></code>. Pushing the tag will trigger the <code class="docutils literal notranslate"><span class="pre">build-pudl</span></code> workflow. If
-there is already a successful build from the tagged commit, then the build will be
-skipped and it will immediately trigger a deployment.</p></li>
+<li><p>Check that <code class="docutils literal notranslate"><span class="pre">.zenodo.json</span></code> lists the current Catalyst membership and an
+up-to-date set of keywords – the <code class="docutils literal notranslate"><span class="pre">zenodo-data-release</span></code> action reads creators
+and keywords directly from this file, so it needs to be current <em>before</em> the
+release tag is pushed, not fixed up after the fact.</p></li>
+<li><p>Once the release notes and <code class="docutils literal notranslate"><span class="pre">.zenodo.json</span></code> updates are in, push a git tag
+<code class="docutils literal notranslate"><span class="pre">vYYYY.M.x</span></code> that points at the head of <code class="docutils literal notranslate"><span class="pre">main</span></code>. Pushing the tag will trigger
+the <code class="docutils literal notranslate"><span class="pre">build-pudl</span></code> workflow. If there is already a successful build from the
+tagged commit, then the build will be skipped and it will immediately trigger a
+deployment.</p></li>
 <li><p>Verify that a new release with that tag has appeared on GitHub.</p></li>
 <li><p>Verify that a new archive of the PUDL repository has appeared on Zenodo.</p></li>
 <li><p>Once the <code class="docutils literal notranslate"><span class="pre">deploy-pudl</span></code> action is complete, verify the following:</p>
@@ -906,13 +912,31 @@ you can re-run it manually with settings:</p>
 <li><p>Zenodo server environment: <code class="docutils literal notranslate"><span class="pre">production</span></code></p></li>
 <li><p>Path to publish: path for the release tag</p></li>
 <li><p>Ignore regex: default</p></li>
+<li><p>PUDL version: <code class="docutils literal notranslate"><span class="pre">vYYYY.M.x</span></code></p></li>
+<li><p>Metadata only: unchecked</p></li>
 <li><p>Automatically publish: <code class="docutils literal notranslate"><span class="pre">no-publish</span></code></p></li>
 </ul>
 <p>If Zenodo is extra cranky, upload the files to the draft deposition manually.</p>
 </li>
-<li><p>Update the Zenodo metadata to include the description from the release notes and
-update the links to other resources related to the release. Make sure all the
-metadata fields are complete and accurate.</p></li>
+<li><p>Verify the Zenodo deposition’s metadata (creators, keywords, version, license,
+description, and related resource links) looks right. The <code class="docutils literal notranslate"><span class="pre">zenodo-data-release</span></code>
+action populates all of this automatically from <code class="docutils literal notranslate"><span class="pre">.zenodo.json</span></code>,
+<code class="docutils literal notranslate"><span class="pre">pudl.metadata.sources</span></code>, and the release notes for this version – it doesn’t
+need to be edited by hand. If something’s off (e.g. a typo slipped into the
+release notes after this ran, or someone was added to <code class="docutils literal notranslate"><span class="pre">.zenodo.json</span></code> late), fix
+the underlying source and re-run the metadata step without re-uploading the data:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pixi run zenodo_data_release \</span>
+<span class="go">  --env production \</span>
+<span class="go">  --pudl-version vYYYY.M.x \</span>
+<span class="go">  --metadata-only \</span>
+<span class="go">  --no-publish</span>
+</pre></div>
+</div>
+<p>This must be run from a checkout of the <code class="docutils literal notranslate"><span class="pre">vYYYY.M.x</span></code> tag itself (<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">checkout</span>
+<span class="pre">vYYYY.M.x</span></code> first) – creators, keywords, and the release notes text are all read
+live from the working tree, and the script refuses to run against production from
+a mismatched checkout.</p>
+</li>
 <li><p>Publish the Zenodo deposition! Wahoo! You’re now done!</p></li>
 <li><p>Tell #team that the release is complete, and they can resume merges to <code class="docutils literal notranslate"><span class="pre">main</span></code>.
 Remind folks that release notes in open PRs may need to be adjusted to make sure

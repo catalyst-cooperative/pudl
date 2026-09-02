@@ -1,6 +1,6 @@
 # PUDL
 
-> PUDL 2026.8.1.dev29 documentation
+> PUDL 2026.8.1.dev30 documentation
 
 
 2016-2026, Catalyst Cooperative, CC-BY-4.0
@@ -97,6 +97,7 @@
 - [pudl.definitions](autoapi/pudl/definitions/index.html.md): Stable Dagster code location module for dg-compatible loading.
 - [pudl.deploy](autoapi/pudl/deploy/index.html.md): Deployment helpers for publishing PUDL build artifacts and services.
 - [pudl.deploy.pudl](autoapi/pudl/deploy/pudl/index.html.md): Distribute PUDL ETL outputs to cloud storage and update git branches.
+- [pudl.deploy.zenodo_metadata](autoapi/pudl/deploy/zenodo_metadata/index.html.md): Gather Zenodo deposition metadata for a PUDL data release from repo sources.
 - [pudl.extract](autoapi/pudl/extract/index.html.md): Modules implementing the “Extract” step of the PUDL ETL pipeline.
 - [pudl.extract.censusdp1tract](autoapi/pudl/extract/censusdp1tract/index.html.md): Extract the US Census DP1 ESRI GeoDatabase into an SQLite Database.
 - [pudl.extract.censuspep](autoapi/pudl/extract/censuspep/index.html.md): Retrieve data from Census PEP spreadsheets.

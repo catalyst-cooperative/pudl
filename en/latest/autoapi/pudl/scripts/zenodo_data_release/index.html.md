@@ -25,11 +25,13 @@ Run `zenodo_data_release --help` for CLI usage instructions.
 
 ## Attributes
 
-| [`SANDBOX`](#pudl.scripts.zenodo_data_release.SANDBOX)                |    |
-|-------------------------------------------------------------------------|----|
-| [`PRODUCTION`](#pudl.scripts.zenodo_data_release.PRODUCTION)             |    |
-| [`RETRYABLE_STATUS_CODES`](#pudl.scripts.zenodo_data_release.RETRYABLE_STATUS_CODES) |    |
-| [`logger`](#pudl.scripts.zenodo_data_release.logger)                 |    |
+| [`SANDBOX`](#pudl.scripts.zenodo_data_release.SANDBOX)                   |    |
+|----------------------------------------------------------------------------|----|
+| [`PRODUCTION`](#pudl.scripts.zenodo_data_release.PRODUCTION)                |    |
+| [`GITHUB_ARCHIVE_CONCEPT_ID`](#pudl.scripts.zenodo_data_release.GITHUB_ARCHIVE_CONCEPT_ID) |    |
+| [`DATA_RECORD_TITLE`](#pudl.scripts.zenodo_data_release.DATA_RECORD_TITLE)         |    |
+| [`RETRYABLE_STATUS_CODES`](#pudl.scripts.zenodo_data_release.RETRYABLE_STATUS_CODES)    |    |
+| [`logger`](#pudl.scripts.zenodo_data_release.logger)                    |    |
 
 ## Classes
 
@@ -48,15 +50,20 @@ Run `zenodo_data_release --help` for CLI usage instructions.
 
 ## Functions
 
-| [`build_zenodo_release_zulip_message`](#pudl.scripts.zenodo_data_release.build_zenodo_release_zulip_message)(→ str)   | Build a markdown Zulip message summarizing a Zenodo release attempt.   |
-|----------------------------------------------------------------------------------------------|------------------------------------------------------------------------|
-| [`main`](#pudl.scripts.zenodo_data_release.main)(→ int)                                 | Publish a new PUDL data release to Zenodo.                             |
+| [`get_github_archive_doi_url`](#pudl.scripts.zenodo_data_release.get_github_archive_doi_url)(→ str | None)   | Look up the DOI of the latest GitHub-repo Zenodo software archive.   |
+|---------------------------------------------------------------------------------------------|----------------------------------------------------------------------|
+| [`build_zenodo_release_zulip_message`](#pudl.scripts.zenodo_data_release.build_zenodo_release_zulip_message)(→ str)  | Build a markdown Zulip message summarizing a Zenodo release attempt. |
+| [`main`](#pudl.scripts.zenodo_data_release.main)(→ int)                                | Publish a new PUDL data release to Zenodo.                           |
 
 ## Module Contents
 
 ### pudl.scripts.zenodo_data_release.SANDBOX *= 'sandbox'*
 
 ### pudl.scripts.zenodo_data_release.PRODUCTION *= 'production'*
+
+### pudl.scripts.zenodo_data_release.GITHUB_ARCHIVE_CONCEPT_ID *= 3404014*
+
+### pudl.scripts.zenodo_data_release.DATA_RECORD_TITLE *= 'Public Utility Data Liberation Project (PUDL) Data Release'*
 
 ### pudl.scripts.zenodo_data_release.RETRYABLE_STATUS_CODES
 
@@ -246,11 +253,19 @@ Values of private attributes set on the model instance.
 
 #### creators *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)]*
 
+#### keywords *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= []*
+
 #### license *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= 'cc-by-4.0'*
+
+#### language *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= 'eng'*
+
+#### version *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= ''*
 
 #### publication_date *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= ''*
 
 #### description *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= ''*
+
+#### related_identifiers *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)]* *= []*
 
 ### *class* pudl.scripts.zenodo_data_release.\_LegacyDeposition(/, \*\*data: Any)
 
@@ -524,7 +539,9 @@ Values of private attributes set on the model instance.
 
 #### id_ *: [int](https://docs.python.org/3/library/functions.html#int)* *= None*
 
-#### files *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[\_NewFile](#pudl.scripts.zenodo_data_release._NewFile)]*
+#### doi *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= ''*
+
+#### files *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[\_NewFile](#pudl.scripts.zenodo_data_release._NewFile)]* *= []*
 
 ### *class* pudl.scripts.zenodo_data_release.ZenodoClient(env: [str](https://docs.python.org/3/library/stdtypes.html#str))
 
@@ -537,6 +554,8 @@ need some of the unreleased new API endpoints too:
 [https://inveniordm.docs.cern.ch/reference/rest_api_drafts_records/](https://inveniordm.docs.cern.ch/reference/rest_api_drafts_records/)
 
 #### auth_headers
+
+#### env
 
 #### retry_request(, method, url, max_tries: [int](https://docs.python.org/3/library/functions.html#int) = 6, request_timeout: [float](https://docs.python.org/3/library/functions.html#float) | [None](https://docs.python.org/3/library/constants.html#None) = None, data_factory: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[], IO[[bytes](https://docs.python.org/3/library/stdtypes.html#bytes)]] | [None](https://docs.python.org/3/library/constants.html#None) = None, \*\*kwargs) → requests.Response
 
@@ -619,6 +638,13 @@ longer has a pending publish action – even though the publish itself
 succeeded. Rather than fail on that specific 404, check whether the
 deposition is actually already published before giving up.
 
+### pudl.scripts.zenodo_data_release.get_github_archive_doi_url(zenodo_client: [ZenodoClient](#pudl.scripts.zenodo_data_release.ZenodoClient)) → [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)
+
+Look up the DOI of the latest GitHub-repo Zenodo software archive.
+
+Returns `None` on the sandbox server, since GitHub’s Zenodo integration only
+ever publishes the software archive to production.
+
 ### *class* pudl.scripts.zenodo_data_release.State
 
 Parent class for dataset states.
@@ -641,12 +667,29 @@ Represent initial dataset state.
 At this point, we don’t know if there is an existing draft or not - the only thing
 we can do is try to get a fresh draft.
 
+#### \_get_or_create_draft() → [\_NewRecord](#pudl.scripts.zenodo_data_release._NewRecord)
+
+Get the existing draft for this dataset’s concept, creating one if needed.
+
+Uses the new API to get or create the draft; `new_record_version` is
+idempotent, so if a draft already exists (e.g. an in-progress review) it’s
+returned as-is rather than creating another one.
+
 #### get_empty_draft() → [EmptyDraft](#pudl.scripts.zenodo_data_release.EmptyDraft)
 
 Get an empty draft for this dataset.
 
 Use new API to get any draft, then use legacy API to delete any files
 in the draft.
+
+#### get_existing_draft() → [ContentComplete](#pudl.scripts.zenodo_data_release.ContentComplete)
+
+Get the existing draft for this dataset, without touching its files.
+
+For updating just the metadata on a draft that already has its data files in
+place (e.g. fixing up a production draft’s metadata before it’s reviewed and
+published) – skips `get_empty_draft`’s file deletion and the
+`sync_directory` upload step entirely.
 
 ### *class* pudl.scripts.zenodo_data_release.EmptyDraft
 
@@ -694,22 +737,23 @@ Bases: [`State`](#pudl.scripts.zenodo_data_release.State)
 
 Now that we’ve uploaded all the data, we need to update metadata.
 
-#### update_metadata()
+#### update_metadata(version_tag: [str](https://docs.python.org/3/library/stdtypes.html#str), docs_html_dir: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), zenodo_json_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [CompleteDraft](#pudl.scripts.zenodo_data_release.CompleteDraft)
 
-Copy over old metadata and update publication date.
+Build and set fresh deposition metadata for this release.
 
-We need to make sure there is complete metadata, including a publication date.
+* creators & keywords: `.zenodo.json`
+* description: the built release notes HTML for `version_tag`, plus a
+  footer of release-specific resource links and a static contact-us section
+* license: `pudl.metadata.sources.SOURCES["pudl"]["license_pudl"]`, the
+  authoritative record of what license PUDL’s own data outputs are released
+  under (via `get_data_license_id()`)
 
-To do this, we:
-
-1. use the *legacy* API to get the concept record ID associated with the draft
-2. use the *new* API to get the latest record associated with the concept
-3. use the *legacy* API to get the metadata from the latest record
-4. use the *legacy* API to update the draft’s metadata
-
-Since we are using the legacy API to publish, we need the legacy
-metadata format. But the legacy concept DOI -> published record mapping
-is broken, so we have to take a detour through the new API.
+* **Parameters:**
+  * **version_tag** – The PUDL release version tag, e.g. `"v2026.8.0"`.
+  * **docs_html_dir** – Path to a built Sphinx HTML output directory (i.e.
+    `docs/_build/html`), used to extract this version’s release notes.
+  * **zenodo_json_path** – Path to the repo’s `.zenodo.json`, used for creators
+    and keywords.
 
 ### *class* pudl.scripts.zenodo_data_release.CompleteDraft
 
@@ -734,6 +778,6 @@ visible, so a misconfigured run is obvious at a glance, and links to the
 resulting record when the release succeeded – the live record if `publish`
 was requested, otherwise the draft awaiting manual review.
 
-### pudl.scripts.zenodo_data_release.main(env: [str](https://docs.python.org/3/library/stdtypes.html#str), source_dir: [str](https://docs.python.org/3/library/stdtypes.html#str), publish: [bool](https://docs.python.org/3/library/functions.html#bool), ignore: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [int](https://docs.python.org/3/library/functions.html#int)
+### pudl.scripts.zenodo_data_release.main(env: [str](https://docs.python.org/3/library/stdtypes.html#str), source_dir: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None), publish: [bool](https://docs.python.org/3/library/functions.html#bool), ignore: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str)], metadata_only: [bool](https://docs.python.org/3/library/functions.html#bool), pudl_version: [str](https://docs.python.org/3/library/stdtypes.html#str), docs_html_dir: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path) | [None](https://docs.python.org/3/library/constants.html#None), skip_git_check: [bool](https://docs.python.org/3/library/functions.html#bool)) → [int](https://docs.python.org/3/library/functions.html#int)
 
 Publish a new PUDL data release to Zenodo.

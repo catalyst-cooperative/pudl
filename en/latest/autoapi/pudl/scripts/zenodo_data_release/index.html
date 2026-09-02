@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
-    <title>pudl.scripts.zenodo_data_release &#8212; PUDL 2026.8.1.dev29 documentation</title>
+    <title>pudl.scripts.zenodo_data_release &#8212; PUDL 2026.8.1.dev30 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../../_static/documentation_options.js?v=6c0ec4ab"></script>
+    <script src="../../../../_static/documentation_options.js?v=2b628423"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev29 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev29 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev30 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev30 documentation - Home"/>
   
   
 </a></div>
@@ -526,6 +526,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../definitions/index.html">pudl.definitions</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../deploy/index.html">pudl.deploy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../deploy/pudl/index.html">pudl.deploy.pudl</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../deploy/zenodo_metadata/index.html">pudl.deploy.zenodo_metadata</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../extract/index.html">pudl.extract</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -884,6 +885,12 @@ check what files should actually be distributed before running the script.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.scripts.zenodo_data_release.PRODUCTION" title="pudl.scripts.zenodo_data_release.PRODUCTION"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PRODUCTION</span></code></a></p></td>
 <td><p></p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.zenodo_data_release.GITHUB_ARCHIVE_CONCEPT_ID" title="pudl.scripts.zenodo_data_release.GITHUB_ARCHIVE_CONCEPT_ID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GITHUB_ARCHIVE_CONCEPT_ID</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.scripts.zenodo_data_release.DATA_RECORD_TITLE" title="pudl.scripts.zenodo_data_release.DATA_RECORD_TITLE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DATA_RECORD_TITLE</span></code></a></p></td>
+<td><p></p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.zenodo_data_release.RETRYABLE_STATUS_CODES" title="pudl.scripts.zenodo_data_release.RETRYABLE_STATUS_CODES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RETRYABLE_STATUS_CODES</span></code></a></p></td>
 <td><p></p></td>
 </tr>
@@ -939,10 +946,13 @@ check what files should actually be distributed before running the script.</p>
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.zenodo_data_release.build_zenodo_release_zulip_message" title="pudl.scripts.zenodo_data_release.build_zenodo_release_zulip_message"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_zenodo_release_zulip_message</span></code></a>(→ str)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.zenodo_data_release.get_github_archive_doi_url" title="pudl.scripts.zenodo_data_release.get_github_archive_doi_url"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_github_archive_doi_url</span></code></a>(→ str | None)</p></td>
+<td><p>Look up the DOI of the latest GitHub-repo Zenodo software archive.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.scripts.zenodo_data_release.build_zenodo_release_zulip_message" title="pudl.scripts.zenodo_data_release.build_zenodo_release_zulip_message"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_zenodo_release_zulip_message</span></code></a>(→ str)</p></td>
 <td><p>Build a markdown Zulip message summarizing a Zenodo release attempt.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.scripts.zenodo_data_release.main" title="pudl.scripts.zenodo_data_release.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a>(→ int)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.zenodo_data_release.main" title="pudl.scripts.zenodo_data_release.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a>(→ int)</p></td>
 <td><p>Publish a new PUDL data release to Zenodo.</p></td>
 </tr>
 </tbody>
@@ -959,6 +969,16 @@ check what files should actually be distributed before running the script.</p>
 <dl class="py data">
 <dt class="sig sig-object py" id="pudl.scripts.zenodo_data_release.PRODUCTION">
 <span class="sig-prename descclassname"><span class="pre">pudl.scripts.zenodo_data_release.</span></span><span class="sig-name descname"><span class="pre">PRODUCTION</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'production'</span></span><a class="reference internal" href="../../../../_modules/pudl/scripts/zenodo_data_release.html#PRODUCTION"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.scripts.zenodo_data_release.PRODUCTION" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.scripts.zenodo_data_release.GITHUB_ARCHIVE_CONCEPT_ID">
+<span class="sig-prename descclassname"><span class="pre">pudl.scripts.zenodo_data_release.</span></span><span class="sig-name descname"><span class="pre">GITHUB_ARCHIVE_CONCEPT_ID</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3404014</span></span><a class="reference internal" href="../../../../_modules/pudl/scripts/zenodo_data_release.html#GITHUB_ARCHIVE_CONCEPT_ID"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.scripts.zenodo_data_release.GITHUB_ARCHIVE_CONCEPT_ID" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.scripts.zenodo_data_release.DATA_RECORD_TITLE">
+<span class="sig-prename descclassname"><span class="pre">pudl.scripts.zenodo_data_release.</span></span><span class="sig-name descname"><span class="pre">DATA_RECORD_TITLE</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Public</span> <span class="pre">Utility</span> <span class="pre">Data</span> <span class="pre">Liberation</span> <span class="pre">Project</span> <span class="pre">(PUDL)</span> <span class="pre">Data</span> <span class="pre">Release'</span></span><a class="reference internal" href="../../../../_modules/pudl/scripts/zenodo_data_release.html#DATA_RECORD_TITLE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.scripts.zenodo_data_release.DATA_RECORD_TITLE" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py data">
@@ -1248,8 +1268,23 @@ is set to <cite>‘allow’</cite>.</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.scripts.zenodo_data_release._LegacyMetadata.keywords">
+<span class="sig-name descname"><span class="pre">keywords</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></span><a class="reference internal" href="../../../../_modules/pudl/scripts/zenodo_data_release.html#_LegacyMetadata.keywords"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.scripts.zenodo_data_release._LegacyMetadata.keywords" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="pudl.scripts.zenodo_data_release._LegacyMetadata.license">
 <span class="sig-name descname"><span class="pre">license</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'cc-by-4.0'</span></span><a class="reference internal" href="../../../../_modules/pudl/scripts/zenodo_data_release.html#_LegacyMetadata.license"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.scripts.zenodo_data_release._LegacyMetadata.license" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.scripts.zenodo_data_release._LegacyMetadata.language">
+<span class="sig-name descname"><span class="pre">language</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'eng'</span></span><a class="reference internal" href="../../../../_modules/pudl/scripts/zenodo_data_release.html#_LegacyMetadata.language"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.scripts.zenodo_data_release._LegacyMetadata.language" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.scripts.zenodo_data_release._LegacyMetadata.version">
+<span class="sig-name descname"><span class="pre">version</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></span><a class="reference internal" href="../../../../_modules/pudl/scripts/zenodo_data_release.html#_LegacyMetadata.version"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.scripts.zenodo_data_release._LegacyMetadata.version" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -1260,6 +1295,11 @@ is set to <cite>‘allow’</cite>.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pudl.scripts.zenodo_data_release._LegacyMetadata.description">
 <span class="sig-name descname"><span class="pre">description</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></span><a class="reference internal" href="../../../../_modules/pudl/scripts/zenodo_data_release.html#_LegacyMetadata.description"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.scripts.zenodo_data_release._LegacyMetadata.description" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.scripts.zenodo_data_release._LegacyMetadata.related_identifiers">
+<span class="sig-name descname"><span class="pre">related_identifiers</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></span><a class="reference internal" href="../../../../_modules/pudl/scripts/zenodo_data_release.html#_LegacyMetadata.related_identifiers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.scripts.zenodo_data_release._LegacyMetadata.related_identifiers" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1670,8 +1710,13 @@ is set to <cite>‘allow’</cite>.</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.scripts.zenodo_data_release._NewRecord.doi">
+<span class="sig-name descname"><span class="pre">doi</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></span><a class="reference internal" href="../../../../_modules/pudl/scripts/zenodo_data_release.html#_NewRecord.doi"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.scripts.zenodo_data_release._NewRecord.doi" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="pudl.scripts.zenodo_data_release._NewRecord.files">
-<span class="sig-name descname"><span class="pre">files</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pudl.scripts.zenodo_data_release._NewFile" title="pudl.scripts.zenodo_data_release._NewFile"><span class="pre">_NewFile</span></a><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/scripts/zenodo_data_release.html#_NewRecord.files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.scripts.zenodo_data_release._NewRecord.files" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">files</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pudl.scripts.zenodo_data_release._NewFile" title="pudl.scripts.zenodo_data_release._NewFile"><span class="pre">_NewFile</span></a><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></span><a class="reference internal" href="../../../../_modules/pudl/scripts/zenodo_data_release.html#_NewRecord.files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.scripts.zenodo_data_release._NewRecord.files" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1688,6 +1733,11 @@ need some of the unreleased new API endpoints too:
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pudl.scripts.zenodo_data_release.ZenodoClient.auth_headers">
 <span class="sig-name descname"><span class="pre">auth_headers</span></span><a class="reference internal" href="../../../../_modules/pudl/scripts/zenodo_data_release.html#ZenodoClient.auth_headers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.scripts.zenodo_data_release.ZenodoClient.auth_headers" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.scripts.zenodo_data_release.ZenodoClient.env">
+<span class="sig-name descname"><span class="pre">env</span></span><a class="reference internal" href="../../../../_modules/pudl/scripts/zenodo_data_release.html#ZenodoClient.env"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.scripts.zenodo_data_release.ZenodoClient.env" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -1798,6 +1848,14 @@ deposition is actually already published before giving up.</p>
 
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.scripts.zenodo_data_release.get_github_archive_doi_url">
+<span class="sig-prename descclassname"><span class="pre">pudl.scripts.zenodo_data_release.</span></span><span class="sig-name descname"><span class="pre">get_github_archive_doi_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zenodo_client</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pudl.scripts.zenodo_data_release.ZenodoClient" title="pudl.scripts.zenodo_data_release.ZenodoClient"><span class="pre">ZenodoClient</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/scripts/zenodo_data_release.html#get_github_archive_doi_url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.scripts.zenodo_data_release.get_github_archive_doi_url" title="Link to this definition">#</a></dt>
+<dd><p>Look up the DOI of the latest GitHub-repo Zenodo software archive.</p>
+<p>Returns <code class="docutils literal notranslate"><span class="pre">None</span></code> on the sandbox server, since GitHub’s Zenodo integration only
+ever publishes the software archive to production.</p>
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="pudl.scripts.zenodo_data_release.State">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.scripts.zenodo_data_release.</span></span><span class="sig-name descname"><span class="pre">State</span></span><a class="reference internal" href="../../../../_modules/pudl/scripts/zenodo_data_release.html#State"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.scripts.zenodo_data_release.State" title="Link to this definition">#</a></dt>
@@ -1825,11 +1883,30 @@ operations in the wrong order.</p>
 <p>At this point, we don’t know if there is an existing draft or not - the only thing
 we can do is try to get a fresh draft.</p>
 <dl class="py method">
+<dt class="sig sig-object py" id="pudl.scripts.zenodo_data_release.InitialDataset._get_or_create_draft">
+<span class="sig-name descname"><span class="pre">_get_or_create_draft</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pudl.scripts.zenodo_data_release._NewRecord" title="pudl.scripts.zenodo_data_release._NewRecord"><span class="pre">_NewRecord</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/scripts/zenodo_data_release.html#InitialDataset._get_or_create_draft"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.scripts.zenodo_data_release.InitialDataset._get_or_create_draft" title="Link to this definition">#</a></dt>
+<dd><p>Get the existing draft for this dataset’s concept, creating one if needed.</p>
+<p>Uses the new API to get or create the draft; <code class="docutils literal notranslate"><span class="pre">new_record_version</span></code> is
+idempotent, so if a draft already exists (e.g. an in-progress review) it’s
+returned as-is rather than creating another one.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="pudl.scripts.zenodo_data_release.InitialDataset.get_empty_draft">
 <span class="sig-name descname"><span class="pre">get_empty_draft</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pudl.scripts.zenodo_data_release.EmptyDraft" title="pudl.scripts.zenodo_data_release.EmptyDraft"><span class="pre">EmptyDraft</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/scripts/zenodo_data_release.html#InitialDataset.get_empty_draft"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.scripts.zenodo_data_release.InitialDataset.get_empty_draft" title="Link to this definition">#</a></dt>
 <dd><p>Get an empty draft for this dataset.</p>
 <p>Use new API to get any draft, then use legacy API to delete any files
 in the draft.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.scripts.zenodo_data_release.InitialDataset.get_existing_draft">
+<span class="sig-name descname"><span class="pre">get_existing_draft</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pudl.scripts.zenodo_data_release.ContentComplete" title="pudl.scripts.zenodo_data_release.ContentComplete"><span class="pre">ContentComplete</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/scripts/zenodo_data_release.html#InitialDataset.get_existing_draft"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.scripts.zenodo_data_release.InitialDataset.get_existing_draft" title="Link to this definition">#</a></dt>
+<dd><p>Get the existing draft for this dataset, without touching its files.</p>
+<p>For updating just the metadata on a draft that already has its data files in
+place (e.g. fixing up a production draft’s metadata before it’s reviewed and
+published) – skips <code class="docutils literal notranslate"><span class="pre">get_empty_draft</span></code>’s file deletion and the
+<code class="docutils literal notranslate"><span class="pre">sync_directory</span></code> upload step entirely.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1894,19 +1971,27 @@ Zenodo.</p></li>
 <p>Now that we’ve uploaded all the data, we need to update metadata.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pudl.scripts.zenodo_data_release.ContentComplete.update_metadata">
-<span class="sig-name descname"><span class="pre">update_metadata</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/scripts/zenodo_data_release.html#ContentComplete.update_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.scripts.zenodo_data_release.ContentComplete.update_metadata" title="Link to this definition">#</a></dt>
-<dd><p>Copy over old metadata and update publication date.</p>
-<p>We need to make sure there is complete metadata, including a publication date.</p>
-<p>To do this, we:</p>
-<ol class="arabic simple">
-<li><p>use the <em>legacy</em> API to get the concept record ID associated with the draft</p></li>
-<li><p>use the <em>new</em> API to get the latest record associated with the concept</p></li>
-<li><p>use the <em>legacy</em> API to get the metadata from the latest record</p></li>
-<li><p>use the <em>legacy</em> API to update the draft’s metadata</p></li>
-</ol>
-<p>Since we are using the legacy API to publish, we need the legacy
-metadata format. But the legacy concept DOI -&gt; published record mapping
-is broken, so we have to take a detour through the new API.</p>
+<span class="sig-name descname"><span class="pre">update_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">version_tag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">docs_html_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">pathlib.Path</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">zenodo_json_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">pathlib.Path</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pudl.scripts.zenodo_data_release.CompleteDraft" title="pudl.scripts.zenodo_data_release.CompleteDraft"><span class="pre">CompleteDraft</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/scripts/zenodo_data_release.html#ContentComplete.update_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.scripts.zenodo_data_release.ContentComplete.update_metadata" title="Link to this definition">#</a></dt>
+<dd><p>Build and set fresh deposition metadata for this release.</p>
+<ul class="simple">
+<li><p>creators &amp; keywords: <code class="docutils literal notranslate"><span class="pre">.zenodo.json</span></code></p></li>
+<li><p>description: the built release notes HTML for <code class="docutils literal notranslate"><span class="pre">version_tag</span></code>, plus a
+footer of release-specific resource links and a static contact-us section</p></li>
+<li><p>license: <code class="docutils literal notranslate"><span class="pre">pudl.metadata.sources.SOURCES[&quot;pudl&quot;][&quot;license_pudl&quot;]</span></code>, the
+authoritative record of what license PUDL’s own data outputs are released
+under (via <code class="docutils literal notranslate"><span class="pre">get_data_license_id()</span></code>)</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>version_tag</strong> – The PUDL release version tag, e.g. <code class="docutils literal notranslate"><span class="pre">&quot;v2026.8.0&quot;</span></code>.</p></li>
+<li><p><strong>docs_html_dir</strong> – Path to a built Sphinx HTML output directory (i.e.
+<code class="docutils literal notranslate"><span class="pre">docs/_build/html</span></code>), used to extract this version’s release notes.</p></li>
+<li><p><strong>zenodo_json_path</strong> – Path to the repo’s <code class="docutils literal notranslate"><span class="pre">.zenodo.json</span></code>, used for creators
+and keywords.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -1942,7 +2027,7 @@ was requested, otherwise the draft awaiting manual review.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pudl.scripts.zenodo_data_release.main">
-<span class="sig-prename descclassname"><span class="pre">pudl.scripts.zenodo_data_release.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">publish</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/scripts/zenodo_data_release.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.scripts.zenodo_data_release.main" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pudl.scripts.zenodo_data_release.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">publish</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_only</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pudl_version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">docs_html_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">pathlib.Path</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_git_check</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/scripts/zenodo_data_release.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.scripts.zenodo_data_release.main" title="Link to this definition">#</a></dt>
 <dd><p>Publish a new PUDL data release to Zenodo.</p>
 </dd></dl>
 
@@ -2002,6 +2087,8 @@ was requested, otherwise the draft awaiting manual review.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release.SANDBOX"><code class="docutils literal notranslate"><span class="pre">SANDBOX</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release.PRODUCTION"><code class="docutils literal notranslate"><span class="pre">PRODUCTION</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release.GITHUB_ARCHIVE_CONCEPT_ID"><code class="docutils literal notranslate"><span class="pre">GITHUB_ARCHIVE_CONCEPT_ID</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release.DATA_RECORD_TITLE"><code class="docutils literal notranslate"><span class="pre">DATA_RECORD_TITLE</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release.RETRYABLE_STATUS_CODES"><code class="docutils literal notranslate"><span class="pre">RETRYABLE_STATUS_CODES</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release._LegacyLinks"><code class="docutils literal notranslate"><span class="pre">_LegacyLinks</span></code></a><ul class="nav section-nav flex-column">
@@ -2050,9 +2137,13 @@ was requested, otherwise the draft awaiting manual review.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release._LegacyMetadata.title"><code class="docutils literal notranslate"><span class="pre">_LegacyMetadata.title</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release._LegacyMetadata.access_right"><code class="docutils literal notranslate"><span class="pre">_LegacyMetadata.access_right</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release._LegacyMetadata.creators"><code class="docutils literal notranslate"><span class="pre">_LegacyMetadata.creators</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release._LegacyMetadata.keywords"><code class="docutils literal notranslate"><span class="pre">_LegacyMetadata.keywords</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release._LegacyMetadata.license"><code class="docutils literal notranslate"><span class="pre">_LegacyMetadata.license</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release._LegacyMetadata.language"><code class="docutils literal notranslate"><span class="pre">_LegacyMetadata.language</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release._LegacyMetadata.version"><code class="docutils literal notranslate"><span class="pre">_LegacyMetadata.version</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release._LegacyMetadata.publication_date"><code class="docutils literal notranslate"><span class="pre">_LegacyMetadata.publication_date</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release._LegacyMetadata.description"><code class="docutils literal notranslate"><span class="pre">_LegacyMetadata.description</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release._LegacyMetadata.related_identifiers"><code class="docutils literal notranslate"><span class="pre">_LegacyMetadata.related_identifiers</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release._LegacyDeposition"><code class="docutils literal notranslate"><span class="pre">_LegacyDeposition</span></code></a><ul class="nav section-nav flex-column">
@@ -2123,11 +2214,13 @@ was requested, otherwise the draft awaiting manual review.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_fields_set__"><code class="docutils literal notranslate"><span class="pre">_NewRecord.__pydantic_fields_set__</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_private__"><code class="docutils literal notranslate"><span class="pre">_NewRecord.__pydantic_private__</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release._NewRecord.id_"><code class="docutils literal notranslate"><span class="pre">_NewRecord.id_</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release._NewRecord.doi"><code class="docutils literal notranslate"><span class="pre">_NewRecord.doi</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release._NewRecord.files"><code class="docutils literal notranslate"><span class="pre">_NewRecord.files</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release.ZenodoClient"><code class="docutils literal notranslate"><span class="pre">ZenodoClient</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release.ZenodoClient.auth_headers"><code class="docutils literal notranslate"><span class="pre">ZenodoClient.auth_headers</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release.ZenodoClient.env"><code class="docutils literal notranslate"><span class="pre">ZenodoClient.env</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release.ZenodoClient.retry_request"><code class="docutils literal notranslate"><span class="pre">ZenodoClient.retry_request()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release.ZenodoClient.get_deposition"><code class="docutils literal notranslate"><span class="pre">ZenodoClient.get_deposition()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release.ZenodoClient.get_record"><code class="docutils literal notranslate"><span class="pre">ZenodoClient.get_record()</span></code></a></li>
@@ -2138,13 +2231,16 @@ was requested, otherwise the draft awaiting manual review.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release.ZenodoClient.publish_deposition"><code class="docutils literal notranslate"><span class="pre">ZenodoClient.publish_deposition()</span></code></a></li>
 </ul>
 </li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release.get_github_archive_doi_url"><code class="docutils literal notranslate"><span class="pre">get_github_archive_doi_url()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release.State"><code class="docutils literal notranslate"><span class="pre">State</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release.State.record_id"><code class="docutils literal notranslate"><span class="pre">State.record_id</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release.State.zenodo_client"><code class="docutils literal notranslate"><span class="pre">State.zenodo_client</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release.InitialDataset"><code class="docutils literal notranslate"><span class="pre">InitialDataset</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release.InitialDataset._get_or_create_draft"><code class="docutils literal notranslate"><span class="pre">InitialDataset._get_or_create_draft()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release.InitialDataset.get_empty_draft"><code class="docutils literal notranslate"><span class="pre">InitialDataset.get_empty_draft()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release.InitialDataset.get_existing_draft"><code class="docutils literal notranslate"><span class="pre">InitialDataset.get_existing_draft()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release.EmptyDraft"><code class="docutils literal notranslate"><span class="pre">EmptyDraft</span></code></a><ul class="nav section-nav flex-column">

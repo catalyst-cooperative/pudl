@@ -144,6 +144,15 @@ This is the upcoming PUDL release.
   failures. A pytest collection hook enforces the ETL/no-ETL split. Also fixed a live
   Zulip notification firing from the test suite and tightened the dbt `schema.yml`
   round-trip test. See issue [#5508](https://github.com/catalyst-cooperative/pudl/issues/5508) and PR [#5507](https://github.com/catalyst-cooperative/pudl/pull/5507).
+* Automated updating the Zenodo deposition metadata (creators, keywords, version,
+  description, and structured resource links) for monthly PUDL data releases, which
+  previously had to be hand-edited in the Zenodo web UI every month. Creators and
+  keywords are now read from `.zenodo.json`, and the description is assembled from
+  the built release notes for that version plus a footer of release-specific resource
+  links (versioned docs, data dictionary, S3/GCS paths, the GitHub release, and the
+  corresponding GitHub-repo Zenodo software archive), which are also populated as
+  structured `related_identifiers` for better DataCite/OpenAIRE indexing. See issue
+  [#3326](https://github.com/catalyst-cooperative/pudl/issues/3326) and PR [#5484](https://github.com/catalyst-cooperative/pudl/pull/5484).
 
 <a id="release-v2026-8-0"></a>
 
