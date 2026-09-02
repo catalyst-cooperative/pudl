@@ -141,4 +141,6 @@ def raw_vcerare__county_profiles(context) -> pd.DataFrame:
             df = pd.read_parquet(f)
             dfs_list.append(df)
 
-    return pd.concat(dfs_list)
+    if dfs_list:  # If files returned in the config
+        return pd.concat(dfs_list)
+    return pd.DataFrame()
