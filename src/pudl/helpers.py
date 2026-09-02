@@ -28,6 +28,7 @@ import geopandas as gpd  # noqa: ICN002
 import numpy as np
 import pandas as pd
 import polars as pl
+import pyarrow.parquet as pq
 import requests
 import sqlalchemy as sa
 import usaddress
@@ -2048,7 +2049,12 @@ def scale_by_ownership(
         gens: table with records at the generator level and generator attributes
             to be scaled by ownership, must have columns ``plant_id_eia``,
             ``generator_id``, and ``report_date``
-        own_eia860: the ``core_eia860__scd_ownership`` table
+        own_eia860: the ``core_eia860__scd_ownership`` table or the denormalized
+            :ref:`out_eia860__yearly_ownership` table. If the denormalized table
+            is given and ``gens`` contains ``utility_id_pudl`` or
+            ``utility_name_eia`` columns, the owner's PUDL utility ID and EIA
+            utility name are swapped in alongside the owner's
+            ``utility_id_eia``.
         scale_cols: a list of columns in the generator table to slice by ownership
             fraction
         validate: how to validate merging the ownership table onto the
@@ -2063,6 +2069,25 @@ def scale_by_ownership(
         the same 2-owner 200 MW generator as above, each owner will have a
         records with 200 MW).
     """
+    # Map columns in gens which describe the operator utility to the columns in
+    # own_eia860 which describe the same attribute of the owner utility. Every
+    # column in this map gets swapped for the owner's version, so that the
+    # records of jointly owned generators describe their owners rather than all
+    # inheriting the operator's IDs and name. See:
+    # https://github.com/catalyst-cooperative/pudl/issues/5430
+    operator_owner_col_map = {"utility_id_eia": "owner_utility_id_eia"}
+    # In the denormalized ownership table, utility_id_pudl describes the owner.
+    if "utility_id_pudl" in gens.columns and "utility_id_pudl" in own_eia860.columns:
+        operator_owner_col_map["utility_id_pudl"] = "owner_utility_id_pudl"
+        own_eia860 = own_eia860.rename(
+            columns={"utility_id_pudl": "owner_utility_id_pudl"}
+        )
+    if (
+        "utility_name_eia" in gens.columns
+        and "owner_utility_name_eia" in own_eia860.columns
+    ):
+        operator_owner_col_map["utility_name_eia"] = "owner_utility_name_eia"
+
     # grab the ownership table, and reduce it to only the columns we need
     own860 = own_eia860[
         [
@@ -2070,30 +2095,28 @@ def scale_by_ownership(
             "generator_id",
             "report_date",
             "fraction_owned",
-            "owner_utility_id_eia",
         ]
+        + list(operator_owner_col_map.values())
     ].pipe(pudl.helpers.convert_cols_dtypes, "eia")
     # we're left merging BC we've removed the retired gens, which are
     # reported in the ownership table
+    gens = gens.merge(
+        own860,
+        how="left",
+        on=["plant_id_eia", "generator_id", "report_date"],
+        validate=validate,
+    )
+    # gens that don't show up in the ownership table are assumed to be owned
+    # 100% by their operator, so the operator's utility columns carry over
+    unowned = gens.owner_utility_id_eia.isna()
+    gens["fraction_owned"] = gens["fraction_owned"].fillna(value=1)
+    for operator_col, owner_col in operator_owner_col_map.items():
+        gens[owner_col] = gens[owner_col].where(~unowned, gens[operator_col])
+    # swap in the owner as the utility
     gens = (
-        gens.merge(
-            own860,
-            how="left",
-            on=["plant_id_eia", "generator_id", "report_date"],
-            validate=validate,
-        )
-        .assign(  # assume gens that don't show up in the own table have one 100% owner
-            fraction_owned=lambda x: x.fraction_owned.fillna(value=1),
-            # assign the operator id as the owner if null bc if a gen isn't
-            # reported in the own_eia860 table we can assume the operator
-            # is the owner
-            owner_utility_id_eia=lambda x: x.owner_utility_id_eia.fillna(
-                x.utility_id_eia
-            ),
-            ownership_record_type="owned",
-        )  # swap in the owner as the utility
-        .drop(columns=["utility_id_eia"])
-        .rename(columns={"owner_utility_id_eia": "utility_id_eia"})
+        gens.assign(ownership_record_type="owned")
+        .drop(columns=list(operator_owner_col_map))
+        .rename(columns={v: k for k, v in operator_owner_col_map.items()})
     )
 
     # duplicate all of these "owned" records, assign 1 to all of the
@@ -2487,11 +2510,32 @@ def persist_table_as_parquet(
             compression=compression,
         )
     elif isinstance(table_data, duckdb.DuckDBPyRelation):
-        table_data.to_parquet(
-            str(parquet_data.parquet_path),
-            overwrite=True,
-            compression=compression,
-        )
+        # DuckDB's own to_parquet() writer flattens ENUM columns down to plain
+        # Arrow `string` in the file's schema -- it still dictionary-encodes them
+        # at the physical Parquet page level (no space penalty), but loses the
+        # logical-type signal that lets pandas/Polars reconstitute a categorical
+        # column on read, unlike files written by either of those two backends.
+        # Converting to Arrow first preserves it correctly: DuckDB's Arrow export
+        # maps ENUM to a real `dictionary<values=string, indices=...>` type, which
+        # pandas and Polars both recognize. to_arrow_reader() is a genuine
+        # streaming, batched RecordBatchReader (not a single materialized Table),
+        # so writing it out batch-by-batch keeps memory bounded to one batch at a
+        # time -- necessary for our largest DuckDB-produced tables.
+        #
+        # This is measurably slower than DuckDB's native to_parquet() (~7-10x on
+        # core_ferceqr__transactions' largest quarterly partition, 58.9M rows):
+        # DuckDB's own writer runs its internal engine across all CPU cores, while
+        # pyarrow's ParquetWriter writes single-threaded regardless of batch size
+        # or pyarrow's global thread-pool settings. Accepted deliberately -- this
+        # data is processed rarely and quarters are written in parallel, so the
+        # wall-clock cost of any one partition writing more slowly matters less
+        # than getting correct, cross-backend-readable categorical dtypes.
+        reader = table_data.to_arrow_reader(batch_size=100_000)
+        with pq.ParquetWriter(
+            str(parquet_data.parquet_path), reader.schema, compression=compression
+        ) as writer:
+            for batch in reader:
+                writer.write_batch(batch)
     else:
         raise TypeError(
             "table_data must be of type pd.DataFrame, pl.LazyFrame or duckdb.DuckDBPyRelation."
