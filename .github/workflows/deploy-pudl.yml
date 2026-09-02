@@ -177,8 +177,8 @@ jobs:
             --container-env ZULIP_API_KEY=${{ secrets.ZULIP_API_KEY }} \
             --container-env BATCH_JOB_NAME=${{ env.BUILD_ID }} \
             --container-env GCP_BILLING_PROJECT=${{ secrets.GCP_BILLING_PROJECT }} \
-            --machine-type c4d-highmem-8 \
-            --disk-gb 200 \
+            --machine-type c4d-standard-8 \
+            --disk-gb 500 \
             --disk-type hyperdisk-balanced \
             --batch-job-id "${{ env.BUILD_ID }}" \
             --pipeline pudl-deploy \
