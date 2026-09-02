@@ -158,6 +158,11 @@ Developer Experience
   failures. A pytest collection hook enforces the ETL/no-ETL split. Also fixed a live
   Zulip notification firing from the test suite and tightened the dbt ``schema.yml``
   round-trip test. See issue :issue:`5508` and PR :pr:`5507`.
+* Do foreign key constraint validation with dbt instead of SQLite. Update our
+  ``dbt_helper`` script to autogenerate FK constraint tests based on the PUDL metadata.
+  Remove the SQLite based FK checking infrastructure. Also add sensible defaults for
+  our row-count expectation checking test so we can remove boilerplate test specs.
+  See issues :issue:`4564,5208` and PR :pr:`5519`.
 
 .. _release-v2026.8.0:
 
