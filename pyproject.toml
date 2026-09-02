@@ -469,6 +469,7 @@ resource_description = "pudl.scripts.resource_description:main"
 update_zenodo_dois = "pudl.scripts.update_zenodo_dois:main"
 zenodo_data_release = "pudl.scripts.zenodo_data_release:main"
 generate_ferc_provenance = "pudl.scripts.generate_ferc_provenance:main"
+batch_config = "pudl.scripts.batch_config:main"
 pyrefly_baseline_diff = "pudl.scripts.pyrefly_baseline_diff:main"
 
 [tool.ruff]
