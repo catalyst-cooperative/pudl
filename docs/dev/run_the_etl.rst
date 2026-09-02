@@ -438,6 +438,7 @@ The Dagster CLI also has built-in help if you want additional information:
 
 Foreign Key Constraints
 ^^^^^^^^^^^^^^^^^^^^^^^
+
 Foreign key constraints are checked against the Parquet outputs using a custom ``dbt``
 data test, rather than against ``pudl.sqlite``. See :doc:`data_validation_quickstart`
 for how to run the ``dbt`` data validations, including foreign key checks, using
