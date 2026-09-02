@@ -46,6 +46,7 @@ Functions
    pudl.dbt_schema._wrap_description
    pudl.dbt_schema._wrap_descriptions
    pudl.dbt_schema._prettier_yaml_dumps
+   pudl.dbt_schema._foreign_key_data_tests
    pudl.dbt_schema.merge_schema
    pudl.dbt_schema.merge_by_name
    pudl.dbt_schema.merge_sources_by_name
@@ -128,6 +129,14 @@ Module Contents
 .. py:function:: _prettier_yaml_dumps(yaml_contents: dict[str, Any]) -> str
 
    Dump YAML to string that Prettier likes.
+
+
+.. py:function:: _foreign_key_data_tests(resource: pudl.metadata.classes.Resource) -> list[dict] | None
+
+   Build ``foreign_key`` data test entries for a resource's outgoing FKs.
+
+   One entry per foreign key relationship declared on the resource, in declaration
+   order, so regenerating a table's schema.yml produces a stable diff.
 
 
 .. py:class:: DbtColumn(/, **data: Any)

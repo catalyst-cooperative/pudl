@@ -463,13 +463,6 @@ $ pixi run dg launch --help
 
 ### Foreign Key Constraints
 
-The order assets are loaded into `pudl.sqlite` is non-deterministic because the
-assets are executed in parallel so foreign key constraint violations can’t be identified
-in real time. However, foreign key constraints can be checked after all of the data
-has been loaded into the database successfully. To check the constraints, run:
-
-```console
-$ pixi run pudl_check_fks
-```
-
-The foreign key check is also run as part of the PUDL integration tests.
+Foreign key constraints are checked against the Parquet outputs using a custom `dbt`
+data test. See [Data validation quickstart](data_validation_quickstart.html.md) for how to run the `dbt` data
+validations using `dbt_helper`.

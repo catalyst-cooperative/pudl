@@ -7698,22 +7698,23 @@ format, then applying human-sourced patches to the auto-generated schemas.
 
 ## Functions
 
-| [`_normalize_whitespace`](autoapi/pudl/dbt_schema/index.html.md#pudl.dbt_schema._normalize_whitespace)(→ str)               | Collapse all whitespace (including blank lines) to single spaces.                  |
-|---------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------|
-| [`_normalize_descriptions`](autoapi/pudl/dbt_schema/index.html.md#pudl.dbt_schema._normalize_descriptions)(→ Any)             | Recursively collapse whitespace in every `description` field.                      |
-| [`_normalize_description_field`](autoapi/pudl/dbt_schema/index.html.md#pudl.dbt_schema._normalize_description_field)(→ str | None) |                                                                                    |
-| [`_normalize_data_tests_field`](autoapi/pudl/dbt_schema/index.html.md#pudl.dbt_schema._normalize_data_tests_field)(→ list | None) |                                                                                    |
-| [`_wrap_description`](autoapi/pudl/dbt_schema/index.html.md#pudl.dbt_schema._wrap_description)(→ str | \_LiteralStr)    | Re-wrap a description string to short lines, for readability on disk.              |
-| [`_wrap_descriptions`](autoapi/pudl/dbt_schema/index.html.md#pudl.dbt_schema._wrap_descriptions)(→ Any)                  | Recursively re-wrap every `description` field in a dumped schema dict.             |
-| [`_prettier_yaml_dumps`](autoapi/pudl/dbt_schema/index.html.md#pudl.dbt_schema._prettier_yaml_dumps)(→ str)                | Dump YAML to string that Prettier likes.                                           |
-| [`merge_schema`](autoapi/pudl/dbt_schema/index.html.md#pudl.dbt_schema.merge_schema)(→ DbtSchema)                  | Merge two DbtSchemas by applying human-schema as a patch on top of machine-schema. |
-| [`merge_by_name`](autoapi/pudl/dbt_schema/index.html.md#pudl.dbt_schema.merge_by_name)(→ list)                      | Perform a generic merge of two lists of dbt elements, matching by name.            |
-| [`merge_sources_by_name`](autoapi/pudl/dbt_schema/index.html.md#pudl.dbt_schema.merge_sources_by_name)(→ list[DbtSource])   | Match machine/human sources by name, then merge them.                              |
-| [`merge_source`](autoapi/pudl/dbt_schema/index.html.md#pudl.dbt_schema.merge_source)(→ DbtSource)                  | Merge two DbtSources by applying human-source as a patch on top of machine-source. |
-| [`merge_tables_by_name`](autoapi/pudl/dbt_schema/index.html.md#pudl.dbt_schema.merge_tables_by_name)(→ list[DbtTable])     | Match machine/human tables by name, then merge them.                               |
-| [`merge_table`](autoapi/pudl/dbt_schema/index.html.md#pudl.dbt_schema.merge_table)(→ DbtTable)                    | Merge two DbtTables by applying human-table as a patch on top of machine-table.    |
-| [`merge_columns_by_name`](autoapi/pudl/dbt_schema/index.html.md#pudl.dbt_schema.merge_columns_by_name)(→ list[DbtColumn])   | Match machine/human columns by name, then merge them.                              |
-| [`merge_column`](autoapi/pudl/dbt_schema/index.html.md#pudl.dbt_schema.merge_column)(→ DbtColumn)                  | Merge two DbtColumns by applying human-column as a patch on top of machine-column. |
+| [`_normalize_whitespace`](autoapi/pudl/dbt_schema/index.html.md#pudl.dbt_schema._normalize_whitespace)(→ str)                 | Collapse all whitespace (including blank lines) to single spaces.                  |
+|-----------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------|
+| [`_normalize_descriptions`](autoapi/pudl/dbt_schema/index.html.md#pudl.dbt_schema._normalize_descriptions)(→ Any)               | Recursively collapse whitespace in every `description` field.                      |
+| [`_normalize_description_field`](autoapi/pudl/dbt_schema/index.html.md#pudl.dbt_schema._normalize_description_field)(→ str | None)   |                                                                                    |
+| [`_normalize_data_tests_field`](autoapi/pudl/dbt_schema/index.html.md#pudl.dbt_schema._normalize_data_tests_field)(→ list | None)   |                                                                                    |
+| [`_wrap_description`](autoapi/pudl/dbt_schema/index.html.md#pudl.dbt_schema._wrap_description)(→ str | \_LiteralStr)      | Re-wrap a description string to short lines, for readability on disk.              |
+| [`_wrap_descriptions`](autoapi/pudl/dbt_schema/index.html.md#pudl.dbt_schema._wrap_descriptions)(→ Any)                    | Recursively re-wrap every `description` field in a dumped schema dict.             |
+| [`_prettier_yaml_dumps`](autoapi/pudl/dbt_schema/index.html.md#pudl.dbt_schema._prettier_yaml_dumps)(→ str)                  | Dump YAML to string that Prettier likes.                                           |
+| [`_foreign_key_data_tests`](autoapi/pudl/dbt_schema/index.html.md#pudl.dbt_schema._foreign_key_data_tests)(→ list[dict] | None) | Build `foreign_key` data test entries for a resource's outgoing FKs.               |
+| [`merge_schema`](autoapi/pudl/dbt_schema/index.html.md#pudl.dbt_schema.merge_schema)(→ DbtSchema)                    | Merge two DbtSchemas by applying human-schema as a patch on top of machine-schema. |
+| [`merge_by_name`](autoapi/pudl/dbt_schema/index.html.md#pudl.dbt_schema.merge_by_name)(→ list)                        | Perform a generic merge of two lists of dbt elements, matching by name.            |
+| [`merge_sources_by_name`](autoapi/pudl/dbt_schema/index.html.md#pudl.dbt_schema.merge_sources_by_name)(→ list[DbtSource])     | Match machine/human sources by name, then merge them.                              |
+| [`merge_source`](autoapi/pudl/dbt_schema/index.html.md#pudl.dbt_schema.merge_source)(→ DbtSource)                    | Merge two DbtSources by applying human-source as a patch on top of machine-source. |
+| [`merge_tables_by_name`](autoapi/pudl/dbt_schema/index.html.md#pudl.dbt_schema.merge_tables_by_name)(→ list[DbtTable])       | Match machine/human tables by name, then merge them.                               |
+| [`merge_table`](autoapi/pudl/dbt_schema/index.html.md#pudl.dbt_schema.merge_table)(→ DbtTable)                      | Merge two DbtTables by applying human-table as a patch on top of machine-table.    |
+| [`merge_columns_by_name`](autoapi/pudl/dbt_schema/index.html.md#pudl.dbt_schema.merge_columns_by_name)(→ list[DbtColumn])     | Match machine/human columns by name, then merge them.                              |
+| [`merge_column`](autoapi/pudl/dbt_schema/index.html.md#pudl.dbt_schema.merge_column)(→ DbtColumn)                    | Merge two DbtColumns by applying human-column as a patch on top of machine-column. |
 
 ## Module Contents
 
@@ -7777,6 +7778,13 @@ Recursively re-wrap every `description` field in a dumped schema dict.
 ### pudl.dbt_schema.\_prettier_yaml_dumps(yaml_contents: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]) → [str](https://docs.python.org/3/library/stdtypes.html#str)
 
 Dump YAML to string that Prettier likes.
+
+### pudl.dbt_schema.\_foreign_key_data_tests(resource: [pudl.metadata.classes.Resource](autoapi/pudl/metadata/classes/index.html.md#pudl.metadata.classes.Resource)) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)] | [None](https://docs.python.org/3/library/constants.html#None)
+
+Build `foreign_key` data test entries for a resource’s outgoing FKs.
+
+One entry per foreign key relationship declared on the resource, in declaration
+order, so regenerating a table’s schema.yml produces a stable diff.
 
 ### *class* pudl.dbt_schema.DbtColumn(/, \*\*data: Any)
 
@@ -20573,6 +20581,10 @@ if present.
 
 Extract partition columns from check_row_counts_per_partition tests in a DbtTable.
 
+A bare `check_row_counts_per_partition` string entry (no `arguments:`) relies
+on the test’s default `partition_expr` of `None`, so it counts as a row-counts
+test with no partition expression.
+
 ### *class* pudl.scripts.dbt_helper.TableUpdateArgs
 
 Define a single class to collect the args for all table update commands.
@@ -20899,7 +20911,6 @@ heavyweight initialisation at decoration time.
 * [pudl.scripts.generate_ferc_provenance](autoapi/pudl/scripts/generate_ferc_provenance/index.html.md)
 * [pudl.scripts.generate_pudl_duckdb](autoapi/pudl/scripts/generate_pudl_duckdb/index.html.md)
 * [pudl.scripts.metadata_to_rst](autoapi/pudl/scripts/metadata_to_rst/index.html.md)
-* [pudl.scripts.pudl_check_fks](autoapi/pudl/scripts/pudl_check_fks/index.html.md)
 * [pudl.scripts.pudl_check_for_build](autoapi/pudl/scripts/pudl_check_for_build/index.html.md)
 * [pudl.scripts.pudl_datastore](autoapi/pudl/scripts/pudl_datastore/index.html.md)
 * [pudl.scripts.pudl_deploy](autoapi/pudl/scripts/pudl_deploy/index.html.md)
@@ -20929,35 +20940,6 @@ Export PUDL table and field metadata to RST for use in documentation.
 Export PUDL table and field metadata to RST for use in documentation.
 
 metadata_to_rst -s bad_table1 -s bad_table2 -d ./pudl/docs -o ./datadict.rst
-
-
-# autoapi/pudl/scripts/pudl_check_fks/index.html.md
-
-# pudl.scripts.pudl_check_fks
-
-Check that foreign key constraints in the PUDL database are respected.
-
-## Functions
-
-| [`main`](autoapi/pudl/scripts/pudl_check_fks/index.html.md#pudl.scripts.pudl_check_fks.main)(→ int)   | Check that foreign key constraints in the PUDL database are respected.   |
-|----------------------------------------------------------------|--------------------------------------------------------------------------|
-
-## Module Contents
-
-### pudl.scripts.pudl_check_fks.main(logfile: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), loglevel: [str](https://docs.python.org/3/library/stdtypes.html#str), db_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [int](https://docs.python.org/3/library/functions.html#int)
-
-Check that foreign key constraints in the PUDL database are respected.
-
-Dagster manages the dependencies between various assets in our ETL pipeline,
-attempting to materialize tables only after their upstream dependencies have been
-satisfied. However, this order is non deterministic because they are executed in
-parallel, and doesn’t necessarily correspond to the foreign-key constraints within
-the database, so durint the ETL we disable foreign key constraints within
-`pudl.sqlite`.
-
-However, we still expect foreign key constraints to be satisfied once all of the
-tables have been loaded, so we check that they are valid after the ETL has
-completed. This script runs the same check.
 
 
 # autoapi/pudl/scripts/pudl_check_for_build/index.html.md
@@ -32598,7 +32580,6 @@ This subpackage provides a home for all PUDL data validation logic, organized by
 validation framework and approach:
 
 * [`pudl.validate.dbt`](autoapi/pudl/validate/dbt/index.html.md#module-pudl.validate.dbt) – wrappers around dbt invocations for custom behavior
-* [`pudl.validate.integrity`](autoapi/pudl/validate/integrity/index.html.md#module-pudl.validate.integrity) – database integrity checks (foreign keys, etc.)
 * [`pudl.validate.quality`](autoapi/pudl/validate/quality/index.html.md#module-pudl.validate.quality) – bespoke data quality checking utilities
 
 Submodules are exported here so callers can use the namespace-qualified idiom:
@@ -32611,110 +32592,7 @@ pv.no_null_rows(df)
 ## Submodules
 
 * [pudl.validate.dbt](autoapi/pudl/validate/dbt/index.html.md)
-* [pudl.validate.integrity](autoapi/pudl/validate/integrity/index.html.md)
 * [pudl.validate.quality](autoapi/pudl/validate/quality/index.html.md)
-
-
-# autoapi/pudl/validate/integrity/index.html.md
-
-# pudl.validate.integrity
-
-Database integrity validation checks for PUDL data.
-
-This module implements checks for structural database constraints such as foreign key
-relationships. These checks are applied after all data has been loaded into the database,
-since the parallel nature of the ETL pipeline means that foreign key constraints cannot
-be enforced during loading. As these checks are migrated into dbt, this module should
-shrink accordingly.
-
-## Attributes
-
-| [`logger`](autoapi/pudl/validate/integrity/index.html.md#pudl.validate.integrity.logger)   |    |
-|-----------------------------------------------------------|----|
-
-## Exceptions
-
-| [`ForeignKeyError`](autoapi/pudl/validate/integrity/index.html.md#pudl.validate.integrity.ForeignKeyError)   | Raised when data in a database violates a foreign key constraint.        |
-|--------------------------------------------------------------------|--------------------------------------------------------------------------|
-| [`ForeignKeyErrors`](autoapi/pudl/validate/integrity/index.html.md#pudl.validate.integrity.ForeignKeyErrors)  | Raised when data in a database violate multiple foreign key constraints. |
-
-## Functions
-
-| [`_get_fk_list`](autoapi/pudl/validate/integrity/index.html.md#pudl.validate.integrity._get_fk_list)(→ pandas.DataFrame)   | Retrieve a dataframe of foreign keys for a table.   |
-|-------------------------------------------------------------------------------------|-----------------------------------------------------|
-| [`check_foreign_keys`](autoapi/pudl/validate/integrity/index.html.md#pudl.validate.integrity.check_foreign_keys)(engine)         | Check foreign key relationships in the database.    |
-
-## Module Contents
-
-### pudl.validate.integrity.logger
-
-### *exception* pudl.validate.integrity.ForeignKeyError(child_table: [str](https://docs.python.org/3/library/stdtypes.html#str), parent_table: [str](https://docs.python.org/3/library/stdtypes.html#str), foreign_key: [str](https://docs.python.org/3/library/stdtypes.html#str), rowids: [list](https://docs.python.org/3/library/stdtypes.html#list)[[int](https://docs.python.org/3/library/functions.html#int)])
-
-Bases: [`sqlalchemy.exc.SQLAlchemyError`](https://docs.sqlalchemy.org/en/21/core/exceptions.html#sqlalchemy.exc.SQLAlchemyError)
-
-Raised when data in a database violates a foreign key constraint.
-
-#### child_table
-
-#### parent_table
-
-#### foreign_key
-
-#### rowids
-
-#### \_\_str_\_()
-
-Create string representation of ForeignKeyError object.
-
-#### \_\_eq_\_(other)
-
-Compare a ForeignKeyError with another object.
-
-### *exception* pudl.validate.integrity.ForeignKeyErrors(fk_errors: [list](https://docs.python.org/3/library/stdtypes.html#list)[[ForeignKeyError](autoapi/pudl/validate/integrity/index.html.md#pudl.validate.integrity.ForeignKeyError)])
-
-Bases: [`sqlalchemy.exc.SQLAlchemyError`](https://docs.sqlalchemy.org/en/21/core/exceptions.html#sqlalchemy.exc.SQLAlchemyError)
-
-Raised when data in a database violate multiple foreign key constraints.
-
-#### fk_errors
-
-#### \_\_str_\_()
-
-Create string representation of ForeignKeyErrors object.
-
-#### \_\_iter_\_()
-
-Iterate over the fk errors.
-
-#### \_\_getitem_\_(idx)
-
-Index the fk errors.
-
-### pudl.validate.integrity.\_get_fk_list(engine: sqlalchemy.Engine, table: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
-
-Retrieve a dataframe of foreign keys for a table.
-
-Description from the SQLite Docs: ‘This pragma returns one row for each foreign
-key constraint created by a REFERENCES clause in the CREATE TABLE statement of
-table “table-name”.’
-
-The PRAGMA returns one row for each field in a foreign key constraint. This
-method collapses foreign keys with multiple fields into one record for
-readability.
-
-### pudl.validate.integrity.check_foreign_keys(engine: sqlalchemy.Engine)
-
-Check foreign key relationships in the database.
-
-The order assets are loaded into the database will not satisfy foreign key
-constraints so we can’t enable foreign key constraints. However, we can
-check for foreign key failures once all of the data has been loaded into
-the database using the foreign_key_check and foreign_key_list PRAGMAs.
-
-You can learn more about the PRAGMAs in the [SQLite docs](https://www.sqlite.org/pragma.html#pragma_foreign_key_check).
-
-* **Raises:**
-  [**ForeignKeyErrors**](autoapi/pudl/validate/integrity/index.html.md#pudl.validate.integrity.ForeignKeyErrors) – if data in the database violate foreign key constraints.
 
 
 # autoapi/pudl/validate/quality/index.html.md
@@ -77915,16 +77793,9 @@ $ pixi run dg launch --help
 
 ### Foreign Key Constraints
 
-The order assets are loaded into `pudl.sqlite` is non-deterministic because the
-assets are executed in parallel so foreign key constraint violations can’t be identified
-in real time. However, foreign key constraints can be checked after all of the data
-has been loaded into the database successfully. To check the constraints, run:
-
-```console
-$ pixi run pudl_check_fks
-```
-
-The foreign key check is also run as part of the PUDL integration tests.
+Foreign key constraints are checked against the Parquet outputs using a custom `dbt`
+data test. See [Data validation quickstart](dev/data_validation_quickstart.html.md) for how to run the `dbt` data
+validations using `dbt_helper`.
 
 
 # dev/testing.html.md
@@ -77956,8 +77827,8 @@ $ pixi run pytest-ci  # runs in ~45-60 minutes, does a "fast" ETL
 ```
 
 This includes building the documentation, running the unit, integration, and pipeline
-tests, dbt data validations (other than the row count checks), foreign key constraints,
-and checking to make sure we’ve got sufficient test coverage.
+tests, all dbt data validations other than the row count checks, and checking to make
+sure we’ve got sufficient test coverage.
 
 #### NOTE
 If you aren’t familiar with pytest already, you may want to check out:
@@ -77987,10 +77858,10 @@ long they take to run:
   minutes these only run in the merge queue as a final check before a PR merges into
   `main`, rather than on every push.
 * **Data Validation Tests** (`tests/validate/`) check that the outputs of a
-  pipeline test run are valid: foreign key constraints and the `dbt` data validation
-  suite. They depend on the pipeline tests having already produced outputs to check,
-  and also run in the merge queue (with the exception of the dbt row-count checks,
-  which expect all years of data to be processed).
+  pipeline test run are valid using our `dbt` data test suite. These tests depend on
+  the pipeline tests having run and produced outputs. They also run in the merge queue
+  (with the exception of the dbt row-count checks, which expect all years of data to be
+  processed).
 
 A `pytest_collection_modifyitems` hook in `tests/conftest.py` enforces this split
 automatically: a test outside `tests/pipeline/`/`tests/validate/` that depends on
@@ -78092,8 +77963,8 @@ of that database. For example:
 $ pixi run pytest --live-pudl-output tests/pipeline/glue/glue_test.py
 ```
 
-Foreign key checks and dbt validations can be selected separately from the rest of the
-pipeline suite by running the dedicated validation module directly. For example:
+The dbt data validations can be selected separately from the rest of the pipeline suite
+by running the dedicated validation module directly. For example:
 
 ```console
 $ pixi run pytest --live-pudl-output tests/validate/data_test.py
@@ -79184,6 +79055,11 @@ This is the upcoming PUDL release.
   failures. A pytest collection hook enforces the ETL/no-ETL split. Also fixed a live
   Zulip notification firing from the test suite and tightened the dbt `schema.yml`
   round-trip test. See issue [#5508](https://github.com/catalyst-cooperative/pudl/issues/5508) and PR [#5507](https://github.com/catalyst-cooperative/pudl/pull/5507).
+* Do foreign key constraint validation with dbt instead of SQLite. Update our
+  `dbt_helper` script to autogenerate FK constraint tests based on the PUDL metadata.
+  Remove the SQLite based FK checking infrastructure. Also add sensible defaults for
+  our row-count expectation checking test so we can remove boilerplate test specs.
+  See issues [#4564](https://github.com/catalyst-cooperative/pudl/issues/4564), [#5208](https://github.com/catalyst-cooperative/pudl/issues/5208) and PR [#5519](https://github.com/catalyst-cooperative/pudl/pull/5519).
 * Automated updating the Zenodo deposition metadata (creators, keywords, version,
   description, and structured resource links) for monthly PUDL data releases, which
   previously had to be hand-edited in the Zenodo web UI every month. Creators and

@@ -106,7 +106,6 @@ Submodules
    /autoapi/pudl/scripts/generate_ferc_provenance/index
    /autoapi/pudl/scripts/generate_pudl_duckdb/index
    /autoapi/pudl/scripts/metadata_to_rst/index
-   /autoapi/pudl/scripts/pudl_check_fks/index
    /autoapi/pudl/scripts/pudl_check_for_build/index
    /autoapi/pudl/scripts/pudl_datastore/index
    /autoapi/pudl/scripts/pudl_deploy/index
