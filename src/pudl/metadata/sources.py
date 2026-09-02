@@ -956,7 +956,7 @@ SOURCES: dict[str, Any] = {
             "and installation dates."
         ),
         "concept_doi": "10.5281/zenodo.7683351",
-        "working_partitions": {"years": sorted(set(range(1970, 2025)))},
+        "working_partitions": {"years": sorted(set(range(1970, 2026)))},
         "keywords": sorted(set(KEYWORDS["phmsa"] + KEYWORDS["us_govt"])),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
