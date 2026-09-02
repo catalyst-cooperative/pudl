@@ -69,9 +69,20 @@ PHMSA
   reports :doc:`PHMSA <data_sources/phmsagas>` gas distribution mains miles and
   services by installation decade. See issue :issue:`5266` and PR :pr:`5443`.
 
+FERC EQR
+~~~~~~~~
+
+* Added full 2026Q2 data for :doc:`FERC EQR <data_sources/ferceqr>`. See PR :pr:`5442`.
+
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Fixed a bug in :ref:`out_eia__yearly_generators_by_ownership` where every ownership
+  record for a jointly owned generator reported the plant operator's
+  ``utility_id_pudl`` and ``utility_name_eia`` instead of the owner's. When ownership
+  slices are generated, the owner's PUDL utility ID and EIA utility name are now
+  swapped in alongside the owner's ``utility_id_eia``. See issue :issue:`5430` and PR
+  :pr:`5506`.
 * Fixed ``set_gcs_temporary_hold`` only protecting the top level of a versioned
   release path from deletion. It shelled out to ``gcloud storage objects update
   gs://bucket/prefix/*``, and that glob only matches one path segment, so anything
@@ -100,6 +111,15 @@ Bug Fixes & Data Cleaning
   With the fix, 788 records in ``out_pudl__yearly_assn_eia_ferc1_plant_parts`` which
   used to have a NULL ``report_date`` now appear with correct date information. See
   issue :issue:`4130` and PR :pr:`5503`
+* Improved the robustness of :doc:`FERC EQR <data_sources/ferceqr>` raw data extraction.
+  Filings that are missing one or more of the expected CSV files, or whose company
+  identity information is missing or unparsable, now have as much of their data
+  extracted as possible instead of being dropped entirely. Parquet outputs for FERC
+  EQR's constrained categorical columns also now preserve their full set of allowed
+  values, matching the behavior of other PUDL categorical columns. See PR :pr:`5442`.
+* Disabled primary key uniqueness enforcement on
+  :ref:`core_ferceqr__quarterly_index_pub`, which was found to contain duplicate primary
+  key values in FERC EQR filings from 2023 onward. See PR :pr:`5442`.
 * Fixed a race condition that intermittently failed the docs build due to the HTML and
   Markdown builds attempting to clean up the same dynamically generated output files at
   the end of their build. Fixed by setting ``llms_txt_build_parallel = False``. See
