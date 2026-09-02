@@ -45,9 +45,7 @@ commented, at the bottom of `derived_plant_characteristics.py`).
    observed min/max load factor (not a fixed 0–1 scale).
 
    ```python
-   load_factor_bin = pd.cut(
-       load_factor, bins=10, right=True, include_lowest=False
-   )
+   load_factor_bin = pd.cut(load_factor, bins=10, right=True, include_lowest=False)
    ```
 
 2. **Find the minimum stable level.** Walk the bins from lowest to highest (skipping the
