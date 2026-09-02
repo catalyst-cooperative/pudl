@@ -4,10 +4,43 @@ sources:
     tables:
       - name: out_eia923__yearly_generation_fuel_by_generator
         data_tests:
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - plant_id_eia
+                  - generator_id
+                  - report_date
+                pk_table_name: source('pudl', 'core_eia860__scd_generators')
+                pk_column_names:
+                  - plant_id_eia
+                  - generator_id
+                  - report_date
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - utility_id_eia
+                  - report_date
+                pk_table_name: source('pudl', 'core_eia860__scd_utilities')
+                pk_column_names:
+                  - utility_id_eia
+                  - report_date
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - plant_id_pudl
+                pk_table_name: source('pudl', 'core_pudl__entity_plants_pudl')
+                pk_column_names:
+                  - plant_id_pudl
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - utility_id_pudl
+                pk_table_name: source('pudl', 'core_pudl__entity_utilities_pudl')
+                pk_column_names:
+                  - utility_id_pudl
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
               arguments:
-                table_name: out_eia923__yearly_generation_fuel_by_generator
                 partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: report_date
