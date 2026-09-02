@@ -20332,6 +20332,70 @@ Write the updated matching spreadsheet to disk.
 Match EIA and FERC utilities based on utility name alone.
 
 
+# autoapi/pudl/scripts/batch_config/index.html.md
+
+# pudl.scripts.batch_config
+
+Generate a Google Batch Job configuration file.
+
+This runs on bare GitHub Actions runners, without the full pixi/pudl environment – the
+inline script metadata above lets `uv run` install just the handful of dependencies
+this script actually needs (stdlib plus `click`) into an ephemeral environment, rather
+than requiring a full pudl install first.
+
+The `--container-*` flags are named after their equivalents in `gcloud compute
+instances update-container`.
+
+## Attributes
+
+| [`logger`](autoapi/pudl/scripts/batch_config/index.html.md#pudl.scripts.batch_config.logger)               |    |
+|-----------------------------------------------------------------------|----|
+| [`DEFAULT_MACHINE_TYPE`](autoapi/pudl/scripts/batch_config/index.html.md#pudl.scripts.batch_config.DEFAULT_MACHINE_TYPE) |    |
+| [`DEFAULT_DISK_GB`](autoapi/pudl/scripts/batch_config/index.html.md#pudl.scripts.batch_config.DEFAULT_DISK_GB)      |    |
+| [`DEFAULT_DISK_TYPE`](autoapi/pudl/scripts/batch_config/index.html.md#pudl.scripts.batch_config.DEFAULT_DISK_TYPE)    |    |
+
+## Functions
+
+| [`_parse_container_env`](autoapi/pudl/scripts/batch_config/index.html.md#pudl.scripts.batch_config._parse_container_env)(→ dict[str, str])   | Parse --container-env KEY=VALUE pairs into a dict.                        |
+|-------------------------------------------------------------------------------------------|---------------------------------------------------------------------------|
+| [`_lookup_machine_spec`](autoapi/pudl/scripts/batch_config/index.html.md#pudl.scripts.batch_config._lookup_machine_spec)(→ tuple[int, int])  | Return `(cpuMilli, memoryMib)` for a real GCE machine type, via `gcloud`. |
+| [`to_config`](autoapi/pudl/scripts/batch_config/index.html.md#pudl.scripts.batch_config.to_config)(→ dict[str, Any])              | Munge arguments into a configuration dictionary.                          |
+| [`main`](autoapi/pudl/scripts/batch_config/index.html.md#pudl.scripts.batch_config.main)(→ None)                             | Generate a Batch configuration file.                                      |
+
+## Module Contents
+
+### pudl.scripts.batch_config.logger
+
+### pudl.scripts.batch_config.DEFAULT_MACHINE_TYPE *= 'c4d-standard-8'*
+
+### pudl.scripts.batch_config.DEFAULT_DISK_GB *= 250*
+
+### pudl.scripts.batch_config.DEFAULT_DISK_TYPE *= 'hyperdisk-balanced'*
+
+### pudl.scripts.batch_config.\_parse_container_env(container_env: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), ...]) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)]
+
+Parse –container-env KEY=VALUE pairs into a dict.
+
+Raises if the same key is given more than once.
+
+### pudl.scripts.batch_config.\_lookup_machine_spec(machine_type: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[int](https://docs.python.org/3/library/functions.html#int), [int](https://docs.python.org/3/library/functions.html#int)]
+
+Return `(cpuMilli, memoryMib)` for a real GCE machine type, via `gcloud`.
+
+Batch’s `computeResource.cpuMilli`/`memoryMib` default to 2000/2000 (2 vCPU, 2
+GB) if left unset – regardless of the machine type pinned in `allocationPolicy`.
+This looks up the real values and fills them in so the job doesn’t lie about the
+resources it has available.
+
+### pudl.scripts.batch_config.to_config(, container_image: [str](https://docs.python.org/3/library/stdtypes.html#str), container_env: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), ...], container_command: [str](https://docs.python.org/3/library/stdtypes.html#str), container_arg: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), ...], machine_type: [str](https://docs.python.org/3/library/stdtypes.html#str), cpu_milli: [int](https://docs.python.org/3/library/functions.html#int), memory_mib: [int](https://docs.python.org/3/library/functions.html#int), disk_gb: [int](https://docs.python.org/3/library/functions.html#int), disk_type: [str](https://docs.python.org/3/library/stdtypes.html#str), batch_job_id: [str](https://docs.python.org/3/library/stdtypes.html#str), pipeline: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]
+
+Munge arguments into a configuration dictionary.
+
+### pudl.scripts.batch_config.main(container_image: [str](https://docs.python.org/3/library/stdtypes.html#str), container_command: [str](https://docs.python.org/3/library/stdtypes.html#str), container_env: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), ...], container_arg: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), ...], machine_type: [str](https://docs.python.org/3/library/stdtypes.html#str), disk_gb: [int](https://docs.python.org/3/library/functions.html#int), disk_type: [str](https://docs.python.org/3/library/stdtypes.html#str), batch_job_id: [str](https://docs.python.org/3/library/stdtypes.html#str), pipeline: [str](https://docs.python.org/3/library/stdtypes.html#str), output: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [None](https://docs.python.org/3/library/constants.html#None)
+
+Generate a Batch configuration file.
+
+
 # autoapi/pudl/scripts/check_path_permissions/index.html.md
 
 # pudl.scripts.check_path_permissions
@@ -20905,6 +20969,7 @@ heavyweight initialisation at decoration time.
 ## Submodules
 
 * [pudl.scripts.auto_match_utilities](autoapi/pudl/scripts/auto_match_utilities/index.html.md)
+* [pudl.scripts.batch_config](autoapi/pudl/scripts/batch_config/index.html.md)
 * [pudl.scripts.check_path_permissions](autoapi/pudl/scripts/check_path_permissions/index.html.md)
 * [pudl.scripts.dbt_helper](autoapi/pudl/scripts/dbt_helper/index.html.md)
 * [pudl.scripts.dghome](autoapi/pudl/scripts/dghome/index.html.md)
@@ -73545,12 +73610,11 @@ all of the data validation tests against the outputs, and use the results to upd
 test parameters (especially expected row counts) appropriately. This can be done by
 manually kicking off a PUDL deployment on your branch.
 
-To initiate a branch build, in the PUDL repo on GitHub go to [Actions](https://github.com/catalyst-cooperative/pudl/actions) and select [build-deploy-pudl](https://github.com/catalyst-cooperative/pudl/actions/workflows/build-deploy-pudl.yml).
+To initiate a branch build, in the PUDL repo on GitHub go to [Actions](https://github.com/catalyst-cooperative/pudl/actions) and select [build-pudl](https://github.com/catalyst-cooperative/pudl/actions/workflows/build-pudl.yml).
 On the right hand side select Run Workflow and then select your branch in the dropdown
 and click the Run Workflow button. Shortly thereafter you should see a notification in
-the `pudl-deployments` channel in our Slack saying that the build has kicked off. It
-should take about 3 hours to complete. You can track its progress and watch the logs in
-the [Google Cloud Console](https://console.cloud.google.com/monitoring/dashboards/builder/992bbe3f-17e6-49c4-a9e8-8f1925d4ec24).
+the `pudl-deployments` Zulip stream saying that the build has kicked off. You can
+track its progress and watch the logs in the [Google Cloud Console](https://console.cloud.google.com/monitoring/dashboards/builder/992bbe3f-17e6-49c4-a9e8-8f1925d4ec24).
 
 ### Getting fresh row counts from a branch build
 
@@ -75538,6 +75602,11 @@ size of the FERC EQR dataset, we do not maintain multiple versions of the data i
 and instead have just one version, which will be overwritten each time a build is
 executed successfully. This version can be found at `s3://pudl.catalyst.coop/ferceqr`.
 
+The EQR extraction and transformation are implemented in DuckDB rather than pandas, so
+unlike the nightly build this pipeline is limited more by CPU parallelism than by
+memory. Its Batch VM is sized accordingly, with proportionally more CPU and less RAM
+than the nightly build VM.
+
 
 # dev/index.html.md
 
@@ -76693,10 +76762,14 @@ to the `pudl-deployments` Zulip stream.
 
 We use ephemeral VMs created with [Google Batch](https://cloud.google.com/batch/docs)
 to run the nightly builds. Once the build has finished – successfully or not – the VM
-shuts itself down. The build VMs use the `e2-highmem-8` machine type (8 CPUs and 64GB
-of RAM) to accommodate the PUDL ETL’s memory-intensive steps. Currently, these VMs do
-not have swap space enabled, so if they run out of memory, the build will immediately
-terminate.
+shuts itself down. Each workflow generates its Batch job configuration with the
+`batch_config` script ([`pudl.scripts.batch_config`](autoapi/pudl/scripts/batch_config/index.html.md#module-pudl.scripts.batch_config)), which selects the VM
+machine type and boot disk and tags the VM and its logs with the name of the pipeline
+that launched it, so a shared [Cloud Monitoring dashboard](https://console.cloud.google.com/monitoring/dashboards/builder/992bbe3f-17e6-49c4-a9e8-8f1925d4ec24)
+can filter resource-usage metrics by pipeline. VM sizes are chosen to fit the memory-
+and CPU-intensive steps of each pipeline and are tuned over time against that
+dashboard. These VMs do not have swap space enabled, so if they run out of memory, the
+build will immediately terminate.
 
 The `deploy-pudl-vm-service-account` service account has permissions to:
 
@@ -79036,6 +79109,15 @@ This is the upcoming PUDL release.
 
 ### Developer Experience
 
+* Reworked how the Google Batch jobs launched by the `build-pudl`,
+  `deploy-pudl`, and `build-deploy-ferceqr` GitHub workflows are configured. The
+  Batch config generator moved from `devtools/` into the package as the
+  `batch_config` script ([`pudl.scripts.batch_config`](autoapi/pudl/scripts/batch_config/index.html.md#module-pudl.scripts.batch_config)); the workflows now
+  select an explicit VM machine type and boot disk rather than passing raw resource
+  counts, and every VM and its logs are tagged with the pipeline that launched them
+  so a shared Cloud Monitoring dashboard can filter resource-usage metrics by
+  pipeline. VM sizes and the ETL’s process and thread parallelism were tuned to
+  match measured resource usage and stop oversubscribing the CPUs. See [#5545](https://github.com/catalyst-cooperative/pudl/pull/5545).
 * Fixed several issues with how `dbt_helper update-tables` renders `schema.yml`
   ([`pudl.dbt_schema`](autoapi/pudl/dbt_schema/index.html.md#module-pudl.dbt_schema)): long `description:` fields are now wrapped into readable
   paragraph blocks and strings that need quoting prefer double quotes. This now matches

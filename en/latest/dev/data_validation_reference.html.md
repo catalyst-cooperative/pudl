@@ -62,12 +62,11 @@ all of the data validation tests against the outputs, and use the results to upd
 test parameters (especially expected row counts) appropriately. This can be done by
 manually kicking off a PUDL deployment on your branch.
 
-To initiate a branch build, in the PUDL repo on GitHub go to [Actions](https://github.com/catalyst-cooperative/pudl/actions) and select [build-deploy-pudl](https://github.com/catalyst-cooperative/pudl/actions/workflows/build-deploy-pudl.yml).
+To initiate a branch build, in the PUDL repo on GitHub go to [Actions](https://github.com/catalyst-cooperative/pudl/actions) and select [build-pudl](https://github.com/catalyst-cooperative/pudl/actions/workflows/build-pudl.yml).
 On the right hand side select Run Workflow and then select your branch in the dropdown
 and click the Run Workflow button. Shortly thereafter you should see a notification in
-the `pudl-deployments` channel in our Slack saying that the build has kicked off. It
-should take about 3 hours to complete. You can track its progress and watch the logs in
-the [Google Cloud Console](https://console.cloud.google.com/monitoring/dashboards/builder/992bbe3f-17e6-49c4-a9e8-8f1925d4ec24).
+the `pudl-deployments` Zulip stream saying that the build has kicked off. You can
+track its progress and watch the logs in the [Google Cloud Console](https://console.cloud.google.com/monitoring/dashboards/builder/992bbe3f-17e6-49c4-a9e8-8f1925d4ec24).
 
 ### Getting fresh row counts from a branch build
 

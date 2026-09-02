@@ -1,6 +1,6 @@
 # PUDL
 
-> PUDL 2026.8.1.dev31 documentation
+> PUDL 2026.8.1.dev32 documentation
 
 
 2016-2026, Catalyst Cooperative, CC-BY-4.0
@@ -229,6 +229,7 @@
 - [pudl.package_data.vcerare](autoapi/pudl/package_data/vcerare/index.html.md): CSV file extraction maps for VCE RARE Power Dataset.
 - [pudl.scripts](autoapi/pudl/scripts/index.html.md): Command line interface scripts for PUDL.
 - [pudl.scripts.auto_match_utilities](autoapi/pudl/scripts/auto_match_utilities/index.html.md): A CLI tool for matching FERC and EIA utilities.
+- [pudl.scripts.batch_config](autoapi/pudl/scripts/batch_config/index.html.md): Generate a Google Batch Job configuration file.
 - [pudl.scripts.check_path_permissions](autoapi/pudl/scripts/check_path_permissions/index.html.md): Check read, write, and delete permissions for local or remote paths.
 - [pudl.scripts.dbt_helper](autoapi/pudl/scripts/dbt_helper/index.html.md): A basic CLI to autogenerate dbt data test configurations.
 - [pudl.scripts.dghome](autoapi/pudl/scripts/dghome/index.html.md): Manage UUID-named directories in a Dagster storage directory.

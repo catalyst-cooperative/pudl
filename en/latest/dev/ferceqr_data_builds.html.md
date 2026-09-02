@@ -19,3 +19,8 @@ difference from the nightly builds is where data will be published. Due to the l
 size of the FERC EQR dataset, we do not maintain multiple versions of the data in S3,
 and instead have just one version, which will be overwritten each time a build is
 executed successfully. This version can be found at `s3://pudl.catalyst.coop/ferceqr`.
+
+The EQR extraction and transformation are implemented in DuckDB rather than pandas, so
+unlike the nightly build this pipeline is limited more by CPU parallelism than by
+memory. Its Batch VM is sized accordingly, with proportionally more CPU and less RAM
+than the nightly build VM.

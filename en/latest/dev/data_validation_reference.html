@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="data_validation_reference.html.md" />
-    <title>Data validation reference &#8212; PUDL 2026.8.1.dev31 documentation</title>
+    <title>Data validation reference &#8212; PUDL 2026.8.1.dev32 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../_static/documentation_options.js?v=8222f045"></script>
+    <script src="../_static/documentation_options.js?v=a2936aae"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev31 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev31 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev32 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev32 documentation - Home"/>
   
   
 </a></div>
@@ -698,6 +698,7 @@
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/scripts/index.html">pudl.scripts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/auto_match_utilities/index.html">pudl.scripts.auto_match_utilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/batch_config/index.html">pudl.scripts.batch_config</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/check_path_permissions/index.html">pudl.scripts.check_path_permissions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/dbt_helper/index.html">pudl.scripts.dbt_helper</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/dghome/index.html">pudl.scripts.dghome</a></li>
@@ -931,12 +932,11 @@ changing simultaneously, it is helpful to be able to run the full ETL from scrat
 all of the data validation tests against the outputs, and use the results to update the
 test parameters (especially expected row counts) appropriately. This can be done by
 manually kicking off a PUDL deployment on your branch.</p>
-<p>To initiate a branch build, in the PUDL repo on GitHub go to <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/actions">Actions</a> and select <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/actions/workflows/build-deploy-pudl.yml">build-deploy-pudl</a>.
+<p>To initiate a branch build, in the PUDL repo on GitHub go to <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/actions">Actions</a> and select <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/actions/workflows/build-pudl.yml">build-pudl</a>.
 On the right hand side select Run Workflow and then select your branch in the dropdown
 and click the Run Workflow button. Shortly thereafter you should see a notification in
-the <code class="docutils literal notranslate"><span class="pre">pudl-deployments</span></code> channel in our Slack saying that the build has kicked off. It
-should take about 3 hours to complete. You can track its progress and watch the logs in
-the <a class="reference external" href="https://console.cloud.google.com/monitoring/dashboards/builder/992bbe3f-17e6-49c4-a9e8-8f1925d4ec24">Google Cloud Console</a>.</p>
+the <code class="docutils literal notranslate"><span class="pre">pudl-deployments</span></code> Zulip stream saying that the build has kicked off. You can
+track its progress and watch the logs in the <a class="reference external" href="https://console.cloud.google.com/monitoring/dashboards/builder/992bbe3f-17e6-49c4-a9e8-8f1925d4ec24">Google Cloud Console</a>.</p>
 </section>
 <section id="getting-fresh-row-counts-from-a-branch-build">
 <h3>Getting fresh row counts from a branch build<a class="headerlink" href="#getting-fresh-row-counts-from-a-branch-build" title="Link to this heading">#</a></h3>

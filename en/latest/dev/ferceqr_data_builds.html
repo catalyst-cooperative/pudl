@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="ferceqr_data_builds.html.md" />
-    <title>FERC EQR Data Builds &#8212; PUDL 2026.8.1.dev31 documentation</title>
+    <title>FERC EQR Data Builds &#8212; PUDL 2026.8.1.dev32 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../_static/documentation_options.js?v=8222f045"></script>
+    <script src="../_static/documentation_options.js?v=a2936aae"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev31 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev31 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev32 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev32 documentation - Home"/>
   
   
 </a></div>
@@ -698,6 +698,7 @@
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/scripts/index.html">pudl.scripts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/auto_match_utilities/index.html">pudl.scripts.auto_match_utilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/batch_config/index.html">pudl.scripts.batch_config</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/check_path_permissions/index.html">pudl.scripts.check_path_permissions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/dbt_helper/index.html">pudl.scripts.dbt_helper</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/dghome/index.html">pudl.scripts.dghome</a></li>
@@ -870,6 +871,10 @@ difference from the nightly builds is where data will be published. Due to the l
 size of the FERC EQR dataset, we do not maintain multiple versions of the data in S3,
 and instead have just one version, which will be overwritten each time a build is
 executed successfully. This version can be found at <code class="docutils literal notranslate"><span class="pre">s3://pudl.catalyst.coop/ferceqr</span></code>.</p>
+<p>The EQR extraction and transformation are implemented in DuckDB rather than pandas, so
+unlike the nightly build this pipeline is limited more by CPU parallelism than by
+memory. Its Batch VM is sized accordingly, with proportionally more CPU and less RAM
+than the nightly build VM.</p>
 </section>
 </section>
 
