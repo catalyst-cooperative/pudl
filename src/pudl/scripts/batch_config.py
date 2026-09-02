@@ -28,7 +28,7 @@ import click
 logging.basicConfig()
 logger = logging.getLogger(__name__)
 
-DEFAULT_MACHINE_TYPE = "e2-highmem-8"
+DEFAULT_MACHINE_TYPE = "c4d-standard-8"
 DEFAULT_DISK_GB = 250
 DEFAULT_DISK_TYPE = "hyperdisk-balanced"
 
