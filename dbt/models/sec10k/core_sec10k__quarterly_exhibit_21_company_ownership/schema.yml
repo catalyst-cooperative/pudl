@@ -5,9 +5,7 @@ sources:
       - name: core_sec10k__quarterly_exhibit_21_company_ownership
         data_tests:
           - expect_columns_not_all_null
-          - check_row_counts_per_partition:
-              arguments:
-                table_name: core_sec10k__quarterly_exhibit_21_company_ownership
+          - check_row_counts_per_partition
         columns:
           - name: filename_sec10k
           - name: subsidiary_company_name

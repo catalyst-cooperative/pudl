@@ -350,7 +350,7 @@ def test_update_git_branch():
     """Test git branch update merges tag and pushes."""
     nightly_tag = "nightly-2026-02-09"
     stable_tag = "v2026.2.9"
-    with patch("pudl.deploy.pudl.subprocess.run") as mock_run:
+    with patch("pudl.helpers.subprocess.run") as mock_run:
         mock_run.retudeploymentvalue = MagicMock(returncode=0)
         update_git_branch(
             tag="nightly-2026-02-09",
@@ -380,7 +380,7 @@ def test_update_git_branch():
                 github_token="github_token",  # noqa: S106
             )
 
-        kwargs = {"check": True, "capture_output": True, "text": True}
+        kwargs = {"cwd": None, "check": True, "capture_output": True, "text": True}
         assert mock_run.call_count == 8
         mock_run.assert_has_calls(
             [
@@ -411,7 +411,7 @@ def test_update_git_branch():
 
 def test_update_git_branch_staging():
     """Test git branch update skips push when staging."""
-    with patch("pudl.deploy.pudl.subprocess.run") as mock_run:
+    with patch("pudl.helpers.subprocess.run") as mock_run:
         mock_run.retudeploymentvalue = MagicMock(returncode=0)
 
         update_git_branch(
@@ -421,7 +421,7 @@ def test_update_git_branch_staging():
             github_token="github_token",  # noqa: S106
         )
 
-        kwargs = {"check": True, "capture_output": True, "text": True}
+        kwargs = {"cwd": None, "check": True, "capture_output": True, "text": True}
         assert mock_run.call_count == 7
         mock_run.assert_has_calls(
             [
@@ -507,17 +507,48 @@ def test_dispatch_github_workflow_raises_on_http_error():
 
 
 @pytest.mark.parametrize(
-    "deploy_type,build_ref,source_suffix,expected_env,expected_publish",
+    "deploy_type,build_ref,source_suffix,expected_env,expected_publish,expected_pudl_version",
     [
-        (DeploymentType.NIGHTLY, "nightly-2026-07-05", "nightly", "sandbox", "publish"),
-        (DeploymentType.STABLE, "v2026.7.0", "v2026.7.0", "production", "no-publish"),
+        (
+            DeploymentType.NIGHTLY,
+            "nightly-2026-07-05",
+            "nightly",
+            "sandbox",
+            "publish",
+            "v2026.6.0",
+        ),
+        (
+            DeploymentType.STABLE,
+            "v2026.7.0",
+            "v2026.7.0",
+            "production",
+            "no-publish",
+            "v2026.7.0",
+        ),
     ],
 )
 def test_trigger_zenodo_release_dispatches_expected_inputs(
-    deploy_type, build_ref, source_suffix, expected_env, expected_publish
+    deploy_type,
+    build_ref,
+    source_suffix,
+    expected_env,
+    expected_publish,
+    expected_pudl_version,
 ):
-    """Nightly releases publish to sandbox; stable releases draft to production."""
-    with patch("pudl.deploy.pudl.dispatch_github_workflow") as mock_dispatch:
+    """Nightly releases publish to sandbox; stable releases draft to production.
+
+    Nightly/branch releases have no real release tag of their own (they're just
+    sandbox smoke tests of the Zenodo machinery), so they fall back to the most
+    recently published version instead -- mocked here via ``get_latest_release_tag``
+    rather than actually resolving git tags in the real repo.
+    """
+    with (
+        patch("pudl.deploy.pudl.dispatch_github_workflow") as mock_dispatch,
+        patch(
+            "pudl.deploy.pudl.get_latest_release_tag",
+            return_value="v2026.6.0",
+        ),
+    ):
         trigger_zenodo_release(
             build_ref=build_ref,
             deploy_type=deploy_type,
@@ -535,6 +566,7 @@ def test_trigger_zenodo_release_dispatches_expected_inputs(
                 "source_dir": f"s3://pudl.catalyst.coop/{source_suffix}",
                 "ignore_regex": r"^.*\.parquet$",
                 "publish": expected_publish,
+                "pudl_version": expected_pudl_version,
             },
         )
 
@@ -607,7 +639,7 @@ def test_get_build_from_tag(
 
     # Setup mocks and run tests
     with (
-        patch("pudl.deploy.pudl._run") as run_mock,
+        patch("pudl.deploy.pudl.run_git") as run_mock,
         patch("pudl.deploy.pudl.UPath") as build_path_mock,
     ):
         run_mock.return_value = expected_hash

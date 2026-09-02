@@ -18,7 +18,6 @@ sources:
                   water_source: extract(year from report_date) <= 2010
           - check_row_counts_per_partition:
               arguments:
-                table_name: _core_eia860__cooling_equipment
                 partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: dry_cooling_fraction

@@ -19,7 +19,6 @@ sources:
               description: Do total hours worked exceed employees times hours in a year?
           - check_row_counts_per_partition:
               arguments:
-                table_name: out_rus7__yearly_employee_statistics
                 partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: employees_fte_num

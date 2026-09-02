@@ -4,6 +4,13 @@ sources:
     tables:
       - name: core_rus7__yearly_long_term_debt
         data_tests:
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - borrower_id_rus
+                pk_table_name: source('pudl', 'core_rus7__entity_borrowers')
+                pk_column_names:
+                  - borrower_id_rus
           - expect_columns_not_all_null
           - dbt_utils.expression_is_true:
               arguments:
@@ -13,7 +20,6 @@ sources:
               description: Examine a few cases where interest + principal != total
           - check_row_counts_per_partition:
               arguments:
-                table_name: core_rus7__yearly_long_term_debt
                 partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: report_date

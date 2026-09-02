@@ -5,10 +5,7 @@ sources:
       - name: core_eia__codes_nox_units
         data_tests:
           - expect_columns_not_all_null
-          - check_row_counts_per_partition:
-              arguments:
-                table_name: core_eia__codes_nox_units
-                partition_expr: null
+          - check_row_counts_per_partition
         columns:
           - name: code
           - name: label
