@@ -147,6 +147,15 @@ Performance Improvements
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^
 
+* Reworked how the Google Batch jobs launched by the ``build-pudl``,
+  ``deploy-pudl``, and ``build-deploy-ferceqr`` GitHub workflows are configured. The
+  Batch config generator moved from ``devtools/`` into the package as the
+  ``batch_config`` script (:mod:`pudl.scripts.batch_config`); the workflows now
+  select an explicit VM machine type and boot disk rather than passing raw resource
+  counts, and every VM and its logs are tagged with the pipeline that launched them
+  so a shared Cloud Monitoring dashboard can filter resource-usage metrics by
+  pipeline. VM sizes and the ETL's process and thread parallelism were tuned to
+  match measured resource usage and stop oversubscribing the CPUs. See :pr:`5545`.
 * Fixed several issues with how ``dbt_helper update-tables`` renders ``schema.yml``
   (:mod:`pudl.dbt_schema`): long ``description:`` fields are now wrapped into readable
   paragraph blocks and strings that need quoting prefer double quotes. This now matches
