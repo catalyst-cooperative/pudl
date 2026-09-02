@@ -18,7 +18,7 @@ expected_mismatch_counts as (
 
 observed_mismatches AS (
     {{
-        row_counts_per_partition('test_table', 'test_table', none, force_row_counts_table='test_row_counts')
+        row_counts_per_partition(api.Relation.create(identifier='test_table'), none, force_row_counts_table='test_row_counts')
     }}
 ),
 

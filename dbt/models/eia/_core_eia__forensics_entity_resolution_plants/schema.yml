@@ -3,6 +3,16 @@ sources:
   - name: pudl
     tables:
       - name: _core_eia__forensics_entity_resolution_plants
+        data_tests:
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - plant_id_eia
+                  - report_date
+                pk_table_name: source('pudl', 'core_eia860__scd_plants')
+                pk_column_names:
+                  - plant_id_eia
+                  - report_date
         columns:
           - name: plant_id_eia
           - name: report_date

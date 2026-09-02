@@ -6,5 +6,4 @@ sources:
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
               arguments:
-                table_name: core_ferc714__yearly_planning_area_demand_forecast
                 partition_expr: report_year

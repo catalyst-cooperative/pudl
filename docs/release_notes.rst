@@ -168,6 +168,20 @@ Developer Experience
   failures. A pytest collection hook enforces the ETL/no-ETL split. Also fixed a live
   Zulip notification firing from the test suite and tightened the dbt ``schema.yml``
   round-trip test. See issue :issue:`5508` and PR :pr:`5507`.
+* Do foreign key constraint validation with dbt instead of SQLite. Update our
+  ``dbt_helper`` script to autogenerate FK constraint tests based on the PUDL metadata.
+  Remove the SQLite based FK checking infrastructure. Also add sensible defaults for
+  our row-count expectation checking test so we can remove boilerplate test specs.
+  See issues :issue:`4564,5208` and PR :pr:`5519`.
+* Automated updating the Zenodo deposition metadata (creators, keywords, version,
+  description, and structured resource links) for monthly PUDL data releases, which
+  previously had to be hand-edited in the Zenodo web UI every month. Creators and
+  keywords are now read from ``.zenodo.json``, and the description is assembled from
+  the built release notes for that version plus a footer of release-specific resource
+  links (versioned docs, data dictionary, S3/GCS paths, the GitHub release, and the
+  corresponding GitHub-repo Zenodo software archive), which are also populated as
+  structured ``related_identifiers`` for better DataCite/OpenAIRE indexing. See issue
+  :issue:`3326` and PR :pr:`5484`.
 
 .. _release-v2026.8.0:
 

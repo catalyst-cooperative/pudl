@@ -4,6 +4,20 @@ sources:
     tables:
       - name: core_eia923__entity_coalmine
         data_tests:
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - mine_type_code
+                pk_table_name: source('pudl', 'core_eia__codes_coalmine_types')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - data_maturity
+                pk_table_name: source('pudl', 'core_pudl__codes_data_maturities')
+                pk_column_names:
+                  - code
           - expect_columns_not_all_null:
               description: |-
                 Because this is an entity table, it only describes attributes that are constant across
@@ -15,10 +29,7 @@ sources:
               arguments:
                 exclude_columns:
                   - county_id_fips
-          - check_row_counts_per_partition:
-              arguments:
-                table_name: core_eia923__entity_coalmine
-                partition_expr: null
+          - check_row_counts_per_partition
         columns:
           - name: mine_id_pudl
             data_tests:
