@@ -53,19 +53,10 @@ def _parse_container_env(container_env: tuple[str, ...]) -> dict[str, str]:
 def _lookup_machine_spec(machine_type: str) -> tuple[int, int]:
     """Return ``(cpuMilli, memoryMib)`` for a real GCE machine type, via ``gcloud``.
 
-    Batch's ``computeResource.cpuMilli``/``memoryMib`` default to 2000/2000 (2 vCPU,
-    2 GB) if left unset -- regardless of the machine type pinned in
-    ``allocationPolicy``. That mismatch is exactly what shows up as an
-    apparently-tiny job in the Cloud Console's job list and Batch API, even though
-    the VM Batch actually provisions has the pinned machine type's real resources.
-
-    Newer machine families don't use clean per-vCPU memory ratios (e.g.
-    c4d-highmem-16 is 126 GiB for 16 vCPU -- 7.875 GiB/vCPU, not 8), so hardcoding a
-    ratio table here would silently drift wrong as new families launch. A machine
-    type's vCPU/memory shape is identical in every zone that offers it, so a single
-    global lookup (no zone/region needed) via the ``gcloud`` CLI -- already
-    authenticated in every workflow that calls this script -- gets the real,
-    always-current numbers directly from GCE itself.
+    Batch's ``computeResource.cpuMilli``/``memoryMib`` default to 2000/2000 (2 vCPU, 2
+    GB) if left unset -- regardless of the machine type pinned in ``allocationPolicy``.
+    This looks up the real values and fills them in so the job doesn't lie about the
+    resources it has available.
     """
     gcloud_path = shutil.which("gcloud")
     if gcloud_path is None:
@@ -157,15 +148,11 @@ def to_config(
                 "email": "deploy-pudl-vm-service-account@catalyst-cooperative-pudl.iam.gserviceaccount.com"
             },
             # Explicitly set rather than relying on Batch to auto-label VM instances
-            # with the job ID: it used to (older jobs' VMs carried a `batch-job-id`
-            # user label Cloud Monitoring dashboards group by), but recent VMs no
-            # longer do -- Batch's behavior here apparently changed. Setting it
-            # ourselves is the only way to guarantee dashboards can group per-VM
-            # metrics by job regardless of what Batch does internally. `pipeline`
-            # (the name of the GitHub Actions workflow that launched the job, e.g.
-            # "build-pudl", "deploy-pudl", "build-deploy-ferceqr") lets a single
-            # dashboard switch between pipelines via a template variable, instead
-            # of needing separate per-pipeline dashboards or widgets.
+            # with the job ID. Allows dashboards to group per-VM metrics by job.
+            # "pipeline" is (by convention) the name of the GitHub Actions workflow that
+            # launched the job, e.g. "build-pudl", "deploy-pudl",
+            # "build-deploy-ferceqr"). This lets a single dashboard switch between
+            # pipelines via a template variable presented in a dropdown menu.
             "labels": {"batch-job-id": batch_job_id, "pipeline": pipeline},
             "instances": [
                 {
@@ -175,9 +162,8 @@ def to_config(
                         # Batch's default boot image is Container-Optimized OS, but
                         # Google's own installOpsAgent bootstrap script only supports
                         # Debian/CentOS/Rocky (it shells out to apt/yum, neither of
-                        # which exist on COS) -- confirmed via job logs showing the
-                        # agent install silently doing nothing on COS. Pin the
-                        # Debian image explicitly so installOpsAgent actually works.
+                        # which exist on COS) Pin the Debian image explicitly so
+                        # installOpsAgent actually works.
                         "bootDisk": {
                             "image": "batch-debian",
                             "type": disk_type,
@@ -188,11 +174,11 @@ def to_config(
             ],
         },
         "logsPolicy": {"destination": "CLOUD_LOGGING"},
-        # Batch copies these job-level labels onto every `batch_task_logs` entry
-        # (as `labels.<key>`), unlike the `allocationPolicy` instance labels above
-        # which only surface on VM metrics. Repeating `pipeline` here lets the
-        # dashboard's Logs widget filter by pipeline via the `${pipeline}`
-        # template variable, matching the behavior of the metric widgets.
+        # Batch copies these job-level labels onto every `batch_task_logs` entry (as
+        # `labels.<key>`), unlike the `allocationPolicy` instance labels above which
+        # only surface on VM metrics. Repeating `pipeline` here lets the dashboard's
+        # Logs widget filter by pipeline via the `${pipeline}` template variable,
+        # matching the behavior of the metric widgets.
         "labels": {
             "component": "build",
             "pipeline": pipeline,
