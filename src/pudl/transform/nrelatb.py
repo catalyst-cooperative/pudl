@@ -286,7 +286,7 @@ def _core_nrelatb__transform_start(raw_nrelatb__data):
         .replace("*", pd.NA)
         .assign(
             cost_recovery_period_years=lambda x: pd.to_numeric(
-                x["cost_recovery_period_years"], errors="coerce"
+                x["cost_recovery_period_years"]
             )
         )
         .rename(columns=rename_dict)
