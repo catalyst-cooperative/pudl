@@ -10,3 +10,51 @@ macros:
       - name: test
         type: string
         description: Name of the failing test. You can copy this from the failed test output, or trace it back to the entry in schema.yml and set a more legible name there to use while you debug.
+  - name: subcomponents_sum_to_total_check
+    description: Logic behind the subcomponents_sum_to_total data test, which checks that subcomponent records sum to a reported total record within each group. Subcomponents and totals are identified by the values of one or more categorical columns.
+    arguments:
+      - name: model
+        type: string
+        description: The table or model to check.
+      - name: group_by_columns
+        type: list of strings
+        description: Columns identifying the entity within which subcomponents should sum to the total, e.g. [borrower_id_rus, report_date, plant_name_rus].
+      - name: categorical_column
+        type: string or list of strings
+        description: Column(s) whose values identify subcomponent and total records. May be a single column name, or a list of column names when a calculation crosses more than one categorical column. When a list is given, total_label and every entry of subcomponents_list and negative_subcomponents_list must be equal-length lists of values, so that components whose values repeat within one column can be identified by the combination of columns, e.g. subcomponents_list [["opex", "total"], ["capex", "total_fixed"]] with categorical_column [cost_group, cost_type].
+      - name: value_column
+        type: string
+        description: Numeric column to sum.
+      - name: total_label
+        type: string or list of strings
+        description: Value(s) of the categorical column(s) identifying the reported total record.
+      - name: tolerance
+        type: float
+        description: Maximum allowed absolute difference between the subcomponent sum and the reported total. Defaults to 0.01.
+      - name: row_condition
+        type: string
+        description: Optional SQL condition used to filter the model's records before checking, e.g. "plant_type == 'steam'".
+      - name: subcomponents_list
+        type: list of strings or list of lists of strings
+        description: Value(s) of the categorical column(s) identifying the records to add. If omitted, every record other than the total record is added.
+      - name: negative_subcomponents_list
+        type: list of strings or list of lists of strings
+        description: Value(s) of the categorical column(s) identifying the records to subtract, e.g. adjustments reported as "less X" line items.
+  - name: subcomponent_one_label_condition
+    description: Render a SQL condition matching one subcomponent or total label for subcomponents_sum_to_total_check.
+    arguments:
+      - name: categorical_columns
+        type: list of strings
+        description: The categorical column(s) identifying subcomponent and total records.
+      - name: label
+        type: string or list of strings
+        description: A single value matched against the single categorical column, or a list of values matched pairwise against the list of categorical columns, e.g. ["opex", "total"] with columns [cost_group, cost_type] renders (cost_group = 'opex' AND cost_type = 'total').
+  - name: subcomponent_all_labels_condition
+    description: Render a SQL condition matching any of the given subcomponent labels for subcomponents_sum_to_total_check. ORs together one subcomponent_one_label_condition per label.
+    arguments:
+      - name: categorical_columns
+        type: list of strings
+        description: The categorical column(s) identifying subcomponent and total records.
+      - name: labels
+        type: list
+        description: Labels to match, each in the format accepted by subcomponent_one_label_condition.
