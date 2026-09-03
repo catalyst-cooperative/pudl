@@ -1,6 +1,5 @@
 """Test the pudl_sqlite/pudl_duckdb assets that rebuild databases from Parquet."""
 
-import sqlite3
 from pathlib import Path
 
 import duckdb
@@ -9,6 +8,7 @@ import pytest
 import sqlalchemy as sa
 
 from pudl.dagster.assets.output.dbs import (
+    _SQLITE_ATTACH_ALIAS,
     TableWriteError,
     TableWriteReport,
     _copy_table_to_duckdb,
@@ -222,13 +222,26 @@ def sqlite_path(tmp_path: Path) -> Path:
 
 
 @pytest.fixture
-def sqlite_con(sqlite_path: Path, test_pkg: Package):
-    """A sqlite3 connection to a freshly-created schema."""
+def sqlite_duckdb_con(sqlite_path: Path, test_pkg: Package):
+    """A DuckDB connection with a freshly-created "lean" SQLite schema attached.
+
+    Mirrors what :func:`write_pudl_sqlite` sets up: the schema is built without
+    CHECK constraints (but keeps primary keys, NOT NULL, UNIQUE and foreign
+    keys), and the SQLite file is attached to DuckDB under
+    ``_SQLITE_ATTACH_ALIAS`` so ``_copy_table_to_sqlite`` can stream into it.
+    """
+    metadata = test_pkg.to_sql(
+        dialect="sqlite",
+        check_types=False,
+        check_values=False,
+    )
     engine = sa.create_engine(f"sqlite:///{sqlite_path}")
-    test_pkg.to_sql().create_all(engine)
+    metadata.create_all(engine)
     engine.dispose()
 
-    con = sqlite3.connect(sqlite_path)
+    con = duckdb.connect()
+    con.execute("LOAD sqlite")
+    con.execute(f"ATTACH '{sqlite_path}' AS {_SQLITE_ATTACH_ALIAS} (TYPE sqlite)")
     try:
         yield con
     finally:
@@ -247,89 +260,125 @@ def duckdb_con():
 def test_copy_table_to_sqlite_not_null_violation(
     paths: PudlPaths,
     test_pkg: Package,
-    sqlite_con: sqlite3.Connection,
-    duckdb_con: duckdb.DuckDBPyConnection,
+    sqlite_duckdb_con: duckdb.DuckDBPyConnection,
 ):
-    """A NOT NULL constraint violation should raise sqlite3.IntegrityError."""
+    """A NOT NULL violation should surface from SQLite as a duckdb.Error."""
     artist = test_pkg.get_resource("artist")
     _write_parquet(
         paths, "artist", pd.DataFrame({"artistid": [1], "artistname": [None]})
     )
-    with pytest.raises(sqlite3.IntegrityError, match="NOT NULL"):
-        _copy_table_to_sqlite(
-            sqlite_con, duckdb_con, artist, paths.parquet_path("artist")
-        )
+    with pytest.raises(duckdb.Error, match="NOT NULL"):
+        _copy_table_to_sqlite(sqlite_duckdb_con, artist, paths.parquet_path("artist"))
 
 
-def test_copy_table_to_sqlite_check_violation(
+def test_copy_table_to_sqlite_duplicate_primary_key(
     paths: PudlPaths,
     test_pkg: Package,
-    sqlite_con: sqlite3.Connection,
-    duckdb_con: duckdb.DuckDBPyConnection,
+    sqlite_duckdb_con: duckdb.DuckDBPyConnection,
 ):
-    """A REGEXP CHECK constraint violation should raise sqlite3.IntegrityError.
+    """A duplicate primary key should surface from SQLite as a duckdb.Error.
 
-    Regression test: DuckDB's own statically-linked SQLite build (used by ``ATTACH
-    ... TYPE sqlite``) has no REGEXP() function, unlike the system/conda-forge SQLite
-    Python's sqlite3 module links against, so REGEXP-based CHECK constraints must be
-    enforced by writing through sqlite3 rather than DuckDB's SQLite attachment.
+    Unlike the dropped CHECK constraints, PRIMARY KEY / NOT NULL / UNIQUE are kept
+    in the lean schema and still enforced by SQLite as DuckDB streams rows in.
+    """
+    artist = test_pkg.get_resource("artist")
+    _write_parquet(
+        paths, "artist", pd.DataFrame({"artistid": [1, 1], "artistname": ["A", "B"]})
+    )
+    with pytest.raises(duckdb.Error, match="UNIQUE|PRIMARY KEY"):
+        _copy_table_to_sqlite(sqlite_duckdb_con, artist, paths.parquet_path("artist"))
+
+
+def test_copy_table_to_sqlite_no_check_constraint_enforced(
+    paths: PudlPaths,
+    test_pkg: Package,
+    sqlite_duckdb_con: duckdb.DuckDBPyConnection,
+):
+    """CHECK constraints are intentionally *not* enforced on write.
+
+    "artist".artistname has a ``^[A-Za-z ]+$`` pattern in the fixture package.
+    The old sqlite3-based writer rejected "123"; the lean-schema DuckDB writer
+    drops the CHECK entirely, trusting the upstream validation, and writes it.
     """
     artist = test_pkg.get_resource("artist")
     _write_parquet(
         paths, "artist", pd.DataFrame({"artistid": [1], "artistname": ["123"]})
     )
-    with pytest.raises(sqlite3.IntegrityError, match="CHECK constraint failed"):
-        _copy_table_to_sqlite(
-            sqlite_con, duckdb_con, artist, paths.parquet_path("artist")
-        )
+    row_count = _copy_table_to_sqlite(
+        sqlite_duckdb_con, artist, paths.parquet_path("artist")
+    )
+    assert row_count == 1
+
+
+def test_copy_table_to_sqlite_foreign_keys_declared_not_enforced(
+    paths: PudlPaths,
+    test_pkg: Package,
+    sqlite_path: Path,
+    sqlite_duckdb_con: duckdb.DuckDBPyConnection,
+):
+    """Foreign keys are in the schema but not checked on write.
+
+    "track".trackartist references "artist".artistid in the fixture package. The
+    lean schema keeps that FK, but SQLite doesn't enforce foreign keys unless
+    ``PRAGMA foreign_keys = ON`` (it defaults OFF and DuckDB never sets it), so a
+    row pointing at a non-existent artist still writes -- while the FK definition
+    stays visible for downstream users.
+    """
+    track = test_pkg.get_resource("track")
+    _write_parquet(
+        paths,
+        "track",
+        pd.DataFrame({"trackid": [1], "trackname": ["T1"], "trackartist": [999]}),
+    )
+    row_count = _copy_table_to_sqlite(
+        sqlite_duckdb_con, track, paths.parquet_path("track")
+    )
+    assert row_count == 1
+
+    engine = sa.create_engine(f"sqlite:///{sqlite_path}")
+    assert sa.inspect(engine).get_foreign_keys("track")  # FK still declared
+    engine.dispose()
 
 
 def test_copy_table_to_sqlite_missing_column(
     paths: PudlPaths,
     test_pkg: Package,
-    sqlite_con: sqlite3.Connection,
-    duckdb_con: duckdb.DuckDBPyConnection,
+    sqlite_duckdb_con: duckdb.DuckDBPyConnection,
 ):
     """A Parquet file missing a declared column should raise a DuckDB binder error."""
     artist = test_pkg.get_resource("artist")
     _write_parquet(paths, "artist", pd.DataFrame({"artistid": [1]}))
     with pytest.raises(duckdb.BinderException, match="artistname"):
-        _copy_table_to_sqlite(
-            sqlite_con, duckdb_con, artist, paths.parquet_path("artist")
-        )
+        _copy_table_to_sqlite(sqlite_duckdb_con, artist, paths.parquet_path("artist"))
 
 
-def test_copy_table_to_sqlite_replaces_not_duplicates(
+def test_copy_table_to_sqlite_returns_row_count(
     paths: PudlPaths,
     test_pkg: Package,
-    sqlite_con: sqlite3.Connection,
-    duckdb_con: duckdb.DuckDBPyConnection,
+    sqlite_duckdb_con: duckdb.DuckDBPyConnection,
 ):
-    """Writing the same table twice should replace, not duplicate, its rows."""
+    """The row count written to the attached SQLite table is returned."""
     artist = test_pkg.get_resource("artist")
     _write_parquet(
-        paths, "artist", pd.DataFrame({"artistid": [1], "artistname": ["A"]})
+        paths,
+        "artist",
+        pd.DataFrame({"artistid": [1, 2, 3], "artistname": ["A", "B", "C"]}),
     )
-    parquet_path = paths.parquet_path("artist")
-    row_count = _copy_table_to_sqlite(sqlite_con, duckdb_con, artist, parquet_path)
-    assert row_count == 1
-    row_count = _copy_table_to_sqlite(sqlite_con, duckdb_con, artist, parquet_path)
-    assert row_count == 1
+    row_count = _copy_table_to_sqlite(
+        sqlite_duckdb_con, artist, paths.parquet_path("artist")
+    )
+    assert row_count == 3
 
 
 def test_copy_table_to_sqlite_whole_second_datetime(
     tmp_path: Path,
     paths: PudlPaths,
-    duckdb_con: duckdb.DuckDBPyConnection,
 ):
-    """A datetime value with microsecond == 0 should satisfy the DATETIME CHECK.
+    """Whole-second datetimes round-trip through the DuckDB -> SQLite write.
 
-    Regression test: Python's default (deprecated) sqlite3 datetime adapter
-    stringifies via ``str(dt)``, which omits the fractional-seconds suffix
-    whenever microsecond == 0 (e.g. "2020-01-01 00:00:00" instead of
-    "2020-01-01 00:00:00.000000"). PUDL's datetime CHECK constraint only accepts
-    the microsecond-suffixed form, so whole-second timestamps -- common for
-    date-only concepts stored as "datetime" fields -- used to fail to insert.
+    Regression coverage for the old sqlite3 datetime adapter is no longer
+    relevant (DuckDB does the write now), but a datetime whose ``microsecond``
+    is 0 should still land in SQLite and read back as the same instant.
     """
     fields = [
         {"name": "eventid", "type": "integer", "description": "eventid"},
@@ -340,8 +389,13 @@ def test_copy_table_to_sqlite_whole_second_datetime(
     pkg = Package(name="events", resources=[event_resource])
 
     sqlite_path = tmp_path / "event.sqlite"
+    metadata = pkg.to_sql(
+        dialect="sqlite",
+        check_types=False,
+        check_values=False,
+    )
     engine = sa.create_engine(f"sqlite:///{sqlite_path}")
-    pkg.to_sql().create_all(engine)
+    metadata.create_all(engine)
     engine.dispose()
 
     _write_parquet(
@@ -356,14 +410,20 @@ def test_copy_table_to_sqlite_whole_second_datetime(
             }
         ),
     )
-    con = sqlite3.connect(sqlite_path)
+    con = duckdb.connect()
+    con.execute("LOAD sqlite")
+    con.execute(f"ATTACH '{sqlite_path}' AS {_SQLITE_ATTACH_ALIAS} (TYPE sqlite)")
     try:
         row_count = _copy_table_to_sqlite(
-            con, duckdb_con, event_resource, paths.parquet_path("event")
+            con, event_resource, paths.parquet_path("event")
         )
+        stored = con.execute(
+            f'SELECT eventtime::TIMESTAMP FROM {_SQLITE_ATTACH_ALIAS}."event"'  # noqa: S608
+        ).fetchone()[0]
     finally:
         con.close()
     assert row_count == 1
+    assert str(stored).startswith("2020-01-01 00:00:00")
 
 
 def test_write_pudl_sqlite_end_to_end(
@@ -434,9 +494,9 @@ def test_write_pudl_sqlite_continues_past_failing_table(
 ):
     """A data-quality failure in one table shouldn't stop the rest from loading."""
     mocker.patch("pudl.dagster.assets.output.dbs.PUDL_PACKAGE", test_pkg)
-    # "artist" violates its own CHECK constraint; "track" is perfectly valid.
+    # "artist" violates its NOT NULL constraint on artistname; "track" is valid.
     _write_parquet(
-        paths, "artist", pd.DataFrame({"artistid": [1], "artistname": ["123"]})
+        paths, "artist", pd.DataFrame({"artistid": [1], "artistname": [None]})
     )
     _write_parquet(
         paths,
@@ -454,7 +514,7 @@ def test_write_pudl_sqlite_continues_past_failing_table(
     assert len(report.errors) == 1
     error = report.errors[0]
     assert error.table_name == "artist"
-    assert isinstance(error.exception, sqlite3.IntegrityError)
+    assert isinstance(error.exception, duckdb.Error)
 
     engine = sa.create_engine(f"sqlite:///{sqlite_path}")
     with engine.connect() as conn:
