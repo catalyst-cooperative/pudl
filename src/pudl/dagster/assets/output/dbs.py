@@ -38,15 +38,12 @@ Required because duckdb-engine's SQLAlchemy dialect subclasses postgresql's, inh
 
 @dataclass
 class TableWriteError:
-    """A single table's failed write: which table, and the exception that stopped it.
-
-    Attributes:
-        table_name: Name of the table whose write failed.
-        exception: The exception raised while validating or writing the table.
-    """
+    """A single table's failed write: which table, and the exception that stopped it."""
 
     table_name: str
+    """Name of the table whose write failed."""
     exception: Exception
+    """The exception raised while validating or writing the table."""
 
     def __str__(self) -> str:
         """Render as ``table_name: ExceptionType: message`` for logs and reports.
@@ -68,15 +65,12 @@ class TableWriteReport:
     exactly which tables failed and why -- across potentially hundreds of tables in
     one run -- rather than only ever learning about the first failure encountered.
 
-    Attributes:
-        row_counts: Mapping of table name to number of rows written, for every table
-            that wrote successfully.
-        errors: One :class:`TableWriteError` per table that failed, in the order the
-            failures occurred.
     """
 
     row_counts: dict[str, int] = field(default_factory=dict)
+    """Mapping of table name to number of rows written, sucessly written table."""
     errors: list[TableWriteError] = field(default_factory=list)
+    """One :class:`TableWriteError` per failed table, in the order they failed."""
 
     @property
     def failed_tables(self) -> list[str]:
