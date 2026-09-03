@@ -411,6 +411,101 @@ def test_scale_by_ownership():
     pd.testing.assert_frame_equal(out_ex1, out)
 
 
+def test_scale_by_ownership_swaps_owner_utility_columns():
+    """Owner records get the owner's utility_id_pudl and utility_name_eia.
+
+    When the generators table carries the operator's ``utility_id_pudl`` and
+    ``utility_name_eia`` and the denormalized ownership table reports the
+    owner's equivalents, each owner record should describe the owner, not the
+    operator. See https://github.com/catalyst-cooperative/pudl/issues/5430
+    """
+    # Generator "a" is jointly owned by its operator (utility 3) and utility 4.
+    # Generator "b" doesn't show up in the ownership table, so its operator is
+    # assumed to be its sole owner.
+    own = pd.DataFrame(
+        {
+            "plant_id_eia": [1, 1],
+            "report_date": ["2019-01-01", "2019-01-01"],
+            "generator_id": ["a", "a"],
+            "owner_utility_id_eia": [3, 4],
+            "utility_id_pudl": [30, 40],
+            "owner_utility_name_eia": ["Operator Co", "Other Owner Co"],
+            "fraction_owned": [0.7, 0.3],
+        },
+    ).astype(
+        {
+            "report_date": "datetime64[us]",
+            "owner_utility_id_eia": pd.Int64Dtype(),
+            "utility_id_pudl": pd.Int64Dtype(),
+        }
+    )
+
+    gens = pd.DataFrame(
+        {
+            "plant_id_eia": [1, 1],
+            "report_date": ["2019-01-01", "2019-01-01"],
+            "generator_id": ["a", "b"],
+            "utility_id_eia": [3, 3],
+            "utility_id_pudl": [30, 30],
+            "utility_name_eia": ["Operator Co", "Operator Co"],
+            "capacity_mw": [100.0, 50.0],
+        },
+    ).astype(
+        {
+            "report_date": "datetime64[us]",
+            "utility_id_eia": pd.Int64Dtype(),
+            "utility_id_pudl": pd.Int64Dtype(),
+        }
+    )
+
+    out = (
+        pudl.helpers.scale_by_ownership(
+            gens=gens, own_eia860=own, scale_cols=["capacity_mw"]
+        )
+        .sort_values(
+            ["ownership_record_type", "generator_id", "utility_id_eia"],
+            ignore_index=True,
+        )
+        .convert_dtypes()
+    )
+
+    expected = (
+        pd.DataFrame(
+            {
+                "plant_id_eia": [1, 1, 1, 1, 1, 1],
+                "report_date": ["2019-01-01"] * 6,
+                "generator_id": ["a", "a", "b", "a", "a", "b"],
+                "capacity_mw": [
+                    100 * 0.7,
+                    100 * 0.3,
+                    50.0,
+                    100.0,
+                    100.0,
+                    50.0,
+                ],
+                "fraction_owned": [0.7, 0.3, 1.0, 1.0, 1.0, 1.0],
+                "utility_id_eia": [3, 4, 3, 3, 4, 3],
+                "utility_id_pudl": [30, 40, 30, 30, 40, 30],
+                "utility_name_eia": [
+                    "Operator Co",
+                    "Other Owner Co",
+                    "Operator Co",
+                    "Operator Co",
+                    "Other Owner Co",
+                    "Operator Co",
+                ],
+                "ownership_record_type": ["owned"] * 3 + ["total"] * 3,
+            },
+        )
+        .astype({"report_date": "datetime64[us]"})
+        .convert_dtypes()
+    )
+
+    pd.testing.assert_frame_equal(
+        out, expected[out.columns], check_like=True, check_dtype=False
+    )
+
+
 def test_label_true_grans():
     """Test the labeling of true granularities in the plant part list."""
     plant_part_list_input = pd.DataFrame(

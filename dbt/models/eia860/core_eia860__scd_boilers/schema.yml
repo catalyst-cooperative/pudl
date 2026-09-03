@@ -4,6 +4,374 @@ sources:
     tables:
       - name: core_eia860__scd_boilers
         data_tests:
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - boiler_type
+                pk_table_name: source('pudl', 'core_eia__codes_boiler_types')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - plant_id_eia
+                  - boiler_id
+                pk_table_name: source('pudl', 'core_eia__entity_boilers')
+                pk_column_names:
+                  - plant_id_eia
+                  - boiler_id
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - boiler_status
+                pk_table_name: source('pudl', 'core_eia__codes_boiler_status')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - nox_control_manufacturer_code
+                pk_table_name: source('pudl', 'core_eia__codes_environmental_equipment_manufacturers')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - firing_type_1
+                pk_table_name: source('pudl', 'core_eia__codes_firing_types')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - firing_type_2
+                pk_table_name: source('pudl', 'core_eia__codes_firing_types')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - firing_type_3
+                pk_table_name: source('pudl', 'core_eia__codes_firing_types')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - nox_control_existing_caaa_compliance_strategy_1
+                pk_table_name: source('pudl', 'core_eia__codes_nox_compliance_strategies')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - nox_control_existing_caaa_compliance_strategy_2
+                pk_table_name: source('pudl', 'core_eia__codes_nox_compliance_strategies')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - nox_control_existing_caaa_compliance_strategy_3
+                pk_table_name: source('pudl', 'core_eia__codes_nox_compliance_strategies')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - nox_control_out_of_compliance_strategy_1
+                pk_table_name: source('pudl', 'core_eia__codes_nox_compliance_strategies')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - nox_control_out_of_compliance_strategy_2
+                pk_table_name: source('pudl', 'core_eia__codes_nox_compliance_strategies')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - nox_control_out_of_compliance_strategy_3
+                pk_table_name: source('pudl', 'core_eia__codes_nox_compliance_strategies')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - nox_control_planned_caaa_compliance_strategy_1
+                pk_table_name: source('pudl', 'core_eia__codes_nox_compliance_strategies')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - nox_control_planned_caaa_compliance_strategy_2
+                pk_table_name: source('pudl', 'core_eia__codes_nox_compliance_strategies')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - nox_control_planned_caaa_compliance_strategy_3
+                pk_table_name: source('pudl', 'core_eia__codes_nox_compliance_strategies')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - nox_control_status_code
+                pk_table_name: source('pudl', 'core_eia__codes_nox_control_status')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - unit_nox
+                pk_table_name: source('pudl', 'core_eia__codes_nox_units')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - mercury_control_proposed_strategy_1
+                pk_table_name: source('pudl', 'core_eia__codes_mercury_compliance_strategies')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - mercury_control_proposed_strategy_2
+                pk_table_name: source('pudl', 'core_eia__codes_mercury_compliance_strategies')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - mercury_control_proposed_strategy_3
+                pk_table_name: source('pudl', 'core_eia__codes_mercury_compliance_strategies')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - mercury_control_existing_strategy_1
+                pk_table_name: source('pudl', 'core_eia__codes_mercury_compliance_strategies')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - mercury_control_existing_strategy_2
+                pk_table_name: source('pudl', 'core_eia__codes_mercury_compliance_strategies')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - mercury_control_existing_strategy_3
+                pk_table_name: source('pudl', 'core_eia__codes_mercury_compliance_strategies')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - mercury_control_existing_strategy_4
+                pk_table_name: source('pudl', 'core_eia__codes_mercury_compliance_strategies')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - mercury_control_existing_strategy_5
+                pk_table_name: source('pudl', 'core_eia__codes_mercury_compliance_strategies')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - mercury_control_existing_strategy_6
+                pk_table_name: source('pudl', 'core_eia__codes_mercury_compliance_strategies')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - particulate_control_out_of_compliance_strategy_1
+                pk_table_name: source('pudl', 'core_eia__codes_particulate_compliance_strategies')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - particulate_control_out_of_compliance_strategy_2
+                pk_table_name: source('pudl', 'core_eia__codes_particulate_compliance_strategies')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - particulate_control_out_of_compliance_strategy_3
+                pk_table_name: source('pudl', 'core_eia__codes_particulate_compliance_strategies')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - unit_particulate
+                pk_table_name: source('pudl', 'core_eia__codes_particulate_units')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - regulation_nox
+                pk_table_name: source('pudl', 'core_eia__codes_regulations')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - regulation_particulate
+                pk_table_name: source('pudl', 'core_eia__codes_regulations')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - regulation_so2
+                pk_table_name: source('pudl', 'core_eia__codes_regulations')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - regulation_mercury
+                pk_table_name: source('pudl', 'core_eia__codes_regulations')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - so2_control_existing_caaa_compliance_strategy_1
+                pk_table_name: source('pudl', 'core_eia__codes_so2_compliance_strategies')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - so2_control_existing_caaa_compliance_strategy_2
+                pk_table_name: source('pudl', 'core_eia__codes_so2_compliance_strategies')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - so2_control_existing_caaa_compliance_strategy_3
+                pk_table_name: source('pudl', 'core_eia__codes_so2_compliance_strategies')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - so2_control_out_of_compliance_strategy_1
+                pk_table_name: source('pudl', 'core_eia__codes_so2_compliance_strategies')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - so2_control_out_of_compliance_strategy_2
+                pk_table_name: source('pudl', 'core_eia__codes_so2_compliance_strategies')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - so2_control_out_of_compliance_strategy_3
+                pk_table_name: source('pudl', 'core_eia__codes_so2_compliance_strategies')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - so2_control_planned_caaa_compliance_strategy_1
+                pk_table_name: source('pudl', 'core_eia__codes_so2_compliance_strategies')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - so2_control_planned_caaa_compliance_strategy_2
+                pk_table_name: source('pudl', 'core_eia__codes_so2_compliance_strategies')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - so2_control_planned_caaa_compliance_strategy_3
+                pk_table_name: source('pudl', 'core_eia__codes_so2_compliance_strategies')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - wet_dry_bottom_code
+                pk_table_name: source('pudl', 'core_eia__codes_wet_dry_bottom')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - unit_so2
+                pk_table_name: source('pudl', 'core_eia__codes_so2_units')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - data_maturity
+                pk_table_name: source('pudl', 'core_pudl__codes_data_maturities')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - boiler_fuel_code_1
+                pk_table_name: source('pudl', 'core_eia__codes_energy_sources')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - boiler_fuel_code_2
+                pk_table_name: source('pudl', 'core_eia__codes_energy_sources')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - boiler_fuel_code_3
+                pk_table_name: source('pudl', 'core_eia__codes_energy_sources')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - boiler_fuel_code_4
+                pk_table_name: source('pudl', 'core_eia__codes_energy_sources')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - plant_id_eia
+                  - report_date
+                pk_table_name: source('pudl', 'core_eia860__scd_plants')
+                pk_column_names:
+                  - plant_id_eia
+                  - report_date
           - expect_columns_not_all_null:
               description: |-
                 This table has a lot of row_conditions because it has a few columns that are found in
@@ -101,7 +469,6 @@ sources:
                   standard_so2_scrubbed_fraction: EXTRACT(year FROM report_date) >= 2013
           - check_row_counts_per_partition:
               arguments:
-                table_name: core_eia860__scd_boilers
                 partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: plant_id_eia

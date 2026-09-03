@@ -9,7 +9,6 @@ sources:
                   short_form: EXTRACT(year FROM report_date) = 2019
           - check_row_counts_per_partition:
               arguments:
-                table_name: core_eia861__yearly_sales
                 partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: customers

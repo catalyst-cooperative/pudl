@@ -77,6 +77,12 @@ FERC EQR
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Fixed a bug in :ref:`out_eia__yearly_generators_by_ownership` where every ownership
+  record for a jointly owned generator reported the plant operator's
+  ``utility_id_pudl`` and ``utility_name_eia`` instead of the owner's. When ownership
+  slices are generated, the owner's PUDL utility ID and EIA utility name are now
+  swapped in alongside the owner's ``utility_id_eia``. See issue :issue:`5430` and PR
+  :pr:`5506`.
 * Fixed ``set_gcs_temporary_hold`` only protecting the top level of a versioned
   release path from deletion. It shelled out to ``gcloud storage objects update
   gs://bucket/prefix/*``, and that glob only matches one path segment, so anything
@@ -133,6 +139,15 @@ Performance Improvements
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^
 
+* Reworked how the Google Batch jobs launched by the ``build-pudl``,
+  ``deploy-pudl``, and ``build-deploy-ferceqr`` GitHub workflows are configured. The
+  Batch config generator moved from ``devtools/`` into the package as the
+  ``batch_config`` script (:mod:`pudl.scripts.batch_config`); the workflows now
+  select an explicit VM machine type and boot disk rather than passing raw resource
+  counts, and every VM and its logs are tagged with the pipeline that launched them
+  so a shared Cloud Monitoring dashboard can filter resource-usage metrics by
+  pipeline. VM sizes and the ETL's process and thread parallelism were tuned to
+  match measured resource usage and stop oversubscribing the CPUs. See :pr:`5545`.
 * Fixed several issues with how ``dbt_helper update-tables`` renders ``schema.yml``
   (:mod:`pudl.dbt_schema`): long ``description:`` fields are now wrapped into readable
   paragraph blocks and strings that need quoting prefer double quotes. This now matches
@@ -152,6 +167,20 @@ Developer Experience
   failures. A pytest collection hook enforces the ETL/no-ETL split. Also fixed a live
   Zulip notification firing from the test suite and tightened the dbt ``schema.yml``
   round-trip test. See issue :issue:`5508` and PR :pr:`5507`.
+* Do foreign key constraint validation with dbt instead of SQLite. Update our
+  ``dbt_helper`` script to autogenerate FK constraint tests based on the PUDL metadata.
+  Remove the SQLite based FK checking infrastructure. Also add sensible defaults for
+  our row-count expectation checking test so we can remove boilerplate test specs.
+  See issues :issue:`4564,5208` and PR :pr:`5519`.
+* Automated updating the Zenodo deposition metadata (creators, keywords, version,
+  description, and structured resource links) for monthly PUDL data releases, which
+  previously had to be hand-edited in the Zenodo web UI every month. Creators and
+  keywords are now read from ``.zenodo.json``, and the description is assembled from
+  the built release notes for that version plus a footer of release-specific resource
+  links (versioned docs, data dictionary, S3/GCS paths, the GitHub release, and the
+  corresponding GitHub-repo Zenodo software archive), which are also populated as
+  structured ``related_identifiers`` for better DataCite/OpenAIRE indexing. See issue
+  :issue:`3326` and PR :pr:`5484`.
 
 .. _release-v2026.8.0:
 
