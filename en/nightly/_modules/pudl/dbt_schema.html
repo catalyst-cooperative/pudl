@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.dbt_schema &#8212; PUDL 2026.8.1.dev29 documentation</title>
+    <title>pudl.dbt_schema &#8212; PUDL 2026.8.1.dev32 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../_static/documentation_options.js?v=6c0ec4ab"></script>
+    <script src="../../_static/documentation_options.js?v=a2936aae"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev29 documentation - Home"/>
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev29 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev32 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev32 documentation - Home"/>
   
   
 </a></div>
@@ -883,7 +883,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">BeforeValidator</span><span class="p">,</span> <span class="n">ConfigDict</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">PUDL_PACKAGE</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">PUDL_PACKAGE</span><span class="p">,</span> <span class="n">Resource</span>
 
 <div class="viewcode-block" id="_DESCRIPTION_WRAP_WIDTH">
 <a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema._DESCRIPTION_WRAP_WIDTH">[docs]</a>
@@ -1082,6 +1082,30 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<div class="viewcode-block" id="_foreign_key_data_tests">
+<a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema._foreign_key_data_tests">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_foreign_key_data_tests</span><span class="p">(</span><span class="n">resource</span><span class="p">:</span> <span class="n">Resource</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Build ``foreign_key`` data test entries for a resource's outgoing FKs.</span>
+
+<span class="sd">    One entry per foreign key relationship declared on the resource, in declaration</span>
+<span class="sd">    order, so regenerating a table's schema.yml produces a stable diff.</span>
+<span class="sd">    """</span>
+    <span class="n">data_tests</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">"foreign_key"</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">"arguments"</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">"fk_column_names"</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">fk</span><span class="o">.</span><span class="n">fields</span><span class="p">),</span>
+                    <span class="s2">"pk_table_name"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"source('pudl', '</span><span class="si">{</span><span class="n">fk</span><span class="o">.</span><span class="n">reference</span><span class="o">.</span><span class="n">resource</span><span class="si">}</span><span class="s2">')"</span><span class="p">,</span>
+                    <span class="s2">"pk_column_names"</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">fk</span><span class="o">.</span><span class="n">reference</span><span class="o">.</span><span class="n">fields</span><span class="p">),</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">fk</span> <span class="ow">in</span> <span class="n">resource</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">foreign_keys</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="n">data_tests</span> <span class="ow">or</span> <span class="kc">None</span></div>
+
+
+
 <div class="viewcode-block" id="DbtColumn">
 <a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema.DbtColumn">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DbtColumn</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
@@ -1163,12 +1187,11 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema.DbtTable.from_table_name">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">from_table_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"DbtTable"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Construct configuration defining table from PUDL metadata."""</span>
+        <span class="n">resource</span> <span class="o">=</span> <span class="n">PUDL_PACKAGE</span><span class="o">.</span><span class="n">get_resource</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">name</span><span class="o">=</span><span class="n">table_name</span><span class="p">,</span>
-            <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
-                <span class="n">DbtColumn</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">PUDL_PACKAGE</span><span class="o">.</span><span class="n">get_resource</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">fields</span>
-            <span class="p">],</span>
+            <span class="n">data_tests</span><span class="o">=</span><span class="n">_foreign_key_data_tests</span><span class="p">(</span><span class="n">resource</span><span class="p">),</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">DbtColumn</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">resource</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">fields</span><span class="p">],</span>
         <span class="p">)</span></div>
 </div>
 

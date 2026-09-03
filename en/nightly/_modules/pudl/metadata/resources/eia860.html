@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.resources.eia860 &#8212; PUDL 2026.8.1.dev29 documentation</title>
+    <title>pudl.metadata.resources.eia860 &#8212; PUDL 2026.8.1.dev32 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../../_static/documentation_options.js?v=6c0ec4ab"></script>
+    <script src="../../../../_static/documentation_options.js?v=a2936aae"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev29 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev29 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev32 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev32 documentation - Home"/>
   
   
 </a></div>
@@ -1403,6 +1403,13 @@ window.runMermaid = runMermaid;</script>
                     <span class="s2">"core_eia861__yearly_utility_data_nerc"</span><span class="p">,</span>
                     <span class="s2">"core_eia861__yearly_utility_data_rto"</span><span class="p">,</span>
                     <span class="s2">"out_sec10k__quarterly_company_information"</span><span class="p">,</span>
+                    <span class="c1"># FERC-714 respondents keep reporting under a historical</span>
+                    <span class="c1"># utility_id_eia even for report years where core_eia860__scd_utilities</span>
+                    <span class="c1"># has no matching record for that utility (e.g. it stopped</span>
+                    <span class="c1"># filing EIA-860, merged, etc.), so this FK is structurally</span>
+                    <span class="c1"># too strict for this table.</span>
+                    <span class="c1"># See: https://github.com/catalyst-cooperative/pudl/issues/5515</span>
+                    <span class="s2">"out_ferc714__georeferenced_respondents"</span><span class="p">,</span>
                 <span class="p">],</span>
             <span class="p">},</span>
         <span class="p">},</span>

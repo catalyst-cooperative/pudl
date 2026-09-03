@@ -22,8 +22,9 @@ with cleaning and restructuring dataframes.
 
 ## Functions
 
-| [`label_map`](#pudl.helpers.label_map)(→ collections.defaultdict[str, ...)          | Build a mapping dictionary from two columns of a labeling / coding dataframe.                                                                                                                                                                                     |
+| [`run_git`](#pudl.helpers.run_git)(→ str)                                         | Run a git subcommand and return its stdout, logging stderr on failure.                                                                                                                                                                                            |
 |---------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`label_map`](#pudl.helpers.label_map)(→ collections.defaultdict[str, ...)          | Build a mapping dictionary from two columns of a labeling / coding dataframe.                                                                                                                                                                                     |
 | [`multi_index_stack`](#pudl.helpers.multi_index_stack)(→ pandas.DataFrame)                  | Stack multiple data columns - create categorical columns and data columns.                                                                                                                                                                                        |
 | [`find_new_ferc1_strings`](#pudl.helpers.find_new_ferc1_strings)(→ set[str])                     | Identify as-of-yet uncategorized freeform strings in FERC Form 1.                                                                                                                                                                                                 |
 | [`find_foreign_key_errors`](#pudl.helpers.find_foreign_key_errors)(→ list[dict[str, Any]])        | Report foreign key violations from a dictionary of dataframes.                                                                                                                                                                                                    |
@@ -108,6 +109,22 @@ generation is reported normally, then the fuel consumption for the year needs to
 otherwise we’ll get unrealistic heat rates.
 
 ### pudl.helpers.logger
+
+### pudl.helpers.run_git(args: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], cwd: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+
+Run a git subcommand and return its stdout, logging stderr on failure.
+
+Shared by every git-shelling-out call in PUDL, so there’s one place that knows
+how to invoke git and report failures consistently.
+
+* **Parameters:**
+  * **args** – The git subcommand and arguments to run, e.g. `["rev-parse", "HEAD"]`.
+  * **cwd** – Working directory to run the command in. Defaults to the current
+    process’s working directory.
+* **Returns:**
+  The command’s stdout, unstripped.
+* **Raises:**
+  [**subprocess.CalledProcessError**](https://docs.python.org/3/library/subprocess.html#subprocess.CalledProcessError) – If the command exits non-zero.
 
 ### pudl.helpers.label_map(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), from_col: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'code', to_col: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'label', null_value: [str](https://docs.python.org/3/library/stdtypes.html#str) | pandas._libs.missing.NAType = pd.NA) → [collections.defaultdict](https://docs.python.org/3/library/collections.html#collections.defaultdict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str) | pandas._libs.missing.NAType]
 

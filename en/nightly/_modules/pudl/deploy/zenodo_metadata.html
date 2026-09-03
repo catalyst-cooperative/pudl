@@ -1,0 +1,1286 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    
+    <title>pudl.deploy.zenodo_metadata &#8212; PUDL 2026.8.1.dev32 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=7e24c9f5" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../../../_static/documentation_options.js?v=a2936aae"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = "pre.mermaid {\n    /* Same as .mermaid-container > pre */\n    display: block;\n    width: 100%;\n}\n\npre.mermaid > svg {\n    /* Same as .mermaid-container > pre > svg */\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}";
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = ".mermaid-container {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    width: 100%;\n}\n\n.mermaid-container > pre {\n    display: block;\n    width: 100%;\n}\n\n.mermaid-container > pre > svg {\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}\n\n.mermaid-fullscreen-btn {\n    position: absolute;\n    width: 28px;\n    height: 28px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.3);\n    border-radius: 4px;\n    cursor: pointer;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transition: all 0.2s;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);\n    font-size: 14px;\n    line-height: 1;\n    padding: 0;\n    color: #333;\n}\n\n.mermaid-fullscreen-btn:hover {\n    opacity: 100% !important;\n    background: rgba(255, 255, 255, 1);\n    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-btn.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.3);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-btn.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal {\n    display: none;\n    position: fixed !important;\n    top: 0 !important;\n    left: 0 !important;\n    width: 95vw;\n    height: 100vh;\n    background: rgba(255, 255, 255, 0.98);\n    z-index: 9999;\n    padding: 20px;\n    overflow: auto;\n}\n\n.mermaid-fullscreen-modal.dark-theme {\n    background: rgba(0, 0, 0, 0.98);\n}\n\n.mermaid-fullscreen-modal.active {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen {\n    position: relative;\n    width: 95vw;\n    height: 90vh;\n    max-width: 95vw;\n    max-height: 90vh;\n    background: white;\n    border-radius: 8px;\n    padding: 20px;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);\n    overflow: auto;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen.dark-theme {\n    background: #1a1a1a;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);\n}\n\n.mermaid-container-fullscreen pre.mermaid {\n    width: 100%;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen .mermaid svg {\n    height: 100% !important;\n    width: 100% !important;\n    cursor: grab;\n}\n\n.mermaid-fullscreen-close {\n    position: fixed !important;\n    top: 20px !important;\n    right: 20px !important;\n    width: 40px;\n    height: 40px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.2);\n    border-radius: 50%;\n    cursor: pointer;\n    z-index: 10000;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);\n    transition: all 0.2s;\n    font-size: 24px;\n    line-height: 1;\n    color: #333;\n}\n\n.mermaid-fullscreen-close:hover {\n    background: white;\n    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-close.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.2);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-close.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal .mermaid-fullscreen-btn {\n    display: none !important;\n}";
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+let _lazyObserver = null;
+let _renderQueue = Promise.resolve();
+let closeModal = () => {};
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal?.classList.contains('active')) {
+        closeModal();
+    }
+});
+
+// Apply d3 zoom to each SVG. Idempotent: an SVG already wrapped is skipped,
+// so this is safe to call both for the initial batch and for diagrams that
+// render lazily once they become visible.
+const addZoomToSvgs = (svgs) => {
+    svgs.each(function() {
+        if (this.getAttribute('data-zoom-applied') === 'true') return;
+        var svg = d3.select(this);
+        svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+        var inner = svg.select("g");
+        var zoom = d3.zoom().on("zoom", function(event) {
+            inner.attr("transform", event.transform);
+        });
+        svg.call(zoom);
+        this.setAttribute('data-zoom-applied', 'true');
+    });
+};
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        // Disconnect any previous lazy rendering observer
+        if (_lazyObserver) {
+            _lazyObserver.disconnect();
+            _lazyObserver = null;
+        }
+
+        all_mermaids.forEach((el) => {
+            el.removeAttribute('data-mermaid-deferred');
+            el.removeAttribute('data-mermaid-render-failed');
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+
+        // Separate visible and hidden elements. Mermaid's layout engine measures
+        // text dimensions via the DOM, which fails for elements hidden by a parent
+        // (e.g., Reveal.js non-active slides, sphinx-design unopened tabs),
+        // producing broken SVGs. Render visible elements now, defer hidden ones.
+        const visible = [];
+        const hidden = [];
+        all_mermaids.forEach((el) => {
+            // offsetParent is null for display:none ancestors.
+            // getClientRects().length > 0 catches position:fixed elements
+            // (which also have null offsetParent but are still visible).
+            if (el.offsetParent !== null || el.getClientRects().length > 0) {
+                visible.push(el);
+            } else {
+                hidden.push(el);
+                el.setAttribute('data-mermaid-deferred', 'true');
+            }
+        });
+
+        if (visible.length > 0) {
+            try {
+                await mermaid.run({ nodes: visible });
+            } catch (e) {
+                console.error("Mermaid rendering failed:", e);
+            }
+        }
+
+        // Lazily render hidden elements when they become visible.
+        // Uses a promise chain (_renderQueue) to serialize rendering,
+        // since IntersectionObserver may report multiple entries at once
+        // and mermaid.run() is not safe to call concurrently.
+        if (hidden.length > 0) {
+            if (typeof IntersectionObserver === 'undefined') {
+                console.warn("IntersectionObserver not available; hidden mermaid diagrams will not render.");
+            } else {
+                _renderQueue = Promise.resolve();
+                _lazyObserver = new IntersectionObserver((entries) => {
+                    for (const entry of entries) {
+                        if (entry.isIntersecting && entry.target.getAttribute("data-processed") !== "true") {
+                            _lazyObserver.unobserve(entry.target);
+                            const el = entry.target;
+                            _renderQueue = _renderQueue.then(async () => {
+                                try {
+                                    await mermaid.run({ nodes: [el] });
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    // Apply zoom to the now-rendered diagram, matching
+                                    // the decoration visible diagrams receive.
+                                    if (false) {
+                                        addZoomToSvgs(d3.selectAll("").select(function() {
+                                            return this.querySelector("svg");
+                                        }));
+                                    }
+                                } catch (e) {
+                                    console.error("Mermaid deferred rendering failed:", e);
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    el.setAttribute('data-mermaid-render-failed', 'true');
+                                }
+                            });
+                        }
+                    }
+                });
+                hidden.forEach((el) => _lazyObserver.observe(el));
+            }
+        }
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    // Exclude deferred (hidden) and render-failed elements from completion checks
+    const mermaids_active = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])");
+    const mermaids_processed = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])[data-processed='true']");
+
+    if (false) {
+        const mermaids_to_add_zoom = 0 === -1 ? mermaids_active.length : 0;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("").select(function() {
+                return this.querySelector("svg");
+            });
+            // Wait until every active (visible) diagram has rendered. Deferred
+            // diagrams are excluded, so a fixed d3_node_count that counts a
+            // hidden diagram no longer loops forever waiting for its SVG.
+            if(mermaids_active.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            }
+            addZoomToSvgs(svgs);
+        }
+    } else if(mermaids_active.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if (!true) return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = "\u26f6";
+        fullscreenBtn.style.opacity = "50%";
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scrollX, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.display = 'block';
+
+                if (false) {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+
+
+const load = async () => {
+    initStyles();
+
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...{"startOnLoad": false},
+                ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...{"startOnLoad": false},
+    ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/deploy/zenodo_metadata';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'nightly';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev32 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev32 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../data.html">
+    Data Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../code.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://mastodon.energy/@catalystcoop" title="Mastodon" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-mastodon fa-lg" aria-hidden="true"></i><span class="visually-hidden">Mastodon</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://bsky.app/profile/catalyst.coop" title="Bluesky" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-bluesky fa-lg" aria-hidden="true"></i><span class="visually-hidden">Bluesky</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.linkedin.com/company/catalyst-cooperative/" title="LinkedIn" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-linkedin fa-lg" aria-hidden="true"></i><span class="visually-hidden">LinkedIn</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://opencollective.com/pudl" title="Support PUDL" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-donate fa-lg" aria-hidden="true"></i><span class="visually-hidden">Support PUDL</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../data.html">
+    Data Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../code.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://mastodon.energy/@catalystcoop" title="Mastodon" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-mastodon fa-lg" aria-hidden="true"></i><span class="visually-hidden">Mastodon</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://bsky.app/profile/catalyst.coop" title="Bluesky" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-bluesky fa-lg" aria-hidden="true"></i><span class="visually-hidden">Bluesky</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.linkedin.com/company/catalyst-cooperative/" title="LinkedIn" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-linkedin fa-lg" aria-hidden="true"></i><span class="visually-hidden">LinkedIn</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://opencollective.com/pudl" title="Support PUDL" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-donate fa-lg" aria-hidden="true"></i><span class="visually-hidden">Support PUDL</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../../pudl.html" class="nav-link">pudl</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">pudl.deploy.zenodo_metadata</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for pudl.deploy.zenodo_metadata</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Gather Zenodo deposition metadata for a PUDL data release from repo sources.</span>
+
+<span class="sd">Every monthly PUDL data release requires updating the Zenodo deposition's creators,</span>
+<span class="sd">keywords, version, and description. This module assembles that metadata</span>
+<span class="sd">programmatically from files already checked into the repo, instead of hand-editing it</span>
+<span class="sd">in the Zenodo web UI:</span>
+
+<span class="sd">* Creators and keywords come from ``.zenodo.json`` (the same file GitHub's own Zenodo</span>
+<span class="sd">  integration uses to archive the repository itself), so there's a single canonical</span>
+<span class="sd">  place to update either list.</span>
+<span class="sd">* The description body is extracted from the built Sphinx docs</span>
+<span class="sd">  (``docs/_build/html/release_notes.html``) rather than re-implemented with a</span>
+<span class="sd">  standalone RST-to-HTML converter, since the release notes use Sphinx-specific roles</span>
+<span class="sd">  (``:pr:``, ``:issue:``, ``:user:``, ``:doc:``, autoapi cross-references) that only</span>
+<span class="sd">  Sphinx itself can resolve correctly.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">bs4</span><span class="w"> </span><span class="kn">import</span> <span class="n">BeautifulSoup</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">run_git</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.logging_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">LICENSES</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.sources</span><span class="w"> </span><span class="kn">import</span> <span class="n">SOURCES</span>
+
+<div class="viewcode-block" id="logger">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/zenodo_metadata/index.html#pudl.deploy.zenodo_metadata.logger">[docs]</a>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DOCS_BASE_URL">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/zenodo_metadata/index.html#pudl.deploy.zenodo_metadata.DOCS_BASE_URL">[docs]</a>
+<span class="n">DOCS_BASE_URL</span> <span class="o">=</span> <span class="s2">"https://docs.catalyst.coop/pudl/en"</span></div>
+
+<div class="viewcode-block" id="GITHUB_REPO_URL">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/zenodo_metadata/index.html#pudl.deploy.zenodo_metadata.GITHUB_REPO_URL">[docs]</a>
+<span class="n">GITHUB_REPO_URL</span> <span class="o">=</span> <span class="s2">"https://github.com/catalyst-cooperative/pudl"</span></div>
+
+<div class="viewcode-block" id="AWS_OPEN_DATA_REGISTRY_URL">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/zenodo_metadata/index.html#pudl.deploy.zenodo_metadata.AWS_OPEN_DATA_REGISTRY_URL">[docs]</a>
+<span class="n">AWS_OPEN_DATA_REGISTRY_URL</span> <span class="o">=</span> <span class="s2">"https://registry.opendata.aws/catalyst-cooperative-pudl/"</span></div>
+
+<div class="viewcode-block" id="S3_BUCKET_URL">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/zenodo_metadata/index.html#pudl.deploy.zenodo_metadata.S3_BUCKET_URL">[docs]</a>
+<span class="n">S3_BUCKET_URL</span> <span class="o">=</span> <span class="s2">"s3://pudl.catalyst.coop"</span></div>
+
+<div class="viewcode-block" id="GCS_BUCKET_URL">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/zenodo_metadata/index.html#pudl.deploy.zenodo_metadata.GCS_BUCKET_URL">[docs]</a>
+<span class="n">GCS_BUCKET_URL</span> <span class="o">=</span> <span class="s2">"gs://pudl.catalyst.coop"</span></div>
+
+
+<div class="viewcode-block" id="CONTACT_US_HTML">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/zenodo_metadata/index.html#pudl.deploy.zenodo_metadata.CONTACT_US_HTML">[docs]</a>
+<span class="n">CONTACT_US_HTML</span> <span class="o">=</span> <span class="s2">"""</span><span class="se">\</span>
+<span class="s2">&lt;h1&gt;&lt;strong&gt;Contact Us&lt;/strong&gt;&lt;/h1&gt;</span>
+<span class="s2">&lt;p&gt;&lt;strong&gt;If you're using PUDL, we would love to hear from you!&lt;/strong&gt; Even if </span><span class="se">\</span>
+<span class="s2">it's just a note to let us know that you exist, and how you're using the software or </span><span class="se">\</span>
+<span class="s2">data. Here's a bunch of different ways to get in touch:&lt;/p&gt;</span>
+<span class="s2">&lt;ul&gt;</span>
+<span class="s2">&lt;li&gt;&lt;a href="https://github.com/catalyst-cooperative"&gt;Follow us on GitHub&lt;/a&gt;&lt;/li&gt;</span>
+<span class="s2">&lt;li&gt;Use the &lt;a href="https://github.com/catalyst-cooperative/pudl/issues"&gt;PUDL </span><span class="se">\</span>
+<span class="s2">Github issue tracker&lt;/a&gt; to let us know about any bugs or data issues you </span><span class="se">\</span>
+<span class="s2">encounter&lt;/li&gt;</span>
+<span class="s2">&lt;li&gt;&lt;a href="https://github.com/orgs/catalyst-cooperative/discussions"&gt;GitHub </span><span class="se">\</span>
+<span class="s2">Discussions&lt;/a&gt; is where we provide user support.&lt;/li&gt;</span>
+<span class="s2">&lt;li&gt;Watch our &lt;a href="https://github.com/orgs/catalyst-cooperative/projects/9"&gt;</span><span class="se">\</span>
+<span class="s2">GitHub Project&lt;/a&gt; to see what we're working on.&lt;/li&gt;</span>
+<span class="s2">&lt;li&gt;Email us at &lt;a href="mailto:hello@catalyst.coop"&gt;hello@catalyst.coop&lt;/a&gt; for </span><span class="se">\</span>
+<span class="s2">private communications.&lt;/li&gt;</span>
+<span class="s2">&lt;li&gt;On Mastodon: &lt;a href="https://mastodon.energy/@catalystcoop"&gt;</span><span class="se">\</span>
+<span class="s2">@CatalystCoop@mastodon.energy&lt;/a&gt;&lt;/li&gt;</span>
+<span class="s2">&lt;li&gt;On BlueSky: &lt;a href="https://bsky.app/profile/catalyst.coop"&gt;</span><span class="se">\</span>
+<span class="s2">@catalyst.coop&lt;/a&gt;&lt;/li&gt;</span>
+<span class="s2">&lt;li&gt;Connect with us &lt;a href="https://www.linkedin.com/company/catalyst-cooperative/"&gt;</span><span class="se">\</span>
+<span class="s2">on LinkedIn&lt;/a&gt;&lt;/li&gt;</span>
+<span class="s2">&lt;li&gt;Play with our data and notebooks </span><span class="se">\</span>
+<span class="s2">&lt;a href="https://www.kaggle.com/catalystcooperative"&gt;on Kaggle&lt;/a&gt;&lt;/li&gt;</span>
+<span class="s2">&lt;li&gt;Combine our data with ML models </span><span class="se">\</span>
+<span class="s2">&lt;a href="https://huggingface.co/catalystcooperative"&gt;on HuggingFace&lt;/a&gt;&lt;/li&gt;</span>
+<span class="s2">&lt;li&gt;Learn more about us on our website: </span><span class="se">\</span>
+<span class="s2">&lt;a href="https://catalyst.coop"&gt;https://catalyst.coop&lt;/a&gt;&lt;/li&gt;</span>
+<span class="s2">&lt;li&gt;Subscribe to our announcements list for </span><span class="se">\</span>
+<span class="s2">&lt;a href="https://catalyst.coop/updates"&gt;email updates&lt;/a&gt;.&lt;/li&gt;</span>
+<span class="s2">&lt;/ul&gt;"""</span></div>
+
+
+
+<div class="viewcode-block" id="load_zenodo_json">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/zenodo_metadata/index.html#pudl.deploy.zenodo_metadata.load_zenodo_json">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_zenodo_json</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""Read creators and keywords out of ``.zenodo.json``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        path: Path to the repo's ``.zenodo.json`` file.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A ``(creators, keywords)`` tuple. ``creators`` entries are already in the</span>
+<span class="sd">        shape the Zenodo deposit API expects (``name``, ``affiliation``, ``orcid``).</span>
+<span class="sd">    """</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="s2">"creators"</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s2">"keywords"</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="get_data_license_id">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/zenodo_metadata/index.html#pudl.deploy.zenodo_metadata.get_data_license_id">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_data_license_id</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Get the Zenodo license ID for the PUDL data release.</span>
+
+<span class="sd">    ``pudl.metadata.sources.SOURCES["pudl"]["license_pudl"]`` is the authoritative</span>
+<span class="sd">    record of what license PUDL's own outputs (as opposed to the raw inputs we</span>
+<span class="sd">    archive, which can carry their own separate licenses) are released under. This</span>
+<span class="sd">    looks up which ``pudl.metadata.constants.LICENSES`` key that entry corresponds to,</span>
+<span class="sd">    since that key (e.g. ``"cc-by-4.0"``) is the ID Zenodo's API expects.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The Zenodo license ID, e.g. ``"cc-by-4.0"``.</span>
+<span class="sd">    """</span>
+    <span class="n">license_pudl</span> <span class="o">=</span> <span class="n">SOURCES</span><span class="p">[</span><span class="s2">"pudl"</span><span class="p">][</span><span class="s2">"license_pudl"</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">license_id</span><span class="p">,</span> <span class="n">license_info</span> <span class="ow">in</span> <span class="n">LICENSES</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">license_info</span> <span class="o">==</span> <span class="n">license_pudl</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">license_id</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"SOURCES['pudl']['license_pudl'] (</span><span class="si">{</span><span class="n">license_pudl</span><span class="si">!r}</span><span class="s2">) doesn't match any "</span>
+        <span class="sa">f</span><span class="s2">"entry in LICENSES -- can't determine the Zenodo license ID."</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_latest_release_tag">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/zenodo_metadata/index.html#pudl.deploy.zenodo_metadata.get_latest_release_tag">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_latest_release_tag</span><span class="p">(</span><span class="n">repo_root</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Get the most recently released PUDL version tag reachable from ``HEAD``.</span>
+
+<span class="sd">    Used as a stand-in release tag for sandbox test runs, which aren't publishing a</span>
+<span class="sd">    real new version and so have no real release tag of their own to look up release</span>
+<span class="sd">    notes for.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        repo_root: Path to the repo's working tree.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The most recent reachable release tag, e.g. ``"v2026.8.0"``.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">run_git</span><span class="p">(</span>
+        <span class="p">[</span><span class="s2">"describe"</span><span class="p">,</span> <span class="s2">"--tags"</span><span class="p">,</span> <span class="s2">"--abbrev=0"</span><span class="p">,</span> <span class="s2">"--match"</span><span class="p">,</span> <span class="s2">"v20*"</span><span class="p">],</span> <span class="n">cwd</span><span class="o">=</span><span class="n">repo_root</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="verify_git_tag_checked_out">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/zenodo_metadata/index.html#pudl.deploy.zenodo_metadata.verify_git_tag_checked_out">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">verify_git_tag_checked_out</span><span class="p">(</span><span class="n">tag</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">repo_root</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Raise if the working tree at ``repo_root`` isn't exactly the given git tag.</span>
+
+<span class="sd">    Release notes, creators, and keywords are all read live from the working tree</span>
+<span class="sd">    rather than from Zenodo or any other tag-pinned source, so producing metadata for</span>
+<span class="sd">    a specific release requires actually having that release's tag checked out --</span>
+<span class="sd">    running from a later (or earlier) commit can silently pick up different release</span>
+<span class="sd">    notes text, a different author/keyword list, etc.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        tag: The expected git tag, e.g. ``"v2026.8.0"``.</span>
+<span class="sd">        repo_root: Path to the repo's working tree to check.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If ``tag`` can't be resolved, or doesn't point at the working</span>
+<span class="sd">            tree's current ``HEAD``.</span>
+<span class="sd">    """</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">tag_commit</span> <span class="o">=</span> <span class="n">run_git</span><span class="p">([</span><span class="s2">"rev-parse"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">tag</span><span class="si">}</span><span class="s2">^</span><span class="se">{{</span><span class="s2">commit</span><span class="se">}}</span><span class="s2">"</span><span class="p">],</span> <span class="n">cwd</span><span class="o">=</span><span class="n">repo_root</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"Could not resolve git tag </span><span class="si">{</span><span class="n">tag</span><span class="si">!r}</span><span class="s2"> in </span><span class="si">{</span><span class="n">repo_root</span><span class="si">}</span><span class="s2"> -- fetch it first "</span>
+            <span class="sa">f</span><span class="s2">"(git fetch --tags) or double check the tag name."</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+
+    <span class="n">head_commit</span> <span class="o">=</span> <span class="n">run_git</span><span class="p">([</span><span class="s2">"rev-parse"</span><span class="p">,</span> <span class="s2">"HEAD"</span><span class="p">],</span> <span class="n">cwd</span><span class="o">=</span><span class="n">repo_root</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">head_commit</span> <span class="o">!=</span> <span class="n">tag_commit</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"Working tree at </span><span class="si">{</span><span class="n">repo_root</span><span class="si">}</span><span class="s2"> (HEAD=</span><span class="si">{</span><span class="n">head_commit</span><span class="p">[:</span><span class="mi">9</span><span class="p">]</span><span class="si">}</span><span class="s2">) does not match "</span>
+            <span class="sa">f</span><span class="s2">"tag </span><span class="si">{</span><span class="n">tag</span><span class="si">!r}</span><span class="s2"> (</span><span class="si">{</span><span class="n">tag_commit</span><span class="p">[:</span><span class="mi">9</span><span class="p">]</span><span class="si">}</span><span class="s2">). Release notes, creators, and keywords "</span>
+            <span class="sa">f</span><span class="s2">"are all read live from the working tree, so a mismatched checkout can "</span>
+            <span class="sa">f</span><span class="s2">"produce incorrect metadata. Check out </span><span class="si">{</span><span class="n">tag</span><span class="si">!r}</span><span class="s2"> first, e.g. "</span>
+            <span class="sa">f</span><span class="s2">"`git checkout </span><span class="si">{</span><span class="n">tag</span><span class="si">}</span><span class="s2">`."</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="render_release_notes_html">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/zenodo_metadata/index.html#pudl.deploy.zenodo_metadata.render_release_notes_html">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">render_release_notes_html</span><span class="p">(</span><span class="n">docs_html_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">version_tag</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Extract one version's section out of the built release notes HTML.</span>
+
+<span class="sd">    Sphinx wraps every heading in a ``&lt;section&gt;`` and appends a ``headerlink``</span>
+<span class="sd">    permalink anchor to each heading; both are stripped here so the output matches</span>
+<span class="sd">    the flat ``&lt;h1&gt;/&lt;h2&gt;/&lt;h3&gt;`` shape used in the Zenodo description. Sphinx numbers</span>
+<span class="sd">    these headings starting from ``&lt;h2&gt;`` (the version heading), since ``&lt;h1&gt;`` is</span>
+<span class="sd">    reserved for the page's own "PUDL Release Notes" title; since the description is</span>
+<span class="sd">    its own standalone document rather than a subsection of that page, every heading</span>
+<span class="sd">    is bumped up one level so the version heading becomes the top-level ``&lt;h1&gt;``.</span>
+<span class="sd">    Relative links (to other docs pages, or same-page anchors) are rewritten to</span>
+<span class="sd">    absolute URLs under the versioned docs site, since the description lives outside</span>
+<span class="sd">    the docs site.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        docs_html_dir: Path to a built Sphinx HTML output directory (i.e.</span>
+<span class="sd">            ``docs/_build/html``), produced by ``pixi run docs-build``.</span>
+<span class="sd">        version_tag: The release version tag, e.g. ``"v2026.8.0"``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        An HTML fragment containing just that version's release notes.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If the given version's section can't be found.</span>
+<span class="sd">    """</span>
+    <span class="n">release_notes_path</span> <span class="o">=</span> <span class="n">docs_html_dir</span> <span class="o">/</span> <span class="s2">"release_notes.html"</span>
+    <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">release_notes_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">),</span> <span class="s2">"lxml"</span><span class="p">)</span>
+    <span class="n">anchor_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"release-</span><span class="si">{</span><span class="n">version_tag</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'.'</span><span class="p">,</span><span class="w"> </span><span class="s1">'-'</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
+    <span class="n">anchor</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">anchor_id</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">anchor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"Could not find a release notes section for </span><span class="si">{</span><span class="n">version_tag</span><span class="si">!r}</span><span class="s2"> (looked "</span>
+            <span class="sa">f</span><span class="s2">"for id=</span><span class="si">{</span><span class="n">anchor_id</span><span class="si">!r}</span><span class="s2">) in </span><span class="si">{</span><span class="n">release_notes_path</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span>
+    <span class="n">section</span> <span class="o">=</span> <span class="n">anchor</span><span class="o">.</span><span class="n">find_parent</span><span class="p">(</span><span class="s2">"section"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">section</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"Anchor </span><span class="si">{</span><span class="n">anchor_id</span><span class="si">!r}</span><span class="s2"> in </span><span class="si">{</span><span class="n">release_notes_path</span><span class="si">}</span><span class="s2"> isn't inside a &lt;section&gt;"</span>
+        <span class="p">)</span>
+
+    <span class="n">section</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">extract</span><span class="p">()</span>
+    <span class="n">anchor</span><span class="o">.</span><span class="n">decompose</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">headerlink</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">"a"</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">"headerlink"</span><span class="p">):</span>
+        <span class="n">headerlink</span><span class="o">.</span><span class="n">decompose</span><span class="p">()</span>
+
+    <span class="n">docs_base</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">DOCS_BASE_URL</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">version_tag</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">for</span> <span class="n">link</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">"a"</span><span class="p">,</span> <span class="n">href</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="c1"># bs4 types href as str | AttributeValueList (multi-valued attrs like</span>
+        <span class="c1"># `class`), but `href` is always single-valued in practice.</span>
+        <span class="n">href</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">link</span><span class="p">[</span><span class="s2">"href"</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">href</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s2">"http://"</span><span class="p">,</span> <span class="s2">"https://"</span><span class="p">,</span> <span class="s2">"mailto:"</span><span class="p">)):</span>
+            <span class="k">continue</span>
+        <span class="n">link</span><span class="p">[</span><span class="s2">"href"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">docs_base</span><span class="si">}</span><span class="s2">/release_notes.html</span><span class="si">{</span><span class="n">href</span><span class="si">}</span><span class="s2">"</span>
+            <span class="k">if</span> <span class="n">href</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"#"</span><span class="p">)</span>
+            <span class="k">else</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">docs_base</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">href</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">nested_section</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">"section"</span><span class="p">):</span>
+        <span class="n">nested_section</span><span class="o">.</span><span class="n">unwrap</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">level</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">7</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">heading</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="sa">f</span><span class="s2">"h</span><span class="si">{</span><span class="n">level</span><span class="si">}</span><span class="s2">"</span><span class="p">):</span>
+            <span class="n">heading</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"h</span><span class="si">{</span><span class="n">level</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">"</span>
+
+    <span class="c1"># strip the Sphinx &lt;section&gt; wrappers and return just the inner HTML fragments</span>
+    <span class="k">return</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">child</span><span class="p">)</span> <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">contents</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="build_related_resources">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/zenodo_metadata/index.html#pudl.deploy.zenodo_metadata.build_related_resources">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_related_resources</span><span class="p">(</span>
+    <span class="n">version_tag</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">github_archive_doi_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""Build the "Other Resources" description footer and matching related_identifiers.</span>
+
+<span class="sd">    The same three release-specific URLs (versioned docs, GitHub release tag, and the</span>
+<span class="sd">    GitHub-repo Zenodo software archive) are surfaced twice: once as human-readable</span>
+<span class="sd">    links in the description footer, and once as structured Zenodo</span>
+<span class="sd">    ``related_identifiers`` entries so DataCite/OpenAIRE can index the relationships.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        version_tag: The release version tag, e.g. ``"v2026.8.0"``.</span>
+<span class="sd">        github_archive_doi_url: Resolvable DOI URL of the GitHub-repo Zenodo software</span>
+<span class="sd">            archive for this release (e.g. ``https://doi.org/10.5281/zenodo.XXXXX``),</span>
+<span class="sd">            or ``None`` on the sandbox server, where GitHub's Zenodo integration never</span>
+<span class="sd">            publishes.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A ``(footer_html, related_identifiers)`` tuple.</span>
+<span class="sd">    """</span>
+    <span class="n">docs_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">DOCS_BASE_URL</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">version_tag</span><span class="si">}</span><span class="s2">/"</span>
+    <span class="n">data_dictionary_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">docs_url</span><span class="si">}</span><span class="s2">data_dictionaries/pudl_db.html"</span>
+    <span class="n">github_release_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">GITHUB_REPO_URL</span><span class="si">}</span><span class="s2">/releases/tag/</span><span class="si">{</span><span class="n">version_tag</span><span class="si">}</span><span class="s2">"</span>
+    <span class="n">s3_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">S3_BUCKET_URL</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">version_tag</span><span class="si">}</span><span class="s2">/"</span>
+    <span class="n">gcs_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">GCS_BUCKET_URL</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">version_tag</span><span class="si">}</span><span class="s2">/"</span>
+
+    <span class="n">items</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="sa">f</span><span class="s1">'&lt;li&gt;&lt;a href="</span><span class="si">{</span><span class="n">data_dictionary_url</span><span class="si">}</span><span class="s1">"&gt;PUDL </span><span class="si">{</span><span class="n">version_tag</span><span class="si">}</span><span class="s1"> '</span>
+        <span class="s2">"Data Dictionary&lt;/a&gt;&lt;/li&gt;"</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s1">'&lt;li&gt;&lt;a href="</span><span class="si">{</span><span class="n">docs_url</span><span class="si">}</span><span class="s1">"&gt;PUDL </span><span class="si">{</span><span class="n">version_tag</span><span class="si">}</span><span class="s1"> Documentation&lt;/a&gt;&lt;/li&gt;'</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s1">'&lt;li&gt;&lt;a href="</span><span class="si">{</span><span class="n">AWS_OPEN_DATA_REGISTRY_URL</span><span class="si">}</span><span class="s1">"&gt;PUDL in the AWS Open Data '</span>
+        <span class="s2">"Registry&lt;/a&gt;&lt;/li&gt;"</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">"&lt;li&gt;PUDL </span><span class="si">{</span><span class="n">version_tag</span><span class="si">}</span><span class="s2"> in a free, public AWS S3 bucket: </span><span class="si">{</span><span class="n">s3_path</span><span class="si">}</span><span class="s2">&lt;/li&gt;"</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">"&lt;li&gt;PUDL </span><span class="si">{</span><span class="n">version_tag</span><span class="si">}</span><span class="s2"> in a requester-pays GCS bucket: </span><span class="si">{</span><span class="n">gcs_path</span><span class="si">}</span><span class="s2">&lt;/li&gt;"</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">related_identifiers</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">"identifier"</span><span class="p">:</span> <span class="n">docs_url</span><span class="p">,</span> <span class="s2">"relation"</span><span class="p">:</span> <span class="s2">"isDocumentedBy"</span><span class="p">},</span>
+    <span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">github_archive_doi_url</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'&lt;li&gt;&lt;a href="</span><span class="si">{</span><span class="n">github_archive_doi_url</span><span class="si">}</span><span class="s1">"&gt;Zenodo archive of the PUDL '</span>
+            <span class="s2">"GitHub repo for this release&lt;/a&gt;&lt;/li&gt;"</span>
+        <span class="p">)</span>
+        <span class="n">related_identifiers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">"identifier"</span><span class="p">:</span> <span class="n">github_archive_doi_url</span><span class="p">,</span>
+                <span class="s2">"relation"</span><span class="p">:</span> <span class="s2">"isSupplementedBy"</span><span class="p">,</span>
+                <span class="s2">"resource_type"</span><span class="p">:</span> <span class="s2">"software"</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+    <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">'&lt;li&gt;&lt;a href="</span><span class="si">{</span><span class="n">github_release_url</span><span class="si">}</span><span class="s1">"&gt;PUDL </span><span class="si">{</span><span class="n">version_tag</span><span class="si">}</span><span class="s1"> release on '</span>
+        <span class="s2">"GitHub&lt;/a&gt;&lt;/li&gt;"</span>
+    <span class="p">)</span>
+    <span class="n">related_identifiers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">"identifier"</span><span class="p">:</span> <span class="n">github_release_url</span><span class="p">,</span>
+            <span class="s2">"relation"</span><span class="p">:</span> <span class="s2">"isSupplementedBy"</span><span class="p">,</span>
+            <span class="s2">"resource_type"</span><span class="p">:</span> <span class="s2">"software"</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="n">footer_html</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"&lt;h1&gt;&lt;strong&gt;Other PUDL </span><span class="si">{</span><span class="n">version_tag</span><span class="si">}</span><span class="s2"> Resources&lt;/strong&gt;&lt;/h1&gt;</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="s2">"&lt;ul&gt;</span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">items</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">&lt;/ul&gt;"</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">footer_html</span><span class="p">,</span> <span class="n">related_identifiers</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2016-2026, Catalyst Cooperative, CC-BY-4.0.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+        <div class="footer-item">
+<p class="llms-txt-link">
+  <a href="../../../llms.txt"><span class="fa-solid fa-robot"></span> llms.txt</a>
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

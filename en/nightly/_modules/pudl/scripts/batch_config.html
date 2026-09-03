@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.scripts.pudl_check_fks &#8212; PUDL 2026.8.1.dev29 documentation</title>
+    <title>pudl.scripts.batch_config &#8212; PUDL 2026.8.1.dev32 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../_static/documentation_options.js?v=6c0ec4ab"></script>
+    <script src="../../../_static/documentation_options.js?v=a2936aae"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -409,7 +409,7 @@ mermaid.initialize(
 
 window.addEventListener("load", load);
 window.runMermaid = runMermaid;</script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/scripts/pudl_check_fks';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/scripts/batch_config';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev29 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev29 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev32 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev32 documentation - Home"/>
   
   
 </a></div>
@@ -850,7 +850,7 @@ window.runMermaid = runMermaid;</script>
     
     <li class="breadcrumb-item"><a href="../../pudl.html" class="nav-link">pudl</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">pudl.scripts.pudl_check_fks</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">pudl.scripts.batch_config</span></li>
   </ul>
 </nav>
 </div>
@@ -867,89 +867,310 @@ window.runMermaid = runMermaid;</script>
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <h1>Source code for pudl.scripts.pudl_check_fks</h1><div class="highlight"><pre>
-<span></span><span class="sd">"""Check that foreign key constraints in the PUDL database are respected."""</span>
+  <h1>Source code for pudl.scripts.batch_config</h1><div class="highlight"><pre>
+<span></span><span class="ch">#! /usr/bin/env python</span>
+<span class="c1"># /// script</span>
+<span class="c1"># requires-python = "&gt;=3.13"</span>
+<span class="c1"># dependencies = [</span>
+<span class="c1">#     "click&gt;=8.4",</span>
+<span class="c1"># ]</span>
+<span class="c1"># ///</span>
+<span class="sd">"""Generate a Google Batch Job configuration file.</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="sd">This runs on bare GitHub Actions runners, without the full pixi/pudl environment -- the</span>
+<span class="sd">inline script metadata above lets ``uv run`` install just the handful of dependencies</span>
+<span class="sd">this script actually needs (stdlib plus ``click``) into an ephemeral environment, rather</span>
+<span class="sd">than requiring a full pudl install first.</span>
+
+<span class="sd">The ``--container-*`` flags are named after their equivalents in ``gcloud compute</span>
+<span class="sd">instances update-container``.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">click</span>
 
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">()</span>
+<div class="viewcode-block" id="logger">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/batch_config/index.html#pudl.scripts.batch_config.logger">[docs]</a>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span></div>
 
-<span class="nd">@click</span><span class="o">.</span><span class="n">command</span><span class="p">(</span>
-    <span class="n">context_settings</span><span class="o">=</span><span class="p">{</span><span class="s2">"help_option_names"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"-h"</span><span class="p">,</span> <span class="s2">"--help"</span><span class="p">]},</span>
+
+<div class="viewcode-block" id="DEFAULT_MACHINE_TYPE">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/batch_config/index.html#pudl.scripts.batch_config.DEFAULT_MACHINE_TYPE">[docs]</a>
+<span class="n">DEFAULT_MACHINE_TYPE</span> <span class="o">=</span> <span class="s2">"c4d-standard-8"</span></div>
+
+<div class="viewcode-block" id="DEFAULT_DISK_GB">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/batch_config/index.html#pudl.scripts.batch_config.DEFAULT_DISK_GB">[docs]</a>
+<span class="n">DEFAULT_DISK_GB</span> <span class="o">=</span> <span class="mi">250</span></div>
+
+<div class="viewcode-block" id="DEFAULT_DISK_TYPE">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/batch_config/index.html#pudl.scripts.batch_config.DEFAULT_DISK_TYPE">[docs]</a>
+<span class="n">DEFAULT_DISK_TYPE</span> <span class="o">=</span> <span class="s2">"hyperdisk-balanced"</span></div>
+
+
+
+<div class="viewcode-block" id="_parse_container_env">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/batch_config/index.html#pudl.scripts.batch_config._parse_container_env">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_container_env</span><span class="p">(</span><span class="n">container_env</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Parse --container-env KEY=VALUE pairs into a dict.</span>
+
+<span class="sd">    Raises if the same key is given more than once.</span>
+<span class="sd">    """</span>
+    <span class="n">env_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">container_env</span><span class="p">):</span>
+        <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">pair</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"="</span><span class="p">,</span> <span class="n">maxsplit</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">env_dict</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Duplicate --container-env key: </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">env_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">'"'</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">env_dict</span></div>
+
+
+
+<div class="viewcode-block" id="_lookup_machine_spec">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/batch_config/index.html#pudl.scripts.batch_config._lookup_machine_spec">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_lookup_machine_spec</span><span class="p">(</span><span class="n">machine_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return ``(cpuMilli, memoryMib)`` for a real GCE machine type, via ``gcloud``.</span>
+
+<span class="sd">    Batch's ``computeResource.cpuMilli``/``memoryMib`` default to 2000/2000 (2 vCPU, 2</span>
+<span class="sd">    GB) if left unset -- regardless of the machine type pinned in ``allocationPolicy``.</span>
+<span class="sd">    This looks up the real values and fills them in so the job doesn't lie about the</span>
+<span class="sd">    resources it has available.</span>
+<span class="sd">    """</span>
+    <span class="n">gcloud_path</span> <span class="o">=</span> <span class="n">shutil</span><span class="o">.</span><span class="n">which</span><span class="p">(</span><span class="s2">"gcloud"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">gcloud_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">click</span><span class="o">.</span><span class="n">ClickException</span><span class="p">(</span>
+            <span class="s2">"gcloud CLI not found -- looking up machine type resources requires an "</span>
+            <span class="s2">"authenticated gcloud (see google-github-actions/setup-gcloud)."</span>
+        <span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>  <span class="c1"># noqa: S603</span>
+            <span class="p">[</span>
+                <span class="n">gcloud_path</span><span class="p">,</span>
+                <span class="s2">"compute"</span><span class="p">,</span>
+                <span class="s2">"machine-types"</span><span class="p">,</span>
+                <span class="s2">"list"</span><span class="p">,</span>
+                <span class="s2">"--filter"</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">"name=</span><span class="si">{</span><span class="n">machine_type</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+                <span class="s2">"--limit"</span><span class="p">,</span>
+                <span class="s2">"1"</span><span class="p">,</span>
+                <span class="s2">"--format"</span><span class="p">,</span>
+                <span class="s2">"json"</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">click</span><span class="o">.</span><span class="n">ClickException</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"gcloud lookup for machine type </span><span class="si">{</span><span class="n">machine_type</span><span class="si">!r}</span><span class="s2"> failed: </span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">stderr</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+
+    <span class="n">matches</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">matches</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">click</span><span class="o">.</span><span class="n">ClickException</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"No machine type found matching </span><span class="si">{</span><span class="n">machine_type</span><span class="si">!r}</span><span class="s2">. Check the spelling, "</span>
+            <span class="s2">"or that it's offered in at least one zone."</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">matches</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"guestCpus"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">matches</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"memoryMb"</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="to_config">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/batch_config/index.html#pudl.scripts.batch_config.to_config">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">to_config</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">container_image</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">container_env</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">container_command</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">container_arg</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">machine_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">cpu_milli</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">memory_mib</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">disk_gb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">disk_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">batch_job_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">pipeline</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Munge arguments into a configuration dictionary."""</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">container_image</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"container_image is required"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">container_command</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"container_command is required"</span><span class="p">)</span>
+
+    <span class="n">env_dict</span> <span class="o">=</span> <span class="n">_parse_container_env</span><span class="p">(</span><span class="n">container_env</span><span class="p">)</span>
+
+    <span class="c1"># NOTE (daz): the best documentation of the actual data structure I've found is at</span>
+    <span class="c1"># https://cloud.google.com/python/docs/reference/batch/latest/google.cloud.batch_v1.types.Job</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">"taskGroups"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">"taskSpec"</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">"runnables"</span><span class="p">:</span> <span class="p">[</span>
+                        <span class="p">{</span>
+                            <span class="s2">"container"</span><span class="p">:</span> <span class="p">{</span>
+                                <span class="s2">"imageUri"</span><span class="p">:</span> <span class="n">container_image</span><span class="p">,</span>
+                                <span class="s2">"commands"</span><span class="p">:</span> <span class="p">[</span><span class="n">container_command</span><span class="p">,</span> <span class="o">*</span><span class="n">container_arg</span><span class="p">],</span>
+                            <span class="p">},</span>
+                            <span class="s2">"environment"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"variables"</span><span class="p">:</span> <span class="n">env_dict</span><span class="p">},</span>
+                        <span class="p">},</span>
+                    <span class="p">],</span>
+                    <span class="s2">"computeResource"</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">"cpuMilli"</span><span class="p">:</span> <span class="n">cpu_milli</span><span class="p">,</span>
+                        <span class="s2">"memoryMib"</span><span class="p">:</span> <span class="n">memory_mib</span><span class="p">,</span>
+                        <span class="s2">"bootDiskMib"</span><span class="p">:</span> <span class="n">disk_gb</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">,</span>
+                    <span class="p">},</span>
+                    <span class="s2">"maxRunDuration"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="mi">60</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">60</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">12</span><span class="si">}</span><span class="s2">s"</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="s2">"allocationPolicy"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"serviceAccount"</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">"email"</span><span class="p">:</span> <span class="s2">"deploy-pudl-vm-service-account@catalyst-cooperative-pudl.iam.gserviceaccount.com"</span>
+            <span class="p">},</span>
+            <span class="c1"># Explicitly set rather than relying on Batch to auto-label VM instances</span>
+            <span class="c1"># with the job ID. Allows dashboards to group per-VM metrics by job.</span>
+            <span class="c1"># "pipeline" is (by convention) the name of the GitHub Actions workflow that</span>
+            <span class="c1"># launched the job, e.g. "build-pudl", "deploy-pudl",</span>
+            <span class="c1"># "build-deploy-ferceqr"). This lets a single dashboard switch between</span>
+            <span class="c1"># pipelines via a template variable presented in a dropdown menu.</span>
+            <span class="s2">"labels"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"batch-job-id"</span><span class="p">:</span> <span class="n">batch_job_id</span><span class="p">,</span> <span class="s2">"pipeline"</span><span class="p">:</span> <span class="n">pipeline</span><span class="p">},</span>
+            <span class="s2">"instances"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s2">"installOpsAgent"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                    <span class="s2">"policy"</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">"machineType"</span><span class="p">:</span> <span class="n">machine_type</span><span class="p">,</span>
+                        <span class="c1"># Batch's default boot image is Container-Optimized OS, but</span>
+                        <span class="c1"># Google's own installOpsAgent bootstrap script only supports</span>
+                        <span class="c1"># Debian/CentOS/Rocky (it shells out to apt/yum, neither of</span>
+                        <span class="c1"># which exist on COS) Pin the Debian image explicitly so</span>
+                        <span class="c1"># installOpsAgent actually works.</span>
+                        <span class="s2">"bootDisk"</span><span class="p">:</span> <span class="p">{</span>
+                            <span class="s2">"image"</span><span class="p">:</span> <span class="s2">"batch-debian"</span><span class="p">,</span>
+                            <span class="s2">"type"</span><span class="p">:</span> <span class="n">disk_type</span><span class="p">,</span>
+                            <span class="s2">"sizeGb"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">disk_gb</span><span class="p">),</span>
+                        <span class="p">},</span>
+                    <span class="p">},</span>
+                <span class="p">}</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">"logsPolicy"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"destination"</span><span class="p">:</span> <span class="s2">"CLOUD_LOGGING"</span><span class="p">},</span>
+        <span class="c1"># Batch copies these job-level labels onto every `batch_task_logs` entry (as</span>
+        <span class="c1"># `labels.&lt;key&gt;`), unlike the `allocationPolicy` instance labels above which</span>
+        <span class="c1"># only surface on VM metrics. Repeating `pipeline` here lets the dashboard's</span>
+        <span class="c1"># Logs widget filter by pipeline via the `${pipeline}` template variable,</span>
+        <span class="c1"># matching the behavior of the metric widgets.</span>
+        <span class="s2">"labels"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"component"</span><span class="p">:</span> <span class="s2">"build"</span><span class="p">,</span>
+            <span class="s2">"pipeline"</span><span class="p">:</span> <span class="n">pipeline</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">}</span></div>
+
+
+
+<span class="nd">@click</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="n">context_settings</span><span class="o">=</span><span class="p">{</span><span class="s2">"help_option_names"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"-h"</span><span class="p">,</span> <span class="s2">"--help"</span><span class="p">]})</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">"--container-image"</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">"--container-command"</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">"--container-env"</span><span class="p">,</span>
+    <span class="n">multiple</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="p">(),</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">"A KEY=VALUE container environment variable. Repeat for multiple."</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
-    <span class="s2">"--logfile"</span><span class="p">,</span>
-    <span class="n">help</span><span class="o">=</span><span class="s2">"If specified, write logs to this file."</span><span class="p">,</span>
-    <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span>
-        <span class="n">exists</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">resolve_path</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">path_type</span><span class="o">=</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span>
+    <span class="s2">"--container-arg"</span><span class="p">,</span>
+    <span class="n">multiple</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="p">(),</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">"A container command argument. Repeat, in order, for multiple."</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">"--machine-type"</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_MACHINE_TYPE</span><span class="p">,</span>
+    <span class="n">show_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">"GCE machine type to run the job on (e.g. c2d-highmem-16)."</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">"--disk-gb"</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_DISK_GB</span><span class="p">,</span>
+    <span class="n">show_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">"Size of the boot disk, in GB, to attach to the VM."</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">"--disk-type"</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_DISK_TYPE</span><span class="p">,</span>
+    <span class="n">show_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">"Boot disk type (e.g. pd-ssd, pd-balanced, hyperdisk-balanced)."</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">"--batch-job-id"</span><span class="p">,</span>
+    <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">"Value for the batch-job-id label attached to created VM instances, used "</span>
+        <span class="s2">"to group per-VM Cloud Monitoring metrics by job. Should match the job "</span>
+        <span class="s2">"name passed to `gcloud batch jobs submit`."</span>
     <span class="p">),</span>
 <span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
-    <span class="s2">"--loglevel"</span><span class="p">,</span>
-    <span class="n">default</span><span class="o">=</span><span class="s2">"INFO"</span><span class="p">,</span>
-    <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Choice</span><span class="p">(</span>
-        <span class="p">[</span><span class="s2">"DEBUG"</span><span class="p">,</span> <span class="s2">"INFO"</span><span class="p">,</span> <span class="s2">"WARNING"</span><span class="p">,</span> <span class="s2">"ERROR"</span><span class="p">,</span> <span class="s2">"CRITICAL"</span><span class="p">],</span> <span class="n">case_sensitive</span><span class="o">=</span><span class="kc">False</span>
+    <span class="s2">"--pipeline"</span><span class="p">,</span>
+    <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">"Value for the pipeline label attached to created VM instances and task "</span>
+        <span class="s2">"logs. Use the name of the launching GitHub Actions workflow (e.g. "</span>
+        <span class="s2">"build-pudl, deploy-pudl, build-deploy-ferceqr), used to switch the "</span>
+        <span class="s2">"resource-usage dashboard between pipelines via a template variable."</span>
     <span class="p">),</span>
 <span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
-    <span class="s2">"--db_path"</span><span class="p">,</span>
-    <span class="n">help</span><span class="o">=</span><span class="s2">"Path to PUDL SQLite database where foreign keys should be checked."</span><span class="p">,</span>
-    <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span>
-        <span class="n">exists</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">resolve_path</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">path_type</span><span class="o">=</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span>
-    <span class="p">),</span>
-    <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="s2">"--output"</span><span class="p">,</span>
+    <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">path_type</span><span class="o">=</span><span class="n">Path</span><span class="p">),</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">"Path to write the generated Batch job JSON config to."</span><span class="p">,</span>
 <span class="p">)</span>
 <div class="viewcode-block" id="main">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/pudl_check_fks/index.html#pudl.scripts.pudl_check_fks.main">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">logfile</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="n">loglevel</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">db_path</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Check that foreign key constraints in the PUDL database are respected.</span>
-
-<span class="sd">    Dagster manages the dependencies between various assets in our ETL pipeline,</span>
-<span class="sd">    attempting to materialize tables only after their upstream dependencies have been</span>
-<span class="sd">    satisfied. However, this order is non deterministic because they are executed in</span>
-<span class="sd">    parallel, and doesn't necessarily correspond to the foreign-key constraints within</span>
-<span class="sd">    the database, so durint the ETL we disable foreign key constraints within</span>
-<span class="sd">    ``pudl.sqlite``.</span>
-
-<span class="sd">    However, we still expect foreign key constraints to be satisfied once all of the</span>
-<span class="sd">    tables have been loaded, so we check that they are valid after the ETL has</span>
-<span class="sd">    completed. This script runs the same check.</span>
-<span class="sd">    """</span>
-    <span class="c1"># Deferred to keep --help fast; see pudl/scripts/__init__.py for rationale.</span>
-    <span class="kn">import</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sa</span>  <span class="c1"># noqa: PLC0415</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">dotenv</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dotenv</span>  <span class="c1"># noqa: PLC0415</span>
-
-    <span class="kn">import</span><span class="w"> </span><span class="nn">pudl</span>  <span class="c1"># noqa: PLC0415</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.validate.integrity</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_foreign_keys</span>  <span class="c1"># noqa: PLC0415</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.workspace.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">PudlPaths</span>  <span class="c1"># noqa: PLC0415</span>
-
-    <span class="n">load_dotenv</span><span class="p">()</span>
-
-    <span class="c1"># Display logged output from the PUDL package:</span>
-    <span class="n">pudl</span><span class="o">.</span><span class="n">logging_helpers</span><span class="o">.</span><span class="n">configure_root_logger</span><span class="p">(</span>
-        <span class="n">logfile</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">logfile</span><span class="p">)</span> <span class="k">if</span> <span class="n">logfile</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">loglevel</span><span class="o">=</span><span class="n">loglevel</span><span class="p">,</span>
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/batch_config/index.html#pudl.scripts.batch_config.main">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span>
+    <span class="n">container_image</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">container_command</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">container_env</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">container_arg</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">machine_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">disk_gb</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">disk_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">batch_job_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">pipeline</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">output</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Generate a Batch configuration file."""</span>
+    <span class="n">cpu_milli</span><span class="p">,</span> <span class="n">memory_mib</span> <span class="o">=</span> <span class="n">_lookup_machine_spec</span><span class="p">(</span><span class="n">machine_type</span><span class="p">)</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">to_config</span><span class="p">(</span>
+        <span class="n">container_image</span><span class="o">=</span><span class="n">container_image</span><span class="p">,</span>
+        <span class="n">container_command</span><span class="o">=</span><span class="n">container_command</span><span class="p">,</span>
+        <span class="n">container_env</span><span class="o">=</span><span class="n">container_env</span><span class="p">,</span>
+        <span class="n">container_arg</span><span class="o">=</span><span class="n">container_arg</span><span class="p">,</span>
+        <span class="n">machine_type</span><span class="o">=</span><span class="n">machine_type</span><span class="p">,</span>
+        <span class="n">cpu_milli</span><span class="o">=</span><span class="n">cpu_milli</span><span class="p">,</span>
+        <span class="n">memory_mib</span><span class="o">=</span><span class="n">memory_mib</span><span class="p">,</span>
+        <span class="n">disk_gb</span><span class="o">=</span><span class="n">disk_gb</span><span class="p">,</span>
+        <span class="n">disk_type</span><span class="o">=</span><span class="n">disk_type</span><span class="p">,</span>
+        <span class="n">batch_job_id</span><span class="o">=</span><span class="n">batch_job_id</span><span class="p">,</span>
+        <span class="n">pipeline</span><span class="o">=</span><span class="n">pipeline</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="c1"># Using PudlPaths to get default value for CLI causes validation issues</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">db_path</span><span class="p">:</span>
-        <span class="n">db_uri</span> <span class="o">=</span> <span class="n">PudlPaths</span><span class="p">()</span><span class="o">.</span><span class="n">sqlite_db_uri</span><span class="p">(</span><span class="s2">"pudl"</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">db_uri</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"sqlite:///</span><span class="si">{</span><span class="n">db_path</span><span class="si">}</span><span class="s2">"</span>
-
-    <span class="n">check_foreign_keys</span><span class="p">(</span><span class="n">sa</span><span class="o">.</span><span class="n">create_engine</span><span class="p">(</span><span class="n">db_uri</span><span class="p">))</span>
-    <span class="k">return</span> <span class="mi">0</span></div>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Writing to </span><span class="si">{</span><span class="n">output</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">output</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span></div>
 
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
-    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+    <span class="n">main</span><span class="p">()</span>
 </pre></div>
 
                 </article>

@@ -139,10 +139,14 @@ to the `pudl-deployments` Zulip stream.
 
 We use ephemeral VMs created with [Google Batch](https://cloud.google.com/batch/docs)
 to run the nightly builds. Once the build has finished – successfully or not – the VM
-shuts itself down. The build VMs use the `e2-highmem-8` machine type (8 CPUs and 64GB
-of RAM) to accommodate the PUDL ETL’s memory-intensive steps. Currently, these VMs do
-not have swap space enabled, so if they run out of memory, the build will immediately
-terminate.
+shuts itself down. Each workflow generates its Batch job configuration with the
+`batch_config` script ([`pudl.scripts.batch_config`](../autoapi/pudl/scripts/batch_config/index.html.md#module-pudl.scripts.batch_config)), which selects the VM
+machine type and boot disk and tags the VM and its logs with the name of the pipeline
+that launched it, so a shared [Cloud Monitoring dashboard](https://console.cloud.google.com/monitoring/dashboards/builder/992bbe3f-17e6-49c4-a9e8-8f1925d4ec24)
+can filter resource-usage metrics by pipeline. VM sizes are chosen to fit the memory-
+and CPU-intensive steps of each pipeline and are tuned over time against that
+dashboard. These VMs do not have swap space enabled, so if they run out of memory, the
+build will immediately terminate.
 
 The `deploy-pudl-vm-service-account` service account has permissions to:
 

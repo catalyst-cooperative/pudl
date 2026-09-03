@@ -23,22 +23,23 @@ format, then applying human-sourced patches to the auto-generated schemas.
 
 ## Functions
 
-| [`_normalize_whitespace`](#pudl.dbt_schema._normalize_whitespace)(→ str)               | Collapse all whitespace (including blank lines) to single spaces.                  |
-|---------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------|
-| [`_normalize_descriptions`](#pudl.dbt_schema._normalize_descriptions)(→ Any)             | Recursively collapse whitespace in every `description` field.                      |
-| [`_normalize_description_field`](#pudl.dbt_schema._normalize_description_field)(→ str | None) |                                                                                    |
-| [`_normalize_data_tests_field`](#pudl.dbt_schema._normalize_data_tests_field)(→ list | None) |                                                                                    |
-| [`_wrap_description`](#pudl.dbt_schema._wrap_description)(→ str | \_LiteralStr)    | Re-wrap a description string to short lines, for readability on disk.              |
-| [`_wrap_descriptions`](#pudl.dbt_schema._wrap_descriptions)(→ Any)                  | Recursively re-wrap every `description` field in a dumped schema dict.             |
-| [`_prettier_yaml_dumps`](#pudl.dbt_schema._prettier_yaml_dumps)(→ str)                | Dump YAML to string that Prettier likes.                                           |
-| [`merge_schema`](#pudl.dbt_schema.merge_schema)(→ DbtSchema)                  | Merge two DbtSchemas by applying human-schema as a patch on top of machine-schema. |
-| [`merge_by_name`](#pudl.dbt_schema.merge_by_name)(→ list)                      | Perform a generic merge of two lists of dbt elements, matching by name.            |
-| [`merge_sources_by_name`](#pudl.dbt_schema.merge_sources_by_name)(→ list[DbtSource])   | Match machine/human sources by name, then merge them.                              |
-| [`merge_source`](#pudl.dbt_schema.merge_source)(→ DbtSource)                  | Merge two DbtSources by applying human-source as a patch on top of machine-source. |
-| [`merge_tables_by_name`](#pudl.dbt_schema.merge_tables_by_name)(→ list[DbtTable])     | Match machine/human tables by name, then merge them.                               |
-| [`merge_table`](#pudl.dbt_schema.merge_table)(→ DbtTable)                    | Merge two DbtTables by applying human-table as a patch on top of machine-table.    |
-| [`merge_columns_by_name`](#pudl.dbt_schema.merge_columns_by_name)(→ list[DbtColumn])   | Match machine/human columns by name, then merge them.                              |
-| [`merge_column`](#pudl.dbt_schema.merge_column)(→ DbtColumn)                  | Merge two DbtColumns by applying human-column as a patch on top of machine-column. |
+| [`_normalize_whitespace`](#pudl.dbt_schema._normalize_whitespace)(→ str)                 | Collapse all whitespace (including blank lines) to single spaces.                  |
+|-----------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------|
+| [`_normalize_descriptions`](#pudl.dbt_schema._normalize_descriptions)(→ Any)               | Recursively collapse whitespace in every `description` field.                      |
+| [`_normalize_description_field`](#pudl.dbt_schema._normalize_description_field)(→ str | None)   |                                                                                    |
+| [`_normalize_data_tests_field`](#pudl.dbt_schema._normalize_data_tests_field)(→ list | None)   |                                                                                    |
+| [`_wrap_description`](#pudl.dbt_schema._wrap_description)(→ str | \_LiteralStr)      | Re-wrap a description string to short lines, for readability on disk.              |
+| [`_wrap_descriptions`](#pudl.dbt_schema._wrap_descriptions)(→ Any)                    | Recursively re-wrap every `description` field in a dumped schema dict.             |
+| [`_prettier_yaml_dumps`](#pudl.dbt_schema._prettier_yaml_dumps)(→ str)                  | Dump YAML to string that Prettier likes.                                           |
+| [`_foreign_key_data_tests`](#pudl.dbt_schema._foreign_key_data_tests)(→ list[dict] | None) | Build `foreign_key` data test entries for a resource's outgoing FKs.               |
+| [`merge_schema`](#pudl.dbt_schema.merge_schema)(→ DbtSchema)                    | Merge two DbtSchemas by applying human-schema as a patch on top of machine-schema. |
+| [`merge_by_name`](#pudl.dbt_schema.merge_by_name)(→ list)                        | Perform a generic merge of two lists of dbt elements, matching by name.            |
+| [`merge_sources_by_name`](#pudl.dbt_schema.merge_sources_by_name)(→ list[DbtSource])     | Match machine/human sources by name, then merge them.                              |
+| [`merge_source`](#pudl.dbt_schema.merge_source)(→ DbtSource)                    | Merge two DbtSources by applying human-source as a patch on top of machine-source. |
+| [`merge_tables_by_name`](#pudl.dbt_schema.merge_tables_by_name)(→ list[DbtTable])       | Match machine/human tables by name, then merge them.                               |
+| [`merge_table`](#pudl.dbt_schema.merge_table)(→ DbtTable)                      | Merge two DbtTables by applying human-table as a patch on top of machine-table.    |
+| [`merge_columns_by_name`](#pudl.dbt_schema.merge_columns_by_name)(→ list[DbtColumn])     | Match machine/human columns by name, then merge them.                              |
+| [`merge_column`](#pudl.dbt_schema.merge_column)(→ DbtColumn)                    | Merge two DbtColumns by applying human-column as a patch on top of machine-column. |
 
 ## Module Contents
 
@@ -102,6 +103,13 @@ Recursively re-wrap every `description` field in a dumped schema dict.
 ### pudl.dbt_schema.\_prettier_yaml_dumps(yaml_contents: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]) → [str](https://docs.python.org/3/library/stdtypes.html#str)
 
 Dump YAML to string that Prettier likes.
+
+### pudl.dbt_schema.\_foreign_key_data_tests(resource: [pudl.metadata.classes.Resource](../metadata/classes/index.html.md#pudl.metadata.classes.Resource)) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)] | [None](https://docs.python.org/3/library/constants.html#None)
+
+Build `foreign_key` data test entries for a resource’s outgoing FKs.
+
+One entry per foreign key relationship declared on the resource, in declaration
+order, so regenerating a table’s schema.yml produces a stable diff.
 
 ### *class* pudl.dbt_schema.DbtColumn(/, \*\*data: Any)
 

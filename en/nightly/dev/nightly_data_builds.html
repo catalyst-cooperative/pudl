@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="nightly_data_builds.html.md" />
-    <title>Nightly Data Builds &#8212; PUDL 2026.8.1.dev29 documentation</title>
+    <title>Nightly Data Builds &#8212; PUDL 2026.8.1.dev32 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../_static/documentation_options.js?v=6c0ec4ab"></script>
+    <script src="../_static/documentation_options.js?v=a2936aae"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev29 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev29 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev32 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev32 documentation - Home"/>
   
   
 </a></div>
@@ -526,6 +526,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../autoapi/pudl/definitions/index.html">pudl.definitions</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/deploy/index.html">pudl.deploy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/deploy/pudl/index.html">pudl.deploy.pudl</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/deploy/zenodo_metadata/index.html">pudl.deploy.zenodo_metadata</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/extract/index.html">pudl.extract</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -697,13 +698,13 @@
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/scripts/index.html">pudl.scripts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/auto_match_utilities/index.html">pudl.scripts.auto_match_utilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/batch_config/index.html">pudl.scripts.batch_config</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/check_path_permissions/index.html">pudl.scripts.check_path_permissions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/dbt_helper/index.html">pudl.scripts.dbt_helper</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/dghome/index.html">pudl.scripts.dghome</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/generate_ferc_provenance/index.html">pudl.scripts.generate_ferc_provenance</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/generate_pudl_duckdb/index.html">pudl.scripts.generate_pudl_duckdb</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/metadata_to_rst/index.html">pudl.scripts.metadata_to_rst</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/pudl_check_fks/index.html">pudl.scripts.pudl_check_fks</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/pudl_check_for_build/index.html">pudl.scripts.pudl_check_for_build</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/pudl_datastore/index.html">pudl.scripts.pudl_datastore</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/pudl_deploy/index.html">pudl.scripts.pudl_deploy</a></li>
@@ -751,7 +752,6 @@
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/validate/index.html">pudl.validate</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/validate/dbt/index.html">pudl.validate.dbt</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/validate/integrity/index.html">pudl.validate.integrity</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/validate/quality/index.html">pudl.validate.quality</a></li>
 </ul>
 </details></li>
@@ -979,10 +979,14 @@ to the <code class="docutils literal notranslate"><span class="pre">pudl-deploym
 <h2>Google Compute Engine<a class="headerlink" href="#google-compute-engine" title="Link to this heading">#</a></h2>
 <p>We use ephemeral VMs created with <a class="reference external" href="https://cloud.google.com/batch/docs">Google Batch</a>
 to run the nightly builds. Once the build has finished – successfully or not – the VM
-shuts itself down. The build VMs use the <code class="docutils literal notranslate"><span class="pre">e2-highmem-8</span></code> machine type (8 CPUs and 64GB
-of RAM) to accommodate the PUDL ETL’s memory-intensive steps. Currently, these VMs do
-not have swap space enabled, so if they run out of memory, the build will immediately
-terminate.</p>
+shuts itself down. Each workflow generates its Batch job configuration with the
+<code class="docutils literal notranslate"><span class="pre">batch_config</span></code> script (<a class="reference internal" href="../autoapi/pudl/scripts/batch_config/index.html#module-pudl.scripts.batch_config" title="pudl.scripts.batch_config"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.scripts.batch_config</span></code></a>), which selects the VM
+machine type and boot disk and tags the VM and its logs with the name of the pipeline
+that launched it, so a shared <a class="reference external" href="https://console.cloud.google.com/monitoring/dashboards/builder/992bbe3f-17e6-49c4-a9e8-8f1925d4ec24">Cloud Monitoring dashboard</a>
+can filter resource-usage metrics by pipeline. VM sizes are chosen to fit the memory-
+and CPU-intensive steps of each pipeline and are tuned over time against that
+dashboard. These VMs do not have swap space enabled, so if they run out of memory, the
+build will immediately terminate.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">deploy-pudl-vm-service-account</span></code> service account has permissions to:</p>
 <ol class="arabic simple">
 <li><p>Write logs to Cloud Logging.</p></li>

@@ -86,6 +86,10 @@ if present.
 
 Extract partition columns from check_row_counts_per_partition tests in a DbtTable.
 
+A bare `check_row_counts_per_partition` string entry (no `arguments:`) relies
+on the test’s default `partition_expr` of `None`, so it counts as a row-counts
+test with no partition expression.
+
 ### *class* pudl.scripts.dbt_helper.TableUpdateArgs
 
 Define a single class to collect the args for all table update commands.

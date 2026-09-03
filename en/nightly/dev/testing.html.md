@@ -25,8 +25,8 @@ $ pixi run pytest-ci  # runs in ~45-60 minutes, does a "fast" ETL
 ```
 
 This includes building the documentation, running the unit, integration, and pipeline
-tests, dbt data validations (other than the row count checks), foreign key constraints,
-and checking to make sure we’ve got sufficient test coverage.
+tests, all dbt data validations other than the row count checks, and checking to make
+sure we’ve got sufficient test coverage.
 
 #### NOTE
 If you aren’t familiar with pytest already, you may want to check out:
@@ -56,10 +56,10 @@ long they take to run:
   minutes these only run in the merge queue as a final check before a PR merges into
   `main`, rather than on every push.
 * **Data Validation Tests** (`tests/validate/`) check that the outputs of a
-  pipeline test run are valid: foreign key constraints and the `dbt` data validation
-  suite. They depend on the pipeline tests having already produced outputs to check,
-  and also run in the merge queue (with the exception of the dbt row-count checks,
-  which expect all years of data to be processed).
+  pipeline test run are valid using our `dbt` data test suite. These tests depend on
+  the pipeline tests having run and produced outputs. They also run in the merge queue
+  (with the exception of the dbt row-count checks, which expect all years of data to be
+  processed).
 
 A `pytest_collection_modifyitems` hook in `tests/conftest.py` enforces this split
 automatically: a test outside `tests/pipeline/`/`tests/validate/` that depends on
@@ -161,8 +161,8 @@ of that database. For example:
 $ pixi run pytest --live-pudl-output tests/pipeline/glue/glue_test.py
 ```
 
-Foreign key checks and dbt validations can be selected separately from the rest of the
-pipeline suite by running the dedicated validation module directly. For example:
+The dbt data validations can be selected separately from the rest of the pipeline suite
+by running the dedicated validation module directly. For example:
 
 ```console
 $ pixi run pytest --live-pudl-output tests/validate/data_test.py

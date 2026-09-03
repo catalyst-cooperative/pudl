@@ -83,13 +83,13 @@ heavyweight initialisation at decoration time.
 ## Submodules
 
 * [pudl.scripts.auto_match_utilities](auto_match_utilities/index.html.md)
+* [pudl.scripts.batch_config](batch_config/index.html.md)
 * [pudl.scripts.check_path_permissions](check_path_permissions/index.html.md)
 * [pudl.scripts.dbt_helper](dbt_helper/index.html.md)
 * [pudl.scripts.dghome](dghome/index.html.md)
 * [pudl.scripts.generate_ferc_provenance](generate_ferc_provenance/index.html.md)
 * [pudl.scripts.generate_pudl_duckdb](generate_pudl_duckdb/index.html.md)
 * [pudl.scripts.metadata_to_rst](metadata_to_rst/index.html.md)
-* [pudl.scripts.pudl_check_fks](pudl_check_fks/index.html.md)
 * [pudl.scripts.pudl_check_for_build](pudl_check_for_build/index.html.md)
 * [pudl.scripts.pudl_datastore](pudl_datastore/index.html.md)
 * [pudl.scripts.pudl_deploy](pudl_deploy/index.html.md)

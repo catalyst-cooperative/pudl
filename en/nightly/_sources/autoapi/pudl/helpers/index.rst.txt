@@ -38,6 +38,7 @@ Functions
 
 .. autoapisummary::
 
+   pudl.helpers.run_git
    pudl.helpers.label_map
    pudl.helpers.multi_index_stack
    pudl.helpers.find_new_ferc1_strings
@@ -125,6 +126,22 @@ Module Contents
    otherwise we'll get unrealistic heat rates.
 
 .. py:data:: logger
+
+.. py:function:: run_git(args: list[str], cwd: pathlib.Path | None = None) -> str
+
+   Run a git subcommand and return its stdout, logging stderr on failure.
+
+   Shared by every git-shelling-out call in PUDL, so there's one place that knows
+   how to invoke git and report failures consistently.
+
+   :param args: The git subcommand and arguments to run, e.g. ``["rev-parse", "HEAD"]``.
+   :param cwd: Working directory to run the command in. Defaults to the current
+               process's working directory.
+
+   :returns: The command's stdout, unstripped.
+
+   :raises subprocess.CalledProcessError: If the command exits non-zero.
+
 
 .. py:function:: label_map(df: pandas.DataFrame, from_col: str = 'code', to_col: str = 'label', null_value: str | pandas._libs.missing.NAType = pd.NA) -> collections.defaultdict[str, str | pandas._libs.missing.NAType]
 

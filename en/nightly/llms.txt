@@ -1,6 +1,6 @@
 # PUDL
 
-> PUDL 2026.8.1.dev29 documentation
+> PUDL 2026.8.1.dev32 documentation
 
 
 2016-2026, Catalyst Cooperative, CC-BY-4.0
@@ -97,6 +97,7 @@
 - [pudl.definitions](autoapi/pudl/definitions/index.html.md): Stable Dagster code location module for dg-compatible loading.
 - [pudl.deploy](autoapi/pudl/deploy/index.html.md): Deployment helpers for publishing PUDL build artifacts and services.
 - [pudl.deploy.pudl](autoapi/pudl/deploy/pudl/index.html.md): Distribute PUDL ETL outputs to cloud storage and update git branches.
+- [pudl.deploy.zenodo_metadata](autoapi/pudl/deploy/zenodo_metadata/index.html.md): Gather Zenodo deposition metadata for a PUDL data release from repo sources.
 - [pudl.extract](autoapi/pudl/extract/index.html.md): Modules implementing the “Extract” step of the PUDL ETL pipeline.
 - [pudl.extract.censusdp1tract](autoapi/pudl/extract/censusdp1tract/index.html.md): Extract the US Census DP1 ESRI GeoDatabase into an SQLite Database.
 - [pudl.extract.censuspep](autoapi/pudl/extract/censuspep/index.html.md): Retrieve data from Census PEP spreadsheets.
@@ -228,13 +229,13 @@
 - [pudl.package_data.vcerare](autoapi/pudl/package_data/vcerare/index.html.md): CSV file extraction maps for VCE RARE Power Dataset.
 - [pudl.scripts](autoapi/pudl/scripts/index.html.md): Command line interface scripts for PUDL.
 - [pudl.scripts.auto_match_utilities](autoapi/pudl/scripts/auto_match_utilities/index.html.md): A CLI tool for matching FERC and EIA utilities.
+- [pudl.scripts.batch_config](autoapi/pudl/scripts/batch_config/index.html.md): Generate a Google Batch Job configuration file.
 - [pudl.scripts.check_path_permissions](autoapi/pudl/scripts/check_path_permissions/index.html.md): Check read, write, and delete permissions for local or remote paths.
 - [pudl.scripts.dbt_helper](autoapi/pudl/scripts/dbt_helper/index.html.md): A basic CLI to autogenerate dbt data test configurations.
 - [pudl.scripts.dghome](autoapi/pudl/scripts/dghome/index.html.md): Manage UUID-named directories in a Dagster storage directory.
 - [pudl.scripts.generate_ferc_provenance](autoapi/pudl/scripts/generate_ferc_provenance/index.html.md): CLI for generating FERC SQLite provenance requirements for caching.
 - [pudl.scripts.generate_pudl_duckdb](autoapi/pudl/scripts/generate_pudl_duckdb/index.html.md): Basic script to generate a duckdb file with views to local/nightly parquet files.
 - [pudl.scripts.metadata_to_rst](autoapi/pudl/scripts/metadata_to_rst/index.html.md): Export PUDL table and field metadata to RST for use in documentation.
-- [pudl.scripts.pudl_check_fks](autoapi/pudl/scripts/pudl_check_fks/index.html.md): Check that foreign key constraints in the PUDL database are respected.
 - [pudl.scripts.pudl_check_for_build](autoapi/pudl/scripts/pudl_check_for_build/index.html.md): Check if there are build outputs associated with a git tag.
 - [pudl.scripts.pudl_datastore](autoapi/pudl/scripts/pudl_datastore/index.html.md): CLI for managing raw data inputs to the PUDL data processing pipeline.
 - [pudl.scripts.pudl_deploy](autoapi/pudl/scripts/pudl_deploy/index.html.md): Deploy PUDL ETL outputs to cloud storage and update git branches.
@@ -276,7 +277,6 @@
 - [pudl.transform.vcerare](autoapi/pudl/transform/vcerare/index.html.md): Transformations of the Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset.
 - [pudl.validate](autoapi/pudl/validate/index.html.md): PUDL data validation tooling.
 - [pudl.validate.dbt](autoapi/pudl/validate/dbt/index.html.md): Wrap DBT invocations so we can get custom behavior.
-- [pudl.validate.integrity](autoapi/pudl/validate/integrity/index.html.md): Database integrity validation checks for PUDL data.
 - [pudl.validate.quality](autoapi/pudl/validate/quality/index.html.md): Bespoke data quality checking utilities for PUDL data.
 - [pudl.workspace](autoapi/pudl/workspace/index.html.md): Tools for acquiring PUDL’s original input data and organizing it locally.
 - [pudl.workspace.datastore](autoapi/pudl/workspace/datastore/index.html.md): Datastore manages file retrieval for PUDL datasets.

@@ -31,7 +31,6 @@ This module handles distribution of completed ETL builds to public cloud storage
 | [`_compress_sqlite_file`](#pudl.deploy.pudl._compress_sqlite_file)(→ None)                              | Compress a SQLite database into a zip file and remove the original.                   |
 | [`download_build_outputs`](#pudl.deploy.pudl.download_build_outputs)(→ None)                             | Download raw ETL build outputs from builds.catalyst.coop to local disk.               |
 | [`prepare_outputs_for_distribution`](#pudl.deploy.pudl.prepare_outputs_for_distribution)(→ None)                   | Prepare already-downloaded ETL outputs for distribution.                              |
-| [`_run`](#pudl.deploy.pudl._run)(→ str | None)                                         | Wrap subprocess.run so we see error output.                                           |
 | [`clear_deployment_path`](#pudl.deploy.pudl.clear_deployment_path)(→ None)                              | Empty a cloud storage prefix before writing fresh deployment outputs.                 |
 | [`_upload_to_path`](#pudl.deploy.pudl._upload_to_path)(→ None)                                    | Clear (if requested) and upload all outputs to one destination path.                  |
 | [`_assert_permanent_paths_are_empty`](#pudl.deploy.pudl._assert_permanent_paths_are_empty)(→ None)                  | Refuse to deploy to a permanent, version-tagged path that already has content.        |
@@ -190,10 +189,6 @@ them.
     `download_build_outputs`, which this prepares for distribution in place.
   * **build_path** – Remote path the raw build outputs came from – only used here to
     derive the build ID for the provenance marker file.
-
-### pudl.deploy.pudl.\_run(cmd: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)
-
-Wrap subprocess.run so we see error output.
 
 ### pudl.deploy.pudl.clear_deployment_path(fs, path: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [None](https://docs.python.org/3/library/constants.html#None)
 

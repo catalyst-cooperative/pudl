@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.deploy.pudl &#8212; PUDL 2026.8.1.dev29 documentation</title>
+    <title>pudl.deploy.pudl &#8212; PUDL 2026.8.1.dev32 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../_static/documentation_options.js?v=6c0ec4ab"></script>
+    <script src="../../../_static/documentation_options.js?v=a2936aae"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev29 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev29 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev32 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev32 documentation - Home"/>
   
   
 </a></div>
@@ -896,6 +896,9 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">ConfigDict</span><span class="p">,</span> <span class="n">model_validator</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">upath</span><span class="w"> </span><span class="kn">import</span> <span class="n">UPath</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl</span><span class="w"> </span><span class="kn">import</span> <span class="n">PUDL_ROOT_PATH</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.deploy.zenodo_metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_latest_release_tag</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">run_git</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.logging_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">configure_root_logger</span><span class="p">,</span> <span class="n">get_logger</span>
 
 <div class="viewcode-block" id="logger">
@@ -1221,18 +1224,6 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<div class="viewcode-block" id="_run">
-<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl._run">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">_run</span><span class="p">(</span><span class="n">cmd</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Wrap subprocess.run so we see error output."""</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">stdout</span>  <span class="c1"># noqa: S603</span>
-    <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Command failed: </span><span class="si">{</span><span class="s1">' '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">stderr</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-        <span class="k">raise</span></div>
-
-
-
 <div class="viewcode-block" id="clear_deployment_path">
 <a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.clear_deployment_path">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">clear_deployment_path</span><span class="p">(</span><span class="n">fs</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1396,23 +1387,22 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Updating git branch </span><span class="si">{</span><span class="n">branch</span><span class="si">}</span><span class="s2"> to tag </span><span class="si">{</span><span class="n">tag</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
-    <span class="n">_run</span><span class="p">([</span><span class="s2">"git"</span><span class="p">,</span> <span class="s2">"config"</span><span class="p">,</span> <span class="s2">"user.email"</span><span class="p">,</span> <span class="s2">"pudl@catalyst.coop"</span><span class="p">])</span>
-    <span class="n">_run</span><span class="p">([</span><span class="s2">"git"</span><span class="p">,</span> <span class="s2">"config"</span><span class="p">,</span> <span class="s2">"user.name"</span><span class="p">,</span> <span class="s2">"pudlbot"</span><span class="p">])</span>
-    <span class="n">_run</span><span class="p">(</span>
+    <span class="n">run_git</span><span class="p">([</span><span class="s2">"config"</span><span class="p">,</span> <span class="s2">"user.email"</span><span class="p">,</span> <span class="s2">"pudl@catalyst.coop"</span><span class="p">])</span>
+    <span class="n">run_git</span><span class="p">([</span><span class="s2">"config"</span><span class="p">,</span> <span class="s2">"user.name"</span><span class="p">,</span> <span class="s2">"pudlbot"</span><span class="p">])</span>
+    <span class="n">run_git</span><span class="p">(</span>
         <span class="p">[</span>
-            <span class="s2">"git"</span><span class="p">,</span>
             <span class="s2">"remote"</span><span class="p">,</span>
             <span class="s2">"set-url"</span><span class="p">,</span>
             <span class="s2">"origin"</span><span class="p">,</span>
             <span class="sa">f</span><span class="s2">"https://pudlbot:</span><span class="si">{</span><span class="n">github_token</span><span class="si">}</span><span class="s2">@github.com/catalyst-cooperative/pudl.git"</span><span class="p">,</span>
         <span class="p">]</span>
     <span class="p">)</span>
-    <span class="n">_run</span><span class="p">([</span><span class="s2">"git"</span><span class="p">,</span> <span class="s2">"fetch"</span><span class="p">,</span> <span class="s2">"--force"</span><span class="p">,</span> <span class="s2">"--tags"</span><span class="p">,</span> <span class="s2">"origin"</span><span class="p">,</span> <span class="n">tag</span><span class="p">])</span>
-    <span class="n">_run</span><span class="p">([</span><span class="s2">"git"</span><span class="p">,</span> <span class="s2">"fetch"</span><span class="p">,</span> <span class="s2">"origin"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">branch</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">branch</span><span class="si">}</span><span class="s2">"</span><span class="p">])</span>
-    <span class="n">_run</span><span class="p">([</span><span class="s2">"git"</span><span class="p">,</span> <span class="s2">"checkout"</span><span class="p">,</span> <span class="n">branch</span><span class="p">])</span>
-    <span class="n">_run</span><span class="p">([</span><span class="s2">"git"</span><span class="p">,</span> <span class="s2">"merge"</span><span class="p">,</span> <span class="s2">"--ff-only"</span><span class="p">,</span> <span class="n">tag</span><span class="p">])</span>
+    <span class="n">run_git</span><span class="p">([</span><span class="s2">"fetch"</span><span class="p">,</span> <span class="s2">"--force"</span><span class="p">,</span> <span class="s2">"--tags"</span><span class="p">,</span> <span class="s2">"origin"</span><span class="p">,</span> <span class="n">tag</span><span class="p">])</span>
+    <span class="n">run_git</span><span class="p">([</span><span class="s2">"fetch"</span><span class="p">,</span> <span class="s2">"origin"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">branch</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">branch</span><span class="si">}</span><span class="s2">"</span><span class="p">])</span>
+    <span class="n">run_git</span><span class="p">([</span><span class="s2">"checkout"</span><span class="p">,</span> <span class="n">branch</span><span class="p">])</span>
+    <span class="n">run_git</span><span class="p">([</span><span class="s2">"merge"</span><span class="p">,</span> <span class="s2">"--ff-only"</span><span class="p">,</span> <span class="n">tag</span><span class="p">])</span>
     <span class="k">if</span> <span class="n">environment</span> <span class="o">!=</span> <span class="s2">"staging"</span><span class="p">:</span>
-        <span class="n">_run</span><span class="p">([</span><span class="s2">"git"</span><span class="p">,</span> <span class="s2">"push"</span><span class="p">,</span> <span class="s2">"-u"</span><span class="p">,</span> <span class="s2">"origin"</span><span class="p">,</span> <span class="n">branch</span><span class="p">])</span>
+        <span class="n">run_git</span><span class="p">([</span><span class="s2">"push"</span><span class="p">,</span> <span class="s2">"-u"</span><span class="p">,</span> <span class="s2">"origin"</span><span class="p">,</span> <span class="n">branch</span><span class="p">])</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Git branch </span><span class="si">{</span><span class="n">branch</span><span class="si">}</span><span class="s2"> updated successfully"</span><span class="p">)</span></div>
 
@@ -1477,11 +1467,21 @@ window.runMermaid = runMermaid;</script>
     <span class="k">if</span> <span class="n">deploy_type</span> <span class="o">==</span> <span class="n">DeploymentType</span><span class="o">.</span><span class="n">STABLE</span><span class="p">:</span>
         <span class="n">publish_flag</span> <span class="o">=</span> <span class="s2">"no-publish"</span>
         <span class="n">env</span> <span class="o">=</span> <span class="s2">"production"</span>
+        <span class="c1"># build_ref is a real 'vYYYY.M.n' release tag for stable deploys, matching a</span>
+        <span class="c1"># release notes section.</span>
+        <span class="n">pudl_version</span> <span class="o">=</span> <span class="n">build_ref</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">publish_flag</span> <span class="o">=</span> <span class="s2">"publish"</span>
         <span class="n">env</span> <span class="o">=</span> <span class="s2">"sandbox"</span>
+        <span class="c1"># Nightly/branch builds don't have a real release tag or release notes</span>
+        <span class="c1"># section of their own -- these are just sandbox smoke tests of the Zenodo</span>
+        <span class="c1"># release machinery, so fall back to the most recently published version.</span>
+        <span class="n">pudl_version</span> <span class="o">=</span> <span class="n">get_latest_release_tag</span><span class="p">(</span><span class="n">PUDL_ROOT_PATH</span><span class="p">)</span>
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Triggering Zenodo release: env=</span><span class="si">{</span><span class="n">env</span><span class="si">}</span><span class="s2">, publish=</span><span class="si">{</span><span class="n">publish_flag</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"Triggering Zenodo release: env=</span><span class="si">{</span><span class="n">env</span><span class="si">}</span><span class="s2">, publish=</span><span class="si">{</span><span class="n">publish_flag</span><span class="si">}</span><span class="s2">, "</span>
+        <span class="sa">f</span><span class="s2">"pudl_version=</span><span class="si">{</span><span class="n">pudl_version</span><span class="si">}</span><span class="s2">"</span>
+    <span class="p">)</span>
 
     <span class="n">dispatch_github_workflow</span><span class="p">(</span>
         <span class="n">repo</span><span class="o">=</span><span class="s2">"catalyst-cooperative/pudl"</span><span class="p">,</span>
@@ -1493,6 +1493,7 @@ window.runMermaid = runMermaid;</script>
             <span class="s2">"source_dir"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"s3://pudl.catalyst.coop/</span><span class="si">{</span><span class="n">source_suffix</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
             <span class="s2">"ignore_regex"</span><span class="p">:</span> <span class="n">ignore_regex</span><span class="p">,</span>
             <span class="s2">"publish"</span><span class="p">:</span> <span class="n">publish_flag</span><span class="p">,</span>
+            <span class="s2">"pudl_version"</span><span class="p">:</span> <span class="n">pudl_version</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">)</span>
 
@@ -1609,7 +1610,7 @@ window.runMermaid = runMermaid;</script>
 <span class="w">    </span><span class="sd">"""Find any builds associated with a git tag and return a GCS path to most recent build."""</span>
     <span class="n">build_bucket</span> <span class="o">=</span> <span class="n">UPath</span><span class="p">(</span><span class="s2">"gs://builds.catalyst.coop"</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">git_ref</span> <span class="o">=</span> <span class="n">_run</span><span class="p">([</span><span class="s2">"git"</span><span class="p">,</span> <span class="s2">"rev-parse"</span><span class="p">,</span> <span class="s2">"--short=9"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">tag</span><span class="si">}</span><span class="s2">^</span><span class="se">{{}}</span><span class="s2">"</span><span class="p">])</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">git_ref</span> <span class="o">=</span> <span class="n">run_git</span><span class="p">([</span><span class="s2">"rev-parse"</span><span class="p">,</span> <span class="s2">"--short=9"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">tag</span><span class="si">}</span><span class="s2">^</span><span class="se">{{}}</span><span class="s2">"</span><span class="p">])</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
     <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Can't find git tag: </span><span class="si">{</span><span class="n">tag</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 

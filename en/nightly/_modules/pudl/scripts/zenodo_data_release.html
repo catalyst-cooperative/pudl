@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.scripts.zenodo_data_release &#8212; PUDL 2026.8.1.dev29 documentation</title>
+    <title>pudl.scripts.zenodo_data_release &#8212; PUDL 2026.8.1.dev32 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../_static/documentation_options.js?v=6c0ec4ab"></script>
+    <script src="../../../_static/documentation_options.js?v=a2936aae"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev29 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev29 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev32 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev32 documentation - Home"/>
   
   
 </a></div>
@@ -912,7 +912,16 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">AnyHttpUrl</span><span class="p">,</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl</span><span class="w"> </span><span class="kn">import</span> <span class="n">PUDL_DOCS_PATH</span><span class="p">,</span> <span class="n">PUDL_ROOT_PATH</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.deploy.pudl</span><span class="w"> </span><span class="kn">import</span> <span class="n">send_zulip_message</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.deploy.zenodo_metadata</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CONTACT_US_HTML</span><span class="p">,</span>
+    <span class="n">build_related_resources</span><span class="p">,</span>
+    <span class="n">get_data_license_id</span><span class="p">,</span>
+    <span class="n">load_zenodo_json</span><span class="p">,</span>
+    <span class="n">render_release_notes_html</span><span class="p">,</span>
+    <span class="n">verify_git_tag_checked_out</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.logging_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
 
 <div class="viewcode-block" id="SANDBOX">
@@ -922,6 +931,19 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="PRODUCTION">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.PRODUCTION">[docs]</a>
 <span class="n">PRODUCTION</span> <span class="o">=</span> <span class="s2">"production"</span></div>
+
+<span class="c1"># Concept record ID of the GitHub-repo Zenodo *software* archive, auto-published by</span>
+<span class="c1"># GitHub's own Zenodo integration (see .zenodo.json) whenever a GitHub release is</span>
+<span class="c1"># tagged. This is a different concept from the PUDL *data* record this script</span>
+<span class="c1"># publishes to. GitHub's integration only ever publishes to production Zenodo, never</span>
+<span class="c1"># to sandbox.</span>
+<div class="viewcode-block" id="GITHUB_ARCHIVE_CONCEPT_ID">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.GITHUB_ARCHIVE_CONCEPT_ID">[docs]</a>
+<span class="n">GITHUB_ARCHIVE_CONCEPT_ID</span> <span class="o">=</span> <span class="mi">3404014</span></div>
+
+<div class="viewcode-block" id="DATA_RECORD_TITLE">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.DATA_RECORD_TITLE">[docs]</a>
+<span class="n">DATA_RECORD_TITLE</span> <span class="o">=</span> <span class="s2">"Public Utility Data Liberation Project (PUDL) Data Release"</span></div>
 
 <div class="viewcode-block" id="RETRYABLE_STATUS_CODES">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.RETRYABLE_STATUS_CODES">[docs]</a>
@@ -981,9 +1003,21 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.creators">[docs]</a>
     <span class="n">creators</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span></div>
 
+<div class="viewcode-block" id="_LegacyMetadata.keywords">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.keywords">[docs]</a>
+    <span class="n">keywords</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span></div>
+
 <div class="viewcode-block" id="_LegacyMetadata.license">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.license">[docs]</a>
     <span class="n">license</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"cc-by-4.0"</span>  <span class="c1"># noqa: A003</span></div>
+
+<div class="viewcode-block" id="_LegacyMetadata.language">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.language">[docs]</a>
+    <span class="n">language</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"eng"</span></div>
+
+<div class="viewcode-block" id="_LegacyMetadata.version">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.version">[docs]</a>
+    <span class="n">version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span></div>
 
 <div class="viewcode-block" id="_LegacyMetadata.publication_date">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.publication_date">[docs]</a>
@@ -992,6 +1026,10 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_LegacyMetadata.description">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.description">[docs]</a>
     <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span></div>
+
+<div class="viewcode-block" id="_LegacyMetadata.related_identifiers">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.related_identifiers">[docs]</a>
+    <span class="n">related_identifiers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span></div>
 </div>
 
 
@@ -1039,9 +1077,13 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.id_">[docs]</a>
     <span class="n">id_</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">"id"</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="_NewRecord.doi">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.doi">[docs]</a>
+    <span class="n">doi</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span></div>
+
 <div class="viewcode-block" id="_NewRecord.files">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.files">[docs]</a>
-    <span class="n">files</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">_NewFile</span><span class="p">]</span></div>
+    <span class="n">files</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">_NewFile</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span></div>
 </div>
 
 
@@ -1087,32 +1129,14 @@ window.runMermaid = runMermaid;</script>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Using Zenodo token: </span><span class="si">{</span><span class="n">token</span><span class="p">[:</span><span class="mi">4</span><span class="p">]</span><span class="si">}</span><span class="s2">...</span><span class="si">{</span><span class="n">token</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">:]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
+<div class="viewcode-block" id="ZenodoClient.env">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.ZenodoClient.env">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="n">env</span></div>
+
+
 <div class="viewcode-block" id="ZenodoClient.retry_request">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.ZenodoClient.retry_request">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">retry_request</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">method</span><span class="p">,</span>
-        <span class="n">url</span><span class="p">,</span>
-        <span class="n">max_tries</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span>
-        <span class="n">request_timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">data_factory</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">IO</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">requests</span><span class="o">.</span><span class="n">Response</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Retry calls to ``requests.request`` with exponential backoff.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            method: HTTP method to use for the request (e.g. ``GET``).</span>
-<span class="sd">            url: Fully-qualified URL to which the request is sent.</span>
-<span class="sd">            max_tries: Maximum number of attempts before surfacing an error.</span>
-<span class="sd">            request_timeout: Optional per-request timeout in seconds. When ``None`` the</span>
-<span class="sd">                timeout grows exponentially (``2**attempt``).</span>
-<span class="sd">            data_factory: Optional callable that yields a fresh binary stream for each</span>
-<span class="sd">                attempt. Useful for uploads that require reopening a file-like object.</span>
-<span class="sd">            **kwargs: Additional keyword arguments passed through directly to</span>
-<span class="sd">                ``requests.request``.</span>
-
-<span class="sd">        Returns:</span>
 <div class="viewcode-block" id="_NewRecord.__class_vars__">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__class_vars__">[docs]</a>
 <div class="viewcode-block" id="_NewFile.__class_vars__">
@@ -1123,14 +1147,14 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__class_vars__">[docs]</a>
 <div class="viewcode-block" id="_LegacyLinks.__class_vars__">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__class_vars__">[docs]</a>
-<span class="sd">            The ``requests.Response`` produced by the successful attempt.</span></div>
+        <span class="bp">self</span><span class="p">,</span></div>
 </div>
 </div>
 </div>
 </div>
 
-
-<span class="sd">        Raises:</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">method</span><span class="p">,</span>
 <div class="viewcode-block" id="_NewRecord.__private_attributes__">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__private_attributes__">[docs]</a>
 <div class="viewcode-block" id="_NewFile.__private_attributes__">
@@ -1141,14 +1165,14 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__private_attributes__">[docs]</a>
 <div class="viewcode-block" id="_LegacyLinks.__private_attributes__">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__private_attributes__">[docs]</a>
-<span class="sd">            requests.RequestException: If all attempts fail with a requests error.</span></div>
+        <span class="n">url</span><span class="p">,</span></div>
 </div>
 </div>
 </div>
 </div>
 
-<span class="sd">            OSError: If reading from disk fails when preparing a payload.</span>
-<span class="sd">            RuntimeError: If no response object is produced (should be rare).</span>
+        <span class="n">max_tries</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span>
+        <span class="n">request_timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <div class="viewcode-block" id="_NewRecord.__signature__">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__signature__">[docs]</a>
 <div class="viewcode-block" id="_NewFile.__signature__">
@@ -1159,14 +1183,14 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__signature__">[docs]</a>
 <div class="viewcode-block" id="_LegacyLinks.__signature__">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__signature__">[docs]</a>
-<span class="sd">        """</span></div>
+        <span class="n">data_factory</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">IO</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span></div>
 </div>
 </div>
 </div>
 </div>
 
-        <span class="n">response</span><span class="p">:</span> <span class="n">requests</span><span class="o">.</span><span class="n">Response</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">for</span> <span class="n">attempt</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_tries</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">requests</span><span class="o">.</span><span class="n">Response</span><span class="p">:</span>
 <div class="viewcode-block" id="_NewRecord.__pydantic_complete__">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_complete__">[docs]</a>
 <div class="viewcode-block" id="_NewFile.__pydantic_complete__">
@@ -1177,14 +1201,14 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__pydantic_complete__">[docs]</a>
 <div class="viewcode-block" id="_LegacyLinks.__pydantic_complete__">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__pydantic_complete__">[docs]</a>
-            <span class="c1"># Create a fresh set of kwargs for each attempt so that data_factory()</span></div>
+<span class="w">        </span><span class="sd">"""Retry calls to ``requests.request`` with exponential backoff.</span></div>
 </div>
 </div>
 </div>
 </div>
 
-            <span class="c1"># can produce a fresh payload.</span>
-            <span class="n">attempt_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+
+<span class="sd">        Args:</span>
 <div class="viewcode-block" id="_NewRecord.__pydantic_core_schema__">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_core_schema__">[docs]</a>
 <div class="viewcode-block" id="_NewFile.__pydantic_core_schema__">
@@ -1195,14 +1219,14 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__pydantic_core_schema__">[docs]</a>
 <div class="viewcode-block" id="_LegacyLinks.__pydantic_core_schema__">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__pydantic_core_schema__">[docs]</a>
-            <span class="n">payload</span><span class="p">:</span> <span class="n">IO</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
+<span class="sd">            method: HTTP method to use for the request (e.g. ``GET``).</span></div>
 </div>
 </div>
 </div>
 </div>
 
-            <span class="n">timeout_value</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">request_timeout</span> <span class="k">if</span> <span class="n">request_timeout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">2</span><span class="o">**</span><span class="n">attempt</span>
+<span class="sd">            url: Fully-qualified URL to which the request is sent.</span>
+<span class="sd">            max_tries: Maximum number of attempts before surfacing an error.</span>
 <div class="viewcode-block" id="_NewRecord.__pydantic_custom_init__">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_custom_init__">[docs]</a>
 <div class="viewcode-block" id="_NewFile.__pydantic_custom_init__">
@@ -1213,15 +1237,15 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__pydantic_custom_init__">[docs]</a>
 <div class="viewcode-block" id="_LegacyLinks.__pydantic_custom_init__">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__pydantic_custom_init__">[docs]</a>
-            <span class="p">)</span></div>
+<span class="sd">            request_timeout: Optional per-request timeout in seconds. When ``None`` the</span></div>
 </div>
 </div>
 </div>
 </div>
 
-            <span class="k">try</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">data_factory</span><span class="p">:</span>
-                    <span class="n">payload</span> <span class="o">=</span> <span class="n">data_factory</span><span class="p">()</span>
+<span class="sd">                timeout grows exponentially (``2**attempt``).</span>
+<span class="sd">            data_factory: Optional callable that yields a fresh binary stream for each</span>
+<span class="sd">                attempt. Useful for uploads that require reopening a file-like object.</span>
 <div class="viewcode-block" id="_NewRecord.__pydantic_decorators__">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_decorators__">[docs]</a>
 <div class="viewcode-block" id="_NewFile.__pydantic_decorators__">
@@ -1232,15 +1256,15 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__pydantic_decorators__">[docs]</a>
 <div class="viewcode-block" id="_LegacyLinks.__pydantic_decorators__">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__pydantic_decorators__">[docs]</a>
-                    <span class="n">attempt_kwargs</span><span class="p">[</span><span class="s2">"data"</span><span class="p">]</span> <span class="o">=</span> <span class="n">payload</span></div>
+<span class="sd">            **kwargs: Additional keyword arguments passed through directly to</span></div>
 </div>
 </div>
 </div>
 </div>
 
-                <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">request</span><span class="p">(</span>
-                    <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
-                    <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span>
+<span class="sd">                ``requests.request``.</span>
+
+<span class="sd">        Returns:</span>
 <div class="viewcode-block" id="_NewRecord.__pydantic_generic_metadata__">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_generic_metadata__">[docs]</a>
 <div class="viewcode-block" id="_NewFile.__pydantic_generic_metadata__">
@@ -1251,6 +1275,119 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__pydantic_generic_metadata__">[docs]</a>
 <div class="viewcode-block" id="_LegacyLinks.__pydantic_generic_metadata__">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__pydantic_generic_metadata__">[docs]</a>
+<span class="sd">            The ``requests.Response`` produced by the successful attempt.</span></div>
+</div>
+</div>
+</div>
+</div>
+
+
+<span class="sd">        Raises:</span>
+<span class="sd">            requests.RequestException: If all attempts fail with a requests error.</span>
+<span class="sd">            OSError: If reading from disk fails when preparing a payload.</span>
+<span class="sd">            RuntimeError: If no response object is produced (should be rare).</span>
+<span class="sd">        """</span>
+        <span class="n">response</span><span class="p">:</span> <span class="n">requests</span><span class="o">.</span><span class="n">Response</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<div class="viewcode-block" id="_NewRecord.__pydantic_parent_namespace__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_parent_namespace__">[docs]</a>
+<div class="viewcode-block" id="_NewFile.__pydantic_parent_namespace__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewFile.__pydantic_parent_namespace__">[docs]</a>
+<div class="viewcode-block" id="_LegacyDeposition.__pydantic_parent_namespace__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.__pydantic_parent_namespace__">[docs]</a>
+<div class="viewcode-block" id="_LegacyMetadata.__pydantic_parent_namespace__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__pydantic_parent_namespace__">[docs]</a>
+<div class="viewcode-block" id="_LegacyLinks.__pydantic_parent_namespace__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__pydantic_parent_namespace__">[docs]</a>
+        <span class="k">for</span> <span class="n">attempt</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_tries</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span></div>
+</div>
+</div>
+</div>
+</div>
+
+            <span class="c1"># Create a fresh set of kwargs for each attempt so that data_factory()</span>
+            <span class="c1"># can produce a fresh payload.</span>
+<div class="viewcode-block" id="_NewRecord.__pydantic_post_init__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_post_init__">[docs]</a>
+<div class="viewcode-block" id="_NewFile.__pydantic_post_init__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewFile.__pydantic_post_init__">[docs]</a>
+<div class="viewcode-block" id="_LegacyDeposition.__pydantic_post_init__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.__pydantic_post_init__">[docs]</a>
+<div class="viewcode-block" id="_LegacyMetadata.__pydantic_post_init__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__pydantic_post_init__">[docs]</a>
+<div class="viewcode-block" id="_LegacyLinks.__pydantic_post_init__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__pydantic_post_init__">[docs]</a>
+            <span class="n">attempt_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span></div>
+</div>
+</div>
+</div>
+</div>
+
+            <span class="n">payload</span><span class="p">:</span> <span class="n">IO</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">timeout_value</span> <span class="o">=</span> <span class="p">(</span>
+<div class="viewcode-block" id="_NewRecord.__pydantic_root_model__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_root_model__">[docs]</a>
+<div class="viewcode-block" id="_NewFile.__pydantic_root_model__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewFile.__pydantic_root_model__">[docs]</a>
+<div class="viewcode-block" id="_LegacyDeposition.__pydantic_root_model__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.__pydantic_root_model__">[docs]</a>
+<div class="viewcode-block" id="_LegacyMetadata.__pydantic_root_model__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__pydantic_root_model__">[docs]</a>
+<div class="viewcode-block" id="_LegacyLinks.__pydantic_root_model__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__pydantic_root_model__">[docs]</a>
+                <span class="n">request_timeout</span> <span class="k">if</span> <span class="n">request_timeout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">2</span><span class="o">**</span><span class="n">attempt</span></div>
+</div>
+</div>
+</div>
+</div>
+
+            <span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+<div class="viewcode-block" id="_NewRecord.__pydantic_serializer__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_serializer__">[docs]</a>
+<div class="viewcode-block" id="_NewFile.__pydantic_serializer__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewFile.__pydantic_serializer__">[docs]</a>
+<div class="viewcode-block" id="_LegacyDeposition.__pydantic_serializer__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.__pydantic_serializer__">[docs]</a>
+<div class="viewcode-block" id="_LegacyMetadata.__pydantic_serializer__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__pydantic_serializer__">[docs]</a>
+<div class="viewcode-block" id="_LegacyLinks.__pydantic_serializer__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__pydantic_serializer__">[docs]</a>
+                <span class="k">if</span> <span class="n">data_factory</span><span class="p">:</span></div>
+</div>
+</div>
+</div>
+</div>
+
+                    <span class="n">payload</span> <span class="o">=</span> <span class="n">data_factory</span><span class="p">()</span>
+                    <span class="n">attempt_kwargs</span><span class="p">[</span><span class="s2">"data"</span><span class="p">]</span> <span class="o">=</span> <span class="n">payload</span>
+<div class="viewcode-block" id="_NewRecord.__pydantic_validator__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_validator__">[docs]</a>
+<div class="viewcode-block" id="_NewFile.__pydantic_validator__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewFile.__pydantic_validator__">[docs]</a>
+<div class="viewcode-block" id="_LegacyDeposition.__pydantic_validator__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.__pydantic_validator__">[docs]</a>
+<div class="viewcode-block" id="_LegacyMetadata.__pydantic_validator__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__pydantic_validator__">[docs]</a>
+<div class="viewcode-block" id="_LegacyLinks.__pydantic_validator__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__pydantic_validator__">[docs]</a>
+                <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">request</span><span class="p">(</span></div>
+</div>
+</div>
+</div>
+</div>
+
+                    <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
+                    <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span>
+<div class="viewcode-block" id="_NewRecord.__pydantic_fields__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_fields__">[docs]</a>
+<div class="viewcode-block" id="_NewFile.__pydantic_fields__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewFile.__pydantic_fields__">[docs]</a>
+<div class="viewcode-block" id="_LegacyDeposition.__pydantic_fields__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.__pydantic_fields__">[docs]</a>
+<div class="viewcode-block" id="_LegacyMetadata.__pydantic_fields__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__pydantic_fields__">[docs]</a>
+<div class="viewcode-block" id="_LegacyLinks.__pydantic_fields__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__pydantic_fields__">[docs]</a>
                     <span class="n">timeout</span><span class="o">=</span><span class="n">timeout_value</span><span class="p">,</span></div>
 </div>
 </div>
@@ -1264,16 +1401,16 @@ window.runMermaid = runMermaid;</script>
                         <span class="sa">f</span><span class="s2">"Retryable status </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s2"> from </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
                         <span class="n">response</span><span class="o">=</span><span class="n">response</span><span class="p">,</span>
                     <span class="p">)</span>
-<div class="viewcode-block" id="_NewRecord.__pydantic_parent_namespace__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_parent_namespace__">[docs]</a>
-<div class="viewcode-block" id="_NewFile.__pydantic_parent_namespace__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewFile.__pydantic_parent_namespace__">[docs]</a>
-<div class="viewcode-block" id="_LegacyDeposition.__pydantic_parent_namespace__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.__pydantic_parent_namespace__">[docs]</a>
-<div class="viewcode-block" id="_LegacyMetadata.__pydantic_parent_namespace__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__pydantic_parent_namespace__">[docs]</a>
-<div class="viewcode-block" id="_LegacyLinks.__pydantic_parent_namespace__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__pydantic_parent_namespace__">[docs]</a>
+<div class="viewcode-block" id="_NewRecord.__pydantic_computed_fields__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_computed_fields__">[docs]</a>
+<div class="viewcode-block" id="_NewFile.__pydantic_computed_fields__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewFile.__pydantic_computed_fields__">[docs]</a>
+<div class="viewcode-block" id="_LegacyDeposition.__pydantic_computed_fields__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.__pydantic_computed_fields__">[docs]</a>
+<div class="viewcode-block" id="_LegacyMetadata.__pydantic_computed_fields__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__pydantic_computed_fields__">[docs]</a>
+<div class="viewcode-block" id="_LegacyLinks.__pydantic_computed_fields__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__pydantic_computed_fields__">[docs]</a>
                 <span class="k">return</span> <span class="n">response</span></div>
 </div>
 </div>
@@ -1282,52 +1419,22 @@ window.runMermaid = runMermaid;</script>
 
             <span class="k">except</span> <span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">RequestException</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">,</span> <span class="n">requests</span><span class="o">.</span><span class="n">HTTPError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">attempt</span> <span class="o">==</span> <span class="n">max_tries</span><span class="p">:</span>
-<div class="viewcode-block" id="_NewRecord.__pydantic_post_init__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_post_init__">[docs]</a>
-<div class="viewcode-block" id="_NewFile.__pydantic_post_init__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewFile.__pydantic_post_init__">[docs]</a>
-<div class="viewcode-block" id="_LegacyDeposition.__pydantic_post_init__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.__pydantic_post_init__">[docs]</a>
-<div class="viewcode-block" id="_LegacyMetadata.__pydantic_post_init__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__pydantic_post_init__">[docs]</a>
-<div class="viewcode-block" id="_LegacyLinks.__pydantic_post_init__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__pydantic_post_init__">[docs]</a>
-                    <span class="k">raise</span></div>
-</div>
-</div>
-</div>
-</div>
-
+                    <span class="k">raise</span>
                 <span class="n">wait</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="n">attempt</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-<div class="viewcode-block" id="_NewRecord.__pydantic_root_model__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_root_model__">[docs]</a>
-<div class="viewcode-block" id="_NewFile.__pydantic_root_model__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewFile.__pydantic_root_model__">[docs]</a>
-<div class="viewcode-block" id="_LegacyDeposition.__pydantic_root_model__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.__pydantic_root_model__">[docs]</a>
-<div class="viewcode-block" id="_LegacyMetadata.__pydantic_root_model__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__pydantic_root_model__">[docs]</a>
-<div class="viewcode-block" id="_LegacyLinks.__pydantic_root_model__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__pydantic_root_model__">[docs]</a>
-                    <span class="sa">f</span><span class="s2">"Attempt #</span><span class="si">{</span><span class="n">attempt</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2"> failed with </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">, retrying in </span><span class="si">{</span><span class="n">wait</span><span class="si">}</span><span class="s2">s"</span></div>
-</div>
-</div>
-</div>
-</div>
-
+                    <span class="sa">f</span><span class="s2">"Attempt #</span><span class="si">{</span><span class="n">attempt</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2"> failed with </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">, retrying in </span><span class="si">{</span><span class="n">wait</span><span class="si">}</span><span class="s2">s"</span>
                 <span class="p">)</span>
                 <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">wait</span><span class="p">)</span>
-<div class="viewcode-block" id="_NewRecord.__pydantic_serializer__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_serializer__">[docs]</a>
-<div class="viewcode-block" id="_NewFile.__pydantic_serializer__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewFile.__pydantic_serializer__">[docs]</a>
-<div class="viewcode-block" id="_LegacyDeposition.__pydantic_serializer__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.__pydantic_serializer__">[docs]</a>
-<div class="viewcode-block" id="_LegacyMetadata.__pydantic_serializer__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__pydantic_serializer__">[docs]</a>
-<div class="viewcode-block" id="_LegacyLinks.__pydantic_serializer__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__pydantic_serializer__">[docs]</a>
+<div class="viewcode-block" id="_NewRecord.__pydantic_extra__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_extra__">[docs]</a>
+<div class="viewcode-block" id="_NewFile.__pydantic_extra__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewFile.__pydantic_extra__">[docs]</a>
+<div class="viewcode-block" id="_LegacyDeposition.__pydantic_extra__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.__pydantic_extra__">[docs]</a>
+<div class="viewcode-block" id="_LegacyMetadata.__pydantic_extra__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__pydantic_extra__">[docs]</a>
+<div class="viewcode-block" id="_LegacyLinks.__pydantic_extra__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__pydantic_extra__">[docs]</a>
             <span class="k">finally</span><span class="p">:</span></div>
 </div>
 </div>
@@ -1336,16 +1443,16 @@ window.runMermaid = runMermaid;</script>
 
                 <span class="k">if</span> <span class="n">payload</span><span class="p">:</span>
                     <span class="n">payload</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-<div class="viewcode-block" id="_NewRecord.__pydantic_validator__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_validator__">[docs]</a>
-<div class="viewcode-block" id="_NewFile.__pydantic_validator__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewFile.__pydantic_validator__">[docs]</a>
-<div class="viewcode-block" id="_LegacyDeposition.__pydantic_validator__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.__pydantic_validator__">[docs]</a>
-<div class="viewcode-block" id="_LegacyMetadata.__pydantic_validator__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__pydantic_validator__">[docs]</a>
-<div class="viewcode-block" id="_LegacyLinks.__pydantic_validator__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__pydantic_validator__">[docs]</a>
+<div class="viewcode-block" id="_NewRecord.__pydantic_fields_set__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_fields_set__">[docs]</a>
+<div class="viewcode-block" id="_NewFile.__pydantic_fields_set__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewFile.__pydantic_fields_set__">[docs]</a>
+<div class="viewcode-block" id="_LegacyDeposition.__pydantic_fields_set__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.__pydantic_fields_set__">[docs]</a>
+<div class="viewcode-block" id="_LegacyMetadata.__pydantic_fields_set__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__pydantic_fields_set__">[docs]</a>
+<div class="viewcode-block" id="_LegacyLinks.__pydantic_fields_set__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__pydantic_fields_set__">[docs]</a>
         <span class="k">if</span> <span class="n">response</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span></div>
 </div>
 </div>
@@ -1354,16 +1461,16 @@ window.runMermaid = runMermaid;</script>
 
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">"Failed to complete request to </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2"> after </span><span class="si">{</span><span class="n">max_tries</span><span class="si">}</span><span class="s2"> tries"</span>
-<div class="viewcode-block" id="_NewRecord.__pydantic_fields__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_fields__">[docs]</a>
-<div class="viewcode-block" id="_NewFile.__pydantic_fields__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewFile.__pydantic_fields__">[docs]</a>
-<div class="viewcode-block" id="_LegacyDeposition.__pydantic_fields__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.__pydantic_fields__">[docs]</a>
-<div class="viewcode-block" id="_LegacyMetadata.__pydantic_fields__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__pydantic_fields__">[docs]</a>
-<div class="viewcode-block" id="_LegacyLinks.__pydantic_fields__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__pydantic_fields__">[docs]</a>
+<div class="viewcode-block" id="_NewRecord.__pydantic_private__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_private__">[docs]</a>
+<div class="viewcode-block" id="_NewFile.__pydantic_private__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewFile.__pydantic_private__">[docs]</a>
+<div class="viewcode-block" id="_LegacyDeposition.__pydantic_private__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.__pydantic_private__">[docs]</a>
+<div class="viewcode-block" id="_LegacyMetadata.__pydantic_private__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__pydantic_private__">[docs]</a>
+<div class="viewcode-block" id="_LegacyLinks.__pydantic_private__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__pydantic_private__">[docs]</a>
             <span class="p">)</span></div>
 </div>
 </div>
@@ -1380,22 +1487,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">        Depositions can be published *or* unpublished.</span>
 <span class="sd">        """</span>
-<div class="viewcode-block" id="_NewRecord.__pydantic_computed_fields__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_computed_fields__">[docs]</a>
-<div class="viewcode-block" id="_NewFile.__pydantic_computed_fields__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewFile.__pydantic_computed_fields__">[docs]</a>
-<div class="viewcode-block" id="_LegacyDeposition.__pydantic_computed_fields__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.__pydantic_computed_fields__">[docs]</a>
-<div class="viewcode-block" id="_LegacyMetadata.__pydantic_computed_fields__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__pydantic_computed_fields__">[docs]</a>
-<div class="viewcode-block" id="_LegacyLinks.__pydantic_computed_fields__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__pydantic_computed_fields__">[docs]</a>
-        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">retry_request</span><span class="p">(</span></div>
-</div>
-</div>
-</div>
-</div>
-
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">retry_request</span><span class="p">(</span>
             <span class="n">method</span><span class="o">=</span><span class="s2">"GET"</span><span class="p">,</span>
             <span class="n">url</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s2">/deposit/depositions/</span><span class="si">{</span><span class="n">deposition_id</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
             <span class="n">headers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">auth_headers</span><span class="p">,</span>
@@ -1404,61 +1496,16 @@ window.runMermaid = runMermaid;</script>
             <span class="sa">f</span><span class="s2">"License from JSON for </span><span class="si">{</span><span class="n">deposition_id</span><span class="si">}</span><span class="s2"> is "</span>
             <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s1">'metadata'</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'license'</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
-<div class="viewcode-block" id="_NewRecord.__pydantic_extra__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_extra__">[docs]</a>
-<div class="viewcode-block" id="_NewFile.__pydantic_extra__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewFile.__pydantic_extra__">[docs]</a>
-<div class="viewcode-block" id="_LegacyDeposition.__pydantic_extra__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.__pydantic_extra__">[docs]</a>
-<div class="viewcode-block" id="_LegacyMetadata.__pydantic_extra__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__pydantic_extra__">[docs]</a>
-<div class="viewcode-block" id="_LegacyLinks.__pydantic_extra__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__pydantic_extra__">[docs]</a>
         <span class="k">return</span> <span class="n">_LegacyDeposition</span><span class="p">(</span><span class="o">**</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">())</span></div>
-</div>
-</div>
-</div>
-</div>
-</div>
 
 
 <div class="viewcode-block" id="ZenodoClient.get_record">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.ZenodoClient.get_record">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_NewRecord</span><span class="p">:</span>
-<div class="viewcode-block" id="_NewRecord.__pydantic_fields_set__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_fields_set__">[docs]</a>
-<div class="viewcode-block" id="_NewFile.__pydantic_fields_set__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewFile.__pydantic_fields_set__">[docs]</a>
-<div class="viewcode-block" id="_LegacyDeposition.__pydantic_fields_set__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.__pydantic_fields_set__">[docs]</a>
-<div class="viewcode-block" id="_LegacyMetadata.__pydantic_fields_set__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__pydantic_fields_set__">[docs]</a>
-<div class="viewcode-block" id="_LegacyLinks.__pydantic_fields_set__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__pydantic_fields_set__">[docs]</a>
-<span class="w">        </span><span class="sd">"""NEW API: Get JSON describing a record.</span></div>
-</div>
-</div>
-</div>
-</div>
-
+<span class="w">        </span><span class="sd">"""NEW API: Get JSON describing a record.</span>
 
 <span class="sd">        All records are published records.</span>
-<div class="viewcode-block" id="_NewRecord.__pydantic_private__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_private__">[docs]</a>
-<div class="viewcode-block" id="_NewFile.__pydantic_private__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewFile.__pydantic_private__">[docs]</a>
-<div class="viewcode-block" id="_LegacyDeposition.__pydantic_private__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.__pydantic_private__">[docs]</a>
-<div class="viewcode-block" id="_LegacyMetadata.__pydantic_private__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__pydantic_private__">[docs]</a>
-<div class="viewcode-block" id="_LegacyLinks.__pydantic_private__">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__pydantic_private__">[docs]</a>
-<span class="sd">        """</span></div>
-</div>
-</div>
-</div>
-</div>
-
+<span class="sd">        """</span>
         <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">retry_request</span><span class="p">(</span>
             <span class="n">method</span><span class="o">=</span><span class="s2">"GET"</span><span class="p">,</span>
             <span class="n">url</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s2">/records/</span><span class="si">{</span><span class="n">record_id</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
@@ -1592,6 +1639,21 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<div class="viewcode-block" id="get_github_archive_doi_url">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.get_github_archive_doi_url">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_github_archive_doi_url</span><span class="p">(</span><span class="n">zenodo_client</span><span class="p">:</span> <span class="n">ZenodoClient</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Look up the DOI of the latest GitHub-repo Zenodo software archive.</span>
+
+<span class="sd">    Returns ``None`` on the sandbox server, since GitHub's Zenodo integration only</span>
+<span class="sd">    ever publishes the software archive to production.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">zenodo_client</span><span class="o">.</span><span class="n">env</span> <span class="o">!=</span> <span class="n">PRODUCTION</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">record</span> <span class="o">=</span> <span class="n">zenodo_client</span><span class="o">.</span><span class="n">get_record</span><span class="p">(</span><span class="n">GITHUB_ARCHIVE_CONCEPT_ID</span><span class="p">)</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"https://doi.org/</span><span class="si">{</span><span class="n">record</span><span class="o">.</span><span class="n">doi</span><span class="si">}</span><span class="s2">"</span></div>
+
+
+
 <span class="nd">@dataclass</span>
 <div class="viewcode-block" id="State">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.State">[docs]</a>
@@ -1624,6 +1686,20 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    we can do is try to get a fresh draft.</span>
 <span class="sd">    """</span>
 
+<div class="viewcode-block" id="InitialDataset._get_or_create_draft">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.InitialDataset._get_or_create_draft">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_or_create_draft</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"_NewRecord"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Get the existing draft for this dataset's concept, creating one if needed.</span>
+
+<span class="sd">        Uses the new API to get or create the draft; ``new_record_version`` is</span>
+<span class="sd">        idempotent, so if a draft already exists (e.g. an in-progress review) it's</span>
+<span class="sd">        returned as-is rather than creating another one.</span>
+<span class="sd">        """</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Getting new version for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">record_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">latest_record</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zenodo_client</span><span class="o">.</span><span class="n">get_record</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">record_id</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">zenodo_client</span><span class="o">.</span><span class="n">new_record_version</span><span class="p">(</span><span class="n">latest_record</span><span class="o">.</span><span class="n">id_</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="InitialDataset.get_empty_draft">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.InitialDataset.get_empty_draft">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_empty_draft</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"EmptyDraft"</span><span class="p">:</span>
@@ -1632,9 +1708,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        Use new API to get any draft, then use legacy API to delete any files</span>
 <span class="sd">        in the draft.</span>
 <span class="sd">        """</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Getting new version for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">record_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-        <span class="n">latest_record</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zenodo_client</span><span class="o">.</span><span class="n">get_record</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">record_id</span><span class="p">)</span>
-        <span class="n">new_version</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zenodo_client</span><span class="o">.</span><span class="n">new_record_version</span><span class="p">(</span><span class="n">latest_record</span><span class="o">.</span><span class="n">id_</span><span class="p">)</span>
+        <span class="n">new_version</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_create_draft</span><span class="p">()</span>
         <span class="n">new_rec_id</span> <span class="o">=</span> <span class="n">new_version</span><span class="o">.</span><span class="n">id_</span>
         <span class="n">existing_files</span> <span class="o">=</span> <span class="n">new_version</span><span class="o">.</span><span class="n">files</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
@@ -1643,6 +1717,26 @@ window.runMermaid = runMermaid;</script>
         <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">existing_files</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">zenodo_client</span><span class="o">.</span><span class="n">delete_deposition_file</span><span class="p">(</span><span class="n">new_rec_id</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">id_</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">EmptyDraft</span><span class="p">(</span><span class="n">record_id</span><span class="o">=</span><span class="n">new_rec_id</span><span class="p">,</span> <span class="n">zenodo_client</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">zenodo_client</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="InitialDataset.get_existing_draft">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.InitialDataset.get_existing_draft">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_existing_draft</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"ContentComplete"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Get the existing draft for this dataset, without touching its files.</span>
+
+<span class="sd">        For updating just the metadata on a draft that already has its data files in</span>
+<span class="sd">        place (e.g. fixing up a production draft's metadata before it's reviewed and</span>
+<span class="sd">        published) -- skips ``get_empty_draft``'s file deletion and the</span>
+<span class="sd">        ``sync_directory`` upload step entirely.</span>
+<span class="sd">        """</span>
+        <span class="n">new_version</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_create_draft</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"Using existing draft </span><span class="si">{</span><span class="n">new_version</span><span class="o">.</span><span class="n">id_</span><span class="si">}</span><span class="s2"> with "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">new_version</span><span class="o">.</span><span class="n">files</span><span class="p">)</span><span class="si">}</span><span class="s2"> files, metadata only"</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">ContentComplete</span><span class="p">(</span>
+            <span class="n">record_id</span><span class="o">=</span><span class="n">new_version</span><span class="o">.</span><span class="n">id_</span><span class="p">,</span> <span class="n">zenodo_client</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">zenodo_client</span>
+        <span class="p">)</span></div>
 </div>
 
 
@@ -1765,38 +1859,49 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="ContentComplete.update_metadata">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.ContentComplete.update_metadata">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">update_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""Copy over old metadata and update publication date.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_metadata</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">version_tag</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">docs_html_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+        <span class="n">zenodo_json_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"CompleteDraft"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Build and set fresh deposition metadata for this release.</span>
 
-<span class="sd">        We need to make sure there is complete metadata, including a publication date.</span>
+<span class="sd">        * creators &amp; keywords: ``.zenodo.json``</span>
+<span class="sd">        * description: the built release notes HTML for ``version_tag``, plus a</span>
+<span class="sd">          footer of release-specific resource links and a static contact-us section</span>
+<span class="sd">        * license: ``pudl.metadata.sources.SOURCES["pudl"]["license_pudl"]``, the</span>
+<span class="sd">          authoritative record of what license PUDL's own data outputs are released</span>
+<span class="sd">          under (via ``get_data_license_id()``)</span>
 
-<span class="sd">        To do this, we:</span>
-
-<span class="sd">        1. use the *legacy* API to get the concept record ID associated with the draft</span>
-<span class="sd">        2. use the *new* API to get the latest record associated with the concept</span>
-<span class="sd">        3. use the *legacy* API to get the metadata from the latest record</span>
-<span class="sd">        4. use the *legacy* API to update the draft's metadata</span>
-
-<span class="sd">        Since we are using the legacy API to publish, we need the legacy</span>
-<span class="sd">        metadata format. But the legacy concept DOI -&gt; published record mapping</span>
-<span class="sd">        is broken, so we have to take a detour through the new API.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            version_tag: The PUDL release version tag, e.g. ``"v2026.8.0"``.</span>
+<span class="sd">            docs_html_dir: Path to a built Sphinx HTML output directory (i.e.</span>
+<span class="sd">                ``docs/_build/html``), used to extract this version's release notes.</span>
+<span class="sd">            zenodo_json_path: Path to the repo's ``.zenodo.json``, used for creators</span>
+<span class="sd">                and keywords.</span>
 <span class="sd">        """</span>
-        <span class="n">deposition_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zenodo_client</span><span class="o">.</span><span class="n">get_deposition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">record_id</span><span class="p">)</span>
-        <span class="n">concept_rec_id</span> <span class="o">=</span> <span class="n">deposition_info</span><span class="o">.</span><span class="n">conceptrecid</span>
-        <span class="n">concept_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zenodo_client</span><span class="o">.</span><span class="n">get_record</span><span class="p">(</span><span class="n">concept_rec_id</span><span class="p">)</span>
-        <span class="n">latest_published_deposition</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zenodo_client</span><span class="o">.</span><span class="n">get_deposition</span><span class="p">(</span>
-            <span class="n">concept_info</span><span class="o">.</span><span class="n">id_</span>
+        <span class="n">creators</span><span class="p">,</span> <span class="n">keywords</span> <span class="o">=</span> <span class="n">load_zenodo_json</span><span class="p">(</span><span class="n">zenodo_json_path</span><span class="p">)</span>
+        <span class="n">github_archive_doi_url</span> <span class="o">=</span> <span class="n">get_github_archive_doi_url</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zenodo_client</span><span class="p">)</span>
+        <span class="n">release_notes_html</span> <span class="o">=</span> <span class="n">render_release_notes_html</span><span class="p">(</span><span class="n">docs_html_dir</span><span class="p">,</span> <span class="n">version_tag</span><span class="p">)</span>
+        <span class="n">resources_html</span><span class="p">,</span> <span class="n">related_identifiers</span> <span class="o">=</span> <span class="n">build_related_resources</span><span class="p">(</span>
+            <span class="n">version_tag</span><span class="p">,</span> <span class="n">github_archive_doi_url</span>
         <span class="p">)</span>
-        <span class="n">base_metadata</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">k</span><span class="p">:</span> <span class="n">v</span>
-            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">latest_published_deposition</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">"doi"</span><span class="p">,</span> <span class="s2">"prereserve_doi"</span><span class="p">,</span> <span class="s2">"publication_date"</span><span class="p">}</span>
-        <span class="p">}</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">"Using metadata from </span><span class="si">{</span><span class="n">latest_published_deposition</span><span class="o">.</span><span class="n">id_</span><span class="si">}</span><span class="s2"> to publish </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">record_id</span><span class="si">}</span><span class="s2">..."</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">release_notes_html</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">resources_html</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">CONTACT_US_HTML</span><span class="si">}</span><span class="s2">"</span>
+
+        <span class="n">metadata</span> <span class="o">=</span> <span class="n">_LegacyMetadata</span><span class="p">(</span>
+            <span class="n">title</span><span class="o">=</span><span class="n">DATA_RECORD_TITLE</span><span class="p">,</span>
+            <span class="n">access_right</span><span class="o">=</span><span class="s2">"open"</span><span class="p">,</span>
+            <span class="n">creators</span><span class="o">=</span><span class="n">creators</span><span class="p">,</span>
+            <span class="n">keywords</span><span class="o">=</span><span class="n">keywords</span><span class="p">,</span>
+            <span class="n">license</span><span class="o">=</span><span class="n">get_data_license_id</span><span class="p">(),</span>
+            <span class="n">language</span><span class="o">=</span><span class="s2">"eng"</span><span class="p">,</span>
+            <span class="n">version</span><span class="o">=</span><span class="n">version_tag</span><span class="p">,</span>
+            <span class="n">publication_date</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+            <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
+            <span class="n">related_identifiers</span><span class="o">=</span><span class="n">related_identifiers</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">pub_date</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"publication_date"</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()}</span>
-        <span class="n">metadata</span> <span class="o">=</span> <span class="n">_LegacyMetadata</span><span class="p">(</span><span class="o">**</span><span class="p">(</span><span class="n">base_metadata</span> <span class="o">|</span> <span class="n">pub_date</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Setting fresh metadata for </span><span class="si">{</span><span class="n">version_tag</span><span class="si">}</span><span class="s2"> on </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">record_id</span><span class="si">}</span><span class="s2">..."</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">zenodo_client</span><span class="o">.</span><span class="n">update_deposition_metadata</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">record_id</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">CompleteDraft</span><span class="p">(</span><span class="n">record_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">record_id</span><span class="p">,</span> <span class="n">zenodo_client</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">zenodo_client</span><span class="p">)</span></div>
 </div>
@@ -1875,15 +1980,25 @@ window.runMermaid = runMermaid;</script>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
     <span class="s2">"--source-dir"</span><span class="p">,</span>
     <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-    <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">help</span><span class="o">=</span><span class="s2">"Path to a directory whose contents will be uploaded to Zenodo. "</span>
     <span class="s2">"Subdirectories are ignored. Accepts GCS or S3 URLs as well. Prefix remote paths "</span>
-    <span class="s2">"with e.g. gs:// or s3://."</span><span class="p">,</span>
+    <span class="s2">"with e.g. gs:// or s3://. Required unless --metadata-only is set, in which case "</span>
+    <span class="s2">"it's ignored if passed."</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
     <span class="s2">"--ignore"</span><span class="p">,</span>
     <span class="n">multiple</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">help</span><span class="o">=</span><span class="s2">"Filenames that match these regex patterns will be ignored."</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">"--metadata-only"</span><span class="p">,</span>
+    <span class="n">is_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">"Update metadata on the existing draft without touching its files. Takes "</span>
+    <span class="s2">"precedence over --source-dir/--ignore, which are ignored if also passed. For "</span>
+    <span class="s2">"fixing up a draft's metadata (e.g. after a review comment) without re-uploading "</span>
+    <span class="s2">"the data."</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
     <span class="s2">"--publish/--no-publish"</span><span class="p">,</span>
@@ -1892,10 +2007,64 @@ window.runMermaid = runMermaid;</script>
     <span class="s2">"draft to be reviewed and approved manually."</span><span class="p">,</span>
     <span class="n">show_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">"--pudl-version"</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+    <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">"The PUDL release version tag being published, e.g. 'v2026.8.0'. Used to set "</span>
+    <span class="s2">"the deposition's version, to select the matching section of the release notes, "</span>
+    <span class="s2">"and to build release-specific resource links."</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">"--docs-html-dir"</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">path_type</span><span class="o">=</span><span class="n">Path</span><span class="p">),</span>
+    <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">"Path to a built Sphinx HTML docs directory (i.e. 'docs/_build/html', "</span>
+    <span class="s2">"produced by 'pixi run docs-build'), used to extract this version's release "</span>
+    <span class="s2">"notes for the deposition description. Defaults to docs/_build/html within the "</span>
+    <span class="s2">"repository."</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">"--skip-git-check"</span><span class="p">,</span>
+    <span class="n">is_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">"Skip verifying that the working tree's checked-out git commit matches "</span>
+    <span class="s2">"--pudl-version before building metadata. Only relevant against production: a "</span>
+    <span class="s2">"mismatched checkout there can silently produce metadata for the wrong release. "</span>
+    <span class="s2">"Sandbox runs always skip this specific check, since they intentionally pass a "</span>
+    <span class="s2">"stand-in version tag (the last real release, not the current commit) rather than "</span>
+    <span class="s2">"a real release tag of their own."</span><span class="p">,</span>
+<span class="p">)</span>
 <div class="viewcode-block" id="main">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.main">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">env</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">source_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">publish</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">ignore</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span>
+    <span class="n">env</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">source_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">publish</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">ignore</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">metadata_only</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">pudl_version</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">docs_html_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">skip_git_check</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Publish a new PUDL data release to Zenodo."""</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">metadata_only</span> <span class="ow">and</span> <span class="n">source_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">click</span><span class="o">.</span><span class="n">UsageError</span><span class="p">(</span>
+            <span class="s2">"--source-dir is required unless --metadata-only is set."</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">metadata_only</span> <span class="ow">and</span> <span class="p">(</span><span class="n">source_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">ignore</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">"--metadata-only was set; ignoring --source-dir/--ignore (no files will "</span>
+            <span class="s2">"be uploaded)."</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">docs_html_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">docs_html_dir</span> <span class="o">=</span> <span class="n">PUDL_DOCS_PATH</span> <span class="o">/</span> <span class="s2">"_build"</span> <span class="o">/</span> <span class="s2">"html"</span>
+    <span class="n">zenodo_json_path</span> <span class="o">=</span> <span class="n">PUDL_ROOT_PATH</span> <span class="o">/</span> <span class="s2">".zenodo.json"</span>
+
+    <span class="k">if</span> <span class="n">env</span> <span class="o">==</span> <span class="n">PRODUCTION</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">skip_git_check</span><span class="p">:</span>
+        <span class="n">verify_git_tag_checked_out</span><span class="p">(</span><span class="n">pudl_version</span><span class="p">,</span> <span class="n">PUDL_ROOT_PATH</span><span class="p">)</span>
+
     <span class="n">zenodo_client</span> <span class="o">=</span> <span class="n">ZenodoClient</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">env</span> <span class="o">==</span> <span class="n">SANDBOX</span><span class="p">:</span>
         <span class="n">rec_id</span> <span class="o">=</span> <span class="mi">5563</span>
@@ -1908,11 +2077,18 @@ window.runMermaid = runMermaid;</script>
     <span class="n">record_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">succeeded</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">completed_draft</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">InitialDataset</span><span class="p">(</span><span class="n">zenodo_client</span><span class="o">=</span><span class="n">zenodo_client</span><span class="p">,</span> <span class="n">record_id</span><span class="o">=</span><span class="n">rec_id</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">get_empty_draft</span><span class="p">()</span>
-            <span class="o">.</span><span class="n">sync_directory</span><span class="p">(</span><span class="n">source_dir</span><span class="p">,</span> <span class="n">ignore</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">update_metadata</span><span class="p">()</span>
+        <span class="n">initial_dataset</span> <span class="o">=</span> <span class="n">InitialDataset</span><span class="p">(</span><span class="n">zenodo_client</span><span class="o">=</span><span class="n">zenodo_client</span><span class="p">,</span> <span class="n">record_id</span><span class="o">=</span><span class="n">rec_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">metadata_only</span><span class="p">:</span>
+            <span class="n">content_complete</span> <span class="o">=</span> <span class="n">initial_dataset</span><span class="o">.</span><span class="n">get_existing_draft</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">source_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>  <span class="c1"># guaranteed by the check above</span>
+            <span class="n">content_complete</span> <span class="o">=</span> <span class="n">initial_dataset</span><span class="o">.</span><span class="n">get_empty_draft</span><span class="p">()</span><span class="o">.</span><span class="n">sync_directory</span><span class="p">(</span>
+                <span class="n">source_dir</span><span class="p">,</span> <span class="n">ignore</span>
+            <span class="p">)</span>
+        <span class="n">completed_draft</span> <span class="o">=</span> <span class="n">content_complete</span><span class="o">.</span><span class="n">update_metadata</span><span class="p">(</span>
+            <span class="n">version_tag</span><span class="o">=</span><span class="n">pudl_version</span><span class="p">,</span>
+            <span class="n">docs_html_dir</span><span class="o">=</span><span class="n">docs_html_dir</span><span class="p">,</span>
+            <span class="n">zenodo_json_path</span><span class="o">=</span><span class="n">zenodo_json_path</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">publish</span><span class="p">:</span>
