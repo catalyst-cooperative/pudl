@@ -1,16 +1,12 @@
 """Dagster assets that rebuild pudl.sqlite and pudl.duckdb from PUDL's Parquet outputs."""
 
-import datetime
-import sqlite3
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
-from sqlite3 import sqlite_version
 
 import dagster as dg
 import duckdb
 import sqlalchemy as sa
-from packaging import version
 
 import pudl.logging_helpers
 from pudl.helpers import get_parquet_table_polars
@@ -19,52 +15,46 @@ from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
-MINIMUM_SQLITE_VERSION = "3.32.0"
-
-# Number of rows read from Parquet and inserted into SQLite per batch. Keeps memory
-# bounded for large tables without a per-row round trip.
-_COPY_BATCH_SIZE = 100_000
+# Alias that the destination pudl.sqlite database is attached under from DuckDB
+# while its tables are being loaded.
+_SQLITE_ATTACH_ALIAS = "pudl_sqlite_out"
 
 # Exceptions treated as data-quality problems with one table, rather than a bug in
 # this module: caught per table in write_pudl_sqlite()/write_pudl_duckdb() so one bad
 # table doesn't abort the hundreds of others. ValueError comes from
-# _validate_primary_key(); sqlite3.Error covers CHECK/NOT NULL/UNIQUE/FOREIGN KEY
-# constraint violations raised by the real SQLite write; duckdb.Error covers problems
-# reading a table's Parquet file (e.g. a column that doesn't match the declared
-# schema).
-_SQLITE_WRITE_EXCEPTIONS = (ValueError, sqlite3.Error, duckdb.Error)
+# _validate_primary_key(); duckdb.Error covers both problems reading a table's
+# Parquet file (e.g. a column that doesn't match the declared schema) and the
+# NOT NULL/UNIQUE/PRIMARY KEY violations SQLite raises back through DuckDB as the
+# rows are streamed in.
+_SQLITE_WRITE_EXCEPTIONS = (ValueError, duckdb.Error)
 
-# duckdb-engine's SQLAlchemy dialect subclasses postgresql's, inheriting a
-# 63-character identifier length limit that DuckDB itself doesn't actually have.
 _DUCKDB_MAX_IDENTIFIER_LENGTH = 255
+"""Explicit maximum length for DuckDB identifiers.
 
-
-def _adapt_datetime(dt: datetime.datetime) -> str:
-    """Serialize a datetime with an explicit, always-present microseconds suffix.
-
-    Python's default (now-deprecated) ``sqlite3`` datetime adapter stringifies via
-    ``str(dt)``, which omits the fractional-seconds suffix whenever
-    ``microsecond == 0`` (e.g. ``"2020-01-01 00:00:00"`` instead of
-    ``"2020-01-01 00:00:00.000000"``). That silently produces two different string
-    formats for the same column depending on the value, and PUDL's ``datetime``
-    ``CHECK`` constraint (see ``Field._to_sql_sqlite``) only accepts the
-    microsecond-suffixed form -- so whole-second timestamps failed to insert.
-    """
-    return dt.strftime("%Y-%m-%d %H:%M:%S.%f")
-
-
-sqlite3.register_adapter(datetime.datetime, _adapt_datetime)
+Required because duckdb-engine's SQLAlchemy dialect subclasses postgresql's, inheriting a
+63-character identifier length limit that DuckDB itself doesn't actually have.
+"""
 
 
 @dataclass
 class TableWriteError:
-    """Everything needed to debug one table's failed write."""
+    """A single table's failed write: which table, and the exception that stopped it.
+
+    Attributes:
+        table_name: Name of the table whose write failed.
+        exception: The exception raised while validating or writing the table.
+    """
 
     table_name: str
     exception: Exception
 
     def __str__(self) -> str:
-        """Render as ``table_name: ExceptionType: message`` for logs and reports."""
+        """Render as ``table_name: ExceptionType: message`` for logs and reports.
+
+        Returns:
+            A single-line string combining the table name, the exception class
+            name, and the exception message.
+        """
         return f"{self.table_name}: {type(self.exception).__name__}: {self.exception}"
 
 
@@ -77,6 +67,12 @@ class TableWriteReport:
     from being attempted. This report is how the caller finds out, after the fact,
     exactly which tables failed and why -- across potentially hundreds of tables in
     one run -- rather than only ever learning about the first failure encountered.
+
+    Attributes:
+        row_counts: Mapping of table name to number of rows written, for every table
+            that wrote successfully.
+        errors: One :class:`TableWriteError` per table that failed, in the order the
+            failures occurred.
     """
 
     row_counts: dict[str, int] = field(default_factory=dict)
@@ -84,11 +80,21 @@ class TableWriteReport:
 
     @property
     def failed_tables(self) -> list[str]:
-        """Names of tables that failed to write."""
+        """Names of the tables that failed to write.
+
+        Returns:
+            The ``table_name`` of every recorded error, in failure order.
+        """
         return [error.table_name for error in self.errors]
 
     def summary(self) -> str:
-        """Human-readable report of every table that failed to write, and why."""
+        """Human-readable report of every table that failed to write, and why.
+
+        Returns:
+            A multi-line string: a single ``"Wrote all N table(s)."`` line when
+            nothing failed, otherwise a header line plus one indented line per
+            failed table.
+        """
         total = len(self.row_counts) + len(self.errors)
         if not self.errors:
             return f"Wrote all {total} table(s)."
@@ -103,16 +109,8 @@ class TableWriteReport:
 ################################################################################
 
 
-def _check_sqlite_version() -> None:
-    if version.parse(sqlite_version) < version.parse(MINIMUM_SQLITE_VERSION):
-        logger.warning(
-            f"Found SQLite {sqlite_version}, less than the minimum required "
-            f"version {MINIMUM_SQLITE_VERSION}."
-        )
-
-
 def _has_integer_rowid_alias_pk(resource: Resource) -> bool:
-    """Return True if resource's primary key is susceptible to SQLite's ROWID alias.
+    """Return whether a resource's primary key is susceptible to SQLite's ROWID alias.
 
     When a table's primary key is a *single* column declared with type ``INTEGER``,
     SQLite treats that column as an alias for its internal ``rowid`` rather than as
@@ -129,6 +127,15 @@ def _has_integer_rowid_alias_pk(resource: Resource) -> bool:
     (multi-column) primary keys and non-integer single-column primary keys are not
     ROWID aliases, so SQLite's own ``NOT NULL``/``UNIQUE`` enforcement on those
     columns works exactly as expected and needs no help from PUDL.
+
+    Args:
+        resource: Metadata Resource for the table, whose ``schema.primary_key`` and
+            field types are inspected.
+
+    Returns:
+        True if the resource has a single-column ``integer``/``year`` primary key
+        (which SQLite treats as a ROWID alias); False for composite or non-integer
+        primary keys.
     """
     pk = resource.schema.primary_key
     if len(pk) != 1:
@@ -138,14 +145,21 @@ def _has_integer_rowid_alias_pk(resource: Resource) -> bool:
 
 
 def _validate_primary_key(resource: Resource, paths: PudlPaths) -> None:
-    """Raise ValueError if resource's table violates its own primary key.
+    """Check a table's Parquet data against its own primary key before writing.
 
-    Only checked when :func:`_has_integer_rowid_alias_pk` is True, since that's the
-    only primary key shape SQLite doesn't already enforce NOT NULL/UNIQUE on
-    correctly. For every other shape, SQLite's own constraint enforcement at insert
-    time is already sufficient, so scanning the Parquet file here would just be
-    wasted effort. (DuckDB has no equivalent quirk for any primary key shape, so
-    write_pudl_duckdb doesn't need an analogous check at all.)
+    Only does anything when :func:`_has_integer_rowid_alias_pk` is True, since that
+    is the only kind of primary key SQLite doesn't already enforce ``NOT NULL`` /
+    ``UNIQUE`` on correctly. For all other cases SQLite's own constraint enforcement
+    at insert time is sufficient, and this returns immediately without reading the
+    Parquet file.
+
+    Args:
+        resource: Metadata Resource for the table to check.
+        paths: PUDL workspace paths, used to locate the table's Parquet file.
+
+    Raises:
+        ValueError: If the Parquet data contains a null or duplicate primary key
+            value. The message names the resource and lists each violation.
     """
     if not _has_integer_rowid_alias_pk(resource):
         return
@@ -157,45 +171,50 @@ def _validate_primary_key(resource: Resource, paths: PudlPaths) -> None:
 
 
 def _copy_table_to_sqlite(
-    sqlite_con: sqlite3.Connection,
     duckdb_con: duckdb.DuckDBPyConnection,
     resource: Resource,
     parquet_path: Path,
 ) -> int:
-    """Delete and reload one table's data in the destination SQLite database.
+    """Stream one table's Parquet data into the attached SQLite database.
 
-    Returns the row count written. Rows are read from Parquet via DuckDB (fast
-    columnar I/O) but written through Python's ``sqlite3`` module rather than
-    DuckDB's own ``ATTACH ... TYPE sqlite``: DuckDB's statically-linked SQLite build
-    has no ``REGEXP()`` function, while the system/conda-forge SQLite that Python's
-    ``sqlite3`` links against does, and several PUDL ``CHECK`` constraints rely on
-    ``REGEXP``. Constraints (``CHECK``/``NOT NULL``/``UNIQUE``/``FOREIGN KEY``)
-    declared on the destination table are still enforced by SQLite itself at insert
-    time, since this is real SQLite doing the write.
+    DuckDB reads the Parquet file with its columnar engine and writes straight into
+    the ``ATTACH``ed SQLite file via the ``sqlite`` extension. The destination SQLite
+    schema is deliberately built *without* ``CHECK`` constraints (see
+    :func:`write_pudl_sqlite`), which keeps the insertion fast; all data is assumed
+    to have already been validated upstream against the full PUDL schema.
+    ``PRIMARY KEY``, ``NOT NULL`` and ``UNIQUE`` are still declared *and* enforced by
+    SQLite as the rows land; foreign keys are declared but, per SQLite's default
+    (``PRAGMA foreign_keys = OFF``), not checked on write.
+
+    Args:
+        duckdb_con: An open DuckDB connection with the destination SQLite database
+            already ``ATTACH``ed under :data:`_SQLITE_ATTACH_ALIAS`.
+        resource: Metadata Resource for the table being written; supplies the table
+            name and the ordered column list.
+        parquet_path: Path to the source Parquet file for this table.
+
+    Returns:
+        The number of rows written to the table.
+
+    Raises:
+        duckdb.Error: If the Parquet file doesn't match the declared schema, or
+            SQLite rejects a row for a ``NOT NULL`` / ``UNIQUE`` / ``PRIMARY KEY``
+            violation as it lands.
     """
     # Table/column names come from PUDL_PACKAGE resource metadata, not external
-    # input, so this isn't user-controlled SQL injection despite the string
-    # interpolation. The parquet path is the one real variable and is bound as a
-    # query parameter below.
+    # input, so this isn't user-controlled SQL injection.
     table_name = resource.name
-    columns = resource.get_field_names()
-    columns_sql = ", ".join(f'"{c}"' for c in columns)
-    placeholders = ", ".join("?" for _ in columns)
-    insert_sql = f'INSERT INTO "{table_name}" VALUES ({placeholders})'  # noqa: S608
-
-    reader = duckdb_con.execute(
-        f"SELECT {columns_sql} FROM read_parquet(?)",  # noqa: S608
+    columns_sql = ", ".join(f'"{c}"' for c in resource.get_field_names())
+    duckdb_con.execute(
+        f'INSERT INTO {_SQLITE_ATTACH_ALIAS}."{table_name}" '  # noqa: S608
+        f"SELECT {columns_sql} FROM read_parquet(?)",
         [str(parquet_path)],
-    ).to_arrow_reader(_COPY_BATCH_SIZE)
-
-    row_count = 0
-    with sqlite_con:
-        sqlite_con.execute(f'DELETE FROM "{table_name}"')  # noqa: S608
-        for batch in reader:
-            rows = [tuple(row.values()) for row in batch.to_pylist()]
-            sqlite_con.executemany(insert_sql, rows)
-            row_count += len(rows)
-    return row_count
+    )
+    row = duckdb_con.execute(
+        f'SELECT count(*) FROM {_SQLITE_ATTACH_ALIAS}."{table_name}"'  # noqa: S608
+    ).fetchone()
+    assert row is not None  # SELECT count(*) always returns exactly one row
+    return row[0]
 
 
 def write_pudl_sqlite(
@@ -203,32 +222,58 @@ def write_pudl_sqlite(
     table_names: Sequence[str],
     paths: PudlPaths | None = None,
 ) -> TableWriteReport:
-    """Rebuild a fresh SQLite DB at ``sqlite_path`` from the given Parquet tables.
+    """Build a fresh ``pudl.sqlite`` at ``sqlite_path`` from the given Parquet tables.
 
-    Each table is validated and written independently: a data-quality failure in one
-    table (see :data:`_SQLITE_WRITE_EXCEPTIONS`) is caught and recorded rather than
-    aborting the run, so a single call surfaces every problem across potentially
-    hundreds of tables at once instead of stopping at the first one. Returns a
-    :class:`TableWriteReport` describing what wrote successfully and what didn't, for
-    the caller to act on (e.g. fail the Dagster run) or inspect. Separated from the
-    Dagster asset wrapper so it's directly unit-testable without constructing Dagster
-    execution contexts.
+    The database is created with a "lean" schema -- column types, primary keys,
+    ``NOT NULL``, ``UNIQUE``, foreign keys and column comments, but no ``CHECK``
+    constraints (see the inline comment for why) -- and each table is then streamed
+    in from Parquet by DuckDB via :func:`_copy_table_to_sqlite`.
+
+    Tables are written independently: a failure in one table (see
+    :data:`_SQLITE_WRITE_EXCEPTIONS`) is caught and recorded rather than aborting the
+    run, so a single call surfaces every problem across all tables at once instead of
+    stopping at the first one. Separated from the Dagster asset wrapper so it's
+    directly unit-testable without constructing Dagster execution contexts.
+
+    Args:
+        sqlite_path: Where to write the SQLite file. Any existing file at this path
+            is deleted first; parent directories are created as needed.
+        table_names: Names of the tables to load. Every table must have a Resource
+            with ``create_database_schema=True`` and a corresponding Parquet file.
+        paths: PUDL workspace paths used to locate each table's Parquet file.
+            Defaults to a fresh :class:`PudlPaths` built from the environment.
+
+    Returns:
+        A :class:`TableWriteReport` recording the row count for every table that
+        wrote successfully and a :class:`TableWriteError` for every one that didn't.
     """
-    _check_sqlite_version()
     paths = paths or PudlPaths()
     sqlite_path.parent.mkdir(parents=True, exist_ok=True)
     sqlite_path.unlink(missing_ok=True)
 
-    # Schema/constraints come from SQLAlchemy metadata -- this is the one part that
-    # needs Package.to_sql()'s full constraint detail (PK/FK/CHECK).
-    metadata = PUDL_PACKAGE.to_sql()  # already filtered to create_database_schema
+    # "Lean" schema: keep column types, primary keys, NOT NULL, UNIQUE, foreign keys and
+    # column comments. CHECK constraints are omitted as they re-verify data already
+    # validated by the pandera schema asset checks upstream. If included, DuckDB
+    # evaluates them on write, dramatically slowing output. Foreign keys can be kept
+    # because SQLite doesn't enforce them unless PRAGMA foreign_keys is actively set to
+    # ON. They cost nothing on write but stay visible in the delivered schema.
+    metadata = PUDL_PACKAGE.to_sql(  # already filtered to create_database_schema
+        dialect="sqlite",
+        check_types=False,
+        check_values=False,
+    )
     engine = sa.create_engine(f"sqlite:///{sqlite_path}")
     metadata.create_all(engine)
     engine.dispose()
 
     report = TableWriteReport()
     duckdb_con = duckdb.connect()
-    sqlite_con = sqlite3.connect(sqlite_path)
+    duckdb_con.execute("LOAD sqlite")
+    # The path comes from PudlPaths, not external input; DuckDB has no parameter
+    # binding for ATTACH targets.
+    duckdb_con.execute(
+        f"ATTACH '{sqlite_path}' AS {_SQLITE_ATTACH_ALIAS} (TYPE sqlite)"  # noqa: S608
+    )
     n_tables = len(table_names)
     try:
         for n, table_name in enumerate(table_names, start=1):
@@ -237,13 +282,13 @@ def write_pudl_sqlite(
             try:
                 _validate_primary_key(resource, paths)
                 report.row_counts[table_name] = _copy_table_to_sqlite(
-                    sqlite_con, duckdb_con, resource, paths.parquet_path(table_name)
+                    duckdb_con, resource, paths.parquet_path(table_name)
                 )
             except _SQLITE_WRITE_EXCEPTIONS as exc:
                 logger.error(f"Failed to write {table_name} to SQLite: {exc}")
                 report.errors.append(TableWriteError(table_name, exc))
     finally:
-        sqlite_con.close()
+        duckdb_con.execute(f"DETACH {_SQLITE_ATTACH_ALIAS}")
         duckdb_con.close()
 
     return report
@@ -252,11 +297,15 @@ def write_pudl_sqlite(
 def build_pudl_sqlite_asset(
     sqlite_asset_keys: Sequence[dg.AssetKey],
 ) -> dg.AssetsDefinition:
-    """Return a Dagster asset that rebuilds pudl.sqlite from Parquet outputs.
+    """Build the Dagster asset that assembles ``pudl.sqlite`` from Parquet outputs.
 
     Args:
         sqlite_asset_keys: Keys of the Parquet-writing assets whose tables should be
-            included in pudl.sqlite (i.e. Resource.create_database_schema is True).
+            included in ``pudl.sqlite`` (i.e. ``Resource.create_database_schema`` is
+            True). Used both as the asset's dependencies and as the table list.
+
+    Returns:
+        A Dagster :class:`~dagster.AssetsDefinition` for the ``pudl_sqlite`` asset.
     """
 
     @dg.asset(
@@ -267,10 +316,14 @@ def build_pudl_sqlite_asset(
         description=(
             "SQLite database rebuilt from PUDL's Parquet outputs after the ETL "
             "completes. Written to $PUDL_OUTPUT/pudl.sqlite. Includes only tables "
-            "whose Resource has create_database_schema=True."
+            "whose Resource has create_database_schema=True. CHECK constraints "
+            "are omitted for performance (data is already validated against the "
+            "full schema upstream); foreign keys are declared but, per SQLite's "
+            "default, not enforced on write."
         ),
     )
     def pudl_sqlite(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
+        """Materialize ``pudl.sqlite`` and record its size and table count."""
         pudl_paths: PudlPaths = context.resources.pudl_paths
         sqlite_path = pudl_paths.sqlite_db_path("pudl")
         table_names = [key.path[-1] for key in sqlite_asset_keys]
@@ -302,14 +355,26 @@ def _copy_table_to_duckdb(
     resource: Resource,
     parquet_path: Path,
 ) -> int:
-    """Load one table's data into an already-created, empty DuckDB table.
+    """Load one table's Parquet data into an already-created, empty DuckDB table.
 
-    Returns the row count DuckDB's own INSERT reports directly. No DELETE step is
-    needed (unlike SQLite): the destination file is always freshly created, so every
-    table starts empty. Uses ``conn.exec_driver_sql()`` to send SQL straight to the
-    duckdb-engine DBAPI cursor -- duckdb-engine's SQLAlchemy ``Connection`` wraps the
-    native ``duckdb.DuckDBPyConnection`` in a way that doesn't cleanly expose it
-    directly, so this is the most native-speed path available through the engine.
+    Uses ``conn.exec_driver_sql()`` to
+    send SQL straight to the duckdb-engine DBAPI cursor -- duckdb-engine's SQLAlchemy
+    ``Connection`` wraps the native ``duckdb.DuckDBPyConnection`` in a way that
+    doesn't cleanly expose it directly, so this is the most native-speed path
+    available through the engine.
+
+    Args:
+        conn: An open SQLAlchemy connection to the destination DuckDB database.
+        resource: Metadata Resource for the table being written; supplies the table
+            name and the ordered column list.
+        parquet_path: Path to the source Parquet file for this table.
+
+    Returns:
+        The number of rows written, as reported directly by DuckDB's ``INSERT``.
+
+    Raises:
+        sqlalchemy.exc.DBAPIError: If the Parquet file doesn't match the declared
+            schema, or a row violates a constraint (``NOT NULL``, ``CHECK``, ...).
     """
     # See _copy_table_to_sqlite for why the string interpolation here isn't a SQL
     # injection risk: table/column names come from PUDL_PACKAGE resource metadata.
@@ -330,17 +395,28 @@ def write_pudl_duckdb(
     table_names: Sequence[str],
     paths: PudlPaths | None = None,
 ) -> TableWriteReport:
-    """Rebuild a fresh DuckDB file from the given Parquet tables, FK-free.
+    """Build a fresh ``pudl.duckdb`` from the given Parquet tables, foreign-key-free.
 
-    Schema creation goes through a real SQLAlchemy engine
-    (``metadata.create_all()``), which is what lets ``ENUM``-constrained fields that
-    share a name across many tables get a single native ``ENUM`` type created once
-    and reused, rather than erroring on re-creation. Foreign keys are intentionally
-    excluded (expensive at PUDL's full data volume); primary keys and ``NOT NULL``
-    are kept, since both are cheap and natively enforced by DuckDB for every key
-    shape -- unlike SQLite's ROWID-alias quirk, so (unlike ``write_pudl_sqlite``) no
-    pre-write primary-key scan is needed here. Per-table failures are caught and
-    collected rather than aborting the run, same as ``write_pudl_sqlite``.
+    Schema creation goes through a real SQLAlchemy engine (``metadata.create_all()``).
+    This allows ``ENUM`` constraints to be shared across many tables even if the
+    constrained fields have the same name. Foreign key constraints are intentionally
+    excluded (they are too expensive at PUDL's full data volume); primary keys and ``NOT
+    NULL`` are kept, and natively enforced by DuckDB. All CHECK constraints are also
+    retained as annotations for downstream users, as their enforcement is cheap in
+    DuckDB. Per-table failures are caught and collected rather than aborting the run,
+    same as :func:`write_pudl_sqlite`.
+
+    Args:
+        duckdb_path: Where to write the DuckDB file. Any existing file at this path
+            is deleted first; parent directories are created as needed.
+        table_names: Names of the tables to load. Every table must have a Resource
+            with ``create_database_schema=True`` and a corresponding Parquet file.
+        paths: PUDL workspace paths used to locate each table's Parquet file.
+            Defaults to a fresh :class:`PudlPaths` built from the environment.
+
+    Returns:
+        A :class:`TableWriteReport` recording the row count for every table that
+        wrote successfully and a :class:`TableWriteError` for every one that didn't.
     """
     paths = paths or PudlPaths()
     duckdb_path.parent.mkdir(parents=True, exist_ok=True)
@@ -348,11 +424,6 @@ def write_pudl_duckdb(
 
     metadata = PUDL_PACKAGE.to_sql(dialect="duckdb", include_foreign_keys=False)
     engine = sa.create_engine(f"duckdb:///{duckdb_path}")
-    # duckdb-engine's dialect subclasses SQLAlchemy's postgresql dialect, inheriting
-    # Postgres' 63-character identifier length limit even though DuckDB itself has
-    # no such restriction (confirmed directly against a native duckdb connection) --
-    # several PUDL table names exceed 63 characters. _DUCKDB_MAX_IDENTIFIER_LENGTH
-    # comfortably covers any realistic table/column name.
     engine.dialect.max_identifier_length = _DUCKDB_MAX_IDENTIFIER_LENGTH
     metadata.create_all(engine)
 
@@ -381,11 +452,15 @@ def write_pudl_duckdb(
 def build_pudl_duckdb_asset(
     duckdb_asset_keys: Sequence[dg.AssetKey],
 ) -> dg.AssetsDefinition:
-    """Return a Dagster asset that rebuilds pudl.duckdb from Parquet outputs.
+    """Build the Dagster asset that rebuilds ``pudl.duckdb`` from Parquet outputs.
 
     Args:
         duckdb_asset_keys: Keys of the Parquet-writing assets whose tables should be
-            included in pudl.duckdb (i.e. Resource.create_database_schema is True).
+            included in ``pudl.duckdb`` (i.e. ``Resource.create_database_schema`` is
+            True). Used both as the asset's dependencies and as the table list.
+
+    Returns:
+        A Dagster :class:`~dagster.AssetsDefinition` for the ``pudl_duckdb`` asset.
     """
 
     @dg.asset(
@@ -401,6 +476,7 @@ def build_pudl_duckdb_asset(
         ),
     )
     def pudl_duckdb(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
+        """Materialize ``pudl.duckdb`` and record its size and table count."""
         pudl_paths: PudlPaths = context.resources.pudl_paths
         duckdb_path = pudl_paths.duckdb_db_path("pudl")
         table_names = [key.path[-1] for key in duckdb_asset_keys]
