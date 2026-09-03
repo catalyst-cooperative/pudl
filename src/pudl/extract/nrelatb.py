@@ -41,14 +41,12 @@ class Extractor(ParquetExtractor):
         ):
             archive_name = str(resource_key).lower()
             if "electricity" not in archive_name:
-                continue
-
+                raise FileNotFoundError(
+                    f"No electricity parquet file found for {self._dataset_name} {partition}"
+                )
             with zf.open(filename) as f:
-                return pd.read_parquet(f)
-
-        raise FileNotFoundError(
-            f"No electricity parquet file found for {self._dataset_name} {partition}"
-        )
+                df =  pd.read_parquet(f)
+            return df
 
 
 raw_nrelatb__all_dfs = raw_df_factory(Extractor, name="nrelatb")
