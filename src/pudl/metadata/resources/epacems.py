@@ -63,14 +63,18 @@ CEMS data.
                 "experimental_wip",
                 {
                     "type": "custom",
-                    "description": "This table estimates values from a configurable trailing window of EPA CEMS quarters ending at the most recent complete year (12 quarters, i.e. the most recent three full years, in production). Builds that only have a limited number of EPA CEMS quarters available, such as the fast ETL and CI, will produce estimates from a shorter, less accurate window.",
+                    "description": "This table estimates values for each calendar year from a configurable trailing window of EPA CEMS quarters ending in that year (12 quarters, i.e. the most recent three full years, in production). Builds that only have a limited number of EPA CEMS quarters available, such as the fast ETL and CI, will produce estimates for a single partial year from a shorter, less accurate window.",
                 },
             ],
             "additional_details_text": """This table summarizes several inferred
-operational characteristics for each EPA CEMS emissions unit using hourly CEMS
-gross load and fuel heat content over a trailing window of EPA CEMS quarters. In
-production this window is the most recent three full years (12 quarters) of data,
-ending at the most recent complete calendar year.
+operational characteristics for each EPA CEMS emissions unit, for every calendar
+year that has a full trailing window of usable EPA CEMS quarters available, using
+hourly CEMS gross load and fuel heat content over that window. In production the
+window is the three full years (12 quarters) ending in each reported year, so the
+earliest reported year is limited by how far back that trailing window can reach.
+EPA CEMS's first three years of reporting (1995-1997) are excluded as unusable
+due to poor and inconsistent unit coverage, so the earliest reported year in
+production is 2000, not 1997.
 
 The values are not directly reported to source agencies. They are derived from observed
 hourly operations. These variables should be treated as an analytical estimate rather
@@ -81,10 +85,10 @@ For methodological details, see :doc:`/methodology/operational_characteristics`.
         },
         "schema": {
             "fields": [
+                "report_year",
                 "plant_id_epa",
                 "emissions_unit_id_epa",
                 "plant_id_eia",
-                "report_year",
                 "state",
                 "max_gross_load_mw",
                 "min_stable_load_factor",
@@ -95,7 +99,7 @@ For methodological details, see :doc:`/methodology/operational_characteristics`.
                 "ramp_up_rate_per_min",
                 "ramp_down_rate_per_min",
             ],
-            "primary_key": ["plant_id_epa", "emissions_unit_id_epa"],
+            "primary_key": ["report_year", "plant_id_epa", "emissions_unit_id_epa"],
         },
         "sources": ["epacems"],
         "field_namespace": "epacems",

@@ -63,6 +63,11 @@ sources:
           - name: heat_rate_at_min_stable_load_factor_mmbtu_per_mwh
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
+                  description: |-
+                    This is a per-unit median heat rate computed only from the hours in that unit's single
+                    highest load-factor bin. Under etl-fast's single quarter of data that bin can contain
+                    very few hours, making the median far more volatile than in production (12 trailing
+                    quarters), so this check is disabled for etl-fast.
                   arguments:
                     # World record for most efficient CCGT is 5.5
                     min_value: 5.4
