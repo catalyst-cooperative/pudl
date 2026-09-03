@@ -45,7 +45,7 @@ class Extractor(ParquetExtractor):
                     f"No electricity parquet file found for {self._dataset_name} {partition}"
                 )
             with zf.open(filename) as f:
-                df =  pd.read_parquet(f)
+                df = pd.read_parquet(f)
             return df
 
 
