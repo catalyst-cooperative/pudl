@@ -39,6 +39,8 @@ EIA-923
   :ref:`out_eia923__yearly_energy_storage` providing monthly and yearly aggregations.
   All three include plant and utility metadata. See issue :issue:`4311` and PR
   :pr:`5489`.
+* Extracted the unprocessed ``raw_eia923__source_and_disposition`` table for further
+  future cleaning, see PR :pr:`5546`. Thanks to contributor :user:`giovannicozzolongo`!
 
 EPA CEMS
 ~~~~~~~~
