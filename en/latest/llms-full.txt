@@ -79017,6 +79017,8 @@ This is the upcoming PUDL release.
   [out_eia923_\_yearly_energy_storage](data_dictionaries/pudl_db.html.md#out-eia923-yearly-energy-storage) providing monthly and yearly aggregations.
   All three include plant and utility metadata. See issue [#4311](https://github.com/catalyst-cooperative/pudl/issues/4311) and PR
   [#5489](https://github.com/catalyst-cooperative/pudl/pull/5489).
+* Extracted the unprocessed `raw_eia923__source_and_disposition` table for further
+  future cleaning, see PR [#5546](https://github.com/catalyst-cooperative/pudl/pull/5546). Thanks to contributor [@giovannicozzolongo](https://github.com/sponsors/giovannicozzolongo)!
 
 #### EPA CEMS
 
