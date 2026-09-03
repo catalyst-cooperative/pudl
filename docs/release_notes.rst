@@ -175,6 +175,11 @@ Developer Experience
   failures. A pytest collection hook enforces the ETL/no-ETL split. Also fixed a live
   Zulip notification firing from the test suite and tightened the dbt ``schema.yml``
   round-trip test. See issue :issue:`5508` and PR :pr:`5507`.
+* Replaced the standalone ``pixi run unmapped-ids`` pytest task with analogous Dagster
+  assets (:mod:`pudl.dagster.assets.core.unmapped_ids`) that identify FERC1 and EIA
+  plant/utility IDs missing from the manual PUDL ID mapping spreadsheet. CSVs are saved
+  with other build outputs on ``builds.catalyst.coop`` and fail the ETL if they are
+  non-empty. See issue :issue:`4338` and PR :pr:`XXXX`.
 * Do foreign key constraint validation with dbt instead of SQLite. Update our
   ``dbt_helper`` script to autogenerate FK constraint tests based on the PUDL metadata.
   Remove the SQLite based FK checking infrastructure. Also add sensible defaults for

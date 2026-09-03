@@ -83,56 +83,25 @@ with ``entity_id``'s, which we rename to ``utility_id_ferc1_dbf`` and
 Checking for Unmapped Records
 -----------------------------
 
-With every new year of data comes the possibility of new plants and utilities. Once
-you've integrated the new data into PUDL :doc:`(see instructions)
-<existing_data_updates>`, you'll need to check for unmapped utility and plants.
-There are a few options for how to do this.
+With every new year of data comes the possibility of new plants and utilities.
+:mod:`pudl.dagster.assets.core.unmapped_ids` defines a set of normal Dagster assets
+(``missing_plant_id_pudl_in_plants_ferc1``, ``missing_plants_in_plants_eia``,
+``missing_utility_id_eia_in_utilities_eia``, etc.) that identify plants and utilities
+which exist in the FERC 1 and EIA data but do not yet appear in the stored ID maps.
+These assets run as part of every ETL, and a blocking asset check fails the run if any
+of them contain rows -- so an ETL run failing one of these checks is usually your first
+signal that new plants or utilities need to be mapped.
 
-The quickest way is to download and unzip the most recent nightly build version of
-``pudl.sqlite`` from the s3 cloud bucket and materialize the assets you modified on
-top of that. Before running the local test for ID mapping, you'll also need
-``ferc1_xbrl`` and ``ferc1_dbf`` sqlite and json files downloaded locally.
-
-.. code-block:: console
-
-    # Pull fresh database from the nightly builds aws s3 bucket
-    $ aws s3 cp --no-sign-request s3://pudl.catalyst.coop/nightly/pudl.sqlite.zip ./
-    $ aws s3 cp --no-sign-request s3://pudl.catalyst.coop/nightly/ferc1_dbf_datapackage.json ./
-    $ aws s3 cp --no-sign-request s3://pudl.catalyst.coop/nightly/ferc1_dbf.sqlite.zip ./
-    $ aws s3 cp --no-sign-request s3://pudl.catalyst.coop/nightly/ferc1_xbrl_datapackage.json ./
-    $ aws s3 cp --no-sign-request s3://pudl.catalyst.coop/nightly/ferc1_xbrl.sqlite.zip ./
-
-    # Unzip the databases
-    $ unzip '*.zip'
-
-    # Materialize the assets you modified on top of the fresh database
-    $ pixi run dg launch --assets "group:'your_asset_group'+"
-
-Once that's all set, you can run the following test to save unmapped IDs. This invokes
-a script that identifies plants and utilities which exist in the updated FERC 1 and
-EIA datasets that do not yet appear in the stored ID maps.
+Materializing just these assets and their upstream dependencies is much faster than
+running the full ETL:
 
 .. code-block:: console
 
-    $ pixi run pytest tests/pipeline/glue/glue_test.py --live-pudl-output --save-unmapped-ids
+    $ pixi run dg launch --assets "key:missing_plant_id_pudl_in_plants_ferc1+key:missing_plants_in_plants_ferc1+key:missing_plants_in_plants_eia+key:missing_utility_id_pudl_in_utilities_ferc1+key:missing_utility_id_ferc1_in_utilities_ferc1_dbf+key:missing_utility_id_ferc1_in_utilities_ferc1_xbrl+key:missing_utility_id_ferc1_in_plants_ferc1+key:missing_utility_id_ferc1_xbrl_in_raw_xbrl+key:missing_utility_id_ferc1_dbf_in_raw_dbf+key:missing_utility_id_eia_in_utilities_eia"
 
-The ``--save-unmapped-ids`` flag saves unmapped plants and utilities in the
-``devtools/ferc1-eia-glue`` folder by default.
-
-If you don't have access to the ETL outputs, you can also get unmapped IDs by running
-the full ETL locally. The following command runs the full ETL and saves unmapped-ids.
-Beware that the full ETL can take several hours to run and requires a computer with
-substantial processing power. If you can avoid running the full ETL, that's probably
-best!
-
-.. code-block:: console
-
-    $ pixi run unmapped-ids
-
-This will generate a complete database based on the settings files stored in
-``pudl/package_data/settings/etl_full.yml`` without foreign-key constraints and save any
-unmapped IDs to the ``devtools/ferc1-eia-glue`` directory that correspond to unmapped
-plants and utilities from FERC 1 and EIA.
+Each asset is written out as a CSV under ``$PUDL_OUTPUT`` (e.g.
+``$PUDL_OUTPUT/missing_plants_in_plants_ferc1.csv``), so the results of every nightly
+build are also available for download without having to run anything locally.
 
 Assigning PUDL IDs to Unmapped Records
 --------------------------------------
@@ -266,14 +235,9 @@ Make sure to save the file when you're done!
 Testing Newly Mapped Records
 ----------------------------
 
-Before you integrate these newly mapped records into the PUDL database, you'll want to
-run some basic tests in the command line to make sure you've covered all of the unmapped
-entities. This command assumes that you have all of the new EIA data loaded into your
-live PUDL DB, and all of the new FERC 1 data loaded into your cloned FERC 1 DB:
-
-.. code-block:: console
-
-    $ pixi run pytest --live-pudl-output tests/pipeline/glue/glue_test.py
+Before you integrate these newly mapped records into the PUDL database, rematerialize
+the unmapped-IDs assets described above to make sure you've covered all of the unmapped
+entities -- each asset check should now pass with zero unmapped IDs.
 
 Integrating Newly Mapped Records into PUDL
 ------------------------------------------

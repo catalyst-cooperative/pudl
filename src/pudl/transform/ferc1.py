@@ -6641,10 +6641,11 @@ _FERC1_PLANT_TABLES = frozenset(
 def ferc1_transform_asset_factory(
     table_name: str,
     tfr_class: Ferc1AbstractTableTransformer,
-    io_manager_key: str = "pudl_io_manager",
+    io_manager_key: str | None = "pudl_io_manager",
     convert_dtypes: bool = True,
     generic: bool = False,
     op_tags: dict[str, Any] | None = None,
+    name: str | None = None,
 ) -> AssetsDefinition:
     """Create an asset that pulls in raw ferc Form 1 assets and applies transformations.
 
@@ -6652,12 +6653,18 @@ def ferc1_transform_asset_factory(
     raw xbrl instant and duration tables and xbrl metadata.
 
     Args:
-        table_name: The name of the table to create an asset for.
+        table_name: The name of the table to create an asset for. Also used to look
+            up the raw DBF/XBRL tables this asset depends on.
         tfr_class: A transformer class corresponding to the table_name.
         io_manager_key: the dagster io_manager key to use. None defaults
             to the fs_io_manager.
         convert_dtypes: convert dtypes of transformed dataframes.
         generic: If using GenericPlantFerc1TableTransformer pass table_id to constructor.
+        name: Override for the produced asset's name. Defaults to ``table_name``.
+            Needed when creating a second, non-canonical asset (e.g. a generic
+            transform used only to compile inputs for manual ID mapping) whose
+            upstream dependencies match ``table_name`` but whose asset key must not
+            collide with the real ``table_name`` asset.
 
     Return:
         An asset for the clean table.
@@ -6681,7 +6688,7 @@ def ferc1_transform_asset_factory(
     table_id = TableIdFerc1(table_name)
 
     @asset(
-        name=table_name,
+        name=name or table_name,
         ins=ins,
         required_resource_keys={"pudl_paths"},
         io_manager_key=io_manager_key,
