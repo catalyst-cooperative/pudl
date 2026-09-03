@@ -141,10 +141,15 @@ Google Compute Engine
 ---------------------
 We use ephemeral VMs created with `Google Batch <https://cloud.google.com/batch/docs>`__
 to run the nightly builds. Once the build has finished -- successfully or not -- the VM
-shuts itself down. The build VMs use the ``e2-highmem-8`` machine type (8 CPUs and 64GB
-of RAM) to accommodate the PUDL ETL's memory-intensive steps. Currently, these VMs do
-not have swap space enabled, so if they run out of memory, the build will immediately
-terminate.
+shuts itself down. Each workflow generates its Batch job configuration with the
+``batch_config`` script (:mod:`pudl.scripts.batch_config`), which selects the VM
+machine type and boot disk and tags the VM and its logs with the name of the pipeline
+that launched it, so a shared `Cloud Monitoring dashboard
+<https://console.cloud.google.com/monitoring/dashboards/builder/992bbe3f-17e6-49c4-a9e8-8f1925d4ec24>`__
+can filter resource-usage metrics by pipeline. VM sizes are chosen to fit the memory-
+and CPU-intensive steps of each pipeline and are tuned over time against that
+dashboard. These VMs do not have swap space enabled, so if they run out of memory, the
+build will immediately terminate.
 
 The ``deploy-pudl-vm-service-account`` service account has permissions to:
 
@@ -172,7 +177,9 @@ are configured to run the ``builds/pudl_batch.sh`` script. This script:
    Note: if the container is manually stopped, Zulip will not be notified.
 2. Runs ``pixi run pudl-with-ferc-to-sqlite-nightly``.
 3. Runs ``pixi run pytest-unit-nightly``, ``pixi run pytest-integration-nightly``,
-   and ``pixi run pytest-validate-nightly`` as separate stages.
+   ``pixi run pytest-pipeline-nightly``, ``pixi run pytest-validate-nightly``, and
+   ``pixi run pytest-validate-row-counts-nightly`` as separate stages. See
+   :doc:`testing` for what each of these test tiers covers.
 4. Copies the outputs and logs to a directory in the ``gs://builds.catalyst.coop``
    bucket, named ``<YYYY-MM-DD-HHMM>-<short git SHA>-<git ref>``, and writes a
    ``success`` marker file there if every stage passed.

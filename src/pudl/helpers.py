@@ -13,6 +13,7 @@ import os
 import pathlib
 import re
 import shutil
+import subprocess
 import tempfile
 import time
 from collections import defaultdict
@@ -21,13 +22,14 @@ from contextlib import contextmanager
 from functools import partial
 from io import BytesIO
 from pathlib import Path
-from typing import Any, Literal, NamedTuple
+from typing import TYPE_CHECKING, Any, Literal, NamedTuple
 
 import duckdb
 import geopandas as gpd  # noqa: ICN002
 import numpy as np
 import pandas as pd
 import polars as pl
+import pyarrow.parquet as pq
 import requests
 import sqlalchemy as sa
 import usaddress
@@ -38,6 +40,9 @@ from pydantic import BaseModel, Field
 import pudl.logging_helpers
 from pudl.metadata.dtypes import apply_pudl_dtypes, get_pudl_dtypes
 from pudl.workspace.setup import PudlPaths
+
+if TYPE_CHECKING:
+    from pudl.metadata.classes import Resource
 
 sum_na = partial(pd.Series.sum, skipna=False)
 """A sum function that returns NA if the Series includes any NA values.
@@ -50,6 +55,33 @@ otherwise we'll get unrealistic heat rates.
 """
 
 logger = pudl.logging_helpers.get_logger(__name__)
+
+
+def run_git(args: list[str], cwd: Path | None = None) -> str:
+    """Run a git subcommand and return its stdout, logging stderr on failure.
+
+    Shared by every git-shelling-out call in PUDL, so there's one place that knows
+    how to invoke git and report failures consistently.
+
+    Args:
+        args: The git subcommand and arguments to run, e.g. ``["rev-parse", "HEAD"]``.
+        cwd: Working directory to run the command in. Defaults to the current
+            process's working directory.
+
+    Returns:
+        The command's stdout, unstripped.
+
+    Raises:
+        subprocess.CalledProcessError: If the command exits non-zero.
+    """
+    cmd = ["git", *args]
+    try:
+        return subprocess.run(  # noqa: S603
+            cmd, cwd=cwd, check=True, capture_output=True, text=True
+        ).stdout
+    except subprocess.CalledProcessError as exc:
+        logger.error(f"Command failed: {' '.join(cmd)}\n{exc.stderr}")
+        raise
 
 
 def label_map(
@@ -2045,7 +2077,12 @@ def scale_by_ownership(
         gens: table with records at the generator level and generator attributes
             to be scaled by ownership, must have columns ``plant_id_eia``,
             ``generator_id``, and ``report_date``
-        own_eia860: the ``core_eia860__scd_ownership`` table
+        own_eia860: the ``core_eia860__scd_ownership`` table or the denormalized
+            :ref:`out_eia860__yearly_ownership` table. If the denormalized table
+            is given and ``gens`` contains ``utility_id_pudl`` or
+            ``utility_name_eia`` columns, the owner's PUDL utility ID and EIA
+            utility name are swapped in alongside the owner's
+            ``utility_id_eia``.
         scale_cols: a list of columns in the generator table to slice by ownership
             fraction
         validate: how to validate merging the ownership table onto the
@@ -2060,6 +2097,25 @@ def scale_by_ownership(
         the same 2-owner 200 MW generator as above, each owner will have a
         records with 200 MW).
     """
+    # Map columns in gens which describe the operator utility to the columns in
+    # own_eia860 which describe the same attribute of the owner utility. Every
+    # column in this map gets swapped for the owner's version, so that the
+    # records of jointly owned generators describe their owners rather than all
+    # inheriting the operator's IDs and name. See:
+    # https://github.com/catalyst-cooperative/pudl/issues/5430
+    operator_owner_col_map = {"utility_id_eia": "owner_utility_id_eia"}
+    # In the denormalized ownership table, utility_id_pudl describes the owner.
+    if "utility_id_pudl" in gens.columns and "utility_id_pudl" in own_eia860.columns:
+        operator_owner_col_map["utility_id_pudl"] = "owner_utility_id_pudl"
+        own_eia860 = own_eia860.rename(
+            columns={"utility_id_pudl": "owner_utility_id_pudl"}
+        )
+    if (
+        "utility_name_eia" in gens.columns
+        and "owner_utility_name_eia" in own_eia860.columns
+    ):
+        operator_owner_col_map["utility_name_eia"] = "owner_utility_name_eia"
+
     # grab the ownership table, and reduce it to only the columns we need
     own860 = own_eia860[
         [
@@ -2067,30 +2123,28 @@ def scale_by_ownership(
             "generator_id",
             "report_date",
             "fraction_owned",
-            "owner_utility_id_eia",
         ]
+        + list(operator_owner_col_map.values())
     ].pipe(pudl.helpers.convert_cols_dtypes, "eia")
     # we're left merging BC we've removed the retired gens, which are
     # reported in the ownership table
+    gens = gens.merge(
+        own860,
+        how="left",
+        on=["plant_id_eia", "generator_id", "report_date"],
+        validate=validate,
+    )
+    # gens that don't show up in the ownership table are assumed to be owned
+    # 100% by their operator, so the operator's utility columns carry over
+    unowned = gens.owner_utility_id_eia.isna()
+    gens["fraction_owned"] = gens["fraction_owned"].fillna(value=1)
+    for operator_col, owner_col in operator_owner_col_map.items():
+        gens[owner_col] = gens[owner_col].where(~unowned, gens[operator_col])
+    # swap in the owner as the utility
     gens = (
-        gens.merge(
-            own860,
-            how="left",
-            on=["plant_id_eia", "generator_id", "report_date"],
-            validate=validate,
-        )
-        .assign(  # assume gens that don't show up in the own table have one 100% owner
-            fraction_owned=lambda x: x.fraction_owned.fillna(value=1),
-            # assign the operator id as the owner if null bc if a gen isn't
-            # reported in the own_eia860 table we can assume the operator
-            # is the owner
-            owner_utility_id_eia=lambda x: x.owner_utility_id_eia.fillna(
-                x.utility_id_eia
-            ),
-            ownership_record_type="owned",
-        )  # swap in the owner as the utility
-        .drop(columns=["utility_id_eia"])
-        .rename(columns={"owner_utility_id_eia": "utility_id_eia"})
+        gens.assign(ownership_record_type="owned")
+        .drop(columns=list(operator_owner_col_map))
+        .rename(columns={v: k for k, v in operator_owner_col_map.items()})
     )
 
     # duplicate all of these "owned" records, assign 1 to all of the
@@ -2242,22 +2296,31 @@ def get_parquet_table_polars(
         # Points to a directory of parquet files when there partitions is non None
         parquet_path = parquet_data.parquet_path
 
-    # Import here to avoid circular imports
-    from pudl.metadata.classes import Resource
+    return pl.scan_parquet(parquet_path)
 
-    resource = Resource.from_id(table_name)
-    # Pass the expected schema in directly rather than scanning then casting: casting
-    # a LazyFrame containing Enum-typed columns forces materialization, which is very
-    # slow for our largest hourly tables. Enum-constrained fields are stored as plain
-    # Categorical (see Field.to_polars_dtype), so no such cast is needed here anyway.
-    # Parquet files still store integer/float columns as 32-bit (FIELD_DTYPES_PYARROW),
-    # narrower than the 64-bit Polars schema we're requesting here, so allow scan-time
-    # upcasting rather than the strict match scan_parquet defaults to.
-    return pl.scan_parquet(
-        parquet_path,
-        schema=resource.to_polars_dtypes(),
-        cast_options=pl.ScanCastOptions(integer_cast="upcast", float_cast="upcast"),
-    )
+
+def _fix_residual_dtypes(df: pd.DataFrame, resource: "Resource") -> pd.DataFrame:
+    """Fix the two dtype gaps ``dtype_backend="numpy_nullable"`` can't get right.
+
+    Integer and datetime columns already come back from a
+    ``dtype_backend="numpy_nullable"`` read matching their pandas targets (see
+    ``FIELD_DTYPES_PANDAS``) directly. Two gaps remain, neither fixable by
+    ``dtype_backend`` alone:
+
+    * "number" columns come back as pandas' nullable ``Float64``, but PUDL's target
+      is plain (non-nullable) ``float64`` -- unlike integers, floats can already
+      represent missing values natively via ``NaN``, so PUDL doesn't use the
+      nullable dtype for them.
+    * "date" columns (Arrow ``date32``) always come back as plain ``object`` holding
+      Python ``datetime.date`` scalars, since pandas has no native nullable
+      date-only dtype.
+    """
+    fixes = {
+        field.name: field.to_pandas_dtype()
+        for field in resource.schema.fields
+        if field.type in ("number", "date") and field.name in df.columns
+    }
+    return df.astype(fixes) if fixes else df
 
 
 def get_parquet_table(
@@ -2271,8 +2334,8 @@ def get_parquet_table(
     """Read a table from Parquet files with optional column selection and filtering.
 
     This function provides a general-purpose interface for reading PUDL tables from
-    Parquet files. It supports selective column reading for performance, optional
-    filters for data subsetting, and automatic schema validation.
+    Parquet files. It supports selective column reading for performance and optional
+    filters for data subsetting.
 
     Args:
         table_name: Name of the table to read.
@@ -2303,6 +2366,8 @@ def get_parquet_table(
 
     is_geospatial = any(resource.get_field(col).type == "geometry" for col in columns)
 
+    full_read = set(columns) == set(resource.get_field_names())
+
     if is_geospatial:
         df = gpd.read_parquet(
             path=parquet_path,
@@ -2312,7 +2377,15 @@ def get_parquet_table(
             use_threads=True,
             memory_map=True,
         )
-    else:
+        # geopandas' reader has no equivalent to pandas' dtype_backend, so this
+        # branch still needs enforce_schema's full re-cast (which also runs the
+        # primary-key check for a full read).
+        df = (
+            resource.enforce_schema(df)
+            if full_read
+            else apply_pudl_dtypes(df, resource=resource.name)
+        )
+    else:  # not geospatial -- the normal case
         df = pd.read_parquet(
             path=parquet_path,
             columns=columns,
@@ -2320,13 +2393,26 @@ def get_parquet_table(
             schema=pyarrow_schema,
             use_threads=True,
             memory_map=True,
+            dtype_backend="numpy_nullable",
         )
+        if not full_read:
+            # For specific columns, apply PUDL dtypes including resource-level overrides
+            df = apply_pudl_dtypes(df, resource=resource.name)
+        else:
+            # dtype_backend="numpy_nullable" already gets every column to PUDL's target
+            # dtype except for the few gaps _fix_residual_dtypes covers -- enforce_schema's
+            # full re-cast of every column, including enum fields, is redundant here: pandas'
+            # Categorical reconstructs a constrained dtype's full category list (even unused
+            # ones) straight from the Parquet dictionary page, with no PUDL-metadata-driven
+            # re-derivation needed. See tests/unit/helpers_test.py's
+            # test_constrained_categorical_cross_backend_parquet_roundtrip.
+            df = _fix_residual_dtypes(df, resource)
+            if errors := resource.check_primary_key(df):
+                raise ValueError(
+                    f"{resource.name}: " + "\n".join(str(error) for error in errors)
+                )
 
-    # Only enforce schema if we're reading all columns
-    if set(columns) == set(resource.get_field_names()):
-        return resource.enforce_schema(df)
-    # For specific columns, apply PUDL dtypes including resource-level overrides
-    return apply_pudl_dtypes(df, resource=resource.name)
+    return df
 
 
 def standardize_phone_column(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
@@ -2452,11 +2538,32 @@ def persist_table_as_parquet(
             compression=compression,
         )
     elif isinstance(table_data, duckdb.DuckDBPyRelation):
-        table_data.to_parquet(
-            str(parquet_data.parquet_path),
-            overwrite=True,
-            compression=compression,
-        )
+        # DuckDB's own to_parquet() writer flattens ENUM columns down to plain
+        # Arrow `string` in the file's schema -- it still dictionary-encodes them
+        # at the physical Parquet page level (no space penalty), but loses the
+        # logical-type signal that lets pandas/Polars reconstitute a categorical
+        # column on read, unlike files written by either of those two backends.
+        # Converting to Arrow first preserves it correctly: DuckDB's Arrow export
+        # maps ENUM to a real `dictionary<values=string, indices=...>` type, which
+        # pandas and Polars both recognize. to_arrow_reader() is a genuine
+        # streaming, batched RecordBatchReader (not a single materialized Table),
+        # so writing it out batch-by-batch keeps memory bounded to one batch at a
+        # time -- necessary for our largest DuckDB-produced tables.
+        #
+        # This is measurably slower than DuckDB's native to_parquet() (~7-10x on
+        # core_ferceqr__transactions' largest quarterly partition, 58.9M rows):
+        # DuckDB's own writer runs its internal engine across all CPU cores, while
+        # pyarrow's ParquetWriter writes single-threaded regardless of batch size
+        # or pyarrow's global thread-pool settings. Accepted deliberately -- this
+        # data is processed rarely and quarters are written in parallel, so the
+        # wall-clock cost of any one partition writing more slowly matters less
+        # than getting correct, cross-backend-readable categorical dtypes.
+        reader = table_data.to_arrow_reader(batch_size=100_000)
+        with pq.ParquetWriter(
+            str(parquet_data.parquet_path), reader.schema, compression=compression
+        ) as writer:
+            for batch in reader:
+                writer.write_batch(batch)
     else:
         raise TypeError(
             "table_data must be of type pd.DataFrame, pl.LazyFrame or duckdb.DuckDBPyRelation."

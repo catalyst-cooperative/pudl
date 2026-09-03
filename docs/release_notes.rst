@@ -69,6 +69,11 @@ PHMSA
   reports :doc:`PHMSA <data_sources/phmsagas>` gas distribution mains miles and
   services by installation decade. See issue :issue:`5266` and PR :pr:`5443`.
 
+FERC EQR
+~~~~~~~~
+
+* Added full 2026Q2 data for :doc:`FERC EQR <data_sources/ferceqr>`. See PR :pr:`5442`.
+
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -85,6 +90,12 @@ New Data Tests & Validations
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Fixed a bug in :ref:`out_eia__yearly_generators_by_ownership` where every ownership
+  record for a jointly owned generator reported the plant operator's
+  ``utility_id_pudl`` and ``utility_name_eia`` instead of the owner's. When ownership
+  slices are generated, the owner's PUDL utility ID and EIA utility name are now
+  swapped in alongside the owner's ``utility_id_eia``. See issue :issue:`5430` and PR
+  :pr:`5506`.
 * Fixed ``set_gcs_temporary_hold`` only protecting the top level of a versioned
   release path from deletion. It shelled out to ``gcloud storage objects update
   gs://bucket/prefix/*``, and that glob only matches one path segment, so anything
@@ -113,6 +124,22 @@ Bug Fixes & Data Cleaning
   With the fix, 788 records in ``out_pudl__yearly_assn_eia_ferc1_plant_parts`` which
   used to have a NULL ``report_date`` now appear with correct date information. See
   issue :issue:`4130` and PR :pr:`5503`
+* Improved the robustness of :doc:`FERC EQR <data_sources/ferceqr>` raw data extraction.
+  Filings that are missing one or more of the expected CSV files, or whose company
+  identity information is missing or unparsable, now have as much of their data
+  extracted as possible instead of being dropped entirely. Parquet outputs for FERC
+  EQR's constrained categorical columns also now preserve their full set of allowed
+  values, matching the behavior of other PUDL categorical columns. See PR :pr:`5442`.
+* Disabled primary key uniqueness enforcement on
+  :ref:`core_ferceqr__quarterly_index_pub`, which was found to contain duplicate primary
+  key values in FERC EQR filings from 2023 onward. See PR :pr:`5442`.
+* Fixed a race condition that intermittently failed the docs build due to the HTML and
+  Markdown builds attempting to clean up the same dynamically generated output files at
+  the end of their build. Fixed by setting ``llms_txt_build_parallel = False``. See
+  issue :issue:`5502` and PR :pr:`5516`.
+* Changed ``subplant_id`` in :ref:`core_epa__assn_eia_epacamd_subplant_ids` to be
+  1-indexed instead of 0-indexed within each ``plant_id_eia``, so the first subplant at
+  a plant is now ``1`` rather than ``0``. See issue :issue:`5499` and PR :pr:`5541`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -125,6 +152,15 @@ Performance Improvements
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^
 
+* Reworked how the Google Batch jobs launched by the ``build-pudl``,
+  ``deploy-pudl``, and ``build-deploy-ferceqr`` GitHub workflows are configured. The
+  Batch config generator moved from ``devtools/`` into the package as the
+  ``batch_config`` script (:mod:`pudl.scripts.batch_config`); the workflows now
+  select an explicit VM machine type and boot disk rather than passing raw resource
+  counts, and every VM and its logs are tagged with the pipeline that launched them
+  so a shared Cloud Monitoring dashboard can filter resource-usage metrics by
+  pipeline. VM sizes and the ETL's process and thread parallelism were tuned to
+  match measured resource usage and stop oversubscribing the CPUs. See :pr:`5545`.
 * Fixed several issues with how ``dbt_helper update-tables`` renders ``schema.yml``
   (:mod:`pudl.dbt_schema`): long ``description:`` fields are now wrapped into readable
   paragraph blocks and strings that need quoting prefer double quotes. This now matches
@@ -136,6 +172,28 @@ Developer Experience
   now reject any unrecognized keys (like stray ``tests:`` instead of ``data_tests:``) at
   parse time instead of silently discarding them. Whitespace in description fields is
   also normalized at parse-time to avoid spurious diffs. See PR :pr:`5458`.
+* Reorganized ``tests/`` into four tiers by run-time: fast unit tests run as a
+  pre-commit hook, slower integration tests run on every push, and slower ETL-dependent
+  pipeline and data validation tests run in the merge queue. Previously
+  ``tests/integration`` mixed ETL and integration tests together, so many lightweight
+  tests weren't getting run until the merge queue, leading to unexpected late-stage
+  failures. A pytest collection hook enforces the ETL/no-ETL split. Also fixed a live
+  Zulip notification firing from the test suite and tightened the dbt ``schema.yml``
+  round-trip test. See issue :issue:`5508` and PR :pr:`5507`.
+* Do foreign key constraint validation with dbt instead of SQLite. Update our
+  ``dbt_helper`` script to autogenerate FK constraint tests based on the PUDL metadata.
+  Remove the SQLite based FK checking infrastructure. Also add sensible defaults for
+  our row-count expectation checking test so we can remove boilerplate test specs.
+  See issues :issue:`4564,5208` and PR :pr:`5519`.
+* Automated updating the Zenodo deposition metadata (creators, keywords, version,
+  description, and structured resource links) for monthly PUDL data releases, which
+  previously had to be hand-edited in the Zenodo web UI every month. Creators and
+  keywords are now read from ``.zenodo.json``, and the description is assembled from
+  the built release notes for that version plus a footer of release-specific resource
+  links (versioned docs, data dictionary, S3/GCS paths, the GitHub release, and the
+  corresponding GitHub-repo Zenodo software archive), which are also populated as
+  structured ``related_identifiers`` for better DataCite/OpenAIRE indexing. See issue
+  :issue:`3326` and PR :pr:`5484`.
 
 .. _release-v2026.8.0:
 
