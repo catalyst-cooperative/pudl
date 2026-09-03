@@ -38,15 +38,12 @@ Required because duckdb-engine's SQLAlchemy dialect subclasses postgresql's, inh
 
 @dataclass
 class TableWriteError:
-    """A single table's failed write: which table, and the exception that stopped it.
-
-    Attributes:
-        table_name: Name of the table whose write failed.
-        exception: The exception raised while validating or writing the table.
-    """
+    """A single table's failed write: which table, and the exception that stopped it."""
 
     table_name: str
+    """Name of the table whose write failed."""
     exception: Exception
+    """The exception raised while validating or writing the table."""
 
     def __str__(self) -> str:
         """Render as ``table_name: ExceptionType: message`` for logs and reports.
@@ -68,15 +65,12 @@ class TableWriteReport:
     exactly which tables failed and why -- across potentially hundreds of tables in
     one run -- rather than only ever learning about the first failure encountered.
 
-    Attributes:
-        row_counts: Mapping of table name to number of rows written, for every table
-            that wrote successfully.
-        errors: One :class:`TableWriteError` per table that failed, in the order the
-            failures occurred.
     """
 
     row_counts: dict[str, int] = field(default_factory=dict)
+    """Mapping of table name to number of rows written, sucessly written table."""
     errors: list[TableWriteError] = field(default_factory=list)
+    """One :class:`TableWriteError` per failed table, in the order they failed."""
 
     @property
     def failed_tables(self) -> list[str]:
@@ -251,12 +245,6 @@ def write_pudl_sqlite(
     sqlite_path.parent.mkdir(parents=True, exist_ok=True)
     sqlite_path.unlink(missing_ok=True)
 
-    # "Lean" schema: keep column types, primary keys, NOT NULL, UNIQUE, foreign keys and
-    # column comments. CHECK constraints are omitted as they re-verify data already
-    # validated by the pandera schema asset checks upstream. If included, DuckDB
-    # evaluates them on write, dramatically slowing output. Foreign keys can be kept
-    # because SQLite doesn't enforce them unless PRAGMA foreign_keys is actively set to
-    # ON. They cost nothing on write but stay visible in the delivered schema.
     metadata = PUDL_PACKAGE.to_sql(  # already filtered to create_database_schema
         dialect="sqlite",
         check_types=False,
@@ -269,6 +257,7 @@ def write_pudl_sqlite(
     report = TableWriteReport()
     duckdb_con = duckdb.connect()
     duckdb_con.execute("LOAD sqlite")
+    duckdb_con.execute("PRAGMA disable_progress_bar")
     # The path comes from PudlPaths, not external input; DuckDB has no parameter
     # binding for ATTACH targets.
     duckdb_con.execute(
@@ -277,7 +266,7 @@ def write_pudl_sqlite(
     n_tables = len(table_names)
     try:
         for n, table_name in enumerate(table_names, start=1):
-            logger.info(f"Writing {n}/{n_tables} {table_name} to SQLite.")
+            logger.info(f"Writing SQLite {n}/{n_tables} {table_name}")
             resource = PUDL_PACKAGE.get_resource(table_name)
             try:
                 _validate_primary_key(resource, paths)
@@ -376,8 +365,6 @@ def _copy_table_to_duckdb(
         sqlalchemy.exc.DBAPIError: If the Parquet file doesn't match the declared
             schema, or a row violates a constraint (``NOT NULL``, ``CHECK``, ...).
     """
-    # See _copy_table_to_sqlite for why the string interpolation here isn't a SQL
-    # injection risk: table/column names come from PUDL_PACKAGE resource metadata.
     table_name = resource.name
     columns_sql = ", ".join(f'"{c}"' for c in resource.get_field_names())
     result = conn.exec_driver_sql(
@@ -400,11 +387,10 @@ def write_pudl_duckdb(
     Schema creation goes through a real SQLAlchemy engine (``metadata.create_all()``).
     This allows ``ENUM`` constraints to be shared across many tables even if the
     constrained fields have the same name. Foreign key constraints are intentionally
-    excluded (they are too expensive at PUDL's full data volume); primary keys and ``NOT
-    NULL`` are kept, and natively enforced by DuckDB. All CHECK constraints are also
-    retained as annotations for downstream users, as their enforcement is cheap in
-    DuckDB. Per-table failures are caught and collected rather than aborting the run,
-    same as :func:`write_pudl_sqlite`.
+    excluded; primary keys and ``NOT NULL`` are kept, and natively enforced by DuckDB.
+    CHECK constraints are retained as annotations for downstream users; enforcement is
+    cheap in DuckDB. Per-table failures are caught and collected rather than aborting
+    the run, same as :func:`write_pudl_sqlite`.
 
     Args:
         duckdb_path: Where to write the DuckDB file. Any existing file at this path
@@ -431,8 +417,9 @@ def write_pudl_duckdb(
     n_tables = len(table_names)
     try:
         with engine.connect() as conn:
+            conn.exec_driver_sql("PRAGMA disable_progress_bar")
             for n, table_name in enumerate(table_names, start=1):
-                logger.info(f"Writing {n}/{n_tables} {table_name} to DuckDB.")
+                logger.info(f"Writing DuckDB {n}/{n_tables} {table_name}")
                 resource = PUDL_PACKAGE.get_resource(table_name)
                 try:
                     report.row_counts[table_name] = _copy_table_to_duckdb(
