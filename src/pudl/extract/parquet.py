@@ -44,7 +44,7 @@ class ParquetExtractor(GenericExtractor):
                 {'year_month': '2020-08'}
 
         Returns:
-            pd.DataFrame instance containing CSV data
+            pd.DataFrame instance containing Parquet data
         """
         res = self.ds.get_unique_resource(self._dataset_name, **partition)
         df = pd.read_parquet(io.BytesIO(res))

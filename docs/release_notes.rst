@@ -58,6 +58,12 @@ EPA CEMS
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+NREL ATB
+~~~~~~~~
+
+* Updated the NREL ATB extractor and transformer to accommodate changes to the 2024
+  data and format. See issue :issue:`5467` and PR :pr:`5513`.
+
 EIA-861
 ~~~~~~~
 

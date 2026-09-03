@@ -325,17 +325,19 @@ def test_get_zipfile_resources_eventual_success(mocker):
     with zipfile.ZipFile(zipfile_bytes, "w") as a_zipfile:
         a_zipfile.writestr("file_name", file_contents)
 
+    resource_bytes = zipfile_bytes.getvalue()
+
     ds = datastore.Datastore()
     ds.get_resources = mocker.MagicMock(
         return_value=iter(
             [
                 (
                     PudlResourceKey("test_dataset", "test_doi", "test_name_0"),
-                    zipfile_bytes,
+                    resource_bytes,
                 ),
                 (
                     PudlResourceKey("test_dataset", "test_doi", "test_name_1"),
-                    zipfile_bytes,
+                    resource_bytes,
                 ),
             ]
         )
@@ -345,10 +347,10 @@ def test_get_zipfile_resources_eventual_success(mocker):
         side_effect=[
             zipfile.BadZipFile,
             zipfile.BadZipFile,
-            zipfile.ZipFile(zipfile_bytes),
+            zipfile.ZipFile(io.BytesIO(resource_bytes)),
             zipfile.BadZipFile,
             zipfile.BadZipFile,
-            zipfile.ZipFile(zipfile_bytes),
+            zipfile.ZipFile(io.BytesIO(resource_bytes)),
         ],
     )
     mocker.patch("time.sleep")

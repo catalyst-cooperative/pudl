@@ -283,6 +283,12 @@ def _core_nrelatb__transform_start(raw_nrelatb__data):
     }
     nrelatb = (
         raw_nrelatb__data.replace([""], pd.NA)
+        .replace("*", pd.NA)
+        .assign(
+            cost_recovery_period_years=lambda x: pd.to_numeric(
+                x["cost_recovery_period_years"]
+            )
+        )
         .rename(columns=rename_dict)
         .pipe(
             helpers.fix_boolean_columns,

@@ -1,8 +1,9 @@
 """Routines used for extracting the raw NREL ATB data."""
 
+import pandas as pd
 from dagster import Output, asset
 
-from pudl.extract.extractor import GenericMetadata, raw_df_factory
+from pudl.extract.extractor import GenericMetadata, PartitionSelection, raw_df_factory
 from pudl.extract.parquet import ParquetExtractor
 
 
@@ -17,6 +18,35 @@ class Extractor(ParquetExtractor):
         """
         self.METADATA = GenericMetadata("nrelatb")
         super().__init__(*args, **kwargs)
+
+    def source_filename(self, page: str, **partition: PartitionSelection) -> str:
+        """Get the file name for the right page and part.
+
+        In this instance we are using the same methodology from the excel metadata extractor.
+        """
+        _file_name = self.METADATA._load_csv(self.METADATA._pkg, "file_map.csv")
+        return _file_name.loc[
+            str(self.METADATA._get_partition_selection(partition)), page
+        ]
+
+    def load_source(self, page: str, **partition):
+        """Fetch the electricity parquet file from the NREL ATB zip archive.
+
+        This is based on the csv extraction framework.
+        """
+        filename = self.source_filename(page, **partition)
+
+        for resource_key, zf in self.ds.get_zipfile_resources(
+            self._dataset_name, **partition
+        ):
+            archive_name = str(resource_key).lower()
+            if "electricity" not in archive_name:
+                raise FileNotFoundError(
+                    f"No electricity parquet file found for {self._dataset_name} {partition}"
+                )
+            with zf.open(filename) as f:
+                df = pd.read_parquet(f)
+            return df
 
 
 raw_nrelatb__all_dfs = raw_df_factory(Extractor, name="nrelatb")
