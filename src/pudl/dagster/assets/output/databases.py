@@ -3,12 +3,12 @@
 Both databases are assembled by one function, :func:`_write_pudl_db` which creates the
 empty schema through a throwaway SQLAlchemy engine. Each table's Parquet file is read
 with DuckDB and a DuckDB connection is used to insert it into the datase. Everything
-that differs between the two databases is cued by :class:`_DatabaseTarget`'s
-``db_type`` field (``"sqlite"`` or ``"duckdb"``), which every other type-dependent
-value -- the ``PUDL_PACKAGE.to_sql()`` call that shapes the schema, the SQLAlchemy
-engine URL, whether rows land in the DuckDB file or an ``ATTACH``ed SQLite file,
-whether the pre-write primary-key check runs -- is derived from, so the two can never
-end up specified inconsistently.
+that differs between the two databases is cued by :class:`_DatabaseTarget`'s ``db_type``
+field (``"sqlite"`` or ``"duckdb"``), which every other type-dependent value -- the
+``PUDL_PACKAGE.to_sql()`` call that shapes the schema, the SQLAlchemy engine URL,
+whether rows land in the DuckDB file or an ``ATTACH``ed SQLite file, whether the
+pre-write primary-key check runs -- is derived from, so the two can never end up
+specified inconsistently.
 
 :data:`SQLITE_TARGET` and :data:`DUCKDB_TARGET` are the two instances;
 :func:`build_pudl_db_asset` wraps either one in a Dagster asset.

@@ -87,24 +87,40 @@ FIELD_DTYPES_PYARROW: dict[str, pa.DataType] = {
 }
 """Pyarrow data type by simplified PUDL field type."""
 
-FIELD_DTYPES_SQLITE: dict[str, type[SATypeEngine] | SATypeEngine] = {
+FIELD_DTYPES_SQLALCHEMY: dict[str, type[SATypeEngine] | SATypeEngine] = {
     "boolean": sa.Boolean,
     "date": sa.Date,
-    "datetime": SQLITE_DATETIME(),
+    "datetime": sa.DateTime,
     "integer": sa.BigInteger,
     "number": sa.Double,
     "string": sa.Text,
     "year": sa.BigInteger,
 }
-"""SQLAlchemy column types by simplified PUDL field type.
+"""Generic SQLAlchemy column types by simplified PUDL field type.
 
-SQLite itself doesn't distinguish between 32- and 64-bit integers or single/double
-precision floats -- it stores all "INTEGER" affinity values as a dynamically-sized up
-to 8-byte integer, and all "REAL" affinity values as an 8-byte IEEE double,
-regardless of the declared column type name. ``BigInteger``/``Double`` are used here
-(rather than ``Integer``/``Float``) purely so this mapping stays correct if reused for
-a dialect where the declared width *is* enforced -- e.g. DuckDB, via
-:meth:`pudl.metadata.classes.Field._to_sql_duckdb`, which reuses this same dict.
+For use with any dialect where SQLAlchemy itself compiles the DDL from these generic
+types via ``metadata.create_all()`` -- currently DuckDB, via
+:meth:`pudl.metadata.classes.Field._to_sql_duckdb`. Not used for SQLite; see
+:data:`FIELD_DTYPES_SQLITE` for that.
+
+``BigInteger``/``Double`` are used here (rather than ``Integer``/``Float``) so that a
+dialect enforcing the declared column width -- unlike SQLite, which stores every
+"INTEGER" affinity value as a dynamically-sized up-to-8-byte integer and every "REAL"
+affinity value as an 8-byte IEEE double regardless of the declared type name -- still
+gets the right physical size.
+"""
+
+FIELD_DTYPES_SQLITE: dict[str, type[SATypeEngine] | SATypeEngine] = (
+    FIELD_DTYPES_SQLALCHEMY | {"datetime": SQLITE_DATETIME()}
+)
+"""SQLAlchemy column types for the SQLite dialect specifically.
+
+Identical to :data:`FIELD_DTYPES_SQLALCHEMY` except for ``datetime``: SQLite has no
+native timestamp storage type, so datetimes are stored as text, and
+:class:`SQLITE_DATETIME` is a custom decorator (see ``to_sqlite_dtype()``) needed to
+get microsecond precision out of that text column. DuckDB has a native ``TIMESTAMP``
+type that already stores microseconds, so ``FIELD_DTYPES_SQLALCHEMY``'s plain
+``sa.DateTime`` is correct for it as-is.
 """
 
 CONSTRAINT_DTYPES: dict[str, type] = {
