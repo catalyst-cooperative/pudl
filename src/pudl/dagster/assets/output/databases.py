@@ -1,4 +1,4 @@
-"""Dagster assets that assembles pudl.sqlite and pudl.duckdb from PUDL's Parquet outputs.
+r"""Dagster assets that assembles pudl.sqlite and pudl.duckdb from PUDL's Parquet outputs.
 
 Both databases are assembled by one function, :func:`_write_pudl_db` which creates the
 empty schema through a throwaway SQLAlchemy engine. Each table's Parquet file is read
@@ -6,7 +6,7 @@ with DuckDB and a DuckDB connection is used to insert it into the datase. Everyt
 that differs between the two databases is cued by :class:`_DatabaseTarget`'s ``db_type``
 field (``"sqlite"`` or ``"duckdb"``), which every other type-dependent value -- the
 ``PUDL_PACKAGE.to_sql()`` call that shapes the schema, the SQLAlchemy engine URL,
-whether rows land in the DuckDB file or an ``ATTACH``ed SQLite file, whether the
+whether rows land in the DuckDB file or an ``ATTACH``\\ ed SQLite file, whether the
 pre-write primary-key check runs -- is derived from, so the two can never end up
 specified inconsistently.
 
@@ -167,11 +167,11 @@ def _copy_table(
     *,
     table_ref: str,
 ) -> int:
-    """Stream one table's Parquet data into ``table_ref`` via DuckDB.
+    r"""Stream one table's Parquet data into ``table_ref`` via DuckDB.
 
     DuckDB reads the Parquet file with its columnar engine and writes the rows straight
     into ``table_ref`` -- either a table in the DuckDB file itself, or a table in an
-    ``ATTACH``ed SQLite database (see :func:`_write_pudl_db`). Column order comes from
+    ``ATTACH``\\ ed SQLite database (see :func:`_write_pudl_db`). Column order comes from
     the resource metadata so the ``SELECT`` lines up with the destination schema
     regardless of the Parquet file's column order.
 
@@ -182,7 +182,7 @@ def _copy_table(
 
     Args:
         conn: An open DuckDB connection. For the SQLite target the destination
-            database must already be ``ATTACH``ed under :data:`_SQLITE_ATTACH_ALIAS`.
+            database must already be ``ATTACH``\\ ed under :data:`_SQLITE_ATTACH_ALIAS`.
         resource: Metadata Resource for the table being written; supplies the
             ordered column list.
         parquet_path: Path to the source Parquet file for this table.
@@ -229,7 +229,7 @@ class _DatabaseTarget:
 
     @property
     def attach_as_sqlite(self) -> bool:
-        """Whether rows are written to ``ATTACH``ed SQLite DB rather than DuckDB."""
+        r"""Whether rows are written to ``ATTACH``\\ ed SQLite DB rather than DuckDB."""
         return self.db_type == "sqlite"
 
     @property
@@ -313,12 +313,12 @@ def _write_pudl_db(
     table_names: Sequence[str],
     paths: PudlPaths | None = None,
 ) -> TableWriteReport:
-    """Build a fresh database at ``db_path`` and stream the given tables into it.
+    r"""Build a fresh database at ``db_path`` and stream the given tables into it.
 
     Creates the empty schema through a throwaway SQLAlchemy engine (so a named
     ``ENUM`` shared by several tables is created once, and comments/constraints are
     emitted consistently), then has a DuckDB connection read each table's Parquet
-    file and insert it -- into the DuckDB file directly, or into an ``ATTACH``ed
+    file and insert it -- into the DuckDB file directly, or into an ``ATTACH``\\ ed
     SQLite file, per ``target``.
 
     Tables are written independently: a failure in one (see :data:`_WRITE_EXCEPTIONS`)
