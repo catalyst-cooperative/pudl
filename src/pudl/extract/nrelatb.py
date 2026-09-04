@@ -4,10 +4,10 @@ import pandas as pd
 from dagster import Output, asset
 
 from pudl.extract.extractor import GenericMetadata, PartitionSelection, raw_df_factory
-from pudl.extract.parquet import ParquetExtractor
+from pudl.extract.parquet import GenericExtractor
 
 
-class Extractor(ParquetExtractor):
+class Extractor(GenericExtractor):
     """Extractor for NREL ATB."""
 
     def __init__(self, *args, **kwargs):
@@ -41,12 +41,12 @@ class Extractor(ParquetExtractor):
         ):
             archive_name = str(resource_key).lower()
             if "electricity" not in archive_name:
-                raise FileNotFoundError(
-                    f"No electricity parquet file found for {self._dataset_name} {partition}"
-                )
+                continue
             with zf.open(filename) as f:
-                df = pd.read_parquet(f)
-            return df
+                return pd.read_parquet(f)
+        raise FileNotFoundError(
+            f"No electricity parquet file found for {self._dataset_name} {partition}"
+        )
 
 
 raw_nrelatb__all_dfs = raw_df_factory(Extractor, name="nrelatb")
