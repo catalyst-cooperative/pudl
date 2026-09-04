@@ -33,6 +33,8 @@ This is the upcoming PUDL release.
   [out_eia923_\_yearly_energy_storage](data_dictionaries/pudl_db.html.md#out-eia923-yearly-energy-storage) providing monthly and yearly aggregations.
   All three include plant and utility metadata. See issue [#4311](https://github.com/catalyst-cooperative/pudl/issues/4311) and PR
   [#5489](https://github.com/catalyst-cooperative/pudl/pull/5489).
+* Extracted the unprocessed `raw_eia923__source_and_disposition` table for further
+  future cleaning, see PR [#5546](https://github.com/catalyst-cooperative/pudl/pull/5546). Thanks to contributor [@giovannicozzolongo](https://github.com/sponsors/giovannicozzolongo)!
 
 #### EPA CEMS
 
@@ -125,6 +127,12 @@ This is the upcoming PUDL release.
 
 ### Developer Experience
 
+* Added `ferceqr_pipeline_diagnostics`, a metadata-only Dagster asset that
+  compiles the extraction stats and schema-check results already recorded for
+  every [FERC EQR](data_sources/ferceqr.html.md) quarter into one wide table, so
+  anomalies like missing tables, rejected records, or primary-key violations
+  are visible across the whole backfill without opening each quarter’s
+  materialization individually. See PR [#5457](https://github.com/catalyst-cooperative/pudl/pull/5457).
 * Reworked how the Google Batch jobs launched by the `build-pudl`,
   `deploy-pudl`, and `build-deploy-ferceqr` GitHub workflows are configured. The
   Batch config generator moved from `devtools/` into the package as the
