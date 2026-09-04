@@ -76,6 +76,13 @@ FERC EQR
 
 * Added full 2026Q2 data for :doc:`FERC EQR <data_sources/ferceqr>`. See PR :pr:`5442`.
 
+
+EIA-860M
+~~~~~~~~
+
+* Added :doc:`EIA-860M <data_sources/eia860>` data through July 2026. See
+  issue :issue:`5549` and PR :pr:`5547`.
+
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
