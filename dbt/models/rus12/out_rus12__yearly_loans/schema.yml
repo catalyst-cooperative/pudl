@@ -4,6 +4,13 @@ sources:
     tables:
       - name: out_rus12__yearly_loans
         data_tests:
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - borrower_id_rus
+                pk_table_name: source('pudl', 'core_rus12__entity_borrowers')
+                pk_column_names:
+                  - borrower_id_rus
           - expect_columns_not_all_null
           - dbt_expectations.expect_column_pair_values_A_to_be_greater_than_B:
               arguments:
@@ -21,7 +28,6 @@ sources:
               description: The report date year should be before or equal to the loan maturity date year.
           - check_row_counts_per_partition:
               arguments:
-                table_name: out_rus12__yearly_loans
                 partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: report_date

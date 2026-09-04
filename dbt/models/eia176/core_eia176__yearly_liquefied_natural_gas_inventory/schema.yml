@@ -7,7 +7,6 @@ sources:
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
               arguments:
-                table_name: core_eia176__yearly_liquefied_natural_gas_inventory
                 partition_expr: report_year
         columns:
           - name: operator_id_eia

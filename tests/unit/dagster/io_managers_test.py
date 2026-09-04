@@ -37,11 +37,6 @@ from pudl.settings import (
     GlobalDataConfig,
     PudlDataConfig,
 )
-from pudl.validate.integrity import (
-    ForeignKeyError,
-    ForeignKeyErrors,
-    check_foreign_keys,
-)
 from pudl.workspace.datastore import ZenodoDoiSettings
 
 
@@ -130,33 +125,6 @@ def test_sqlite_io_manager_delete_stmt(sqlite_io_manager_fixture):
     input_context: InputContext = build_input_context(asset_key=AssetKey(asset_key))
     returned_df: pd.DataFrame = manager.load_input(input_context)
     assert len(returned_df) == 1
-
-
-def test_foreign_key_failure(sqlite_io_manager_fixture):
-    """Ensure ForeignKeyErrors are raised when there are foreign key errors."""
-    manager = sqlite_io_manager_fixture
-
-    asset_key = "artist"
-    artist = pd.DataFrame({"artistid": [1], "artistname": ["Co-op Mop"]})
-    output_context: OutputContext = build_output_context(asset_key=AssetKey(asset_key))
-    manager.handle_output(output_context, artist)
-
-    asset_key = "track"
-    track = pd.DataFrame(
-        {"trackid": [1], "trackname": ["FERC Ya!"], "trackartist": [2]}
-    )
-    output_context: OutputContext = build_output_context(asset_key=AssetKey(asset_key))
-    manager.handle_output(output_context, track)
-
-    with pytest.raises(ForeignKeyErrors) as excinfo:
-        check_foreign_keys(manager.engine)
-
-    assert excinfo.value[0] == ForeignKeyError(
-        child_table="track",
-        parent_table="artist",
-        foreign_key="(artistid)",
-        rowids=[1],
-    )
 
 
 def test_extra_column_error(sqlite_io_manager_fixture):

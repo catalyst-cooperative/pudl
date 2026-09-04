@@ -13,8 +13,8 @@ For day-to-day work, the most commonly used pixi testing tasks are:
 
 .. code-block:: console
 
-   $ pixi run pytest-unit
-   $ pixi run pytest-integration
+   $ pixi run pytest-unit         # runs in ~1 minute
+   $ pixi run pytest-integration  # runs in ~2-5 minutes, no Dagster ETL required
 
 ``pytest-unit`` also runs automatically as a pre-commit hook on every commit, and
 both ``pytest-unit`` and ``pytest-integration`` runs in GitHub Actions on every push.
@@ -24,11 +24,11 @@ pipeline and data validation tests that only run in the merge queue -- use:
 
 .. code-block:: console
 
-    $ pixi run pytest-ci
+    $ pixi run pytest-ci  # runs in ~45-60 minutes, does a "fast" ETL
 
 This includes building the documentation, running the unit, integration, and pipeline
-tests, dbt data validations (other than the row count checks), foreign key constraints,
-and checking to make sure we've got sufficient test coverage.
+tests, all dbt data validations other than the row count checks, and checking to make
+sure we've got sufficient test coverage.
 
 .. note::
 
@@ -60,10 +60,10 @@ long they take to run:
   minutes these only run in the merge queue as a final check before a PR merges into
   ``main``, rather than on every push.
 * **Data Validation Tests** (``tests/validate/``) check that the outputs of a
-  pipeline test run are valid: foreign key constraints and the ``dbt`` data validation
-  suite. They depend on the pipeline tests having already produced outputs to check,
-  and also run in the merge queue (with the exception of the dbt row-count checks,
-  which expect all years of data to be processed).
+  pipeline test run are valid using our ``dbt`` data test suite. These tests depend on
+  the pipeline tests having run and produced outputs. They also run in the merge queue
+  (with the exception of the dbt row-count checks, which expect all years of data to be
+  processed).
 
 A ``pytest_collection_modifyitems`` hook in ``tests/conftest.py`` enforces this split
 automatically: a test outside ``tests/pipeline/``/``tests/validate/`` that depends on
@@ -170,8 +170,8 @@ of that database. For example:
 
    $ pixi run pytest --live-pudl-output tests/pipeline/glue/glue_test.py
 
-Foreign key checks and dbt validations can be selected separately from the rest of the
-pipeline suite by running the dedicated validation module directly. For example:
+The dbt data validations can be selected separately from the rest of the pipeline suite
+by running the dedicated validation module directly. For example:
 
 .. code-block:: console
 

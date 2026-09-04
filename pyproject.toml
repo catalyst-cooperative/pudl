@@ -61,6 +61,7 @@ preview = ["pixi-build"]
 # comment explaining why it's necessary.
 [tool.pixi.dependencies]
 alembic = ">=1.17"
+beautifulsoup4 = ">=4.15"
 boto3 = ">=1.35"
 bottleneck = ">=1.5.0"
 "catalystcoop.dbfread" = ">=3.0,<3.1"
@@ -101,6 +102,7 @@ jupyter-lsp = ">=2.3"
 jupyter-resource-usage = ">=1.2"
 jupyterlab = ">=4.6"
 jupyterlab-lsp = ">=5.2"
+lxml = ">=6.1"
 matplotlib-base = ">=3.11"
 memray = ">=1.18.0"
 mlflow = ">=3.14"
@@ -455,7 +457,6 @@ description = "Install skills from lockfile"
 [project.scripts]
 auto_match_utilities = "pudl.scripts.auto_match_utilities:main"
 metadata_to_rst = "pudl.scripts.metadata_to_rst:main"
-pudl_check_fks = "pudl.scripts.pudl_check_fks:main"
 pudl_datastore = "pudl.scripts.pudl_datastore:main"
 pudl_deploy = "pudl.scripts.pudl_deploy:main"
 pudl_check_for_build = "pudl.scripts.pudl_check_for_build:main"
@@ -469,6 +470,7 @@ resource_description = "pudl.scripts.resource_description:main"
 update_zenodo_dois = "pudl.scripts.update_zenodo_dois:main"
 zenodo_data_release = "pudl.scripts.zenodo_data_release:main"
 generate_ferc_provenance = "pudl.scripts.generate_ferc_provenance:main"
+batch_config = "pudl.scripts.batch_config:main"
 pyrefly_baseline_diff = "pudl.scripts.pyrefly_baseline_diff:main"
 
 [tool.ruff]

@@ -4,11 +4,15 @@ sources:
     tables:
       - name: core_pudl__assn_ferc714_xbrl_pudl_respondents
         data_tests:
-          - expect_columns_not_all_null
-          - check_row_counts_per_partition:
+          - foreign_key:
               arguments:
-                table_name: core_pudl__assn_ferc714_xbrl_pudl_respondents
-                partition_expr: null
+                fk_column_names:
+                  - respondent_id_ferc714
+                pk_table_name: source('pudl', 'core_pudl__assn_ferc714_pudl_respondents')
+                pk_column_names:
+                  - respondent_id_ferc714
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition
         columns:
           - name: respondent_id_ferc714
           - name: respondent_id_ferc714_xbrl

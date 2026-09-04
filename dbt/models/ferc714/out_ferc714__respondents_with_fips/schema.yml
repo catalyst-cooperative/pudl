@@ -4,10 +4,16 @@ sources:
     tables:
       - name: out_ferc714__respondents_with_fips
         data_tests:
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - respondent_id_ferc714
+                pk_table_name: source('pudl', 'core_pudl__assn_ferc714_pudl_respondents')
+                pk_column_names:
+                  - respondent_id_ferc714
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
               arguments:
-                table_name: out_ferc714__respondents_with_fips
                 partition_expr: EXTRACT(YEAR FROM report_date)
           - dbt_expectations.expect_compound_columns_to_be_unique:
               arguments:

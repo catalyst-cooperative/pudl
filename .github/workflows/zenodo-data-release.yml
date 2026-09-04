@@ -13,13 +13,21 @@ on:
         default: "sandbox"
         type: choice
       source_dir:
-        description: "Path to PUDL data to publish:"
-        required: true
+        description: "Path to PUDL data to publish (ignored if metadata_only):"
+        required: false
         default: "s3://pudl.catalyst.coop/nightly/"
       ignore_regex:
-        description: "Ignore files matching this regex:"
+        description: "Ignore files matching this regex (ignored if metadata_only):"
         required: false
         default: '^.*\.parquet$'
+      metadata_only:
+        description: "Only update metadata on the existing draft, without touching its files?"
+        required: false
+        default: false
+        type: boolean
+      pudl_version:
+        description: "PUDL release version tag whose release notes/metadata to use (e.g. v2026.8.0):"
+        required: true
       publish:
         description: "Automatically publish Zenodo record?"
         required: true
@@ -28,6 +36,14 @@ on:
           - no-publish
           - publish
         type: choice
+
+env:
+  PUDL_OUTPUT: /home/runner/pudl-work/output/
+  PUDL_INPUT: /home/runner/pudl-work/input/
+  DAGSTER_HOME: /home/runner/pudl-work/dagster_home/
+  # Avoid flaky external network dependencies when building docs just to extract the
+  # release notes -- we don't need cross-project reference resolution for that.
+  PUDL_DOCS_DISABLE_INTERSPHINX: "1"
 
 jobs:
   zenodo-data-release:
@@ -65,16 +81,30 @@ jobs:
           # keep the main-branch copy fresh.
           cache-write: false
 
+      - name: Make input, output and dagster dirs
+        run: mkdir -p "$PUDL_OUTPUT" "$PUDL_INPUT" "$DAGSTER_HOME"
+
+      - name: Build PUDL docs
+        # Needed to extract this release's release notes for the Zenodo description.
+        # build-deploy-docs.yml publishes docs.catalyst.coop separately and isn't
+        # guaranteed to have finished by the time this workflow runs, so we build our
+        # own local copy here rather than depending on it.
+        run: pixi run docs-build
+
       - name: Do a Zenodo data release
         env:
           ZENODO_SANDBOX_TOKEN_PUBLISH: ${{ secrets.ZENODO_SANDBOX_TOKEN_PUBLISH }}
           ZENODO_TOKEN_UPLOAD: ${{ secrets.ZENODO_TOKEN_UPLOAD }}
           ZULIP_API_KEY: ${{ secrets.ZULIP_API_KEY }}
+        # --source-dir/--ignore are harmless to pass alongside --metadata-only: the
+        # script ignores them (with a warning) whenever --metadata-only is set.
         run: |
           pixi run zenodo_data_release \
             --env "${{ inputs.env }}" \
+            --pudl-version "${{ inputs.pudl_version }}" \
             --source-dir "${{ inputs.source_dir }}" \
             ${{ inputs.ignore_regex && format('--ignore "{0}"', inputs.ignore_regex) || '' }} \
+            ${{ inputs.metadata_only && '--metadata-only' || '' }} \
             --${{ inputs.publish }}
 
       - name: Notify Zulip of Zenodo data release status
