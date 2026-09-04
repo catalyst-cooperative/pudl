@@ -148,6 +148,12 @@ Performance Improvements
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^
 
+* Added ``ferceqr_pipeline_diagnostics``, a metadata-only Dagster asset that
+  compiles the extraction stats and schema-check results already recorded for
+  every :doc:`FERC EQR <data_sources/ferceqr>` quarter into one wide table, so
+  anomalies like missing tables, rejected records, or primary-key violations
+  are visible across the whole backfill without opening each quarter's
+  materialization individually. See PR :pr:`5457`.
 * Reworked how the Google Batch jobs launched by the ``build-pudl``,
   ``deploy-pudl``, and ``build-deploy-ferceqr`` GitHub workflows are configured. The
   Batch config generator moved from ``devtools/`` into the package as the
