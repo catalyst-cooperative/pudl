@@ -3,8 +3,12 @@
 import pandas as pd
 from dagster import Output, asset
 
-from pudl.extract.extractor import GenericMetadata, PartitionSelection, raw_df_factory
-from pudl.extract.parquet import GenericExtractor
+from pudl.extract.extractor import (
+    GenericExtractor,
+    GenericMetadata,
+    PartitionSelection,
+    raw_df_factory,
+)
 
 
 class Extractor(GenericExtractor):
