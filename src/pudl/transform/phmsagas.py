@@ -113,8 +113,8 @@ YEARLY_DISTRIBUTION_IDX_ISH = [
 ]
 
 INSTALL_DECADE_TOTAL_MISMATCHES = {
-    "mains_miles": {"expected_mismatches": 42, "tolerance": 0.001},
-    "services": {"expected_mismatches": 156, "tolerance": 0},
+    "mains_miles": {"expected_mismatches": 43, "tolerance": 0.001},
+    "services": {"expected_mismatches": 162, "tolerance": 0},
 }
 
 MELT_PATTERNS = {
@@ -519,7 +519,7 @@ def _core_phmsagas__yearly_distribution_by_material(
     )
 
 
-@asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
+@asset(compute_kind="pandas")
 def _core_phmsagas__yearly_distribution_by_install_decade(
     _core_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -715,8 +715,12 @@ def core_phmsagas__yearly_distribution_by_install_decade(
         "OTHER GAS: Natural Gas": "natural_gas",
         "OTHER GAS: Nitrogen": "nitrogen_gas",
         "OTHER GAS: Propane Gas": "propane_gas",
+        "OTHER GAS: Propane": "propane_gas",
+        "OTHER GAS: Other Gas - Propane": "propane_gas",
         "OTHER GAS: nitrogen": "nitrogen_gas",
+        "OTHER GAS: METHANE": "natural_gas",
         "OTHER GAS: City of York": "other",
+        "OTHER GAS: Fuel Gas": "other",  # TODO: Is this sensible? Map somehow else??
     }
 
     df = _core_phmsagas__yearly_distribution_by_install_decade.copy()

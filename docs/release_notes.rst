@@ -70,6 +70,8 @@ PHMSA
 * Added the ``core_phmsagas__yearly_distribution_by_install_decade`` table, which
   reports :doc:`PHMSA <data_sources/phmsagas>` gas distribution mains miles and
   services by installation decade. See issue :issue:`5266` and PR :pr:`5443`.
+* Added 2025 distribution and transmission data for
+  :doc:`PHMSA <data_sources/phmsagas>`. See issue :issue:`5504` and :pr:`5548`.
 
 FERC EQR
 ~~~~~~~~
@@ -129,6 +131,10 @@ Bug Fixes & Data Cleaning
 * Changed ``subplant_id`` in :ref:`core_epa__assn_eia_epacamd_subplant_ids` to be
   1-indexed instead of 0-indexed within each ``plant_id_eia``, so the first subplant at
   a plant is now ``1`` rather than ``0``. See issue :issue:`5499` and PR :pr:`5541`.
+* Retired the interim output ``_core_phmsagas__yearly_distribution_by_install_decade``,
+  which was replaced by the cleaned and validated
+  :ref:`core_phmsagas__yearly_distribution_by_install_decade`. See :issue:`5504` and
+  :pr:`5548`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
