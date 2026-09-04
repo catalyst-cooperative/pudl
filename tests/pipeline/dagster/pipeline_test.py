@@ -41,7 +41,12 @@ def test_pudl_sqlite_engine(pudl_sqlite_engine: sa.Engine):
 
 @pytest.mark.order(2)
 def test_pudl_duckdb_connection(pudl_duckdb_connection: duckdb.DuckDBPyConnection):
-    """Verify that key PUDL tables exist and are populated in pudl.duckdb."""
+    """Verify that key PUDL tables exist, are populated, and are documented.
+
+    DuckDB (unlike SQLite) actually persists the table/column ``comment``s that
+    Resource.to_sql()/Field.to_sql() attach -- see pudl.metadata.classes -- so this
+    also checks that those descriptions really landed in the built database.
+    """
     table_names = {
         row[0]
         for row in pudl_duckdb_connection.execute(
@@ -55,3 +60,21 @@ def test_pudl_duckdb_connection(pudl_duckdb_connection: duckdb.DuckDBPyConnectio
             f'SELECT 1 FROM "{table_name}" LIMIT 1'  # noqa: S608
         ).fetchone()
         assert first_row is not None, f"Expected {table_name} to contain data."
+
+        table_comment_row = pudl_duckdb_connection.execute(
+            "SELECT comment FROM duckdb_tables() WHERE table_name = ?", [table_name]
+        ).fetchone()
+        assert table_comment_row is not None, f"Expected {table_name} to exist."
+        assert table_comment_row[0], f"Expected {table_name} to have a table comment."
+
+        column_comments = [
+            row[0]
+            for row in pudl_duckdb_connection.execute(
+                "SELECT comment FROM duckdb_columns() WHERE table_name = ?",
+                [table_name],
+            ).fetchall()
+        ]
+        assert column_comments, f"Expected {table_name} to have columns."
+        assert all(column_comments), (
+            f"Expected every column in {table_name} to have a comment."
+        )

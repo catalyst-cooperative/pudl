@@ -174,7 +174,7 @@ def _format_for_sql(x: Any, identifier: bool = False) -> str:  # noqa: C901
     return f"'{x}'"
 
 
-def _get_jinja_environment(template_dir: DirectoryPath = None):
+def _get_jinja_environment(template_dir: DirectoryPath | None = None):
     if template_dir:
         path = template_dir / "templates"
     else:
@@ -1286,7 +1286,7 @@ class DataSource(PudlMeta):
                 return partitions[key]
         return []
 
-    def get_temporal_coverage(self, partitions: dict = None) -> str:
+    def get_temporal_coverage(self, partitions: dict | None = None) -> str:
         """Return a string describing the time span covered by the data source."""
         if partitions is None:
             partitions = self.working_partitions
@@ -1985,7 +1985,7 @@ class Resource(PudlMeta):
 
     def to_sql(
         self,
-        metadata: sa.MetaData = None,
+        metadata: sa.MetaData | None = None,
         dialect: Literal["sqlite", "duckdb"] = "sqlite",
         check_types: bool = True,
         check_values: bool = True,
@@ -2002,6 +2002,14 @@ class Resource(PudlMeta):
             include_foreign_keys: if False, omit foreign key constraints entirely.
                 DuckDB enforces these at insert time by validating against the
                 referenced table while SQLite does not.
+
+        The table itself gets a ``comment`` of :attr:`description`, mirroring the
+        per-column comments each field already gets from :meth:`Field.to_sql`.
+        SQLite's dialect has no table (or column) comment support at all
+        (``supports_comments`` is False), so ``create_all()`` silently drops it
+        there -- same as it already does for column comments. DuckDB does support
+        table comments, so they're written for real and visible via
+        ``duckdb_tables()``/``information_schema``.
         """
         if metadata is None:
             metadata = sa.MetaData()
@@ -2019,7 +2027,9 @@ class Resource(PudlMeta):
         if include_foreign_keys:
             for key in self.schema.foreign_keys:
                 constraints.append(key.to_sql())
-        return sa.Table(self.name, metadata, *columns, *constraints)
+        return sa.Table(
+            self.name, metadata, *columns, *constraints, comment=self.description
+        )
 
     def to_frictionless(self) -> frictionless.Resource:
         """Convert to a Frictionless Resource."""
@@ -2608,7 +2618,7 @@ class Resource(PudlMeta):
     def harvest_dfs(
         self,
         dfs: dict[str, pd.DataFrame],
-        aggregate: bool = None,
+        aggregate: bool | None = None,
         aggregate_kwargs: dict[str, Any] = {},
         format_kwargs: dict[str, Any] = {},
     ) -> tuple[pd.DataFrame, dict]:
