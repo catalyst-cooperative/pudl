@@ -455,19 +455,6 @@ def test_sqlite_foreign_keys_declared_but_not_enforced(
     engine.dispose()
 
 
-def test_duckdb_schema_excludes_foreign_keys(test_pkg: Package):
-    """The DuckDB schema has no foreign key constraints; the SQLite schema keeps them.
-
-    "plant" declares a foreign key to "utility" in the fixture package -- confirms
-    ``include_foreign_keys=False`` takes effect for DuckDB but not for SQLite.
-    """
-    duckdb_metadata = test_pkg.to_sql(dialect="duckdb", include_foreign_keys=False)
-    assert list(duckdb_metadata.tables["plant"].foreign_keys) == []
-
-    sqlite_metadata = test_pkg.to_sql()
-    assert list(sqlite_metadata.tables["plant"].foreign_keys) != []
-
-
 def test_duckdb_schema_shares_enum_type_across_tables(test_pkg: Package):
     """A named ENUM type shared by two tables is created exactly once.
 

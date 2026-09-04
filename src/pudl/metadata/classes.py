@@ -60,6 +60,7 @@ from pudl.metadata.dtypes import (
     FIELD_DTYPES_PANDAS,
     FIELD_DTYPES_POLARS,
     FIELD_DTYPES_PYARROW,
+    FIELD_DTYPES_SQLALCHEMY,
     FIELD_DTYPES_SQLITE,
     PERIODS,
 )
@@ -893,38 +894,24 @@ class Field(PudlMeta):
                 checks.append(
                     f"regexp_full_match({name}, {pattern.replace(':', r'\:')})"
                 )
-            # Enum membership is enforced by the native ENUM column type below,
-            # not a separate CHECK -- unlike the sqlite dialect, where sa.Enum
-            # degrades to a plain VARCHAR/TEXT column plus this same IN (...)
-            # check, DuckDB (via a real SQLAlchemy engine + metadata.create_all())
-            # supports a genuine named ENUM type shared across every table that
-            # references it.
         if self.constraints.enum:
-            # Named ENUM types are shared across every table/column that requests
-            # the same name (see the module-level note above) -- but the same
-            # field *name* is reused across resources with different, resource-
-            # specific enum value sets (e.g. "plant_type" means something
-            # different, with different allowed values, in different tables; see
-            # FIELD_METADATA_BY_RESOURCE). Naming the type after the field alone
-            # would silently share one table's enum values with another's column
-            # of the same name, causing any legitimately-different value to fail
-            # to cast. Suffixing with a hash of the (already deterministically
-            # sorted -- see FieldConstraints' enum validator) value set keeps
-            # genuinely identical enums (the common case, e.g. state codes)
-            # sharing one type, while giving each distinct value set its own.
+            # Named ENUM types are shared across every table/column that requests the
+            # same name (see the module-level note above) -- but the same field *name*
+            # is reused across resources with different, resource- specific enum value
+            # sets (e.g. "plant_type" means something different, with different allowed
+            # values, in different tables; see FIELD_METADATA_BY_RESOURCE). Naming the
+            # dtype after the field alone would silently share one table's enum values
+            # with another's column of the same name, causing conflicts. Suffixing with
+            # a hash of the sorted value set keeps genuinely identical enums sharing one
+            # dtype while giving each distinct value set its own.
             enum_hash = sha1(  # noqa: S324
                 repr(self.constraints.enum).encode("utf-8")
             ).hexdigest()[:8]
             dtype = sa.Enum(
                 *self.constraints.enum, name=f"{self.name}_{enum_hash}_enum"
             )
-        elif self.type == "datetime":
-            # SQLite needs the custom SQLITE_DATETIME() text-based decorator (see
-            # to_sqlite_dtype()) to get microsecond precision out of a TEXT column;
-            # DuckDB has a native TIMESTAMP type that already stores microseconds.
-            dtype = sa.DateTime()
         else:
-            dtype = FIELD_DTYPES_SQLITE[self.type]
+            dtype = FIELD_DTYPES_SQLALCHEMY[self.type]
         return sa.Column(
             self.name,
             dtype,
@@ -2010,14 +1997,11 @@ class Resource(PudlMeta):
             metadata: SQLAlchemy metadata to attach the table to.
             dialect: passed through to each field's :meth:`Field.to_sql`.
             check_types: passed through to each field's :meth:`Field.to_sql`.
-                Ignored under the ``duckdb`` dialect (see
-                :meth:`Field._to_sql_duckdb`).
+                Ignored under the ``duckdb`` dialect (see :meth:`Field._to_sql_duckdb`).
             check_values: passed through to each field's :meth:`Field.to_sql`.
             include_foreign_keys: if False, omit foreign key constraints entirely.
                 DuckDB enforces these at insert time by validating against the
-                referenced table, which gets prohibitively slow/memory-intensive at
-                PUDL's full data volume -- callers materializing a full DuckDB copy
-                may want to opt out.
+                referenced table while SQLite does not.
         """
         if metadata is None:
             metadata = sa.MetaData()
@@ -2933,12 +2917,11 @@ class Package(PudlMeta):
     def get_sorted_resources(self) -> StrictList[Resource]:
         """Get a list of sorted Resources.
 
-        Currently Resources are listed in reverse alphabetical order based
-        on their name which results in the following order to promote output
-        tables to users and push intermediate tables to the bottom of the
-        docs: output, core, intermediate.
-        In the future we might want to have more fine grain control over how
-        Resources are sorted.
+        Currently Resources are listed in reverse alphabetical order based on their name
+        which results in the following order to promote output tables to users and push
+        intermediate tables to the bottom of the docs: output, core, intermediate. In
+        the future we might want to have more fine grain control over how Resources are
+        sorted.
 
         Returns:
             A sorted list of resources.

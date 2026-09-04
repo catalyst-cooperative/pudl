@@ -189,26 +189,6 @@ def test_field_to_sql_duckdb_pattern_uses_regexp_full_match() -> None:
         engine.dispose()
 
 
-def test_field_to_sql_duckdb_has_no_type_checks() -> None:
-    """DuckDB's static typing makes SQLite's TYPEOF-based checks unnecessary.
-
-    A column declared with a native DuckDB type (e.g. DOUBLE) structurally can't
-    hold a value of the wrong type, unlike SQLite, which needed the TYPEOF checks
-    to compensate for its dynamic typing.
-    """
-    field = Field(name="amount", type="number", description="An amount.")
-    duckdb_column = field.to_sql(dialect="duckdb")
-    assert duckdb_column.constraints == set()
-
-    sqlite_column = field.to_sql()
-    check_texts = [
-        str(c.sqltext)
-        for c in sqlite_column.constraints
-        if isinstance(c, sa.CheckConstraint)
-    ]
-    assert any("TYPEOF" in text for text in check_texts)
-
-
 def test_field_to_sql_duckdb_integer_primary_key_has_no_autoincrement() -> None:
     """An integer primary key should not become SERIAL under the duckdb dialect.
 

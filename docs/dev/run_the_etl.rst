@@ -426,9 +426,8 @@ Logging
 The commands above should result in a bunch of Python :mod:`logging` output describing
 what Dagster is doing, and file outputs in the directory you specified via the
 ``$PUDL_OUTPUT`` environment variable. When the ETL is complete, you should see new
-files at e.g. ``$PUDL_OUTPUT/ferc1_dbf.sqlite``,
-``$PUDL_OUTPUT/core_epacems__hourly_emissions.parquet``, and (once the ``pudl_sqlite``
-asset has run, rebuilding it from the Parquet outputs) ``$PUDL_OUTPUT/pudl.sqlite``.
+files at e.g. ``$PUDL_OUTPUT/ferc1_dbf.sqlite`` or
+``$PUDL_OUTPUT/core_epacems__hourly_emissions.parquet``.
 
 The Dagster CLI also has built-in help if you want additional information:
 
