@@ -79139,6 +79139,11 @@ This is the upcoming PUDL release.
 
 * Added full 2026Q2 data for [FERC EQR](data_sources/ferceqr.html.md). See PR [#5442](https://github.com/catalyst-cooperative/pudl/pull/5442).
 
+#### EIA-860M
+
+* Added [EIA-860M](data_sources/eia860.html.md) data through July 2026. See
+  issue [#5549](https://github.com/catalyst-cooperative/pudl/issues/5549) and PR [#5547](https://github.com/catalyst-cooperative/pudl/pull/5547).
+
 ### Bug Fixes & Data Cleaning
 
 * Fixed a bug in [out_eia_\_yearly_generators_by_ownership](data_dictionaries/pudl_db.html.md#out-eia-yearly-generators-by-ownership) where every ownership
