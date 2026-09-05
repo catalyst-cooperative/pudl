@@ -2713,54 +2713,6 @@
       "severity": "error"
     },
     {
-      "line": 33,
-      "column": 9,
-      "stop_line": 33,
-      "stop_column": 22,
-      "path": "src/pudl/extract/eia191.py",
-      "code": -2,
-      "name": "bad-override-param-name",
-      "description": "Class member `Extractor.get_page_cols` overrides parent class `CsvExtractor` in an inconsistent manner\n  Got parameter name `partition_key`, expected `partition_selection`",
-      "concise_description": "Class member `Extractor.get_page_cols` overrides parent class `CsvExtractor` in an inconsistent manner",
-      "severity": "error"
-    },
-    {
-      "line": 39,
-      "column": 16,
-      "stop_line": 39,
-      "stop_column": 55,
-      "path": "src/pudl/extract/eia191.py",
-      "code": -2,
-      "name": "bad-return",
-      "description": "Returned type `RangeIndex` is not assignable to declared return type `list[str]`",
-      "concise_description": "Returned type `RangeIndex` is not assignable to declared return type `list[str]`",
-      "severity": "error"
-    },
-    {
-      "line": 22,
-      "column": 9,
-      "stop_line": 22,
-      "stop_column": 22,
-      "path": "src/pudl/extract/eia757a.py",
-      "code": -2,
-      "name": "bad-override-param-name",
-      "description": "Class member `Extractor.get_page_cols` overrides parent class `CsvExtractor` in an inconsistent manner\n  Got parameter name `partition_key`, expected `partition_selection`",
-      "concise_description": "Class member `Extractor.get_page_cols` overrides parent class `CsvExtractor` in an inconsistent manner",
-      "severity": "error"
-    },
-    {
-      "line": 28,
-      "column": 16,
-      "stop_line": 28,
-      "stop_column": 55,
-      "path": "src/pudl/extract/eia757a.py",
-      "code": -2,
-      "name": "bad-return",
-      "description": "Returned type `RangeIndex` is not assignable to declared return type `list[str]`",
-      "concise_description": "Returned type `RangeIndex` is not assignable to declared return type `list[str]`",
-      "severity": "error"
-    },
-    {
       "line": 47,
       "column": 179,
       "stop_line": 47,
@@ -3121,54 +3073,6 @@
       "severity": "error"
     },
     {
-      "line": 247,
-      "column": 53,
-      "stop_line": 249,
-      "stop_column": 6,
-      "path": "src/pudl/extract/ferc1.py",
-      "code": -2,
-      "name": "bad-typed-dict-key",
-      "description": "Missing required key `dbf` for TypedDict `RawTableMapping`",
-      "concise_description": "Missing required key `dbf` for TypedDict `RawTableMapping`",
-      "severity": "error"
-    },
-    {
-      "line": 250,
-      "column": 51,
-      "stop_line": 252,
-      "stop_column": 6,
-      "path": "src/pudl/extract/ferc1.py",
-      "code": -2,
-      "name": "bad-typed-dict-key",
-      "description": "Missing required key `dbf` for TypedDict `RawTableMapping`",
-      "concise_description": "Missing required key `dbf` for TypedDict `RawTableMapping`",
-      "severity": "error"
-    },
-    {
-      "line": 253,
-      "column": 58,
-      "stop_line": 255,
-      "stop_column": 6,
-      "path": "src/pudl/extract/ferc1.py",
-      "code": -2,
-      "name": "bad-typed-dict-key",
-      "description": "Missing required key `dbf` for TypedDict `RawTableMapping`",
-      "concise_description": "Missing required key `dbf` for TypedDict `RawTableMapping`",
-      "severity": "error"
-    },
-    {
-      "line": 256,
-      "column": 64,
-      "stop_line": 258,
-      "stop_column": 6,
-      "path": "src/pudl/extract/ferc1.py",
-      "code": -2,
-      "name": "bad-typed-dict-key",
-      "description": "Missing required key `dbf` for TypedDict `RawTableMapping`",
-      "concise_description": "Missing required key `dbf` for TypedDict `RawTableMapping`",
-      "severity": "error"
-    },
-    {
       "line": 69,
       "column": 35,
       "stop_line": 69,
@@ -3178,18 +3082,6 @@
       "name": "bad-assignment",
       "description": "`dict[str, str]` is not assignable to dict key `op_tags` with type `set[str] | str`",
       "concise_description": "`dict[str, str]` is not assignable to dict key `op_tags` with type `set[str] | str`",
-      "severity": "error"
-    },
-    {
-      "line": 55,
-      "column": 9,
-      "stop_line": 55,
-      "stop_column": 24,
-      "path": "src/pudl/extract/phmsagas.py",
-      "code": -2,
-      "name": "bad-override-param-name",
-      "description": "Class member `Extractor.process_renamed` overrides parent class `ExcelExtractor` in an inconsistent manner\n  Got parameter name `newdata`, expected `df`",
-      "concise_description": "Class member `Extractor.process_renamed` overrides parent class `ExcelExtractor` in an inconsistent manner",
       "severity": "error"
     },
     {
@@ -9169,21 +9061,9 @@
       "severity": "error"
     },
     {
-      "line": 113,
-      "column": 55,
-      "stop_line": 113,
-      "stop_column": 69,
-      "path": "src/pudl/workspace/datastore.py",
-      "code": -2,
-      "name": "bad-specialization",
-      "description": "Expected 1 type argument for `list`, got 2",
-      "concise_description": "Expected 1 type argument for `list`, got 2",
-      "severity": "error"
-    },
-    {
-      "line": 118,
+      "line": 116,
       "column": 72,
-      "stop_line": 118,
+      "stop_line": 116,
       "stop_column": 84,
       "path": "src/pudl/workspace/datastore.py",
       "code": -2,
@@ -9193,9 +9073,9 @@
       "severity": "error"
     },
     {
-      "line": 122,
+      "line": 120,
       "column": 33,
-      "stop_line": 122,
+      "stop_line": 120,
       "stop_column": 37,
       "path": "src/pudl/workspace/datastore.py",
       "code": -2,
@@ -9205,9 +9085,9 @@
       "severity": "error"
     },
     {
-      "line": 140,
+      "line": 138,
       "column": 42,
-      "stop_line": 140,
+      "stop_line": 138,
       "stop_column": 46,
       "path": "src/pudl/workspace/datastore.py",
       "code": -2,
@@ -9217,9 +9097,9 @@
       "severity": "error"
     },
     {
-      "line": 323,
+      "line": 321,
       "column": 16,
-      "stop_line": 323,
+      "stop_line": 321,
       "stop_column": 55,
       "path": "src/pudl/workspace/datastore.py",
       "code": -2,
@@ -9229,9 +9109,9 @@
       "severity": "error"
     },
     {
-      "line": 360,
+      "line": 358,
       "column": 42,
-      "stop_line": 360,
+      "stop_line": 358,
       "stop_column": 49,
       "path": "src/pudl/workspace/datastore.py",
       "code": -2,
@@ -9241,9 +9121,9 @@
       "severity": "error"
     },
     {
-      "line": 556,
+      "line": 554,
       "column": 43,
-      "stop_line": 556,
+      "stop_line": 554,
       "stop_column": 61,
       "path": "src/pudl/workspace/datastore.py",
       "code": -2,
@@ -9253,9 +9133,9 @@
       "severity": "error"
     },
     {
-      "line": 565,
+      "line": 563,
       "column": 50,
-      "stop_line": 565,
+      "stop_line": 563,
       "stop_column": 68,
       "path": "src/pudl/workspace/datastore.py",
       "code": -2,
@@ -9265,9 +9145,9 @@
       "severity": "error"
     },
     {
-      "line": 585,
+      "line": 583,
       "column": 42,
-      "stop_line": 585,
+      "stop_line": 583,
       "stop_column": 53,
       "path": "src/pudl/workspace/datastore.py",
       "code": -2,
@@ -9277,9 +9157,9 @@
       "severity": "error"
     },
     {
-      "line": 589,
+      "line": 587,
       "column": 56,
-      "stop_line": 589,
+      "stop_line": 587,
       "stop_column": 63,
       "path": "src/pudl/workspace/datastore.py",
       "code": -2,
@@ -9289,9 +9169,9 @@
       "severity": "error"
     },
     {
-      "line": 611,
+      "line": 609,
       "column": 52,
-      "stop_line": 611,
+      "stop_line": 609,
       "stop_column": 63,
       "path": "src/pudl/workspace/datastore.py",
       "code": -2,

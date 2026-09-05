@@ -109,9 +109,7 @@ class DatapackageDescriptor:
         matches = [self._match_from_partition(parts, k, v) for k, v in filters.items()]
         return all(matches)
 
-    def _match_from_partition(
-        self, parts: dict[str, str], k: str, v: str | list[str, str]
-    ):
+    def _match_from_partition(self, parts: dict[str, str], k: str, v: str | list[str]):
         if isinstance(
             parts.get(k), list
         ):  # If partitions are list, match whole list if it contains desired element
