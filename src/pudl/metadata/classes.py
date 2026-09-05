@@ -60,6 +60,7 @@ from pudl.metadata.dtypes import (
     FIELD_DTYPES_PANDAS,
     FIELD_DTYPES_POLARS,
     FIELD_DTYPES_PYARROW,
+    FIELD_DTYPES_SQLALCHEMY,
     FIELD_DTYPES_SQLITE,
     PERIODS,
 )
@@ -173,7 +174,7 @@ def _format_for_sql(x: Any, identifier: bool = False) -> str:  # noqa: C901
     return f"'{x}'"
 
 
-def _get_jinja_environment(template_dir: DirectoryPath = None):
+def _get_jinja_environment(template_dir: DirectoryPath | None = None):
     if template_dir:
         path = template_dir / "templates"
     else:
@@ -766,15 +767,27 @@ class Field(PudlMeta):
             metadata={"description": self.description},
         )
 
-    def to_sql(  # noqa: C901
+    def to_sql(
         self,
-        dialect: Literal["sqlite"] = "sqlite",
+        dialect: Literal["sqlite", "duckdb"] = "sqlite",
         check_types: bool = True,
         check_values: bool = True,
     ) -> sa.Column:
-        """Return equivalent SQL column."""
-        if dialect != "sqlite":
-            raise NotImplementedError(f"Dialect {dialect} is not supported")
+        """Return equivalent SQL column for the given dialect."""
+        if dialect == "sqlite":
+            return self._to_sql_sqlite(
+                check_types=check_types, check_values=check_values
+            )
+        if dialect == "duckdb":
+            return self._to_sql_duckdb(check_values=check_values)
+        raise NotImplementedError(f"Dialect {dialect} is not supported")
+
+    def _to_sql_sqlite(  # noqa: C901
+        self,
+        check_types: bool = True,
+        check_values: bool = True,
+    ) -> sa.Column:
+        """Return equivalent SQL column for the SQLite dialect."""
         checks = []
         name = _format_for_sql(self.name, identifier=True)
         if check_types:
@@ -850,6 +863,75 @@ class Field(PudlMeta):
             nullable=not self.constraints.required,
             unique=self.constraints.unique,
             comment=self.description,
+        )
+
+    def _to_sql_duckdb(self, check_values: bool = True) -> sa.Column:
+        """Return equivalent SQL column for the DuckDB dialect.
+
+        Unlike :meth:`_to_sql_sqlite`, there is no ``check_types`` block here at
+        all: DuckDB is statically typed, so a column declared e.g. ``BIGINT``
+        structurally can't hold a string value. The ``TYPEOF``/``DATETIME``/``GLOB``
+        checks built for SQLite exist specifically to compensate for SQLite's
+        dynamic typing, and have no analog under DuckDB's native column types.
+        """
+        checks = []
+        name = _format_for_sql(self.name, identifier=True)
+        if check_values:
+            if self.constraints.min_length is not None:
+                checks.append(f"LENGTH({name}) >= {self.constraints.min_length}")
+            if self.constraints.max_length is not None:
+                checks.append(f"LENGTH({name}) <= {self.constraints.max_length}")
+            if self.constraints.minimum is not None:
+                minimum = _format_for_sql(self.constraints.minimum)
+                checks.append(f"{name} >= {minimum}")
+            if self.constraints.maximum is not None:
+                maximum = _format_for_sql(self.constraints.maximum)
+                checks.append(f"{name} <= {maximum}")
+            if self.constraints.pattern:
+                pattern = _format_for_sql(self.constraints.pattern)
+                # DuckDB has no bare REGEXP keyword/operator (unlike SQLite);
+                # regexp_full_match() is the equivalent it actually supports.
+                checks.append(
+                    f"regexp_full_match({name}, {pattern.replace(':', r'\:')})"
+                )
+        if self.constraints.enum:
+            # Named ENUM types are shared across every table/column that requests the
+            # same name (see the module-level note above) -- but the same field *name*
+            # is reused across resources with different, resource- specific enum value
+            # sets (e.g. "plant_type" means something different, with different allowed
+            # values, in different tables; see FIELD_METADATA_BY_RESOURCE). Naming the
+            # dtype after the field alone would silently share one table's enum values
+            # with another's column of the same name, causing conflicts. Suffixing with
+            # a hash of the sorted value set keeps genuinely identical enums sharing one
+            # dtype while giving each distinct value set its own.
+            enum_hash = sha1(  # noqa: S324
+                repr(self.constraints.enum).encode("utf-8")
+            ).hexdigest()[:8]
+            dtype = sa.Enum(
+                *self.constraints.enum, name=f"{self.name}_{enum_hash}_enum"
+            )
+        else:
+            dtype = FIELD_DTYPES_SQLALCHEMY[self.type]
+        return sa.Column(
+            self.name,
+            dtype,
+            *[
+                sa.CheckConstraint(
+                    check,
+                    name=sha1(check.encode("utf-8")).hexdigest()[:8],  # noqa: S324
+                )
+                for check in checks
+            ],
+            nullable=not self.constraints.required,
+            unique=self.constraints.unique,
+            comment=self.description,
+            # Prevents SQLAlchemy's postgres-derived DDL compiler (which
+            # duckdb-engine's dialect is built on) from upgrading an Integer
+            # primary-key column to SERIAL -- DuckDB has no such keyword. Set
+            # unconditionally since Field.to_sql() doesn't know here whether this
+            # column will end up part of the table's primary key (that's decided
+            # later, in Resource.to_sql()); harmless on non-PK columns.
+            autoincrement=False,
         )
 
     def encode(self, col: pd.Series, dtype: type | None = None) -> pd.Series:  # noqa: A003
@@ -1204,7 +1286,7 @@ class DataSource(PudlMeta):
                 return partitions[key]
         return []
 
-    def get_temporal_coverage(self, partitions: dict = None) -> str:
+    def get_temporal_coverage(self, partitions: dict | None = None) -> str:
         """Return a string describing the time span covered by the data source."""
         if partitions is None:
             partitions = self.working_partitions
@@ -1590,7 +1672,7 @@ class Resource(PudlMeta):
         >>> resource = Resource(name='a', schema=schema, description='A')
         >>> table = resource.to_sql()
         >>> table.columns.x
-        Column('x', Integer(), ForeignKey('b.x'), CheckConstraint(...), table=<a>, primary_key=True, nullable=False, comment='X')
+        Column('x', BigInteger(), ForeignKey('b.x'), CheckConstraint(...), table=<a>, primary_key=True, nullable=False, comment='X')
         >>> table.columns.y
         Column('y', Text(), ForeignKey('b.y'), CheckConstraint(...), table=<a>, comment='Y')
 
@@ -1903,26 +1985,51 @@ class Resource(PudlMeta):
 
     def to_sql(
         self,
-        metadata: sa.MetaData = None,
+        metadata: sa.MetaData | None = None,
+        dialect: Literal["sqlite", "duckdb"] = "sqlite",
         check_types: bool = True,
         check_values: bool = True,
+        include_foreign_keys: bool = True,
     ) -> sa.Table:
-        """Return equivalent SQL Table."""
+        """Return equivalent SQL Table.
+
+        Args:
+            metadata: SQLAlchemy metadata to attach the table to.
+            dialect: passed through to each field's :meth:`Field.to_sql`.
+            check_types: passed through to each field's :meth:`Field.to_sql`.
+                Ignored under the ``duckdb`` dialect (see :meth:`Field._to_sql_duckdb`).
+            check_values: passed through to each field's :meth:`Field.to_sql`.
+            include_foreign_keys: if False, omit foreign key constraints entirely.
+                DuckDB enforces these at insert time by validating against the
+                referenced table while SQLite does not.
+
+        The table itself gets a ``comment`` of :attr:`description`, mirroring the
+        per-column comments each field already gets from :meth:`Field.to_sql`.
+        SQLite's dialect has no table (or column) comment support at all
+        (``supports_comments`` is False), so ``create_all()`` silently drops it
+        there -- same as it already does for column comments. DuckDB does support
+        table comments, so they're written for real and visible via
+        ``duckdb_tables()``/``information_schema``.
+        """
         if metadata is None:
             metadata = sa.MetaData()
         columns = [
             f.to_sql(
+                dialect=dialect,
                 check_types=check_types,
                 check_values=check_values,
             )
             for f in self.schema.fields
         ]
-        constraints = []
+        constraints: list[sa.Constraint] = []
         if self.schema.primary_key:
             constraints.append(sa.PrimaryKeyConstraint(*self.schema.primary_key))
-        for key in self.schema.foreign_keys:
-            constraints.append(key.to_sql())
-        return sa.Table(self.name, metadata, *columns, *constraints)
+        if include_foreign_keys:
+            for key in self.schema.foreign_keys:
+                constraints.append(key.to_sql())
+        return sa.Table(
+            self.name, metadata, *columns, *constraints, comment=self.description
+        )
 
     def to_frictionless(self) -> frictionless.Resource:
         """Convert to a Frictionless Resource."""
@@ -2131,7 +2238,7 @@ class Resource(PudlMeta):
                 "The following columns are getting dropped when the table is written:"
                 f"{dropped_columns}. This is often the intended behavior. If you want "
                 "to keep any of these columns, add them to the metadata.resources "
-                "fields and update alembic."
+                "fields."
             )
 
         df = self.format_df(df)
@@ -2511,7 +2618,7 @@ class Resource(PudlMeta):
     def harvest_dfs(
         self,
         dfs: dict[str, pd.DataFrame],
-        aggregate: bool = None,
+        aggregate: bool | None = None,
         aggregate_kwargs: dict[str, Any] = {},
         format_kwargs: dict[str, Any] = {},
     ) -> tuple[pd.DataFrame, dict]:
@@ -2783,10 +2890,20 @@ class Package(PudlMeta):
 
     def to_sql(
         self,
+        dialect: Literal["sqlite", "duckdb"] = "sqlite",
         check_types: bool = True,
         check_values: bool = True,
+        include_foreign_keys: bool = True,
     ) -> sa.MetaData:
-        """Return equivalent SQL MetaData."""
+        """Return equivalent SQL MetaData.
+
+        Args:
+            dialect: passed through to each resource's :meth:`Resource.to_sql`.
+            check_types: passed through to each resource's :meth:`Resource.to_sql`.
+            check_values: passed through to each resource's :meth:`Resource.to_sql`.
+            include_foreign_keys: passed through to each resource's
+                :meth:`Resource.to_sql`.
+        """
         metadata = sa.MetaData(
             naming_convention={
                 "ix": "ix_%(column_0_label)s",
@@ -2800,20 +2917,21 @@ class Package(PudlMeta):
             if resource.create_database_schema:
                 _ = resource.to_sql(
                     metadata,
+                    dialect=dialect,
                     check_types=check_types,
                     check_values=check_values,
+                    include_foreign_keys=include_foreign_keys,
                 )
         return metadata
 
     def get_sorted_resources(self) -> StrictList[Resource]:
         """Get a list of sorted Resources.
 
-        Currently Resources are listed in reverse alphabetical order based
-        on their name which results in the following order to promote output
-        tables to users and push intermediate tables to the bottom of the
-        docs: output, core, intermediate.
-        In the future we might want to have more fine grain control over how
-        Resources are sorted.
+        Currently Resources are listed in reverse alphabetical order based on their name
+        which results in the following order to promote output tables to users and push
+        intermediate tables to the bottom of the docs: output, core, intermediate. In
+        the future we might want to have more fine grain control over how Resources are
+        sorted.
 
         Returns:
             A sorted list of resources.

@@ -37,7 +37,6 @@ from pudl.dagster.resources import (
 )
 from pudl.extract.ferc1 import raw_ferc1_xbrl__metadata_json
 from pudl.extract.ferc714 import raw_ferc714_xbrl__metadata_json
-from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.settings import GlobalDataConfig
 from pudl.workspace.datastore import Datastore, ZenodoDoiSettings
 from pudl.workspace.setup import PudlPaths
@@ -167,13 +166,13 @@ _FERCEQR_TEST_PATH = "tests/pipeline/ferceqr_test.py"
 def _slow_tests_in_fast_tiers(items) -> list[str]:
     """Return nodeids of ETL-dependent tests hiding in a supposedly fast tier.
 
-    Every fixture that actually runs the Dagster pipeline (``pudl_engine``,
-    ``ferc1_engine_dbf``, ``ferc1_engine_xbrl``, ``ferc714_engine_xbrl``,
-    ``asset_value_loader``, and the FERC IO-manager/taxonomy-metadata fixtures built on
-    top of them) depends, directly or transitively, on ``prebuilt_outputs``. Checking
-    for that one fixture in each item's full (transitive) fixture closure is therefore
-    sufficient to catch all of them, without having to enumerate every fixture name by
-    hand.
+    Every fixture that actually runs the Dagster pipeline (``pudl_sqlite_engine``,
+    ``pudl_duckdb_connection``, ``ferc1_engine_dbf``, ``ferc1_engine_xbrl``,
+    ``ferc714_engine_xbrl``, ``asset_value_loader``, and the FERC IO-manager/taxonomy-
+    metadata fixtures built on top of them) depends, directly or transitively, on
+    ``prebuilt_outputs``. Checking for that one fixture in each item's full
+    (transitive) fixture closure is therefore sufficient to catch all of them, without
+    having to enumerate every fixture name by hand.
 
     A test outside tests/pipeline/ and tests/validate/ that requests one of these
     fixtures would silently make its (supposedly fast) tier slow.
@@ -613,7 +612,7 @@ def ferc1_engine_dbf(
 ) -> Generator[sa.Engine]:
     """Return the SQLAlchemy engine for the prebuilt FERC Form 1 DBF database.
 
-    Disposes the engine at session teardown -- see ``pudl_engine`` for why.
+    Disposes the engine at session teardown -- see ``pudl_sqlite_engine`` for why.
     """
     engine = _initialize_ferc_engine(
         ferc1_dbf_io_manager,
@@ -645,15 +644,6 @@ def prebuilt_outputs(
     logger.info(
         f"Prebuilding PUDL outputs in temporary directory: {pudl_test_paths.pudl_output}"
     )
-    logger.info(
-        f"Initializing empty pudl.sqlite with current schema at {pudl_test_paths.pudl_db}."
-    )
-    md = PUDL_PACKAGE.to_sql()
-    pudl_engine = sa.create_engine(pudl_test_paths.pudl_db)
-    try:
-        md.create_all(pudl_engine)
-    finally:
-        pudl_engine.dispose()
 
     _pudl_etl(dg_config_path, pudl_test_paths, dagster_home)
     _assert_prebuilt_ferc_sqlite_dbs(pudl_test_paths)
@@ -666,7 +656,7 @@ def ferc1_engine_xbrl(
 ) -> Generator[sa.Engine]:
     """Return the SQLAlchemy engine for the prebuilt FERC Form 1 XBRL database.
 
-    Disposes the engine at session teardown -- see ``pudl_engine`` for why.
+    Disposes the engine at session teardown -- see ``pudl_sqlite_engine`` for why.
     """
     engine = _initialize_ferc_engine(
         ferc1_xbrl_io_manager,
@@ -705,7 +695,7 @@ def ferc714_engine_xbrl(
 ) -> Generator[sa.Engine]:
     """Return the SQLAlchemy engine for the prebuilt FERC Form 714 XBRL database.
 
-    Disposes the engine at session teardown -- see ``pudl_engine`` for why.
+    Disposes the engine at session teardown -- see ``pudl_sqlite_engine`` for why.
     """
     engine = _initialize_ferc_engine(
         ferc714_xbrl_io_manager,
@@ -739,8 +729,10 @@ def ferc714_xbrl_taxonomy_metadata(
 
 
 @pytest.fixture(scope="session")
-def pudl_engine(prebuilt_outputs, pudl_test_paths: PudlPaths) -> Generator[sa.Engine]:
-    """Return the SQLAlchemy engine for the prepared PUDL integration database.
+def pudl_sqlite_engine(
+    prebuilt_outputs, pudl_test_paths: PudlPaths
+) -> Generator[sa.Engine]:
+    """Return the SQLAlchemy engine for the prepared PUDL SQLite database.
 
     Disposes the engine at session teardown so its pooled sqlite3 connections are
     closed explicitly, rather than left for the interpreter to garbage collect at
@@ -753,6 +745,25 @@ def pudl_engine(prebuilt_outputs, pudl_test_paths: PudlPaths) -> Generator[sa.En
         yield engine
     finally:
         engine.dispose()
+
+
+@pytest.fixture(scope="session")
+def pudl_duckdb_connection(
+    prebuilt_outputs, pudl_test_paths: PudlPaths
+) -> Generator[duckdb.DuckDBPyConnection]:
+    """Return a read-only DuckDB connection to the prepared PUDL DuckDB database.
+
+    Uses DuckDB's native Python API directly rather than SQLAlchemy: pudl.duckdb is
+    meant to be opened this way by downstream users, and it's how the rest of the
+    codebase treats DuckDB (see ``pudl.dagster.assets.output.databases``, where
+    SQLAlchemy is used only to create the empty schema, never to read or write rows).
+    Opened read-only since tests should never mutate the shared build output.
+    """
+    conn = duckdb.connect(str(pudl_test_paths.duckdb_db_path("pudl")), read_only=True)
+    try:
+        yield conn
+    finally:
+        conn.close()
 
 
 @pytest.fixture(scope="session", autouse=True)
