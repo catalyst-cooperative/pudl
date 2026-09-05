@@ -82,6 +82,17 @@ Developer Experience
   of genuine typing gaps that the upgrade surfaced. Mostly this involved type narrowing
   in places where an object that might be ``None`` was subject to a regex match, dict
   lookup, or other operation that would fail on ``None``. See PR :pr:`5583`.
+* Retyped the ``code`` column of four coding tables from string to integer, matching the
+  twelve integer-typed foreign key columns across the EIA-860, RUS-7, and RUS-12 tables
+  that already referenced them. The mismatch had been silently masked by SQLite being
+  lazy about types, and our new ``dbt`` foreign key checks erroring out silently on
+  columns of incompatible types. ``Package`` construction now validates that foreign key
+  columns and their referenced primary key column declare the same type. See
+  :issue:`5552` and PR :pr:`5554`.
+* Re-enabled foreign key constraint enforcement when writing ``pudl.duckdb``, which had
+  previously been disabled because of the type mismatches described above. Enforcing
+  referential integrity on write adds about 140 seconds to a full build. See
+  :issue:`5552` and PR :pr:`5554`.
 
 .. _release-v2026.9.0:
 
