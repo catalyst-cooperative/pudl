@@ -25,8 +25,12 @@ is partitioned by `year_quarter`:
 
 ## Attributes
 
-| [`logger`](#pudl.transform.ferceqr.logger)   |    |
-|-----------------------------------------------------------|----|
+| [`logger`](#pudl.transform.ferceqr.logger)                        |                                                                            |
+|--------------------------------------------------------------------------------|----------------------------------------------------------------------------|
+| [`_EXTRACTION_STATS_ASSET_KEY`](#pudl.transform.ferceqr._EXTRACTION_STATS_ASSET_KEY)   |                                                                            |
+| [`_EXTRACTION_STATS_FETCH_LIMIT`](#pudl.transform.ferceqr._EXTRACTION_STATS_FETCH_LIMIT) | Comfortably more than the number of ferceqr quarters, even with some       |
+| [`_CORE_FERCEQR_TABLE_LABELS`](#pudl.transform.ferceqr._CORE_FERCEQR_TABLE_LABELS)    |                                                                            |
+| [`_CHECK_EVALUATION_FETCH_LIMIT`](#pudl.transform.ferceqr._CHECK_EVALUATION_FETCH_LIMIT) | 4 core ferceqr tables x ~52 quarters, with headroom for re-run partitions. |
 
 ## Functions
 
@@ -42,10 +46,29 @@ is partitioned by `year_quarter`:
 | [`core_ferceqr__transactions`](#pudl.transform.ferceqr.core_ferceqr__transactions)(context, ...)                  | Transform the raw FERC EQR electricity transactions table.                             |
 | [`core_ferceqr__contracts`](#pudl.transform.ferceqr.core_ferceqr__contracts)(context, raw_ferceqr_\_contracts) | Transform the raw FERC EQR electricity contracts table.                                |
 | [`core_ferceqr__quarterly_index_pub`](#pudl.transform.ferceqr.core_ferceqr__quarterly_index_pub)(context, ...)           | Transform the raw FERC EQR index price publisher table.                                |
+| [`_latest_extraction_stats_by_quarter`](#pudl.transform.ferceqr._latest_extraction_stats_by_quarter)(→ dict[str, ...)      | Return `{year_quarter: extraction_stats}` from each partition's latest run.            |
+| [`_latest_check_evaluations_by_quarter`](#pudl.transform.ferceqr._latest_check_evaluations_by_quarter)(→ dict[str, ...)     | Return `{year_quarter: {table_label: evaluation}}` from each check's latest run.       |
+| [`_build_ferceqr_diagnostics_rows`](#pudl.transform.ferceqr._build_ferceqr_diagnostics_rows)(→ list[dict[str, Any]])   | Flatten per-quarter extraction stats and check results into one wide table.            |
+| [`ferceqr_pipeline_diagnostics`](#pudl.transform.ferceqr.ferceqr_pipeline_diagnostics)(→ dagster.MaterializeResult) | Compile a cross-quarter summary of ferceqr extraction and schema-check anomalies.      |
 
 ## Module Contents
 
 ### pudl.transform.ferceqr.logger
+
+### pudl.transform.ferceqr.\_EXTRACTION_STATS_ASSET_KEY
+
+### pudl.transform.ferceqr.\_EXTRACTION_STATS_FETCH_LIMIT *= 500*
+
+Comfortably more than the number of ferceqr quarters, even with some
+re-materialized more than once – `fetch_materializations` returns
+most-recent-first, so the first record seen for each partition is already the
+one we want.
+
+### pudl.transform.ferceqr.\_CORE_FERCEQR_TABLE_LABELS *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[dagster.AssetKey](https://docs.dagster.io/api/dagster/assets/#dagster.AssetKey), [str](https://docs.python.org/3/library/stdtypes.html#str)]*
+
+### pudl.transform.ferceqr.\_CHECK_EVALUATION_FETCH_LIMIT *= 2000*
+
+4 core ferceqr tables x ~52 quarters, with headroom for re-run partitions.
 
 ### pudl.transform.ferceqr.apply_duckdb_dtypes(table_data: [duckdb.DuckDBPyRelation](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyRelation), table_name: [str](https://docs.python.org/3/library/stdtypes.html#str), conn: [duckdb.DuckDBPyConnection](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyConnection))
 
@@ -131,3 +154,59 @@ Transform the raw FERC EQR electricity contracts table.
 ### pudl.transform.ferceqr.core_ferceqr_\_quarterly_index_pub(context, raw_ferceqr_\_index_pub: [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData))
 
 Transform the raw FERC EQR index price publisher table.
+
+### pudl.transform.ferceqr.\_latest_extraction_stats_by_quarter(instance: [dagster.DagsterInstance](https://docs.dagster.io/api/dagster/internals/#dagster.DagsterInstance)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]
+
+Return `{year_quarter: extraction_stats}` from each partition’s latest run.
+
+Reads the `extraction_stats` JSON metadata that `pudl.extract.ferceqr.
+extract_ferceqr()` attaches to `raw_ferceqr__extract_errors`, directly from this
+Dagster instance’s event log – no Parquet data is read.
+
+### pudl.transform.ferceqr.\_latest_check_evaluations_by_quarter(instance: [dagster.DagsterInstance](https://docs.dagster.io/api/dagster/internals/#dagster.DagsterInstance)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), dagster.AssetCheckEvaluation]]
+
+Return `{year_quarter: {table_label: evaluation}}` from each check’s latest run.
+
+Reads `pandera_schema_check` asset check evaluations for the four
+`core_ferceqr__*` tables directly from this Dagster instance’s event log –
+no Parquet data is read.
+
+Unlike asset materializations, check evaluation events don’t carry a
+`partition_key` field on the record itself – the partition instead lives
+on the `AssetCheckEvaluation` payload, so this reads events generically
+(across *all* assets and checks in the instance, hence the high
+`_CHECK_EVALUATION_FETCH_LIMIT`) and filters down to the four
+`core_ferceqr__*` tables’ `pandera_schema_check` results itself, rather
+than being able to ask the instance for exactly those upfront.
+
+### pudl.transform.ferceqr.\_build_ferceqr_diagnostics_rows(extraction_stats_by_quarter: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]], check_evaluations_by_quarter: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), dagster.AssetCheckEvaluation]]) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]
+
+Flatten per-quarter extraction stats and check results into one wide table.
+
+Each input dict is keyed by `year_quarter` but has a different, and
+possibly incomplete, set of keys underneath (e.g. a quarter can have
+extraction stats but no check evaluations yet, or vice versa). This
+produces one row per quarter seen in *either* input, with a fixed,
+predictable set of columns – computed upfront from the *union* of
+per-quarter table/reject-reason keys actually observed – so every row has
+the same shape and missing values show up as `0`/`None` rather than
+a missing column.
+
+### pudl.transform.ferceqr.ferceqr_pipeline_diagnostics(context: [dagster.AssetExecutionContext](https://docs.dagster.io/api/dagster/execution/#dagster.AssetExecutionContext)) → [dagster.MaterializeResult](https://docs.dagster.io/api/dagster/assets/#dagster.MaterializeResult)
+
+Compile a cross-quarter summary of ferceqr extraction and schema-check anomalies.
+
+This asset produces no data of its own – it exists purely to compile
+diagnostics that other ferceqr assets already record, into a single table
+visible in the Dagster UI without opening each quarter’s materialization one
+at a time: the per-quarter `extraction_stats` metadata attached to
+`raw_ferceqr__extract_errors` (filing counts, corrupt archives, rejected
+records by reason), and the `pandera_schema_check` asset check results for
+the four `core_ferceqr__*` tables (row counts, primary-key violations, and
+other schema check failures).
+
+Depending on *all* partitions of several partitioned upstream assets via
+[`dagster.AllPartitionMapping`](https://docs.dagster.io/api/dagster/partitions/#dagster.AllPartitionMapping) means materializing this asset re-scans
+the full history already recorded in this Dagster instance’s event log each
+time – cheap, since it only reads metadata, never the underlying Parquet
+data.

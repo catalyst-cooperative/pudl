@@ -127,6 +127,12 @@ This is the upcoming PUDL release.
 
 ### Developer Experience
 
+* Added `ferceqr_pipeline_diagnostics`, a metadata-only Dagster asset that
+  compiles the extraction stats and schema-check results already recorded for
+  every [FERC EQR](data_sources/ferceqr.html.md) quarter into one wide table, so
+  anomalies like missing tables, rejected records, or primary-key violations
+  are visible across the whole backfill without opening each quarter’s
+  materialization individually. See PR [#5457](https://github.com/catalyst-cooperative/pudl/pull/5457).
 * Reworked how the Google Batch jobs launched by the `build-pudl`,
   `deploy-pudl`, and `build-deploy-ferceqr` GitHub workflows are configured. The
   Batch config generator moved from `devtools/` into the package as the
