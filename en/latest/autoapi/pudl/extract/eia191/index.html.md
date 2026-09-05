@@ -37,7 +37,7 @@ Since archive version 33.0.0, EIA-191 archives include both annual and monthly f
 All files specify whether they are annual or monthly.
 PUDL processes only monthly EIA-191 data.
 
-#### get_page_cols(page: [str](https://docs.python.org/3/library/stdtypes.html#str), partition_key: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]
+#### get_page_cols(page: [str](https://docs.python.org/3/library/stdtypes.html#str), partition_selection: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [pandas.RangeIndex](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.RangeIndex.html#pandas.RangeIndex)
 
 Get the columns for a particular page and partition key.
 

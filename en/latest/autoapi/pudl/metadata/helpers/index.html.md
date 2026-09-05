@@ -28,7 +28,7 @@ Functions for manipulating metadata constants.
 
 ## Module Contents
 
-### pudl.metadata.helpers.format_errors(\*errors: [str](https://docs.python.org/3/library/stdtypes.html#str), title: [str](https://docs.python.org/3/library/stdtypes.html#str) = None, pydantic: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+### pudl.metadata.helpers.format_errors(\*errors: [str](https://docs.python.org/3/library/stdtypes.html#str), title: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, pydantic: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [str](https://docs.python.org/3/library/stdtypes.html#str)
 
 Format multiple errors into a single error.
 
@@ -206,7 +206,7 @@ Error raised by aggregation functions.
 
 Return most frequent value (or error if none exists).
 
-### pudl.metadata.helpers.most_and_more_frequent(x: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), min_frequency: [float](https://docs.python.org/3/library/functions.html#float) = None) → Any
+### pudl.metadata.helpers.most_and_more_frequent(x: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), min_frequency: [float](https://docs.python.org/3/library/functions.html#float) | [None](https://docs.python.org/3/library/constants.html#None) = None) → Any
 
 Return the most frequent value if more frequent than `min_frequency`.
 

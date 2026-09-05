@@ -41,7 +41,7 @@ Module Contents
    Read in the manual CSV to XBRL FERC714 respondent mapping data.
 
 
-.. py:function:: glue() -> dict[str:pd.DataFrame]
+.. py:function:: glue() -> dict[str, pandas.DataFrame]
 
    Make the FERC 714 glue tables out of stored CSVs of association tables.
 

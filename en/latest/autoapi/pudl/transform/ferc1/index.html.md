@@ -1696,7 +1696,7 @@ are null AND there’s a non-null value in the `fuel_mmbtu_per_mwh` column, as
 it typically indicates a “total” row for a plant. We also require a null value
 for the fuel_units and an “other” value for the fuel type.
 
-#### drop_invalid_rows(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), params: [pudl.transform.classes.InvalidRows](../classes/index.html.md#pudl.transform.classes.InvalidRows) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### drop_invalid_rows(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), params: [list](https://docs.python.org/3/library/stdtypes.html#list)[[pudl.transform.classes.InvalidRows](../classes/index.html.md#pudl.transform.classes.InvalidRows)] | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Drop invalid rows from the fuel table.
 

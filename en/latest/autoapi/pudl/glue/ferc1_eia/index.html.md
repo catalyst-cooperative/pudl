@@ -141,7 +141,7 @@ Only apply the generic :meth:`transform_start`.
 
 Basic name normalization and dropping of invalid rows.
 
-#### drop_invalid_rows(df)
+#### drop_invalid_rows(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), params: [list](https://docs.python.org/3/library/stdtypes.html#list)[[pudl.transform.classes.InvalidRows](../../transform/classes/index.html.md#pudl.transform.classes.InvalidRows)] | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Add required valid columns before running standard drop_invalid_rows.
 

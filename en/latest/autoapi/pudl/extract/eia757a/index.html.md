@@ -29,7 +29,7 @@ Extractor for EIA form 757a.
 
 Instance of metadata object to use with this extractor.
 
-#### get_page_cols(page: [str](https://docs.python.org/3/library/stdtypes.html#str), partition_key: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]
+#### get_page_cols(page: [str](https://docs.python.org/3/library/stdtypes.html#str), partition_selection: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [pandas.RangeIndex](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.RangeIndex.html#pandas.RangeIndex)
 
 Get the columns for a particular page and partition key.
 

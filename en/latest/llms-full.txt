@@ -2321,7 +2321,7 @@ of each of the owner utilities - represented by `fraction_owned`.
 
 #### id_cols_list
 
-#### execute(mcoe: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), own_eia860: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), slice_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] = SUM_COLS, validate_own_merge: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'one_to_many') → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### execute(mcoe: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), own_eia860: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), slice_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] = SUM_COLS, validate_own_merge: [pudl.helpers.MergeValidate](autoapi/pudl/helpers/index.html.md#pudl.helpers.MergeValidate) = 'one_to_many') → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Make the mega generators table with ownership integrated.
 
@@ -3554,7 +3554,7 @@ Tools for embedding a DataFrame to create feature matrix for models.
 |--------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------|
 | [`dataframe_embedder_factory`](autoapi/pudl/analysis/record_linkage/embed_dataframe/index.html.md#pudl.analysis.record_linkage.embed_dataframe.dataframe_embedder_factory)(name_prefix, vectorizers)        | Return a configured op graph to embed an input dataframe.                |
 | [`dataframe_cleaner_factory`](autoapi/pudl/analysis/record_linkage/embed_dataframe/index.html.md#pudl.analysis.record_linkage.embed_dataframe.dataframe_cleaner_factory)(name_prefix, vectorizers)         | Return a configured op graph to clean an input dataframe.                |
-| [`_apply_cleaning_func`](autoapi/pudl/analysis/record_linkage/embed_dataframe/index.html.md#pudl.analysis.record_linkage.embed_dataframe._apply_cleaning_func)(df[, function_key])                    |                                                                          |
+| [`_apply_cleaning_func`](autoapi/pudl/analysis/record_linkage/embed_dataframe/index.html.md#pudl.analysis.record_linkage.embed_dataframe._apply_cleaning_func)(df, function_key)                      |                                                                          |
 | [`_extract_keyword_from_column`](autoapi/pudl/analysis/record_linkage/embed_dataframe/index.html.md#pudl.analysis.record_linkage.embed_dataframe._extract_keyword_from_column)(→ pandas.Series)               | Extract keywords contained in a Pandas series with a regular expression. |
 | [`_fill_fuel_type_from_name`](autoapi/pudl/analysis/record_linkage/embed_dataframe/index.html.md#pudl.analysis.record_linkage.embed_dataframe._fill_fuel_type_from_name)(→ pandas.DataFrame)               | Impute missing fuel type data from a name column.                        |
 | [`_apply_string_similarity_func`](autoapi/pudl/analysis/record_linkage/embed_dataframe/index.html.md#pudl.analysis.record_linkage.embed_dataframe._apply_string_similarity_func)(df, function_key, col1, col2) |                                                                          |
@@ -3679,7 +3679,7 @@ Implement ColumnTransformation for Normalizer.
 
 Return configured NormalizerConfig.
 
-### pudl.analysis.record_linkage.embed_dataframe.\_apply_cleaning_func(df, function_key: [str](https://docs.python.org/3/library/stdtypes.html#str) = None)
+### pudl.analysis.record_linkage.embed_dataframe.\_apply_cleaning_func(df, function_key: [str](https://docs.python.org/3/library/stdtypes.html#str))
 
 ### *class* pudl.analysis.record_linkage.embed_dataframe.ColumnCleaner(/, \*\*data: Any)
 
@@ -4405,7 +4405,7 @@ Convert geometry to (Multi)Polygon.
 * **Raises:**
   [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – Geometry has zero area.
 
-### pudl.analysis.spatial.explode(gdf: [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame), ratios: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[[str](https://docs.python.org/3/library/stdtypes.html#str)] = None) → [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame)
+### pudl.analysis.spatial.explode(gdf: [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame), ratios: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [None](https://docs.python.org/3/library/constants.html#None) = None) → [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame)
 
 Explode MultiPolygon to multiple Polygon geometries.
 
@@ -4421,7 +4421,7 @@ Explode MultiPolygon to multiple Polygon geometries.
   GeoDataFrame with each Polygon as a separate row in the GeoDataFrame.
   The index is the number of the source row in the input GeoDataFrame.
 
-### pudl.analysis.spatial.self_union(gdf: [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame), ratios: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[[str](https://docs.python.org/3/library/stdtypes.html#str)] = None) → [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame)
+### pudl.analysis.spatial.self_union(gdf: [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame), ratios: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [None](https://docs.python.org/3/library/constants.html#None) = None) → [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame)
 
 Calculate the geometric union of a feature layer with itself.
 
@@ -4455,7 +4455,7 @@ Dissolve layer by aggregating features based on common attributes.
   GeoDataFrame with dissolved geometry and data columns,
   and grouping columns set as the index.
 
-### pudl.analysis.spatial.overlay(\*gdfs: [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame), how: Literal['intersection', 'union', 'identity', 'symmetric_difference', 'difference'] = 'intersection', ratios: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[[str](https://docs.python.org/3/library/stdtypes.html#str)] = None) → [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame)
+### pudl.analysis.spatial.overlay(\*gdfs: [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame), how: Literal['intersection', 'union', 'identity', 'symmetric_difference', 'difference'] = 'intersection', ratios: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [None](https://docs.python.org/3/library/constants.html#None) = None) → [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame)
 
 Overlay multiple layers incrementally.
 
@@ -4848,7 +4848,7 @@ Flags values (if not already flagged) and nulls flagged values.
   * **mask** – Boolean mask of the values to flag.
   * **flag** – Flag name.
 
-### pudl.analysis.timeseries_cleaning.slice_axis(x: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), start: [int](https://docs.python.org/3/library/functions.html#int) = None, end: [int](https://docs.python.org/3/library/functions.html#int) = None, step: [int](https://docs.python.org/3/library/functions.html#int) = None, axis: [int](https://docs.python.org/3/library/functions.html#int) = 0) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[slice](https://docs.python.org/3/library/functions.html#slice), ...]
+### pudl.analysis.timeseries_cleaning.slice_axis(x: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), start: [int](https://docs.python.org/3/library/functions.html#int) | [None](https://docs.python.org/3/library/constants.html#None) = None, end: [int](https://docs.python.org/3/library/functions.html#int) | [None](https://docs.python.org/3/library/constants.html#None) = None, step: [int](https://docs.python.org/3/library/functions.html#int) | [None](https://docs.python.org/3/library/constants.html#None) = None, axis: [int](https://docs.python.org/3/library/functions.html#int) = 0) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[slice](https://docs.python.org/3/library/functions.html#slice), ...]
 
 Return an index that slices an array along an axis.
 
@@ -4922,7 +4922,7 @@ Encode vector with run-length encoding.
 (array([nan,  1., nan,  1.]), array([1, 2, 1, 1]))
 ```
 
-### pudl.analysis.timeseries_cleaning.insert_run_length(x: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence) | [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), values: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence) | [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), lengths: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/library/functions.html#int)], mask: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[bool](https://docs.python.org/3/library/functions.html#bool)] = None, padding: [int](https://docs.python.org/3/library/functions.html#int) = 0, intersect: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
+### pudl.analysis.timeseries_cleaning.insert_run_length(x: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence) | [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), values: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence) | [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), lengths: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/library/functions.html#int)], mask: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[bool](https://docs.python.org/3/library/functions.html#bool)] | [None](https://docs.python.org/3/library/constants.html#None) = None, padding: [int](https://docs.python.org/3/library/functions.html#int) = 0, intersect: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
 
 Insert run-length encoded values into a vector.
 
@@ -5291,7 +5291,7 @@ Summarize flagged values by flag, count and median.
 * **Parameters:**
   **imputed_df** – DataFrame
 
-### pudl.analysis.timeseries_cleaning.simulate_nulls(x: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), lengths: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/library/functions.html#int)] = None, padding: [int](https://docs.python.org/3/library/functions.html#int) = 1, intersect: [bool](https://docs.python.org/3/library/functions.html#bool) = False, overlap: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
+### pudl.analysis.timeseries_cleaning.simulate_nulls(x: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), lengths: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/library/functions.html#int)] | [None](https://docs.python.org/3/library/constants.html#None) = None, padding: [int](https://docs.python.org/3/library/functions.html#int) = 1, intersect: [bool](https://docs.python.org/3/library/functions.html#bool) = False, overlap: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
 
 Find non-null values to null to match a run-length distribution.
 
@@ -5349,7 +5349,7 @@ Unfold a 3-dimensional tensor representation.
 
 Performs the reverse of [`fold_tensor()`](autoapi/pudl/analysis/timeseries_cleaning/index.html.md#pudl.analysis.timeseries_cleaning.fold_tensor).
 
-### pudl.analysis.timeseries_cleaning.impute(df: [pandera.typing.DataFrame](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.typing.DataFrame.html#pandera.typing.DataFrame)[[TimeseriesMatrix](autoapi/pudl/analysis/timeseries_cleaning/index.html.md#pudl.analysis.timeseries_cleaning.TimeseriesMatrix)], mask: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray) = None, periods: [int](https://docs.python.org/3/library/functions.html#int) = 24, blocks: [int](https://docs.python.org/3/library/functions.html#int) = 1, method: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'tubal', \*\*kwargs: Any) → [pandera.typing.DataFrame](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.typing.DataFrame.html#pandera.typing.DataFrame)[[TimeseriesMatrix](autoapi/pudl/analysis/timeseries_cleaning/index.html.md#pudl.analysis.timeseries_cleaning.TimeseriesMatrix)]
+### pudl.analysis.timeseries_cleaning.impute(df: [pandera.typing.DataFrame](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.typing.DataFrame.html#pandera.typing.DataFrame)[[TimeseriesMatrix](autoapi/pudl/analysis/timeseries_cleaning/index.html.md#pudl.analysis.timeseries_cleaning.TimeseriesMatrix)], mask: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray) | [None](https://docs.python.org/3/library/constants.html#None) = None, periods: [int](https://docs.python.org/3/library/functions.html#int) = 24, blocks: [int](https://docs.python.org/3/library/functions.html#int) = 1, method: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'tubal', \*\*kwargs: Any) → [pandera.typing.DataFrame](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.typing.DataFrame.html#pandera.typing.DataFrame)[[TimeseriesMatrix](autoapi/pudl/analysis/timeseries_cleaning/index.html.md#pudl.analysis.timeseries_cleaning.TimeseriesMatrix)]
 
 Impute null values.
 
@@ -5686,7 +5686,7 @@ Encode vector with run-length encoding.
 (array([nan,  1., nan,  1.]), array([1, 2, 1, 1]))
 ```
 
-### pudl.analysis.timeseries_evaluation.insert_run_length(x: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence) | [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), values: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence) | [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), lengths: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/library/functions.html#int)], mask: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[bool](https://docs.python.org/3/library/functions.html#bool)] = None, padding: [int](https://docs.python.org/3/library/functions.html#int) = 0, intersect: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
+### pudl.analysis.timeseries_evaluation.insert_run_length(x: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence) | [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), values: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence) | [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), lengths: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/library/functions.html#int)], mask: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[bool](https://docs.python.org/3/library/functions.html#bool)] | [None](https://docs.python.org/3/library/constants.html#None) = None, padding: [int](https://docs.python.org/3/library/functions.html#int) = 0, intersect: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
 
 Insert run-length encoded values into a vector.
 
@@ -5771,7 +5771,7 @@ Plot cleaned series and anomalous values colored by flag.
 * **Parameters:**
   **name** – Series to plot, as either an integer index or name in `columns`.
 
-### pudl.analysis.timeseries_evaluation.simulate_nulls(self, lengths: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/library/functions.html#int)] = None, padding: [int](https://docs.python.org/3/library/functions.html#int) = 1, intersect: [bool](https://docs.python.org/3/library/functions.html#bool) = False, overlap: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
+### pudl.analysis.timeseries_evaluation.simulate_nulls(self, lengths: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/library/functions.html#int)] | [None](https://docs.python.org/3/library/constants.html#None) = None, padding: [int](https://docs.python.org/3/library/functions.html#int) = 1, intersect: [bool](https://docs.python.org/3/library/functions.html#bool) = False, overlap: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
 
 Find non-null values to null to match a run-length distribution.
 
@@ -9320,7 +9320,7 @@ Since archive version 33.0.0, EIA-191 archives include both annual and monthly f
 All files specify whether they are annual or monthly.
 PUDL processes only monthly EIA-191 data.
 
-#### get_page_cols(page: [str](https://docs.python.org/3/library/stdtypes.html#str), partition_key: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]
+#### get_page_cols(page: [str](https://docs.python.org/3/library/stdtypes.html#str), partition_selection: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [pandas.RangeIndex](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.RangeIndex.html#pandas.RangeIndex)
 
 Get the columns for a particular page and partition key.
 
@@ -9374,7 +9374,7 @@ Extractor for EIA form 757a.
 
 Instance of metadata object to use with this extractor.
 
-#### get_page_cols(page: [str](https://docs.python.org/3/library/stdtypes.html#str), partition_key: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]
+#### get_page_cols(page: [str](https://docs.python.org/3/library/stdtypes.html#str), partition_selection: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [pandas.RangeIndex](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.RangeIndex.html#pandas.RangeIndex)
 
 Get the columns for a particular page and partition key.
 
@@ -10409,9 +10409,13 @@ determine if a df should be labeled as `monthly_update` by checking if the
 This method adds a column and thus adds `data_maturity` to
 `self.cols_added`.
 
-#### *static* get_dtypes(page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](autoapi/pudl/extract/extractor/index.html.md#pudl.extract.extractor.PartitionSelection)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)
+#### *static* get_dtypes(page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](autoapi/pudl/extract/extractor/index.html.md#pudl.extract.extractor.PartitionSelection)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict) | [pandas.api.extensions.ExtensionDtype](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.api.extensions.ExtensionDtype.html#pandas.api.extensions.ExtensionDtype)
 
 Provide custom dtypes for given page and partition.
+
+May return either a mapping of column name to dtype, or a single dtype to
+apply to every column, matching the `dtype` argument of
+[`pandas.read_excel()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_excel.html#pandas.read_excel).
 
 #### zipfile_resource_partitions(page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](autoapi/pudl/extract/extractor/index.html.md#pudl.extract.extractor.PartitionSelection)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)
 
@@ -10799,7 +10803,9 @@ Bases: `TypedDict`
 
 Mapping between normalized PUDL table and raw DBF/XBRL table names.
 
-#### dbf *: [RawFercTableName](autoapi/pudl/extract/ferc1/index.html.md#pudl.extract.ferc1.RawFercTableName)*
+#### dbf *: NotRequired[[RawFercTableName](autoapi/pudl/extract/ferc1/index.html.md#pudl.extract.ferc1.RawFercTableName)]*
+
+Absent for tables introduced after DBF reporting ended in 2020.
 
 #### xbrl *: [RawFercTableName](autoapi/pudl/extract/ferc1/index.html.md#pudl.extract.ferc1.RawFercTableName)*
 
@@ -11571,7 +11577,7 @@ raw source. These trailing spaces effectively get removed in
 [`pudl.helpers.simplify_columns()`](autoapi/pudl/helpers/index.html.md#pudl.helpers.simplify_columns) and then we have duplicate column names.
 This method runs the parent adds \_n#’s to these trailing space column names.
 
-#### process_renamed(newdata: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition)
+#### process_renamed(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition)
 
 Drop columns that get mapped to other assets and columns with unstructured data.
 
@@ -12065,7 +12071,7 @@ Only apply the generic :meth:`transform_start`.
 
 Basic name normalization and dropping of invalid rows.
 
-#### drop_invalid_rows(df)
+#### drop_invalid_rows(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), params: [list](https://docs.python.org/3/library/stdtypes.html#list)[[pudl.transform.classes.InvalidRows](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.InvalidRows)] | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Add required valid columns before running standard drop_invalid_rows.
 
@@ -12182,7 +12188,7 @@ Extract and transform glue tables between FERC Form 714’s CSV and XBRL raw sou
 
 | [`get_respondent_map_ferc714`](autoapi/pudl/glue/ferc714/index.html.md#pudl.glue.ferc714.get_respondent_map_ferc714)(→ pandas.DataFrame)   | Read in the manual CSV to XBRL FERC714 respondent mapping data.         |
 |---------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
-| [`glue`](autoapi/pudl/glue/ferc714/index.html.md#pudl.glue.ferc714.glue)(→ dict[str)                                 | Make the FERC 714 glue tables out of stored CSVs of association tables. |
+| [`glue`](autoapi/pudl/glue/ferc714/index.html.md#pudl.glue.ferc714.glue)(→ dict[str, pandas.DataFrame])              | Make the FERC 714 glue tables out of stored CSVs of association tables. |
 
 ## Module Contents
 
@@ -12196,7 +12202,7 @@ Path to the PUDL ID mapping sheet with the plant map.
 
 Read in the manual CSV to XBRL FERC714 respondent mapping data.
 
-### pudl.glue.ferc714.glue() → dict[str:pd.DataFrame]
+### pudl.glue.ferc714.glue() → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]
 
 Make the FERC 714 glue tables out of stored CSVs of association tables.
 
@@ -12243,9 +12249,10 @@ with cleaning and restructuring dataframes.
 
 ## Attributes
 
-| [`sum_na`](autoapi/pudl/helpers/index.html.md#pudl.helpers.sum_na)   | A sum function that returns NA if the Series includes any NA values.   |
-|-----------------------------------------------------------|------------------------------------------------------------------------|
-| [`logger`](autoapi/pudl/helpers/index.html.md#pudl.helpers.logger)   |                                                                        |
+| [`sum_na`](autoapi/pudl/helpers/index.html.md#pudl.helpers.sum_na)        | A sum function that returns NA if the Series includes any NA values.                                                                                                                    |
+|----------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`logger`](autoapi/pudl/helpers/index.html.md#pudl.helpers.logger)        |                                                                                                                                                                                         |
+| [`MergeValidate`](autoapi/pudl/helpers/index.html.md#pudl.helpers.MergeValidate) | Mirrors the `validate` literal accepted by [`pandas.DataFrame.merge()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.merge.html#pandas.DataFrame.merge). |
 
 ## Classes
 
@@ -12573,7 +12580,7 @@ Arguments: see arguments for `date_merge` and `expand_timeseries`
 
 Check date_on list is valid and add \_temp_for_merge suffix.
 
-### pudl.helpers.date_merge(left: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), right: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), on: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], left_date_col: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'report_date', right_date_col: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'report_date', new_date_col: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'report_date', date_on: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] = None, how: Literal['inner', 'outer', 'left', 'right', 'cross'] = 'inner', report_at_start: [bool](https://docs.python.org/3/library/functions.html#bool) = True, \*\*kwargs) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.helpers.date_merge(left: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), right: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), on: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], left_date_col: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'report_date', right_date_col: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'report_date', new_date_col: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'report_date', date_on: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [None](https://docs.python.org/3/library/constants.html#None) = None, how: Literal['inner', 'outer', 'left', 'right', 'cross'] = 'inner', report_at_start: [bool](https://docs.python.org/3/library/functions.html#bool) = True, \*\*kwargs) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Merge two dataframes that have different report date frequencies.
 
@@ -13234,7 +13241,11 @@ replace operations instead of returning a copy of the data frame. This mode is
 useful for memory-intensive data frames, but be aware that upstream processes
 retaining a reference to the data will see the changes made here.
 
-### pudl.helpers.scale_by_ownership(gens: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), own_eia860: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), scale_cols: [list](https://docs.python.org/3/library/stdtypes.html#list), validate: [str](https://docs.python.org/3/library/stdtypes.html#str) = '1:m') → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.helpers.MergeValidate
+
+Mirrors the `validate` literal accepted by [`pandas.DataFrame.merge()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.merge.html#pandas.DataFrame.merge).
+
+### pudl.helpers.scale_by_ownership(gens: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), own_eia860: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), scale_cols: [list](https://docs.python.org/3/library/stdtypes.html#list), validate: [MergeValidate](autoapi/pudl/helpers/index.html.md#pudl.helpers.MergeValidate) = '1:m') → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Generate proportional data by ownership %s.
 
@@ -13822,7 +13833,7 @@ Format value for use in raw SQL(ite).
 "'2020-01-02 03:04:05'"
 ```
 
-### pudl.metadata.classes.\_get_jinja_environment(template_dir: pydantic.DirectoryPath = None)
+### pudl.metadata.classes.\_get_jinja_environment(template_dir: pydantic.DirectoryPath | [None](https://docs.python.org/3/library/constants.html#None) = None)
 
 ### pudl.metadata.classes.String
 
@@ -14353,7 +14364,7 @@ Compile list of resource IDs associated with this data source.
 
 Return a list of temporal partitions encoding the time span covered by the data source.
 
-#### get_temporal_coverage(partitions: [dict](https://docs.python.org/3/library/stdtypes.html#dict) = None) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+#### get_temporal_coverage(partitions: [dict](https://docs.python.org/3/library/stdtypes.html#dict) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [str](https://docs.python.org/3/library/stdtypes.html#str)
 
 Return a string describing the time span covered by the data source.
 
@@ -14907,7 +14918,7 @@ Return field with the given name if it’s part of the Resources.
 
 Return a list of all the field names in the resource schema.
 
-#### to_sql(metadata: sqlalchemy.MetaData = None, check_types: [bool](https://docs.python.org/3/library/functions.html#bool) = True, check_values: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → sqlalchemy.Table
+#### to_sql(metadata: sqlalchemy.MetaData | [None](https://docs.python.org/3/library/constants.html#None) = None, check_types: [bool](https://docs.python.org/3/library/functions.html#bool) = True, check_values: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → sqlalchemy.Table
 
 Return equivalent SQL Table.
 
@@ -15173,7 +15184,7 @@ Build report from aggregation errors.
 * **Returns:**
   Aggregation report, as described in [`aggregate_df()`](autoapi/pudl/metadata/classes/index.html.md#pudl.metadata.classes.Resource.aggregate_df).
 
-#### harvest_dfs(dfs: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)], aggregate: [bool](https://docs.python.org/3/library/functions.html#bool) = None, aggregate_kwargs: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any] = {}, format_kwargs: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any] = {}) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [dict](https://docs.python.org/3/library/stdtypes.html#dict)]
+#### harvest_dfs(dfs: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)], aggregate: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, aggregate_kwargs: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any] = {}, format_kwargs: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any] = {}) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [dict](https://docs.python.org/3/library/stdtypes.html#dict)]
 
 Harvest from named dataframes.
 
@@ -16459,7 +16470,7 @@ Functions for manipulating metadata constants.
 
 ## Module Contents
 
-### pudl.metadata.helpers.format_errors(\*errors: [str](https://docs.python.org/3/library/stdtypes.html#str), title: [str](https://docs.python.org/3/library/stdtypes.html#str) = None, pydantic: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+### pudl.metadata.helpers.format_errors(\*errors: [str](https://docs.python.org/3/library/stdtypes.html#str), title: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, pydantic: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [str](https://docs.python.org/3/library/stdtypes.html#str)
 
 Format multiple errors into a single error.
 
@@ -16637,7 +16648,7 @@ Error raised by aggregation functions.
 
 Return most frequent value (or error if none exists).
 
-### pudl.metadata.helpers.most_and_more_frequent(x: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), min_frequency: [float](https://docs.python.org/3/library/functions.html#float) = None) → Any
+### pudl.metadata.helpers.most_and_more_frequent(x: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), min_frequency: [float](https://docs.python.org/3/library/functions.html#float) | [None](https://docs.python.org/3/library/constants.html#None) = None) → Any
 
 Return the most frequent value if more frequent than `min_frequency`.
 
@@ -18243,7 +18254,7 @@ this to work.
 * **Returns:**
   A DataFrame with unit IDs.
 
-### pudl.output.eia.assign_single_gen_unit_ids(gens_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), prime_mover_codes: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], fuel_type_code_pudl: [str](https://docs.python.org/3/library/stdtypes.html#str) = None, label_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'single') → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.output.eia.assign_single_gen_unit_ids(gens_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), prime_mover_codes: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], fuel_type_code_pudl: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, label_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'single') → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Assign a unique PUDL Unit ID to each generator of a given prime mover type.
 
@@ -18841,7 +18852,7 @@ Create a list of exploded FERC Form 1 assets.
 
 ### pudl.output.ferc1.exploded_ferc1_assets
 
-### *class* pudl.output.ferc1.Exploder(table_names: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], root_table: [str](https://docs.python.org/3/library/stdtypes.html#str), metadata_xbrl_ferc1: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), calculation_components_xbrl_ferc1: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), seed_nodes: [list](https://docs.python.org/3/library/stdtypes.html#list)[[NodeId](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.NodeId)], tags: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) = pd.DataFrame(), group_metric_checks: [pudl.transform.ferc1.GroupMetricChecks](autoapi/pudl/transform/ferc1/index.html.md#pudl.transform.ferc1.GroupMetricChecks) = GroupMetricChecks(), off_by_facts: [list](https://docs.python.org/3/library/stdtypes.html#list)[[OffByFactoid](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.OffByFactoid)] = None)
+### *class* pudl.output.ferc1.Exploder(table_names: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], root_table: [str](https://docs.python.org/3/library/stdtypes.html#str), metadata_xbrl_ferc1: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), calculation_components_xbrl_ferc1: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), seed_nodes: [list](https://docs.python.org/3/library/stdtypes.html#list)[[NodeId](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.NodeId)], tags: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) = pd.DataFrame(), group_metric_checks: [pudl.transform.ferc1.GroupMetricChecks](autoapi/pudl/transform/ferc1/index.html.md#pudl.transform.ferc1.GroupMetricChecks) = GroupMetricChecks(), off_by_facts: [list](https://docs.python.org/3/library/stdtypes.html#list)[[OffByFactoid](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.OffByFactoid)] | [None](https://docs.python.org/3/library/constants.html#None) = None)
 
 Get unique, granular datapoints from a set of related, nested FERC1 tables.
 
@@ -20981,7 +20992,7 @@ heavyweight initialisation at decoration time.
 * [pudl.scripts.pudl_deploy](autoapi/pudl/scripts/pudl_deploy/index.html.md)
 * [pudl.scripts.pudl_null_cols](autoapi/pudl/scripts/pudl_null_cols/index.html.md)
 * [pudl.scripts.pudl_service_territories](autoapi/pudl/scripts/pudl_service_territories/index.html.md)
-* [pudl.scripts.pyrefly_baseline_diff](autoapi/pudl/scripts/pyrefly_baseline_diff/index.html.md)
+* [pudl.scripts.pyrefly_diff_baseline](autoapi/pudl/scripts/pyrefly_diff_baseline/index.html.md)
 * [pudl.scripts.resource_description](autoapi/pudl/scripts/resource_description/index.html.md)
 * [pudl.scripts.update_zenodo_dois](autoapi/pudl/scripts/update_zenodo_dois/index.html.md)
 * [pudl.scripts.zenodo_data_release](autoapi/pudl/scripts/zenodo_data_release/index.html.md)
@@ -21284,9 +21295,9 @@ pudl_service_territories –entity-type balancing_authority –dissolve –limit
 pudl_service_territories –entity-type utility
 
 
-# autoapi/pudl/scripts/pyrefly_baseline_diff/index.html.md
+# autoapi/pudl/scripts/pyrefly_diff_baseline/index.html.md
 
-# pudl.scripts.pyrefly_baseline_diff
+# pudl.scripts.pyrefly_diff_baseline
 
 Diff the pyrefly baseline against a git ref by content, not by line number.
 
@@ -21298,17 +21309,17 @@ only shows errors that were genuinely fixed or newly introduced.
 
 ## Functions
 
-| [`_load_baseline_entries`](autoapi/pudl/scripts/pyrefly_baseline_diff/index.html.md#pudl.scripts.pyrefly_baseline_diff._load_baseline_entries)(→ set[tuple[str, str, str]])   | Load baseline error entries from a git ref, or the working tree if `ref` is None.   |
+| [`_load_baseline_entries`](autoapi/pudl/scripts/pyrefly_diff_baseline/index.html.md#pudl.scripts.pyrefly_diff_baseline._load_baseline_entries)(→ set[tuple[str, str, str]])   | Load baseline error entries from a git ref, or the working tree if `ref` is None.   |
 |--------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|
-| [`main`](autoapi/pudl/scripts/pyrefly_baseline_diff/index.html.md#pudl.scripts.pyrefly_baseline_diff.main)(→ None)                                          | Diff a pyrefly baseline against a git ref by (file, code, description).             |
+| [`main`](autoapi/pudl/scripts/pyrefly_diff_baseline/index.html.md#pudl.scripts.pyrefly_diff_baseline.main)(→ None)                                          | Diff a pyrefly baseline against a git ref by (file, code, description).             |
 
 ## Module Contents
 
-### pudl.scripts.pyrefly_baseline_diff.\_load_baseline_entries(ref: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None), baseline_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [set](https://docs.python.org/3/library/stdtypes.html#set)[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)]]
+### pudl.scripts.pyrefly_diff_baseline.\_load_baseline_entries(ref: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None), baseline_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [set](https://docs.python.org/3/library/stdtypes.html#set)[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)]]
 
 Load baseline error entries from a git ref, or the working tree if `ref` is None.
 
-### pudl.scripts.pyrefly_baseline_diff.main(ref: [str](https://docs.python.org/3/library/stdtypes.html#str), baseline_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.scripts.pyrefly_diff_baseline.main(ref: [str](https://docs.python.org/3/library/stdtypes.html#str), baseline_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [None](https://docs.python.org/3/library/constants.html#None)
 
 Diff a pyrefly baseline against a git ref by (file, code, description).
 
@@ -22264,7 +22275,7 @@ Bases: [`pydantic.BaseModel`](https://pydantic.dev/docs/validation/latest/api/py
 
 BaseModel with global configuration.
 
-#### model_config *: [pydantic.ConfigDict](https://pydantic.dev/docs/validation/latest/api/pydantic/config/#pydantic.config.ConfigDict)*
+#### model_config
 
 Configuration for the model, should be a dictionary conforming to [ConfigDict][pydantic.config.ConfigDict].
 
@@ -28429,7 +28440,7 @@ are null AND there’s a non-null value in the `fuel_mmbtu_per_mwh` column, as
 it typically indicates a “total” row for a plant. We also require a null value
 for the fuel_units and an “other” value for the fuel type.
 
-#### drop_invalid_rows(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), params: [pudl.transform.classes.InvalidRows](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.InvalidRows) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### drop_invalid_rows(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), params: [list](https://docs.python.org/3/library/stdtypes.html#list)[[pudl.transform.classes.InvalidRows](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.InvalidRows)] | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Drop invalid rows from the fuel table.
 
@@ -32892,9 +32903,9 @@ Returns True if content matches checksum for given named resource.
 
 #### \_matches(res: [dict](https://docs.python.org/3/library/stdtypes.html#dict), \*\*filters: Any)
 
-#### \_match_from_partition(parts: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)], k: [str](https://docs.python.org/3/library/stdtypes.html#str), v: [str](https://docs.python.org/3/library/stdtypes.html#str) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)])
+#### \_match_from_partition(parts: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)], k: [str](https://docs.python.org/3/library/stdtypes.html#str), v: [str](https://docs.python.org/3/library/stdtypes.html#str) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)])
 
-#### get_resources(name: [str](https://docs.python.org/3/library/stdtypes.html#str) = None, \*\*filters: Any) → [collections.abc.Iterator](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterator)[[pudl.workspace.resource_cache.PudlResourceKey](autoapi/pudl/workspace/resource_cache/index.html.md#pudl.workspace.resource_cache.PudlResourceKey)]
+#### get_resources(name: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \*\*filters: Any) → [collections.abc.Iterator](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterator)[[pudl.workspace.resource_cache.PudlResourceKey](autoapi/pudl/workspace/resource_cache/index.html.md#pudl.workspace.resource_cache.PudlResourceKey)]
 
 Returns series of PudlResourceKey identifiers for matching resources.
 
@@ -32904,7 +32915,7 @@ Returns series of PudlResourceKey identifiers for matching resources.
     constraints. The constraints are matched against the ‘parts’ field of
     the resource entry in the datapackage.json.
 
-#### get_partitions(name: [str](https://docs.python.org/3/library/stdtypes.html#str) = None) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [set](https://docs.python.org/3/library/stdtypes.html#set)[[str](https://docs.python.org/3/library/stdtypes.html#str)]]
+#### get_partitions(name: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [set](https://docs.python.org/3/library/stdtypes.html#set)[[str](https://docs.python.org/3/library/stdtypes.html#str)]]
 
 Return mapping of known partition keys to their allowed known values.
 
@@ -75036,14 +75047,14 @@ A raw `git diff .pyrefly-baseline.json` after regenerating is nearly unreadable:
 fixing even one error, or bumping pyrefly’s version, can shift line/column numbers on
 hundreds of unrelated entries without any error actually appearing or disappearing.
 
-Use `pixi run pyrefly-baseline-diff` (`src/pudl/scripts/pyrefly_baseline_diff.py`)
+Use `pixi run pyrefly-diff-baseline` (`src/pudl/scripts/pyrefly_diff_baseline.py`)
 instead. It diffs the baseline against `HEAD` by `(file, error code, description)`
 rather than by line number, so the output only shows errors that were genuinely fixed or
 newly added:
 
 ```console
 $ pixi run pyrefly-update-baseline
-$ pixi run pyrefly-baseline-diff
+$ pixi run pyrefly-diff-baseline
 ```
 
 Run this every time you regenerate the baseline, before committing it. Confirm the

@@ -127,7 +127,6 @@ Module Contents
 
 
    .. py:attribute:: model_config
-      :type:  pydantic.ConfigDict
 
       Configuration for the model, should be a dictionary conforming to [`ConfigDict`][pydantic.config.ConfigDict].
 

@@ -101,7 +101,7 @@ Format value for use in raw SQL(ite).
 "'2020-01-02 03:04:05'"
 ```
 
-### pudl.metadata.classes.\_get_jinja_environment(template_dir: pydantic.DirectoryPath = None)
+### pudl.metadata.classes.\_get_jinja_environment(template_dir: pydantic.DirectoryPath | [None](https://docs.python.org/3/library/constants.html#None) = None)
 
 ### pudl.metadata.classes.String
 
@@ -632,7 +632,7 @@ Compile list of resource IDs associated with this data source.
 
 Return a list of temporal partitions encoding the time span covered by the data source.
 
-#### get_temporal_coverage(partitions: [dict](https://docs.python.org/3/library/stdtypes.html#dict) = None) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+#### get_temporal_coverage(partitions: [dict](https://docs.python.org/3/library/stdtypes.html#dict) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [str](https://docs.python.org/3/library/stdtypes.html#str)
 
 Return a string describing the time span covered by the data source.
 
@@ -1186,7 +1186,7 @@ Return field with the given name if it’s part of the Resources.
 
 Return a list of all the field names in the resource schema.
 
-#### to_sql(metadata: sqlalchemy.MetaData = None, check_types: [bool](https://docs.python.org/3/library/functions.html#bool) = True, check_values: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → sqlalchemy.Table
+#### to_sql(metadata: sqlalchemy.MetaData | [None](https://docs.python.org/3/library/constants.html#None) = None, check_types: [bool](https://docs.python.org/3/library/functions.html#bool) = True, check_values: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → sqlalchemy.Table
 
 Return equivalent SQL Table.
 
@@ -1452,7 +1452,7 @@ Build report from aggregation errors.
 * **Returns:**
   Aggregation report, as described in [`aggregate_df()`](#pudl.metadata.classes.Resource.aggregate_df).
 
-#### harvest_dfs(dfs: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)], aggregate: [bool](https://docs.python.org/3/library/functions.html#bool) = None, aggregate_kwargs: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any] = {}, format_kwargs: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any] = {}) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [dict](https://docs.python.org/3/library/stdtypes.html#dict)]
+#### harvest_dfs(dfs: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)], aggregate: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, aggregate_kwargs: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any] = {}, format_kwargs: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any] = {}) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [dict](https://docs.python.org/3/library/stdtypes.html#dict)]
 
 Harvest from named dataframes.
 

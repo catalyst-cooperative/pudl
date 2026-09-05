@@ -76,7 +76,7 @@ Module Contents
 
 
 
-   .. py:method:: process_renamed(newdata: pandas.DataFrame, page: str, **partition)
+   .. py:method:: process_renamed(df: pandas.DataFrame, page: str, **partition)
 
       Drop columns that get mapped to other assets and columns with unstructured data.
 

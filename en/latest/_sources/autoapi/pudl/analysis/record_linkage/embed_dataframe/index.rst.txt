@@ -241,7 +241,7 @@ Module Contents
 
 
 
-.. py:function:: _apply_cleaning_func(df, function_key: str = None)
+.. py:function:: _apply_cleaning_func(df, function_key: str)
 
 .. py:class:: ColumnCleaner(/, **data: Any)
 

@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.ferc1 &#8212; PUDL 2026.8.1.dev35 documentation</title>
+    <title>pudl.transform.ferc1 &#8212; PUDL 2026.8.1.dev36 documentation</title>
   
   
   
@@ -49,11 +49,13 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../_static/documentation_options.js?v=4ab02b1e"></script>
+    <script src="../../../_static/documentation_options.js?v=6a01b1f5"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
     <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
 
 
 
@@ -494,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev35 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev35 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev36 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev36 documentation - Home"/>
   
   
 </a></div>
@@ -1025,14 +1027,16 @@ window.runMermaid = runMermaid;</script>
             <span class="n">field</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span> <span class="k">for</span> <span class="n">meta_list</span> <span class="ow">in</span> <span class="n">table_meta</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">meta_list</span>
         <span class="p">]</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">extract_tables_to_fields</span><span class="p">(</span><span class="n">xbrl_meta</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span> <span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">extract_tables_to_fields</span><span class="p">(</span><span class="n">xbrl_meta</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">"""Compile a dictionary of table names (keys) to list of fields."""</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="n">table_name</span><span class="p">:</span> <span class="n">all_fields_in_table</span><span class="p">(</span><span class="n">table_meta</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">table_name</span><span class="p">,</span> <span class="n">table_meta</span> <span class="ow">in</span> <span class="n">xbrl_meta</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
         <span class="p">}</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">label_source_tables</span><span class="p">(</span><span class="n">calc_component</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">tables_to_fields</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">label_source_tables</span><span class="p">(</span>
+        <span class="n">calc_component</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">tables_to_fields</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Add a ``source_tables`` element to the calculation component."""</span>
         <span class="n">calc_component</span><span class="p">[</span><span class="s2">"source_tables"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">other_table_name</span>
@@ -5336,7 +5340,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="SteamPlantsFuelTableTransformer.drop_invalid_rows">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.SteamPlantsFuelTableTransformer.drop_invalid_rows">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">drop_invalid_rows</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">InvalidRows</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">InvalidRows</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Drop invalid rows from the fuel table.</span>
 

@@ -195,11 +195,15 @@ Module Contents
 
 
 
-   .. py:method:: get_dtypes(page: str, **partition: pudl.extract.extractor.PartitionSelection) -> dict
+   .. py:method:: get_dtypes(page: str, **partition: pudl.extract.extractor.PartitionSelection) -> dict | pandas.api.extensions.ExtensionDtype
       :staticmethod:
 
 
       Provide custom dtypes for given page and partition.
+
+      May return either a mapping of column name to dtype, or a single dtype to
+      apply to every column, matching the ``dtype`` argument of
+      :func:`pandas.read_excel`.
 
 
 

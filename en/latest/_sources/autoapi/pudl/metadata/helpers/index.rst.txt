@@ -42,7 +42,7 @@ Functions
 Module Contents
 ---------------
 
-.. py:function:: format_errors(*errors: str, title: str = None, pydantic: bool = False) -> str
+.. py:function:: format_errors(*errors: str, title: str | None = None, pydantic: bool = False) -> str
 
    Format multiple errors into a single error.
 
@@ -219,7 +219,7 @@ Module Contents
    Return most frequent value (or error if none exists).
 
 
-.. py:function:: most_and_more_frequent(x: pandas.Series, min_frequency: float = None) -> Any
+.. py:function:: most_and_more_frequent(x: pandas.Series, min_frequency: float | None = None) -> Any
 
    Return the most frequent value if more frequent than ``min_frequency``.
 

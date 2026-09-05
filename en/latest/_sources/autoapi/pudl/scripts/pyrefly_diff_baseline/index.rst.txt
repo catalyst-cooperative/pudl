@@ -1,7 +1,7 @@
-pudl.scripts.pyrefly_baseline_diff
+pudl.scripts.pyrefly_diff_baseline
 ==================================
 
-.. py:module:: pudl.scripts.pyrefly_baseline_diff
+.. py:module:: pudl.scripts.pyrefly_diff_baseline
 
 .. autoapi-nested-parse::
 
@@ -20,8 +20,8 @@ Functions
 
 .. autoapisummary::
 
-   pudl.scripts.pyrefly_baseline_diff._load_baseline_entries
-   pudl.scripts.pyrefly_baseline_diff.main
+   pudl.scripts.pyrefly_diff_baseline._load_baseline_entries
+   pudl.scripts.pyrefly_diff_baseline.main
 
 
 Module Contents

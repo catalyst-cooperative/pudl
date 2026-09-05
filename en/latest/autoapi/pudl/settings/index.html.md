@@ -88,7 +88,7 @@ Bases: [`pydantic.BaseModel`](https://pydantic.dev/docs/validation/latest/api/py
 
 BaseModel with global configuration.
 
-#### model_config *: [pydantic.ConfigDict](https://pydantic.dev/docs/validation/latest/api/pydantic/config/#pydantic.config.ConfigDict)*
+#### model_config
 
 Configuration for the model, should be a dictionary conforming to [ConfigDict][pydantic.config.ConfigDict].
 

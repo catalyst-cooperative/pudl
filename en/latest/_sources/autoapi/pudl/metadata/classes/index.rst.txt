@@ -114,7 +114,7 @@ Module Contents
    "'2020-01-02 03:04:05'"
 
 
-.. py:function:: _get_jinja_environment(template_dir: pydantic.DirectoryPath = None)
+.. py:function:: _get_jinja_environment(template_dir: pydantic.DirectoryPath | None = None)
 
 .. py:data:: String
 
@@ -975,7 +975,7 @@ Module Contents
 
 
 
-   .. py:method:: get_temporal_coverage(partitions: dict = None) -> str
+   .. py:method:: get_temporal_coverage(partitions: dict | None = None) -> str
 
       Return a string describing the time span covered by the data source.
 
@@ -1779,7 +1779,7 @@ Module Contents
 
 
 
-   .. py:method:: to_sql(metadata: sqlalchemy.MetaData = None, check_types: bool = True, check_values: bool = True) -> sqlalchemy.Table
+   .. py:method:: to_sql(metadata: sqlalchemy.MetaData | None = None, check_types: bool = True, check_values: bool = True) -> sqlalchemy.Table
 
       Return equivalent SQL Table.
 
@@ -2078,7 +2078,7 @@ Module Contents
 
 
 
-   .. py:method:: harvest_dfs(dfs: dict[str, pandas.DataFrame], aggregate: bool = None, aggregate_kwargs: dict[str, Any] = {}, format_kwargs: dict[str, Any] = {}) -> tuple[pandas.DataFrame, dict]
+   .. py:method:: harvest_dfs(dfs: dict[str, pandas.DataFrame], aggregate: bool | None = None, aggregate_kwargs: dict[str, Any] = {}, format_kwargs: dict[str, Any] = {}) -> tuple[pandas.DataFrame, dict]
 
       Harvest from named dataframes.
 

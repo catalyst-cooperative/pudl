@@ -179,7 +179,7 @@ Module Contents
 
 
 
-   .. py:method:: drop_invalid_rows(df)
+   .. py:method:: drop_invalid_rows(df: pandas.DataFrame, params: list[pudl.transform.classes.InvalidRows] | None = None) -> pandas.DataFrame
 
       Add required valid columns before running standard drop_invalid_rows.
 
