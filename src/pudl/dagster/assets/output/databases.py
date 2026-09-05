@@ -103,8 +103,8 @@ def _copy_table(
 
     ``PRIMARY KEY`` / ``NOT NULL`` / ``UNIQUE`` (and, for DuckDB, ``CHECK``) are
     enforced by the destination as the rows land. SQLite foreign keys are declared
-    but, per SQLite's default (``PRAGMA foreign_keys = OFF``), not checked on write;
-    the DuckDB schema has no foreign keys at all.
+    but, per SQLite's default (``PRAGMA foreign_keys = OFF``), not checked on write.
+    DuckDB foreign keys are declared and enforced as the rows land.
 
     Args:
         conn: An open DuckDB connection. For the SQLite destination the target
@@ -278,8 +278,8 @@ def _write_pudl_duckdb(
     table's Parquet file straight into the DuckDB file with DuckDB's own engine.
 
     Unlike the SQLite schema, keep every CHECK and type constraint our metadata defines
-    (DuckDB enforces them cheaply on write). It omits foreign keys entirely: a handful
-    of our FK column pairs have mismatched types that DuckDB rejects (issue #5552).
+    (DuckDB enforces them cheaply on write), including foreign keys, which DuckDB checks
+    as the rows land.
 
     Args:
         table_names: Tables to load, in the order they should be inserted.
@@ -300,7 +300,7 @@ def _write_pudl_duckdb(
     # 63-char limit; duckdb can support longer identifiers and we need them, so increase
     # this limit.
     engine.dialect.max_identifier_length = 255
-    PUDL_PACKAGE.to_sql(dialect="duckdb", include_foreign_keys=False).create_all(engine)
+    PUDL_PACKAGE.to_sql(dialect="duckdb").create_all(engine)
     engine.dispose()
 
     report = TableWriteReport(db_path=db_path)
