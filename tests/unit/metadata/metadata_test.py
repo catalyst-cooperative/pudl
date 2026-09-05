@@ -13,6 +13,7 @@ import pandera.pandas as pr_pandas
 import pandera.polars as pr_polars
 import polars as pl
 import pyarrow as pa
+import pydantic
 import pytest
 import sqlalchemy as sa
 from pandera.errors import SchemaErrors
@@ -252,6 +253,45 @@ def test_resource_to_sql_duckdb_excludes_foreign_keys_when_requested() -> None:
     parent.to_sql(metadata_with_fk, dialect="duckdb")
     table_with_fk = child.to_sql(metadata_with_fk, dialect="duckdb")
     assert list(table_with_fk.foreign_keys) != []
+
+
+def test_package_rejects_foreign_key_type_mismatch() -> None:
+    """A FK column and its referenced PK column must declare the same type.
+
+    Regression test for PUDL issue #5552: a dozen FK relationships had an integer
+    child column referencing a string parent column (a "code" column storing
+    integers-as-strings), which DuckDB can't join without a type coercion. Package
+    construction should catch this kind of mismatch instead of letting it surface
+    only when a database schema is actually built.
+    """
+    parent = Resource(
+        name="parent",
+        schema={
+            "fields": [{"name": "code", "type": "string", "description": "code"}],
+            "primary_key": ["code"],
+        },
+        description="Parent",
+    )
+    child = Resource(
+        name="child",
+        schema={
+            "fields": [
+                {"name": "id", "type": "integer", "description": "id"},
+                {"name": "code", "type": "integer", "description": "code"},
+            ],
+            "primary_key": ["id"],
+            "foreign_keys": [
+                {
+                    "fields": ["code"],
+                    "reference": {"resource": "parent", "fields": ["code"]},
+                }
+            ],
+        },
+        description="Child",
+    )
+
+    with pytest.raises(pydantic.ValidationError, match="incompatible types"):
+        Package(name="ab", resources=[parent, child])
 
 
 def test_field_to_sql_duckdb_same_name_different_enum_values_get_distinct_types() -> (

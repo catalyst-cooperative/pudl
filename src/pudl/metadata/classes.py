@@ -2755,6 +2755,17 @@ class Package(PudlMeta):
                 ]
                 if missing:
                     errors.append(f"{tag}: Reference primary key missing {missing}")
+                    continue
+                for fk_field_name, pk_field_name in zip(
+                    foreign_key.fields, foreign_key.reference.fields, strict=True
+                ):
+                    fk_type = resource.get_field(fk_field_name).type
+                    pk_type = reference.get_field(pk_field_name).type
+                    if fk_type != pk_type:
+                        errors.append(
+                            f"{tag}: {fk_field_name} ({fk_type}) and "
+                            f"{pk_field_name} ({pk_type}) have incompatible types"
+                        )
         if errors:
             raise ValueError(
                 format_errors(*errors, title="Foreign keys", pydantic=True)

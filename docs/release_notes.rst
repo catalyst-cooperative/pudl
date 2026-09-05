@@ -129,6 +129,17 @@ Bug Fixes & Data Cleaning
 * Changed ``subplant_id`` in :ref:`core_epa__assn_eia_epacamd_subplant_ids` to be
   1-indexed instead of 0-indexed within each ``plant_id_eia``, so the first subplant at
   a plant is now ``1`` rather than ``0``. See issue :issue:`5499` and PR :pr:`5541`.
+* Retyped the ``code`` column of four coding tables from string to integer, matching the
+  twelve integer-typed foreign key columns across the EIA-860, RUS-7, and RUS-12 tables
+  that already referenced them. The mismatch had been silently masked by SQLite being
+  lazy about types, and our new ``dbt`` foreign key checks erroring out silently on
+  columns of incompatible types. ``Package`` construction now validates that foreign key
+  columns and their referenced primary key column declare the same type. See
+  :issue:`5552` and PR :pr:`5538`.
+* Re-enabled foreign key constraint enforcement when writing ``pudl.duckdb``, which had
+  previously been disabled because of the type mismatches described above. Enforcing
+  referential integrity on write adds about 140 seconds to a full build. See
+  :issue:`5552` and PR :pr:`5538`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
