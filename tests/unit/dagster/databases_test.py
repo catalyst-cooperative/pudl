@@ -449,6 +449,40 @@ def test_copy_table_missing_column_raises_binder_error(
 ################################################################################
 
 
+def test_write_pudl_db_orders_writes_by_foreign_key_dependency(
+    paths: PudlPaths, test_pkg: Package, mocker
+):
+    """The writer writes parents before children, regardless of input order.
+
+    Regression test: the caller (``_find_sql_asset_keys``) makes no ordering
+    guarantee the writer can rely on, so each writer derives its own write order
+    from the schema's FK-topological order. Passing ``table_names`` with the child
+    ("plant") listed before its parent ("utility") must still succeed under
+    DuckDB, which enforces FKs as rows land and would otherwise fail on "plant"
+    before "utility" exists.
+    """
+    mocker.patch("pudl.dagster.assets.output.databases.PUDL_PACKAGE", test_pkg)
+    _write_parquet(
+        paths,
+        "utility",
+        pd.DataFrame({"utility_id_eia": [1], "utility_name_eia": ["A"]}),
+    )
+    _write_parquet(
+        paths,
+        "plant",
+        pd.DataFrame(
+            {
+                "plant_id_eia": [1],
+                "plant_name_eia": ["Plant A"],
+                "utility_id_eia": [1],
+            }
+        ),
+    )
+    report = _write_pudl_duckdb(["plant", "utility"], paths)
+    assert report.errors == []
+    assert report.row_counts == {"utility": 1, "plant": 1}
+
+
 def test_duckdb_schema_shares_enum_type_across_tables(test_pkg: Package):
     """A named ENUM type shared by two tables is created exactly once.
 
