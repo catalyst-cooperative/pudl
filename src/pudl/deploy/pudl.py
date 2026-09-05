@@ -64,6 +64,11 @@ class DeploymentPlan(BaseModel):
 
     git_tag: str
     environment: Literal["staging", "production"]
+    # Tri-state overrides for the cloud storage upload targets. ``None`` means "use
+    # the default for this deploy type" (see ``upload_to_gcs``/``upload_to_s3``); an
+    # explicit bool forces the target on or off regardless of deploy type.
+    deploy_to_gcs: bool | None = None
+    deploy_to_s3: bool | None = None
 
     @property
     def deploy_type(self) -> DeploymentType:
@@ -78,6 +83,39 @@ class DeploymentPlan(BaseModel):
                 f"environment={self.environment!r} for git_tag={self.git_tag!r}."
             )
         return self
+
+    @model_validator(mode="after")
+    def _validate_has_an_upload_target(self) -> "DeploymentPlan":
+        if not self.upload_to_gcs and not self.upload_to_s3:
+            raise ValueError(
+                f"Deployment for git_tag={self.git_tag!r} has neither GCS nor S3 "
+                "uploads enabled -- there would be nothing to deploy. A build that "
+                "shouldn't deploy anywhere simply shouldn't trigger deploy-pudl."
+            )
+        return self
+
+    @property
+    def upload_to_gcs(self) -> bool:
+        """Whether this deployment uploads outputs to GCS.
+
+        Defaults to ``True`` for every deploy type -- GCS has no egress fees and is
+        the primary distribution target -- but a build can still explicitly opt out
+        (e.g. an S3-only test).
+        """
+        return self.deploy_to_gcs if self.deploy_to_gcs is not None else True
+
+    @property
+    def upload_to_s3(self) -> bool:
+        """Whether this deployment uploads outputs to S3.
+
+        Nightly and stable deploys default to ``True``. Branch builds default to
+        ``False``: S3 egress costs more than a full ETL run, and the nightly build
+        exercises the real S3 deployment every night anyway. A branch build can
+        still opt in explicitly when that's the thing being tested.
+        """
+        if self.deploy_to_s3 is not None:
+            return self.deploy_to_s3
+        return self.deploy_type != DeploymentType.BRANCH
 
     @property
     def path_suffixes(self) -> list[str]:
@@ -317,8 +355,8 @@ def _upload_to_path(fs, path: str, source_dir: Path, clear_first: bool) -> None:
 
 
 def _assert_permanent_paths_are_empty(
-    gcs_fs: gcsfs.GCSFileSystem,
-    s3_fs: s3fs.S3FileSystem,
+    gcs_fs: gcsfs.GCSFileSystem | None,
+    s3_fs: s3fs.S3FileSystem | None,
     path_suffixes: list[str],
     immutable_suffixes: frozenset[str],
 ) -> None:
@@ -339,6 +377,8 @@ def _assert_permanent_paths_are_empty(
             (gcs_fs, f"gs://pudl.catalyst.coop/{suffix}/"),
             (s3_fs, f"s3://pudl.catalyst.coop/{suffix}/"),
         ):
+            if fs is None:
+                continue
             if fs.exists(path):
                 raise RuntimeError(
                     f"Refusing to deploy to {path}: it's a permanent, "
@@ -352,15 +392,18 @@ def upload_outputs(
     source_dir: Path,
     path_suffixes: list[str],
     immutable_suffixes: frozenset[str] = frozenset(),
+    upload_to_gcs: bool = True,
+    upload_to_s3: bool = True,
 ) -> None:
     """Upload outputs to cloud storage paths.
 
-    Uploads all files from source directory to GCS and S3 using the provided path
-    suffixes. Each suffix is uploaded to both gs://pudl.catalyst.coop/{suffix}/ and
-    s3://pudl.catalyst.coop/{suffix}/. Any existing objects at a suffix are removed
-    first, unless that suffix is listed in ``immutable_suffixes`` -- a permanent,
-    hold-protected versioned release path is never cleared, and instead must not
-    exist at all yet (see ``_assert_permanent_paths_are_empty``).
+    Uploads all files from source directory to GCS and/or S3 using the provided path
+    suffixes. Each enabled destination gets every suffix uploaded to
+    gs://pudl.catalyst.coop/{suffix}/ and/or s3://pudl.catalyst.coop/{suffix}/. Any
+    existing objects at a suffix are removed first, unless that suffix is listed in
+    ``immutable_suffixes`` -- a permanent, hold-protected versioned release path is
+    never cleared, and instead must not exist at all yet (see
+    ``_assert_permanent_paths_are_empty``).
 
     Each (suffix, destination) pair is uploaded concurrently: GCS and S3 are separate
     network destinations, and this is I/O-bound work that releases the GIL.
@@ -371,32 +414,41 @@ def upload_outputs(
         immutable_suffixes: Path suffixes that should never be cleared before upload
             (e.g. a permanent stable-version path like "v2026.7.0"). It's an error
             for one of these paths to already exist.
+        upload_to_gcs: Whether to upload to GCS.
+        upload_to_s3: Whether to upload to S3. Branch builds skip S3 by default
+            because its egress fees are large and the nightly build tests it anyway.
 
     Raises:
+        ValueError: If neither ``upload_to_gcs`` nor ``upload_to_s3`` is enabled.
         RuntimeError: If a permanent, immutable path already has content.
     """
     logger.info("Uploading outputs to cloud storage")
 
+    if not upload_to_gcs and not upload_to_s3:
+        raise ValueError(
+            "upload_outputs called with neither GCS nor S3 uploads enabled."
+        )
     if not source_dir.exists():
         raise ValueError(f"Source directory does not exist: {source_dir}")
     if not any(source_dir.iterdir()):
         raise ValueError(f"Source directory is empty: {source_dir}")
 
     # NOTE (2026-02-11): our GCS distribution bucket is requester pays.
-    gcs_fs = gcsfs.GCSFileSystem(requester_pays=True)
-    s3_fs = s3fs.S3FileSystem()
+    gcs_fs = gcsfs.GCSFileSystem(requester_pays=True) if upload_to_gcs else None
+    s3_fs = s3fs.S3FileSystem() if upload_to_s3 else None
 
     _assert_permanent_paths_are_empty(gcs_fs, s3_fs, path_suffixes, immutable_suffixes)
 
+    destinations = [
+        (fs, scheme) for fs, scheme in ((gcs_fs, "gs"), (s3_fs, "s3")) if fs is not None
+    ]
     upload_targets = []
     for suffix in path_suffixes:
         clear_first = suffix not in immutable_suffixes
-        upload_targets.append(
-            (gcs_fs, f"gs://pudl.catalyst.coop/{suffix}/", clear_first)
-        )
-        upload_targets.append(
-            (s3_fs, f"s3://pudl.catalyst.coop/{suffix}/", clear_first)
-        )
+        for fs, scheme in destinations:
+            upload_targets.append(
+                (fs, f"{scheme}://pudl.catalyst.coop/{suffix}/", clear_first)
+            )
 
     with ThreadPoolExecutor(max_workers=len(upload_targets)) as executor:
         futures = [
@@ -704,15 +756,23 @@ class ResolvedBuild:
 
 
 def resolve_build(
-    git_tag: str, environment: Literal["staging", "production"]
+    git_tag: str,
+    environment: Literal["staging", "production"],
+    deploy_to_gcs: bool | None = None,
+    deploy_to_s3: bool | None = None,
 ) -> ResolvedBuild:
     """Resolve the deployment plan, locate the build, and set up local logging.
 
     Raises if ``git_tag`` doesn't look like a nightly/stable/branch tag, if a
-    branch tag is being deployed to production, or if no successful build exists
-    for the tag yet.
+    branch tag is being deployed to production, if no successful build exists
+    for the tag yet, or if both cloud storage upload targets are disabled.
     """
-    plan = DeploymentPlan(git_tag=git_tag, environment=environment)
+    plan = DeploymentPlan(
+        git_tag=git_tag,
+        environment=environment,
+        deploy_to_gcs=deploy_to_gcs,
+        deploy_to_s3=deploy_to_s3,
+    )
 
     build_path = get_build_from_tag(git_tag)
     build_id = build_path.name
