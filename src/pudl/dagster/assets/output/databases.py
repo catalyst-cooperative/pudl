@@ -34,6 +34,14 @@ schema) and the NOT NULL / UNIQUE / PRIMARY KEY / CHECK violations the destinati
 raises back through DuckDB as the rows are streamed in.
 """
 
+_DUCKDB_MAX_IDENTIFIER_LENGTH = 255
+"""Identifier-length limit for the DuckDB SQLAlchemy engine.
+
+duckdb-engine's SQLAlchemy dialect inherits postgresql's 63-char limit; DuckDB itself
+supports longer identifiers and PUDL needs them, so the dialect limit is raised to this
+value wherever a DuckDB engine is created.
+"""
+
 
 @dataclass
 class TableWriteErrorInfo:
@@ -134,6 +142,21 @@ def _copy_table(
     return row[0]
 
 
+def _fk_topological_order(
+    metadata: sa.MetaData, table_names: Sequence[str]
+) -> list[str]:
+    """Return ``table_names`` sorted so parents precede the tables that reference them.
+
+    DuckDB enforces foreign keys row by row as data lands, so a child table written
+    before its parent is fully populated fails. ``sa.MetaData.sorted_tables`` already
+    exposes the schema's FK-topological order; this just filters it down to (and
+    reorders) the requested tables rather than trusting the caller to pass them
+    pre-sorted.
+    """
+    wanted = set(table_names)
+    return [t.name for t in metadata.sorted_tables if t.name in wanted]
+
+
 ################################################################################
 # pudl.sqlite
 #
@@ -216,8 +239,14 @@ def _write_pudl_sqlite(
     elsewhere by pandera and dbt. Foreign key constraints are declared but not enforced,
     per SQLite's ``PRAGMA foreign_keys = OFF`` default.
 
+    Write order is derived from the schema's own FK-topological order
+    (:attr:`sa.MetaData.sorted_tables`) so every table is written before any other table
+    that has a foreign key referencing it, regardless of the order ``table_names`` is
+    given in.
+
     Args:
-        table_names: Tables to load, in the order they should be inserted.
+        table_names: Tables to load. Written in FK-topological order, not the order
+            given.
         paths: Workspace paths, used to locate both the destination file and each
             table's Parquet file. Any existing destination file is deleted first;
             parent directories are created as needed.
@@ -232,10 +261,13 @@ def _write_pudl_sqlite(
     db_path.unlink(missing_ok=True)
 
     engine = sa.create_engine(f"sqlite:///{db_path}")
-    PUDL_PACKAGE.to_sql(
+    metadata = PUDL_PACKAGE.to_sql(
         dialect="sqlite", check_types=False, check_values=False
-    ).create_all(engine)
+    )
+    metadata.create_all(engine)
     engine.dispose()
+
+    table_names = _fk_topological_order(metadata, table_names)
 
     report = TableWriteReport(db_path=db_path)
     n_tables = len(table_names)
@@ -281,8 +313,14 @@ def _write_pudl_duckdb(
     (DuckDB enforces them cheaply on write), including foreign keys, which DuckDB checks
     as the rows land.
 
+    Write order is derived from the schema's own FK-topological order
+    (:attr:`sa.MetaData.sorted_tables`) so every table is written before any other table
+    that has a foreign key referencing it. DuckDB checks a FK row by row, so writing a
+    child table before its parent is fully populated would otherwise fail.
+
     Args:
-        table_names: Tables to load, in the order they should be inserted.
+        table_names: Tables to load. Written in FK-topological order, not the order
+            given.
         paths: Workspace paths, used to locate both the destination file and each
             table's Parquet file. Any existing destination file is deleted first;
             parent directories are created as needed.
@@ -296,12 +334,12 @@ def _write_pudl_duckdb(
     db_path.unlink(missing_ok=True)
 
     engine = sa.create_engine(f"duckdb:///{db_path}")
-    # NOTE (2026-09-09): duckdb-engine's SQLAlchemy dialect inherits postgresql's
-    # 63-char limit; duckdb can support longer identifiers and we need them, so increase
-    # this limit.
-    engine.dialect.max_identifier_length = 255
-    PUDL_PACKAGE.to_sql(dialect="duckdb").create_all(engine)
+    engine.dialect.max_identifier_length = _DUCKDB_MAX_IDENTIFIER_LENGTH
+    metadata = PUDL_PACKAGE.to_sql(dialect="duckdb")
+    metadata.create_all(engine)
     engine.dispose()
+
+    table_names = _fk_topological_order(metadata, table_names)
 
     report = TableWriteReport(db_path=db_path)
     n_tables = len(table_names)
@@ -406,7 +444,7 @@ def build_pudl_duckdb_asset(asset_keys: Sequence[dg.AssetKey]) -> dg.AssetsDefin
             "DuckDB database assembled from PUDL's Parquet outputs after the ETL "
             "completes. Written to $PUDL_OUTPUT/pudl.duckdb. Includes only tables "
             "whose Resource has create_database_schema=True. Foreign key "
-            "constraints are excluded due to a handful of type conflicts."
+            "constraints are declared and enforced as the rows land."
         ),
         write_db=_write_pudl_duckdb,
         asset_keys=asset_keys,
