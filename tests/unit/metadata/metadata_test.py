@@ -19,6 +19,7 @@ import sqlalchemy as sa
 from pandera.errors import SchemaErrors
 from shapely import Point
 
+from pudl.dagster.assets.output.databases import _DUCKDB_MAX_IDENTIFIER_LENGTH
 from pudl.metadata.classes import (
     PUDL_PACKAGE,
     DataSource,
@@ -292,6 +293,118 @@ def test_package_rejects_foreign_key_type_mismatch() -> None:
 
     with pytest.raises(pydantic.ValidationError, match="incompatible types"):
         Package(name="ab", resources=[parent, child])
+
+
+def test_package_rejects_foreign_key_enum_mismatch() -> None:
+    """A FK column and its referenced PK column must have matching enum constraints.
+
+    Regression test: DuckDB compares foreign key columns by nominal SQL type, and an
+    "enum" constraint gets its own named ENUM type (Field._to_sql_duckdb). Package
+    construction should catch ENUM type discrepancies early.
+    """
+    parent = Resource(
+        name="parent",
+        schema={
+            "fields": [{"name": "code", "type": "string", "description": "code"}],
+            "primary_key": ["code"],
+        },
+        description="Parent",
+    )
+    child = Resource(
+        name="child",
+        schema={
+            "fields": [
+                {"name": "id", "type": "integer", "description": "id"},
+                {
+                    "name": "code",
+                    "type": "string",
+                    "description": "code",
+                    "constraints": {"enum": ["A", "B"]},
+                },
+            ],
+            "primary_key": ["id"],
+            "foreign_keys": [
+                {
+                    "fields": ["code"],
+                    "reference": {"resource": "parent", "fields": ["code"]},
+                }
+            ],
+        },
+        description="Child",
+    )
+
+    with pytest.raises(pydantic.ValidationError, match="incompatible enum"):
+        Package(name="ab", resources=[parent, child])
+
+
+def test_field_to_sql_duckdb_enum_type_basename_overrides_field_name() -> None:
+    """``enum_type_basename`` replaces the field name in the DuckDB ENUM type name.
+
+    Unit-level check of the mechanism Resource.to_sql relies on: two fields with
+    different names but the same enum values and the same ``enum_type_basename`` must
+    produce identically-named ENUM types, since that's what lets DuckDB treat a FK
+    column and its differently-named coding-table parent PK as the same type. Without a
+    basename, they'd naturally get different names (see the "different enum values"
+    regression test below, which checks the opposite case).
+    """
+    child_field = Field(
+        name="widget_type_code",
+        type="string",
+        description="Widget type.",
+        constraints=FieldConstraints(enum=["A", "B"]),
+    )
+    parent_field = Field(
+        name="code",
+        type="string",
+        description="Code.",
+        constraints=FieldConstraints(enum=["A", "B"]),
+    )
+
+    child_column = child_field.to_sql(
+        dialect="duckdb", enum_type_basename="core_test__codes_widget_types"
+    )
+    parent_column = parent_field.to_sql(
+        dialect="duckdb", enum_type_basename="core_test__codes_widget_types"
+    )
+    assert isinstance(child_column.type, sa.Enum)
+    assert isinstance(parent_column.type, sa.Enum)
+    assert child_column.type.name == parent_column.type.name
+
+    # Without a basename, the two (differently-named) fields fall back to their
+    # own field names and diverge, even with identical enum values.
+    default_child_column = child_field.to_sql(dialect="duckdb")
+    default_parent_column = parent_field.to_sql(dialect="duckdb")
+    assert isinstance(default_child_column.type, sa.Enum)
+    assert isinstance(default_parent_column.type, sa.Enum)
+    assert default_child_column.type.name != default_parent_column.type.name
+
+
+def test_resource_to_sql_duckdb_fk_shares_enum_type_with_referenced_pk() -> None:
+    """A real FK column and its coding table parent's PK share one named ENUM type.
+
+    An enum-constrained FK column ("contract_type_code") referencing a coding table's
+    own enum-constrained PK column ("code") must resolve to the *same* DuckDB ENUM type
+    -- not just equal Python-level enum values. Builds the real, full PUDL_PACKAGE
+    schema (as opposed to just the two affected Resources in isolation) because every
+    other FK on out_eia923__fuel_receipts_costs must also resolve to a real table for
+    SQLAlchemy to even construct it.
+
+    """
+    metadata = PUDL_PACKAGE.to_sql(dialect="duckdb")
+    parent_table = metadata.tables["core_eia__codes_contract_types"]
+    child_table = metadata.tables["out_eia923__fuel_receipts_costs"]
+    parent_type = parent_table.columns["code"].type
+    child_type = child_table.columns["contract_type_code"].type
+    assert isinstance(parent_type, sa.Enum)
+    assert isinstance(child_type, sa.Enum)
+    assert parent_type.name == child_type.name
+
+    engine = sa.create_engine("duckdb:///:memory:")
+    engine.dialect.max_identifier_length = _DUCKDB_MAX_IDENTIFIER_LENGTH
+    try:
+        metadata.create_all(engine)  # should not raise BinderException
+    finally:
+        engine.dispose()
 
 
 def test_field_to_sql_duckdb_same_name_different_enum_values_get_distinct_types() -> (

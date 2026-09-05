@@ -311,7 +311,7 @@ DUCKDB_TARGET = _DatabaseTarget(
 def _write_pudl_db(
     target: _DatabaseTarget,
     db_path: Path,
-    table_names: Sequence[str],
+    table_names: Sequence[str] | None = None,
     paths: PudlPaths | None = None,
 ) -> TableWriteReport:
     r"""Build a fresh database at ``db_path`` and stream the given tables into it.
@@ -327,13 +327,22 @@ def _write_pudl_db(
     every problem across all tables at once. Separated from the Dagster asset wrapper
     so it's directly unit-testable without a Dagster execution context.
 
+    Write order is derived from the schema's own FK-topological order
+    (:attr:`sa.MetaData.sorted_tables`) so every table is written before any other
+    table that has a foreign key referencing it. DuckDB checks a FK row by row, so
+    writing a child table before its parent is fully populated would otherwise fail.
+
     Args:
         target: Which database to build (:data:`SQLITE_TARGET` or
             :data:`DUCKDB_TARGET`).
         db_path: Where to write the file. Any existing file there is deleted first;
             parent directories are created as needed.
-        table_names: Names of the tables to load. Every table must have a Resource
-            with ``create_database_schema=True`` and a corresponding Parquet file.
+        table_names: Names of the tables to load. Every table must
+            have a Resource with ``create_database_schema=True`` and a
+            corresponding Parquet file. Defaults to every table in the target's
+            schema (i.e. every ``create_database_schema=True`` resource) -- the
+            production caller, :func:`build_pudl_db_asset`, always wants the full
+            schema, so this only needs overriding to write a subset in tests.
         paths: PUDL workspace paths used to locate each table's Parquet file.
             Defaults to a fresh :class:`PudlPaths` built from the environment.
 
@@ -348,8 +357,16 @@ def _write_pudl_db(
     engine = sa.create_engine(target.engine_url(db_path))
     if target.max_identifier_length is not None:
         engine.dialect.max_identifier_length = target.max_identifier_length
-    target.build_metadata().create_all(engine)
+    metadata = target.build_metadata()
+    metadata.create_all(engine)
     engine.dispose()
+
+    wanted_table_names = set(table_names) if table_names is not None else None
+    table_names = [
+        t.name
+        for t in metadata.sorted_tables
+        if wanted_table_names is None or t.name in wanted_table_names
+    ]
 
     # Every insert runs through DuckDB. For DuckDB the connection is the database
     # file itself; for SQLite we open an in-memory DuckDB and ATTACH the file (whose
@@ -402,9 +419,10 @@ def build_pudl_db_asset(
     Args:
         target: Which database to build (:data:`SQLITE_TARGET` or
             :data:`DUCKDB_TARGET`).
-        asset_keys: Keys of the Parquet-writing assets whose tables should be
-            included (i.e. ``Resource.create_database_schema`` is True). Used both as
-            the asset's dependencies and as the table list.
+        asset_keys: Keys of the Parquet-writing assets whose tables should be included
+            (i.e. ``Resource.create_database_schema`` is True). Used only to declare the
+            asset's Dagster dependencies; :func:`_write_pudl_db` derives its own table
+            list from ``target``'s schema, which is expected to name the same tables.
 
     Returns:
         A Dagster :class:`~dagster.AssetsDefinition` for the ``target``'s asset.
@@ -421,8 +439,7 @@ def build_pudl_db_asset(
         """Materialize the database and record its size and table count."""
         pudl_paths: PudlPaths = context.resources.pudl_paths
         db_path = target.db_path(pudl_paths)
-        table_names = [key.path[-1] for key in asset_keys]
-        report = _write_pudl_db(target, db_path, table_names, paths=pudl_paths)
+        report = _write_pudl_db(target, db_path, paths=pudl_paths)
 
         metadata: dict[str, dg.MetadataValue] = {
             "path": dg.MetadataValue.path(db_path),

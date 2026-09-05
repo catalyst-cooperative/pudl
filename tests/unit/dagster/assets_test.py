@@ -7,6 +7,7 @@ import dagster as dg
 import pytest
 from pytest_mock import MockerFixture
 
+import pudl.dagster.assets as pudl_assets
 from pudl.dagster.assets.core import datapackage
 from pudl.dagster.assets.core.datapackage import (
     _collect_dagster_file_metadata,
@@ -16,6 +17,33 @@ from pudl.dagster.assets.core.datapackage import (
     _enrich_sources,
     _propagate_source_enrichments,
 )
+from pudl.metadata.classes import Package, Resource
+
+
+def test_find_sqlite_asset_keys_filters_to_database_tables(
+    mocker: MockerFixture,
+) -> None:
+    """Only parquet asset keys naming a table in the database schema are returned."""
+    included = Resource(
+        name="included",
+        schema={
+            "fields": [{"name": "id", "type": "integer", "description": "id"}],
+            "primary_key": ["id"],
+        },
+        description="Included in the database schema",
+    )
+    test_pkg = Package(name="test", resources=[included])
+    mocker.patch.object(pudl_assets, "PUDL_PACKAGE", test_pkg)
+
+    included_key = dg.AssetKey(["included"])
+    excluded_key = dg.AssetKey(["excluded"])
+    mocker.patch.object(
+        pudl_assets,
+        "_find_parquet_asset_keys",
+        return_value=[excluded_key, included_key],
+    )
+
+    assert pudl_assets._find_sqlite_asset_keys(assets=[]) == [included_key]
 
 
 @pytest.mark.parametrize(

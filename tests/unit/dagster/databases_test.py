@@ -496,6 +496,42 @@ def test_duckdb_foreign_keys_declared_and_enforced(
     engine.dispose()
 
 
+def test_write_pudl_db_orders_writes_by_foreign_key_dependency(
+    tmp_path: Path, paths: PudlPaths, test_pkg: Package, mocker
+):
+    """``_write_pudl_db`` writes parents before children, regardless of input order.
+
+    Regression test: the caller (``_find_sqlite_asset_keys``) makes no ordering
+    guarantee, so ``_write_pudl_db`` must derive write order itself from the
+    schema's FK-topological order. Passing ``table_names`` with the child
+    ("plant") listed before its parent ("utility") must still succeed under
+    DuckDB, which enforces FKs as rows land and would otherwise fail on "plant"
+    before "utility" exists.
+    """
+    mocker.patch("pudl.dagster.assets.output.databases.PUDL_PACKAGE", test_pkg)
+    _write_parquet(
+        paths,
+        "utility",
+        pd.DataFrame({"utility_id_eia": [1], "utility_name_eia": ["A"]}),
+    )
+    _write_parquet(
+        paths,
+        "plant",
+        pd.DataFrame(
+            {
+                "plant_id_eia": [1],
+                "plant_name_eia": ["Plant A"],
+                "utility_id_eia": [1],
+            }
+        ),
+    )
+    report = _write_pudl_db(
+        DUCKDB_TARGET, tmp_path / "pudl.duckdb", ["plant", "utility"], paths=paths
+    )
+    assert report.errors == []
+    assert report.row_counts == {"utility": 1, "plant": 1}
+
+
 def test_duckdb_schema_shares_enum_type_across_tables(test_pkg: Package):
     """A named ENUM type shared by two tables is created exactly once.
 
@@ -561,6 +597,49 @@ def test_write_pudl_db_end_to_end(
     assert db_path.exists()
     assert _row_count(target, db_path, "utility") == 2
     assert _row_count(target, db_path, "plant") == 2
+
+
+def test_write_pudl_db_defaults_to_every_schema_table(
+    write_db,
+    db_path: Path,
+    paths: PudlPaths,
+    test_pkg: Package,
+    mocker,
+):
+    """Omitting ``table_names`` writes every ``create_database_schema=True`` table.
+
+    Mirrors how the real Dagster asset calls ``_write_pudl_db``: ``asset_keys`` only
+    declares dependencies now, so production never passes a table list explicitly.
+    """
+    mocker.patch("pudl.dagster.assets.output.databases.PUDL_PACKAGE", test_pkg)
+    table_data = {
+        "utility": pd.DataFrame({"utility_id_eia": [1], "utility_name_eia": ["A"]}),
+        "plant": pd.DataFrame(
+            {
+                "plant_id_eia": [1],
+                "plant_name_eia": ["Plant A"],
+                "utility_id_eia": [1],
+            }
+        ),
+        "boiler_generator_assn": pd.DataFrame(
+            {"plant_id_eia": [1], "generator_id": [1]}
+        ),
+        "fuel_type": pd.DataFrame({"fuel_type_code": ["gas"]}),
+        "generator_status": pd.DataFrame(
+            {"id": [1], "operational_status_code": ["existing"]}
+        ),
+        "boiler_status": pd.DataFrame(
+            {"id": [1], "operational_status_code": ["existing"]}
+        ),
+    }
+    assert set(table_data) == {r.name for r in test_pkg.resources}
+    for table_name, df in table_data.items():
+        _write_parquet(paths, table_name, df)
+
+    report = write_db(db_path, paths=paths)
+
+    assert report.errors == []
+    assert set(report.row_counts) == set(table_data)
 
 
 def test_write_pudl_db_replaces_existing_file(
