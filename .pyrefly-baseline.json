@@ -3457,30 +3457,6 @@
       "severity": "error"
     },
     {
-      "line": 22,
-      "column": 15,
-      "stop_line": 22,
-      "stop_column": 39,
-      "path": "src/pudl/glue/ferc714.py",
-      "code": -2,
-      "name": "bad-specialization",
-      "description": "Expected 2 type arguments for `dict`, got 1",
-      "concise_description": "Expected 2 type arguments for `dict`, got 1",
-      "severity": "error"
-    },
-    {
-      "line": 22,
-      "column": 20,
-      "stop_line": 22,
-      "stop_column": 38,
-      "path": "src/pudl/glue/ferc714.py",
-      "code": -2,
-      "name": "not-a-type",
-      "description": "Expected a type form, got instance of `slice[type[str], type[DataFrame], None]`",
-      "concise_description": "Expected a type form, got instance of `slice[type[str], type[DataFrame], None]`",
-      "severity": "error"
-    },
-    {
       "line": 651,
       "column": 26,
       "stop_line": 651,
@@ -7345,57 +7321,9 @@
       "severity": "error"
     },
     {
-      "line": 147,
-      "column": 54,
-      "stop_line": 147,
-      "stop_column": 75,
-      "path": "src/pudl/transform/ferc1.py",
-      "code": -2,
-      "name": "bad-specialization",
-      "description": "Expected 2 type arguments for `dict`, got 1",
-      "concise_description": "Expected 2 type arguments for `dict`, got 1",
-      "severity": "error"
-    },
-    {
-      "line": 147,
-      "column": 59,
-      "stop_line": 147,
-      "stop_column": 74,
-      "path": "src/pudl/transform/ferc1.py",
-      "code": -2,
-      "name": "not-a-type",
-      "description": "Expected a type form, got instance of `slice[type[str], type[list[str]], None]`",
-      "concise_description": "Expected a type form, got instance of `slice[type[str], type[list[str]], None]`",
-      "severity": "error"
-    },
-    {
-      "line": 158,
-      "column": 45,
-      "stop_line": 158,
-      "stop_column": 67,
-      "path": "src/pudl/transform/ferc1.py",
-      "code": -2,
-      "name": "missing-attribute",
-      "description": "Object of class `str` has no attribute `items`",
-      "concise_description": "Object of class `str` has no attribute `items`",
-      "severity": "error"
-    },
-    {
-      "line": 178,
-      "column": 45,
-      "stop_line": 178,
-      "stop_column": 61,
-      "path": "src/pudl/transform/ferc1.py",
-      "code": -2,
-      "name": "bad-argument-type",
-      "description": "Argument `dict[Unknown, Unknown]` is not assignable to parameter `tables_to_fields` with type `str` in function `label_source_tables`",
-      "concise_description": "Argument `dict[Unknown, Unknown]` is not assignable to parameter `tables_to_fields` with type `str` in function `label_source_tables`",
-      "severity": "error"
-    },
-    {
-      "line": 367,
+      "line": 369,
       "column": 24,
-      "stop_line": 367,
+      "stop_line": 369,
       "stop_column": 44,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7405,9 +7333,9 @@
       "severity": "error"
     },
     {
-      "line": 386,
+      "line": 388,
       "column": 9,
-      "stop_line": 387,
+      "stop_line": 389,
       "stop_column": 36,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7417,9 +7345,9 @@
       "severity": "error"
     },
     {
-      "line": 454,
+      "line": 456,
       "column": 9,
-      "stop_line": 454,
+      "stop_line": 456,
       "stop_column": 32,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7429,9 +7357,9 @@
       "severity": "error"
     },
     {
-      "line": 778,
+      "line": 780,
       "column": 12,
-      "stop_line": 778,
+      "stop_line": 780,
       "stop_column": 48,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7441,9 +7369,9 @@
       "severity": "error"
     },
     {
-      "line": 784,
+      "line": 786,
       "column": 8,
-      "stop_line": 784,
+      "stop_line": 786,
       "stop_column": 66,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7453,9 +7381,9 @@
       "severity": "error"
     },
     {
-      "line": 784,
+      "line": 786,
       "column": 50,
-      "stop_line": 784,
+      "stop_line": 786,
       "stop_column": 54,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7465,9 +7393,9 @@
       "severity": "error"
     },
     {
-      "line": 790,
+      "line": 792,
       "column": 5,
-      "stop_line": 790,
+      "stop_line": 792,
       "stop_column": 36,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7477,9 +7405,9 @@
       "severity": "error"
     },
     {
-      "line": 791,
+      "line": 793,
       "column": 16,
-      "stop_line": 791,
+      "stop_line": 793,
       "stop_column": 46,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7489,9 +7417,9 @@
       "severity": "error"
     },
     {
-      "line": 792,
+      "line": 794,
       "column": 9,
-      "stop_line": 792,
+      "stop_line": 794,
       "stop_column": 40,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7501,9 +7429,9 @@
       "severity": "error"
     },
     {
-      "line": 968,
+      "line": 970,
       "column": 43,
-      "stop_line": 968,
+      "stop_line": 970,
       "stop_column": 66,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7513,9 +7441,9 @@
       "severity": "error"
     },
     {
-      "line": 1172,
+      "line": 1174,
       "column": 9,
-      "stop_line": 1172,
+      "stop_line": 1174,
       "stop_column": 70,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7525,9 +7453,9 @@
       "severity": "error"
     },
     {
-      "line": 1528,
+      "line": 1530,
       "column": 71,
-      "stop_line": 1530,
+      "stop_line": 1532,
       "stop_column": 10,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7537,9 +7465,9 @@
       "severity": "error"
     },
     {
-      "line": 1578,
+      "line": 1580,
       "column": 16,
-      "stop_line": 1578,
+      "stop_line": 1580,
       "stop_column": 19,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7549,9 +7477,9 @@
       "severity": "error"
     },
     {
-      "line": 1590,
+      "line": 1592,
       "column": 16,
-      "stop_line": 1590,
+      "stop_line": 1592,
       "stop_column": 24,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7561,9 +7489,9 @@
       "severity": "error"
     },
     {
-      "line": 1613,
+      "line": 1615,
       "column": 19,
-      "stop_line": 1613,
+      "stop_line": 1615,
       "stop_column": 54,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7573,9 +7501,9 @@
       "severity": "error"
     },
     {
-      "line": 1623,
+      "line": 1625,
       "column": 20,
-      "stop_line": 1623,
+      "stop_line": 1625,
       "stop_column": 26,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7585,9 +7513,9 @@
       "severity": "error"
     },
     {
-      "line": 1677,
+      "line": 1679,
       "column": 19,
-      "stop_line": 1677,
+      "stop_line": 1679,
       "stop_column": 24,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7597,9 +7525,9 @@
       "severity": "error"
     },
     {
-      "line": 1733,
+      "line": 1735,
       "column": 16,
-      "stop_line": 1733,
+      "stop_line": 1735,
       "stop_column": 43,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7609,9 +7537,9 @@
       "severity": "error"
     },
     {
-      "line": 1748,
+      "line": 1750,
       "column": 16,
-      "stop_line": 1748,
+      "stop_line": 1750,
       "stop_column": 58,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7621,51 +7549,27 @@
       "severity": "error"
     },
     {
-      "line": 1775,
+      "line": 1777,
       "column": 10,
-      "stop_line": 1775,
+      "stop_line": 1777,
       "stop_column": 31,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
       "name": "missing-attribute",
       "description": "Object of class `Properties` has no attribute `year`",
       "concise_description": "Object of class `Properties` has no attribute `year`",
-      "severity": "error"
-    },
-    {
-      "line": 1776,
-      "column": 12,
-      "stop_line": 1776,
-      "stop_column": 34,
-      "path": "src/pudl/transform/ferc1.py",
-      "code": -2,
-      "name": "missing-attribute",
-      "description": "Object of class `Properties` has no attribute `month`",
-      "concise_description": "Object of class `Properties` has no attribute `month`",
-      "severity": "error"
-    },
-    {
-      "line": 1777,
-      "column": 12,
-      "stop_line": 1777,
-      "stop_column": 32,
-      "path": "src/pudl/transform/ferc1.py",
-      "code": -2,
-      "name": "missing-attribute",
-      "description": "Object of class `Properties` has no attribute `day`",
-      "concise_description": "Object of class `Properties` has no attribute `day`",
       "severity": "error"
     },
     {
       "line": 1778,
       "column": 12,
       "stop_line": 1778,
-      "stop_column": 31,
+      "stop_column": 34,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
       "name": "missing-attribute",
-      "description": "Object of class `Properties` has no attribute `year`",
-      "concise_description": "Object of class `Properties` has no attribute `year`",
+      "description": "Object of class `Properties` has no attribute `month`",
+      "concise_description": "Object of class `Properties` has no attribute `month`",
       "severity": "error"
     },
     {
@@ -7676,14 +7580,38 @@
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
       "name": "missing-attribute",
-      "description": "Object of class `Properties` has no attribute `month`",
-      "concise_description": "Object of class `Properties` has no attribute `month`",
+      "description": "Object of class `Properties` has no attribute `day`",
+      "concise_description": "Object of class `Properties` has no attribute `day`",
       "severity": "error"
     },
     {
       "line": 1780,
       "column": 12,
       "stop_line": 1780,
+      "stop_column": 31,
+      "path": "src/pudl/transform/ferc1.py",
+      "code": -2,
+      "name": "missing-attribute",
+      "description": "Object of class `Properties` has no attribute `year`",
+      "concise_description": "Object of class `Properties` has no attribute `year`",
+      "severity": "error"
+    },
+    {
+      "line": 1781,
+      "column": 12,
+      "stop_line": 1781,
+      "stop_column": 32,
+      "path": "src/pudl/transform/ferc1.py",
+      "code": -2,
+      "name": "missing-attribute",
+      "description": "Object of class `Properties` has no attribute `month`",
+      "concise_description": "Object of class `Properties` has no attribute `month`",
+      "severity": "error"
+    },
+    {
+      "line": 1782,
+      "column": 12,
+      "stop_line": 1782,
       "stop_column": 30,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7693,9 +7621,9 @@
       "severity": "error"
     },
     {
-      "line": 1825,
+      "line": 1827,
       "column": 13,
-      "stop_line": 1825,
+      "stop_line": 1827,
       "stop_column": 85,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7705,9 +7633,9 @@
       "severity": "error"
     },
     {
-      "line": 1848,
+      "line": 1850,
       "column": 26,
-      "stop_line": 1858,
+      "stop_line": 1860,
       "stop_column": 6,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7717,9 +7645,9 @@
       "severity": "error"
     },
     {
-      "line": 1931,
+      "line": 1933,
       "column": 9,
-      "stop_line": 1931,
+      "stop_line": 1933,
       "stop_column": 74,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7729,9 +7657,9 @@
       "severity": "error"
     },
     {
-      "line": 2010,
+      "line": 2012,
       "column": 5,
-      "stop_line": 2010,
+      "stop_line": 2012,
       "stop_column": 13,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7741,9 +7669,9 @@
       "severity": "error"
     },
     {
-      "line": 2012,
+      "line": 2014,
       "column": 5,
-      "stop_line": 2012,
+      "stop_line": 2014,
       "stop_column": 11,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7753,9 +7681,9 @@
       "severity": "error"
     },
     {
-      "line": 2055,
+      "line": 2057,
       "column": 34,
-      "stop_line": 2055,
+      "stop_line": 2057,
       "stop_column": 60,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7765,9 +7693,9 @@
       "severity": "error"
     },
     {
-      "line": 2060,
+      "line": 2062,
       "column": 9,
-      "stop_line": 2060,
+      "stop_line": 2062,
       "stop_column": 24,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7777,9 +7705,9 @@
       "severity": "error"
     },
     {
-      "line": 2070,
+      "line": 2072,
       "column": 25,
-      "stop_line": 2070,
+      "stop_line": 2072,
       "stop_column": 41,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7789,9 +7717,9 @@
       "severity": "error"
     },
     {
-      "line": 2071,
+      "line": 2073,
       "column": 26,
-      "stop_line": 2071,
+      "stop_line": 2073,
       "stop_column": 43,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7801,9 +7729,9 @@
       "severity": "error"
     },
     {
-      "line": 2079,
+      "line": 2081,
       "column": 9,
-      "stop_line": 2079,
+      "stop_line": 2081,
       "stop_column": 23,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7813,9 +7741,9 @@
       "severity": "error"
     },
     {
-      "line": 2099,
+      "line": 2101,
       "column": 18,
-      "stop_line": 2099,
+      "stop_line": 2101,
       "stop_column": 44,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7825,9 +7753,9 @@
       "severity": "error"
     },
     {
-      "line": 2105,
+      "line": 2107,
       "column": 9,
-      "stop_line": 2105,
+      "stop_line": 2107,
       "stop_column": 22,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7837,9 +7765,9 @@
       "severity": "error"
     },
     {
-      "line": 2494,
+      "line": 2496,
       "column": 32,
-      "stop_line": 2494,
+      "stop_line": 2496,
       "stop_column": 37,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7849,9 +7777,9 @@
       "severity": "error"
     },
     {
-      "line": 2494,
+      "line": 2496,
       "column": 52,
-      "stop_line": 2494,
+      "stop_line": 2496,
       "stop_column": 57,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7861,9 +7789,9 @@
       "severity": "error"
     },
     {
-      "line": 2548,
+      "line": 2550,
       "column": 44,
-      "stop_line": 2548,
+      "stop_line": 2550,
       "stop_column": 65,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7873,9 +7801,9 @@
       "severity": "error"
     },
     {
-      "line": 2704,
+      "line": 2706,
       "column": 32,
-      "stop_line": 2704,
+      "stop_line": 2706,
       "stop_column": 47,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7885,9 +7813,9 @@
       "severity": "error"
     },
     {
-      "line": 2726,
+      "line": 2728,
       "column": 16,
-      "stop_line": 2726,
+      "stop_line": 2728,
       "stop_column": 51,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7897,9 +7825,9 @@
       "severity": "error"
     },
     {
-      "line": 2734,
+      "line": 2736,
       "column": 18,
-      "stop_line": 2734,
+      "stop_line": 2736,
       "stop_column": 47,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7909,9 +7837,9 @@
       "severity": "error"
     },
     {
-      "line": 2755,
+      "line": 2757,
       "column": 13,
-      "stop_line": 2755,
+      "stop_line": 2757,
       "stop_column": 56,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7921,9 +7849,9 @@
       "severity": "error"
     },
     {
-      "line": 2765,
+      "line": 2767,
       "column": 9,
-      "stop_line": 2765,
+      "stop_line": 2767,
       "stop_column": 23,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7933,9 +7861,9 @@
       "severity": "error"
     },
     {
-      "line": 2781,
+      "line": 2783,
       "column": 72,
-      "stop_line": 2781,
+      "stop_line": 2783,
       "stop_column": 84,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7945,9 +7873,9 @@
       "severity": "error"
     },
     {
-      "line": 2919,
+      "line": 2921,
       "column": 81,
-      "stop_line": 2921,
+      "stop_line": 2923,
       "stop_column": 10,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7957,9 +7885,9 @@
       "severity": "error"
     },
     {
-      "line": 2922,
+      "line": 2924,
       "column": 83,
-      "stop_line": 2924,
+      "stop_line": 2926,
       "stop_column": 10,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7969,9 +7897,9 @@
       "severity": "error"
     },
     {
-      "line": 3010,
+      "line": 3012,
       "column": 51,
-      "stop_line": 3010,
+      "stop_line": 3012,
       "stop_column": 65,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7981,9 +7909,9 @@
       "severity": "error"
     },
     {
-      "line": 3025,
+      "line": 3027,
       "column": 55,
-      "stop_line": 3025,
+      "stop_line": 3027,
       "stop_column": 70,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7993,9 +7921,9 @@
       "severity": "error"
     },
     {
-      "line": 3237,
+      "line": 3239,
       "column": 32,
-      "stop_line": 3237,
+      "stop_line": 3239,
       "stop_column": 47,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8005,9 +7933,9 @@
       "severity": "error"
     },
     {
-      "line": 3289,
+      "line": 3291,
       "column": 16,
-      "stop_line": 3289,
+      "stop_line": 3291,
       "stop_column": 51,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8017,9 +7945,9 @@
       "severity": "error"
     },
     {
-      "line": 3332,
+      "line": 3334,
       "column": 9,
-      "stop_line": 3332,
+      "stop_line": 3334,
       "stop_column": 23,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8029,9 +7957,9 @@
       "severity": "error"
     },
     {
-      "line": 3339,
+      "line": 3341,
       "column": 13,
-      "stop_line": 3340,
+      "stop_line": 3342,
       "stop_column": 28,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8041,9 +7969,9 @@
       "severity": "error"
     },
     {
-      "line": 3509,
+      "line": 3511,
       "column": 13,
-      "stop_line": 3510,
+      "stop_line": 3512,
       "stop_column": 25,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8053,9 +7981,9 @@
       "severity": "error"
     },
     {
-      "line": 3541,
+      "line": 3543,
       "column": 13,
-      "stop_line": 3541,
+      "stop_line": 3543,
       "stop_column": 56,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8065,9 +7993,9 @@
       "severity": "error"
     },
     {
-      "line": 3759,
+      "line": 3761,
       "column": 9,
-      "stop_line": 3759,
+      "stop_line": 3761,
       "stop_column": 26,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8077,9 +8005,9 @@
       "severity": "error"
     },
     {
-      "line": 3768,
+      "line": 3770,
       "column": 46,
-      "stop_line": 3768,
+      "stop_line": 3770,
       "stop_column": 52,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8089,9 +8017,9 @@
       "severity": "error"
     },
     {
-      "line": 3782,
+      "line": 3784,
       "column": 9,
-      "stop_line": 3782,
+      "stop_line": 3784,
       "stop_column": 23,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8101,9 +8029,9 @@
       "severity": "error"
     },
     {
-      "line": 3784,
+      "line": 3786,
       "column": 14,
-      "stop_line": 3784,
+      "stop_line": 3786,
       "stop_column": 36,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8113,9 +8041,9 @@
       "severity": "error"
     },
     {
-      "line": 3869,
+      "line": 3871,
       "column": 20,
-      "stop_line": 3869,
+      "stop_line": 3871,
       "stop_column": 49,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8125,9 +8053,9 @@
       "severity": "error"
     },
     {
-      "line": 4010,
+      "line": 4012,
       "column": 16,
-      "stop_line": 4010,
+      "stop_line": 4012,
       "stop_column": 35,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8137,9 +8065,9 @@
       "severity": "error"
     },
     {
-      "line": 4020,
+      "line": 4022,
       "column": 14,
-      "stop_line": 4020,
+      "stop_line": 4022,
       "stop_column": 36,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8149,9 +8077,9 @@
       "severity": "error"
     },
     {
-      "line": 4290,
+      "line": 4292,
       "column": 24,
-      "stop_line": 4290,
+      "stop_line": 4292,
       "stop_column": 37,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8161,9 +8089,9 @@
       "severity": "error"
     },
     {
-      "line": 4498,
+      "line": 4500,
       "column": 33,
-      "stop_line": 4498,
+      "stop_line": 4500,
       "stop_column": 75,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8173,9 +8101,9 @@
       "severity": "error"
     },
     {
-      "line": 4994,
+      "line": 4996,
       "column": 9,
-      "stop_line": 4994,
+      "stop_line": 4996,
       "stop_column": 23,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8185,9 +8113,9 @@
       "severity": "error"
     },
     {
-      "line": 4997,
+      "line": 4999,
       "column": 16,
-      "stop_line": 4997,
+      "stop_line": 4999,
       "stop_column": 38,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8197,9 +8125,9 @@
       "severity": "error"
     },
     {
-      "line": 5052,
+      "line": 5054,
       "column": 9,
-      "stop_line": 5052,
+      "stop_line": 5054,
       "stop_column": 21,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8209,9 +8137,9 @@
       "severity": "error"
     },
     {
-      "line": 5060,
+      "line": 5062,
       "column": 16,
-      "stop_line": 5060,
+      "stop_line": 5062,
       "stop_column": 36,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8221,9 +8149,9 @@
       "severity": "error"
     },
     {
-      "line": 5103,
+      "line": 5105,
       "column": 9,
-      "stop_line": 5103,
+      "stop_line": 5105,
       "stop_column": 23,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8233,9 +8161,9 @@
       "severity": "error"
     },
     {
-      "line": 5109,
+      "line": 5111,
       "column": 18,
-      "stop_line": 5109,
+      "stop_line": 5111,
       "stop_column": 42,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8245,9 +8173,9 @@
       "severity": "error"
     },
     {
-      "line": 5323,
+      "line": 5325,
       "column": 14,
-      "stop_line": 5323,
+      "stop_line": 5325,
       "stop_column": 36,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8257,9 +8185,9 @@
       "severity": "error"
     },
     {
-      "line": 5400,
+      "line": 5402,
       "column": 14,
-      "stop_line": 5400,
+      "stop_line": 5402,
       "stop_column": 36,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8269,9 +8197,9 @@
       "severity": "error"
     },
     {
-      "line": 5490,
+      "line": 5492,
       "column": 9,
-      "stop_line": 5490,
+      "stop_line": 5492,
       "stop_column": 20,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8281,9 +8209,9 @@
       "severity": "error"
     },
     {
-      "line": 5521,
+      "line": 5523,
       "column": 19,
-      "stop_line": 5521,
+      "stop_line": 5523,
       "stop_column": 38,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8293,9 +8221,9 @@
       "severity": "error"
     },
     {
-      "line": 5524,
+      "line": 5526,
       "column": 9,
-      "stop_line": 5524,
+      "stop_line": 5526,
       "stop_column": 23,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8305,9 +8233,9 @@
       "severity": "error"
     },
     {
-      "line": 5532,
+      "line": 5534,
       "column": 14,
-      "stop_line": 5532,
+      "stop_line": 5534,
       "stop_column": 36,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8317,9 +8245,9 @@
       "severity": "error"
     },
     {
-      "line": 5610,
+      "line": 5612,
       "column": 9,
-      "stop_line": 5610,
+      "stop_line": 5612,
       "stop_column": 20,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8329,9 +8257,9 @@
       "severity": "error"
     },
     {
-      "line": 5619,
+      "line": 5621,
       "column": 13,
-      "stop_line": 5620,
+      "stop_line": 5622,
       "stop_column": 25,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8341,9 +8269,9 @@
       "severity": "error"
     },
     {
-      "line": 5635,
+      "line": 5637,
       "column": 14,
-      "stop_line": 5635,
+      "stop_line": 5637,
       "stop_column": 36,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8353,9 +8281,9 @@
       "severity": "error"
     },
     {
-      "line": 5638,
+      "line": 5640,
       "column": 9,
-      "stop_line": 5638,
+      "stop_line": 5640,
       "stop_column": 22,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8365,9 +8293,9 @@
       "severity": "error"
     },
     {
-      "line": 5640,
+      "line": 5642,
       "column": 16,
-      "stop_line": 5640,
+      "stop_line": 5642,
       "stop_column": 37,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8377,9 +8305,9 @@
       "severity": "error"
     },
     {
-      "line": 5825,
+      "line": 5827,
       "column": 20,
-      "stop_line": 5825,
+      "stop_line": 5827,
       "stop_column": 25,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8389,9 +8317,9 @@
       "severity": "error"
     },
     {
-      "line": 5870,
+      "line": 5872,
       "column": 35,
-      "stop_line": 5870,
+      "stop_line": 5872,
       "stop_column": 83,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8401,9 +8329,9 @@
       "severity": "error"
     },
     {
-      "line": 5933,
+      "line": 5935,
       "column": 16,
-      "stop_line": 5933,
+      "stop_line": 5935,
       "stop_column": 45,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8413,9 +8341,9 @@
       "severity": "error"
     },
     {
-      "line": 6003,
+      "line": 6005,
       "column": 9,
-      "stop_line": 6003,
+      "stop_line": 6005,
       "stop_column": 23,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8425,9 +8353,9 @@
       "severity": "error"
     },
     {
-      "line": 6006,
+      "line": 6008,
       "column": 13,
-      "stop_line": 6007,
+      "stop_line": 6009,
       "stop_column": 28,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8437,9 +8365,9 @@
       "severity": "error"
     },
     {
-      "line": 6061,
+      "line": 6063,
       "column": 14,
-      "stop_line": 6061,
+      "stop_line": 6063,
       "stop_column": 33,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8449,9 +8377,9 @@
       "severity": "error"
     },
     {
-      "line": 6076,
+      "line": 6078,
       "column": 72,
-      "stop_line": 6078,
+      "stop_line": 6080,
       "stop_column": 10,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8461,9 +8389,9 @@
       "severity": "error"
     },
     {
-      "line": 6136,
+      "line": 6138,
       "column": 16,
-      "stop_line": 6136,
+      "stop_line": 6138,
       "stop_column": 35,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8473,9 +8401,9 @@
       "severity": "error"
     },
     {
-      "line": 6148,
+      "line": 6150,
       "column": 72,
-      "stop_line": 6150,
+      "stop_line": 6152,
       "stop_column": 10,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8485,9 +8413,9 @@
       "severity": "error"
     },
     {
-      "line": 6165,
+      "line": 6167,
       "column": 74,
-      "stop_line": 6167,
+      "stop_line": 6169,
       "stop_column": 10,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8497,9 +8425,9 @@
       "severity": "error"
     },
     {
-      "line": 6184,
+      "line": 6186,
       "column": 9,
-      "stop_line": 6184,
+      "stop_line": 6186,
       "stop_column": 22,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8509,9 +8437,9 @@
       "severity": "error"
     },
     {
-      "line": 6219,
+      "line": 6221,
       "column": 14,
-      "stop_line": 6219,
+      "stop_line": 6221,
       "stop_column": 35,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8521,9 +8449,9 @@
       "severity": "error"
     },
     {
-      "line": 6324,
+      "line": 6326,
       "column": 16,
-      "stop_line": 6324,
+      "stop_line": 6326,
       "stop_column": 35,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8533,9 +8461,9 @@
       "severity": "error"
     },
     {
-      "line": 6384,
+      "line": 6386,
       "column": 16,
-      "stop_line": 6384,
+      "stop_line": 6386,
       "stop_column": 38,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8545,9 +8473,9 @@
       "severity": "error"
     },
     {
-      "line": 6413,
+      "line": 6415,
       "column": 72,
-      "stop_line": 6415,
+      "stop_line": 6417,
       "stop_column": 10,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8557,9 +8485,9 @@
       "severity": "error"
     },
     {
-      "line": 6422,
+      "line": 6424,
       "column": 13,
-      "stop_line": 6423,
+      "stop_line": 6425,
       "stop_column": 28,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8569,9 +8497,9 @@
       "severity": "error"
     },
     {
-      "line": 6547,
+      "line": 6549,
       "column": 24,
-      "stop_line": 6547,
+      "stop_line": 6549,
       "stop_column": 49,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8581,9 +8509,9 @@
       "severity": "error"
     },
     {
-      "line": 6548,
+      "line": 6550,
       "column": 25,
-      "stop_line": 6548,
+      "stop_line": 6550,
       "stop_column": 51,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8593,9 +8521,9 @@
       "severity": "error"
     },
     {
-      "line": 6550,
+      "line": 6552,
       "column": 13,
-      "stop_line": 6550,
+      "stop_line": 6552,
       "stop_column": 56,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8605,9 +8533,9 @@
       "severity": "error"
     },
     {
-      "line": 6573,
+      "line": 6575,
       "column": 9,
-      "stop_line": 6573,
+      "stop_line": 6575,
       "stop_column": 21,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8617,9 +8545,9 @@
       "severity": "error"
     },
     {
-      "line": 6598,
+      "line": 6600,
       "column": 16,
-      "stop_line": 6598,
+      "stop_line": 6600,
       "stop_column": 36,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8629,9 +8557,9 @@
       "severity": "error"
     },
     {
-      "line": 6707,
+      "line": 6709,
       "column": 27,
-      "stop_line": 6707,
+      "stop_line": 6709,
       "stop_column": 36,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8641,9 +8569,9 @@
       "severity": "error"
     },
     {
-      "line": 6713,
+      "line": 6715,
       "column": 27,
-      "stop_line": 6713,
+      "stop_line": 6715,
       "stop_column": 36,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8653,9 +8581,9 @@
       "severity": "error"
     },
     {
-      "line": 6749,
+      "line": 6751,
       "column": 55,
-      "stop_line": 6749,
+      "stop_line": 6751,
       "stop_column": 64,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8665,9 +8593,9 @@
       "severity": "error"
     },
     {
-      "line": 6783,
+      "line": 6785,
       "column": 12,
-      "stop_line": 6787,
+      "stop_line": 6789,
       "stop_column": 6,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8677,9 +8605,9 @@
       "severity": "error"
     },
     {
-      "line": 6975,
+      "line": 6977,
       "column": 17,
-      "stop_line": 6975,
+      "stop_line": 6977,
       "stop_column": 51,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8689,9 +8617,9 @@
       "severity": "error"
     },
     {
-      "line": 7001,
+      "line": 7003,
       "column": 21,
-      "stop_line": 7003,
+      "stop_line": 7005,
       "stop_column": 43,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8701,9 +8629,9 @@
       "severity": "error"
     },
     {
-      "line": 7307,
+      "line": 7309,
       "column": 39,
-      "stop_line": 7307,
+      "stop_line": 7309,
       "stop_column": 87,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8713,9 +8641,9 @@
       "severity": "error"
     },
     {
-      "line": 7318,
+      "line": 7320,
       "column": 17,
-      "stop_line": 7318,
+      "stop_line": 7320,
       "stop_column": 43,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8818,18 +8746,6 @@
       "name": "bad-return",
       "description": "Returned type `DataFrame` is not assignable to declared return type `Series`",
       "concise_description": "Returned type `DataFrame` is not assignable to declared return type `Series`",
-      "severity": "error"
-    },
-    {
-      "line": 102,
-      "column": 9,
-      "stop_line": 102,
-      "stop_column": 42,
-      "path": "src/pudl/transform/nrelatb.py",
-      "code": -2,
-      "name": "invalid-annotation",
-      "description": "`idx_are_same_or_subset_of_idx_all` method cls type `Self@TableUnstacker` is not a valid `type[...]` annotation",
-      "concise_description": "`idx_are_same_or_subset_of_idx_all` method cls type `Self@TableUnstacker` is not a valid `type[...]` annotation",
       "severity": "error"
     },
     {
@@ -11365,21 +11281,9 @@
       "severity": "error"
     },
     {
-      "line": 746,
-      "column": 77,
-      "stop_line": 746,
-      "stop_column": 79,
-      "path": "tests/unit/transform/classes_test.py",
-      "code": -2,
-      "name": "invalid-annotation",
-      "description": "Tuple literal cannot be used in annotations",
-      "concise_description": "Tuple literal cannot be used in annotations",
-      "severity": "error"
-    },
-    {
-      "line": 1021,
+      "line": 1023,
       "column": 9,
-      "stop_line": 1021,
+      "stop_line": 1023,
       "stop_column": 24,
       "path": "tests/unit/transform/classes_test.py",
       "code": -2,
@@ -11389,9 +11293,9 @@
       "severity": "error"
     },
     {
-      "line": 1029,
+      "line": 1031,
       "column": 9,
-      "stop_line": 1029,
+      "stop_line": 1031,
       "stop_column": 23,
       "path": "tests/unit/transform/classes_test.py",
       "code": -2,
@@ -11401,9 +11305,9 @@
       "severity": "error"
     },
     {
-      "line": 1041,
+      "line": 1043,
       "column": 9,
-      "stop_line": 1041,
+      "stop_line": 1043,
       "stop_column": 22,
       "path": "tests/unit/transform/classes_test.py",
       "code": -2,
