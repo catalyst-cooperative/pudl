@@ -21,12 +21,13 @@ def git_repo(tmp_path, monkeypatch) -> Path:
     Real ``git`` commands (via ``run_git``), not mocks, so these tests actually
     exercise git's own tag resolution (``rev-parse <tag>^{commit}``) rather than
     just the string-comparison logic downstream of it. ``tmp_path`` living outside
-    this repo's own working tree isn't enough to isolate these commands on its own:
-    ``GIT_DIR``/``GIT_WORK_TREE``/``GIT_INDEX_FILE`` env vars, if set in the calling
-    process (as pre-commit/git hooks do), override git's normal cwd-based repo
-    discovery and would silently redirect ``run_git`` here into the real PUDL repo's
-    index instead of this throwaway one. Clearing them for the test process ensures
-    ``run_git``'s ``cwd=repo_root`` is what actually determines the repo.
+    this repo's own working tree isn't enough to isolate these commands on its own.
+
+    We need to unset some git env vars and redirect git's global/system config to empty
+    files so that the throwaway repo's local config is the only config in effect.
+    Leaving the global / system env vars unset results in git falling back to the
+    default locations for those configs (``~/.gitconfig`` and ``/etc/gitconfig``) which
+    may well exist.
     """
     for var in (
         "GIT_DIR",
@@ -38,14 +39,16 @@ def git_repo(tmp_path, monkeypatch) -> Path:
     ):
         monkeypatch.delenv(var, raising=False)
 
+    empty_config = tmp_path / "empty_gitconfig"
+    empty_config.write_text("")
+    monkeypatch.setenv("GIT_CONFIG_GLOBAL", str(empty_config))
+    monkeypatch.setenv("GIT_CONFIG_SYSTEM", str(empty_config))
+
     repo_root = tmp_path / "repo"
     repo_root.mkdir()
     run_git(["init"], cwd=repo_root)
     run_git(["config", "user.email", "test@example.com"], cwd=repo_root)
     run_git(["config", "user.name", "Test"], cwd=repo_root)
-    # Override any ambient global gpg-signing config, which would otherwise make
-    # `git tag` fail here asking for a signing key/message it doesn't have.
-    run_git(["config", "tag.gpgSign", "false"], cwd=repo_root)
     (repo_root / "README.md").write_text("test\n")
     run_git(["add", "README.md"], cwd=repo_root)
     run_git(["commit", "-m", "Initial commit"], cwd=repo_root)
