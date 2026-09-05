@@ -13,6 +13,11 @@ warnings.filterwarnings(
     message=r"Specifying a partitions_def on an AssetCheckSpec is currently in preview.*",
     category=PreviewWarning,
 )
+warnings.filterwarnings(
+    action="ignore",
+    message=r"grpcio < 1\.83\.0 does not support Post-Quantum Cryptography.*",
+    category=FutureWarning,
+)
 
 configure_root_logger()
 
