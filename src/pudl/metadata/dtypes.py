@@ -145,14 +145,22 @@ PERIODS: dict[str, Callable[[pd.Series], pd.Series | pd.DataFrame]] = {
 }
 """Functions converting datetimes to period start times, by time period."""
 
-PudlDtypeBackend = Literal["pandas", "polars", "sqlite", "duckdb", "pyarrow"]
+PudlDtypeBackend = Literal[
+    "duckdb",
+    "pandas",
+    "polars",
+    "pyarrow",
+    "sqlalchemy",
+    "sqlite",
+]
 
 _DTYPE_MAPS_BY_BACKEND: dict[PudlDtypeBackend, dict[str, Any]] = {
+    "duckdb": FIELD_DTYPES_DUCKDB,
     "pandas": FIELD_DTYPES_PANDAS,
     "polars": FIELD_DTYPES_POLARS,
-    "sqlite": FIELD_DTYPES_SQLITE,
-    "duckdb": FIELD_DTYPES_DUCKDB,
     "pyarrow": FIELD_DTYPES_PYARROW,
+    "sqlalchemy": FIELD_DTYPES_SQLALCHEMY,
+    "sqlite": FIELD_DTYPES_SQLITE,
 }
 
 
