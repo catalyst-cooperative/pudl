@@ -91,7 +91,9 @@ Developer Experience
   :issue:`5552` and PR :pr:`5554`.
 * Re-enabled foreign key constraint enforcement when writing ``pudl.duckdb``, which had
   previously been disabled because of the type mismatches described above. Enforcing
-  referential integrity on write adds about 140 seconds to a full build. See
+  referential integrity on write adds about 140 seconds to a full build and increases
+  the size of ``pudl.duckdb`` from 9 GB to 15 GB. Tables are written in foreign-key
+  dependency order so parents land before the rows that reference them. See
   :issue:`5552` and PR :pr:`5554`.
 
 .. _release-v2026.9.0:
@@ -346,7 +348,6 @@ Bug Fixes & Data Cleaning
   present in both databases, neither database has extra tables, and every table has the
   same columns and the same row count in SQLite, DuckDB, and its source Parquet file.
   See PR :pr:`5538`.
-* Closed a long-standing gap in which Pandera's Polars backend only checked column
   presence and dtype for ``pl.LazyFrame`` assets, silently skipping every range, enum,
   nullability, regex, and uniqueness check declared in our metadata for the vast
   majority of PUDL tables. Content validation is now explicitly enabled for these
