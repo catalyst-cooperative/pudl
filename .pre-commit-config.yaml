@@ -109,7 +109,7 @@ repos:
     hooks:
       - id: trufflehog
         name: TruffleHog
-        entry: trufflehog git file://. --since-commit HEAD --fail --exclude-paths trufflehog-exclude.txt
+        entry: trufflehog git file://. --since-commit HEAD --fail --exclude-paths .trufflehog-exclude.txt
         language: golang
         pass_filenames: false
 
