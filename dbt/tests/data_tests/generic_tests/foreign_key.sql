@@ -41,7 +41,7 @@ ANTI JOIN {{ pk_table_name }} AS parent_rows
 -- data test. See https://github.com/catalyst-cooperative/pudl/pull/5554
 ON
     {% for fk_column_name, pk_column_name in zip(fk_column_names, pk_column_names) %}
-    CAST(child_rows.{{ fk_column_name }} AS VARCHAR) = CAST(parent_rows.{{ pk_column_name }} AS VARCHAR)
+    child_rows.{{ fk_column_name }} = parent_rows.{{ pk_column_name }}
     {% if not loop.last %} AND {% endif %}
     {% endfor %}
 WHERE
