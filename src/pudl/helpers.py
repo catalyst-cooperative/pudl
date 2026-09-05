@@ -2041,11 +2041,24 @@ def fix_boolean_columns(
     return df.fillna(fillna_cols).replace(to_replace=boolean_replace_cols)
 
 
+MergeValidate = Literal[
+    "1:1",
+    "1:m",
+    "m:1",
+    "m:m",
+    "one_to_one",
+    "one_to_many",
+    "many_to_one",
+    "many_to_many",
+]
+"""Mirrors the ``validate`` literal accepted by :meth:`pandas.DataFrame.merge`."""
+
+
 def scale_by_ownership(
     gens: pd.DataFrame,
     own_eia860: pd.DataFrame,
     scale_cols: list,
-    validate: str = "1:m",
+    validate: MergeValidate = "1:m",
 ) -> pd.DataFrame:
     """Generate proportional data by ownership %s.
 

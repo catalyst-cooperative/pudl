@@ -2545,27 +2545,15 @@
       "severity": "error"
     },
     {
-      "line": 404,
+      "line": 398,
       "column": 13,
-      "stop_line": 404,
+      "stop_line": 398,
       "stop_column": 71,
       "path": "src/pudl/deploy/pudl.py",
       "code": -2,
       "name": "bad-argument-type",
       "description": "Argument `tuple[S3FileSystem, str, bool]` is not assignable to parameter `object` with type `tuple[ExtendedGcsFileSystem | GCSFileSystem, str, bool]` in function `list.append`",
       "concise_description": "Argument `tuple[S3FileSystem, str, bool]` is not assignable to parameter `object` with type `tuple[ExtendedGcsFileSystem | GCSFileSystem, str, bool]` in function `list.append`",
-      "severity": "error"
-    },
-    {
-      "line": 641,
-      "column": 19,
-      "stop_line": 641,
-      "stop_column": 79,
-      "path": "src/pudl/deploy/pudl.py",
-      "code": -2,
-      "name": "missing-attribute",
-      "description": "Object of class `NoneType` has no attribute `strip`",
-      "concise_description": "Object of class `NoneType` has no attribute `strip`",
       "severity": "error"
     },
     {
@@ -3493,9 +3481,9 @@
       "severity": "error"
     },
     {
-      "line": 623,
+      "line": 651,
       "column": 26,
-      "stop_line": 623,
+      "stop_line": 651,
       "stop_column": 30,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3505,9 +3493,9 @@
       "severity": "error"
     },
     {
-      "line": 773,
+      "line": 801,
       "column": 25,
-      "stop_line": 773,
+      "stop_line": 801,
       "stop_column": 52,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3517,9 +3505,9 @@
       "severity": "error"
     },
     {
-      "line": 784,
+      "line": 812,
       "column": 25,
-      "stop_line": 784,
+      "stop_line": 812,
       "stop_column": 52,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3529,9 +3517,9 @@
       "severity": "error"
     },
     {
-      "line": 785,
+      "line": 813,
       "column": 26,
-      "stop_line": 785,
+      "stop_line": 813,
       "stop_column": 54,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3541,9 +3529,9 @@
       "severity": "error"
     },
     {
-      "line": 916,
+      "line": 944,
       "column": 31,
-      "stop_line": 916,
+      "stop_line": 944,
       "stop_column": 41,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3553,9 +3541,9 @@
       "severity": "error"
     },
     {
-      "line": 1478,
+      "line": 1506,
       "column": 12,
-      "stop_line": 1478,
+      "stop_line": 1506,
       "stop_column": 18,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3565,9 +3553,9 @@
       "severity": "error"
     },
     {
-      "line": 1710,
+      "line": 1738,
       "column": 22,
-      "stop_line": 1710,
+      "stop_line": 1738,
       "stop_column": 49,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3577,9 +3565,9 @@
       "severity": "error"
     },
     {
-      "line": 1711,
+      "line": 1739,
       "column": 17,
-      "stop_line": 1711,
+      "stop_line": 1739,
       "stop_column": 44,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3589,9 +3577,9 @@
       "severity": "error"
     },
     {
-      "line": 1713,
+      "line": 1741,
       "column": 21,
-      "stop_line": 1713,
+      "stop_line": 1741,
       "stop_column": 26,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3601,9 +3589,9 @@
       "severity": "error"
     },
     {
-      "line": 1858,
+      "line": 1886,
       "column": 9,
-      "stop_line": 1859,
+      "stop_line": 1887,
       "stop_column": 41,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3613,9 +3601,9 @@
       "severity": "error"
     },
     {
-      "line": 1916,
+      "line": 1944,
       "column": 47,
-      "stop_line": 1916,
+      "stop_line": 1944,
       "stop_column": 56,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3625,21 +3613,9 @@
       "severity": "error"
     },
     {
-      "line": 2084,
-      "column": 22,
-      "stop_line": 2084,
-      "stop_column": 30,
-      "path": "src/pudl/helpers.py",
-      "code": -2,
-      "name": "bad-argument-type",
-      "description": "Argument `str` is not assignable to parameter `validate` with type `Literal['1:1', '1:m', 'm:1', 'm:m', 'many_to_many', 'many_to_one', 'one_to_many', 'one_to_one'] | None` in function `pandas.core.frame.DataFrame.merge`",
-      "concise_description": "Argument `str` is not assignable to parameter `validate` with type `Literal['1:1', '1:m', 'm:1', 'm:m', 'many_to_many', 'many_to_one', 'one_to_many', 'one_to_one'] | None` in function `pandas.core.frame.DataFrame.merge`",
-      "severity": "error"
-    },
-    {
-      "line": 2129,
+      "line": 2192,
       "column": 10,
-      "stop_line": 2133,
+      "stop_line": 2196,
       "stop_column": 17,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3649,9 +3625,9 @@
       "severity": "error"
     },
     {
-      "line": 2165,
+      "line": 2228,
       "column": 35,
-      "stop_line": 2165,
+      "stop_line": 2228,
       "stop_column": 46,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3661,9 +3637,9 @@
       "severity": "error"
     },
     {
-      "line": 2166,
+      "line": 2229,
       "column": 9,
-      "stop_line": 2166,
+      "stop_line": 2229,
       "stop_column": 32,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3673,9 +3649,9 @@
       "severity": "error"
     },
     {
-      "line": 2168,
+      "line": 2231,
       "column": 35,
-      "stop_line": 2168,
+      "stop_line": 2231,
       "stop_column": 46,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3685,9 +3661,9 @@
       "severity": "error"
     },
     {
-      "line": 2169,
+      "line": 2232,
       "column": 9,
-      "stop_line": 2169,
+      "stop_line": 2232,
       "stop_column": 32,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3697,9 +3673,9 @@
       "severity": "error"
     },
     {
-      "line": 2413,
+      "line": 2476,
       "column": 57,
-      "stop_line": 2413,
+      "stop_line": 2476,
       "stop_column": 73,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3709,9 +3685,9 @@
       "severity": "error"
     },
     {
-      "line": 2555,
+      "line": 2618,
       "column": 1,
-      "stop_line": 2555,
+      "stop_line": 2618,
       "stop_column": 16,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3721,9 +3697,9 @@
       "severity": "error"
     },
     {
-      "line": 2558,
+      "line": 2621,
       "column": 6,
-      "stop_line": 2558,
+      "stop_line": 2621,
       "stop_column": 63,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3733,9 +3709,9 @@
       "severity": "error"
     },
     {
-      "line": 2584,
+      "line": 2647,
       "column": 6,
-      "stop_line": 2584,
+      "stop_line": 2647,
       "stop_column": 29,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3745,9 +3721,9 @@
       "severity": "error"
     },
     {
-      "line": 2732,
+      "line": 2795,
       "column": 27,
-      "stop_line": 2732,
+      "stop_line": 2795,
       "stop_column": 55,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3757,9 +3733,9 @@
       "severity": "error"
     },
     {
-      "line": 2760,
+      "line": 2823,
       "column": 12,
-      "stop_line": 2760,
+      "stop_line": 2823,
       "stop_column": 40,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -5209,18 +5185,6 @@
       "severity": "error"
     },
     {
-      "line": 65,
-      "column": 18,
-      "stop_line": 65,
-      "stop_column": 26,
-      "path": "src/pudl/scripts/pudl_check_fks.py",
-      "code": -2,
-      "name": "bad-argument-type",
-      "description": "Argument `str` is not assignable to parameter `loglevel` with type `Literal['CRITICAL', 'DEBUG', 'ERROR', 'INFO', 'WARNING']` in function `pudl.logging_helpers.configure_root_logger`",
-      "concise_description": "Argument `str` is not assignable to parameter `loglevel` with type `Literal['CRITICAL', 'DEBUG', 'ERROR', 'INFO', 'WARNING']` in function `pudl.logging_helpers.configure_root_logger`",
-      "severity": "error"
-    },
-    {
       "line": 187,
       "column": 61,
       "stop_line": 187,
@@ -5290,18 +5254,6 @@
       "name": "bad-argument-type",
       "description": "Argument `Traversable` is not assignable to parameter `yaml_file` with type `Path` in function `update_yaml_dois`",
       "concise_description": "Argument `Traversable` is not assignable to parameter `yaml_file` with type `Path` in function `update_yaml_dois`",
-      "severity": "error"
-    },
-    {
-      "line": 523,
-      "column": 36,
-      "stop_line": 523,
-      "stop_column": 64,
-      "path": "src/pudl/scripts/zenodo_data_release.py",
-      "code": -2,
-      "name": "bad-argument-type",
-      "description": "Unpacked keyword argument `str | Any` is not assignable to parameter `creators` with type `Iterable[Mapping[Unknown, Any]]` in function `_LegacyMetadata.__init__`",
-      "concise_description": "Unpacked keyword argument `str | Any` is not assignable to parameter `creators` with type `Iterable[Mapping[Unknown, Any]]` in function `_LegacyMetadata.__init__`",
       "severity": "error"
     },
     {
@@ -9925,18 +9877,6 @@
       "severity": "error"
     },
     {
-      "line": 85,
-      "column": 13,
-      "stop_line": 85,
-      "stop_column": 86,
-      "path": "tests/unit/analysis/ml_tools_test.py",
-      "code": -2,
-      "name": "bad-index",
-      "description": "Cannot index into `list[Run]`\n  No matching overload found for function `list.__getitem__` called with arguments: (list[str])\n  Possible overloads:\n    (i: SupportsIndex, /) -> Run [closest match]\n    (s: slice[SupportsIndex | None, SupportsIndex | None, SupportsIndex | Unknown | None], /) -> list[Run]\n  Argument `list[str]` is not assignable to parameter `i` with type `SupportsIndex` in function `list.__getitem__`",
-      "concise_description": "Cannot index into `list[Run]`",
-      "severity": "error"
-    },
-    {
       "line": 254,
       "column": 20,
       "stop_line": 254,
@@ -9949,9 +9889,9 @@
       "severity": "error"
     },
     {
-      "line": 563,
+      "line": 658,
       "column": 33,
-      "stop_line": 563,
+      "stop_line": 658,
       "stop_column": 52,
       "path": "tests/unit/analysis/plant_parts_eia_test.py",
       "code": -2,
@@ -9997,9 +9937,9 @@
       "severity": "error"
     },
     {
-      "line": 142,
+      "line": 144,
       "column": 27,
-      "stop_line": 142,
+      "stop_line": 144,
       "stop_column": 55,
       "path": "tests/unit/dagster/asset_checks_test.py",
       "code": -2,
@@ -10117,9 +10057,9 @@
       "severity": "error"
     },
     {
-      "line": 333,
+      "line": 301,
       "column": 33,
-      "stop_line": 336,
+      "stop_line": 304,
       "stop_column": 10,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10129,9 +10069,9 @@
       "severity": "error"
     },
     {
-      "line": 364,
+      "line": 332,
       "column": 61,
-      "stop_line": 368,
+      "stop_line": 336,
       "stop_column": 6,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10141,9 +10081,9 @@
       "severity": "error"
     },
     {
-      "line": 378,
+      "line": 346,
       "column": 5,
-      "stop_line": 378,
+      "stop_line": 346,
       "stop_column": 26,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10153,9 +10093,9 @@
       "severity": "error"
     },
     {
-      "line": 380,
+      "line": 348,
       "column": 5,
-      "stop_line": 380,
+      "stop_line": 348,
       "stop_column": 59,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10165,9 +10105,9 @@
       "severity": "error"
     },
     {
-      "line": 410,
+      "line": 378,
       "column": 9,
-      "stop_line": 410,
+      "stop_line": 378,
       "stop_column": 38,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10177,9 +10117,9 @@
       "severity": "error"
     },
     {
-      "line": 422,
+      "line": 390,
       "column": 63,
-      "stop_line": 426,
+      "stop_line": 394,
       "stop_column": 6,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10189,9 +10129,9 @@
       "severity": "error"
     },
     {
-      "line": 438,
+      "line": 406,
       "column": 5,
-      "stop_line": 438,
+      "stop_line": 406,
       "stop_column": 26,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10201,9 +10141,9 @@
       "severity": "error"
     },
     {
-      "line": 439,
+      "line": 407,
       "column": 5,
-      "stop_line": 439,
+      "stop_line": 407,
       "stop_column": 59,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10213,9 +10153,9 @@
       "severity": "error"
     },
     {
-      "line": 470,
+      "line": 438,
       "column": 9,
-      "stop_line": 470,
+      "stop_line": 438,
       "stop_column": 38,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10225,9 +10165,9 @@
       "severity": "error"
     },
     {
-      "line": 483,
+      "line": 451,
       "column": 61,
-      "stop_line": 487,
+      "stop_line": 455,
       "stop_column": 6,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10237,9 +10177,9 @@
       "severity": "error"
     },
     {
-      "line": 497,
+      "line": 465,
       "column": 19,
-      "stop_line": 497,
+      "stop_line": 465,
       "stop_column": 70,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10249,9 +10189,9 @@
       "severity": "error"
     },
     {
-      "line": 504,
+      "line": 472,
       "column": 5,
-      "stop_line": 504,
+      "stop_line": 472,
       "stop_column": 26,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10261,9 +10201,9 @@
       "severity": "error"
     },
     {
-      "line": 505,
+      "line": 473,
       "column": 5,
-      "stop_line": 505,
+      "stop_line": 473,
       "stop_column": 59,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10273,9 +10213,9 @@
       "severity": "error"
     },
     {
-      "line": 532,
+      "line": 500,
       "column": 61,
-      "stop_line": 536,
+      "stop_line": 504,
       "stop_column": 6,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10285,9 +10225,9 @@
       "severity": "error"
     },
     {
-      "line": 542,
+      "line": 510,
       "column": 5,
-      "stop_line": 542,
+      "stop_line": 510,
       "stop_column": 26,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10297,9 +10237,9 @@
       "severity": "error"
     },
     {
-      "line": 543,
+      "line": 511,
       "column": 5,
-      "stop_line": 543,
+      "stop_line": 511,
       "stop_column": 59,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10309,9 +10249,9 @@
       "severity": "error"
     },
     {
-      "line": 830,
+      "line": 798,
       "column": 40,
-      "stop_line": 830,
+      "stop_line": 798,
       "stop_column": 62,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10333,9 +10273,9 @@
       "severity": "error"
     },
     {
-      "line": 627,
+      "line": 659,
       "column": 55,
-      "stop_line": 627,
+      "stop_line": 659,
       "stop_column": 68,
       "path": "tests/unit/deploy/deploy_pudl_test.py",
       "code": -2,
@@ -11701,9 +11641,9 @@
       "severity": "error"
     },
     {
-      "line": 842,
+      "line": 860,
       "column": 5,
-      "stop_line": 842,
+      "stop_line": 860,
       "stop_column": 30,
       "path": "tests/unit/validate/dbt_helper_test.py",
       "code": -2,
