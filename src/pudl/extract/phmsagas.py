@@ -52,7 +52,7 @@ class Extractor(excel.ExcelExtractor):
             )
         return df
 
-    def process_renamed(self, newdata: pd.DataFrame, page: str, **partition):
+    def process_renamed(self, df: pd.DataFrame, page: str, **partition):
         """Drop columns that get mapped to other assets and columns with unstructured data.
 
         Old-ish years (1990-2009) of PHMSA data have one Excel tab in the raw data, while
@@ -67,19 +67,19 @@ class Extractor(excel.ExcelExtractor):
         (ex: 87 for 1987). We convert these into four digit years.
         """
         if (int(partition["year"]) <= 1998) and (page == "yearly_distribution"):
-            newdata.report_year = newdata.report_year.astype(pd.Int64Dtype())
+            df.report_year = df.report_year.astype(pd.Int64Dtype())
             double_digit_year_mask = (
-                newdata["report_year"].astype("str").str.contains(r"^[0-9]{2}$")
+                df["report_year"].astype("str").str.contains(r"^[0-9]{2}$")
             )
-            newdata.loc[double_digit_year_mask, "report_year"] = (
-                newdata.loc[double_digit_year_mask, "report_year"] + 1900
+            df.loc[double_digit_year_mask, "report_year"] = (
+                df.loc[double_digit_year_mask, "report_year"] + 1900
             )
         if (int(partition["year"]) < 2010) and (
             self._metadata.get_form(page) == "gas_transmission_gathering"
         ):
             to_drop = [
                 c
-                for c in newdata.columns
+                for c in df.columns
                 if c not in self._metadata.get_all_columns(page)
                 and c not in self.cols_added
             ]
@@ -89,7 +89,7 @@ class Extractor(excel.ExcelExtractor):
                     f"{page}/{str_part}: Dropping columns that are not mapped to this asset:"
                     f"\n{to_drop}"
                 )
-                newdata = newdata.drop(columns=to_drop, errors="ignore")
+                df = df.drop(columns=to_drop, errors="ignore")
         # there is an annoying middling number of columns in phmsa raw data that are unnamed
         # and have a smattering of random values. we want to drop these guys. but we are going
         # to enumerate what we expect to need to drop so if lots of new unmapped columns happen
@@ -111,17 +111,17 @@ class Extractor(excel.ExcelExtractor):
                 2009,
             ]
         }
-        unnamed_columns = newdata.filter(like="unnamed").columns
+        unnamed_columns = df.filter(like="unnamed").columns
         if (page in unnamed_page_years) and (
             int(partition["year"]) in unnamed_page_years[page]
         ):
-            newdata = newdata.drop(columns=unnamed_columns)
+            df = df.drop(columns=unnamed_columns)
         elif not unnamed_columns.empty:
             logger.warning(
                 "We found some unnamed columns that are probably not expected. "
                 f"Consider dropping them. Columns found: {unnamed_columns}"
             )
-        return newdata
+        return df
 
 
 raw_phmsagas__all_dfs = raw_df_factory(Extractor, name="phmsagas")

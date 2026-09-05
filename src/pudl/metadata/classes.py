@@ -173,7 +173,7 @@ def _format_for_sql(x: Any, identifier: bool = False) -> str:  # noqa: C901
     return f"'{x}'"
 
 
-def _get_jinja_environment(template_dir: DirectoryPath = None):
+def _get_jinja_environment(template_dir: DirectoryPath | None = None):
     if template_dir:
         path = template_dir / "templates"
     else:
@@ -1204,7 +1204,7 @@ class DataSource(PudlMeta):
                 return partitions[key]
         return []
 
-    def get_temporal_coverage(self, partitions: dict = None) -> str:
+    def get_temporal_coverage(self, partitions: dict | None = None) -> str:
         """Return a string describing the time span covered by the data source."""
         if partitions is None:
             partitions = self.working_partitions
@@ -1903,7 +1903,7 @@ class Resource(PudlMeta):
 
     def to_sql(
         self,
-        metadata: sa.MetaData = None,
+        metadata: sa.MetaData | None = None,
         check_types: bool = True,
         check_values: bool = True,
     ) -> sa.Table:
@@ -2511,7 +2511,7 @@ class Resource(PudlMeta):
     def harvest_dfs(
         self,
         dfs: dict[str, pd.DataFrame],
-        aggregate: bool = None,
+        aggregate: bool | None = None,
         aggregate_kwargs: dict[str, Any] = {},
         format_kwargs: dict[str, Any] = {},
     ) -> tuple[pd.DataFrame, dict]:

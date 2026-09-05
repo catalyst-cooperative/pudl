@@ -1225,7 +1225,7 @@ class Exploder:
         seed_nodes: list[NodeId],
         tags: pd.DataFrame = pd.DataFrame(),
         group_metric_checks: GroupMetricChecks = GroupMetricChecks(),
-        off_by_facts: list[OffByFactoid] = None,
+        off_by_facts: list[OffByFactoid] | None = None,
     ):
         """Instantiate an Exploder class.
 
