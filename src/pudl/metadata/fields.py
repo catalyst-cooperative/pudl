@@ -10982,7 +10982,14 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
             ),
         },
     },
-    "sector_consolidated_eia": {"code": {"type": "integer"}},
+    # These four hand-compiled coding tables store "code" as an integer, but the
+    # generic "code" field defaults to string type -- override it per-resource so
+    # the declared schema type matches the data and the FK columns that reference
+    # it (see PUDL issue #5552).
+    "core_eia__codes_sector_consolidated": {"code": {"type": "integer"}},
+    "core_eia__codes_steam_plant_types": {"code": {"type": "integer"}},
+    "core_eia__codes_wind_quality_class": {"code": {"type": "integer"}},
+    "core_rus__codes_investment_types": {"code": {"type": "integer"}},
     "core_eia861__yearly_reliability": {
         # customers genuinely contains fractional values (122 rows out of ~12,000
         # have non-integer values, e.g. 127553.8, 8989.3). This happens because

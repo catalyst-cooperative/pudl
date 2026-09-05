@@ -172,8 +172,8 @@ def _copy_table(
 
     ``PRIMARY KEY`` / ``NOT NULL`` / ``UNIQUE`` (and, for DuckDB, ``CHECK``) are
     enforced by the destination as the rows land. SQLite foreign keys are declared
-    but, per SQLite's default (``PRAGMA foreign_keys = OFF``), not checked on write;
-    the DuckDB schema has no foreign keys disabled.
+    but, per SQLite's default (``PRAGMA foreign_keys = OFF``), not checked on write.
+    DuckDB foreign keys are disabled to avoid increasing the database file size.
 
     Args:
         conn: An open DuckDB connection. For the SQLite target the destination
@@ -270,7 +270,7 @@ class _DatabaseTarget:
             return PUDL_PACKAGE.to_sql(
                 dialect="sqlite", check_types=False, check_values=False
             )
-        return PUDL_PACKAGE.to_sql(dialect="duckdb", include_foreign_keys=False)
+        return PUDL_PACKAGE.to_sql(dialect="duckdb")
 
     def table_ref(self, table_name: str) -> str:
         """Quoted SQL reference to ``table_name`` in the destination database."""

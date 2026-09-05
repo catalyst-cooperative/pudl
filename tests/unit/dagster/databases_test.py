@@ -500,10 +500,17 @@ def test_write_pudl_db_continues_past_failing_table(
     test_pkg: Package,
     mocker,
 ):
-    """A data-quality failure in one table is recorded; the others still load."""
+    """A data-quality failure in one table is recorded; the others still load.
+
+    "fuel_type" (not "plant") stands in for the succeeding table here specifically
+    because it has no foreign key to "utility": under DuckDB, a child row pointing at
+    a parent row that failed to write would itself fail on the FK constraint, which
+    would conflate this test's "independent tables" property with FK-enforcement
+    behavior (covered separately below).
+    """
     mocker.patch("pudl.dagster.assets.output.databases.PUDL_PACKAGE", test_pkg)
     # "utility" violates NOT NULL on utility_name_eia (enforced by both backends);
-    # "plant" is valid.
+    # "fuel_type" is valid and unrelated to "utility".
     _write_parquet(
         paths,
         "utility",
@@ -511,21 +518,15 @@ def test_write_pudl_db_continues_past_failing_table(
     )
     _write_parquet(
         paths,
-        "plant",
-        pd.DataFrame(
-            {
-                "plant_id_eia": [1],
-                "plant_name_eia": ["Plant A"],
-                "utility_id_eia": [1],
-            }
-        ),
+        "fuel_type",
+        pd.DataFrame({"fuel_type_code": ["NG"]}),
     )
 
-    report = write_db(db_path, ["utility", "plant"], paths=paths)
+    report = write_db(db_path, ["utility", "fuel_type"], paths=paths)
 
-    assert report.row_counts == {"plant": 1}
+    assert report.row_counts == {"fuel_type": 1}
     assert report.failed_tables == ["utility"]
     assert len(report.errors) == 1
     assert isinstance(report.errors[0].exception, duckdb.Error)
-    assert _row_count(target, db_path, "plant") == 1
+    assert _row_count(target, db_path, "fuel_type") == 1
     assert _row_count(target, db_path, "utility") == 0
