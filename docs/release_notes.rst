@@ -187,8 +187,9 @@ Bug Fixes & Data Cleaning
   :issue:`5552` and PR :pr:`5554`.
 * Re-enabled foreign key constraint enforcement when writing ``pudl.duckdb``, which had
   previously been disabled because of the type mismatches described above. Enforcing
-  referential integrity on write adds about 140 seconds to a full build. See
-  :issue:`5552` and PR :pr:`5554`.
+  referential integrity on write adds about 140 seconds to a full build, but also.
+  increases the size of ``pudl.duckdb`` from 9 GB to 15 GB. See :issue:`5552` and PR
+  :pr:`5554`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
