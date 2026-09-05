@@ -772,14 +772,25 @@ class Field(PudlMeta):
         dialect: Literal["sqlite", "duckdb"] = "sqlite",
         check_types: bool = True,
         check_values: bool = True,
+        enum_type_basename: str | None = None,
     ) -> sa.Column:
-        """Return equivalent SQL column for the given dialect."""
+        """Return equivalent SQL column for the given dialect.
+
+        Args:
+            dialect: SQL dialect to generate the column for.
+            check_types: passed through to :meth:`_to_sql_sqlite`.
+            check_values: passed through to :meth:`_to_sql_sqlite`/
+                :meth:`_to_sql_duckdb`.
+            enum_type_basename: passed through to :meth:`_to_sql_duckdb`.
+        """
         if dialect == "sqlite":
             return self._to_sql_sqlite(
                 check_types=check_types, check_values=check_values
             )
         if dialect == "duckdb":
-            return self._to_sql_duckdb(check_values=check_values)
+            return self._to_sql_duckdb(
+                check_values=check_values, enum_type_basename=enum_type_basename
+            )
         raise NotImplementedError(f"Dialect {dialect} is not supported")
 
     def _to_sql_sqlite(  # noqa: C901
@@ -865,7 +876,9 @@ class Field(PudlMeta):
             comment=self.description,
         )
 
-    def _to_sql_duckdb(self, check_values: bool = True) -> sa.Column:
+    def _to_sql_duckdb(
+        self, check_values: bool = True, enum_type_basename: str | None = None
+    ) -> sa.Column:
         """Return equivalent SQL column for the DuckDB dialect.
 
         Unlike :meth:`_to_sql_sqlite`, there is no ``check_types`` block here at
@@ -873,6 +886,20 @@ class Field(PudlMeta):
         structurally can't hold a string value. The ``TYPEOF``/``DATETIME``/``GLOB``
         checks built for SQLite exist specifically to compensate for SQLite's
         dynamic typing, and have no analog under DuckDB's native column types.
+
+        Args:
+            check_values: whether to emit CHECK constraints for value-level
+                constraints (min/max length, min/max, pattern).
+            enum_type_basename: name to use in place of :attr:`name` when
+                constructing this column's DuckDB ``ENUM`` type name, if it has an
+                ``enum`` constraint. DuckDB shares a named ``ENUM`` type across every
+                column that references it by name -- required for a foreign key
+                between two ``ENUM`` typed columns, since DuckDB compares FK columns
+                by nominal type, so a FK column and the coding table's own PK column
+                it references (which have different field names) need to pass the
+                same basename here. Defaults to :attr:`name` when not given,
+                preserving default behavior for enum fields with no such
+                relationship.
         """
         checks = []
         name = _format_for_sql(self.name, identifier=True)
@@ -905,11 +932,10 @@ class Field(PudlMeta):
             # a hash of the sorted value set keeps genuinely identical enums sharing one
             # dtype while giving each distinct value set its own.
             enum_hash = sha1(  # noqa: S324
-                repr(self.constraints.enum).encode("utf-8")
+                repr(sorted(self.constraints.enum)).encode("utf-8")
             ).hexdigest()[:8]
-            dtype = sa.Enum(
-                *self.constraints.enum, name=f"{self.name}_{enum_hash}_enum"
-            )
+            basename = enum_type_basename or self.name
+            dtype = sa.Enum(*self.constraints.enum, name=f"{basename}_{enum_hash}_enum")
         else:
             dtype = FIELD_DTYPES_SQLALCHEMY[self.type]
         return sa.Column(
@@ -2013,11 +2039,25 @@ class Resource(PudlMeta):
         """
         if metadata is None:
             metadata = sa.MetaData()
+        # A FK column and the coding table's own PK column it references need to
+        # resolve to the same DuckDB ENUM type name when both have an "enum"
+        # constraint (see Field._to_sql_duckdb) -- but they're never named the
+        # same thing (e.g. "contract_type_code" vs. "code"). Map each such field
+        # name to the coding table's resource name, which both sides can share.
+        enum_type_basenames: dict[str, str] = {}
+        if include_foreign_keys:
+            for fk in self.schema.foreign_keys:
+                for fk_field_name in fk.fields:
+                    enum_type_basenames[fk_field_name] = fk.reference.resource
+        if RESOURCE_METADATA.get(self.name, {}).get("encoder"):
+            for pk_field_name in self.schema.primary_key:
+                enum_type_basenames.setdefault(pk_field_name, self.name)
         columns = [
             f.to_sql(
                 dialect=dialect,
                 check_types=check_types,
                 check_values=check_values,
+                enum_type_basename=enum_type_basenames.get(f.name),
             )
             for f in self.schema.fields
         ]
@@ -2755,6 +2795,34 @@ class Package(PudlMeta):
                 ]
                 if missing:
                     errors.append(f"{tag}: Reference primary key missing {missing}")
+                    continue
+                for fk_field_name, pk_field_name in zip(
+                    foreign_key.fields, foreign_key.reference.fields, strict=True
+                ):
+                    fk_field = resource.get_field(fk_field_name)
+                    pk_field = reference.get_field(pk_field_name)
+                    if fk_field.type != pk_field.type:
+                        errors.append(
+                            f"{tag}: {fk_field_name} ({fk_field.type}) and "
+                            f"{pk_field_name} ({pk_field.type}) have incompatible "
+                            "types"
+                        )
+                    fk_enum = fk_field.constraints.enum
+                    pk_enum = pk_field.constraints.enum
+                    if bool(fk_enum) != bool(pk_enum) or (
+                        fk_enum and pk_enum and set(fk_enum) != set(pk_enum)
+                    ):
+                        # DuckDB compares foreign key columns by nominal SQL type,
+                        # and an "enum" constraint gets its own named ENUM type
+                        # (Field._to_sql_duckdb) -- an enum-constrained column
+                        # can't have a FK to (or from) a non-enum or
+                        # differently-valued column, even when both are
+                        # logically strings from a compatible domain.
+                        errors.append(
+                            f"{tag}: {fk_field_name} (enum={fk_enum}) and "
+                            f"{pk_field_name} (enum={pk_enum}) have incompatible "
+                            "enum constraints"
+                        )
         if errors:
             raise ValueError(
                 format_errors(*errors, title="Foreign keys", pydantic=True)

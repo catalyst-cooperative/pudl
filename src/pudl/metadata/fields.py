@@ -1440,7 +1440,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Purchase type under which receipts occurred in the reporting month. C: Contract, NC: New Contract, S: Spot Purchase, T: Tolling Agreement."
         ),
-        "constraints": {"enum": ["S", "C", "NC", "T"]},
+        "constraints": {
+            "enum": sorted(
+                CODE_METADATA["core_eia__codes_contract_types"]["df"]["code"]
+            )
+        },
     },
     "cooling_equipment_total_cost": {
         "description": (
@@ -10982,7 +10986,43 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
             ),
         },
     },
-    "sector_consolidated_eia": {"code": {"type": "integer"}},
+    # These four hand-compiled coding tables store "code" as an integer, but the
+    # generic "code" field defaults to string type -- override it per-resource so
+    # the declared schema type matches the data and the FK columns that reference
+    # it (see PUDL issue #5552).
+    "core_eia__codes_sector_consolidated": {"code": {"type": "integer"}},
+    "core_eia__codes_steam_plant_types": {"code": {"type": "integer"}},
+    "core_eia__codes_wind_quality_class": {"code": {"type": "integer"}},
+    "core_rus__codes_investment_types": {"code": {"type": "integer"}},
+    # These two coding tables' own "code" column gets the same enum constraint as
+    # the columns that reference it via a foreign key (e.g. "contract_type_code",
+    # "reporting_frequency_code"), derived from the same CODE_METADATA source so
+    # the two can never drift apart. Matching enum constraints are a prerequisite
+    # for both columns to resolve to the same named ENUM type under DuckDB, which
+    # is required for DuckDB to create a foreign key between them at all (see
+    # PUDL issue #5552).
+    "core_eia__codes_contract_types": {
+        "code": {
+            "constraints": {
+                "enum": sorted(
+                    CODE_METADATA["core_eia__codes_contract_types"]["df"]["code"]
+                )
+            }
+        }
+    },
+    "core_eia__codes_reporting_frequencies": {
+        "code": {
+            "constraints": {
+                "enum": sorted(
+                    set(
+                        CODE_METADATA["core_eia__codes_reporting_frequencies"]["df"][
+                            "code"
+                        ]
+                    )
+                )
+            }
+        }
+    },
     "core_eia861__yearly_reliability": {
         # customers genuinely contains fractional values (122 rows out of ~12,000
         # have non-integer values, e.g. 127553.8, 8989.3). This happens because

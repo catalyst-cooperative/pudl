@@ -129,6 +129,14 @@ Bug Fixes & Data Cleaning
 * Changed ``subplant_id`` in :ref:`core_epa__assn_eia_epacamd_subplant_ids` to be
   1-indexed instead of 0-indexed within each ``plant_id_eia``, so the first subplant at
   a plant is now ``1`` rather than ``0``. See issue :issue:`5499` and PR :pr:`5541`.
+* Re-enabled foreign key constraint enforcement when writing ``pudl.duckdb``
+  (previously disabled for performance), which surfaced a handful of latent schema
+  inconsistencies: mismatched types and ``enum`` constraints between some foreign
+  key columns and the primary keys they reference, and tables being written in an
+  order that didn't respect their foreign key dependencies. All of these are now
+  fixed, and ``Package`` construction validates FK/PK type and ``enum`` agreement
+  going forward. Enforcing referential integrity on write adds about 140 seconds
+  to a full build. See :issue:`5552`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
