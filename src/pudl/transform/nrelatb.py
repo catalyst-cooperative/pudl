@@ -99,7 +99,7 @@ class TableUnstacker(BaseModel):
 
     @field_validator("idx")
     @classmethod
-    def idx_are_same_or_subset_of_idx_all(cls: Self, idx: list[str]):
+    def idx_are_same_or_subset_of_idx_all(cls, idx: list[str]):
         """Are the :attr:`idx` columns either the same as or a subset of :attr:`IDX_ALL`?"""
         assert set(idx).issubset(IDX_ALL)
         return idx

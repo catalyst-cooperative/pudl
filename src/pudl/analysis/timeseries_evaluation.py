@@ -325,7 +325,7 @@ def insert_run_length(  # noqa: C901
     x: Sequence | np.ndarray,
     values: Sequence | np.ndarray,
     lengths: Sequence[int],
-    mask: Sequence[bool] = None,
+    mask: Sequence[bool] | None = None,
     padding: int = 0,
     intersect: bool = False,
 ) -> np.ndarray:  # pragma: no cover
@@ -511,7 +511,7 @@ def plot_flags(self, name: Any = 0) -> None:  # pragma: no cover
 
 def simulate_nulls(  # pragma: no cover
     self,
-    lengths: Sequence[int] = None,
+    lengths: Sequence[int] | None = None,
     padding: int = 1,
     intersect: bool = False,
     overlap: bool = False,
