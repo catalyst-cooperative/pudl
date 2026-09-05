@@ -49,7 +49,11 @@ from pudl.extract.ferc1 import raw_ferc1_assets, raw_ferc1_xbrl__metadata_json
 from pudl.helpers import get_parquet_table, simplify_strings
 from pudl.metadata.classes import Package
 from pudl.metadata.dtypes import apply_pudl_dtypes
-from pudl.transform.classes import StringNormalization, normalize_strings_multicol
+from pudl.transform.classes import (
+    InvalidRows,
+    StringNormalization,
+    normalize_strings_multicol,
+)
 from pudl.transform.ferc1 import (
     Ferc1AbstractTableTransformer,
     TableIdFerc1,
@@ -240,7 +244,9 @@ class GenericPlantFerc1TableTransformer(Ferc1AbstractTableTransformer):
             .assign(plant_table=self.table_id.value)
         )
 
-    def drop_invalid_rows(self, df):
+    def drop_invalid_rows(
+        self, df: pd.DataFrame, params: list[InvalidRows] | None = None
+    ) -> pd.DataFrame:
         """Add required valid columns before running standard drop_invalid_rows.
 
         This parent classes' method drops the whole df if all of the
@@ -248,11 +254,11 @@ class GenericPlantFerc1TableTransformer(Ferc1AbstractTableTransformer):
         in empty required columns because we know that the real ETL adds columns during
         the full transform step.
         """
+        if params is None:
+            params = self.params.drop_invalid_rows
         # ensure the required columns are actually in the df
         list_of_lists_of_required_valid_cols = [
-            param.required_valid_cols
-            for param in self.params.drop_invalid_rows
-            if param.required_valid_cols
+            param.required_valid_cols for param in params if param.required_valid_cols
         ]
         required_valid_cols = pudl.helpers.dedupe_n_flatten_list_of_lists(
             list_of_lists_of_required_valid_cols
@@ -266,7 +272,7 @@ class GenericPlantFerc1TableTransformer(Ferc1AbstractTableTransformer):
                     f"{missing_required_cols}"
                 )
                 df.loc[:, list(missing_required_cols)] = pd.NA
-        return super().drop_invalid_rows(df)
+        return super().drop_invalid_rows(df, params)
 
 
 def get_plants_ferc1_raw_job() -> JobDefinition:

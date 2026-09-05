@@ -3759,7 +3759,7 @@ class SteamPlantsFuelTableTransformer(Ferc1AbstractTableTransformer):
         return df.drop(index=total_rows_idx)
 
     def drop_invalid_rows(
-        self, df: pd.DataFrame, params: InvalidRows | None = None
+        self, df: pd.DataFrame, params: list[InvalidRows] | None = None
     ) -> pd.DataFrame:
         """Drop invalid rows from the fuel table.
 

@@ -565,18 +565,6 @@
       "severity": "error"
     },
     {
-      "line": 243,
-      "column": 50,
-      "stop_line": 243,
-      "stop_column": 54,
-      "path": "src/pudl/analysis/record_linkage/embed_dataframe.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `function_key` with type `str`\n  The declared type does not allow `None`. Consider changing the declared type to `str | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `function_key` with type `str`",
-      "severity": "error"
-    },
-    {
       "line": 57,
       "column": 62,
       "stop_line": 57,
@@ -817,21 +805,9 @@
       "severity": "error"
     },
     {
-      "line": 85,
-      "column": 60,
-      "stop_line": 85,
-      "stop_column": 64,
-      "path": "src/pudl/analysis/spatial.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `ratios` with type `Iterable[str]`\n  Protocol `Iterable` requires attribute `__iter__`\n  The declared type does not allow `None`. Consider changing the declared type to `Iterable[str] | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `ratios` with type `Iterable[str]`",
-      "severity": "error"
-    },
-    {
-      "line": 106,
+      "line": 108,
       "column": 50,
-      "stop_line": 106,
+      "stop_line": 108,
       "stop_column": 75,
       "path": "src/pudl/analysis/spatial.py",
       "code": -2,
@@ -841,9 +817,9 @@
       "severity": "error"
     },
     {
-      "line": 114,
+      "line": 116,
       "column": 9,
-      "stop_line": 114,
+      "stop_line": 116,
       "stop_column": 23,
       "path": "src/pudl/analysis/spatial.py",
       "code": -2,
@@ -853,21 +829,9 @@
       "severity": "error"
     },
     {
-      "line": 118,
-      "column": 63,
-      "stop_line": 118,
-      "stop_column": 67,
-      "path": "src/pudl/analysis/spatial.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `ratios` with type `Iterable[str]`\n  Protocol `Iterable` requires attribute `__iter__`\n  The declared type does not allow `None`. Consider changing the declared type to `Iterable[str] | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `ratios` with type `Iterable[str]`",
-      "severity": "error"
-    },
-    {
-      "line": 148,
+      "line": 152,
       "column": 30,
-      "stop_line": 148,
+      "stop_line": 152,
       "stop_column": 64,
       "path": "src/pudl/analysis/spatial.py",
       "code": -2,
@@ -877,9 +841,9 @@
       "severity": "error"
     },
     {
-      "line": 165,
+      "line": 169,
       "column": 9,
-      "stop_line": 165,
+      "stop_line": 169,
       "stop_column": 19,
       "path": "src/pudl/analysis/spatial.py",
       "code": -2,
@@ -889,9 +853,9 @@
       "severity": "error"
     },
     {
-      "line": 198,
+      "line": 202,
       "column": 55,
-      "stop_line": 198,
+      "stop_line": 202,
       "stop_column": 62,
       "path": "src/pudl/analysis/spatial.py",
       "code": -2,
@@ -901,9 +865,9 @@
       "severity": "error"
     },
     {
-      "line": 199,
+      "line": 203,
       "column": 27,
-      "stop_line": 199,
+      "stop_line": 203,
       "stop_column": 52,
       "path": "src/pudl/analysis/spatial.py",
       "code": -2,
@@ -913,9 +877,9 @@
       "severity": "error"
     },
     {
-      "line": 200,
+      "line": 204,
       "column": 19,
-      "stop_line": 200,
+      "stop_line": 204,
       "stop_column": 29,
       "path": "src/pudl/analysis/spatial.py",
       "code": -2,
@@ -925,21 +889,9 @@
       "severity": "error"
     },
     {
-      "line": 212,
-      "column": 29,
-      "stop_line": 212,
-      "stop_column": 33,
-      "path": "src/pudl/analysis/spatial.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `ratios` with type `Iterable[str]`\n  Protocol `Iterable` requires attribute `__iter__`\n  The declared type does not allow `None`. Consider changing the declared type to `Iterable[str] | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `ratios` with type `Iterable[str]`",
-      "severity": "error"
-    },
-    {
-      "line": 255,
+      "line": 259,
       "column": 12,
-      "stop_line": 258,
+      "stop_line": 262,
       "stop_column": 6,
       "path": "src/pudl/analysis/spatial.py",
       "code": -2,
@@ -949,9 +901,9 @@
       "severity": "error"
     },
     {
-      "line": 264,
+      "line": 268,
       "column": 25,
-      "stop_line": 264,
+      "stop_line": 268,
       "stop_column": 35,
       "path": "src/pudl/analysis/spatial.py",
       "code": -2,
@@ -961,9 +913,9 @@
       "severity": "error"
     },
     {
-      "line": 264,
+      "line": 268,
       "column": 44,
-      "stop_line": 264,
+      "stop_line": 268,
       "stop_column": 55,
       "path": "src/pudl/analysis/spatial.py",
       "code": -2,
@@ -973,9 +925,9 @@
       "severity": "error"
     },
     {
-      "line": 268,
+      "line": 272,
       "column": 13,
-      "stop_line": 268,
+      "stop_line": 272,
       "stop_column": 28,
       "path": "src/pudl/analysis/spatial.py",
       "code": -2,
@@ -985,9 +937,9 @@
       "severity": "error"
     },
     {
-      "line": 268,
+      "line": 272,
       "column": 13,
-      "stop_line": 268,
+      "stop_line": 272,
       "stop_column": 42,
       "path": "src/pudl/analysis/spatial.py",
       "code": -2,
@@ -997,9 +949,9 @@
       "severity": "error"
     },
     {
-      "line": 274,
+      "line": 278,
       "column": 37,
-      "stop_line": 274,
+      "stop_line": 278,
       "stop_column": 47,
       "path": "src/pudl/analysis/spatial.py",
       "code": -2,
@@ -1009,9 +961,9 @@
       "severity": "error"
     },
     {
-      "line": 274,
+      "line": 278,
       "column": 56,
-      "stop_line": 274,
+      "stop_line": 278,
       "stop_column": 67,
       "path": "src/pudl/analysis/spatial.py",
       "code": -2,
@@ -1021,9 +973,9 @@
       "severity": "error"
     },
     {
-      "line": 277,
+      "line": 281,
       "column": 21,
-      "stop_line": 277,
+      "stop_line": 281,
       "stop_column": 34,
       "path": "src/pudl/analysis/spatial.py",
       "code": -2,
@@ -1033,9 +985,9 @@
       "severity": "error"
     },
     {
-      "line": 278,
+      "line": 282,
       "column": 26,
-      "stop_line": 278,
+      "stop_line": 282,
       "stop_column": 33,
       "path": "src/pudl/analysis/spatial.py",
       "code": -2,
@@ -1045,9 +997,9 @@
       "severity": "error"
     },
     {
-      "line": 286,
+      "line": 290,
       "column": 12,
-      "stop_line": 286,
+      "stop_line": 290,
       "stop_column": 24,
       "path": "src/pudl/analysis/spatial.py",
       "code": -2,
@@ -1321,57 +1273,9 @@
       "severity": "error"
     },
     {
-      "line": 274,
-      "column": 33,
-      "stop_line": 274,
-      "stop_column": 37,
-      "path": "src/pudl/analysis/timeseries_cleaning.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `start` with type `int`\n  The declared type does not allow `None`. Consider changing the declared type to `int | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `start` with type `int`",
-      "severity": "error"
-    },
-    {
-      "line": 274,
-      "column": 50,
-      "stop_line": 274,
-      "stop_column": 54,
-      "path": "src/pudl/analysis/timeseries_cleaning.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `end` with type `int`\n  The declared type does not allow `None`. Consider changing the declared type to `int | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `end` with type `int`",
-      "severity": "error"
-    },
-    {
-      "line": 274,
-      "column": 68,
-      "stop_line": 274,
-      "stop_column": 72,
-      "path": "src/pudl/analysis/timeseries_cleaning.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `step` with type `int`\n  The declared type does not allow `None`. Consider changing the declared type to `int | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `step` with type `int`",
-      "severity": "error"
-    },
-    {
-      "line": 378,
-      "column": 28,
-      "stop_line": 378,
-      "stop_column": 32,
-      "path": "src/pudl/analysis/timeseries_cleaning.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `mask` with type `Sequence[bool]`\n  The declared type does not allow `None`. Consider changing the declared type to `Sequence[bool] | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `mask` with type `Sequence[bool]`",
-      "severity": "error"
-    },
-    {
-      "line": 484,
+      "line": 488,
       "column": 15,
-      "stop_line": 484,
+      "stop_line": 488,
       "stop_column": 41,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1381,9 +1285,9 @@
       "severity": "error"
     },
     {
-      "line": 539,
+      "line": 543,
       "column": 32,
-      "stop_line": 539,
+      "stop_line": 543,
       "stop_column": 68,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1393,9 +1297,9 @@
       "severity": "error"
     },
     {
-      "line": 548,
+      "line": 552,
       "column": 28,
-      "stop_line": 548,
+      "stop_line": 552,
       "stop_column": 53,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1405,9 +1309,9 @@
       "severity": "error"
     },
     {
-      "line": 741,
+      "line": 745,
       "column": 37,
-      "stop_line": 741,
+      "stop_line": 745,
       "stop_column": 48,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1417,9 +1321,9 @@
       "severity": "error"
     },
     {
-      "line": 1201,
+      "line": 1205,
       "column": 20,
-      "stop_line": 1201,
+      "stop_line": 1205,
       "stop_column": 36,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1429,9 +1333,9 @@
       "severity": "error"
     },
     {
-      "line": 1260,
+      "line": 1264,
       "column": 37,
-      "stop_line": 1260,
+      "stop_line": 1264,
       "stop_column": 50,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1441,9 +1345,9 @@
       "severity": "error"
     },
     {
-      "line": 1263,
+      "line": 1267,
       "column": 26,
-      "stop_line": 1263,
+      "stop_line": 1267,
       "stop_column": 39,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1453,9 +1357,9 @@
       "severity": "error"
     },
     {
-      "line": 1266,
+      "line": 1270,
       "column": 33,
-      "stop_line": 1266,
+      "stop_line": 1270,
       "stop_column": 46,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1465,9 +1369,9 @@
       "severity": "error"
     },
     {
-      "line": 1268,
+      "line": 1272,
       "column": 9,
-      "stop_line": 1268,
+      "stop_line": 1272,
       "stop_column": 25,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1477,9 +1381,9 @@
       "severity": "error"
     },
     {
-      "line": 1355,
+      "line": 1359,
       "column": 12,
-      "stop_line": 1355,
+      "stop_line": 1359,
       "stop_column": 30,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1489,45 +1393,21 @@
       "severity": "error"
     },
     {
-      "line": 1377,
-      "column": 30,
-      "stop_line": 1377,
-      "stop_column": 34,
-      "path": "src/pudl/analysis/timeseries_cleaning.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `lengths` with type `Sequence[int]`\n  The declared type does not allow `None`. Consider changing the declared type to `Sequence[int] | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `lengths` with type `Sequence[int]`",
-      "severity": "error"
-    },
-    {
-      "line": 1420,
+      "line": 1424,
       "column": 18,
-      "stop_line": 1420,
+      "stop_line": 1424,
       "stop_column": 47,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
       "name": "bad-argument-type",
-      "description": "Argument `ndarray | None` is not assignable to parameter `mask` with type `Sequence[bool]` in function `insert_run_length`\n  The declared type does not allow `None`. Consider narrowing the value with an `is not None` check.",
-      "concise_description": "Argument `ndarray | None` is not assignable to parameter `mask` with type `Sequence[bool]` in function `insert_run_length`",
+      "description": "Argument `ndarray | None` is not assignable to parameter `mask` with type `Sequence[bool] | None` in function `insert_run_length`",
+      "concise_description": "Argument `ndarray | None` is not assignable to parameter `mask` with type `Sequence[bool] | None` in function `insert_run_length`",
       "severity": "error"
     },
     {
-      "line": 1466,
-      "column": 24,
-      "stop_line": 1466,
-      "stop_column": 28,
-      "path": "src/pudl/analysis/timeseries_cleaning.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `mask` with type `ndarray`\n  The declared type does not allow `None`. Consider changing the declared type to `ndarray | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `mask` with type `ndarray`",
-      "severity": "error"
-    },
-    {
-      "line": 1510,
+      "line": 1514,
       "column": 12,
-      "stop_line": 1510,
+      "stop_line": 1514,
       "stop_column": 63,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1537,9 +1417,9 @@
       "severity": "error"
     },
     {
-      "line": 1593,
+      "line": 1597,
       "column": 33,
-      "stop_line": 1593,
+      "stop_line": 1597,
       "stop_column": 46,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1549,9 +1429,9 @@
       "severity": "error"
     },
     {
-      "line": 1614,
+      "line": 1618,
       "column": 12,
-      "stop_line": 1614,
+      "stop_line": 1618,
       "stop_column": 30,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1561,9 +1441,9 @@
       "severity": "error"
     },
     {
-      "line": 1700,
+      "line": 1704,
       "column": 31,
-      "stop_line": 1700,
+      "stop_line": 1704,
       "stop_column": 76,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1573,9 +1453,9 @@
       "severity": "error"
     },
     {
-      "line": 1701,
+      "line": 1705,
       "column": 28,
-      "stop_line": 1701,
+      "stop_line": 1705,
       "stop_column": 63,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1585,9 +1465,9 @@
       "severity": "error"
     },
     {
-      "line": 1704,
+      "line": 1708,
       "column": 21,
-      "stop_line": 1710,
+      "stop_line": 1714,
       "stop_column": 6,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1597,9 +1477,9 @@
       "severity": "error"
     },
     {
-      "line": 1725,
+      "line": 1729,
       "column": 9,
-      "stop_line": 1725,
+      "stop_line": 1729,
       "stop_column": 52,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1609,9 +1489,9 @@
       "severity": "error"
     },
     {
-      "line": 1726,
+      "line": 1730,
       "column": 12,
-      "stop_line": 1726,
+      "stop_line": 1730,
       "stop_column": 52,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1621,9 +1501,9 @@
       "severity": "error"
     },
     {
-      "line": 1827,
+      "line": 1831,
       "column": 9,
-      "stop_line": 1827,
+      "stop_line": 1831,
       "stop_column": 22,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1633,9 +1513,9 @@
       "severity": "error"
     },
     {
-      "line": 1834,
+      "line": 1838,
       "column": 23,
-      "stop_line": 1834,
+      "stop_line": 1838,
       "stop_column": 64,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1645,9 +1525,9 @@
       "severity": "error"
     },
     {
-      "line": 1964,
+      "line": 1968,
       "column": 13,
-      "stop_line": 1970,
+      "stop_line": 1974,
       "stop_column": 14,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1657,9 +1537,9 @@
       "severity": "error"
     },
     {
-      "line": 2006,
+      "line": 2010,
       "column": 13,
-      "stop_line": 2006,
+      "stop_line": 2010,
       "stop_column": 19,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1669,9 +1549,9 @@
       "severity": "error"
     },
     {
-      "line": 2043,
+      "line": 2047,
       "column": 13,
-      "stop_line": 2043,
+      "stop_line": 2047,
       "stop_column": 19,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1681,9 +1561,9 @@
       "severity": "error"
     },
     {
-      "line": 2050,
+      "line": 2054,
       "column": 31,
-      "stop_line": 2050,
+      "stop_line": 2054,
       "stop_column": 41,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1693,9 +1573,9 @@
       "severity": "error"
     },
     {
-      "line": 2050,
+      "line": 2054,
       "column": 59,
-      "stop_line": 2050,
+      "stop_line": 2054,
       "stop_column": 64,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1705,9 +1585,9 @@
       "severity": "error"
     },
     {
-      "line": 2107,
+      "line": 2111,
       "column": 17,
-      "stop_line": 2107,
+      "stop_line": 2111,
       "stop_column": 49,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1717,9 +1597,9 @@
       "severity": "error"
     },
     {
-      "line": 2107,
+      "line": 2111,
       "column": 51,
-      "stop_line": 2107,
+      "stop_line": 2111,
       "stop_column": 61,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1729,9 +1609,9 @@
       "severity": "error"
     },
     {
-      "line": 2124,
+      "line": 2128,
       "column": 30,
-      "stop_line": 2124,
+      "stop_line": 2128,
       "stop_column": 47,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1741,9 +1621,9 @@
       "severity": "error"
     },
     {
-      "line": 2128,
+      "line": 2132,
       "column": 29,
-      "stop_line": 2128,
+      "stop_line": 2132,
       "stop_column": 45,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1753,9 +1633,9 @@
       "severity": "error"
     },
     {
-      "line": 2153,
+      "line": 2157,
       "column": 13,
-      "stop_line": 2153,
+      "stop_line": 2157,
       "stop_column": 19,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1765,9 +1645,9 @@
       "severity": "error"
     },
     {
-      "line": 2159,
+      "line": 2163,
       "column": 31,
-      "stop_line": 2159,
+      "stop_line": 2163,
       "stop_column": 41,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1777,9 +1657,9 @@
       "severity": "error"
     },
     {
-      "line": 2159,
+      "line": 2163,
       "column": 59,
-      "stop_line": 2159,
+      "stop_line": 2163,
       "stop_column": 64,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1789,9 +1669,9 @@
       "severity": "error"
     },
     {
-      "line": 2225,
+      "line": 2229,
       "column": 16,
-      "stop_line": 2225,
+      "stop_line": 2229,
       "stop_column": 25,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1801,9 +1681,9 @@
       "severity": "error"
     },
     {
-      "line": 2235,
+      "line": 2239,
       "column": 24,
-      "stop_line": 2235,
+      "stop_line": 2239,
       "stop_column": 71,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1813,9 +1693,9 @@
       "severity": "error"
     },
     {
-      "line": 2257,
+      "line": 2261,
       "column": 16,
-      "stop_line": 2257,
+      "stop_line": 2261,
       "stop_column": 69,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1825,9 +1705,9 @@
       "severity": "error"
     },
     {
-      "line": 2258,
+      "line": 2262,
       "column": 12,
-      "stop_line": 2258,
+      "stop_line": 2262,
       "stop_column": 29,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1897,18 +1777,6 @@
       "severity": "error"
     },
     {
-      "line": 328,
-      "column": 28,
-      "stop_line": 328,
-      "stop_column": 32,
-      "path": "src/pudl/analysis/timeseries_evaluation.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `mask` with type `Sequence[bool]`\n  The declared type does not allow `None`. Consider changing the declared type to `Sequence[bool] | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `mask` with type `Sequence[bool]`",
-      "severity": "error"
-    },
-    {
       "line": 434,
       "column": 15,
       "stop_line": 434,
@@ -1930,30 +1798,6 @@
       "name": "bad-argument-type",
       "description": "Argument `set[Unknown]` is not assignable to parameter `categories` with type `Index | Series | list[Any] | None` in function `pandas.core.dtypes.dtypes.CategoricalDtype.__init__`",
       "concise_description": "Argument `set[Unknown]` is not assignable to parameter `categories` with type `Index | Series | list[Any] | None` in function `pandas.core.dtypes.dtypes.CategoricalDtype.__init__`",
-      "severity": "error"
-    },
-    {
-      "line": 514,
-      "column": 30,
-      "stop_line": 514,
-      "stop_column": 34,
-      "path": "src/pudl/analysis/timeseries_evaluation.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `lengths` with type `Sequence[int]`\n  The declared type does not allow `None`. Consider changing the declared type to `Sequence[int] | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `lengths` with type `Sequence[int]`",
-      "severity": "error"
-    },
-    {
-      "line": 548,
-      "column": 18,
-      "stop_line": 548,
-      "stop_column": 47,
-      "path": "src/pudl/analysis/timeseries_evaluation.py",
-      "code": -2,
-      "name": "bad-argument-type",
-      "description": "Argument `Unknown | None` is not assignable to parameter `mask` with type `Sequence[bool]` in function `insert_run_length`\n  The declared type does not allow `None`. Consider narrowing the value with an `is not None` check.",
-      "concise_description": "Argument `Unknown | None` is not assignable to parameter `mask` with type `Sequence[bool]` in function `insert_run_length`",
       "severity": "error"
     },
     {
@@ -2557,18 +2401,6 @@
       "severity": "error"
     },
     {
-      "line": 27,
-      "column": 9,
-      "stop_line": 27,
-      "stop_column": 19,
-      "path": "src/pudl/extract/censuspep.py",
-      "code": -2,
-      "name": "bad-override",
-      "description": "Class member `Extractor.get_dtypes` overrides parent class `ExcelExtractor` in an inconsistent manner\n  `Extractor.get_dtypes` has type `(page: Unknown, **partition: Unknown) -> StringDtype`, which is not assignable to `(page: str, **partition: PartitionSelection) -> dict[Unknown, Unknown]`, the type of `ExcelExtractor.get_dtypes`\n  Signature mismatch:\n  expected: def get_dtypes(page: str, **partition: PartitionSelection) -> dict[Unknown, Unknown]: ...\n                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^      ^^^^^^^^^^^^^^^^^^^^^^ return type\n                                 |\n                                 parameters\n  found:    def get_dtypes(page: Unknown, **partition: Unknown) -> StringDtype: ...\n                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^      ^^^^^^^^^^^ return type\n                                 |\n                                 parameters",
-      "concise_description": "Class member `Extractor.get_dtypes` overrides parent class `ExcelExtractor` in an inconsistent manner",
-      "severity": "error"
-    },
-    {
       "line": 141,
       "column": 43,
       "stop_line": 141,
@@ -2857,9 +2689,9 @@
       "severity": "error"
     },
     {
-      "line": 199,
+      "line": 206,
       "column": 16,
-      "stop_line": 199,
+      "stop_line": 206,
       "stop_column": 45,
       "path": "src/pudl/extract/excel.py",
       "code": -2,
@@ -2869,9 +2701,9 @@
       "severity": "error"
     },
     {
-      "line": 200,
+      "line": 207,
       "column": 30,
-      "stop_line": 200,
+      "stop_line": 207,
       "stop_column": 59,
       "path": "src/pudl/extract/excel.py",
       "code": -2,
@@ -2881,9 +2713,9 @@
       "severity": "error"
     },
     {
-      "line": 250,
+      "line": 257,
       "column": 24,
-      "stop_line": 250,
+      "stop_line": 257,
       "stop_column": 53,
       "path": "src/pudl/extract/excel.py",
       "code": -2,
@@ -2893,9 +2725,9 @@
       "severity": "error"
     },
     {
-      "line": 251,
+      "line": 258,
       "column": 22,
-      "stop_line": 251,
+      "stop_line": 258,
       "stop_column": 49,
       "path": "src/pudl/extract/excel.py",
       "code": -2,
@@ -2905,9 +2737,9 @@
       "severity": "error"
     },
     {
-      "line": 252,
+      "line": 259,
       "column": 24,
-      "stop_line": 252,
+      "stop_line": 259,
       "stop_column": 53,
       "path": "src/pudl/extract/excel.py",
       "code": -2,
@@ -2917,9 +2749,9 @@
       "severity": "error"
     },
     {
-      "line": 269,
+      "line": 276,
       "column": 16,
-      "stop_line": 269,
+      "stop_line": 276,
       "stop_column": 44,
       "path": "src/pudl/extract/excel.py",
       "code": -2,
@@ -3205,9 +3037,9 @@
       "severity": "error"
     },
     {
-      "line": 120,
+      "line": 124,
       "column": 21,
-      "stop_line": 120,
+      "stop_line": 124,
       "stop_column": 41,
       "path": "src/pudl/glue/ferc1_eia.py",
       "code": -2,
@@ -3217,9 +3049,9 @@
       "severity": "error"
     },
     {
-      "line": 146,
+      "line": 150,
       "column": 24,
-      "stop_line": 146,
+      "stop_line": 150,
       "stop_column": 44,
       "path": "src/pudl/glue/ferc1_eia.py",
       "code": -2,
@@ -3229,9 +3061,9 @@
       "severity": "error"
     },
     {
-      "line": 187,
+      "line": 191,
       "column": 14,
-      "stop_line": 190,
+      "stop_line": 194,
       "stop_column": 10,
       "path": "src/pudl/glue/ferc1_eia.py",
       "code": -2,
@@ -3241,9 +3073,9 @@
       "severity": "error"
     },
     {
-      "line": 206,
+      "line": 210,
       "column": 14,
-      "stop_line": 209,
+      "stop_line": 213,
       "stop_column": 10,
       "path": "src/pudl/glue/ferc1_eia.py",
       "code": -2,
@@ -3253,9 +3085,9 @@
       "severity": "error"
     },
     {
-      "line": 233,
+      "line": 237,
       "column": 16,
-      "stop_line": 233,
+      "stop_line": 237,
       "stop_column": 36,
       "path": "src/pudl/glue/ferc1_eia.py",
       "code": -2,
@@ -3265,9 +3097,9 @@
       "severity": "error"
     },
     {
-      "line": 235,
+      "line": 239,
       "column": 9,
-      "stop_line": 235,
+      "stop_line": 239,
       "stop_column": 23,
       "path": "src/pudl/glue/ferc1_eia.py",
       "code": -2,
@@ -3277,21 +3109,9 @@
       "severity": "error"
     },
     {
-      "line": 243,
-      "column": 9,
-      "stop_line": 243,
-      "stop_column": 26,
-      "path": "src/pudl/glue/ferc1_eia.py",
-      "code": -2,
-      "name": "bad-override",
-      "description": "Class member `GenericPlantFerc1TableTransformer.drop_invalid_rows` overrides parent class `Ferc1AbstractTableTransformer` in an inconsistent manner\n  `GenericPlantFerc1TableTransformer.drop_invalid_rows` has type `(self: GenericPlantFerc1TableTransformer, df: Unknown) -> DataFrame`, which is not assignable to `(self: GenericPlantFerc1TableTransformer, df: DataFrame, params: list[InvalidRows] | None = None) -> DataFrame`, the type of `Ferc1AbstractTableTransformer.drop_invalid_rows`\n  Signature mismatch:\n  ...icPlantFerc1TableTransformer, df: DataFrame, params: list[InvalidRows] | None = None) -> DataFrame: ...\n                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ parameters\n  ...icPlantFerc1TableTransformer, df: Unknown) -> DataFrame: ...\n                                       ^^^^^^^ parameters",
-      "concise_description": "Class member `GenericPlantFerc1TableTransformer.drop_invalid_rows` overrides parent class `Ferc1AbstractTableTransformer` in an inconsistent manner",
-      "severity": "error"
-    },
-    {
-      "line": 325,
+      "line": 331,
       "column": 13,
-      "stop_line": 325,
+      "stop_line": 331,
       "stop_column": 46,
       "path": "src/pudl/glue/ferc1_eia.py",
       "code": -2,
@@ -3301,9 +3121,9 @@
       "severity": "error"
     },
     {
-      "line": 326,
+      "line": 332,
       "column": 28,
-      "stop_line": 326,
+      "stop_line": 332,
       "stop_column": 32,
       "path": "src/pudl/glue/ferc1_eia.py",
       "code": -2,
@@ -3313,9 +3133,9 @@
       "severity": "error"
     },
     {
-      "line": 457,
+      "line": 463,
       "column": 12,
-      "stop_line": 457,
+      "stop_line": 463,
       "stop_column": 24,
       "path": "src/pudl/glue/ferc1_eia.py",
       "code": -2,
@@ -3325,9 +3145,9 @@
       "severity": "error"
     },
     {
-      "line": 526,
+      "line": 532,
       "column": 9,
-      "stop_line": 526,
+      "stop_line": 532,
       "stop_column": 52,
       "path": "src/pudl/glue/ferc1_eia.py",
       "code": -2,
@@ -3346,18 +3166,6 @@
       "name": "bad-argument-type",
       "description": "Argument `Traversable` is not assignable to parameter `filepath_or_buffer` with type `PathLike[str] | ReadCsvBuffer[bytes] | ReadCsvBuffer[str] | str` in function `pandas.io.parsers.readers.read_csv`\n  Protocol `PathLike` requires attribute `__fspath__`",
       "concise_description": "Argument `Traversable` is not assignable to parameter `filepath_or_buffer` with type `PathLike[str] | ReadCsvBuffer[bytes] | ReadCsvBuffer[str] | str` in function `pandas.io.parsers.readers.read_csv`",
-      "severity": "error"
-    },
-    {
-      "line": 651,
-      "column": 26,
-      "stop_line": 651,
-      "stop_column": 30,
-      "path": "src/pudl/helpers.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `date_on` with type `list[str]`\n  The declared type does not allow `None`. Consider changing the declared type to `list[str] | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `date_on` with type `list[str]`",
       "severity": "error"
     },
     {
@@ -3613,18 +3421,6 @@
       "severity": "error"
     },
     {
-      "line": 176,
-      "column": 58,
-      "stop_line": 176,
-      "stop_column": 62,
-      "path": "src/pudl/metadata/classes.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `template_dir` with type `Path`\n  The declared type does not allow `None`. Consider changing the declared type to `Path | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `template_dir` with type `Path`",
-      "severity": "error"
-    },
-    {
       "line": 611,
       "column": 51,
       "stop_line": 611,
@@ -3697,18 +3493,6 @@
       "severity": "error"
     },
     {
-      "line": 1207,
-      "column": 56,
-      "stop_line": 1207,
-      "stop_column": 60,
-      "path": "src/pudl/metadata/classes.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `partitions` with type `dict[Unknown, Unknown]`\n  The declared type does not allow `None`. Consider changing the declared type to `dict[Unknown, Unknown] | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `partitions` with type `dict[Unknown, Unknown]`",
-      "severity": "error"
-    },
-    {
       "line": 1236,
       "column": 40,
       "stop_line": 1236,
@@ -3757,18 +3541,6 @@
       "severity": "error"
     },
     {
-      "line": 1906,
-      "column": 33,
-      "stop_line": 1906,
-      "stop_column": 37,
-      "path": "src/pudl/metadata/classes.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `metadata` with type `MetaData`\n  The declared type does not allow `None`. Consider changing the declared type to `MetaData | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `metadata` with type `MetaData`",
-      "severity": "error"
-    },
-    {
       "line": 1924,
       "column": 32,
       "stop_line": 1924,
@@ -3814,18 +3586,6 @@
       "name": "bad-argument-type",
       "description": "Argument `dict_keys[str, CategoricalDtype | str]` is not assignable to parameter `columns` with type `ExtensionArray | Index | SequenceNotStr[Any] | Series | ndarray | range | None` in function `pandas.core.frame.DataFrame.reindex`",
       "concise_description": "Argument `dict_keys[str, CategoricalDtype | str]` is not assignable to parameter `columns` with type `ExtensionArray | Index | SequenceNotStr[Any] | Series | ndarray | range | None` in function `pandas.core.frame.DataFrame.reindex`",
-      "severity": "error"
-    },
-    {
-      "line": 2514,
-      "column": 27,
-      "stop_line": 2514,
-      "stop_column": 31,
-      "path": "src/pudl/metadata/classes.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `aggregate` with type `bool`\n  The declared type does not allow `None`. Consider changing the declared type to `bool | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `aggregate` with type `bool`",
       "severity": "error"
     },
     {
@@ -4141,21 +3901,9 @@
       "severity": "error"
     },
     {
-      "line": 13,
-      "column": 46,
-      "stop_line": 13,
-      "stop_column": 50,
-      "path": "src/pudl/metadata/helpers.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `title` with type `str`\n  The declared type does not allow `None`. Consider changing the declared type to `str | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `title` with type `str`",
-      "severity": "error"
-    },
-    {
-      "line": 274,
+      "line": 276,
       "column": 70,
-      "stop_line": 274,
+      "stop_line": 276,
       "stop_column": 76,
       "path": "src/pudl/metadata/helpers.py",
       "code": -2,
@@ -4165,21 +3913,9 @@
       "severity": "error"
     },
     {
-      "line": 303,
-      "column": 65,
-      "stop_line": 303,
-      "stop_column": 69,
-      "path": "src/pudl/metadata/helpers.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `min_frequency` with type `float`\n  The declared type does not allow `None`. Consider changing the declared type to `float | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `min_frequency` with type `float`",
-      "severity": "error"
-    },
-    {
-      "line": 391,
+      "line": 393,
       "column": 27,
-      "stop_line": 391,
+      "stop_line": 393,
       "stop_column": 39,
       "path": "src/pudl/metadata/helpers.py",
       "code": -2,
@@ -4189,9 +3925,9 @@
       "severity": "error"
     },
     {
-      "line": 408,
+      "line": 410,
       "column": 27,
-      "stop_line": 408,
+      "stop_line": 410,
       "stop_column": 32,
       "path": "src/pudl/metadata/helpers.py",
       "code": -2,
@@ -4201,9 +3937,9 @@
       "severity": "error"
     },
     {
-      "line": 466,
+      "line": 468,
       "column": 25,
-      "stop_line": 466,
+      "stop_line": 468,
       "stop_column": 29,
       "path": "src/pudl/metadata/helpers.py",
       "code": -2,
@@ -4213,9 +3949,9 @@
       "severity": "error"
     },
     {
-      "line": 577,
+      "line": 579,
       "column": 28,
-      "stop_line": 577,
+      "stop_line": 579,
       "stop_column": 32,
       "path": "src/pudl/metadata/helpers.py",
       "code": -2,
@@ -4294,18 +4030,6 @@
       "name": "not-callable",
       "description": "Expected a callable, got `Series`",
       "concise_description": "Expected a callable, got `Series`",
-      "severity": "error"
-    },
-    {
-      "line": 1010,
-      "column": 32,
-      "stop_line": 1010,
-      "stop_column": 36,
-      "path": "src/pudl/output/eia.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `fuel_type_code_pudl` with type `str`\n  The declared type does not allow `None`. Consider changing the declared type to `str | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `fuel_type_code_pudl` with type `str`",
       "severity": "error"
     },
     {
@@ -4594,18 +4318,6 @@
       "name": "bad-argument-type",
       "description": "Unpacked keyword argument `GroupMetricChecks | list[NodeId] | list[str] | list[Unknown] | str` is not assignable to parameter `io_manager_key` with type `str | None` in function `exploded_table_asset_factory`",
       "concise_description": "Unpacked keyword argument `GroupMetricChecks | list[NodeId] | list[str] | list[Unknown] | str` is not assignable to parameter `io_manager_key` with type `str | None` in function `exploded_table_asset_factory`",
-      "severity": "error"
-    },
-    {
-      "line": 1228,
-      "column": 44,
-      "stop_line": 1228,
-      "stop_column": 48,
-      "path": "src/pudl/output/ferc1.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `off_by_facts` with type `list[OffByFactoid]`\n  The declared type does not allow `None`. Consider changing the declared type to `list[OffByFactoid] | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `off_by_facts` with type `list[OffByFactoid]`",
       "severity": "error"
     },
     {
@@ -4981,18 +4693,6 @@
       "severity": "error"
     },
     {
-      "line": 38,
-      "column": 5,
-      "stop_line": 38,
-      "stop_column": 12,
-      "path": "src/pudl/scripts/check_path_permissions.py",
-      "code": -2,
-      "name": "bad-override",
-      "description": "`message` is declared as final in parent class `ClickException`",
-      "concise_description": "`message` is declared as final in parent class `ClickException`",
-      "severity": "error"
-    },
-    {
       "line": 107,
       "column": 13,
       "stop_line": 107,
@@ -5122,18 +4822,6 @@
       "name": "bad-argument-type",
       "description": "Argument `Traversable` is not assignable to parameter `yaml_file` with type `Path` in function `update_yaml_dois`",
       "concise_description": "Argument `Traversable` is not assignable to parameter `yaml_file` with type `Path` in function `update_yaml_dois`",
-      "severity": "error"
-    },
-    {
-      "line": 47,
-      "column": 5,
-      "stop_line": 47,
-      "stop_column": 17,
-      "path": "src/pudl/settings.py",
-      "code": -2,
-      "name": "bad-override",
-      "description": "Instance variable `FrozenBaseModel.model_config` overrides ClassVar of the same name in parent class `BaseModel`",
-      "concise_description": "Instance variable `FrozenBaseModel.model_config` overrides ClassVar of the same name in parent class `BaseModel`",
       "severity": "error"
     },
     {
@@ -7885,30 +7573,6 @@
       "severity": "error"
     },
     {
-      "line": 3761,
-      "column": 9,
-      "stop_line": 3761,
-      "stop_column": 26,
-      "path": "src/pudl/transform/ferc1.py",
-      "code": -2,
-      "name": "bad-override",
-      "description": "Class member `SteamPlantsFuelTableTransformer.drop_invalid_rows` overrides parent class `Ferc1AbstractTableTransformer` in an inconsistent manner\n  `SteamPlantsFuelTableTransformer.drop_invalid_rows` has type `(self: SteamPlantsFuelTableTransformer, df: DataFrame, params: InvalidRows | None = None) -> DataFrame`, which is not assignable to `(self: SteamPlantsFuelTableTransformer, df: DataFrame, params: list[InvalidRows] | None = None) -> DataFrame`, the type of `Ferc1AbstractTableTransformer.drop_invalid_rows`\n  Signature mismatch:\n  expected: def drop_invalid_rows(self: SteamPlantsFuelTableTransformer, df: DataFrame, params: list[InvalidRows] | None = None) -> Dat...\n                                                                                                ^^^^^^^^^^^^^^^^^ parameters\n  found:    def drop_invalid_rows(self: SteamPlantsFuelTableTransformer, df: DataFrame, params: InvalidRows | None = None) -> DataFrame...\n                                                                                                ^^^^^^^^^^^ parameters",
-      "concise_description": "Class member `SteamPlantsFuelTableTransformer.drop_invalid_rows` overrides parent class `Ferc1AbstractTableTransformer` in an inconsistent manner",
-      "severity": "error"
-    },
-    {
-      "line": 3770,
-      "column": 46,
-      "stop_line": 3770,
-      "stop_column": 52,
-      "path": "src/pudl/transform/ferc1.py",
-      "code": -2,
-      "name": "bad-argument-type",
-      "description": "Argument `InvalidRows | None` is not assignable to parameter `params` with type `list[InvalidRows] | None` in function `pudl.transform.classes.AbstractTableTransformer.drop_invalid_rows`",
-      "concise_description": "Argument `InvalidRows | None` is not assignable to parameter `params` with type `list[InvalidRows] | None` in function `pudl.transform.classes.AbstractTableTransformer.drop_invalid_rows`",
-      "severity": "error"
-    },
-    {
       "line": 3784,
       "column": 9,
       "stop_line": 3784,
@@ -9070,30 +8734,6 @@
       "name": "not-iterable",
       "description": "Type `None` is not iterable",
       "concise_description": "Type `None` is not iterable",
-      "severity": "error"
-    },
-    {
-      "line": 120,
-      "column": 33,
-      "stop_line": 120,
-      "stop_column": 37,
-      "path": "src/pudl/workspace/datastore.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `name` with type `str`\n  The declared type does not allow `None`. Consider changing the declared type to `str | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `name` with type `str`",
-      "severity": "error"
-    },
-    {
-      "line": 138,
-      "column": 42,
-      "stop_line": 138,
-      "stop_column": 46,
-      "path": "src/pudl/workspace/datastore.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `name` with type `str`\n  The declared type does not allow `None`. Consider changing the declared type to `str | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `name` with type `str`",
       "severity": "error"
     },
     {

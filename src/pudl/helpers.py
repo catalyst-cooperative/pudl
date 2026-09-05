@@ -648,7 +648,7 @@ def date_merge(
     left_date_col: str = "report_date",
     right_date_col: str = "report_date",
     new_date_col: str = "report_date",
-    date_on: list[str] = None,
+    date_on: list[str] | None = None,
     how: Literal["inner", "outer", "left", "right", "cross"] = "inner",
     report_at_start: bool = True,
     **kwargs,

@@ -117,7 +117,7 @@ class DatapackageDescriptor:
         return str(parts.get(k)).lower() == str(v).lower()
 
     def get_resources(
-        self: Self, name: str = None, **filters: Any
+        self: Self, name: str | None = None, **filters: Any
     ) -> Iterator[PudlResourceKey]:
         """Returns series of PudlResourceKey identifiers for matching resources.
 
@@ -135,7 +135,7 @@ class DatapackageDescriptor:
                     dataset=self.dataset, doi=self.doi, name=res["name"]
                 )
 
-    def get_partitions(self, name: str = None) -> dict[str, set[str]]:
+    def get_partitions(self, name: str | None = None) -> dict[str, set[str]]:
         """Return mapping of known partition keys to their allowed known values."""
         partitions: dict[str, set[str]] = defaultdict(set)
         for res in self.datapackage_json["resources"]:

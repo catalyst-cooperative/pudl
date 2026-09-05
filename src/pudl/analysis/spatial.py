@@ -82,7 +82,9 @@ def polygonize(geom: BaseGeometry) -> Polygon | MultiPolygon:
     return MultiPolygon(polys)
 
 
-def explode(gdf: gpd.GeoDataFrame, ratios: Iterable[str] = None) -> gpd.GeoDataFrame:
+def explode(
+    gdf: gpd.GeoDataFrame, ratios: Iterable[str] | None = None
+) -> gpd.GeoDataFrame:
     """Explode MultiPolygon to multiple Polygon geometries.
 
     Args:
@@ -115,7 +117,9 @@ def explode(gdf: gpd.GeoDataFrame, ratios: Iterable[str] = None) -> gpd.GeoDataF
     return result[gdf.columns]
 
 
-def self_union(gdf: gpd.GeoDataFrame, ratios: Iterable[str] = None) -> gpd.GeoDataFrame:
+def self_union(
+    gdf: gpd.GeoDataFrame, ratios: Iterable[str] | None = None
+) -> gpd.GeoDataFrame:
     """Calculate the geometric union of a feature layer with itself.
 
     Areas of overlap are split into two or more geometrically-identical features:
@@ -209,7 +213,7 @@ def overlay(
     how: Literal[
         "intersection", "union", "identity", "symmetric_difference", "difference"
     ] = "intersection",
-    ratios: Iterable[str] = None,
+    ratios: Iterable[str] | None = None,
 ) -> gpd.GeoDataFrame:
     """Overlay multiple layers incrementally.
 
