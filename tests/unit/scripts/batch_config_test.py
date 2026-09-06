@@ -2,11 +2,28 @@
 
 import json
 from pathlib import Path
+from typing import TypedDict
 
 import pytest
 from click.testing import CliRunner
 
 from pudl.scripts import batch_config
+
+
+class _BatchConfigKwargs(TypedDict):
+    """Mirrors the keyword-only parameters of :func:`batch_config.to_config`."""
+
+    container_image: str
+    container_env: tuple[str, ...]
+    container_command: str
+    container_arg: tuple[str, ...]
+    machine_type: str
+    cpu_milli: int
+    memory_mib: int
+    disk_gb: int
+    disk_type: str
+    batch_job_id: str
+    pipeline: str
 
 
 class TestParseContainerEnv:
@@ -28,7 +45,7 @@ class TestParseContainerEnv:
             batch_config._parse_container_env(("FOO=1", "FOO=2"))
 
 
-DEFAULT_BATCH_CONFIG = {
+DEFAULT_BATCH_CONFIG: _BatchConfigKwargs = {
     "container_image": "docker.io/catalystcoop/pudl-etl@sha256:abc",
     "container_env": (),
     "container_command": "pixi",
@@ -41,7 +58,7 @@ DEFAULT_BATCH_CONFIG = {
     "batch_job_id": "nightly-2026-09-02-abc123",
     "pipeline": "build-pudl",
 }
-"""Valid ``to_config`` arguments; merge per-test overrides in at the call site."""
+"""Valid ``to_config`` arguments; copy and override per-test at the call site."""
 
 
 class TestToConfigValidation:
@@ -52,12 +69,16 @@ class TestToConfigValidation:
     """
 
     def test_missing_container_image_raises(self):
+        config = DEFAULT_BATCH_CONFIG.copy()
+        config["container_image"] = ""
         with pytest.raises(ValueError, match="container_image is required"):
-            batch_config.to_config(**(DEFAULT_BATCH_CONFIG | {"container_image": ""}))
+            batch_config.to_config(**config)
 
     def test_missing_container_command_raises(self):
+        config = DEFAULT_BATCH_CONFIG.copy()
+        config["container_command"] = ""
         with pytest.raises(ValueError, match="container_command is required"):
-            batch_config.to_config(**(DEFAULT_BATCH_CONFIG | {"container_command": ""}))
+            batch_config.to_config(**config)
 
 
 class TestMain:
