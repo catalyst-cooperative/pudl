@@ -1732,10 +1732,16 @@ def standardize_percentages_ratio(
     """
     logger.info(f"Standardizing ratios and percentages for {mixed_cols}")
     for col in mixed_cols:
-        if not pd.api.types.is_numeric_dtype(frac_df[col]):
+        # Coerce to nullable float. pandas 3's read_excel leaves some of these mixed
+        # columns as strings; pd.to_numeric still raises loudly on genuinely
+        # non-numeric junk, preserving the original guard's intent. Working in float
+        # also avoids a lossy in-place division on an integer column below.
+        try:
+            frac_df[col] = pd.to_numeric(frac_df[col]).astype("Float64")
+        except (ValueError, TypeError) as err:
             raise AssertionError(
                 f"{col}: Standardization method requires numeric dtype."
-            )
+            ) from err
         if "report_year" in frac_df:
             dates = (frac_df.report_year >= min(years_to_standardize)) & (
                 frac_df.report_year <= max(years_to_standardize)
@@ -1744,7 +1750,7 @@ def standardize_percentages_ratio(
             dates = (frac_df.report_date.dt.year >= min(years_to_standardize)) & (
                 frac_df.report_date.dt.year <= max(years_to_standardize)
             )
-        frac_df.loc[dates, col] /= 100
+        frac_df.loc[dates, col] = frac_df.loc[dates, col] / 100
         if frac_df[col].max() > 1:
             raise AssertionError(
                 f"{col}: Values >100pct observed: {frac_df.loc[frac_df[col] > 1][col].unique()}"
