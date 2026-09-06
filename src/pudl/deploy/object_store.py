@@ -54,9 +54,14 @@ from pudl import logging_helpers
 
 logger = logging_helpers.get_logger(__name__)
 
-# Objects larger than this are copied server-side with multipart UploadPartCopy
-# rather than a single CopyObject (which caps at 5 GiB).
-S3_MULTIPART_THRESHOLD = 256 * 1024 * 1024
+# Server-side copy tuning. The transfer manager's defaults (8 MiB parts, 10-way
+# concurrency) turn each ~4 GiB transaction file into ~500 serial UploadPartCopy
+# calls, so promoting the full dataset took minutes. Large parts + high
+# concurrency benchmarked ~9x faster (2+ GB/s vs ~250 MB/s) for same-bucket
+# server-side copies.
+S3_COPY_MULTIPART_THRESHOLD = 512 * 1024**2
+S3_COPY_MULTIPART_CHUNKSIZE = 512 * 1024**2
+S3_COPY_MAX_CONCURRENCY = 128
 
 # Batch size limit for the S3 DeleteObjects API.
 S3_DELETE_BATCH = 1000
@@ -301,7 +306,11 @@ class S3ObjectStore(ObjectStore):
             return
         src_bucket, src_key = _split_s3(source_prefix.rstrip("/"))
         dst_bucket, dst_key = _split_s3(dest_prefix.rstrip("/"))
-        config = TransferConfig(multipart_threshold=S3_MULTIPART_THRESHOLD)
+        config = TransferConfig(
+            multipart_threshold=S3_COPY_MULTIPART_THRESHOLD,
+            multipart_chunksize=S3_COPY_MULTIPART_CHUNKSIZE,
+            max_concurrency=S3_COPY_MAX_CONCURRENCY,
+        )
         with create_transfer_manager(self._client, config) as manager:
             futures = [
                 manager.copy(
