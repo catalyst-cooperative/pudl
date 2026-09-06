@@ -60,10 +60,14 @@ function run_ferceqr_etl() {
     # Launch dagster-daemon in the background (handles the backfill queue)
     dagster-daemon run --grpc-socket "$grpc_socket" &
 
-    # Kick off the ferceqr job asynchronously
+    # Kick off the ferceqr job asynchronously. The ferceqr partition set is
+    # ordered newest-quarter-first (see pudl.dagster.partitions), so every
+    # backfill -- full or ranged -- processes the large recent quarters up front.
     BACKFILL_ARGS=(job backfill --noprompt --job ferceqr --grpc-socket "$grpc_socket")
     if [[ -n "${FERCEQR_START_PARTITION:-}" ]]; then
-        BACKFILL_ARGS+=(--from "$FERCEQR_START_PARTITION" --to "$FERCEQR_END_PARTITION")
+        # The workflow names the range chronologically; --from/--to index into
+        # the newest-first partition list, so --from is the later quarter.
+        BACKFILL_ARGS+=(--from "$FERCEQR_END_PARTITION" --to "$FERCEQR_START_PARTITION")
     fi
     dagster "${BACKFILL_ARGS[@]}"
 

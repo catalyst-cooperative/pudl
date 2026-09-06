@@ -2,7 +2,7 @@ run_coordinator:
   module: dagster
   class: QueuedRunCoordinator
   config:
-    max_concurrent_runs: 16
+    max_concurrent_runs: 24
     # Launch dequeued runs in parallel. The default serial dequeue loop (one
     # launch per ~5s tick) can't refill freed slots fast enough when many short
     # partition backfill runs finish close together, so steady-state occupancy
