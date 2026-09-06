@@ -966,10 +966,17 @@ class HourlyPlanningAreaDemand:
         """
         bad_24_hour_mask = xbrl.report_date.str.contains("T24:")
 
-        xbrl.loc[bad_24_hour_mask, "report_date"] = pd.to_datetime(
-            xbrl[bad_24_hour_mask].report_date.str.replace("T24:", "T23:"),
-            format="%Y-%m-%dT%H:%M:%S",
-        ) + np.timedelta64(1, "h")
+        # report_date is still a string column at this point (it is cast to datetime
+        # immediately after this step). pandas 3 rejects assigning datetimes into a
+        # string column, so re-serialize the corrected timestamps back to strings.
+        fixed = (
+            pd.to_datetime(
+                xbrl.loc[bad_24_hour_mask, "report_date"].str.replace("T24:", "T23:"),
+                format="%Y-%m-%dT%H:%M:%S",
+            )
+            + np.timedelta64(1, "h")
+        ).dt.strftime("%Y-%m-%dT%H:%M:%S")
+        xbrl.loc[bad_24_hour_mask, "report_date"] = fixed
         return xbrl
 
     @staticmethod

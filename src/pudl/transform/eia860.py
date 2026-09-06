@@ -117,11 +117,11 @@ def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame
         )
         & (own_df.plant_id_eia == 62844)
         & (own_df.owner_utility_id_eia == 62745)
-        & (own_df.generator_id == "nan")
+        & (own_df.generator_id == "nan").fillna(False)
     )
     own_df = own_df[~mask]
 
-    if not (nulls := own_df[own_df.generator_id == ""]).empty:
+    if not (nulls := own_df[(own_df.generator_id == "").fillna(False)]).empty:
         logger.warning(
             f"Found records with null IDs in _core_eia860__ownership: {nulls}"
         )

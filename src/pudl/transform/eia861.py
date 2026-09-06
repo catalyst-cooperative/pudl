@@ -601,7 +601,7 @@ def add_backfilled_ba_code_column(df, by_cols: list[str]) -> pd.DataFrame:
     )
     ba_ids["balancing_authority_code_eia_bfilled"] = ba_ids.groupby(by_cols)[
         "balancing_authority_code_eia"
-    ].fillna(method="bfill")
+    ].bfill()
     ba_eia861_filled = df.merge(ba_ids, how="left")
 
     end_len = len(ba_eia861_filled)
@@ -764,7 +764,7 @@ def _tidy_class_dfs(
         rf"{class_list_regex}", n=1, expand=True
     ).set_names([class_type, None])
     # Now stack the customer classes into their own categorical column,
-    data_cols = data_cols.stack(level=0, dropna=False).reset_index()
+    data_cols = data_cols.stack(level=0, future_stack=True).reset_index()
     denorm_cols = _filter_non_class_cols(raw_df, class_list).reset_index()
     # Check to make sure that the idx_cols are actually valid primary key cols:
     # This is tricky, because NA values in the BA Code column creates actual duplicate

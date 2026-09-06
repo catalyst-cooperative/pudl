@@ -1966,15 +1966,19 @@ def impute_timeseries_asset_factory(  # noqa: C901
             and a ``id_col`` column index (e.g. 101, ..., 329).
         """
         # Convert from datetime_utc to local datetime
-        aligned_df = utc_dataframe_to_aligned(
-            input_df.rename(
-                columns={
-                    value_col: "value_col",
-                    id_col: "id_col",
-                    simulation_group_col: "simulation_group",
-                }
-            )
+        renamed_df = input_df.rename(
+            columns={
+                value_col: "value_col",
+                id_col: "id_col",
+                simulation_group_col: "simulation_group",
+            }
         )
+        # timezone may arrive as a categorical; the pandera input schema for
+        # utc_dataframe_to_aligned expects a plain string column.
+        if "timezone" in renamed_df:
+            renamed_df["timezone"] = renamed_df["timezone"].astype("string")
+        # pandera validates/coerces the frame against UTCTimeseriesDataFrame at runtime.
+        aligned_df = utc_dataframe_to_aligned(renamed_df)  # type: ignore[bad-argument-type]
 
         # If no simulation group column is specified, create one with a monolithic group
         if simulation_group_col is None:

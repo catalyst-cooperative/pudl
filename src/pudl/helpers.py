@@ -940,7 +940,9 @@ def cleanstrings_series(
             col = col.replace(str_map[k], k)
 
     if unmapped is not None:
-        badstrings = np.setdiff1d(col.unique(), list(str_map.keys()))
+        # Drop nulls before the setdiff: np.setdiff1d sorts its inputs, and a mix of
+        # NaN/NA and strings (which pandas 3 no longer coerces away) can't be compared.
+        badstrings = np.setdiff1d(col.dropna().unique(), list(str_map.keys()))
         # This call to replace can only work if there are actually some
         # leftover strings to fix -- otherwise it runs forever because we
         # are replacing nothing with nothing.
