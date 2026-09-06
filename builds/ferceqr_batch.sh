@@ -174,6 +174,17 @@ FERCEQR_BUILD_TIMEOUT_SECONDS=$((FERCEQR_BUILD_TIMEOUT_HOURS * 3600))
 # Select the FERC EQR-specific dagster configuration from the repo copy.
 cp "${PUDL_ROOT_PATH}/builds/dagster-ferceqr.yaml" "${DAGSTER_HOME}/dagster.yaml"
 
+# Cap each DuckDB connection so the ~12 concurrent partition runs
+# (max_concurrent_runs in dagster-ferceqr.yaml) don't collectively oversubscribe
+# the VM's cores or exhaust its RAM. Sized for a c4d-standard-32 (32 vCPU,
+# 124 GiB): 12 runs x 2 threads = 24 <= 32; 12 x 6 GiB = 72 GiB of DuckDB
+# buffers, leaving headroom for Python/pyarrow/Dagster. Spills land on the
+# 1 TB data disk rather than /tmp. See pudl.helpers.duckdb_connect.
+export PUDL_DUCKDB_THREADS=2
+export PUDL_DUCKDB_MEMORY_LIMIT=6GB
+export PUDL_DUCKDB_TEMP_DIRECTORY="${PUDL_OUTPUT}/duckdb_tmp"
+mkdir -p "$PUDL_DUCKDB_TEMP_DIRECTORY"
+
 LOGFILE="${PUDL_OUTPUT}/${BUILD_ID}.log"
 
 write_aws_credentials
