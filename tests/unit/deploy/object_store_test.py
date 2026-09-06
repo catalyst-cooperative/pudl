@@ -161,10 +161,29 @@ class TestS5cmdObjectStore:
 
     def test_object_sizes_other_error_raises(self, run_cli):
         run_cli.return_value = json.dumps(
-            {"operation": "ls", "error": "BucketRegionError: incorrect region"}
+            {"operation": "ls", "error": "AccessDenied: not allowed"}
         )
-        with pytest.raises(RuntimeError, match="incorrect region"):
+        with pytest.raises(RuntimeError, match="not allowed"):
             S5cmdObjectStore().object_sizes("s3://bucket/stg")
+
+    def test_object_sizes_recovers_from_wrong_region(self, run_cli):
+        wrong_region = json.dumps(
+            {
+                "operation": "ls",
+                "error": (
+                    "BucketRegionError: incorrect region, the bucket is not in "
+                    "'us-east-1' region, bucket is in 'us-west-2' region"
+                ),
+            }
+        )
+        ok = json.dumps({"key": "s3://bucket/stg/a.parquet", "type": "file", "size": 5})
+        run_cli.side_effect = [wrong_region, ok]
+        store = S5cmdObjectStore(region="us-east-1")
+
+        assert store.object_sizes("s3://bucket/stg") == {"a.parquet": 5}
+        assert store.region == "us-west-2"
+        assert run_cli.call_count == 2
+        assert run_cli.call_args.kwargs["env_overrides"] == {"AWS_REGION": "us-west-2"}
 
     def test_move_uses_server_side_wildcard(self, run_cli):
         S5cmdObjectStore().move("s3://bucket/._staging/data", "s3://bucket/ferceqr")
