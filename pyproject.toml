@@ -210,8 +210,8 @@ description = "Type-check with pyrefly against the tracked baseline"
 [tool.pixi.feature.dev.tasks.pyrefly-update-baseline]
 cmd = "pyrefly check --baseline .pyrefly-baseline.json --update-baseline"
 
-[tool.pixi.feature.dev.tasks.pyrefly-baseline-diff]
-cmd = "pyrefly_baseline_diff"
+[tool.pixi.feature.dev.tasks.pyrefly-diff-baseline]
+cmd = "pyrefly_diff_baseline"
 description = """
 Diff .pyrefly-baseline.json against git HEAD by (file, code, description), ignoring \
 line/column churn. Run after `pyrefly check --baseline .pyrefly-baseline.json \
@@ -225,7 +225,10 @@ dev = { features = ["dev"], solve-group = "default" }
 # Reusable variables for pixi tasks
 DG_FULL_CONFIG = "src/pudl/package_data/settings/dg_full.yml"
 DG_NIGHTLY_CONFIG = "src/pudl/package_data/settings/dg_nightly.yml"
-
+# grpcio >= 1.83.0 is required by the Google Cloud Python libraries as of
+# October 2026 (post-quantum crypto migration). Until our resolved grpcio
+# crosses that version, silence the pre-migration FutureWarning.
+PYTHONWARNINGS = "ignore::FutureWarning:google.api_core._python_package_support,ignore::FutureWarning:google.auth.transport.grpc"
 ########################################################################################
 # Pixi task definitions. These are used by pixi to run various tasks in a consistent
 # environment. They can be run with `pixi run <task-name>`, and can depend on each other
@@ -471,7 +474,7 @@ update_zenodo_dois = "pudl.scripts.update_zenodo_dois:main"
 zenodo_data_release = "pudl.scripts.zenodo_data_release:main"
 generate_ferc_provenance = "pudl.scripts.generate_ferc_provenance:main"
 batch_config = "pudl.scripts.batch_config:main"
-pyrefly_baseline_diff = "pudl.scripts.pyrefly_baseline_diff:main"
+pyrefly_diff_baseline = "pudl.scripts.pyrefly_diff_baseline:main"
 
 [tool.ruff]
 # Configurations that apply to both the `format` and `lint` subcommands.
@@ -608,6 +611,7 @@ filterwarnings = [
     "ignore:Extension type 'geoarrow.wkb' is not registered:UserWarning",
     "ignore:invalid escape sequence:SyntaxWarning:stringcase",
     "ignore:invalid escape sequence:SyntaxWarning:parsedatetime",
+    "ignore:grpcio < 1.83.0 does not support Post-Quantum Cryptography:FutureWarning",
 ]
 
 # must not end with `--cov` since that will treat the first argument you pass
