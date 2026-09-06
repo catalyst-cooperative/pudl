@@ -4596,7 +4596,7 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
         # Add a column to show final row type. Use an object dtype so that string
         # labels ("header", "note", "total") can be written into it without pandas 3
         # raising on a lossy assignment into a float column.
-        df.insert(3, "row_type", pd.Series(pd.NA, index=df.index, dtype="object"))
+        df.insert(3, "row_type", np.full(len(df), pd.NA, dtype=object))
 
         # Label the row types
         df_labeled = (
