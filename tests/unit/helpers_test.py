@@ -711,11 +711,14 @@ def test_diff_wide_tables():
     assert empty_diff.changed.empty
 
     def assert_diff_equal(observed, expected):
-        observed_reshaped = observed.droplevel(level=0, axis="columns")
-        expected_reshaped = expected.set_index(observed_reshaped.index.names)
-        # pandas 3 infers a str dtype for these columns, pandas 2 leaves object.
-        # TODO: pandas3 set check_dtype=True after migration See #3737
-        assert_frame_equal(observed_reshaped, expected_reshaped, check_dtype=False)
+        # Under pandas 3.0 the melted value columns infer as the default string dtype
+        # (missing values as nan) rather than object (missing values as None); normalize
+        # both sides to nullable string so the comparison is about content, not sentinel.
+        observed_reshaped = observed.droplevel(level=0, axis="columns").astype("string")
+        expected_reshaped = expected.set_index(observed_reshaped.index.names).astype(
+            "string"
+        )
+        assert_frame_equal(observed_reshaped, expected_reshaped)
 
     diff_output = diff_wide_tables(primary_key=["u_id", "year"], old=old, new=new)
 
