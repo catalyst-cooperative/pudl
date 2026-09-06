@@ -1,5 +1,6 @@
 ---
+# Non-production FERC EQR deployment target, used by the build-deploy-ferceqr
+# workflow in "test" mode. A fixed path (no append_build_id) so test runs
+# exercise the same snapshot-and-promote-over-existing behavior as production.
 deployment_targets:
-  - path: gs://test.catalyst.coop
-    storage_options: {}
-    append_build_id: true
+  - path: gs://test.catalyst.coop/ferceqr
