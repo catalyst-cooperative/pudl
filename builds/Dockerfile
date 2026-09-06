@@ -37,10 +37,8 @@ ENV DAGSTER_HOME=${CONTAINER_PUDL_WORKSPACE}/dagster_home
 RUN mkdir -p ${PUDL_INPUT} ${PUDL_OUTPUT} ${DAGSTER_HOME} ${PUDL_ROOT_PATH}
 
 # The job-specific dagster configuration files (builds/dagster-{pudl,ferceqr}.yaml)
-# are part of the repo copied to ${PUDL_ROOT_PATH} below; each batch script copies
-# the appropriate one to $DAGSTER_HOME/dagster.yaml at startup. They are deliberately
-# NOT staged into $DAGSTER_HOME here: on jobs that mount a Local SSD over the pudl
-# workspace, $DAGSTER_HOME is an empty mount at runtime.
+# ship with the repo copied to ${PUDL_ROOT_PATH} below; each batch script copies
+# the appropriate one to $DAGSTER_HOME/dagster.yaml at startup.
 
 # Copy the entire PUDL repo into the image.
 # We can't install the PUDL package without .git/ because the version is dynamically
