@@ -11,12 +11,7 @@ cd "${PUDL_ROOT_PATH:?PUDL_ROOT_PATH must be set by the build container}" || exi
 # deployment, if this envvar was never wired through to the container.
 : "${DEPLOYMENT_ENVIRONMENT:?DEPLOYMENT_ENVIRONMENT must be set by the build container}"
 
-# Recreate the workspace layout. On jobs that mount a Local SSD over
-# $CONTAINER_PUDL_WORKSPACE these directories start out empty every run.
-mkdir -p "$PUDL_INPUT" "$PUDL_OUTPUT" "$DAGSTER_HOME"
-
-# Select the PUDL-specific dagster configuration. Sourced from the repo copy
-# rather than $DAGSTER_HOME, which may be a fresh Local SSD mount.
+# Select the PUDL-specific dagster configuration from the repo copy.
 cp "${PUDL_ROOT_PATH}/builds/dagster-pudl.yaml" "${DAGSTER_HOME}/dagster.yaml"
 
 function send_zulip_msg() {
