@@ -261,11 +261,12 @@ Skills are defined in `skills-lock.json`. If not already installed, run
 
 - **`dagster-expert`** — Dagster and `dg` CLI reference. Use when adding or modifying
   assets, resources, IO managers, jobs, sensors, or any other Dagster construct.
-- **`datapackage`** -- Frictionless datapackage reference. Use when interpreting or
-  modifying datapackage metadata and JSON descriptors.
-- **`pudl`** -- PUDL (Public Utility Data Liberation) public-facing metadata reference.
-  Use when accessing or interpreting PUDL's published data and metadata. Not for
-  internal ETL or Dagster development.
+- **`datapackage`** -- Explains how to work with the Frictionless Datapackage
+  metadata standard, which uses a `datapackage.json` descriptor to annotate a
+  collection of data resources, including tabular data.
+- **`pudl`** -- PUDL data and metadata reference, which extends the Frictionless
+  Datapackage standard. Explains how to interpret PUDL metadata and how to
+  query and safely use PUDL data, both local and remote.
 
 ## Dagster architecture
 
@@ -433,9 +434,9 @@ Metadata describing tables, columns, and data sources lives in `pudl.metadata`.
 
 ## PUDL developer reference docs
 
-The following files under `docs/dev/` and `docs/methodology/` cover PUDL-specific
-concepts and conventions. **Read the relevant file before working in that area** rather
-than guessing at conventions.
+The following files under `docs/dev/` and `docs/methodology/` cover
+PUDL-specific concepts and conventions. **Read the relevant file before working
+in that area** rather than guessing at conventions.
 
 | File | When to read it |
 | ---- | --------------- |
