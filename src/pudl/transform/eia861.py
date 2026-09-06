@@ -1133,9 +1133,19 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
         return no_dupes
 
     utils_88888 = df[df["utility_id_eia"] == 88888]
-    agg_utils_88888 = utils_88888.groupby(
-        idx_cols, group_keys=False, dropna=False
-    ).apply(sum_numeric_values_when_strings_match)
+    # NOTE: as of pandas 3.0 groupby(...).apply() no longer passes the grouping
+    # columns into the applied function, but sum_numeric_values_when_strings_match
+    # needs them. Iterate over the groups explicitly so each group frame still
+    # carries idx_cols.
+    combined_groups = [
+        sum_numeric_values_when_strings_match(group)
+        for _, group in utils_88888.groupby(idx_cols, dropna=False)
+    ]
+    agg_utils_88888 = (
+        pd.concat(combined_groups, ignore_index=True)
+        if combined_groups
+        else utils_88888
+    )
     recombined_df = pd.concat(
         [df[df["utility_id_eia"] != 88888], agg_utils_88888], ignore_index=True
     )

@@ -149,7 +149,7 @@ def _shift_utc(utc: pd.Series, utc_offset: pd.Series) -> pd.Series:
         >>> _shift_utc(s, [-7, -6])
         0   2019-12-31 17:00:00
         1   2019-12-31 18:00:00
-        dtype: datetime64[ns]
+        dtype: datetime64[us]
     """
     return utc + pd.to_timedelta(utc_offset, unit="hours")
 
@@ -226,14 +226,18 @@ class FlaggedTimeseries:
         flags: pd.DataFrame | None = None,
     ) -> FlaggedTimeseries:
         """Create a timeseries object from a dataframe."""
-        x = matrix.to_numpy()
-        flags = np.empty(x.shape, dtype=object) if flags is None else flags.to_numpy()
+        x = matrix.to_numpy(copy=True)
+        flags_array = (
+            np.empty(x.shape, dtype=object)
+            if flags is None
+            else flags.to_numpy(copy=True)
+        )
 
         return cls(
             x=x,
             index=matrix.index,
             columns=matrix.columns,
-            flags=flags,
+            flags=flags_array,
             uuid=uuid.uuid4(),
         )
 
@@ -1497,7 +1501,7 @@ def impute(
         ValueError: Zero values present. Replace with very small value.
     """
     imputer = {"tubal": impute_latc_tubal, "tnn": impute_latc_tnn}[method]
-    x = df.to_numpy()
+    x = df.to_numpy(copy=True)
     if (x == 0).any():
         raise ValueError("Zero values present. Replace with very small value.")
     tensor = fold_tensor(x, periods=periods)

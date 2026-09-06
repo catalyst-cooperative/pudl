@@ -568,7 +568,7 @@ def is_doi(doi: str) -> bool:
 
 
 def convert_col_to_datetime(df: pd.DataFrame, date_col_name: str) -> pd.DataFrame:
-    """Convert a non-datetime column in a dataframe to a datetime64[s].
+    """Convert a non-datetime column in a dataframe to a ``datetime64[ns]``.
 
     If the column isn't a datetime, it needs to be converted to a string type
     first so that integer years are formatted correctly.
@@ -585,7 +585,11 @@ def convert_col_to_datetime(df: pd.DataFrame, date_col_name: str) -> pd.DataFram
             f"{date_col_name} is {df[date_col_name].dtype} column. "
             "Converting to datetime64[ns]."
         )
-        df[date_col_name] = pd.to_datetime(df[date_col_name].astype("string"))
+        # pandas 3.0's pd.to_datetime infers second/microsecond resolution from
+        # strings; pin nanoseconds to match PUDL's canonical datetime dtype.
+        df[date_col_name] = pd.to_datetime(df[date_col_name].astype("string")).astype(
+            "datetime64[ns]"
+        )
     return df
 
 
@@ -824,7 +828,7 @@ def expand_timeseries(
         pd.concat([df, end_dates.reset_index()])
         .set_index(date_col)
         .groupby(key_cols)
-        .resample(freq, include_groups=False)
+        .resample(freq)
         .ffill()
         .reset_index()
     )
@@ -2004,9 +2008,12 @@ def convert_col_to_bool(
     # This is easier than building an input dictionary for pandas map or replace
     # functions.
     df = df.copy()
-    df.loc[df[col_name].isin(true_values), col_name] = True
-    df.loc[df[col_name].isin(false_values), col_name] = False
-    df[col_name] = df[col_name].astype("boolean")
+    # Build the boolean column as a whole rather than assigning True/False into the
+    # existing (possibly string) column, which pandas 3.0 rejects as a lossy setitem.
+    bool_col = pd.Series(pd.NA, index=df.index, dtype="boolean")
+    bool_col[df[col_name].isin(true_values)] = True
+    bool_col[df[col_name].isin(false_values)] = False
+    df[col_name] = bool_col
 
     return df
 
@@ -2169,8 +2176,13 @@ def scale_by_ownership(
             gens.copy().assign(fraction_owned=1, ownership_record_type="total"),
         ]
     )
-    gens.loc[:, scale_cols] = gens.loc[:, scale_cols].multiply(
-        gens["fraction_owned"], axis="index"
+    # Scaling by a fractional ownership share is inherently fractional, so cast the
+    # scaled columns to nullable Float64 before multiplying. pandas 3.0 raises on a
+    # lossy setitem that would write float results back into an integer column.
+    gens[scale_cols] = (
+        gens[scale_cols]
+        .astype("Float64")
+        .multiply(gens["fraction_owned"], axis="index")
     )
     return gens
 
@@ -2477,7 +2489,9 @@ def standardize_phone_column(df: pd.DataFrame, columns: list[str]) -> pd.DataFra
 
         # Replace invalid or empty phone numbers with NaN
         invalid_mask = (
-            (phone_main.isna()) | (phone_main.str.fullmatch(r"0+")) | (phone_main == "")
+            phone_main.isna().to_numpy(dtype=bool)
+            | phone_main.str.fullmatch(r"0+").fillna(False).to_numpy(dtype=bool)
+            | (phone_main == "").fillna(False).to_numpy(dtype=bool)
         )
         df[column] = df[column].mask(invalid_mask, pd.NA)
 

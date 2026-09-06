@@ -454,7 +454,7 @@ def core_phmsagas__yearly_distribution_operators(
         df[col] = pd.to_datetime(df[col])
 
     # Initial string cleaning
-    for col in df.select_dtypes(include=["object"]).columns:
+    for col in df.select_dtypes(include=["object", "string"]).columns:
         df[col] = df[col].str.strip()
 
     # Specify the columns to convert to integer type
@@ -467,7 +467,7 @@ def core_phmsagas__yearly_distribution_operators(
 
     # Standardize case for city, county, operator name, etc.
     # Capitalize the first letter of each word in a list of columns
-    cap_cols = df.select_dtypes(include=["object"]).columns.difference(
+    cap_cols = df.select_dtypes(include=["object", "string"]).columns.difference(
         YEARLY_DISTRIBUTION_OPERATORS_COLUMNS["capitalization_exclusion"]
     )
     for col in cap_cols:

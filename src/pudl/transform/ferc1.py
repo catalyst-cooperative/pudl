@@ -1527,9 +1527,7 @@ class ErrorMetric(BaseModel):
         """
         # return a df instead of a series
         df["is_not_close"] = self.is_not_close(df)
-        return df.groupby(by=self.groupby_cols(), observed=True).apply(
-            self.metric, include_groups=False
-        )
+        return df.groupby(by=self.groupby_cols(), observed=True).apply(self.metric)
 
     def _snake_case_metric_name(self: Self) -> str:
         """Convert the TitleCase class name to a snake_case string."""
@@ -1612,7 +1610,7 @@ class NullCalculatedValueFrequency(ErrorMetric):
         return (
             df[df.row_type_xbrl == "calculated_value"]
             .groupby(self.groupby_cols(), observed=True)
-            .apply(self.metric, include_groups=False)
+            .apply(self.metric)
         )
 
     def metric(self: Self, gb: DataFrameGroupBy) -> pd.Series:

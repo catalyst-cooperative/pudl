@@ -457,7 +457,7 @@ def groupby_apply(
         >>> report['y']
         x
         1    Not unique.
-        dtype: object
+        dtype: str
         >>> error = lambda x, e: (x.name, as_dict(x))
         >>> _, report = groupby_apply(**base, raised=False, error=error)
         >>> report['y']

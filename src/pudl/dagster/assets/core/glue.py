@@ -352,7 +352,7 @@ def core_epa__assn_eia_epacamd_subplant_ids(
     # update the subplant ids for each plant
     subplant_ids_updated = (
         subplant_ids.groupby(by=["plant_id_eia"])
-        .apply(update_subplant_ids, include_groups=False)
+        .apply(update_subplant_ids)
         .reset_index(level="plant_id_eia")
     )
     # log differences between updated ids
@@ -538,7 +538,7 @@ def _convert_global_id_to_composite_id(
         idx_col = idx_name
 
     composite_key: pd.Series = reindexed.groupby("plant_id_eia", as_index=False).apply(
-        lambda x: x.groupby("global_subplant_id").ngroup(), include_groups=False
+        lambda x: x.groupby("global_subplant_id").ngroup()
     )
 
     # Recombine. Could use index join but I chose to reindex, sort and assign.

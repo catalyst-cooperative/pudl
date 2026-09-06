@@ -384,6 +384,19 @@ Developer Experience
   extension, so tests query both build outputs through one API as PUDL moves toward
   DuckDB. See PR :pr:`5538`.
 
+Dependency Updates
+^^^^^^^^^^^^^^^^^^
+
+* Upgraded to ``pandas`` 3.x. PUDL's transform code was updated for the pandas 3.0
+  behavior changes it relied on: the new default string dtype (PDEP-14), the removal
+  of silent dtype upcasting on ``setitem`` (PDEP-6), mandatory Copy-on-Write, the
+  exclusion of grouping columns from ``groupby(...).apply`` (and removal of
+  ``include_groups``), and ``DataFrame.to_sql`` now wrapping database errors in
+  ``pandas.errors.DatabaseError``. Notably, columns scaled by an ownership fraction in
+  :func:`pudl.helpers.scale_by_ownership` (feeding
+  :ref:`out_eia__yearly_generators_by_ownership` and the plant parts list) are now
+  consistently nullable ``Float64``. See PR :pr:`5130`.
+
 .. _release-v2026.8.0:
 
 ---------------------------------------------------------------------------------------
