@@ -274,7 +274,7 @@ this to work.
 * **Returns:**
   A DataFrame with unit IDs.
 
-### pudl.output.eia.assign_single_gen_unit_ids(gens_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), prime_mover_codes: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], fuel_type_code_pudl: [str](https://docs.python.org/3/library/stdtypes.html#str) = None, label_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'single') → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.output.eia.assign_single_gen_unit_ids(gens_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), prime_mover_codes: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], fuel_type_code_pudl: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, label_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'single') → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Assign a unique PUDL Unit ID to each generator of a given prime mover type.
 

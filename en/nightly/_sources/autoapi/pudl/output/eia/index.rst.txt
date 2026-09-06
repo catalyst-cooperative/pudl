@@ -289,7 +289,7 @@ Module Contents
    :returns: A DataFrame with unit IDs.
 
 
-.. py:function:: assign_single_gen_unit_ids(gens_df: pandas.DataFrame, prime_mover_codes: list[str], fuel_type_code_pudl: str = None, label_prefix: str = 'single') -> pandas.DataFrame
+.. py:function:: assign_single_gen_unit_ids(gens_df: pandas.DataFrame, prime_mover_codes: list[str], fuel_type_code_pudl: str | None = None, label_prefix: str = 'single') -> pandas.DataFrame
 
    Assign a unique PUDL Unit ID to each generator of a given prime mover type.
 

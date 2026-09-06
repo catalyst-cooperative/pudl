@@ -10,9 +10,10 @@ with cleaning and restructuring dataframes.
 
 ## Attributes
 
-| [`sum_na`](#pudl.helpers.sum_na)   | A sum function that returns NA if the Series includes any NA values.   |
-|-----------------------------------------------------------|------------------------------------------------------------------------|
-| [`logger`](#pudl.helpers.logger)   |                                                                        |
+| [`sum_na`](#pudl.helpers.sum_na)        | A sum function that returns NA if the Series includes any NA values.                                                                                                                    |
+|----------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`logger`](#pudl.helpers.logger)        |                                                                                                                                                                                         |
+| [`MergeValidate`](#pudl.helpers.MergeValidate) | Mirrors the `validate` literal accepted by [`pandas.DataFrame.merge()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.merge.html#pandas.DataFrame.merge). |
 
 ## Classes
 
@@ -340,7 +341,7 @@ Arguments: see arguments for `date_merge` and `expand_timeseries`
 
 Check date_on list is valid and add \_temp_for_merge suffix.
 
-### pudl.helpers.date_merge(left: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), right: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), on: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], left_date_col: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'report_date', right_date_col: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'report_date', new_date_col: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'report_date', date_on: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] = None, how: Literal['inner', 'outer', 'left', 'right', 'cross'] = 'inner', report_at_start: [bool](https://docs.python.org/3/library/functions.html#bool) = True, \*\*kwargs) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.helpers.date_merge(left: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), right: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), on: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], left_date_col: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'report_date', right_date_col: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'report_date', new_date_col: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'report_date', date_on: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [None](https://docs.python.org/3/library/constants.html#None) = None, how: Literal['inner', 'outer', 'left', 'right', 'cross'] = 'inner', report_at_start: [bool](https://docs.python.org/3/library/functions.html#bool) = True, \*\*kwargs) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Merge two dataframes that have different report date frequencies.
 
@@ -1001,7 +1002,11 @@ replace operations instead of returning a copy of the data frame. This mode is
 useful for memory-intensive data frames, but be aware that upstream processes
 retaining a reference to the data will see the changes made here.
 
-### pudl.helpers.scale_by_ownership(gens: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), own_eia860: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), scale_cols: [list](https://docs.python.org/3/library/stdtypes.html#list), validate: [str](https://docs.python.org/3/library/stdtypes.html#str) = '1:m') → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.helpers.MergeValidate
+
+Mirrors the `validate` literal accepted by [`pandas.DataFrame.merge()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.merge.html#pandas.DataFrame.merge).
+
+### pudl.helpers.scale_by_ownership(gens: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), own_eia860: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), scale_cols: [list](https://docs.python.org/3/library/stdtypes.html#list), validate: [MergeValidate](#pudl.helpers.MergeValidate) = '1:m') → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Generate proportional data by ownership %s.
 

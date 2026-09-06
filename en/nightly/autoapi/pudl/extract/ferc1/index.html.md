@@ -104,7 +104,9 @@ Bases: `TypedDict`
 
 Mapping between normalized PUDL table and raw DBF/XBRL table names.
 
-#### dbf *: [RawFercTableName](#pudl.extract.ferc1.RawFercTableName)*
+#### dbf *: NotRequired[[RawFercTableName](#pudl.extract.ferc1.RawFercTableName)]*
+
+Absent for tables introduced after DBF reporting ended in 2020.
 
 #### xbrl *: [RawFercTableName](#pudl.extract.ferc1.RawFercTableName)*
 

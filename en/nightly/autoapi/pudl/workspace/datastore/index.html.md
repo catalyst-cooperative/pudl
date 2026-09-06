@@ -70,9 +70,9 @@ Returns True if content matches checksum for given named resource.
 
 #### \_matches(res: [dict](https://docs.python.org/3/library/stdtypes.html#dict), \*\*filters: Any)
 
-#### \_match_from_partition(parts: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)], k: [str](https://docs.python.org/3/library/stdtypes.html#str), v: [str](https://docs.python.org/3/library/stdtypes.html#str) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)])
+#### \_match_from_partition(parts: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)], k: [str](https://docs.python.org/3/library/stdtypes.html#str), v: [str](https://docs.python.org/3/library/stdtypes.html#str) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)])
 
-#### get_resources(name: [str](https://docs.python.org/3/library/stdtypes.html#str) = None, \*\*filters: Any) → [collections.abc.Iterator](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterator)[[pudl.workspace.resource_cache.PudlResourceKey](../resource_cache/index.html.md#pudl.workspace.resource_cache.PudlResourceKey)]
+#### get_resources(name: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \*\*filters: Any) → [collections.abc.Iterator](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterator)[[pudl.workspace.resource_cache.PudlResourceKey](../resource_cache/index.html.md#pudl.workspace.resource_cache.PudlResourceKey)]
 
 Returns series of PudlResourceKey identifiers for matching resources.
 
@@ -82,7 +82,7 @@ Returns series of PudlResourceKey identifiers for matching resources.
     constraints. The constraints are matched against the ‘parts’ field of
     the resource entry in the datapackage.json.
 
-#### get_partitions(name: [str](https://docs.python.org/3/library/stdtypes.html#str) = None) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [set](https://docs.python.org/3/library/stdtypes.html#set)[[str](https://docs.python.org/3/library/stdtypes.html#str)]]
+#### get_partitions(name: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [set](https://docs.python.org/3/library/stdtypes.html#set)[[str](https://docs.python.org/3/library/stdtypes.html#str)]]
 
 Return mapping of known partition keys to their allowed known values.
 

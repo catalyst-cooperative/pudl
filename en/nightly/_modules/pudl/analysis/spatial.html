@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.analysis.spatial &#8212; PUDL 2026.8.1.dev34 documentation</title>
+    <title>pudl.analysis.spatial &#8212; PUDL 2026.8.1.dev38 documentation</title>
   
   
   
@@ -49,11 +49,13 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../_static/documentation_options.js?v=e3f05f78"></script>
+    <script src="../../../_static/documentation_options.js?v=613634d4"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
     <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
 
 
 
@@ -494,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev34 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev34 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev38 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev38 documentation - Home"/>
   
   
 </a></div>
@@ -960,7 +962,9 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="explode">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/spatial/index.html#pudl.analysis.spatial.explode">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">explode</span><span class="p">(</span><span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span> <span class="n">ratios</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">explode</span><span class="p">(</span>
+    <span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span> <span class="n">ratios</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Explode MultiPolygon to multiple Polygon geometries.</span>
 
 <span class="sd">    Args:</span>
@@ -996,7 +1000,9 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="self_union">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/spatial/index.html#pudl.analysis.spatial.self_union">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">self_union</span><span class="p">(</span><span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span> <span class="n">ratios</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">self_union</span><span class="p">(</span>
+    <span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span> <span class="n">ratios</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Calculate the geometric union of a feature layer with itself.</span>
 
 <span class="sd">    Areas of overlap are split into two or more geometrically-identical features:</span>
@@ -1096,7 +1102,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">how</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span>
         <span class="s2">"intersection"</span><span class="p">,</span> <span class="s2">"union"</span><span class="p">,</span> <span class="s2">"identity"</span><span class="p">,</span> <span class="s2">"symmetric_difference"</span><span class="p">,</span> <span class="s2">"difference"</span>
     <span class="p">]</span> <span class="o">=</span> <span class="s2">"intersection"</span><span class="p">,</span>
-    <span class="n">ratios</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">ratios</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Overlay multiple layers incrementally.</span>
 
