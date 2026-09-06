@@ -30,11 +30,32 @@ function validate_partition_range_inputs() {
 
 function run_ferceqr_etl() {
     echo "Running FERC EQR ETL"
+
+    # Run one long-lived gRPC code server and point the daemon and backfill at
+    # it via --grpc-socket. Otherwise the daemon spins up a *managed* code
+    # server that it must heartbeat every 20s (a hardcoded Dagster constant);
+    # under the CPU pressure of the ETL those pings slip and the server is torn
+    # down and rebuilt every ~30-60s for the whole run. Started without
+    # --heartbeat, this server just runs until we kill it. A UDS socket (rather
+    # than a TCP port) avoids any chance of colliding with another local Dagster
+    # instance. (issue #5318)
+    local grpc_socket="${DAGSTER_HOME}/ferceqr-code-server.sock"
+    rm -f "$grpc_socket"
+    dagster api grpc --socket "$grpc_socket" --module-name pudl.definitions &
+    dagster_grpc_server_pid=$!
+    if ! timeout 300 bash -c \
+        "until dagster api grpc-health-check --socket '${grpc_socket}' 2>/dev/null; do sleep 2; done"
+    then
+        echo "ERROR: Dagster gRPC code server never became healthy." >&2
+        touch "$PUDL_OUTPUT/FERCEQR_FAILURE"
+        return 1
+    fi
+
     # Launch dagster-daemon in the background (handles the backfill queue)
-    dagster-daemon run &
+    dagster-daemon run --grpc-socket "$grpc_socket" &
 
     # Kick off the ferceqr job asynchronously
-    BACKFILL_ARGS=(job backfill --noprompt --job ferceqr)
+    BACKFILL_ARGS=(job backfill --noprompt --job ferceqr --grpc-socket "$grpc_socket")
     if [[ -n "${FERCEQR_START_PARTITION:-}" ]]; then
         BACKFILL_ARGS+=(--from "$FERCEQR_START_PARTITION" --to "$FERCEQR_END_PARTITION")
     fi
@@ -59,6 +80,8 @@ function run_ferceqr_etl() {
     fi
 
     killall dagster-daemon
+    kill "${dagster_grpc_server_pid:-}" 2>/dev/null || true
+    rm -f "$grpc_socket"
 }
 
 function send_zulip_notification() {
@@ -89,6 +112,12 @@ function cleanup_on_exit() {
         send_zulip_notification \
             ":x: Pre-flight checks failed for FERC EQR build \`${BUILD_ID}\` — the Dagster job did not run."
     fi
+
+    # Stop the standalone Dagster gRPC code server if it is still running
+    # (e.g. after a build timeout, where run_ferceqr_etl never reached its end).
+    killall dagster-daemon 2>/dev/null || true
+    pkill -f "dagster api grpc" 2>/dev/null || true
+    rm -f "${DAGSTER_HOME}/ferceqr-code-server.sock"
 
     # If the deployment timed out or failed mid-upload, clean up any partial
     # staging directories on deployment targets so they don't accumulate.
