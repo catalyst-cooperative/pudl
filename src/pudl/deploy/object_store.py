@@ -39,6 +39,7 @@ for composite objects, so there is no uniform digest to compare.
 
 import json
 import os
+import re
 import shlex
 import shutil
 import subprocess
@@ -210,11 +211,15 @@ class LocalObjectStore(ObjectStore):
 class S5cmdObjectStore(ObjectStore):
     """Amazon S3 implementation using :command:`s5cmd`.
 
-    *region* is exported as ``AWS_REGION`` for every call. ``s5cmd ls`` raises
-    ``BucketRegionError`` when the region is wrong or unset, so it must match the
-    bucket. Credentials are read by ``s5cmd`` itself from ``~/.aws/credentials``
-    or the standard ``AWS_*`` environment variables.
+    *region* is exported as ``AWS_REGION`` for every call. ``s5cmd``'s
+    ``cp``/``mv``/``sync`` discover the bucket region on their own, but ``ls``
+    does not and fails with ``BucketRegionError`` when the region is wrong or
+    unset; :meth:`object_sizes` reads the correct region out of that error and
+    retries, so a misconfigured ``AWS_REGION`` self-corrects. Credentials are
+    read by ``s5cmd`` from ``~/.aws/credentials`` or the ``AWS_*`` environment.
     """
+
+    _WRONG_REGION = re.compile(r"bucket is in '([a-z0-9-]+)' region")
 
     def __init__(self, region: str | None = None):
         """Store the AWS region to use for every ``s5cmd`` invocation."""
@@ -251,9 +256,14 @@ class S5cmdObjectStore(ObjectStore):
                 continue
             record = json.loads(line)
             if "error" in record:
-                if "no object found" in record["error"]:
+                error = record["error"]
+                if "no object found" in error:
                     return {}
-                raise RuntimeError(f"s5cmd ls failed for {prefix}: {record['error']}")
+                match = self._WRONG_REGION.search(error)
+                if match and match.group(1) != self.region:
+                    self.region = match.group(1)
+                    return self.object_sizes(prefix)
+                raise RuntimeError(f"s5cmd ls failed for {prefix}: {error}")
             if record.get("type") == "file":
                 sizes[record["key"].removeprefix(f"{base}/")] = int(record["size"])
         return sizes
