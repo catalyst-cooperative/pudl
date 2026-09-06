@@ -41,7 +41,13 @@ function run_ferceqr_etl() {
     # instance. (issue #5318)
     local grpc_socket="${DAGSTER_HOME}/ferceqr-code-server.sock"
     rm -f "$grpc_socket"
-    dagster api grpc --socket "$grpc_socket" --module-name pudl.definitions &
+    # --max-workers well above max_concurrent_runs: every run launch and every
+    # run worker's code bootstrap goes through this server's thread pool along
+    # with the daemon's polling. The default (min(32, ncpu + 4)) leaves too few
+    # free threads at 16 concurrent runs, so launches queue and runs pile up in
+    # STARTING. Threads are cheap; over-provision. (issue #5318)
+    dagster api grpc --socket "$grpc_socket" --module-name pudl.definitions \
+        --max-workers 64 &
     dagster_grpc_server_pid=$!
     if ! timeout 300 bash -c \
         "until dagster api grpc-health-check --socket '${grpc_socket}' 2>/dev/null; do sleep 2; done"
@@ -161,8 +167,13 @@ ferceqr_etl_started=false
 FERCEQR_BUILD_TIMEOUT_HOURS="${FERCEQR_BUILD_TIMEOUT_HOURS:-8}"
 FERCEQR_BUILD_TIMEOUT_SECONDS=$((FERCEQR_BUILD_TIMEOUT_HOURS * 3600))
 
-# Select the FERC EQR-specific dagster configuration.
-cp "${DAGSTER_HOME}/dagster-ferceqr.yaml" "${DAGSTER_HOME}/dagster.yaml"
+# Recreate the workspace layout. On jobs that mount a Local SSD over
+# $CONTAINER_PUDL_WORKSPACE these directories start out empty every run.
+mkdir -p "$PUDL_INPUT" "$PUDL_OUTPUT" "$DAGSTER_HOME"
+
+# Select the FERC EQR-specific dagster configuration. Sourced from the repo copy
+# rather than $DAGSTER_HOME, which may be a fresh Local SSD mount.
+cp "${PUDL_ROOT_PATH}/builds/dagster-ferceqr.yaml" "${DAGSTER_HOME}/dagster.yaml"
 
 LOGFILE="${PUDL_OUTPUT}/${BUILD_ID}.log"
 
