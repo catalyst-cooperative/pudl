@@ -1,6 +1,7 @@
 """Unit tests for :mod:`pudl.deploy.object_store`."""
 
 import json
+from pathlib import Path
 
 import pytest
 
@@ -9,8 +10,69 @@ from pudl.deploy.object_store import (
     GcloudStorageObjectStore,
     LocalObjectStore,
     ObjectStore,
-    S5cmdObjectStore,
+    S3ObjectStore,
 )
+
+
+class _DoneFuture:
+    """Stand-in for a transfer-manager future that has already completed."""
+
+    def result(self):
+        return None
+
+
+class _FakeS3Client:
+    """A tiny in-memory S3 for exercising :class:`S3ObjectStore` without a network."""
+
+    def __init__(self, objects=None, location="us-west-2"):
+        # {(bucket, key): size}
+        self.objects = dict(objects or {})
+        self._location = location
+
+    def get_bucket_location(self, Bucket):  # noqa: N803 (boto3 kwarg name)
+        return {"LocationConstraint": self._location}
+
+    def get_paginator(self, name):
+        assert name == "list_objects_v2"
+        client = self
+
+        class _Paginator:
+            def paginate(self, Bucket, Prefix):  # noqa: N803
+                yield {
+                    "Contents": [
+                        {"Key": key, "Size": size}
+                        for (bucket, key), size in client.objects.items()
+                        if bucket == Bucket and key.startswith(Prefix)
+                    ]
+                }
+
+        return _Paginator()
+
+    def delete_objects(self, Bucket, Delete):  # noqa: N803
+        for obj in Delete["Objects"]:
+            self.objects.pop((Bucket, obj["Key"]), None)
+
+
+class _FakeTransferManager:
+    """Applies uploads/copies straight to the backing :class:`_FakeS3Client`."""
+
+    def __init__(self, client):
+        self.client = client
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return False
+
+    def upload(self, filename, bucket, key):
+        self.client.objects[(bucket, key)] = Path(filename).stat().st_size
+        return _DoneFuture()
+
+    def copy(self, copy_source, bucket, key):
+        size = self.client.objects[(copy_source["Bucket"], copy_source["Key"])]
+        self.client.objects[(bucket, key)] = size
+        return _DoneFuture()
 
 
 @pytest.fixture
@@ -29,15 +91,16 @@ def source_files(tmp_path):
 class TestForUri:
     """``ObjectStore.for_uri`` dispatches on the URI scheme."""
 
-    def test_s3_uses_s5cmd_with_region_from_env(self, mocker):
+    def test_s3_uses_boto3_with_bucket_and_region_from_env(self, mocker):
         mocker.patch.dict(
             object_store.os.environ,
             {"AWS_REGION": "", "AWS_DEFAULT_REGION": "us-west-2"},
             clear=False,
         )
         store = ObjectStore.for_uri("s3://pudl.catalyst.coop/ferceqr")
-        assert isinstance(store, S5cmdObjectStore)
-        assert store.region == "us-west-2"
+        assert isinstance(store, S3ObjectStore)
+        assert store.bucket == "pudl.catalyst.coop"
+        assert store._region == "us-west-2"
 
     def test_gs_requester_pays_pulls_billing_project(self, mocker):
         mocker.patch.dict(
@@ -112,95 +175,91 @@ class TestLocalObjectStore:
         assert not target.exists()
 
 
-class TestS5cmdObjectStore:
-    """The S3 implementation builds the expected ``s5cmd`` command lines."""
+class TestS3ObjectStore:
+    """The S3 implementation drives boto3 list / copy / delete correctly."""
 
     @pytest.fixture
-    def run_cli(self, mocker):
-        return mocker.patch.object(object_store, "_run_cli", return_value="")
-
-    def test_upload_files_batches_into_run_script(self, run_cli, source_files):
-        S5cmdObjectStore(region="us-west-2").upload_files(
-            source_files, "s3://bucket/._staging/data"
+    def store(self, mocker):
+        """An S3ObjectStore wired to an in-memory fake client and transfer manager."""
+        client = _FakeS3Client()
+        mocker.patch.object(
+            object_store,
+            "create_transfer_manager",
+            side_effect=lambda client, config: _FakeTransferManager(client),
         )
-        args, kwargs = run_cli.call_args
-        assert args[0][:1] == ["s5cmd"]
-        assert args[0][-1] == "run"
-        assert kwargs["env_overrides"] == {"AWS_REGION": "us-west-2"}
-        stdin_lines = kwargs["stdin"].splitlines()
-        assert stdin_lines == [
-            f"cp {source_files[0]} s3://bucket/._staging/data/2013q3.parquet",
-            f"cp {source_files[1]} s3://bucket/._staging/data/2013q4.parquet",
-        ]
+        s3 = S3ObjectStore("bucket", region="us-west-2")
+        s3._client_cache = client
+        return s3
 
-    def test_upload_files_no_sources_is_noop(self, run_cli):
-        S5cmdObjectStore().upload_files([], "s3://bucket/x")
-        run_cli.assert_not_called()
-
-    def test_object_sizes_parses_json(self, run_cli):
-        run_cli.return_value = (
-            json.dumps(
-                {
-                    "key": "s3://bucket/stg/core_ferceqr__transactions/2013q3.parquet",
-                    "type": "file",
-                    "size": 123,
-                }
-            )
-            + "\n"
-            + json.dumps({"key": "s3://bucket/stg/x/", "type": "directory"})
-            + "\n"
+    def test_detect_region_defaults_none_to_us_east_1(self, mocker):
+        mocker.patch.object(
+            object_store.boto3, "client", return_value=_FakeS3Client(location=None)
         )
-        sizes = S5cmdObjectStore().object_sizes("s3://bucket/stg")
-        assert sizes == {"core_ferceqr__transactions/2013q3.parquet": 123}
+        assert S3ObjectStore("bucket")._detect_region() == "us-east-1"
 
-    def test_object_sizes_empty_prefix_returns_empty(self, run_cli):
-        run_cli.return_value = json.dumps(
-            {"operation": "ls", "error": "no object found"}
-        )
-        assert S5cmdObjectStore().object_sizes("s3://bucket/stg") == {}
+    def test_upload_files_places_objects_under_prefix(self, store, source_files):
+        store.upload_files(source_files, "s3://bucket/._staging/data")
+        assert store.object_sizes("s3://bucket/._staging/data") == {
+            "2013q3.parquet": 10,
+            "2013q4.parquet": 20,
+        }
 
-    def test_object_sizes_other_error_raises(self, run_cli):
-        run_cli.return_value = json.dumps(
-            {"operation": "ls", "error": "AccessDenied: not allowed"}
-        )
-        with pytest.raises(RuntimeError, match="not allowed"):
-            S5cmdObjectStore().object_sizes("s3://bucket/stg")
+    def test_upload_files_no_sources_is_noop(self, mocker):
+        create_manager = mocker.patch.object(object_store, "create_transfer_manager")
+        s3 = S3ObjectStore("bucket", region="us-west-2")
+        s3._client_cache = _FakeS3Client()
+        s3.upload_files([], "s3://bucket/x")
+        create_manager.assert_not_called()
 
-    def test_object_sizes_recovers_from_wrong_region(self, run_cli):
-        wrong_region = json.dumps(
-            {
-                "operation": "ls",
-                "error": (
-                    "BucketRegionError: incorrect region, the bucket is not in "
-                    "'us-east-1' region, bucket is in 'us-west-2' region"
-                ),
-            }
-        )
-        ok = json.dumps({"key": "s3://bucket/stg/a.parquet", "type": "file", "size": 5})
-        run_cli.side_effect = [wrong_region, ok]
-        store = S5cmdObjectStore(region="us-east-1")
+    def test_object_sizes_strips_prefix_and_placeholder(self, store):
+        store._client_cache.objects = {
+            ("bucket", "stg/"): 0,
+            ("bucket", "stg/core_ferceqr__contracts/2013q3.parquet"): 123,
+        }
+        assert store.object_sizes("s3://bucket/stg") == {
+            "core_ferceqr__contracts/2013q3.parquet": 123
+        }
 
-        assert store.object_sizes("s3://bucket/stg") == {"a.parquet": 5}
-        assert store.region == "us-west-2"
-        assert run_cli.call_count == 2
-        assert run_cli.call_args.kwargs["env_overrides"] == {"AWS_REGION": "us-west-2"}
+    def test_object_sizes_empty_prefix_returns_empty(self, store):
+        assert store.object_sizes("s3://bucket/stg") == {}
 
-    def test_move_uses_server_side_wildcard(self, run_cli):
-        S5cmdObjectStore().move("s3://bucket/._staging/data", "s3://bucket/ferceqr")
-        assert run_cli.call_args.args[0][-2:] == [
-            "s3://bucket/._staging/data/*",
-            "s3://bucket/ferceqr/",
-        ]
+    def test_move_copies_then_empties_source(self, store):
+        store._client_cache.objects = {
+            ("bucket", "._staging/data/t/a.parquet"): 5,
+            ("bucket", "._staging/data/t/b.parquet"): 7,
+        }
+        store.move("s3://bucket/._staging/data", "s3://bucket/ferceqr")
+        assert store.object_sizes("s3://bucket/ferceqr") == {
+            "t/a.parquet": 5,
+            "t/b.parquet": 7,
+        }
+        assert store.object_sizes("s3://bucket/._staging/data") == {}
 
-    def test_sync_passes_delete_flag(self, run_cli):
-        S5cmdObjectStore().sync("s3://bucket/ferceqr", "s3://bucket/._prev")
-        cmd = run_cli.call_args.args[0]
-        assert "sync" in cmd and "--delete" in cmd
-        assert cmd[-2:] == ["s3://bucket/ferceqr/*", "s3://bucket/._prev/"]
+    def test_sync_copies_changed_and_deletes_extras(self, store):
+        store._client_cache.objects = {
+            ("bucket", "src/keep.parquet"): 10,
+            ("bucket", "src/changed.parquet"): 20,
+            ("bucket", "dst/keep.parquet"): 10,
+            ("bucket", "dst/changed.parquet"): 99,
+            ("bucket", "dst/stale.parquet"): 3,
+        }
+        store.sync("s3://bucket/src", "s3://bucket/dst")
+        assert store.object_sizes("s3://bucket/dst") == {
+            "keep.parquet": 10,
+            "changed.parquet": 20,
+        }
 
-    def test_remove_does_not_check(self, run_cli):
-        S5cmdObjectStore().remove("s3://bucket/._staging")
-        assert run_cli.call_args.kwargs["check"] is False
+    def test_remove_empties_the_prefix(self, store):
+        store._client_cache.objects = {
+            ("bucket", "._staging/a"): 1,
+            ("bucket", "._staging/b/c"): 2,
+            ("bucket", "keep/d"): 3,
+        }
+        store.remove("s3://bucket/._staging")
+        assert store._client_cache.objects == {("bucket", "keep/d"): 3}
+
+    def test_remove_missing_prefix_is_noop(self, store):
+        store.remove("s3://bucket/nothing-here")
 
 
 class TestGcloudStorageObjectStore:

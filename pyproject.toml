@@ -60,6 +60,8 @@ preview = ["pixi-build"]
 # For any dependency with an upper bound on the version, please add a
 # comment explaining why it's necessary.
 [tool.pixi.dependencies]
+# awscrt backs the boto3 CRT S3 transfer client used by the FERC EQR deploy.
+awscrt = ">=0.36"
 beautifulsoup4 = ">=4.15"
 boto3 = ">=1.35"
 bottleneck = ">=1.5.0"
@@ -165,7 +167,6 @@ usaddress = ">=0.5.16,<0.6"
 uv = ">=0.11"
 xlsxwriter = ">=3.2"
 gh = ">=2.96.0,<3"
-s5cmd = ">=2.2.2,<3"
 
 [tool.pixi.pypi-dependencies]
 # Install the local package in editable mode. Assume dependencies are specified either
