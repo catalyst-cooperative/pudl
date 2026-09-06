@@ -115,7 +115,7 @@ combined-cycle unit and the gas-turbine.
 ... })
 >>> df_plant_part
     plant_id_eia           plant_part    unit_id_pudl    prime_mover_code    capacity_mw
-0              1           plant_unit               1                <NA>            200
+0              1           plant_unit               1                 NaN            200
 1              1    plant_prime_mover            <NA>                  GT            150
 
 In this case, the ``plant_unit`` record would have a null
