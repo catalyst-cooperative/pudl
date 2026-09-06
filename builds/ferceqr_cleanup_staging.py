@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Remove orphaned ``._staging_*`` directories from FERC EQR deployment targets.
 
-These directories are created by :func:`~pudl.dagster.assets.deploy.ferceqr._deploy_to_staging`
-as part of the atomic staging-then-rename pattern. If the build is interrupted
-(timeout, crash, container preemption) before ``_promote_staging`` runs, the
-staging directories survive on the target and must be cleaned up.
+The ``deploy_ferceqr`` asset uploads outputs to a ``._staging_{BUILD_ID}``
+prefix beside each deployment target before promoting them into place. If the
+build is interrupted (timeout, crash, container preemption) before the promote
+step runs, those staging prefixes survive on the target and must be cleaned up.
 
 This script is intended for the FERC EQR batch build only. It reads the
 deployment-target configuration from the YAML file pointed at by the
