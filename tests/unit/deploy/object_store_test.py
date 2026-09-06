@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 import pytest
-from boto3.crt import _validate_crt_transfer_config
+from boto3.crt import _validate_crt_transfer_config  # type: ignore[missing-module-attribute]
 
 from pudl.deploy import object_store
 from pudl.deploy.object_store import (

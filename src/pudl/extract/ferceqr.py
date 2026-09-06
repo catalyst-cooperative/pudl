@@ -17,7 +17,7 @@ from upath import UPath
 
 from pudl.dagster.partitions import ferceqr_year_quarters
 from pudl.dagster.resources import FercEqrArchiveResource
-from pudl.helpers import ParquetData, persist_table_as_parquet
+from pudl.helpers import ParquetData, duckdb_connect, persist_table_as_parquet
 from pudl.logging_helpers import get_logger
 
 logger = get_logger(__name__)
@@ -412,13 +412,15 @@ def extract_ferceqr(
     table_file_counts = dict.fromkeys(_ALL_TABLE_TYPES, 0)
     corrupt_filing_count = 0
 
-    # Open top level zipfile
+    # Open top level zipfile. The connection inherits PUDL_DUCKDB_* caps from the
+    # environment (see pudl.helpers.duckdb_connect): most per-filing CSVs are
+    # tiny, but big utilities' recent transactions filings run to tens of
+    # millions of rows and are processed one at a time in the loop below, so
+    # DuckDB's parallel CSV reader earns its keep there.
     with (
         _get_csv(ferceqr_archive.upath, year_quarter) as quarter_archive,
-        duckdb.connect() as conn,
+        duckdb_connect() as conn,
     ):
-        # Disable DuckDB progress bar, as it is quite noisy in the logs.
-        conn.execute("PRAGMA disable_progress_bar")
         # Loop through all nested zipfiles (one for each filing in the quarter)
         filing_names = quarter_archive.namelist()
         logger.info(f"Extracting {len(filing_names)} filings for {year_quarter}.")

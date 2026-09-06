@@ -2615,6 +2615,38 @@ def df_from_parquet(
     return pd.read_parquet(parquet_data.parquet_path)
 
 
+def duckdb_connect(**overrides: str) -> duckdb.DuckDBPyConnection:
+    """Open a DuckDB connection with resource caps taken from the environment.
+
+    A DuckDB connection defaults to using every CPU core and ~80% of system RAM.
+    That is fine for one connection at a time, but PUDL runs many DuckDB-backed
+    assets concurrently -- most acutely the FERC EQR partition backfill, where a
+    dozen-plus partition runs each open their own connection. Left at the
+    defaults, N connections collectively oversubscribe the machine's cores and
+    can exhaust its memory (a load average in the hundreds, then an OOM).
+
+    ``PUDL_DUCKDB_THREADS``, ``PUDL_DUCKDB_MEMORY_LIMIT`` (e.g. ``"6GB"``), and
+    ``PUDL_DUCKDB_TEMP_DIRECTORY`` cap a single connection. When
+    ``memory_limit`` is hit DuckDB spills to ``temp_directory`` rather than
+    failing, so a too-low limit only slows a run down. All three are unset
+    outside the batch jobs, so local and CI single-asset runs keep DuckDB's
+    defaults. Explicit *overrides* win over the environment.
+    """
+    config: dict[str, Any] = {
+        key: value
+        for env_var, key in (
+            ("PUDL_DUCKDB_THREADS", "threads"),
+            ("PUDL_DUCKDB_MEMORY_LIMIT", "memory_limit"),
+            ("PUDL_DUCKDB_TEMP_DIRECTORY", "temp_directory"),
+        )
+        if (value := os.environ.get(env_var))
+    } | dict(overrides)
+    conn = duckdb.connect(config=config) if config else duckdb.connect()
+    # Disable DuckDB's progress bar, which is very noisy in non-interactive logs.
+    conn.execute("PRAGMA disable_progress_bar")
+    return conn
+
+
 @contextmanager
 def duckdb_relation_from_parquet(
     parquet_data: ParquetData, use_all_partitions: bool = False
@@ -2629,9 +2661,7 @@ def duckdb_relation_from_parquet(
         use_all_partitions: If true read the entire directory of parquet files.
             Otherwise only read data from the partition specified in parquet_data.
     """
-    with duckdb.connect() as conn:
-        # Disable DuckDB progress bar, as it is quite noisy in the logs.
-        conn.execute("PRAGMA disable_progress_bar")
+    with duckdb_connect() as conn:
         if use_all_partitions:
             yield conn.read_parquet(f"{parquet_data.parquet_directory}/*.parquet"), conn
         else:
@@ -2663,12 +2693,10 @@ def duckdb_extract_zipped_csv(
             If not explicitly set, assume CSV files are at the top level of the zipfile.
     """
     with (
-        duckdb.connect() as conn,
+        duckdb_connect() as conn,
         datasore.get_zipfile_resource(dataset=dataset, **partitions) as zf,
         tempfile.TemporaryDirectory() as tmp_dir,
     ):
-        # Disable DuckDB progress bar, as it is quite noisy in the logs.
-        conn.execute("PRAGMA disable_progress_bar")
         tmp_dir = Path(tmp_dir)
         zf.extractall(tmp_dir)
 
