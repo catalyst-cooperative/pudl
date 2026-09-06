@@ -63,8 +63,35 @@ S3_COPY_MULTIPART_THRESHOLD = 512 * 1024**2
 S3_COPY_MULTIPART_CHUNKSIZE = 512 * 1024**2
 S3_COPY_MAX_CONCURRENCY = 128
 
+# Upload tuning for the CRT transfer client. The FERC EQR deploy runs from a
+# Google Cloud VM and uploads ~125 GB to an S3 bucket in another AWS region --
+# a long-RTT, cross-cloud path where the 8 MiB default part size spends most of
+# the transfer waiting on per-part round trips. Larger parts (each transactions
+# file is multiple GiB) plus wide concurrency keep the pipe full. These are the
+# TransferConfig keys the CRT client actually honors; the client-level
+# target_throughput is left at its default (auto-detect, ~10 Gbps fallback),
+# which is already well above what this cross-cloud path delivers.
+S3_UPLOAD_MULTIPART_THRESHOLD = 64 * 1024**2
+S3_UPLOAD_MULTIPART_CHUNKSIZE = 64 * 1024**2
+S3_UPLOAD_MAX_CONCURRENCY = 64
+
 # Batch size limit for the S3 DeleteObjects API.
 S3_DELETE_BATCH = 1000
+
+
+def _abbreviate_cmd(args: list[str], keep: int = 4) -> str:
+    """Render a command for logging, collapsing long argument lists.
+
+    Bulk ``gcloud storage`` invocations pass one path per file, so a single
+    upload of 52 partitions logs a ~4 KB line. Keep the leading tokens and the
+    final one (usually the destination) and count the rest.
+    """
+    if len(args) <= keep + 2:
+        return shlex.join(args)
+    return (
+        f"{shlex.join(args[:keep])} … (+{len(args) - keep - 1} args) "
+        f"{shlex.quote(args[-1])}"
+    )
 
 
 def _run_cli(
@@ -81,7 +108,7 @@ def _run_cli(
     (for commands whose "nothing matched" case is not a real error).
     """
     env = {**os.environ, **env_overrides} if env_overrides else None
-    logger.info(f"Running: {shlex.join(args)}")
+    logger.info(f"Running: {_abbreviate_cmd(args)}")
     result = subprocess.run(  # noqa: S603
         args,
         check=False,
@@ -288,7 +315,12 @@ class S3ObjectStore(ObjectStore):
             return
         bucket, key_prefix = _split_s3(dest_prefix.rstrip("/"))
         logger.info(f"Uploading {len(sources)} file(s) to {dest_prefix}")
-        config = TransferConfig(preferred_transfer_client="crt")
+        config = TransferConfig(
+            preferred_transfer_client="crt",
+            multipart_threshold=S3_UPLOAD_MULTIPART_THRESHOLD,
+            multipart_chunksize=S3_UPLOAD_MULTIPART_CHUNKSIZE,
+            max_concurrency=S3_UPLOAD_MAX_CONCURRENCY,
+        )
         with create_transfer_manager(self._client, config) as manager:
             futures = [
                 manager.upload(str(source), bucket, f"{key_prefix}/{source.name}")
