@@ -6,7 +6,7 @@ run_coordinator:
     # oversubscribe the VM's cores and exhaust its RAM (see PUDL_DUCKDB_* in
     # builds/ferceqr_batch.sh). 12 heavy quarters is about what a
     # c4d-standard-32 (124 GiB) holds with those per-connection caps in place.
-    max_concurrent_runs: 12
+    max_concurrent_runs: 24
     # Launch dequeued runs in parallel. The default serial dequeue loop (one
     # launch per ~5s tick) can't refill freed slots fast enough when many short
     # partition backfill runs finish close together, so steady-state occupancy
