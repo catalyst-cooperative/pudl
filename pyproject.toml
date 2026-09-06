@@ -166,6 +166,7 @@ usaddress = ">=0.5.16,<0.6"
 uv = ">=0.11"
 xlsxwriter = ">=3.2"
 gh = ">=2.96.0,<3"
+s5cmd = ">=2.2.2,<3"
 
 [tool.pixi.pypi-dependencies]
 # Install the local package in editable mode. Assume dependencies are specified either
