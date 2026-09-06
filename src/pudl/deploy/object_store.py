@@ -3,11 +3,11 @@
 PUDL publishes large collections of Parquet files to public buckets on Google
 Cloud Storage and Amazon S3. Moving that data through a Python object-storage
 abstraction (``fsspec`` / ``UPath``) is slow: transfers run one file at a time
-with no multipart concurrency. This module shells out to purpose-built command
-line tools instead -- :command:`s5cmd` for S3 and :command:`gcloud storage` for
-GCS -- which parallelize aggressively and saturate the available bandwidth. For
-local filesystem targets (used in tests and local development) it falls back to
-:mod:`shutil`.
+with no multipart concurrency. This module uses purpose-built tooling instead --
+:mod:`boto3` (with the AWS Common Runtime transfer client) for S3 and
+:command:`gcloud storage` for GCS -- which parallelize aggressively and saturate
+the available bandwidth. For local filesystem targets (used in tests and local
+development) it falls back to :mod:`shutil`.
 
 Obtain a client for a destination with :meth:`ObjectStore.for_uri`, which selects
 the implementation from the URI scheme::
@@ -28,18 +28,16 @@ Upload integrity
 :meth:`ObjectStore.object_sizes` exposes object counts and byte sizes so a
 caller can confirm that a staged upload is *complete* before promoting it -- the
 failure mode that matters here is a transfer that dies partway, not a bit flip.
-Bit-level integrity is already enforced by the transfer tools themselves:
-``gcloud storage`` validates a CRC32C for every object end-to-end and fails the
-command on a mismatch, and ``s5cmd`` multipart uploads carry a per-part checksum
-that S3 rejects on corruption. A cross-backend whole-object checksum comparison
-is intentionally not attempted: S3 ETags are the MD5 only for single-part
-uploads (multipart ETags depend on the part size), and GCS omits ``md5_hash``
-for composite objects, so there is no uniform digest to compare.
+Bit-level integrity is already enforced underneath: ``gcloud storage`` validates
+a CRC32C for every object end-to-end, and both the CRT S3 client and S3 itself
+checksum every (multipart) upload. A cross-backend whole-object checksum
+comparison is intentionally not attempted: S3 ETags are the MD5 only for
+single-part uploads (multipart ETags depend on the part size), and GCS omits
+``md5_hash`` for composite objects, so there is no uniform digest to compare.
 """
 
 import json
 import os
-import re
 import shlex
 import shutil
 import subprocess
@@ -49,20 +47,25 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
+import boto3
+from boto3.s3.transfer import TransferConfig, create_transfer_manager
+
 from pudl import logging_helpers
 
 logger = logging_helpers.get_logger(__name__)
 
-# Number of object-level transfers s5cmd runs in parallel. Set explicitly so our
-# behavior does not shift if the tool's built-in default changes.
-S5CMD_NUM_WORKERS = 256
+# Objects larger than this are copied server-side with multipart UploadPartCopy
+# rather than a single CopyObject (which caps at 5 GiB).
+S3_MULTIPART_THRESHOLD = 256 * 1024 * 1024
+
+# Batch size limit for the S3 DeleteObjects API.
+S3_DELETE_BATCH = 1000
 
 
 def _run_cli(
     args: list[str],
     *,
     env_overrides: dict[str, str] | None = None,
-    stdin: str | None = None,
     check: bool = True,
 ) -> str:
     """Run a command line tool and return its stdout.
@@ -80,7 +83,6 @@ def _run_cli(
         capture_output=True,
         text=True,
         env=env,
-        input=stdin,
     )
     if result.stderr.strip():
         logger.debug(f"{args[0]} stderr:\n{result.stderr}")
@@ -109,12 +111,13 @@ class ObjectStore(ABC):
         keys are ignored.
         """
         storage_options = storage_options or {}
-        scheme = urlparse(uri).scheme
+        parsed = urlparse(uri)
+        scheme = parsed.scheme
         if scheme == "s3":
             region = os.environ.get("AWS_REGION") or os.environ.get(
                 "AWS_DEFAULT_REGION"
             )
-            return S5cmdObjectStore(region=region)
+            return S3ObjectStore(bucket=parsed.netloc, region=region)
         if scheme in {"gs", "gcs"}:
             billing_project = None
             if storage_options.get("requester_pays"):
@@ -208,86 +211,149 @@ class LocalObjectStore(ObjectStore):
             shutil.rmtree(path)
 
 
-class S5cmdObjectStore(ObjectStore):
-    """Amazon S3 implementation using :command:`s5cmd`.
+def _split_s3(uri: str) -> tuple[str, str]:
+    """Split an ``s3://bucket/key`` URI into ``(bucket, key)``."""
+    parsed = urlparse(uri)
+    return parsed.netloc, parsed.path.lstrip("/")
 
-    *region* is exported as ``AWS_REGION`` for every call. ``s5cmd``'s
-    ``cp``/``mv``/``sync`` discover the bucket region on their own, but ``ls``
-    does not and fails with ``BucketRegionError`` when the region is wrong or
-    unset; :meth:`object_sizes` reads the correct region out of that error and
-    retries, so a misconfigured ``AWS_REGION`` self-corrects. Credentials are
-    read by ``s5cmd`` from ``~/.aws/credentials`` or the ``AWS_*`` environment.
+
+class S3ObjectStore(ObjectStore):
+    """Amazon S3 implementation using :mod:`boto3`.
+
+    Bulk local-to-S3 uploads go through the AWS Common Runtime transfer client
+    (``preferred_transfer_client="crt"``) for throughput; listing, server-side
+    copy, and delete use ordinary :mod:`boto3` calls. (``s5cmd`` was tried here
+    first, but its object listing is unreliable in the moment right after a
+    write, which broke the stage-then-promote flow.)
+
+    The bucket's region is detected once via ``get_bucket_location`` unless
+    *region* is given, so a misconfigured ``AWS_REGION`` does not matter.
     """
 
-    _WRONG_REGION = re.compile(r"bucket is in '([a-z0-9-]+)' region")
+    def __init__(self, bucket: str, region: str | None = None):
+        """Record the target *bucket* and, optionally, its *region*."""
+        self.bucket = bucket
+        self._region = region
+        self._client_cache: Any = None
 
-    def __init__(self, region: str | None = None):
-        """Store the AWS region to use for every ``s5cmd`` invocation."""
-        self.region = region
+    @property
+    def _client(self) -> Any:
+        """A boto3 S3 client bound to the bucket's region (built on first use)."""
+        if self._client_cache is None:
+            self._client_cache = boto3.client(
+                "s3", region_name=self._region or self._detect_region()
+            )
+        return self._client_cache
 
-    def _s5cmd(self, args: list[str], *, stdin: str | None = None, check: bool = True):
-        env_overrides = {"AWS_REGION": self.region} if self.region else None
-        return _run_cli(
-            ["s5cmd", "--numworkers", str(S5CMD_NUM_WORKERS), *args],
-            env_overrides=env_overrides,
-            stdin=stdin,
-            check=check,
+    def _detect_region(self) -> str:
+        """Resolve the bucket's region (``get_bucket_location`` needs no redirect)."""
+        location = (
+            boto3.client("s3", region_name="us-east-1")
+            .get_bucket_location(Bucket=self.bucket)
+            .get("LocationConstraint")
         )
+        return {None: "us-east-1", "EU": "eu-west-1"}.get(location) or location
 
-    def upload_files(self, sources: Iterable[Path], dest_prefix: str) -> None:
-        """Upload *sources* into *dest_prefix* via a batched ``s5cmd run`` script."""
-        dest = dest_prefix.rstrip("/")
-        commands = "".join(
-            f"cp {shlex.quote(str(source))} "
-            f"{shlex.quote(f'{dest}/{Path(source).name}')}\n"
-            for source in sources
-        )
-        if not commands:
-            return
-        self._s5cmd(["run"], stdin=commands)
+    def _keys_and_sizes(self, prefix: str) -> dict[str, int]:
+        """Return ``{full_key: size}`` for every object under an ``s3://`` *prefix*."""
+        bucket, key_prefix = _split_s3(prefix.rstrip("/"))
+        key_prefix = f"{key_prefix}/"
+        keys: dict[str, int] = {}
+        for page in self._client.get_paginator("list_objects_v2").paginate(
+            Bucket=bucket, Prefix=key_prefix
+        ):
+            for obj in page.get("Contents", []):
+                if obj["Key"] != key_prefix:  # skip a prefix placeholder object
+                    keys[obj["Key"]] = obj["Size"]
+        return keys
 
     def object_sizes(self, prefix: str) -> dict[str, int]:
-        """Parse ``s5cmd --json ls`` output into relative path -> size in bytes."""
-        base = prefix.rstrip("/")
-        output = self._s5cmd(["--json", "ls", f"{base}/*"], check=False)
-        sizes: dict[str, int] = {}
-        for line in output.splitlines():
-            if not line.strip():
-                continue
-            record = json.loads(line)
-            if "error" in record:
-                error = record["error"]
-                if "no object found" in error:
-                    return {}
-                match = self._WRONG_REGION.search(error)
-                if match and match.group(1) != self.region:
-                    self.region = match.group(1)
-                    return self.object_sizes(prefix)
-                raise RuntimeError(f"s5cmd ls failed for {prefix}: {error}")
-            if record.get("type") == "file":
-                sizes[record["key"].removeprefix(f"{base}/")] = int(record["size"])
-        return sizes
+        """Map ``path_relative_to_prefix`` -> ``size_bytes`` via ``list_objects_v2``."""
+        _, key_prefix = _split_s3(prefix.rstrip("/"))
+        key_prefix = f"{key_prefix}/"
+        return {
+            key.removeprefix(key_prefix): size
+            for key, size in self._keys_and_sizes(prefix).items()
+        }
+
+    def upload_files(self, sources: Iterable[Path], dest_prefix: str) -> None:
+        """Upload *sources* into *dest_prefix* via the CRT transfer manager."""
+        sources = [Path(source) for source in sources]
+        if not sources:
+            return
+        bucket, key_prefix = _split_s3(dest_prefix.rstrip("/"))
+        logger.info(f"Uploading {len(sources)} file(s) to {dest_prefix}")
+        config = TransferConfig(preferred_transfer_client="crt")
+        with create_transfer_manager(self._client, config) as manager:
+            futures = [
+                manager.upload(str(source), bucket, f"{key_prefix}/{source.name}")
+                for source in sources
+            ]
+            for future in futures:
+                future.result()
+
+    def _copy(
+        self, source_prefix: str, dest_prefix: str, relative_keys: Iterable[str]
+    ) -> None:
+        """Server-side copy the given prefix-relative keys from source to dest."""
+        relative_keys = list(relative_keys)
+        if not relative_keys:
+            return
+        src_bucket, src_key = _split_s3(source_prefix.rstrip("/"))
+        dst_bucket, dst_key = _split_s3(dest_prefix.rstrip("/"))
+        config = TransferConfig(multipart_threshold=S3_MULTIPART_THRESHOLD)
+        with create_transfer_manager(self._client, config) as manager:
+            futures = [
+                manager.copy(
+                    {"Bucket": src_bucket, "Key": f"{src_key}/{relative}"},
+                    dst_bucket,
+                    f"{dst_key}/{relative}",
+                )
+                for relative in relative_keys
+            ]
+            for future in futures:
+                future.result()
+
+    def _delete(self, bucket: str, keys: Iterable[str]) -> None:
+        """Delete *keys* from *bucket* in batches; a no-op for an empty iterable."""
+        keys = list(keys)
+        for start in range(0, len(keys), S3_DELETE_BATCH):
+            self._client.delete_objects(
+                Bucket=bucket,
+                Delete={
+                    "Objects": [
+                        {"Key": key} for key in keys[start : start + S3_DELETE_BATCH]
+                    ],
+                    "Quiet": True,
+                },
+            )
 
     def sync(self, source_prefix: str, dest_prefix: str) -> None:
         """Server-side mirror *source_prefix* onto *dest_prefix*, deleting extras."""
-        self._s5cmd(
-            [
-                "sync",
-                "--delete",
-                f"{source_prefix.rstrip('/')}/*",
-                f"{dest_prefix.rstrip('/')}/",
-            ]
+        source = self.object_sizes(source_prefix)
+        dest = self.object_sizes(dest_prefix)
+        self._copy(
+            source_prefix,
+            dest_prefix,
+            [rel for rel, size in source.items() if dest.get(rel) != size],
+        )
+        dst_bucket, dst_key = _split_s3(dest_prefix.rstrip("/"))
+        self._delete(
+            dst_bucket,
+            [f"{dst_key}/{rel}" for rel in dest if rel not in source],
         )
 
     def move(self, source_prefix: str, dest_prefix: str) -> None:
         """Server-side move everything under *source_prefix* beneath *dest_prefix*."""
-        self._s5cmd(
-            ["mv", f"{source_prefix.rstrip('/')}/*", f"{dest_prefix.rstrip('/')}/"]
-        )
+        relative_keys = list(self.object_sizes(source_prefix))
+        self._copy(source_prefix, dest_prefix, relative_keys)
+        src_bucket, src_key = _split_s3(source_prefix.rstrip("/"))
+        self._delete(src_bucket, [f"{src_key}/{rel}" for rel in relative_keys])
 
     def remove(self, prefix: str) -> None:
-        """Best-effort recursive delete of *prefix* (ignores "nothing matched")."""
-        self._s5cmd(["rm", f"{prefix.rstrip('/')}/*"], check=False)
+        """Recursively delete *prefix*; a no-op if it does not exist."""
+        bucket, _ = _split_s3(prefix.rstrip("/"))
+        self._delete(bucket, self._keys_and_sizes(prefix))
 
 
 class GcloudStorageObjectStore(ObjectStore):
