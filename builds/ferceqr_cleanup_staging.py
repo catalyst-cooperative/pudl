@@ -4,12 +4,14 @@
 The ``deploy_ferceqr`` asset uploads outputs to a ``._staging_{BUILD_ID}``
 prefix beside each deployment target before promoting them into place. If the
 build is interrupted (timeout, crash, container preemption) before the promote
-step runs, those staging prefixes survive on the target and must be cleaned up.
+step runs, those staging prefixes survive and must be cleaned up.
 
 This script is intended for the FERC EQR batch build only. It reads the
 deployment-target configuration from the YAML file pointed at by the
 ``PUDL_FERCEQR_DEPLOYMENT_CONFIG_PATH`` environment variable and removes any
-``._staging_*`` directories found beneath the resolved targets, using
+``._staging_*`` directories found beside the configured targets (both the
+configured path and its parent, since the staging prefix sits next to the
+*resolved* target and ``append_build_id`` shifts that by one level), using
 :class:`~upath.UPath` for both local paths and cloud URIs (``gs://``, ``s3://``).
 
 Usage in a batch script::
@@ -37,24 +39,29 @@ def _configure_logging() -> None:
     )
 
 
-def _resolve_targets(config_path: str) -> list[UPath]:
-    """Load deployment targets from the YAML config and return UPath objects."""
+def _staging_scan_roots(config_path: str) -> list[UPath]:
+    """Return the locations to scan for orphaned ``._staging_*`` directories.
+
+    ``deploy_ferceqr`` places the staging prefix as a sibling of the *resolved*
+    deployment target, so for each configured target we scan both its path and
+    that path's parent -- covering ``append_build_id`` being on or off.
+    """
     config = yaml.safe_load(Path(config_path).read_text()) or {}
-    targets = config.get("deployment_targets", [])
-    resolved: list[UPath] = []
-    for target in targets:
+    roots: dict[str, UPath] = {}
+    for target in config.get("deployment_targets", []):
         base = UPath(target["path"], **target.get("storage_options", {}))
-        resolved.append(base)
-    return resolved
+        for root in (base, base.parent):
+            roots.setdefault(str(root), root)
+    return list(roots.values())
 
 
-def _remove_staging_dirs(targets: list[UPath]) -> int:
-    """Remove any ``._staging_*`` directories under *targets*.
+def _remove_staging_dirs(roots: list[UPath]) -> int:
+    """Remove any ``._staging_*`` directories directly under *roots*.
 
     Returns the number of directories removed.
     """
     removed = 0
-    for base in targets:
+    for base in roots:
         try:
             is_dir = base.is_dir()
         except Exception:  # noqa: S112
@@ -89,12 +96,12 @@ def main() -> int:
         )
         return 0
 
-    targets = _resolve_targets(config_path)
-    if not targets:
+    roots = _staging_scan_roots(config_path)
+    if not roots:
         logger.info("No deployment targets configured; nothing to clean up.")
         return 0
 
-    removed = _remove_staging_dirs(targets)
+    removed = _remove_staging_dirs(roots)
     logger.info(f"Staging directory cleanup complete. Removed {removed} dir(s).")
     return 0
 
