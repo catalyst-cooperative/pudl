@@ -245,6 +245,7 @@ Performance Improvements
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^
 
+<<<<<<< HEAD
 * Replaced all remaining uses of ``importlib.resources`` with direct ``pathlib.Path``
   access to files under ``src/pudl/package_data``, since PUDL is only ever run from a
   git checkout and no longer needs to support being installed as a distributable
@@ -263,6 +264,11 @@ Developer Experience
   new API (registering inputs with ``DuckDBAPI.register()``, and using ``CustomRule``
   and ``CustomComparison``). The model's behavior is not intentionally changed. See PR
   :pr:`5698`.
+* Replaced the standalone ``pixi run unmapped-ids`` pytest task with analogous Dagster
+  assets (:mod:`pudl.dagster.assets.core.unmapped_ids`) that identify FERC1 and EIA
+  plant/utility IDs missing from the manual PUDL ID mapping spreadsheet. CSVs are saved
+  with other build outputs on ``builds.catalyst.coop`` and fail the ETL if they are
+  non-empty. See issue :issue:`4338` and PR :pr:`5539`.
 
 .. _release-v2026.9.0:
 
