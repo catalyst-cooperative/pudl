@@ -2,7 +2,7 @@
 
 import json
 from pathlib import Path
-from typing import TypedDict
+from typing import NotRequired, TypedDict
 
 import pytest
 from click.testing import CliRunner
@@ -24,6 +24,7 @@ class _BatchConfigKwargs(TypedDict):
     disk_type: str
     batch_job_id: str
     pipeline: str
+    local_ssd_gb: NotRequired[int]
 
 
 class TestParseContainerEnv:
@@ -79,6 +80,56 @@ class TestToConfigValidation:
         config["container_command"] = ""
         with pytest.raises(ValueError, match="container_command is required"):
             batch_config.to_config(**config)
+
+    def test_local_ssd_gb_must_be_multiple_of_375(self):
+        config = DEFAULT_BATCH_CONFIG.copy()
+        config["local_ssd_gb"] = 500
+        with pytest.raises(ValueError, match="multiple of 375"):
+            batch_config.to_config(**config)
+
+    def test_no_local_ssd_by_default(self):
+        """Omitting ``local_ssd_gb`` leaves the config free of Local SSD wiring."""
+        result = batch_config.to_config(**DEFAULT_BATCH_CONFIG)
+        task_spec = result["taskGroups"][0]["taskSpec"]
+        policy = result["allocationPolicy"]["instances"][0]["policy"]
+        assert "volumes" not in task_spec
+        assert "disks" not in policy
+        assert len(task_spec["runnables"]) == 1
+        assert (
+            "PUDL_OUTPUT" not in task_spec["runnables"][0]["environment"]["variables"]
+        )
+
+    def test_local_ssd_wires_disk_volume_env_and_chmod(self):
+        """A Local SSD size attaches the array, mounts it, redirects scratch dirs.
+
+        A pre-runnable makes the root-owned mount writable by the non-root
+        container user.
+        """
+        config = DEFAULT_BATCH_CONFIG.copy()
+        config["local_ssd_gb"] = 750
+        result = batch_config.to_config(**config)
+
+        task_spec = result["taskGroups"][0]["taskSpec"]
+        policy = result["allocationPolicy"]["instances"][0]["policy"]
+        mount = batch_config.LOCAL_SSD_MOUNT_PATH
+
+        disk = policy["disks"][0]
+        assert disk["newDisk"] == {"sizeGb": "750", "type": "local-ssd"}
+        assert disk["deviceName"] == batch_config.LOCAL_SSD_DEVICE_NAME
+
+        volume = task_spec["volumes"][0]
+        assert volume["deviceName"] == batch_config.LOCAL_SSD_DEVICE_NAME
+        assert volume["mountPath"] == mount
+
+        runnables = task_spec["runnables"]
+        assert f"chmod 0777 {mount}" in runnables[0]["script"]["text"]
+        container = runnables[1]["container"]
+        assert container["volumes"] == [f"{mount}:{mount}:rw"]
+
+        env = runnables[1]["environment"]["variables"]
+        assert env["PUDL_OUTPUT"] == f"{mount}/output"
+        assert env["PUDL_INPUT"] == f"{mount}/input"
+        assert env["DAGSTER_HOME"] == f"{mount}/dagster_home"
 
 
 class TestMain:
