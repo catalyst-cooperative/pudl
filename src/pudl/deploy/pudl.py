@@ -231,6 +231,15 @@ def prepare_outputs_for_distribution(local_path: Path, build_path: UPath) -> Non
         logger.info(f"Excluding {log_file.name} from public distribution.")
         log_file.unlink()
 
+    # The unmapped FERC1/EIA ID CSVs (see pudl.dagster.assets.core.unmapped_ids,
+    # whose asset names -- and thus these filenames -- all start with "missing_")
+    # are development-only artifacts for updating the manual PUDL ID mapping
+    # spreadsheet. They belong in the raw build outputs on builds.catalyst.coop,
+    # but must never reach the public S3/GCS buckets or Zenodo releases.
+    for unmapped_ids_csv in local_path.glob("missing_*.csv"):
+        logger.info(f"Excluding {unmapped_ids_csv.name} from public distribution.")
+        unmapped_ids_csv.unlink()
+
     # The "success" sentinel is internal build-completion plumbing (see
     # check_build_success/get_build_from_tag) with no meaning for consumers of the
     # distributed outputs.

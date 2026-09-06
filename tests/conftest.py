@@ -279,12 +279,6 @@ def pytest_addoption(parser):
         default=False,
         help="If enabled, the local file cache for datastore will not be used.",
     )
-    parser.addoption(
-        "--save-unmapped-ids",
-        action="store_true",
-        default=False,
-        help="Write the unmapped IDs to disk.",
-    )
 
 
 def _pudl_etl(
@@ -486,12 +480,6 @@ def asset_value_loader(
     )
     with configured_defs.get_asset_value_loader(instance=dagster_instance) as loader:
         yield loader
-
-
-@pytest.fixture(scope="session")
-def save_unmapped_ids(request) -> bool:
-    """Fixture that indicates whether to save unmapped IDs to disk."""
-    return request.config.getoption("--save-unmapped-ids")
 
 
 @pytest.fixture(scope="session")

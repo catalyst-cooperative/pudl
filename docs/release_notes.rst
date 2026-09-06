@@ -196,6 +196,11 @@ Developer Experience
   corresponding GitHub-repo Zenodo software archive), which are also populated as
   structured ``related_identifiers`` for better DataCite/OpenAIRE indexing. See issue
   :issue:`3326` and PR :pr:`5484`.
+* Replaced the standalone ``pixi run unmapped-ids`` pytest task with analogous Dagster
+  assets (:mod:`pudl.dagster.assets.core.unmapped_ids`) that identify FERC1 and EIA
+  plant/utility IDs missing from the manual PUDL ID mapping spreadsheet. CSVs are saved
+  with other build outputs on ``builds.catalyst.coop`` and fail the ETL if they are
+  non-empty. See issue :issue:`4338` and PR :pr:`5539`.
 
 .. _release-v2026.8.0:
 
