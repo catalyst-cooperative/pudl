@@ -13,6 +13,8 @@ import time
 import traceback
 import uuid
 from collections.abc import Callable
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from dataclasses import dataclass
 from datetime import timedelta
 from pathlib import Path
 from typing import Literal
@@ -25,6 +27,7 @@ from pudl.dagster.resources import (
     FercEqrDeploymentResource,
     ZulipNotificationResource,
 )
+from pudl.deploy.object_store import ObjectStore
 from pudl.helpers import ParquetData
 from pudl.logging_helpers import get_logger
 from pudl.metadata.classes import PUDL_PACKAGE
@@ -43,6 +46,19 @@ FERCEQR_TRANSFORM_ASSETS = [
     "core_ferceqr__quarterly_identity",
     "core_ferceqr__quarterly_index_pub",
 ]
+
+DATAPACKAGE_FILENAME = "ferceqr_parquet_datapackage.json"
+
+# Layout beneath the per-build staging prefix. Parquet data and the datapackage
+# JSON go in separate subdirectories so the promote step can move the data into
+# place first and the descriptor last -- a consumer that reads the datapackage to
+# discover files then never sees it reference a Parquet file that has not landed.
+STAGING_DATA_SUBDIR = "data"
+STAGING_META_SUBDIR = "meta"
+
+# Sibling of each deployment target holding the previous build's data, refreshed
+# just before every promote so a botched deploy can be rolled back by hand.
+PREVIOUS_DIRNAME = "._ferceqr_previous"
 
 # Type alias: asset name -> partition name -> status name
 StepStatusTable = dict[str, dict[str, str]]
@@ -72,138 +88,164 @@ def _clear_status_files(pudl_paths: PudlPaths) -> None:
         status_path.unlink(missing_ok=True)
 
 
-def _staging_path(dist_path: UPath) -> UPath:
-    """Return the staging path *alongside* *dist_path* for an atomic deploy.
+@dataclass
+class _DeploymentTarget:
+    """One resolved deployment destination plus the scratch prefixes beside it.
 
-    The staging path sits as a sibling of the deployment target, rather than a
-    child. On cloud storage this avoids prefix-scoping ambiguity during the
-    rename loop — the staging and final prefixes are completely disjoint:
-
-    .. code-block:: text
-
-        gs://bucket/
-          ├── 2026-06-10-.../              (final target dir)
-          └── ._staging_2026-06-10-.../    (staging dir, sibling)
-
-    The suffix includes the BUILD_ID to tie it to a specific build run, and a
-    random component to avoid collisions during concurrent development runs.
-
-    If ``BUILD_ID`` is not set (local/testing), a random short suffix is used alone.
+    ``final``/``staging``/``previous`` are full URI strings (``gs://…``, ``s3://…``)
+    or local paths. ``store`` is the :class:`~pudl.deploy.object_store.ObjectStore`
+    that knows how to move bytes for that URI scheme.
     """
-    build_id = os.getenv("BUILD_ID")
-    suffix = build_id or uuid.uuid4().hex[:8]
-    return dist_path.parent / f"._staging_{suffix}"
+
+    store: ObjectStore
+    final: str
+    staging: str
+    previous: str
+
+    @property
+    def staging_data(self) -> str:
+        """Prefix holding staged Parquet files, one subdirectory per table."""
+        return f"{self.staging}/{STAGING_DATA_SUBDIR}"
+
+    @property
+    def staging_meta(self) -> str:
+        """Prefix holding the staged datapackage JSON."""
+        return f"{self.staging}/{STAGING_META_SUBDIR}"
 
 
-def _deploy_to_staging(  # noqa: C901
-    ferceqr_deployment: FercEqrDeploymentResource,
-    source_partitions: list[str],
-    datapackage_path: Path,
-) -> list[UPath]:
-    """Copy EQR outputs to a staging location under each target, return staging paths.
+def _deployment_targets(resolved_targets: list[UPath]) -> list[_DeploymentTarget]:
+    """Turn resolved deployment UPaths into :class:`_DeploymentTarget` records.
 
-    Each table's Parquet files and the datapackage JSON are written to a temporary
-    ``._staging_{BUILD_ID}_{random}`` subdirectory beneath the real deployment target.
-    This ensures that a timeout or crash during copying never leaves the final target
-    in a partially-deployed state.
-
-    *datapackage_path* is the path to the ``ferceqr_parquet_datapackage.json``
-    file on the local filesystem (written to ``pudl_output`` by the caller).
-
-    Returns the list of staging :class:`~upath.UPath` objects so the caller can atomically
-    promote them via rename.
+    The staging and previous-build prefixes are siblings of the final target so
+    their key namespaces never overlap it. The staging suffix ties the scratch
+    prefix to a single build (BUILD_ID), with a random fallback for local runs.
     """
-    resolved_targets = ferceqr_deployment.resolved_targets()
-    staging_targets: list[UPath] = []
-    for dist_path in resolved_targets:
-        staging_dir = _staging_path(dist_path)
-        staging_dir.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Deploying to staging area: {staging_dir}")
-
-        for table in FERCEQR_TRANSFORM_ASSETS:
-            logger.info(f"  Copying {table} to {staging_dir}.")
-            src_dir = Path(ParquetData(table_name=table).parquet_directory)
-            table_dest = staging_dir / table
-            table_dest.mkdir(parents=True, exist_ok=True)
-            for source_partition_name in source_partitions:
-                parquet_file = src_dir / f"{source_partition_name}.parquet"
-                if not parquet_file.exists():
-                    raise FileNotFoundError(
-                        f"Expected parquet output for {table} "
-                        f"partition {source_partition_name}: {parquet_file}"
-                    )
-                (table_dest / parquet_file.name).write_bytes(parquet_file.read_bytes())
-
-        # Copy the datapackage JSON that was written alongside the parquet data.
-        if not datapackage_path.exists():
-            raise FileNotFoundError(
-                f"FERC EQR datapackage not found at {datapackage_path}"
+    build_id = os.getenv("BUILD_ID") or uuid.uuid4().hex[:8]
+    targets: list[_DeploymentTarget] = []
+    for resolved in resolved_targets:
+        final = str(resolved).rstrip("/")
+        parent = final.rpartition("/")[0]
+        targets.append(
+            _DeploymentTarget(
+                store=ObjectStore.for_uri(final, dict(resolved.storage_options)),
+                final=final,
+                staging=f"{parent}/._staging_{build_id}",
+                previous=f"{parent}/{PREVIOUS_DIRNAME}",
             )
-        (staging_dir / "ferceqr_parquet_datapackage.json").write_bytes(
-            datapackage_path.read_bytes()
         )
-        staging_targets.append(staging_dir)
-
-    return staging_targets
+    return targets
 
 
-def _promote_staging(
-    staging_targets: list[UPath], resolved_targets: list[UPath]
+def _source_parquet_files(source_partitions: list[str]) -> dict[str, list[Path]]:
+    """Map each transform asset to its local Parquet files for *source_partitions*.
+
+    Raises :class:`FileNotFoundError` if any expected partition file is missing so
+    an incomplete build never gets partially deployed.
+    """
+    table_files: dict[str, list[Path]] = {}
+    for table in FERCEQR_TRANSFORM_ASSETS:
+        src_dir = Path(ParquetData(table_name=table).parquet_directory)
+        files: list[Path] = []
+        for partition in source_partitions:
+            parquet_file = src_dir / f"{partition}.parquet"
+            if not parquet_file.exists():
+                raise FileNotFoundError(
+                    f"Expected parquet output for {table} partition {partition}: "
+                    f"{parquet_file}"
+                )
+            files.append(parquet_file)
+        table_files[table] = files
+    return table_files
+
+
+def _expected_object_sizes(
+    table_files: dict[str, list[Path]], datapackage_path: Path
+) -> dict[str, int]:
+    """Return ``{staging_relative_path: size_bytes}`` for everything to be uploaded."""
+    expected = {
+        f"{STAGING_DATA_SUBDIR}/{table}/{parquet_file.name}": parquet_file.stat().st_size
+        for table, files in table_files.items()
+        for parquet_file in files
+    }
+    expected[f"{STAGING_META_SUBDIR}/{datapackage_path.name}"] = (
+        datapackage_path.stat().st_size
+    )
+    return expected
+
+
+def _stage_target(
+    target: _DeploymentTarget,
+    table_files: dict[str, list[Path]],
+    datapackage_path: Path,
+    expected_sizes: dict[str, int],
 ) -> None:
-    """Atomically promote staging directories to their final destination paths.
+    """Upload all outputs to *target*'s staging prefix and verify they arrived.
 
-    For each ``(staging_dir, final_dir)`` pair, this moves the contents of the staged
-    table directories and the datapackage JSON into the final target directory. On GCS
-    and S3 ``UPath.rename()`` performs a server-side copy followed by deletion of the
-    original, so the metadata (owner, timestamps, storage class) is preserved and no
-    data re-upload occurs. On local filesystems the rename is a fast inode-level
-    operation.
+    Raises :class:`RuntimeError` if the staged object set does not exactly match
+    the local outputs by name and byte size. The final target is untouched.
     """
-    for staging_dir, final_dir in zip(staging_targets, resolved_targets, strict=True):
-        logger.info(f"Promoting {staging_dir} -> {final_dir}")
-        final_dir.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Staging FERC EQR outputs to {target.staging}")
+    for table, files in table_files.items():
+        target.store.upload_files(files, f"{target.staging_data}/{table}")
+    target.store.upload_files([datapackage_path], target.staging_meta)
 
-        # Rename each table directory into the final target.
-        for table in FERCEQR_TRANSFORM_ASSETS:
-            src = staging_dir / table
-            dst = final_dir / table
-            dst.mkdir(parents=True, exist_ok=True)
-            for child in src.iterdir():
-                child.rename(dst / child.name)
-            # Remove the now-empty staging subdirectory. On GCS/S3 we need
-            # fs.rm() -- rmdir() fails because there is no real directory.
-            # Note: on GCS rename() performs a copy+delete, so the source
-            # prefix may already be gone. Guard against that.
-            if src.exists():
-                src.fs.rm(src.path, recursive=True)
+    staged_sizes = target.store.object_sizes(target.staging)
+    if staged_sizes != expected_sizes:
+        missing = sorted(set(expected_sizes) - set(staged_sizes))
+        unexpected = sorted(set(staged_sizes) - set(expected_sizes))
+        wrong_size = sorted(
+            key
+            for key in expected_sizes.keys() & staged_sizes.keys()
+            if expected_sizes[key] != staged_sizes[key]
+        )
+        raise RuntimeError(
+            f"Staged upload to {target.staging} does not match local outputs. "
+            f"missing={missing} unexpected={unexpected} wrong_size={wrong_size}"
+        )
 
-        # Rename the datapackage JSON.
-        datapackage_src = staging_dir / "ferceqr_parquet_datapackage.json"
+
+def _promote_target(target: _DeploymentTarget) -> None:
+    """Snapshot the live tree, then move staging into place and drop the staging dir.
+
+    The datapackage JSON is promoted after the Parquet data so it never briefly
+    references files that have not landed yet.
+    """
+    if target.store.object_sizes(target.final):
+        logger.info(f"Snapshotting {target.final} -> {target.previous}")
+        target.store.sync(target.final, target.previous)
+
+    logger.info(f"Promoting {target.staging} -> {target.final}")
+    target.store.move(target.staging_data, target.final)
+    target.store.move(target.staging_meta, target.final)
+    target.store.remove(target.staging)
+
+
+def _run_for_targets(
+    targets: list[_DeploymentTarget], step: Callable[[_DeploymentTarget], None]
+) -> None:
+    """Run *step* against every target, concurrently when there is more than one.
+
+    The first exception raised by any target propagates once all have finished.
+    """
+    if len(targets) == 1:
+        step(targets[0])
+        return
+    with ThreadPoolExecutor(max_workers=len(targets)) as pool:
+        futures = [pool.submit(step, target) for target in targets]
+        for future in as_completed(futures):
+            future.result()
+
+
+def _remove_all_staging(targets: list[_DeploymentTarget]) -> None:
+    """Best-effort removal of every target's staging prefix after a failure."""
+    for target in targets:
         try:
-            datapackage_src.rename(final_dir / "ferceqr_parquet_datapackage.json")
-        except FileNotFoundError:
-            logger.error(
-                f"Expected datapackage JSON not found in staging dir: {datapackage_src}"
+            target.store.remove(target.staging)
+        except Exception:
+            logger.warning(
+                f"Failed to clean up staging prefix {target.staging}:\n"
+                + traceback.format_exc()
             )
-            raise
-
-        # Remove the now empty staging directory.
-        _remove_staging(staging_dir)
-
-
-def _remove_staging(staging_dir: UPath) -> None:
-    """Remove a staging directory and all its contents.
-
-    Used for cleanup if the promotion step fails — the partial staging data is
-    discarded rather than leaked. Safe to call on directories that do not exist
-    (e.g. if promotion already removed them before the failure occurred).
-
-    Uses ``fs.rm(path, recursive=True)`` instead of ``rmdir()`` because cloud
-    storage (GCS, S3) uses virtual prefixes rather than real directories and
-    ``rmdir()`` would raise ``NotADirectoryError``.
-    """
-    if staging_dir.exists():
-        staging_dir.fs.rm(staging_dir.path, recursive=True)
 
 
 def _parse_step_key(step_key: str, source_partition: str | None) -> tuple[str, str]:
@@ -510,105 +552,100 @@ def deployment_status_asset(asset_fn: Callable) -> dg.AssetsDefinition:
     return _status_handler_asset
 
 
+def _deploy_source_partitions(context: dg.AssetExecutionContext) -> list[str]:
+    """Read the built partitions from run tags, empty when invoked outside a run.
+
+    Deploying only the *specific* partitions this build produced avoids sweeping
+    up unrelated data left lying around, especially on local runs.
+    """
+    try:
+        run_tags = (context.run.tags or {}) if context.run else {}
+    except Exception:
+        logger.info(
+            "deploy_ferceqr: context.run not available (direct invocation in tests)"
+        )
+        return []
+    return _validate_partitions(run_tags.get(FERCEQR_SOURCE_PARTITIONS_TAG) or None)
+
+
 @deployment_status_asset
 def deploy_ferceqr(context: dg.AssetExecutionContext):
     """Publish EQR outputs to configured deployment targets.
 
-    Uses a staging-then-rename pattern: all files are first uploaded to a
-    ``._staging_{BUILD_ID}_{random}`` directory beneath each target, then
-    atomically moved (server-side on GCS/S3, inode-level locally) to the final
-    path. This ensures the target is never partially populated — if the upload
-    is interrupted, the staging directory is simply discarded.
+    Each target is handled with a staging-then-promote pattern driven by
+    :class:`~pudl.deploy.object_store.ObjectStore`:
+
+    1. Upload every built Parquet file and the datapackage JSON into a per-build
+       ``._staging_{BUILD_ID}`` prefix beside the target.
+    2. Verify the staged object set matches the local outputs by name and size.
+    3. Copy the current live tree into ``._ferceqr_previous`` for rollback.
+    4. Server-side move staging into the final prefix (data first, datapackage
+       last) and delete the staging prefix.
+
+    A failure in steps 1-2 leaves the target untouched. A failure in steps 3-4
+    may leave the target with a mix of old and new files; ``._ferceqr_previous``
+    holds the prior build for a manual rollback. Targets are processed
+    concurrently.
     """
     pudl_paths: PudlPaths = context.resources.pudl_paths
     zulip: ZulipNotificationResource = context.resources.zulip_notification
     ferceqr_deployment: FercEqrDeploymentResource = (
         context.resources.ferceqr_deployment_targets
     )
-    source_partitions: list[str] = []
 
-    # Extract source partitions from run tags for parquet copy. Getting the
-    # *specific* partitions that were built helps avoid copying a bunch of other
-    # data that might be laying around... in the case of local runs especially.
-    try:
-        run = context.run
-        partitions_raw = (run.tags or {}).get(FERCEQR_SOURCE_PARTITIONS_TAG)
-        if partitions_raw:
-            source_partitions = _validate_partitions(partitions_raw)
-    except Exception:
-        logger.info(
-            "deploy_ferceqr: context.run not available (direct invocation in tests)"
-        )
-
+    source_partitions = _deploy_source_partitions(context)
     if not source_partitions:
         raise RuntimeError("FERC EQR deployment run has no deployable partitions.")
 
     # Write the datapackage alongside the parquet data in pudl_output so it can
     # be deployed like any other file and remains as a record of the build.
-    datapackage_path = Path(pudl_paths.pudl_output) / "ferceqr_parquet_datapackage.json"
+    datapackage_path = Path(pudl_paths.pudl_output) / DATAPACKAGE_FILENAME
     PUDL_PACKAGE.to_frictionless(include_pattern=r"core_ferceqr.*").to_json(
         str(datapackage_path)
     )
 
+    table_files = _source_parquet_files(source_partitions)
+    expected_sizes = _expected_object_sizes(table_files, datapackage_path)
+    targets = _deployment_targets(ferceqr_deployment.resolved_targets())
+
     logger.info("FERC EQR build successful, deploying FERC EQR data.")
-
-    # Phase 1: Upload everything to staging directories.
-    resolved_targets = ferceqr_deployment.resolved_targets()
-    staging_targets = _deploy_to_staging(
-        ferceqr_deployment=ferceqr_deployment,
-        source_partitions=source_partitions,
-        datapackage_path=datapackage_path,
-    )
-
-    # Phase 2: Atomically promote staging to the final paths.
     try:
-        _promote_staging(
-            staging_targets=staging_targets,
-            resolved_targets=resolved_targets,
+        _run_for_targets(
+            targets,
+            lambda target: _stage_target(
+                target, table_files, datapackage_path, expected_sizes
+            ),
         )
+        _run_for_targets(targets, _promote_target)
     except Exception:
         logger.error(
-            "FERC EQR deployment promotion failed! "
-            "Staging directories may contain partial data; "
-            "cleaning up staging paths.\n" + traceback.format_exc(),
+            "FERC EQR deployment failed; cleaning up staging prefixes.\n"
+            + traceback.format_exc()
         )
-        # Send failure notification inline before the exception propagates.
-        # The sensor-triggered failure asset never gets to run because the
-        # bash script kills the dagster daemon as soon as FERCEQR_FAILURE
-        # appears, so we must notify here while the process is still alive.
+        # Notify inline before the exception propagates: the sensor-triggered
+        # failure asset never runs because the bash script kills the dagster
+        # daemon as soon as FERCEQR_FAILURE appears.
         try:
-            notification_markdown = build_ferceqr_notification(
-                context, outcome="FAILURE"
-            )
             zulip.send_stream_message(
                 stream="pudl-deployments",
                 topic="build-deploy-ferceqr",
-                content=notification_markdown,
+                content=build_ferceqr_notification(context, outcome="FAILURE"),
             )
         except Exception:
             logger.error(
                 "FERC EQR failure notification also failed:\n" + traceback.format_exc()
             )
-        for staging_dir in staging_targets:
-            try:
-                _remove_staging(staging_dir)
-            except Exception:
-                logger.warning(
-                    f"Failed to clean up staging dir {staging_dir}:\n"
-                    + traceback.format_exc()
-                )
-        # Write the failure sentinel HERE (inside the inline handler) so the
-        # log messages above are flushed before the sentinel triggers killall.
+        _remove_all_staging(targets)
+        # Write the failure sentinel HERE so the log messages above are flushed
+        # before the sentinel triggers killall.
         _write_status_file("FERCEQR_FAILURE", pudl_paths)
         raise
 
-    # Send Zulip notification about successful build
     logger.info("FERC EQR deployment succeeded. Notifying Zulip.")
-    notification_markdown = build_ferceqr_notification(context, outcome="SUCCESS")
     zulip.send_stream_message(
         stream="pudl-deployments",
         topic="build-deploy-ferceqr",
-        content=notification_markdown,
+        content=build_ferceqr_notification(context, outcome="SUCCESS"),
     )
     _write_status_file("FERCEQR_SUCCESS", pudl_paths)
 

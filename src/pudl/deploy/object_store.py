@@ -330,7 +330,7 @@ class GcloudStorageObjectStore(ObjectStore):
         self._gcloud_storage(
             [
                 "rsync",
-                "-r",
+                "--recursive",
                 "--delete-unmatched-destination-objects",
                 source_prefix.rstrip("/"),
                 dest_prefix.rstrip("/"),
@@ -338,11 +338,14 @@ class GcloudStorageObjectStore(ObjectStore):
         )
 
     def move(self, source_prefix: str, dest_prefix: str) -> None:
-        """Server-side move everything under *source_prefix* beneath *dest_prefix*."""
+        """Server-side move everything under *source_prefix* beneath *dest_prefix*.
+
+        ``gcloud storage mv`` recurses through a wildcard source on its own and
+        rejects an explicit ``--recursive`` flag, unlike ``cp``/``rm``/``rsync``.
+        """
         self._gcloud_storage(
             [
                 "mv",
-                "-r",
                 f"{source_prefix.rstrip('/')}/*",
                 f"{dest_prefix.rstrip('/')}/",
             ]
@@ -350,4 +353,6 @@ class GcloudStorageObjectStore(ObjectStore):
 
     def remove(self, prefix: str) -> None:
         """Best-effort recursive delete of *prefix* (ignores "nothing matched")."""
-        self._gcloud_storage(["rm", "-r", f"{prefix.rstrip('/')}/**"], check=False)
+        self._gcloud_storage(
+            ["rm", "--recursive", f"{prefix.rstrip('/')}/**"], check=False
+        )

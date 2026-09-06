@@ -235,14 +235,14 @@ class TestGcloudStorageObjectStore:
         run_cli.return_value = "[]"
         assert GcloudStorageObjectStore().object_sizes("gs://bucket/stg") == {}
 
-    def test_move_recursive_wildcard(self, run_cli):
+    def test_move_uses_wildcard_source_without_recursive_flag(self, run_cli):
+        # `gcloud storage mv` recurses on its own and rejects --recursive.
         GcloudStorageObjectStore().move(
             "gs://bucket/._staging/data", "gs://bucket/ferceqr"
         )
         cmd = run_cli.call_args.args[0]
         assert cmd[2:] == [
             "mv",
-            "-r",
             "gs://bucket/._staging/data/*",
             "gs://bucket/ferceqr/",
         ]
