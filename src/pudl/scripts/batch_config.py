@@ -32,21 +32,6 @@ DEFAULT_MACHINE_TYPE = "c4d-standard-8"
 DEFAULT_DISK_GB = 250
 DEFAULT_DISK_TYPE = "hyperdisk-balanced"
 
-# When --local-ssd-gb is set, the ETL's scratch directories are redirected off the
-# (throughput-capped) Hyperdisk boot disk onto a Local SSD RAID array. Batch mounts
-# the array on the host at /mnt/disks/<deviceName> and bind-mounts it into the
-# container at the same path; a pre-runnable makes it writable by the non-root
-# container user. The subdirectories mirror CONTAINER_PUDL_WORKSPACE in
-# builds/Dockerfile.
-LOCAL_SSD_DEVICE_NAME = "pudl-scratch"
-LOCAL_SSD_MOUNT_PATH = f"/mnt/disks/{LOCAL_SSD_DEVICE_NAME}"
-LOCAL_SSD_GB_INCREMENT = 375
-_LOCAL_SSD_SCRATCH_ENV = {
-    "PUDL_INPUT": f"{LOCAL_SSD_MOUNT_PATH}/input",
-    "PUDL_OUTPUT": f"{LOCAL_SSD_MOUNT_PATH}/output",
-    "DAGSTER_HOME": f"{LOCAL_SSD_MOUNT_PATH}/dagster_home",
-}
-
 
 def _parse_container_env(container_env: tuple[str, ...]) -> dict[str, str]:
     """Parse --container-env KEY=VALUE pairs into a dict.
@@ -122,92 +107,39 @@ def to_config(
     disk_type: str,
     batch_job_id: str,
     pipeline: str,
-    local_ssd_gb: int = 0,
 ) -> dict[str, Any]:
     """Munge arguments into a configuration dictionary."""
     if not container_image:
         raise ValueError("container_image is required")
     if not container_command:
         raise ValueError("container_command is required")
-    if local_ssd_gb and local_ssd_gb % LOCAL_SSD_GB_INCREMENT != 0:
-        raise ValueError(
-            f"--local-ssd-gb must be a multiple of {LOCAL_SSD_GB_INCREMENT} "
-            f"(each Local SSD partition is {LOCAL_SSD_GB_INCREMENT} GB); got {local_ssd_gb}"
-        )
 
     env_dict = _parse_container_env(container_env)
-
-    container: dict[str, Any] = {
-        "imageUri": container_image,
-        "commands": [container_command, *container_arg],
-    }
-    runnables: list[dict[str, Any]] = [
-        {"container": container, "environment": {"variables": env_dict}},
-    ]
-    instance_disks: list[dict[str, Any]] = []
-    task_volumes: list[dict[str, Any]] = []
-
-    if local_ssd_gb:
-        # Redirect the ETL's scratch dirs onto the Local SSD. These override the
-        # defaults baked into builds/Dockerfile.
-        env_dict.update(_LOCAL_SSD_SCRATCH_ENV)
-        # Even for machine types with bundled Local SSDs (e.g. *-lssd), Batch
-        # requires the array to be declared explicitly, sized to the bundled
-        # total.
-        instance_disks = [
-            {
-                "newDisk": {"sizeGb": str(local_ssd_gb), "type": "local-ssd"},
-                "deviceName": LOCAL_SSD_DEVICE_NAME,
-            }
-        ]
-        task_volumes = [
-            {
-                "deviceName": LOCAL_SSD_DEVICE_NAME,
-                "mountPath": LOCAL_SSD_MOUNT_PATH,
-                "mountOptions": "rw,async",
-            }
-        ]
-        container["volumes"] = [f"{LOCAL_SSD_MOUNT_PATH}:{LOCAL_SSD_MOUNT_PATH}:rw"]
-        # Batch mounts a freshly-formatted Local SSD root-owned; the container
-        # runs as a non-root user, so open it up before the main runnable.
-        runnables.insert(
-            0,
-            {
-                "script": {"text": f"#!/bin/bash\nchmod 0777 {LOCAL_SSD_MOUNT_PATH}"},
-            },
-        )
-
-    task_spec: dict[str, Any] = {
-        "runnables": runnables,
-        "computeResource": {
-            "cpuMilli": cpu_milli,
-            "memoryMib": memory_mib,
-            "bootDiskMib": disk_gb * 1024,
-        },
-        "maxRunDuration": f"{60 * 60 * 12}s",
-    }
-    if task_volumes:
-        task_spec["volumes"] = task_volumes
-
-    policy: dict[str, Any] = {
-        "machineType": machine_type,
-        # Batch's default boot image is Container-Optimized OS, but Google's own
-        # installOpsAgent bootstrap script only supports Debian/CentOS/Rocky (it
-        # shells out to apt/yum, neither of which exist on COS) Pin the Debian
-        # image explicitly so installOpsAgent actually works.
-        "bootDisk": {
-            "image": "batch-debian",
-            "type": disk_type,
-            "sizeGb": str(disk_gb),
-        },
-    }
-    if instance_disks:
-        policy["disks"] = instance_disks
 
     # NOTE (daz): the best documentation of the actual data structure I've found is at
     # https://cloud.google.com/python/docs/reference/batch/latest/google.cloud.batch_v1.types.Job
     return {
-        "taskGroups": [{"taskSpec": task_spec}],
+        "taskGroups": [
+            {
+                "taskSpec": {
+                    "runnables": [
+                        {
+                            "container": {
+                                "imageUri": container_image,
+                                "commands": [container_command, *container_arg],
+                            },
+                            "environment": {"variables": env_dict},
+                        },
+                    ],
+                    "computeResource": {
+                        "cpuMilli": cpu_milli,
+                        "memoryMib": memory_mib,
+                        "bootDiskMib": disk_gb * 1024,
+                    },
+                    "maxRunDuration": f"{60 * 60 * 12}s",
+                }
+            }
+        ],
         "allocationPolicy": {
             "serviceAccount": {
                 "email": "deploy-pudl-vm-service-account@catalyst-cooperative-pudl.iam.gserviceaccount.com"
@@ -219,7 +151,24 @@ def to_config(
             # "build-deploy-ferceqr"). This lets a single dashboard switch between
             # pipelines via a template variable presented in a dropdown menu.
             "labels": {"batch-job-id": batch_job_id, "pipeline": pipeline},
-            "instances": [{"installOpsAgent": True, "policy": policy}],
+            "instances": [
+                {
+                    "installOpsAgent": True,
+                    "policy": {
+                        "machineType": machine_type,
+                        # Batch's default boot image is Container-Optimized OS, but
+                        # Google's own installOpsAgent bootstrap script only supports
+                        # Debian/CentOS/Rocky (it shells out to apt/yum, neither of
+                        # which exist on COS) Pin the Debian image explicitly so
+                        # installOpsAgent actually works.
+                        "bootDisk": {
+                            "image": "batch-debian",
+                            "type": disk_type,
+                            "sizeGb": str(disk_gb),
+                        },
+                    },
+                }
+            ],
         },
         "logsPolicy": {"destination": "CLOUD_LOGGING"},
         # Batch copies these job-level labels onto every `batch_task_logs` entry (as
@@ -269,18 +218,6 @@ def to_config(
     help="Boot disk type (e.g. pd-ssd, pd-balanced, hyperdisk-balanced).",
 )
 @click.option(
-    "--local-ssd-gb",
-    default=0,
-    show_default=True,
-    type=int,
-    help=(
-        "Total Local SSD size in GB (a multiple of 375; must match the bundled "
-        "total for *-lssd machine types). 0 disables Local SSD. When set, "
-        "PUDL_INPUT/PUDL_OUTPUT/DAGSTER_HOME are redirected onto the Local SSD "
-        "instead of the boot disk."
-    ),
-)
-@click.option(
     "--batch-job-id",
     required=True,
     help=(
@@ -313,7 +250,6 @@ def main(
     machine_type: str,
     disk_gb: int,
     disk_type: str,
-    local_ssd_gb: int,
     batch_job_id: str,
     pipeline: str,
     output: Path,
@@ -330,7 +266,6 @@ def main(
         memory_mib=memory_mib,
         disk_gb=disk_gb,
         disk_type=disk_type,
-        local_ssd_gb=local_ssd_gb,
         batch_job_id=batch_job_id,
         pipeline=pipeline,
     )
