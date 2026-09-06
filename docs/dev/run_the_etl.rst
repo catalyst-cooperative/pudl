@@ -82,7 +82,6 @@ If you use coding agents, you may also want to check out `the Dagster agent skil
 <https://github.com/dagster-io/skills>`__:
 
 * `dagster-expert <https://github.com/dagster-io/skills/blob/master/skills/dagster-expert/skills/dagster-expert/SKILL.md>`__
-* `dignified-python <https://github.com/dagster-io/skills/blob/master/skills/dignified-python/skills/dignified-python/SKILL.md>`__
 * `AI Driven Data Engineering <https://courses.dagster.io/courses/ai-driven-data-engineering>`__ (Dagster Course)
 
 These skills are also configured in the PUDL repo and can be installed with this pixi
