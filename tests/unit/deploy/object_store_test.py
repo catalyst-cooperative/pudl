@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 import pytest
+from boto3.crt import _validate_crt_transfer_config
 
 from pudl.deploy import object_store
 from pudl.deploy.object_store import (
@@ -11,7 +12,53 @@ from pudl.deploy.object_store import (
     LocalObjectStore,
     ObjectStore,
     S3ObjectStore,
+    _abbreviate_cmd,
 )
+
+
+class TestAbbreviateCmd:
+    """``_abbreviate_cmd`` keeps short commands intact and collapses long ones."""
+
+    def test_short_command_unchanged(self):
+        assert _abbreviate_cmd(["gcloud", "storage", "rm", "-r", "gs://x/**"]) == (
+            "gcloud storage rm -r 'gs://x/**'"
+        )
+
+    def test_long_command_collapses_middle(self):
+        args = [
+            "gcloud",
+            "storage",
+            "cp",
+            *[f"{i}.parquet" for i in range(52)],
+            "gs://d",
+        ]
+        out = _abbreviate_cmd(args)
+        assert out.startswith("gcloud storage cp 0.parquet")
+        assert "(+51 args)" in out
+        assert out.endswith("gs://d")
+
+
+class TestS3UploadConfig:
+    """The CRT upload path uses only TransferConfig keys the CRT client honors."""
+
+    def test_tuned_upload_config_is_crt_valid(self, mocker):
+        captured = {}
+
+        def _capture(client, config):
+            captured["config"] = config
+            return _FakeTransferManager(client)
+
+        mocker.patch.object(
+            object_store, "create_transfer_manager", side_effect=_capture
+        )
+        s3 = S3ObjectStore("bucket", region="us-west-2")
+        s3._client_cache = _FakeS3Client()
+        s3.upload_files([Path(__file__)], "s3://bucket/x")
+
+        config = captured["config"]
+        _validate_crt_transfer_config(config)  # raises on a disallowed CRT option
+        assert config.multipart_chunksize == object_store.S3_UPLOAD_MULTIPART_CHUNKSIZE
+        assert config.max_concurrency == object_store.S3_UPLOAD_MAX_CONCURRENCY
 
 
 class _DoneFuture:
