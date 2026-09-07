@@ -44,7 +44,35 @@ function run_dagster() {
     local build_id="${BUILD_ID}"
     echo "Launching Dagster and running the PUDL job"
     send_zulip_msg ":rocket: Launching Dagster and running the PUDL job for ${build_id}"
-    pixi run pudl-with-ferc-to-sqlite-nightly
+
+    local dagster_status=0
+    pixi run pudl-with-ferc-to-sqlite-nightly || dagster_status=$?
+
+    # The nightly job runs in-process (dg launch == execute_job, no daemon), so a
+    # step worker that is OOM-killed is already reported by the multiprocess
+    # executor with a "terminated by signal 9 (SIGKILL) ... out of memory" engine
+    # event. But if the *orchestrating* process itself is OOM-killed there is no
+    # chance to log anything -- the run just stops. Surface that case.
+    if ((dagster_status > 128)); then
+        local signal=$((dagster_status - 128))
+        echo "ERROR: the Dagster orchestration process was killed by signal ${signal}." >&2
+        if ((signal == 9)); then
+            echo "A bare SIGKILL almost always means the Linux OOM-killer reclaimed the" >&2
+            echo "run process. Check the VM memory metric on the build dashboard and" >&2
+            echo "consider a larger machine type or a lower memory-use:high concurrency" >&2
+            echo "limit in dg_nightly.yml." >&2
+        fi
+        dmesg 2>/dev/null | grep -iE 'killed process|oom-kill|out of memory' | tail -20 ||
+            echo "(kernel log not readable from inside the container)" >&2
+    fi
+
+    # Whatever the exit status, log a post-mortem: final run status, any steps
+    # stranded mid-execution, and (if the run process died silently) mark the run
+    # FAILED so the instance stays consistent. Purely diagnostic; never fails the
+    # stage on its own.
+    pixi run pudl_dagster_postmortem || true
+
+    return "${dagster_status}"
 }
 
 function save_outputs_to_gcs() {
