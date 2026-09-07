@@ -422,6 +422,11 @@ class AEOTaxonomy:
     },
     can_subset=True,
     required_resource_keys={"datastore", "global_data_config"},
+    # EIA AEO is extracted but not yet integrated downstream, so nothing waits on
+    # it. Deprioritize this multi-minute extraction so it backfills idle executor
+    # slots during the serial tail of the ETL rather than competing with the
+    # critical path at startup.
+    op_tags={"dagster/priority": -10},
 )
 def raw_eiaaeo(context: AssetExecutionContext):
     """Extract tables from EIA's Annual Energy Outlook.
