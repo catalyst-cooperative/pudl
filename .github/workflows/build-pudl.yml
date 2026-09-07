@@ -208,7 +208,7 @@ jobs:
             --container-env ZENODO_TARGET_ENV=${{ (startsWith(github.ref_name, 'v20') && 'production') || 'sandbox' }} \
             --container-env ZENODO_TOKEN_UPLOAD=${{ secrets.ZENODO_TOKEN_UPLOAD }} \
             --container-env PUDL_FORCE_FERC_TO_SQLITE="true" \
-            --machine-type c4d-highmem-16 \
+            --machine-type c4d-highmem-32 \
             --disk-gb 1000 \
             --disk-type hyperdisk-balanced \
             --batch-job-id "${{ env.BUILD_ID }}" \
