@@ -1,0 +1,15 @@
+# Dagster instance config for the nightly PUDL build (copied to
+# $DAGSTER_HOME/dagster.yaml by builds/pudl_batch.sh).
+#
+# Intentionally minimal. Unlike builds/dagster-ferceqr.yaml there is no
+# `run_monitoring` block here: the nightly PUDL job runs in-process via
+# `dg launch` (which is `execute_job`, not a launcher-managed run), so no
+# `dagster-daemon` is running to act on `run_monitoring` and the block would be
+# inert. OOM-style failures are handled instead by:
+#
+#   * the multiprocess executor, which already reports an OOM-killed *step*
+#     worker with a "terminated by signal 9 (SIGKILL) ... out of memory" engine
+#     event, and
+#   * `pixi run pudl_dagster_postmortem` in builds/pudl_batch.sh, which after the
+#     Dagster stage logs the final run status, flags any steps stranded
+#     mid-execution, and marks a silently-killed run FAILED.
