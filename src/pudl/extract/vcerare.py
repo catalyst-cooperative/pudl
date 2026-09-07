@@ -74,6 +74,11 @@ def _vcerare_column_types(year: int) -> Callable[[list[str]], dict[str, str]]:
         "datastore",
         "global_data_config",
     },
+    # VCE RARE is extracted but not yet integrated downstream, so nothing waits on
+    # it. Deprioritize this heavy per-year weather extraction so it backfills idle
+    # executor slots during the serial tail of the ETL rather than competing with
+    # the critical path at startup.
+    op_tags={"dagster/priority": -10},
 )
 def extract_vcerare(
     context,
@@ -108,7 +113,11 @@ def extract_vcerare(
     return tuple(extracted_tables.values())
 
 
-@asset(required_resource_keys={"datastore", "global_data_config"})
+@asset(
+    required_resource_keys={"datastore", "global_data_config"},
+    # See extract_vcerare: VCE RARE is not yet integrated downstream.
+    op_tags={"dagster/priority": -10},
+)
 def raw_vcerare__lat_lon_fips(context) -> pd.DataFrame:
     """Extract lat/lon to FIPS and county mapping CSV.
 

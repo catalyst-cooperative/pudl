@@ -124,7 +124,13 @@ class Extractor(excel.ExcelExtractor):
         return df
 
 
-raw_phmsagas__all_dfs = raw_df_factory(Extractor, name="phmsagas")
+# PHMSA gas is extracted but not yet integrated downstream, so nothing waits on
+# it. Deprioritize the per-year Excel extraction (and the split step below) so
+# this dataset acts as late-DAG filler rather than joining the thundering herd of
+# extractions at ETL startup.
+raw_phmsagas__all_dfs = raw_df_factory(
+    Extractor, name="phmsagas", op_tags={"dagster/priority": -10}
+)
 
 
 @multi_asset(
@@ -151,6 +157,7 @@ raw_phmsagas__all_dfs = raw_df_factory(Extractor, name="phmsagas")
         )
     },
     can_subset=True,
+    op_tags={"dagster/priority": -10},
 )
 def extract_phmsagas(context, raw_phmsagas__all_dfs):
     """Extract raw PHMSA gas data from excel sheets into dataframes."""
