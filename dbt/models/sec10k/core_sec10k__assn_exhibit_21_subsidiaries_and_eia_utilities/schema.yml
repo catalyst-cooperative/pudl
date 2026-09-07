@@ -4,14 +4,15 @@ sources:
     tables:
       - name: core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities
         data_tests:
-          - expect_columns_not_all_null
-          - dbt_expectations.expect_table_row_count_to_be_between:
-              description: Nightly builds and local ETL yield slightly different output.
-              config:
-                enabled: "{{ target.name == 'etl-full'}}"
+          - foreign_key:
               arguments:
-                min_value: 5720
-                max_value: 5730
+                fk_column_names:
+                  - utility_id_eia
+                pk_table_name: source('pudl', 'core_eia__entity_utilities')
+                pk_column_names:
+                  - utility_id_eia
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition
         columns:
           - name: subsidiary_company_id_sec10k
             data_tests:

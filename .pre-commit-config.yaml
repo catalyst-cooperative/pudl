@@ -37,7 +37,7 @@ repos:
   ####################################################################################
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.16.3
+    rev: v0.16.6
     hooks:
       - id: ruff-check
         args: [--fix]
@@ -58,7 +58,7 @@ repos:
         args: []
 
   - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: v0.11.0.1
+    rev: v0.11.0.1-1
     hooks:
       - id: shellcheck
 
@@ -69,7 +69,7 @@ repos:
   # Spell check our documentation and code comments
   # Use mirror b/c upstream hook provides bad version pins
   - repo: https://github.com/adhtruong/mirrors-typos
-    rev: v1.49.0
+    rev: v1.50.1
     hooks:
       - id: typos
         exclude: |
@@ -105,11 +105,11 @@ repos:
 
   # Scan for secrets and credentials
   - repo: https://github.com/trufflesecurity/trufflehog
-    rev: v3.97.0
+    rev: v3.97.4
     hooks:
       - id: trufflehog
         name: TruffleHog
-        entry: trufflehog git file://. --since-commit HEAD --fail --exclude-paths trufflehog-exclude.txt
+        entry: trufflehog git file://. --since-commit HEAD --fail --exclude-paths .trufflehog-exclude.txt
         language: golang
         pass_filenames: false
 
@@ -201,7 +201,7 @@ repos:
         verbose: false
         pass_filenames: false
         always_run: true
-        entry: pixi run pytest --no-cov --doctest-modules src/pudl tests/unit -m "not slow"
+        entry: pixi run pytest --no-cov --doctest-modules src/pudl tests/unit
 
 # Configuration for pre-commit.ci
 ci:

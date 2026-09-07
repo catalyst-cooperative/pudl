@@ -3,16 +3,8 @@ sources:
     tables:
       - name: out_ferc1__yearly_rate_base
         data_tests:
-          - dbt_expectations.expect_table_row_count_to_be_between:
-              description: Nightly builds and local ETL yield slightly different output
-              config:
-                enabled: "{{ target.name == 'etl-full' }}"
-              arguments:
-                min_value: 456000
-                max_value: 457000
           - check_row_counts_per_partition:
               arguments:
-                table_name: out_ferc1__yearly_rate_base
                 partition_expr: report_year
           - expect_columns_not_all_null:
               description: ferc_account is entirely null. Seems like an error.

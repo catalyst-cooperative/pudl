@@ -1,4 +1,5 @@
-{% macro row_counts_per_partition(model, table_name, partition_expr, force_row_counts_table=none) %}
+{% macro row_counts_per_partition(model, partition_expr=none, force_row_counts_table=none) %}
+{% set table_name = model.identifier %}
 {% set row_counts_table = force_row_counts_table if force_row_counts_table is not none
     else ref("etl_full_row_counts") if target.name == "etl-full"
     else force_row_counts_table

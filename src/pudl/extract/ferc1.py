@@ -69,7 +69,7 @@ database online `here <https://data.catalyst.coop/ferc1_dbf/>`__.
 import json
 from itertools import chain
 from pathlib import Path
-from typing import Any, TypedDict
+from typing import Any, NotRequired, TypedDict
 
 import pandas as pd
 import sqlalchemy as sa
@@ -98,7 +98,8 @@ RawFercTableName = str | list[str]
 class RawTableMapping(TypedDict):
     """Mapping between normalized PUDL table and raw DBF/XBRL table names."""
 
-    dbf: RawFercTableName
+    dbf: NotRequired[RawFercTableName]
+    """Absent for tables introduced after DBF reporting ended in 2020."""
     xbrl: RawFercTableName
 
 

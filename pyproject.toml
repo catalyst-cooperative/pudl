@@ -61,6 +61,7 @@ preview = ["pixi-build"]
 # comment explaining why it's necessary.
 [tool.pixi.dependencies]
 alembic = ">=1.17"
+beautifulsoup4 = ">=4.15"
 boto3 = ">=1.35"
 bottleneck = ">=1.5.0"
 "catalystcoop.dbfread" = ">=3.0,<3.1"
@@ -72,11 +73,9 @@ curl = ">=8.17"
 dagster = ">=1.13"
 dagster-dbt = ">=1!0.29"
 dagster-dg-cli = ">=1.13"
-dagster-gcp = ">=1!0.29"
 dagster-webserver = ">=1.13"
 dbt-core = ">=1.11.11"
 dbt-duckdb = ">=1.9.4"
-deepdiff = ">=8"
 doc8 = ">=2"
 email-validator = ">=1.0.3"
 filelock = ">=3.29"
@@ -101,28 +100,26 @@ jupyter-lsp = ">=2.3"
 jupyter-resource-usage = ">=1.2"
 jupyterlab = ">=4.6"
 jupyterlab-lsp = ">=5.2"
+lxml = ">=6.1"
 matplotlib-base = ">=3.11"
-memray = ">=1.18.0"
-mlflow = ">=3.14"
+mlflow = ">=3.16"
 nbconvert = ">=7"
 nbformat = ">=5.10"
 networkx = ">=3.6"
 nodejs = ">=26"
-numba = ">=0.66"
+numba = ">=0.67"
 numexpr = ">=2.10"
-numpy = ">=2.4"
+numpy = ">=2.5"
 packaging = ">=25"
-pandas = ">=2.3"
+pandas = ">=2.3,<3"
 pandoc = ">=3.7"
 pandera-polars = ">=0.31"
-parallel = ">=20250822"
 pint = ">=0.25.3"
-polars = ">=1.43" # v1.41.2 fixed a big memory leak
+polars = ">=1.43"
 prek = ">=0.4.11"
 # potentially unresolveable breaking changes in prettier 4.x
 prettier = ">=3.8,<4"
 proj = ">=9.8.1"
-# pyarrow upgrade blocked by stale geopandas 0.14 in Kaggle environment
 pyarrow = ">=24"
 pydantic = ">=2.13"
 pydantic-settings = ">=2.13"
@@ -134,7 +131,7 @@ pytest-cov = ">=7"
 pytest-mock = ">=3.15"
 pytest-order = ">=1.3"
 pytest-xdist = ">=3.8"
-python-calamine = ">=0.6.1"
+python-calamine = ">=0.8"
 python-dotenv = ">=1"
 python-duckdb = ">=1.5,<1.6"
 pytz = ">=2025"
@@ -168,7 +165,6 @@ urllib3 = ">=2.7"
 usaddress = ">=0.5.16,<0.6"
 uv = ">=0.11"
 xlsxwriter = ">=3.2"
-zip = ">=3.0"
 gh = ">=2.96.0,<3"
 
 [tool.pixi.pypi-dependencies]
@@ -183,6 +179,7 @@ duckdb-cli = ">=1.5,<1.6"
 jq = ">=1.8" # Primarily for agent skills use
 marimo = ">=0.23.15"
 matplotx = ">=0.3.10"
+memray = ">=1.18.0"
 plotly = ">=6.6"
 ripgrep = ">=15" # Primarily for agent skills use
 pyrefly = ">=1.2.0" # Experimental, also for agent skills use
@@ -209,8 +206,8 @@ description = "Type-check with pyrefly against the tracked baseline"
 [tool.pixi.feature.dev.tasks.pyrefly-update-baseline]
 cmd = "pyrefly check --baseline .pyrefly-baseline.json --update-baseline"
 
-[tool.pixi.feature.dev.tasks.pyrefly-baseline-diff]
-cmd = "pyrefly_baseline_diff"
+[tool.pixi.feature.dev.tasks.pyrefly-diff-baseline]
+cmd = "pyrefly_diff_baseline"
 description = """
 Diff .pyrefly-baseline.json against git HEAD by (file, code, description), ignoring \
 line/column churn. Run after `pyrefly check --baseline .pyrefly-baseline.json \
@@ -224,7 +221,10 @@ dev = { features = ["dev"], solve-group = "default" }
 # Reusable variables for pixi tasks
 DG_FULL_CONFIG = "src/pudl/package_data/settings/dg_full.yml"
 DG_NIGHTLY_CONFIG = "src/pudl/package_data/settings/dg_nightly.yml"
-
+# grpcio >= 1.83.0 is required by the Google Cloud Python libraries as of
+# October 2026 (post-quantum crypto migration). Until our resolved grpcio
+# crosses that version, silence the pre-migration FutureWarning.
+PYTHONWARNINGS = "ignore::FutureWarning:google.api_core._python_package_support,ignore::FutureWarning:google.auth.transport.grpc"
 ########################################################################################
 # Pixi task definitions. These are used by pixi to run various tasks in a consistent
 # environment. They can be run with `pixi run <task-name>`, and can depend on each other
@@ -299,8 +299,12 @@ cmd = "pytest --cov-fail-under=0 --doctest-modules src/pudl tests/unit"
 description = "Run unit tests and doctests"
 
 [tool.pixi.tasks.pytest-integration]
-cmd = "pytest --cov-fail-under=0 tests/integration tests/validate/data_test.py"
-description = "Run integration and (non-row-count) validation tests."
+cmd = "pytest --cov-fail-under=0 tests/integration"
+description = "Run fast integration tests that don't require any Dagster ETL pipeline outputs."
+
+[tool.pixi.tasks.pytest-pipeline]
+cmd = "pytest --cov-fail-under=0 --ignore=tests/pipeline/ferceqr_test.py tests/pipeline tests/validate/data_test.py"
+description = "Run pipeline tests (including the fast ETL) and non-row-count data validation tests."
 env = { PUDL_INTEGRATION_TESTS = "true" }
 
 [tool.pixi.tasks.pytest-validate]
@@ -312,8 +316,12 @@ cmd = "pytest -n auto --no-cov --dg-config $DG_NIGHTLY_CONFIG --doctest-modules 
 description = "Run nightly-build unit tests with the nightly Dagster config"
 
 [tool.pixi.tasks.pytest-integration-nightly]
-cmd = "pytest -n auto --no-cov --live-pudl-output --dg-config $DG_NIGHTLY_CONFIG tests/integration"
-description = "Run nightly-build integration tests against live nightly-style outputs"
+cmd = "pytest -n auto --no-cov --dg-config $DG_NIGHTLY_CONFIG tests/integration"
+description = "Run nightly-build fast integration tests with the nightly Dagster config"
+
+[tool.pixi.tasks.pytest-pipeline-nightly]
+cmd = "pytest -n auto --no-cov --live-pudl-output --dg-config $DG_NIGHTLY_CONFIG --ignore=tests/pipeline/ferceqr_test.py tests/pipeline"
+description = "Run nightly-build pipeline tests against live nightly-style outputs"
 
 [tool.pixi.tasks.pytest-validate-nightly]
 cmd = "pytest -n auto --no-cov --live-pudl-output --dg-config $DG_NIGHTLY_CONFIG tests/validate/data_test.py"
@@ -328,6 +336,7 @@ cmd = "true"
 depends-on = [
     "pytest-unit-nightly",
     "pytest-integration-nightly",
+    "pytest-pipeline-nightly",
     "pytest-validate-nightly",
     "pytest-validate-row-counts-nightly",
 ]
@@ -340,11 +349,12 @@ depends-on = [
     "docs-check",
     "pytest-unit",
     "pytest-integration",
+    "pytest-pipeline",
 ]
 description = "Run all CI tests and report test coverage"
 
 [tool.pixi.tasks.pytest-jupyter]
-cmd = "pytest --live-pudl-output tests/integration/notebooks_test.py"
+cmd = "pytest --live-pudl-output tests/pipeline/notebooks_test.py"
 description = "Test Jupyter notebooks"
 # Build the FERC 1 and PUDL DBs.
 # Identify any plant or utility IDs in the DBs that haven't yet been mapped
@@ -354,7 +364,7 @@ cmd = """
 pytest \
     --save-unmapped-ids
     --dg-config $DG_FULL_CONFIG \
-    tests/integration/glue/glue_test.py
+    tests/pipeline/glue/glue_test.py
 """
 description = "Identify unmapped plant and utility IDs"
 
@@ -446,7 +456,6 @@ description = "Install skills from lockfile"
 [project.scripts]
 auto_match_utilities = "pudl.scripts.auto_match_utilities:main"
 metadata_to_rst = "pudl.scripts.metadata_to_rst:main"
-pudl_check_fks = "pudl.scripts.pudl_check_fks:main"
 pudl_datastore = "pudl.scripts.pudl_datastore:main"
 pudl_deploy = "pudl.scripts.pudl_deploy:main"
 pudl_check_for_build = "pudl.scripts.pudl_check_for_build:main"
@@ -460,7 +469,8 @@ resource_description = "pudl.scripts.resource_description:main"
 update_zenodo_dois = "pudl.scripts.update_zenodo_dois:main"
 zenodo_data_release = "pudl.scripts.zenodo_data_release:main"
 generate_ferc_provenance = "pudl.scripts.generate_ferc_provenance:main"
-pyrefly_baseline_diff = "pudl.scripts.pyrefly_baseline_diff:main"
+batch_config = "pudl.scripts.batch_config:main"
+pyrefly_diff_baseline = "pudl.scripts.pyrefly_diff_baseline:main"
 
 [tool.ruff]
 # Configurations that apply to both the `format` and `lint` subcommands.
@@ -597,9 +607,9 @@ filterwarnings = [
     "ignore:Extension type 'geoarrow.wkb' is not registered:UserWarning",
     "ignore:invalid escape sequence:SyntaxWarning:stringcase",
     "ignore:invalid escape sequence:SyntaxWarning:parsedatetime",
+    "ignore:grpcio < 1.83.0 does not support Post-Quantum Cryptography:FutureWarning",
 ]
 
-markers = ["slow: marks tests as slow (deselect with '-m \"not slow\"')"]
 # must not end with `--cov` since that will treat the first argument you pass
 # to pytest as a coverage source! see
 # https://github.com/catalyst-cooperative/pudl/issues/3609

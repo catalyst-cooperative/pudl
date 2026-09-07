@@ -477,7 +477,7 @@ class MakeMegaGenTbl:
         mcoe: pd.DataFrame,
         own_eia860: pd.DataFrame,
         slice_cols: list[str] = SUM_COLS,
-        validate_own_merge: str = "one_to_many",
+        validate_own_merge: pudl.helpers.MergeValidate = "one_to_many",
     ) -> pd.DataFrame:
         """Make the mega generators table with ownership integrated.
 
@@ -1146,7 +1146,12 @@ class TrueGranLabeler:
         parts_to_gens["plant_part"] = pd.Categorical(
             parts_to_gens["plant_part"], PLANT_PARTS.keys()
         )
-        parts_to_gens = parts_to_gens.sort_values("plant_part")
+        # Sort by record_id_eia as a tiebreaker: records tied on plant_part
+        # and gens_combo (e.g. ownership total/owned duplicates) would
+        # otherwise resolve to whichever record happens to come first in
+        # parts_to_gens, which isn't guaranteed to be stable across
+        # pandas/numpy versions or upstream row order.
+        parts_to_gens = parts_to_gens.sort_values(["plant_part", "record_id_eia"])
         # get the true gran records by finding duplicate gen combos
         # this marks duplicate grans as True except for the first occurrence
         # non-duplicated granularities (unique records) are also marked False

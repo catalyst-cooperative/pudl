@@ -6,7 +6,6 @@ sources:
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
               arguments:
-                table_name: out_gridpathratoolkit__hourly_available_capacity_factor
                 partition_expr: EXTRACT(YEAR FROM datetime_utc)
         columns:
           - name: aggregation_group

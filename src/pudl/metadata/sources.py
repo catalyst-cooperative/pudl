@@ -228,7 +228,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "year_months": [
                 str(q).lower()
-                for q in pd.period_range(start="2015-07", end="2026-06", freq="M")
+                for q in pd.period_range(start="2015-07", end="2026-07", freq="M")
             ],
         },
         "keywords": sorted(
@@ -258,7 +258,7 @@ SOURCES: dict[str, Any] = {
         ),
         "concept_doi": "10.5281/zenodo.4127028",
         "working_partitions": {
-            "years": sorted(set(range(2001, 2025))),
+            "years": sorted(set(range(2001, 2026))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -826,7 +826,7 @@ SOURCES: dict[str, Any] = {
         ],
         "working_partitions": {
             "year_quarters": _year_quarter_range(
-                start_quarter="2013q3", end_quarter="2026q1"
+                start_quarter="2013q3", end_quarter="2026q2"
             ),
         },
         "license_raw": LICENSES["us-govt"],

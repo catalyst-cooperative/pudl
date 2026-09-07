@@ -4,10 +4,16 @@ sources:
     tables:
       - name: out_rus12__yearly_depreciation_misc
         data_tests:
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - borrower_id_rus
+                pk_table_name: source('pudl', 'core_rus12__entity_borrowers')
+                pk_column_names:
+                  - borrower_id_rus
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
               arguments:
-                table_name: out_rus12__yearly_depreciation_misc
                 partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: report_date

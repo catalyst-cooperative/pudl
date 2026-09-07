@@ -8,10 +8,11 @@ only shows errors that were genuinely fixed or newly introduced.
 """
 
 import json
-import subprocess
 from pathlib import Path
 
 import click
+
+from pudl.helpers import run_git
 
 
 def _load_baseline_entries(
@@ -21,13 +22,7 @@ def _load_baseline_entries(
     if ref is None:
         text = baseline_path.read_text()
     else:
-        result = subprocess.run(  # noqa: S603
-            ["git", "show", f"{ref}:{baseline_path}"],  # noqa: S607
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-        text = result.stdout
+        text = run_git(["show", f"{ref}:{baseline_path}"])
     errors = json.loads(text)["errors"]
     return {(e["path"], e["name"], e["description"]) for e in errors}
 

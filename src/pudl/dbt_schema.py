@@ -13,7 +13,7 @@ from typing import Annotated, Any
 import yaml
 from pydantic import BaseModel, BeforeValidator, ConfigDict
 
-from pudl.metadata.classes import PUDL_PACKAGE
+from pudl.metadata.classes import PUDL_PACKAGE, Resource
 
 _DESCRIPTION_WRAP_WIDTH = 88
 
@@ -179,6 +179,27 @@ def _prettier_yaml_dumps(yaml_contents: dict[str, Any]) -> str:
     )
 
 
+def _foreign_key_data_tests(resource: Resource) -> list[dict] | None:
+    """Build ``foreign_key`` data test entries for a resource's outgoing FKs.
+
+    One entry per foreign key relationship declared on the resource, in declaration
+    order, so regenerating a table's schema.yml produces a stable diff.
+    """
+    data_tests = [
+        {
+            "foreign_key": {
+                "arguments": {
+                    "fk_column_names": list(fk.fields),
+                    "pk_table_name": f"source('pudl', '{fk.reference.resource}')",
+                    "pk_column_names": list(fk.reference.fields),
+                }
+            }
+        }
+        for fk in resource.schema.foreign_keys
+    ]
+    return data_tests or None
+
+
 class DbtColumn(BaseModel):
     """Define yaml structure of a dbt column."""
 
@@ -211,12 +232,11 @@ class DbtTable(BaseModel):
     @classmethod
     def from_table_name(cls, table_name: str) -> "DbtTable":
         """Construct configuration defining table from PUDL metadata."""
+        resource = PUDL_PACKAGE.get_resource(table_name)
         return cls(
             name=table_name,
-            columns=[
-                DbtColumn(name=f.name)
-                for f in PUDL_PACKAGE.get_resource(table_name).schema.fields
-            ],
+            data_tests=_foreign_key_data_tests(resource),
+            columns=[DbtColumn(name=f.name) for f in resource.schema.fields],
         )
 
 

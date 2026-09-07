@@ -755,7 +755,15 @@ def add_null_overrides(connects_ferc1_eia):
     logger.debug(f"Found {len(null_overrides)} null overrides")
     # List of EIA columns to null. Ideally would like to get this from elsewhere, but
     # compiling this here for now...
-    eia_cols_to_null = Resource.from_id("out_eia__yearly_plant_parts").get_field_names()
+    # Exclude the columns that prettyify_best_matches() has already condensed down to
+    # a single FERC1-or-EIA value (see condense_cols above) -- nulling them here would
+    # wipe out legitimate FERC1-derived values for these known-unmatched records.
+    condensed_cols = {"report_year", "report_date", "plant_id_pudl", "utility_id_pudl"}
+    eia_cols_to_null = [
+        col
+        for col in Resource.from_id("out_eia__yearly_plant_parts").get_field_names()
+        if col not in condensed_cols
+    ]
     # Make all EIA values NA for record_id_ferc1 values in the Null overrides list and
     # make the match_type column say "overridden"
     connects_ferc1_eia.loc[

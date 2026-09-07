@@ -271,7 +271,11 @@ class FlaggedTimeseries:
 
 
 def slice_axis(
-    x: np.ndarray, start: int = None, end: int = None, step: int = None, axis: int = 0
+    x: np.ndarray,
+    start: int | None = None,
+    end: int | None = None,
+    step: int | None = None,
+    axis: int = 0,
 ) -> tuple[slice, ...]:
     """Return an index that slices an array along an axis.
 
@@ -375,7 +379,7 @@ def insert_run_length(  # noqa: C901
     x: Sequence | np.ndarray,
     values: Sequence | np.ndarray,
     lengths: Sequence[int],
-    mask: Sequence[bool] = None,
+    mask: Sequence[bool] | None = None,
     padding: int = 0,
     intersect: bool = False,
 ) -> np.ndarray:
@@ -713,7 +717,10 @@ def impute_latc_tubal(  # noqa: C901
     snorm = np.linalg.norm(mat, "fro")
     rho = rho0
     temp1 = _ten2mat(_mat2ten(z, dim, 0), 2)
-    _, phi = np.linalg.eig(temp1 @ temp1.T)
+    # temp1 @ temp1.T is symmetric PSD by construction, so eigh is both
+    # correct and avoids eig's complex128 return dtype, which forces all
+    # downstream _tsvt() einsum/SVD calls into much slower complex arithmetic.
+    _, phi = np.linalg.eigh(temp1 @ temp1.T)
     del temp1
     if dim_time > 5e3 and dim_time <= 1e4:
         sample_rate = 0.2
@@ -752,7 +759,7 @@ def impute_latc_tubal(  # noqa: C901
         it += 1
         if not np.mod(it, 10):
             temp1 = _ten2mat(_mat2ten(z, dim, 0) - t / rho, 2)
-            _, phi = np.linalg.eig(temp1 @ temp1.T)
+            _, phi = np.linalg.eigh(temp1 @ temp1.T)
             del temp1
         print(f"Iteration: {it}", end="\r")
         if tol < epsilon or it >= maxiter:
@@ -1371,7 +1378,7 @@ def summarize_flags(
 
 def simulate_nulls(
     x: np.ndarray,
-    lengths: Sequence[int] = None,
+    lengths: Sequence[int] | None = None,
     padding: int = 1,
     intersect: bool = False,
     overlap: bool = False,
@@ -1460,7 +1467,7 @@ def unfold_tensor(tensor: np.ndarray, shape) -> np.ndarray:
 @pa.check_types
 def impute(
     df: DataFrame[TimeseriesMatrix],
-    mask: np.ndarray = None,
+    mask: np.ndarray | None = None,
     periods: int = 24,
     blocks: int = 1,
     method: str = "tubal",

@@ -1,9 +1,9 @@
 {
   "errors": [
     {
-      "line": 364,
+      "line": 370,
       "column": 20,
-      "stop_line": 364,
+      "stop_line": 370,
       "stop_column": 30,
       "path": "docs/conf.py",
       "code": -2,
@@ -325,9 +325,9 @@
       "severity": "error"
     },
     {
-      "line": 1474,
+      "line": 1479,
       "column": 9,
-      "stop_line": 1475,
+      "stop_line": 1480,
       "stop_column": 14,
       "path": "src/pudl/analysis/plant_parts_eia.py",
       "code": -2,
@@ -337,9 +337,9 @@
       "severity": "error"
     },
     {
-      "line": 1541,
+      "line": 1546,
       "column": 9,
-      "stop_line": 1541,
+      "stop_line": 1546,
       "stop_column": 45,
       "path": "src/pudl/analysis/plant_parts_eia.py",
       "code": -2,
@@ -562,18 +562,6 @@
       "name": "missing-attribute",
       "description": "Object of class `spmatrix` has no attribute `columns`",
       "concise_description": "Object of class `spmatrix` has no attribute `columns`",
-      "severity": "error"
-    },
-    {
-      "line": 243,
-      "column": 50,
-      "stop_line": 243,
-      "stop_column": 54,
-      "path": "src/pudl/analysis/record_linkage/embed_dataframe.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `function_key` with type `str`\n  The declared type does not allow `None`. Consider changing the declared type to `str | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `function_key` with type `str`",
       "severity": "error"
     },
     {
@@ -817,21 +805,9 @@
       "severity": "error"
     },
     {
-      "line": 85,
-      "column": 60,
-      "stop_line": 85,
-      "stop_column": 64,
-      "path": "src/pudl/analysis/spatial.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `ratios` with type `Iterable[str]`\n  Protocol `Iterable` requires attribute `__iter__`\n  The declared type does not allow `None`. Consider changing the declared type to `Iterable[str] | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `ratios` with type `Iterable[str]`",
-      "severity": "error"
-    },
-    {
-      "line": 106,
+      "line": 108,
       "column": 50,
-      "stop_line": 106,
+      "stop_line": 108,
       "stop_column": 75,
       "path": "src/pudl/analysis/spatial.py",
       "code": -2,
@@ -841,9 +817,9 @@
       "severity": "error"
     },
     {
-      "line": 114,
+      "line": 116,
       "column": 9,
-      "stop_line": 114,
+      "stop_line": 116,
       "stop_column": 23,
       "path": "src/pudl/analysis/spatial.py",
       "code": -2,
@@ -853,21 +829,9 @@
       "severity": "error"
     },
     {
-      "line": 118,
-      "column": 63,
-      "stop_line": 118,
-      "stop_column": 67,
-      "path": "src/pudl/analysis/spatial.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `ratios` with type `Iterable[str]`\n  Protocol `Iterable` requires attribute `__iter__`\n  The declared type does not allow `None`. Consider changing the declared type to `Iterable[str] | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `ratios` with type `Iterable[str]`",
-      "severity": "error"
-    },
-    {
-      "line": 148,
+      "line": 152,
       "column": 30,
-      "stop_line": 148,
+      "stop_line": 152,
       "stop_column": 64,
       "path": "src/pudl/analysis/spatial.py",
       "code": -2,
@@ -877,9 +841,9 @@
       "severity": "error"
     },
     {
-      "line": 165,
+      "line": 169,
       "column": 9,
-      "stop_line": 165,
+      "stop_line": 169,
       "stop_column": 19,
       "path": "src/pudl/analysis/spatial.py",
       "code": -2,
@@ -889,9 +853,9 @@
       "severity": "error"
     },
     {
-      "line": 198,
+      "line": 202,
       "column": 55,
-      "stop_line": 198,
+      "stop_line": 202,
       "stop_column": 62,
       "path": "src/pudl/analysis/spatial.py",
       "code": -2,
@@ -901,9 +865,9 @@
       "severity": "error"
     },
     {
-      "line": 199,
+      "line": 203,
       "column": 27,
-      "stop_line": 199,
+      "stop_line": 203,
       "stop_column": 52,
       "path": "src/pudl/analysis/spatial.py",
       "code": -2,
@@ -913,9 +877,9 @@
       "severity": "error"
     },
     {
-      "line": 200,
+      "line": 204,
       "column": 19,
-      "stop_line": 200,
+      "stop_line": 204,
       "stop_column": 29,
       "path": "src/pudl/analysis/spatial.py",
       "code": -2,
@@ -925,21 +889,9 @@
       "severity": "error"
     },
     {
-      "line": 212,
-      "column": 29,
-      "stop_line": 212,
-      "stop_column": 33,
-      "path": "src/pudl/analysis/spatial.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `ratios` with type `Iterable[str]`\n  Protocol `Iterable` requires attribute `__iter__`\n  The declared type does not allow `None`. Consider changing the declared type to `Iterable[str] | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `ratios` with type `Iterable[str]`",
-      "severity": "error"
-    },
-    {
-      "line": 255,
+      "line": 259,
       "column": 12,
-      "stop_line": 258,
+      "stop_line": 262,
       "stop_column": 6,
       "path": "src/pudl/analysis/spatial.py",
       "code": -2,
@@ -949,9 +901,9 @@
       "severity": "error"
     },
     {
-      "line": 264,
+      "line": 268,
       "column": 25,
-      "stop_line": 264,
+      "stop_line": 268,
       "stop_column": 35,
       "path": "src/pudl/analysis/spatial.py",
       "code": -2,
@@ -961,9 +913,9 @@
       "severity": "error"
     },
     {
-      "line": 264,
+      "line": 268,
       "column": 44,
-      "stop_line": 264,
+      "stop_line": 268,
       "stop_column": 55,
       "path": "src/pudl/analysis/spatial.py",
       "code": -2,
@@ -973,9 +925,9 @@
       "severity": "error"
     },
     {
-      "line": 268,
+      "line": 272,
       "column": 13,
-      "stop_line": 268,
+      "stop_line": 272,
       "stop_column": 28,
       "path": "src/pudl/analysis/spatial.py",
       "code": -2,
@@ -985,9 +937,9 @@
       "severity": "error"
     },
     {
-      "line": 268,
+      "line": 272,
       "column": 13,
-      "stop_line": 268,
+      "stop_line": 272,
       "stop_column": 42,
       "path": "src/pudl/analysis/spatial.py",
       "code": -2,
@@ -997,9 +949,9 @@
       "severity": "error"
     },
     {
-      "line": 274,
+      "line": 278,
       "column": 37,
-      "stop_line": 274,
+      "stop_line": 278,
       "stop_column": 47,
       "path": "src/pudl/analysis/spatial.py",
       "code": -2,
@@ -1009,9 +961,9 @@
       "severity": "error"
     },
     {
-      "line": 274,
+      "line": 278,
       "column": 56,
-      "stop_line": 274,
+      "stop_line": 278,
       "stop_column": 67,
       "path": "src/pudl/analysis/spatial.py",
       "code": -2,
@@ -1021,9 +973,9 @@
       "severity": "error"
     },
     {
-      "line": 277,
+      "line": 281,
       "column": 21,
-      "stop_line": 277,
+      "stop_line": 281,
       "stop_column": 34,
       "path": "src/pudl/analysis/spatial.py",
       "code": -2,
@@ -1033,9 +985,9 @@
       "severity": "error"
     },
     {
-      "line": 278,
+      "line": 282,
       "column": 26,
-      "stop_line": 278,
+      "stop_line": 282,
       "stop_column": 33,
       "path": "src/pudl/analysis/spatial.py",
       "code": -2,
@@ -1045,9 +997,9 @@
       "severity": "error"
     },
     {
-      "line": 286,
+      "line": 290,
       "column": 12,
-      "stop_line": 286,
+      "stop_line": 290,
       "stop_column": 24,
       "path": "src/pudl/analysis/spatial.py",
       "code": -2,
@@ -1321,57 +1273,9 @@
       "severity": "error"
     },
     {
-      "line": 274,
-      "column": 33,
-      "stop_line": 274,
-      "stop_column": 37,
-      "path": "src/pudl/analysis/timeseries_cleaning.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `start` with type `int`\n  The declared type does not allow `None`. Consider changing the declared type to `int | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `start` with type `int`",
-      "severity": "error"
-    },
-    {
-      "line": 274,
-      "column": 50,
-      "stop_line": 274,
-      "stop_column": 54,
-      "path": "src/pudl/analysis/timeseries_cleaning.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `end` with type `int`\n  The declared type does not allow `None`. Consider changing the declared type to `int | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `end` with type `int`",
-      "severity": "error"
-    },
-    {
-      "line": 274,
-      "column": 68,
-      "stop_line": 274,
-      "stop_column": 72,
-      "path": "src/pudl/analysis/timeseries_cleaning.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `step` with type `int`\n  The declared type does not allow `None`. Consider changing the declared type to `int | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `step` with type `int`",
-      "severity": "error"
-    },
-    {
-      "line": 378,
-      "column": 28,
-      "stop_line": 378,
-      "stop_column": 32,
-      "path": "src/pudl/analysis/timeseries_cleaning.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `mask` with type `Sequence[bool]`\n  The declared type does not allow `None`. Consider changing the declared type to `Sequence[bool] | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `mask` with type `Sequence[bool]`",
-      "severity": "error"
-    },
-    {
-      "line": 484,
+      "line": 488,
       "column": 15,
-      "stop_line": 484,
+      "stop_line": 488,
       "stop_column": 41,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1381,33 +1285,33 @@
       "severity": "error"
     },
     {
-      "line": 539,
+      "line": 543,
       "column": 32,
-      "stop_line": 539,
+      "stop_line": 543,
       "stop_column": 68,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
       "name": "no-matching-overload",
-      "description": "No matching overload found for function `numpy.linalg._linalg.svd` called with arguments: (Any, full_matrices=Literal[0])\n  Possible overloads:\n    (a: _ArrayLikeInt_co, full_matrices: builtins.bool = True, ...) -> SVDResult [closest match]\n    (a: _ArrayLikeFloat_co, full_matrices: builtins.bool = True, ...) -> SVDResult\n    (a: _ArrayLikeComplex_co, full_matrices: builtins.bool = True, ...) -> SVDResult\n    (a: _ArrayLikeInt_co, full_matrices: builtins.bool = True, *, ...) -> ndarray[tuple[Any, ...], dtype[float64]]\n    (a: _ArrayLikeInt_co, full_matrices: builtins.bool, ...) -> ndarray[tuple[Any, ...], dtype[float64]]\n    (a: _ArrayLikeComplex_co, full_matrices: builtins.bool = True, *, ...) -> ndarray[tuple[Any, ...], dtype[floating]]\n    (a: _ArrayLikeComplex_co, full_matrices: builtins.bool, ...) -> ndarray[tuple[Any, ...], dtype[floating]]\n  Argument `Literal[0]` is not assignable to parameter `full_matrices` with type `bool` in function `numpy.linalg._linalg.svd`",
+      "description": "No matching overload found for function `numpy.linalg._linalg.svd` called with arguments: (Any, full_matrices=Literal[0])\n  Possible overloads:\n    (a: ndarray[tuple[Any, ...], dtype[Never]], full_matrices: bool = True, ...) -> SVDResult [closest match]\n    (a: ndarray[tuple[Any, ...], dtype[Never]], full_matrices: bool, ...) -> ndarray\n    (a: ndarray[tuple[Any, ...], dtype[Never]], full_matrices: bool = True, *, ...) -> ndarray\n    (a: _ArrayLike, full_matrices: bool = True, ...) -> SVDResult[floating[_32Bit], ScalarT]\n    (a: _ArrayLike, full_matrices: bool, ...) -> ndarray[tuple[Any, ...], dtype[floating[_32Bit]]]\n    (a: _ArrayLike, full_matrices: bool = True, *, ...) -> ndarray[tuple[Any, ...], dtype[floating[_32Bit]]]\n    (a: _ToArrayF64, full_matrices: builtins.bool = True, ...) -> SVDResult[float64, float64]\n    (a: _AsArrayC128, full_matrices: bool = True, ...) -> SVDResult[float64, complex128]\n    (a: _ToArrayC128, full_matrices: builtins.bool, ...) -> ndarray[tuple[Any, ...], dtype[float64]]\n    (a: _ToArrayC128, full_matrices: builtins.bool = True, *, ...) -> ndarray[tuple[Any, ...], dtype[float64]]\n    (a: _ArrayLikeComplex_co, full_matrices: builtins.bool = True, ...) -> SVDResult\n    (a: _ArrayLikeComplex_co, full_matrices: builtins.bool, ...) -> ndarray\n    (a: _ArrayLikeComplex_co, full_matrices: builtins.bool = True, *, ...) -> ndarray\n  Argument `Literal[0]` is not assignable to parameter `full_matrices` with type `bool` in function `numpy.linalg._linalg.svd`",
       "concise_description": "No matching overload found for function `numpy.linalg._linalg.svd` called with arguments: (Any, full_matrices=Literal[0])",
       "severity": "error"
     },
     {
-      "line": 548,
+      "line": 552,
       "column": 28,
-      "stop_line": 548,
+      "stop_line": 552,
       "stop_column": 53,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
       "name": "no-matching-overload",
-      "description": "No matching overload found for function `numpy.linalg._linalg.svd` called with arguments: (ndarray, full_matrices=Literal[0])\n  Possible overloads:\n    (a: _ArrayLikeInt_co, full_matrices: builtins.bool = True, ...) -> SVDResult [closest match]\n    (a: _ArrayLikeFloat_co, full_matrices: builtins.bool = True, ...) -> SVDResult\n    (a: _ArrayLikeComplex_co, full_matrices: builtins.bool = True, ...) -> SVDResult\n    (a: _ArrayLikeInt_co, full_matrices: builtins.bool = True, *, ...) -> ndarray[tuple[Any, ...], dtype[float64]]\n    (a: _ArrayLikeInt_co, full_matrices: builtins.bool, ...) -> ndarray[tuple[Any, ...], dtype[float64]]\n    (a: _ArrayLikeComplex_co, full_matrices: builtins.bool = True, *, ...) -> ndarray[tuple[Any, ...], dtype[floating]]\n    (a: _ArrayLikeComplex_co, full_matrices: builtins.bool, ...) -> ndarray[tuple[Any, ...], dtype[floating]]\n  Argument `Literal[0]` is not assignable to parameter `full_matrices` with type `bool` in function `numpy.linalg._linalg.svd`",
+      "description": "No matching overload found for function `numpy.linalg._linalg.svd` called with arguments: (ndarray, full_matrices=Literal[0])\n  Possible overloads:\n    (a: ndarray[tuple[Any, ...], dtype[Never]], full_matrices: bool = True, ...) -> SVDResult [closest match]\n    (a: ndarray[tuple[Any, ...], dtype[Never]], full_matrices: bool, ...) -> ndarray\n    (a: ndarray[tuple[Any, ...], dtype[Never]], full_matrices: bool = True, *, ...) -> ndarray\n    (a: _ArrayLike, full_matrices: bool = True, ...) -> SVDResult[floating[_32Bit], ScalarT]\n    (a: _ArrayLike, full_matrices: bool, ...) -> ndarray[tuple[Any, ...], dtype[floating[_32Bit]]]\n    (a: _ArrayLike, full_matrices: bool = True, *, ...) -> ndarray[tuple[Any, ...], dtype[floating[_32Bit]]]\n    (a: _ToArrayF64, full_matrices: builtins.bool = True, ...) -> SVDResult[float64, float64]\n    (a: _AsArrayC128, full_matrices: bool = True, ...) -> SVDResult[float64, complex128]\n    (a: _ToArrayC128, full_matrices: builtins.bool, ...) -> ndarray[tuple[Any, ...], dtype[float64]]\n    (a: _ToArrayC128, full_matrices: builtins.bool = True, *, ...) -> ndarray[tuple[Any, ...], dtype[float64]]\n    (a: _ArrayLikeComplex_co, full_matrices: builtins.bool = True, ...) -> SVDResult\n    (a: _ArrayLikeComplex_co, full_matrices: builtins.bool, ...) -> ndarray\n    (a: _ArrayLikeComplex_co, full_matrices: builtins.bool = True, *, ...) -> ndarray\n  Argument `Literal[0]` is not assignable to parameter `full_matrices` with type `bool` in function `numpy.linalg._linalg.svd`",
       "concise_description": "No matching overload found for function `numpy.linalg._linalg.svd` called with arguments: (ndarray, full_matrices=Literal[0])",
       "severity": "error"
     },
     {
-      "line": 738,
+      "line": 745,
       "column": 37,
-      "stop_line": 738,
+      "stop_line": 745,
       "stop_column": 48,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1417,9 +1321,9 @@
       "severity": "error"
     },
     {
-      "line": 1198,
+      "line": 1205,
       "column": 20,
-      "stop_line": 1198,
+      "stop_line": 1205,
       "stop_column": 36,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1429,9 +1333,9 @@
       "severity": "error"
     },
     {
-      "line": 1257,
+      "line": 1264,
       "column": 37,
-      "stop_line": 1257,
+      "stop_line": 1264,
       "stop_column": 50,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1441,9 +1345,9 @@
       "severity": "error"
     },
     {
-      "line": 1260,
+      "line": 1267,
       "column": 26,
-      "stop_line": 1260,
+      "stop_line": 1267,
       "stop_column": 39,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1453,9 +1357,9 @@
       "severity": "error"
     },
     {
-      "line": 1263,
+      "line": 1270,
       "column": 33,
-      "stop_line": 1263,
+      "stop_line": 1270,
       "stop_column": 46,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1465,9 +1369,9 @@
       "severity": "error"
     },
     {
-      "line": 1265,
+      "line": 1272,
       "column": 9,
-      "stop_line": 1265,
+      "stop_line": 1272,
       "stop_column": 25,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1477,9 +1381,9 @@
       "severity": "error"
     },
     {
-      "line": 1352,
+      "line": 1359,
       "column": 12,
-      "stop_line": 1352,
+      "stop_line": 1359,
       "stop_column": 30,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1489,45 +1393,21 @@
       "severity": "error"
     },
     {
-      "line": 1374,
-      "column": 30,
-      "stop_line": 1374,
-      "stop_column": 34,
-      "path": "src/pudl/analysis/timeseries_cleaning.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `lengths` with type `Sequence[int]`\n  The declared type does not allow `None`. Consider changing the declared type to `Sequence[int] | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `lengths` with type `Sequence[int]`",
-      "severity": "error"
-    },
-    {
-      "line": 1417,
+      "line": 1424,
       "column": 18,
-      "stop_line": 1417,
+      "stop_line": 1424,
       "stop_column": 47,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
       "name": "bad-argument-type",
-      "description": "Argument `ndarray | None` is not assignable to parameter `mask` with type `Sequence[bool]` in function `insert_run_length`\n  The declared type does not allow `None`. Consider narrowing the value with an `is not None` check.",
-      "concise_description": "Argument `ndarray | None` is not assignable to parameter `mask` with type `Sequence[bool]` in function `insert_run_length`",
+      "description": "Argument `ndarray | None` is not assignable to parameter `mask` with type `Sequence[bool] | None` in function `insert_run_length`",
+      "concise_description": "Argument `ndarray | None` is not assignable to parameter `mask` with type `Sequence[bool] | None` in function `insert_run_length`",
       "severity": "error"
     },
     {
-      "line": 1463,
-      "column": 24,
-      "stop_line": 1463,
-      "stop_column": 28,
-      "path": "src/pudl/analysis/timeseries_cleaning.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `mask` with type `ndarray`\n  The declared type does not allow `None`. Consider changing the declared type to `ndarray | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `mask` with type `ndarray`",
-      "severity": "error"
-    },
-    {
-      "line": 1507,
+      "line": 1514,
       "column": 12,
-      "stop_line": 1507,
+      "stop_line": 1514,
       "stop_column": 63,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1537,9 +1417,9 @@
       "severity": "error"
     },
     {
-      "line": 1590,
+      "line": 1597,
       "column": 33,
-      "stop_line": 1590,
+      "stop_line": 1597,
       "stop_column": 46,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1549,9 +1429,9 @@
       "severity": "error"
     },
     {
-      "line": 1611,
+      "line": 1618,
       "column": 12,
-      "stop_line": 1611,
+      "stop_line": 1618,
       "stop_column": 30,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1561,9 +1441,9 @@
       "severity": "error"
     },
     {
-      "line": 1697,
+      "line": 1704,
       "column": 31,
-      "stop_line": 1697,
+      "stop_line": 1704,
       "stop_column": 76,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1573,9 +1453,9 @@
       "severity": "error"
     },
     {
-      "line": 1698,
+      "line": 1705,
       "column": 28,
-      "stop_line": 1698,
+      "stop_line": 1705,
       "stop_column": 63,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1585,9 +1465,9 @@
       "severity": "error"
     },
     {
-      "line": 1701,
+      "line": 1708,
       "column": 21,
-      "stop_line": 1707,
+      "stop_line": 1714,
       "stop_column": 6,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1597,9 +1477,9 @@
       "severity": "error"
     },
     {
-      "line": 1722,
+      "line": 1729,
       "column": 9,
-      "stop_line": 1722,
+      "stop_line": 1729,
       "stop_column": 52,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1609,9 +1489,9 @@
       "severity": "error"
     },
     {
-      "line": 1723,
+      "line": 1730,
       "column": 12,
-      "stop_line": 1723,
+      "stop_line": 1730,
       "stop_column": 52,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1621,9 +1501,9 @@
       "severity": "error"
     },
     {
-      "line": 1824,
+      "line": 1831,
       "column": 9,
-      "stop_line": 1824,
+      "stop_line": 1831,
       "stop_column": 22,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1633,9 +1513,9 @@
       "severity": "error"
     },
     {
-      "line": 1831,
+      "line": 1838,
       "column": 23,
-      "stop_line": 1831,
+      "stop_line": 1838,
       "stop_column": 64,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1645,9 +1525,9 @@
       "severity": "error"
     },
     {
-      "line": 1961,
+      "line": 1968,
       "column": 13,
-      "stop_line": 1967,
+      "stop_line": 1974,
       "stop_column": 14,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1657,9 +1537,9 @@
       "severity": "error"
     },
     {
-      "line": 2003,
+      "line": 2010,
       "column": 13,
-      "stop_line": 2003,
+      "stop_line": 2010,
       "stop_column": 19,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1669,9 +1549,9 @@
       "severity": "error"
     },
     {
-      "line": 2040,
+      "line": 2047,
       "column": 13,
-      "stop_line": 2040,
+      "stop_line": 2047,
       "stop_column": 19,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1681,9 +1561,9 @@
       "severity": "error"
     },
     {
-      "line": 2047,
+      "line": 2054,
       "column": 31,
-      "stop_line": 2047,
+      "stop_line": 2054,
       "stop_column": 41,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1693,9 +1573,9 @@
       "severity": "error"
     },
     {
-      "line": 2047,
+      "line": 2054,
       "column": 59,
-      "stop_line": 2047,
+      "stop_line": 2054,
       "stop_column": 64,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1705,9 +1585,9 @@
       "severity": "error"
     },
     {
-      "line": 2104,
+      "line": 2111,
       "column": 17,
-      "stop_line": 2104,
+      "stop_line": 2111,
       "stop_column": 49,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1717,9 +1597,9 @@
       "severity": "error"
     },
     {
-      "line": 2104,
+      "line": 2111,
       "column": 51,
-      "stop_line": 2104,
+      "stop_line": 2111,
       "stop_column": 61,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1729,9 +1609,9 @@
       "severity": "error"
     },
     {
-      "line": 2121,
+      "line": 2128,
       "column": 30,
-      "stop_line": 2121,
+      "stop_line": 2128,
       "stop_column": 47,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1741,9 +1621,9 @@
       "severity": "error"
     },
     {
-      "line": 2125,
+      "line": 2132,
       "column": 29,
-      "stop_line": 2125,
+      "stop_line": 2132,
       "stop_column": 45,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1753,9 +1633,9 @@
       "severity": "error"
     },
     {
-      "line": 2150,
+      "line": 2157,
       "column": 13,
-      "stop_line": 2150,
+      "stop_line": 2157,
       "stop_column": 19,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1765,9 +1645,9 @@
       "severity": "error"
     },
     {
-      "line": 2156,
+      "line": 2163,
       "column": 31,
-      "stop_line": 2156,
+      "stop_line": 2163,
       "stop_column": 41,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1777,9 +1657,9 @@
       "severity": "error"
     },
     {
-      "line": 2156,
+      "line": 2163,
       "column": 59,
-      "stop_line": 2156,
+      "stop_line": 2163,
       "stop_column": 64,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1789,9 +1669,9 @@
       "severity": "error"
     },
     {
-      "line": 2222,
+      "line": 2229,
       "column": 16,
-      "stop_line": 2222,
+      "stop_line": 2229,
       "stop_column": 25,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1801,9 +1681,9 @@
       "severity": "error"
     },
     {
-      "line": 2232,
+      "line": 2239,
       "column": 24,
-      "stop_line": 2232,
+      "stop_line": 2239,
       "stop_column": 71,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1813,9 +1693,9 @@
       "severity": "error"
     },
     {
-      "line": 2254,
+      "line": 2261,
       "column": 16,
-      "stop_line": 2254,
+      "stop_line": 2261,
       "stop_column": 69,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1825,9 +1705,9 @@
       "severity": "error"
     },
     {
-      "line": 2255,
+      "line": 2262,
       "column": 12,
-      "stop_line": 2255,
+      "stop_line": 2262,
       "stop_column": 29,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
@@ -1897,18 +1777,6 @@
       "severity": "error"
     },
     {
-      "line": 328,
-      "column": 28,
-      "stop_line": 328,
-      "stop_column": 32,
-      "path": "src/pudl/analysis/timeseries_evaluation.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `mask` with type `Sequence[bool]`\n  The declared type does not allow `None`. Consider changing the declared type to `Sequence[bool] | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `mask` with type `Sequence[bool]`",
-      "severity": "error"
-    },
-    {
       "line": 434,
       "column": 15,
       "stop_line": 434,
@@ -1933,30 +1801,6 @@
       "severity": "error"
     },
     {
-      "line": 514,
-      "column": 30,
-      "stop_line": 514,
-      "stop_column": 34,
-      "path": "src/pudl/analysis/timeseries_evaluation.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `lengths` with type `Sequence[int]`\n  The declared type does not allow `None`. Consider changing the declared type to `Sequence[int] | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `lengths` with type `Sequence[int]`",
-      "severity": "error"
-    },
-    {
-      "line": 548,
-      "column": 18,
-      "stop_line": 548,
-      "stop_column": 47,
-      "path": "src/pudl/analysis/timeseries_evaluation.py",
-      "code": -2,
-      "name": "bad-argument-type",
-      "description": "Argument `Unknown | None` is not assignable to parameter `mask` with type `Sequence[bool]` in function `insert_run_length`\n  The declared type does not allow `None`. Consider narrowing the value with an `is not None` check.",
-      "concise_description": "Argument `Unknown | None` is not assignable to parameter `mask` with type `Sequence[bool]` in function `insert_run_length`",
-      "severity": "error"
-    },
-    {
       "line": 355,
       "column": 15,
       "stop_line": 355,
@@ -1969,9 +1813,9 @@
       "severity": "error"
     },
     {
-      "line": 495,
+      "line": 498,
       "column": 31,
-      "stop_line": 495,
+      "stop_line": 498,
       "stop_column": 78,
       "path": "src/pudl/dagster/assets/core/glue.py",
       "code": -2,
@@ -1981,9 +1825,9 @@
       "severity": "error"
     },
     {
-      "line": 537,
+      "line": 540,
       "column": 87,
-      "stop_line": 539,
+      "stop_line": 542,
       "stop_column": 6,
       "path": "src/pudl/dagster/assets/core/glue.py",
       "code": -2,
@@ -2545,39 +2389,15 @@
       "severity": "error"
     },
     {
-      "line": 404,
+      "line": 398,
       "column": 13,
-      "stop_line": 404,
+      "stop_line": 398,
       "stop_column": 71,
       "path": "src/pudl/deploy/pudl.py",
       "code": -2,
       "name": "bad-argument-type",
       "description": "Argument `tuple[S3FileSystem, str, bool]` is not assignable to parameter `object` with type `tuple[ExtendedGcsFileSystem | GCSFileSystem, str, bool]` in function `list.append`",
       "concise_description": "Argument `tuple[S3FileSystem, str, bool]` is not assignable to parameter `object` with type `tuple[ExtendedGcsFileSystem | GCSFileSystem, str, bool]` in function `list.append`",
-      "severity": "error"
-    },
-    {
-      "line": 641,
-      "column": 19,
-      "stop_line": 641,
-      "stop_column": 79,
-      "path": "src/pudl/deploy/pudl.py",
-      "code": -2,
-      "name": "missing-attribute",
-      "description": "Object of class `NoneType` has no attribute `strip`",
-      "concise_description": "Object of class `NoneType` has no attribute `strip`",
-      "severity": "error"
-    },
-    {
-      "line": 27,
-      "column": 9,
-      "stop_line": 27,
-      "stop_column": 19,
-      "path": "src/pudl/extract/censuspep.py",
-      "code": -2,
-      "name": "bad-override",
-      "description": "Class member `Extractor.get_dtypes` overrides parent class `ExcelExtractor` in an inconsistent manner\n  `Extractor.get_dtypes` has type `(page: Unknown, **partition: Unknown) -> StringDtype`, which is not assignable to `(page: str, **partition: PartitionSelection) -> dict[Unknown, Unknown]`, the type of `ExcelExtractor.get_dtypes`\n  Signature mismatch:\n  expected: def get_dtypes(page: str, **partition: PartitionSelection) -> dict[Unknown, Unknown]: ...\n                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^      ^^^^^^^^^^^^^^^^^^^^^^ return type\n                                 |\n                                 parameters\n  found:    def get_dtypes(page: Unknown, **partition: Unknown) -> StringDtype: ...\n                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^      ^^^^^^^^^^^ return type\n                                 |\n                                 parameters",
-      "concise_description": "Class member `Extractor.get_dtypes` overrides parent class `ExcelExtractor` in an inconsistent manner",
       "severity": "error"
     },
     {
@@ -2725,54 +2545,6 @@
       "severity": "error"
     },
     {
-      "line": 33,
-      "column": 9,
-      "stop_line": 33,
-      "stop_column": 22,
-      "path": "src/pudl/extract/eia191.py",
-      "code": -2,
-      "name": "bad-override-param-name",
-      "description": "Class member `Extractor.get_page_cols` overrides parent class `CsvExtractor` in an inconsistent manner\n  Got parameter name `partition_key`, expected `partition_selection`",
-      "concise_description": "Class member `Extractor.get_page_cols` overrides parent class `CsvExtractor` in an inconsistent manner",
-      "severity": "error"
-    },
-    {
-      "line": 39,
-      "column": 16,
-      "stop_line": 39,
-      "stop_column": 55,
-      "path": "src/pudl/extract/eia191.py",
-      "code": -2,
-      "name": "bad-return",
-      "description": "Returned type `RangeIndex` is not assignable to declared return type `list[str]`",
-      "concise_description": "Returned type `RangeIndex` is not assignable to declared return type `list[str]`",
-      "severity": "error"
-    },
-    {
-      "line": 22,
-      "column": 9,
-      "stop_line": 22,
-      "stop_column": 22,
-      "path": "src/pudl/extract/eia757a.py",
-      "code": -2,
-      "name": "bad-override-param-name",
-      "description": "Class member `Extractor.get_page_cols` overrides parent class `CsvExtractor` in an inconsistent manner\n  Got parameter name `partition_key`, expected `partition_selection`",
-      "concise_description": "Class member `Extractor.get_page_cols` overrides parent class `CsvExtractor` in an inconsistent manner",
-      "severity": "error"
-    },
-    {
-      "line": 28,
-      "column": 16,
-      "stop_line": 28,
-      "stop_column": 55,
-      "path": "src/pudl/extract/eia757a.py",
-      "code": -2,
-      "name": "bad-return",
-      "description": "Returned type `RangeIndex` is not assignable to declared return type `list[str]`",
-      "concise_description": "Returned type `RangeIndex` is not assignable to declared return type `list[str]`",
-      "severity": "error"
-    },
-    {
       "line": 47,
       "column": 179,
       "stop_line": 47,
@@ -2917,9 +2689,9 @@
       "severity": "error"
     },
     {
-      "line": 199,
+      "line": 206,
       "column": 16,
-      "stop_line": 199,
+      "stop_line": 206,
       "stop_column": 45,
       "path": "src/pudl/extract/excel.py",
       "code": -2,
@@ -2929,9 +2701,9 @@
       "severity": "error"
     },
     {
-      "line": 200,
+      "line": 207,
       "column": 30,
-      "stop_line": 200,
+      "stop_line": 207,
       "stop_column": 59,
       "path": "src/pudl/extract/excel.py",
       "code": -2,
@@ -2941,9 +2713,9 @@
       "severity": "error"
     },
     {
-      "line": 250,
+      "line": 257,
       "column": 24,
-      "stop_line": 250,
+      "stop_line": 257,
       "stop_column": 53,
       "path": "src/pudl/extract/excel.py",
       "code": -2,
@@ -2953,9 +2725,9 @@
       "severity": "error"
     },
     {
-      "line": 251,
+      "line": 258,
       "column": 22,
-      "stop_line": 251,
+      "stop_line": 258,
       "stop_column": 49,
       "path": "src/pudl/extract/excel.py",
       "code": -2,
@@ -2965,9 +2737,9 @@
       "severity": "error"
     },
     {
-      "line": 252,
+      "line": 259,
       "column": 24,
-      "stop_line": 252,
+      "stop_line": 259,
       "stop_column": 53,
       "path": "src/pudl/extract/excel.py",
       "code": -2,
@@ -2977,9 +2749,9 @@
       "severity": "error"
     },
     {
-      "line": 269,
+      "line": 276,
       "column": 16,
-      "stop_line": 269,
+      "stop_line": 276,
       "stop_column": 44,
       "path": "src/pudl/extract/excel.py",
       "code": -2,
@@ -3133,102 +2905,6 @@
       "severity": "error"
     },
     {
-      "line": 247,
-      "column": 53,
-      "stop_line": 249,
-      "stop_column": 6,
-      "path": "src/pudl/extract/ferc1.py",
-      "code": -2,
-      "name": "bad-typed-dict-key",
-      "description": "Missing required key `dbf` for TypedDict `RawTableMapping`",
-      "concise_description": "Missing required key `dbf` for TypedDict `RawTableMapping`",
-      "severity": "error"
-    },
-    {
-      "line": 250,
-      "column": 51,
-      "stop_line": 252,
-      "stop_column": 6,
-      "path": "src/pudl/extract/ferc1.py",
-      "code": -2,
-      "name": "bad-typed-dict-key",
-      "description": "Missing required key `dbf` for TypedDict `RawTableMapping`",
-      "concise_description": "Missing required key `dbf` for TypedDict `RawTableMapping`",
-      "severity": "error"
-    },
-    {
-      "line": 253,
-      "column": 58,
-      "stop_line": 255,
-      "stop_column": 6,
-      "path": "src/pudl/extract/ferc1.py",
-      "code": -2,
-      "name": "bad-typed-dict-key",
-      "description": "Missing required key `dbf` for TypedDict `RawTableMapping`",
-      "concise_description": "Missing required key `dbf` for TypedDict `RawTableMapping`",
-      "severity": "error"
-    },
-    {
-      "line": 256,
-      "column": 64,
-      "stop_line": 258,
-      "stop_column": 6,
-      "path": "src/pudl/extract/ferc1.py",
-      "code": -2,
-      "name": "bad-typed-dict-key",
-      "description": "Missing required key `dbf` for TypedDict `RawTableMapping`",
-      "concise_description": "Missing required key `dbf` for TypedDict `RawTableMapping`",
-      "severity": "error"
-    },
-    {
-      "line": 22,
-      "column": 1,
-      "stop_line": 22,
-      "stop_column": 16,
-      "path": "src/pudl/extract/ferceqr.py",
-      "code": -2,
-      "name": "no-matching-overload",
-      "description": "No matching overload found for function `contextlib.contextmanager` called with arguments: ((base_path: UPath, year_quarter: str) -> ZipFile)\n  Possible overloads:\n    (func: (ParamSpec(_P)) -> Generator[_T_co, None, object]) -> (ParamSpec(_P)) -> _GeneratorContextManager[_T_co] [closest match]\n    (func: (ParamSpec(_P)) -> Iterator[_T_co]) -> (ParamSpec(_P)) -> _GeneratorContextManager[_T_co]\n  Argument `(base_path: UPath, year_quarter: str) -> ZipFile` is not assignable to parameter `func` with type `(base_path: UPath, year_quarter: str) -> Generator[@_, None, object]` in function `contextlib.contextmanager`",
-      "concise_description": "No matching overload found for function `contextlib.contextmanager` called with arguments: ((base_path: UPath, year_quarter: str) -> ZipFile)",
-      "severity": "error"
-    },
-    {
-      "line": 23,
-      "column": 54,
-      "stop_line": 23,
-      "stop_column": 69,
-      "path": "src/pudl/extract/ferceqr.py",
-      "code": -2,
-      "name": "bad-return",
-      "description": "Generator function should return `Generator`",
-      "concise_description": "Generator function should return `Generator`",
-      "severity": "error"
-    },
-    {
-      "line": 71,
-      "column": 5,
-      "stop_line": 71,
-      "stop_column": 11,
-      "path": "src/pudl/extract/ferceqr.py",
-      "code": -2,
-      "name": "not-iterable",
-      "description": "Type `None` is not iterable",
-      "concise_description": "Type `None` is not iterable",
-      "severity": "error"
-    },
-    {
-      "line": 144,
-      "column": 22,
-      "stop_line": 144,
-      "stop_column": 26,
-      "path": "src/pudl/extract/ferceqr.py",
-      "code": -2,
-      "name": "bad-argument-type",
-      "description": "Argument `Path` is not assignable to parameter `csv_path` with type `str` in function `_extract_other_table`",
-      "concise_description": "Argument `Path` is not assignable to parameter `csv_path` with type `str` in function `_extract_other_table`",
-      "severity": "error"
-    },
-    {
       "line": 69,
       "column": 35,
       "stop_line": 69,
@@ -3238,18 +2914,6 @@
       "name": "bad-assignment",
       "description": "`dict[str, str]` is not assignable to dict key `op_tags` with type `set[str] | str`",
       "concise_description": "`dict[str, str]` is not assignable to dict key `op_tags` with type `set[str] | str`",
-      "severity": "error"
-    },
-    {
-      "line": 55,
-      "column": 9,
-      "stop_line": 55,
-      "stop_column": 24,
-      "path": "src/pudl/extract/phmsagas.py",
-      "code": -2,
-      "name": "bad-override-param-name",
-      "description": "Class member `Extractor.process_renamed` overrides parent class `ExcelExtractor` in an inconsistent manner\n  Got parameter name `newdata`, expected `df`",
-      "concise_description": "Class member `Extractor.process_renamed` overrides parent class `ExcelExtractor` in an inconsistent manner",
       "severity": "error"
     },
     {
@@ -3373,9 +3037,9 @@
       "severity": "error"
     },
     {
-      "line": 120,
+      "line": 124,
       "column": 21,
-      "stop_line": 120,
+      "stop_line": 124,
       "stop_column": 41,
       "path": "src/pudl/glue/ferc1_eia.py",
       "code": -2,
@@ -3385,9 +3049,9 @@
       "severity": "error"
     },
     {
-      "line": 146,
+      "line": 150,
       "column": 24,
-      "stop_line": 146,
+      "stop_line": 150,
       "stop_column": 44,
       "path": "src/pudl/glue/ferc1_eia.py",
       "code": -2,
@@ -3397,9 +3061,9 @@
       "severity": "error"
     },
     {
-      "line": 187,
+      "line": 191,
       "column": 14,
-      "stop_line": 190,
+      "stop_line": 194,
       "stop_column": 10,
       "path": "src/pudl/glue/ferc1_eia.py",
       "code": -2,
@@ -3409,9 +3073,9 @@
       "severity": "error"
     },
     {
-      "line": 206,
+      "line": 210,
       "column": 14,
-      "stop_line": 209,
+      "stop_line": 213,
       "stop_column": 10,
       "path": "src/pudl/glue/ferc1_eia.py",
       "code": -2,
@@ -3421,9 +3085,9 @@
       "severity": "error"
     },
     {
-      "line": 233,
+      "line": 237,
       "column": 16,
-      "stop_line": 233,
+      "stop_line": 237,
       "stop_column": 36,
       "path": "src/pudl/glue/ferc1_eia.py",
       "code": -2,
@@ -3433,9 +3097,9 @@
       "severity": "error"
     },
     {
-      "line": 235,
+      "line": 239,
       "column": 9,
-      "stop_line": 235,
+      "stop_line": 239,
       "stop_column": 23,
       "path": "src/pudl/glue/ferc1_eia.py",
       "code": -2,
@@ -3445,21 +3109,9 @@
       "severity": "error"
     },
     {
-      "line": 243,
-      "column": 9,
-      "stop_line": 243,
-      "stop_column": 26,
-      "path": "src/pudl/glue/ferc1_eia.py",
-      "code": -2,
-      "name": "bad-override",
-      "description": "Class member `GenericPlantFerc1TableTransformer.drop_invalid_rows` overrides parent class `Ferc1AbstractTableTransformer` in an inconsistent manner\n  `GenericPlantFerc1TableTransformer.drop_invalid_rows` has type `(self: GenericPlantFerc1TableTransformer, df: Unknown) -> DataFrame`, which is not assignable to `(self: GenericPlantFerc1TableTransformer, df: DataFrame, params: list[InvalidRows] | None = None) -> DataFrame`, the type of `Ferc1AbstractTableTransformer.drop_invalid_rows`\n  Signature mismatch:\n  ...icPlantFerc1TableTransformer, df: DataFrame, params: list[InvalidRows] | None = None) -> DataFrame: ...\n                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ parameters\n  ...icPlantFerc1TableTransformer, df: Unknown) -> DataFrame: ...\n                                       ^^^^^^^ parameters",
-      "concise_description": "Class member `GenericPlantFerc1TableTransformer.drop_invalid_rows` overrides parent class `Ferc1AbstractTableTransformer` in an inconsistent manner",
-      "severity": "error"
-    },
-    {
-      "line": 325,
+      "line": 331,
       "column": 13,
-      "stop_line": 325,
+      "stop_line": 331,
       "stop_column": 46,
       "path": "src/pudl/glue/ferc1_eia.py",
       "code": -2,
@@ -3469,9 +3121,9 @@
       "severity": "error"
     },
     {
-      "line": 326,
+      "line": 332,
       "column": 28,
-      "stop_line": 326,
+      "stop_line": 332,
       "stop_column": 32,
       "path": "src/pudl/glue/ferc1_eia.py",
       "code": -2,
@@ -3481,9 +3133,9 @@
       "severity": "error"
     },
     {
-      "line": 457,
+      "line": 463,
       "column": 12,
-      "stop_line": 457,
+      "stop_line": 463,
       "stop_column": 24,
       "path": "src/pudl/glue/ferc1_eia.py",
       "code": -2,
@@ -3493,9 +3145,9 @@
       "severity": "error"
     },
     {
-      "line": 526,
+      "line": 532,
       "column": 9,
-      "stop_line": 526,
+      "stop_line": 532,
       "stop_column": 52,
       "path": "src/pudl/glue/ferc1_eia.py",
       "code": -2,
@@ -3517,45 +3169,9 @@
       "severity": "error"
     },
     {
-      "line": 22,
-      "column": 15,
-      "stop_line": 22,
-      "stop_column": 39,
-      "path": "src/pudl/glue/ferc714.py",
-      "code": -2,
-      "name": "bad-specialization",
-      "description": "Expected 2 type arguments for `dict`, got 1",
-      "concise_description": "Expected 2 type arguments for `dict`, got 1",
-      "severity": "error"
-    },
-    {
-      "line": 22,
-      "column": 20,
-      "stop_line": 22,
-      "stop_column": 38,
-      "path": "src/pudl/glue/ferc714.py",
-      "code": -2,
-      "name": "not-a-type",
-      "description": "Expected a type form, got instance of `slice[type[str], type[DataFrame], None]`",
-      "concise_description": "Expected a type form, got instance of `slice[type[str], type[DataFrame], None]`",
-      "severity": "error"
-    },
-    {
-      "line": 619,
-      "column": 26,
-      "stop_line": 619,
-      "stop_column": 30,
-      "path": "src/pudl/helpers.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `date_on` with type `list[str]`\n  The declared type does not allow `None`. Consider changing the declared type to `list[str] | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `date_on` with type `list[str]`",
-      "severity": "error"
-    },
-    {
-      "line": 769,
+      "line": 801,
       "column": 25,
-      "stop_line": 769,
+      "stop_line": 801,
       "stop_column": 52,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3565,9 +3181,9 @@
       "severity": "error"
     },
     {
-      "line": 780,
+      "line": 812,
       "column": 25,
-      "stop_line": 780,
+      "stop_line": 812,
       "stop_column": 52,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3577,9 +3193,9 @@
       "severity": "error"
     },
     {
-      "line": 781,
+      "line": 813,
       "column": 26,
-      "stop_line": 781,
+      "stop_line": 813,
       "stop_column": 54,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3589,21 +3205,21 @@
       "severity": "error"
     },
     {
-      "line": 912,
+      "line": 944,
       "column": 31,
-      "stop_line": 912,
+      "stop_line": 944,
       "stop_column": 41,
       "path": "src/pudl/helpers.py",
       "code": -2,
       "name": "bad-argument-type",
-      "description": "Argument `ndarray` is not assignable to parameter `to_replace` with type `Mapping[Unknown, Unknown] | NAType | Pattern[Unknown] | Sequence[Pattern[Unknown] | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64 | None` in function `pandas.core.series.Series.replace`",
-      "concise_description": "Argument `ndarray` is not assignable to parameter `to_replace` with type `Mapping[Unknown, Unknown] | NAType | Pattern[Unknown] | Sequence[Pattern[Unknown] | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64 | None` in function `pandas.core.series.Series.replace`",
+      "description": "Argument `ndarray[tuple[int]]` is not assignable to parameter `to_replace` with type `Mapping[Unknown, Unknown] | NAType | Pattern[Unknown] | Sequence[Pattern[Unknown] | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64 | None` in function `pandas.core.series.Series.replace`",
+      "concise_description": "Argument `ndarray[tuple[int]]` is not assignable to parameter `to_replace` with type `Mapping[Unknown, Unknown] | NAType | Pattern[Unknown] | Sequence[Pattern[Unknown] | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64 | None` in function `pandas.core.series.Series.replace`",
       "severity": "error"
     },
     {
-      "line": 1474,
+      "line": 1506,
       "column": 12,
-      "stop_line": 1474,
+      "stop_line": 1506,
       "stop_column": 18,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3613,9 +3229,9 @@
       "severity": "error"
     },
     {
-      "line": 1700,
+      "line": 1738,
       "column": 22,
-      "stop_line": 1700,
+      "stop_line": 1738,
       "stop_column": 49,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3625,9 +3241,9 @@
       "severity": "error"
     },
     {
-      "line": 1701,
+      "line": 1739,
       "column": 17,
-      "stop_line": 1701,
+      "stop_line": 1739,
       "stop_column": 44,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3637,9 +3253,9 @@
       "severity": "error"
     },
     {
-      "line": 1703,
+      "line": 1741,
       "column": 21,
-      "stop_line": 1703,
+      "stop_line": 1741,
       "stop_column": 26,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3649,9 +3265,9 @@
       "severity": "error"
     },
     {
-      "line": 1848,
+      "line": 1886,
       "column": 9,
-      "stop_line": 1849,
+      "stop_line": 1887,
       "stop_column": 41,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3661,9 +3277,9 @@
       "severity": "error"
     },
     {
-      "line": 1906,
+      "line": 1944,
       "column": 47,
-      "stop_line": 1906,
+      "stop_line": 1944,
       "stop_column": 56,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3673,21 +3289,9 @@
       "severity": "error"
     },
     {
-      "line": 2074,
-      "column": 22,
-      "stop_line": 2074,
-      "stop_column": 30,
-      "path": "src/pudl/helpers.py",
-      "code": -2,
-      "name": "bad-argument-type",
-      "description": "Argument `str` is not assignable to parameter `validate` with type `Literal['1:1', '1:m', 'm:1', 'm:m', 'many_to_many', 'many_to_one', 'one_to_many', 'one_to_one'] | None` in function `pandas.core.frame.DataFrame.merge`",
-      "concise_description": "Argument `str` is not assignable to parameter `validate` with type `Literal['1:1', '1:m', 'm:1', 'm:m', 'many_to_many', 'many_to_one', 'one_to_many', 'one_to_one'] | None` in function `pandas.core.frame.DataFrame.merge`",
-      "severity": "error"
-    },
-    {
-      "line": 2119,
+      "line": 2192,
       "column": 10,
-      "stop_line": 2123,
+      "stop_line": 2196,
       "stop_column": 17,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3697,9 +3301,9 @@
       "severity": "error"
     },
     {
-      "line": 2155,
+      "line": 2228,
       "column": 35,
-      "stop_line": 2155,
+      "stop_line": 2228,
       "stop_column": 46,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3709,9 +3313,9 @@
       "severity": "error"
     },
     {
-      "line": 2156,
+      "line": 2229,
       "column": 9,
-      "stop_line": 2156,
+      "stop_line": 2229,
       "stop_column": 32,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3721,9 +3325,9 @@
       "severity": "error"
     },
     {
-      "line": 2158,
+      "line": 2231,
       "column": 35,
-      "stop_line": 2158,
+      "stop_line": 2231,
       "stop_column": 46,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3733,9 +3337,9 @@
       "severity": "error"
     },
     {
-      "line": 2159,
+      "line": 2232,
       "column": 9,
-      "stop_line": 2159,
+      "stop_line": 2232,
       "stop_column": 32,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3745,9 +3349,9 @@
       "severity": "error"
     },
     {
-      "line": 2371,
+      "line": 2476,
       "column": 57,
-      "stop_line": 2371,
+      "stop_line": 2476,
       "stop_column": 73,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3757,9 +3361,9 @@
       "severity": "error"
     },
     {
-      "line": 2492,
+      "line": 2618,
       "column": 1,
-      "stop_line": 2492,
+      "stop_line": 2618,
       "stop_column": 16,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3769,9 +3373,9 @@
       "severity": "error"
     },
     {
-      "line": 2495,
+      "line": 2621,
       "column": 6,
-      "stop_line": 2495,
+      "stop_line": 2621,
       "stop_column": 63,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3781,9 +3385,9 @@
       "severity": "error"
     },
     {
-      "line": 2521,
+      "line": 2647,
       "column": 6,
-      "stop_line": 2521,
+      "stop_line": 2647,
       "stop_column": 29,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3793,9 +3397,9 @@
       "severity": "error"
     },
     {
-      "line": 2669,
+      "line": 2795,
       "column": 27,
-      "stop_line": 2669,
+      "stop_line": 2795,
       "stop_column": 55,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3805,9 +3409,9 @@
       "severity": "error"
     },
     {
-      "line": 2697,
+      "line": 2823,
       "column": 12,
-      "stop_line": 2697,
+      "stop_line": 2823,
       "stop_column": 40,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3817,33 +3421,9 @@
       "severity": "error"
     },
     {
-      "line": 173,
-      "column": 58,
-      "stop_line": 173,
-      "stop_column": 62,
-      "path": "src/pudl/metadata/classes.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `template_dir` with type `Path`\n  The declared type does not allow `None`. Consider changing the declared type to `Path | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `template_dir` with type `Path`",
-      "severity": "error"
-    },
-    {
-      "line": 288,
-      "column": 33,
-      "stop_line": 288,
-      "stop_column": 37,
-      "path": "src/pudl/metadata/classes.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `value` with type `list[Unknown]`\n  The declared type does not allow `None`. Consider changing the declared type to `list[Unknown] | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `value` with type `list[Unknown]`",
-      "severity": "error"
-    },
-    {
-      "line": 610,
+      "line": 611,
       "column": 51,
-      "stop_line": 610,
+      "stop_line": 611,
       "stop_column": 60,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -3853,9 +3433,9 @@
       "severity": "error"
     },
     {
-      "line": 739,
+      "line": 740,
       "column": 16,
-      "stop_line": 739,
+      "stop_line": 740,
       "stop_column": 46,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -3865,9 +3445,9 @@
       "severity": "error"
     },
     {
-      "line": 750,
+      "line": 751,
       "column": 20,
-      "stop_line": 750,
+      "stop_line": 751,
       "stop_column": 51,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -3877,21 +3457,9 @@
       "severity": "error"
     },
     {
-      "line": 750,
-      "column": 27,
-      "stop_line": 750,
-      "stop_column": 51,
-      "path": "src/pudl/metadata/classes.py",
-      "code": -2,
-      "name": "no-matching-overload",
-      "description": "No matching overload found for function `sqlalchemy.sql.sqltypes.Enum.__init__` called with arguments: (*list[bool | date | datetime | float | int | str])\n  Possible overloads:\n    (enums: type[Enum], **kw: Any) -> None [closest match]\n    (*enums: str, **kw: Any) -> None\n  Argument `bool | date | datetime | float | int | str` is not assignable to parameter `enums` with type `type[Enum]` in function `sqlalchemy.sql.sqltypes.Enum.__init__`",
-      "concise_description": "No matching overload found for function `sqlalchemy.sql.sqltypes.Enum.__init__` called with arguments: (*list[bool | date | datetime | float | int | str])",
-      "severity": "error"
-    },
-    {
-      "line": 751,
+      "line": 752,
       "column": 16,
-      "stop_line": 751,
+      "stop_line": 752,
       "stop_column": 46,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -3901,21 +3469,9 @@
       "severity": "error"
     },
     {
-      "line": 929,
-      "column": 16,
-      "stop_line": 934,
-      "stop_column": 10,
-      "path": "src/pudl/metadata/classes.py",
-      "code": -2,
-      "name": "bad-return",
-      "description": "Returned type `pandera.api.pandas.components.Column | pandera.api.polars.components.Column` is not assignable to declared return type `pandera.api.polars.components.Column`",
-      "concise_description": "Returned type `pandera.api.pandas.components.Column | pandera.api.polars.components.Column` is not assignable to declared return type `pandera.api.polars.components.Column`",
-      "severity": "error"
-    },
-    {
-      "line": 930,
+      "line": 933,
       "column": 13,
-      "stop_line": 930,
+      "stop_line": 933,
       "stop_column": 24,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -3925,9 +3481,9 @@
       "severity": "error"
     },
     {
-      "line": 930,
+      "line": 933,
       "column": 13,
-      "stop_line": 930,
+      "stop_line": 933,
       "stop_column": 24,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -3937,21 +3493,9 @@
       "severity": "error"
     },
     {
-      "line": 1183,
-      "column": 56,
-      "stop_line": 1183,
-      "stop_column": 60,
-      "path": "src/pudl/metadata/classes.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `partitions` with type `dict[Unknown, Unknown]`\n  The declared type does not allow `None`. Consider changing the declared type to `dict[Unknown, Unknown] | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `partitions` with type `dict[Unknown, Unknown]`",
-      "severity": "error"
-    },
-    {
-      "line": 1212,
+      "line": 1236,
       "column": 40,
-      "stop_line": 1212,
+      "stop_line": 1236,
       "stop_column": 69,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -3961,9 +3505,9 @@
       "severity": "error"
     },
     {
-      "line": 1682,
+      "line": 1707,
       "column": 5,
-      "stop_line": 1682,
+      "stop_line": 1707,
       "stop_column": 11,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -3973,9 +3517,9 @@
       "severity": "error"
     },
     {
-      "line": 1766,
+      "line": 1791,
       "column": 59,
-      "stop_line": 1766,
+      "stop_line": 1791,
       "stop_column": 74,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -3985,9 +3529,9 @@
       "severity": "error"
     },
     {
-      "line": 1767,
+      "line": 1792,
       "column": 69,
-      "stop_line": 1767,
+      "stop_line": 1792,
       "stop_column": 78,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -3997,21 +3541,9 @@
       "severity": "error"
     },
     {
-      "line": 1881,
-      "column": 33,
-      "stop_line": 1881,
-      "stop_column": 37,
-      "path": "src/pudl/metadata/classes.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `metadata` with type `MetaData`\n  The declared type does not allow `None`. Consider changing the declared type to `MetaData | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `metadata` with type `MetaData`",
-      "severity": "error"
-    },
-    {
-      "line": 1899,
+      "line": 1924,
       "column": 32,
-      "stop_line": 1899,
+      "stop_line": 1924,
       "stop_column": 44,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -4021,9 +3553,9 @@
       "severity": "error"
     },
     {
-      "line": 1920,
+      "line": 1947,
       "column": 24,
-      "stop_line": 1920,
+      "stop_line": 1947,
       "stop_column": 39,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -4033,9 +3565,9 @@
       "severity": "error"
     },
     {
-      "line": 1997,
+      "line": 2024,
       "column": 16,
-      "stop_line": 1997,
+      "stop_line": 2024,
       "stop_column": 21,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -4045,9 +3577,9 @@
       "severity": "error"
     },
     {
-      "line": 2077,
+      "line": 2104,
       "column": 32,
-      "stop_line": 2077,
+      "stop_line": 2104,
       "stop_column": 45,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -4057,33 +3589,9 @@
       "severity": "error"
     },
     {
-      "line": 2130,
-      "column": 73,
-      "stop_line": 2130,
-      "stop_column": 77,
-      "path": "src/pudl/metadata/classes.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `error` with type `(...) -> Unknown`\n  The declared type does not allow `None`. Consider changing the declared type to `(...) -> Unknown | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `error` with type `(...) -> Unknown`",
-      "severity": "error"
-    },
-    {
-      "line": 2237,
-      "column": 27,
-      "stop_line": 2237,
-      "stop_column": 31,
-      "path": "src/pudl/metadata/classes.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `aggregate` with type `bool`\n  The declared type does not allow `None`. Consider changing the declared type to `bool | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `aggregate` with type `bool`",
-      "severity": "error"
-    },
-    {
-      "line": 2303,
+      "line": 2580,
       "column": 47,
-      "stop_line": 2303,
+      "stop_line": 2580,
       "stop_column": 70,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -4093,9 +3601,9 @@
       "severity": "error"
     },
     {
-      "line": 2409,
+      "line": 2686,
       "column": 36,
-      "stop_line": 2409,
+      "stop_line": 2686,
       "stop_column": 68,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -4105,9 +3613,9 @@
       "severity": "error"
     },
     {
-      "line": 2411,
+      "line": 2688,
       "column": 43,
-      "stop_line": 2411,
+      "stop_line": 2688,
       "stop_column": 45,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -4117,9 +3625,9 @@
       "severity": "error"
     },
     {
-      "line": 2487,
+      "line": 2764,
       "column": 16,
-      "stop_line": 2487,
+      "stop_line": 2764,
       "stop_column": 28,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -4129,9 +3637,9 @@
       "severity": "error"
     },
     {
-      "line": 2573,
+      "line": 2850,
       "column": 40,
-      "stop_line": 2573,
+      "stop_line": 2850,
       "stop_column": 53,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -4141,9 +3649,9 @@
       "severity": "error"
     },
     {
-      "line": 2577,
+      "line": 2854,
       "column": 72,
-      "stop_line": 2577,
+      "stop_line": 2854,
       "stop_column": 88,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -4153,9 +3661,9 @@
       "severity": "error"
     },
     {
-      "line": 2578,
+      "line": 2855,
       "column": 59,
-      "stop_line": 2578,
+      "stop_line": 2855,
       "stop_column": 83,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -4165,9 +3673,9 @@
       "severity": "error"
     },
     {
-      "line": 2579,
+      "line": 2856,
       "column": 62,
-      "stop_line": 2579,
+      "stop_line": 2856,
       "stop_column": 89,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -4177,9 +3685,9 @@
       "severity": "error"
     },
     {
-      "line": 2600,
+      "line": 2877,
       "column": 44,
-      "stop_line": 2600,
+      "stop_line": 2877,
       "stop_column": 80,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -4393,21 +3901,9 @@
       "severity": "error"
     },
     {
-      "line": 13,
-      "column": 46,
-      "stop_line": 13,
-      "stop_column": 50,
-      "path": "src/pudl/metadata/helpers.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `title` with type `str`\n  The declared type does not allow `None`. Consider changing the declared type to `str | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `title` with type `str`",
-      "severity": "error"
-    },
-    {
-      "line": 274,
+      "line": 276,
       "column": 70,
-      "stop_line": 274,
+      "stop_line": 276,
       "stop_column": 76,
       "path": "src/pudl/metadata/helpers.py",
       "code": -2,
@@ -4417,21 +3913,9 @@
       "severity": "error"
     },
     {
-      "line": 303,
-      "column": 65,
-      "stop_line": 303,
-      "stop_column": 69,
-      "path": "src/pudl/metadata/helpers.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `min_frequency` with type `float`\n  The declared type does not allow `None`. Consider changing the declared type to `float | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `min_frequency` with type `float`",
-      "severity": "error"
-    },
-    {
-      "line": 391,
+      "line": 393,
       "column": 27,
-      "stop_line": 391,
+      "stop_line": 393,
       "stop_column": 39,
       "path": "src/pudl/metadata/helpers.py",
       "code": -2,
@@ -4441,9 +3925,9 @@
       "severity": "error"
     },
     {
-      "line": 408,
+      "line": 410,
       "column": 27,
-      "stop_line": 408,
+      "stop_line": 410,
       "stop_column": 32,
       "path": "src/pudl/metadata/helpers.py",
       "code": -2,
@@ -4453,9 +3937,9 @@
       "severity": "error"
     },
     {
-      "line": 466,
+      "line": 468,
       "column": 25,
-      "stop_line": 466,
+      "stop_line": 468,
       "stop_column": 29,
       "path": "src/pudl/metadata/helpers.py",
       "code": -2,
@@ -4465,9 +3949,9 @@
       "severity": "error"
     },
     {
-      "line": 577,
+      "line": 579,
       "column": 28,
-      "stop_line": 577,
+      "stop_line": 579,
       "stop_column": 32,
       "path": "src/pudl/metadata/helpers.py",
       "code": -2,
@@ -4546,18 +4030,6 @@
       "name": "not-callable",
       "description": "Expected a callable, got `Series`",
       "concise_description": "Expected a callable, got `Series`",
-      "severity": "error"
-    },
-    {
-      "line": 1010,
-      "column": 32,
-      "stop_line": 1010,
-      "stop_column": 36,
-      "path": "src/pudl/output/eia.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `fuel_type_code_pudl` with type `str`\n  The declared type does not allow `None`. Consider changing the declared type to `str | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `fuel_type_code_pudl` with type `str`",
       "severity": "error"
     },
     {
@@ -4849,18 +4321,6 @@
       "severity": "error"
     },
     {
-      "line": 1228,
-      "column": 44,
-      "stop_line": 1228,
-      "stop_column": 48,
-      "path": "src/pudl/output/ferc1.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `off_by_facts` with type `list[OffByFactoid]`\n  The declared type does not allow `None`. Consider changing the declared type to `list[OffByFactoid] | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `off_by_facts` with type `list[OffByFactoid]`",
-      "severity": "error"
-    },
-    {
       "line": 1324,
       "column": 45,
       "stop_line": 1324,
@@ -4904,7 +4364,7 @@
       "path": "src/pudl/output/ferc1.py",
       "code": -2,
       "name": "no-matching-overload",
-      "description": "No matching overload found for function `numpy._core.multiarray.where` called with arguments: (Unknown, dict[@_, @_], Unknown)\n  Possible overloads:\n    (condition: ArrayLike, x: None = None, y: None = None, /) -> tuple[ndarray[tuple[Any, ...], dtype[signedinteger[_NBitIntP]]], ...] [closest match]\n    (condition: ArrayLike, x: ArrayLike, y: ArrayLike, /) -> ndarray\n  Argument `dict[@_, @_]` is not assignable to parameter `x` with type `None` in function `numpy._core.multiarray.where`",
+      "description": "No matching overload found for function `numpy._core.multiarray.where` called with arguments: (Unknown, dict[@_, @_], Unknown)\n  Possible overloads:\n    (condition: ndarray[tuple[Never, Never, Never, Never]], x: None = None, y: None = None, /) -> tuple[ndarray[tuple[int], dtype[signedinteger[_NBitIntP]]], ...] [closest match]\n    (condition: _ToArray1D, x: None = None, y: None = None, /) -> tuple[ndarray[tuple[int], dtype[signedinteger[_NBitIntP]]]]\n    (condition: _ToArray2D, x: None = None, y: None = None, /) -> tuple[ndarray[tuple[int], dtype[signedinteger[_NBitIntP]]], ndarray[tuple[int], dtype[signedinteger[_NBitIntP]]]]\n    (condition: _ToArray3D, x: None = None, y: None = None, /) -> tuple[ndarray[tuple[int], dtype[signedinteger[_NBitIntP]]], ndarray[tuple[int], dtype[signedinteger[_NBitIntP]]], ndarray[tuple[int], dtype[signedinteger[_NBitIntP]]]]\n    (condition: _ArrayLike, x: None = None, y: None = None, /) -> tuple[ndarray[tuple[int], dtype[signedinteger[_NBitIntP]]], ...]\n    (condition: ArrayLike, x: ArrayLike, y: ArrayLike, /) -> ndarray\n  Argument `dict[@_, @_]` is not assignable to parameter `x` with type `None` in function `numpy._core.multiarray.where`",
       "concise_description": "No matching overload found for function `numpy._core.multiarray.where` called with arguments: (Unknown, dict[@_, @_], Unknown)",
       "severity": "error"
     },
@@ -5233,18 +4693,6 @@
       "severity": "error"
     },
     {
-      "line": 38,
-      "column": 5,
-      "stop_line": 38,
-      "stop_column": 12,
-      "path": "src/pudl/scripts/check_path_permissions.py",
-      "code": -2,
-      "name": "bad-override",
-      "description": "`message` is declared as final in parent class `ClickException`",
-      "concise_description": "`message` is declared as final in parent class `ClickException`",
-      "severity": "error"
-    },
-    {
       "line": 107,
       "column": 13,
       "stop_line": 107,
@@ -5302,18 +4750,6 @@
       "name": "bad-argument-type",
       "description": "Argument `Path` is not assignable to parameter `path` with type `str` in function `pudl.metadata.classes.Package.to_rst`",
       "concise_description": "Argument `Path` is not assignable to parameter `path` with type `str` in function `pudl.metadata.classes.Package.to_rst`",
-      "severity": "error"
-    },
-    {
-      "line": 65,
-      "column": 18,
-      "stop_line": 65,
-      "stop_column": 26,
-      "path": "src/pudl/scripts/pudl_check_fks.py",
-      "code": -2,
-      "name": "bad-argument-type",
-      "description": "Argument `str` is not assignable to parameter `loglevel` with type `Literal['CRITICAL', 'DEBUG', 'ERROR', 'INFO', 'WARNING']` in function `pudl.logging_helpers.configure_root_logger`",
-      "concise_description": "Argument `str` is not assignable to parameter `loglevel` with type `Literal['CRITICAL', 'DEBUG', 'ERROR', 'INFO', 'WARNING']` in function `pudl.logging_helpers.configure_root_logger`",
       "severity": "error"
     },
     {
@@ -5386,30 +4822,6 @@
       "name": "bad-argument-type",
       "description": "Argument `Traversable` is not assignable to parameter `yaml_file` with type `Path` in function `update_yaml_dois`",
       "concise_description": "Argument `Traversable` is not assignable to parameter `yaml_file` with type `Path` in function `update_yaml_dois`",
-      "severity": "error"
-    },
-    {
-      "line": 523,
-      "column": 36,
-      "stop_line": 523,
-      "stop_column": 64,
-      "path": "src/pudl/scripts/zenodo_data_release.py",
-      "code": -2,
-      "name": "bad-argument-type",
-      "description": "Unpacked keyword argument `str | Any` is not assignable to parameter `creators` with type `Iterable[Mapping[Unknown, Any]]` in function `_LegacyMetadata.__init__`",
-      "concise_description": "Unpacked keyword argument `str | Any` is not assignable to parameter `creators` with type `Iterable[Mapping[Unknown, Any]]` in function `_LegacyMetadata.__init__`",
-      "severity": "error"
-    },
-    {
-      "line": 47,
-      "column": 5,
-      "stop_line": 47,
-      "stop_column": 17,
-      "path": "src/pudl/settings.py",
-      "code": -2,
-      "name": "bad-override",
-      "description": "Instance variable `FrozenBaseModel.model_config` overrides ClassVar of the same name in parent class `BaseModel`",
-      "concise_description": "Instance variable `FrozenBaseModel.model_config` overrides ClassVar of the same name in parent class `BaseModel`",
       "severity": "error"
     },
     {
@@ -5905,9 +5317,9 @@
       "severity": "error"
     },
     {
-      "line": 381,
+      "line": 386,
       "column": 26,
-      "stop_line": 386,
+      "stop_line": 391,
       "stop_column": 6,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -5917,9 +5329,9 @@
       "severity": "error"
     },
     {
-      "line": 411,
+      "line": 416,
       "column": 17,
-      "stop_line": 411,
+      "stop_line": 416,
       "stop_column": 42,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -5929,9 +5341,9 @@
       "severity": "error"
     },
     {
-      "line": 428,
+      "line": 433,
       "column": 27,
-      "stop_line": 428,
+      "stop_line": 433,
       "stop_column": 52,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -5941,9 +5353,9 @@
       "severity": "error"
     },
     {
-      "line": 428,
+      "line": 433,
       "column": 27,
-      "stop_line": 428,
+      "stop_line": 433,
       "stop_column": 52,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -5953,9 +5365,9 @@
       "severity": "error"
     },
     {
-      "line": 428,
+      "line": 433,
       "column": 27,
-      "stop_line": 428,
+      "stop_line": 433,
       "stop_column": 52,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -5965,9 +5377,9 @@
       "severity": "error"
     },
     {
-      "line": 432,
+      "line": 437,
       "column": 27,
-      "stop_line": 432,
+      "stop_line": 437,
       "stop_column": 43,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -5977,9 +5389,9 @@
       "severity": "error"
     },
     {
-      "line": 441,
+      "line": 446,
       "column": 57,
-      "stop_line": 441,
+      "stop_line": 446,
       "stop_column": 77,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -5989,9 +5401,9 @@
       "severity": "error"
     },
     {
-      "line": 442,
+      "line": 447,
       "column": 47,
-      "stop_line": 442,
+      "stop_line": 447,
       "stop_column": 65,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -6001,9 +5413,9 @@
       "severity": "error"
     },
     {
-      "line": 446,
+      "line": 451,
       "column": 55,
-      "stop_line": 446,
+      "stop_line": 451,
       "stop_column": 73,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -6013,9 +5425,9 @@
       "severity": "error"
     },
     {
-      "line": 448,
+      "line": 453,
       "column": 49,
-      "stop_line": 448,
+      "stop_line": 453,
       "stop_column": 72,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -6025,9 +5437,9 @@
       "severity": "error"
     },
     {
-      "line": 546,
+      "line": 551,
       "column": 32,
-      "stop_line": 546,
+      "stop_line": 551,
       "stop_column": 57,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -6037,9 +5449,9 @@
       "severity": "error"
     },
     {
-      "line": 547,
+      "line": 552,
       "column": 45,
-      "stop_line": 547,
+      "stop_line": 552,
       "stop_column": 70,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -6049,9 +5461,9 @@
       "severity": "error"
     },
     {
-      "line": 566,
+      "line": 571,
       "column": 16,
-      "stop_line": 566,
+      "stop_line": 571,
       "stop_column": 41,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -6061,9 +5473,9 @@
       "severity": "error"
     },
     {
-      "line": 566,
+      "line": 571,
       "column": 16,
-      "stop_line": 566,
+      "stop_line": 571,
       "stop_column": 41,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -6073,9 +5485,9 @@
       "severity": "error"
     },
     {
-      "line": 566,
+      "line": 571,
       "column": 16,
-      "stop_line": 566,
+      "stop_line": 571,
       "stop_column": 41,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -6085,9 +5497,9 @@
       "severity": "error"
     },
     {
-      "line": 568,
+      "line": 573,
       "column": 30,
-      "stop_line": 568,
+      "stop_line": 573,
       "stop_column": 55,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -6097,9 +5509,9 @@
       "severity": "error"
     },
     {
-      "line": 574,
+      "line": 579,
       "column": 13,
-      "stop_line": 574,
+      "stop_line": 579,
       "stop_column": 20,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -6109,9 +5521,9 @@
       "severity": "error"
     },
     {
-      "line": 574,
+      "line": 579,
       "column": 40,
-      "stop_line": 574,
+      "stop_line": 579,
       "stop_column": 54,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -6121,9 +5533,9 @@
       "severity": "error"
     },
     {
-      "line": 574,
+      "line": 579,
       "column": 40,
-      "stop_line": 574,
+      "stop_line": 579,
       "stop_column": 54,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -6133,9 +5545,9 @@
       "severity": "error"
     },
     {
-      "line": 579,
+      "line": 584,
       "column": 21,
-      "stop_line": 579,
+      "stop_line": 584,
       "stop_column": 54,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -6145,9 +5557,9 @@
       "severity": "error"
     },
     {
-      "line": 587,
+      "line": 592,
       "column": 62,
-      "stop_line": 587,
+      "stop_line": 592,
       "stop_column": 69,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -6157,9 +5569,9 @@
       "severity": "error"
     },
     {
-      "line": 588,
+      "line": 593,
       "column": 33,
-      "stop_line": 588,
+      "stop_line": 593,
       "stop_column": 48,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -6169,9 +5581,9 @@
       "severity": "error"
     },
     {
-      "line": 589,
+      "line": 594,
       "column": 54,
-      "stop_line": 589,
+      "stop_line": 594,
       "stop_column": 61,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -6181,9 +5593,9 @@
       "severity": "error"
     },
     {
-      "line": 593,
+      "line": 598,
       "column": 37,
-      "stop_line": 593,
+      "stop_line": 598,
       "stop_column": 62,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -6193,9 +5605,9 @@
       "severity": "error"
     },
     {
-      "line": 595,
+      "line": 600,
       "column": 33,
-      "stop_line": 595,
+      "stop_line": 600,
       "stop_column": 63,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -6205,9 +5617,9 @@
       "severity": "error"
     },
     {
-      "line": 596,
+      "line": 601,
       "column": 55,
-      "stop_line": 596,
+      "stop_line": 601,
       "stop_column": 80,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -6217,9 +5629,9 @@
       "severity": "error"
     },
     {
-      "line": 601,
+      "line": 606,
       "column": 33,
-      "stop_line": 601,
+      "stop_line": 606,
       "stop_column": 41,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -6229,9 +5641,9 @@
       "severity": "error"
     },
     {
-      "line": 604,
+      "line": 609,
       "column": 24,
-      "stop_line": 604,
+      "stop_line": 609,
       "stop_column": 56,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -6241,9 +5653,9 @@
       "severity": "error"
     },
     {
-      "line": 608,
+      "line": 613,
       "column": 17,
-      "stop_line": 608,
+      "stop_line": 613,
       "stop_column": 24,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -6253,9 +5665,9 @@
       "severity": "error"
     },
     {
-      "line": 608,
+      "line": 613,
       "column": 17,
-      "stop_line": 608,
+      "stop_line": 613,
       "stop_column": 24,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -6265,9 +5677,9 @@
       "severity": "error"
     },
     {
-      "line": 610,
+      "line": 615,
       "column": 17,
-      "stop_line": 610,
+      "stop_line": 615,
       "stop_column": 31,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -6277,9 +5689,9 @@
       "severity": "error"
     },
     {
-      "line": 610,
+      "line": 615,
       "column": 17,
-      "stop_line": 610,
+      "stop_line": 615,
       "stop_column": 31,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -6289,9 +5701,9 @@
       "severity": "error"
     },
     {
-      "line": 611,
+      "line": 616,
       "column": 17,
-      "stop_line": 611,
+      "stop_line": 616,
       "stop_column": 41,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -6301,9 +5713,9 @@
       "severity": "error"
     },
     {
-      "line": 614,
+      "line": 619,
       "column": 37,
-      "stop_line": 614,
+      "stop_line": 619,
       "stop_column": 52,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -6313,9 +5725,9 @@
       "severity": "error"
     },
     {
-      "line": 615,
+      "line": 620,
       "column": 78,
-      "stop_line": 615,
+      "stop_line": 620,
       "stop_column": 85,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -6325,9 +5737,9 @@
       "severity": "error"
     },
     {
-      "line": 665,
+      "line": 670,
       "column": 46,
-      "stop_line": 665,
+      "stop_line": 670,
       "stop_column": 51,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -6337,9 +5749,9 @@
       "severity": "error"
     },
     {
-      "line": 666,
+      "line": 671,
       "column": 37,
-      "stop_line": 666,
+      "stop_line": 671,
       "stop_column": 44,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -6349,21 +5761,21 @@
       "severity": "error"
     },
     {
-      "line": 832,
+      "line": 837,
       "column": 40,
-      "stop_line": 834,
+      "stop_line": 839,
       "stop_column": 6,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
       "name": "no-matching-overload",
-      "description": "No matching overload found for function `numpy._core.multiarray.where` called with arguments: (Series[bool], Literal['string_assn'], NAType)\n  Possible overloads:\n    (condition: ArrayLike, x: None = None, y: None = None, /) -> tuple[ndarray[tuple[Any, ...], dtype[signedinteger[_NBitIntP]]], ...]\n    (condition: ArrayLike, x: ArrayLike, y: ArrayLike, /) -> ndarray [closest match]\n  Argument `NAType` is not assignable to parameter `y` with type `Buffer | _NestedSequence[bytes | complex | str] | _NestedSequence[_SupportsArray[dtype]] | _SupportsArray[dtype] | bytes | complex | str` in function `numpy._core.multiarray.where`",
+      "description": "No matching overload found for function `numpy._core.multiarray.where` called with arguments: (Series[bool], Literal['string_assn'], NAType)\n  Possible overloads:\n    (condition: ndarray[tuple[Never, Never, Never, Never]], x: None = None, y: None = None, /) -> tuple[ndarray[tuple[int], dtype[signedinteger[_NBitIntP]]], ...]\n    (condition: _ToArray1D, x: None = None, y: None = None, /) -> tuple[ndarray[tuple[int], dtype[signedinteger[_NBitIntP]]]]\n    (condition: _ToArray2D, x: None = None, y: None = None, /) -> tuple[ndarray[tuple[int], dtype[signedinteger[_NBitIntP]]], ndarray[tuple[int], dtype[signedinteger[_NBitIntP]]]]\n    (condition: _ToArray3D, x: None = None, y: None = None, /) -> tuple[ndarray[tuple[int], dtype[signedinteger[_NBitIntP]]], ndarray[tuple[int], dtype[signedinteger[_NBitIntP]]], ndarray[tuple[int], dtype[signedinteger[_NBitIntP]]]]\n    (condition: _ArrayLike, x: None = None, y: None = None, /) -> tuple[ndarray[tuple[int], dtype[signedinteger[_NBitIntP]]], ...]\n    (condition: ArrayLike, x: ArrayLike, y: ArrayLike, /) -> ndarray [closest match]\n  Argument `NAType` is not assignable to parameter `y` with type `Buffer | _NestedSequence[bytes | complex | str] | _NestedSequence[_SupportsArray[dtype]] | _SupportsArray[dtype] | bytes | complex | str` in function `numpy._core.multiarray.where`",
       "concise_description": "No matching overload found for function `numpy._core.multiarray.where` called with arguments: (Series[bool], Literal['string_assn'], NAType)",
       "severity": "error"
     },
     {
-      "line": 954,
+      "line": 959,
       "column": 44,
-      "stop_line": 960,
+      "stop_line": 965,
       "stop_column": 10,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -6373,9 +5785,9 @@
       "severity": "error"
     },
     {
-      "line": 977,
+      "line": 982,
       "column": 35,
-      "stop_line": 977,
+      "stop_line": 982,
       "stop_column": 82,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -6385,9 +5797,9 @@
       "severity": "error"
     },
     {
-      "line": 1009,
+      "line": 1014,
       "column": 29,
-      "stop_line": 1009,
+      "stop_line": 1014,
       "stop_column": 38,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -6397,9 +5809,9 @@
       "severity": "error"
     },
     {
-      "line": 1010,
+      "line": 1015,
       "column": 29,
-      "stop_line": 1010,
+      "stop_line": 1015,
       "stop_column": 38,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -6409,9 +5821,9 @@
       "severity": "error"
     },
     {
-      "line": 1075,
+      "line": 1080,
       "column": 21,
-      "stop_line": 1075,
+      "stop_line": 1080,
       "stop_column": 49,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -6421,9 +5833,9 @@
       "severity": "error"
     },
     {
-      "line": 1075,
+      "line": 1080,
       "column": 57,
-      "stop_line": 1075,
+      "stop_line": 1080,
       "stop_column": 85,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -6433,9 +5845,9 @@
       "severity": "error"
     },
     {
-      "line": 1076,
+      "line": 1081,
       "column": 13,
-      "stop_line": 1076,
+      "stop_line": 1081,
       "stop_column": 35,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -6445,9 +5857,9 @@
       "severity": "error"
     },
     {
-      "line": 1279,
+      "line": 1284,
       "column": 31,
-      "stop_line": 1279,
+      "stop_line": 1284,
       "stop_column": 61,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -6457,9 +5869,9 @@
       "severity": "error"
     },
     {
-      "line": 1304,
+      "line": 1309,
       "column": 45,
-      "stop_line": 1304,
+      "stop_line": 1309,
       "stop_column": 78,
       "path": "src/pudl/transform/eia.py",
       "code": -2,
@@ -6733,9 +6145,9 @@
       "severity": "error"
     },
     {
-      "line": 527,
+      "line": 529,
       "column": 5,
-      "stop_line": 527,
+      "stop_line": 529,
       "stop_column": 10,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -6745,9 +6157,9 @@
       "severity": "error"
     },
     {
-      "line": 774,
+      "line": 812,
       "column": 12,
-      "stop_line": 774,
+      "stop_line": 812,
       "stop_column": 44,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -6757,9 +6169,9 @@
       "severity": "error"
     },
     {
-      "line": 1398,
+      "line": 1436,
       "column": 9,
-      "stop_line": 1398,
+      "stop_line": 1436,
       "stop_column": 24,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -6769,9 +6181,9 @@
       "severity": "error"
     },
     {
-      "line": 1608,
+      "line": 1646,
       "column": 21,
-      "stop_line": 1608,
+      "stop_line": 1646,
       "stop_column": 55,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -6781,9 +6193,9 @@
       "severity": "error"
     },
     {
-      "line": 1608,
+      "line": 1646,
       "column": 30,
-      "stop_line": 1608,
+      "stop_line": 1646,
       "stop_column": 54,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -6793,9 +6205,9 @@
       "severity": "error"
     },
     {
-      "line": 1609,
+      "line": 1647,
       "column": 21,
-      "stop_line": 1609,
+      "stop_line": 1647,
       "stop_column": 55,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -6805,9 +6217,9 @@
       "severity": "error"
     },
     {
-      "line": 1609,
+      "line": 1647,
       "column": 30,
-      "stop_line": 1609,
+      "stop_line": 1647,
       "stop_column": 54,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -6817,9 +6229,9 @@
       "severity": "error"
     },
     {
-      "line": 1610,
+      "line": 1648,
       "column": 22,
-      "stop_line": 1610,
+      "stop_line": 1648,
       "stop_column": 35,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -6829,9 +6241,9 @@
       "severity": "error"
     },
     {
-      "line": 1629,
+      "line": 1667,
       "column": 51,
-      "stop_line": 1629,
+      "stop_line": 1667,
       "stop_column": 77,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -6841,9 +6253,9 @@
       "severity": "error"
     },
     {
-      "line": 1630,
+      "line": 1668,
       "column": 51,
-      "stop_line": 1630,
+      "stop_line": 1668,
       "stop_column": 75,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -6853,9 +6265,9 @@
       "severity": "error"
     },
     {
-      "line": 1635,
+      "line": 1673,
       "column": 9,
-      "stop_line": 1636,
+      "stop_line": 1674,
       "stop_column": 18,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -6865,9 +6277,9 @@
       "severity": "error"
     },
     {
-      "line": 1852,
+      "line": 1890,
       "column": 17,
-      "stop_line": 1852,
+      "stop_line": 1890,
       "stop_column": 29,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -6877,9 +6289,9 @@
       "severity": "error"
     },
     {
-      "line": 1858,
+      "line": 1896,
       "column": 17,
-      "stop_line": 1858,
+      "stop_line": 1896,
       "stop_column": 29,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -6889,9 +6301,9 @@
       "severity": "error"
     },
     {
-      "line": 1945,
+      "line": 1983,
       "column": 22,
-      "stop_line": 1945,
+      "stop_line": 1983,
       "stop_column": 29,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -6901,9 +6313,9 @@
       "severity": "error"
     },
     {
-      "line": 1945,
+      "line": 1983,
       "column": 50,
-      "stop_line": 1945,
+      "stop_line": 1983,
       "stop_column": 58,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -6913,9 +6325,9 @@
       "severity": "error"
     },
     {
-      "line": 1954,
+      "line": 1992,
       "column": 9,
-      "stop_line": 1954,
+      "stop_line": 1992,
       "stop_column": 21,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -6925,9 +6337,9 @@
       "severity": "error"
     },
     {
-      "line": 1955,
+      "line": 1993,
       "column": 13,
-      "stop_line": 1955,
+      "stop_line": 1993,
       "stop_column": 25,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -6937,9 +6349,9 @@
       "severity": "error"
     },
     {
-      "line": 1960,
+      "line": 1998,
       "column": 26,
-      "stop_line": 1960,
+      "stop_line": 1998,
       "stop_column": 33,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -6949,9 +6361,9 @@
       "severity": "error"
     },
     {
-      "line": 2012,
+      "line": 2050,
       "column": 22,
-      "stop_line": 2012,
+      "stop_line": 2050,
       "stop_column": 36,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -6961,9 +6373,9 @@
       "severity": "error"
     },
     {
-      "line": 2059,
+      "line": 2097,
       "column": 22,
-      "stop_line": 2059,
+      "stop_line": 2097,
       "stop_column": 29,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -6973,9 +6385,9 @@
       "severity": "error"
     },
     {
-      "line": 2059,
+      "line": 2097,
       "column": 48,
-      "stop_line": 2059,
+      "stop_line": 2097,
       "stop_column": 56,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -6985,9 +6397,9 @@
       "severity": "error"
     },
     {
-      "line": 2066,
+      "line": 2104,
       "column": 22,
-      "stop_line": 2066,
+      "stop_line": 2104,
       "stop_column": 36,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -6997,9 +6409,9 @@
       "severity": "error"
     },
     {
-      "line": 2151,
+      "line": 2189,
       "column": 9,
-      "stop_line": 2151,
+      "stop_line": 2189,
       "stop_column": 31,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -7009,9 +6421,9 @@
       "severity": "error"
     },
     {
-      "line": 2153,
+      "line": 2191,
       "column": 18,
-      "stop_line": 2153,
+      "stop_line": 2191,
       "stop_column": 26,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -7021,9 +6433,9 @@
       "severity": "error"
     },
     {
-      "line": 2161,
+      "line": 2199,
       "column": 9,
-      "stop_line": 2161,
+      "stop_line": 2199,
       "stop_column": 36,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -7033,9 +6445,9 @@
       "severity": "error"
     },
     {
-      "line": 2163,
+      "line": 2201,
       "column": 16,
-      "stop_line": 2163,
+      "stop_line": 2201,
       "stop_column": 24,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -7045,9 +6457,9 @@
       "severity": "error"
     },
     {
-      "line": 2170,
+      "line": 2208,
       "column": 17,
-      "stop_line": 2170,
+      "stop_line": 2208,
       "stop_column": 44,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -7057,9 +6469,9 @@
       "severity": "error"
     },
     {
-      "line": 2257,
+      "line": 2295,
       "column": 9,
-      "stop_line": 2257,
+      "stop_line": 2295,
       "stop_column": 32,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -7069,9 +6481,9 @@
       "severity": "error"
     },
     {
-      "line": 2259,
+      "line": 2297,
       "column": 18,
-      "stop_line": 2259,
+      "stop_line": 2297,
       "stop_column": 26,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -7081,9 +6493,9 @@
       "severity": "error"
     },
     {
-      "line": 2268,
+      "line": 2306,
       "column": 9,
-      "stop_line": 2268,
+      "stop_line": 2306,
       "stop_column": 37,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -7093,9 +6505,9 @@
       "severity": "error"
     },
     {
-      "line": 2270,
+      "line": 2308,
       "column": 16,
-      "stop_line": 2270,
+      "stop_line": 2308,
       "stop_column": 24,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -7105,9 +6517,9 @@
       "severity": "error"
     },
     {
-      "line": 2274,
+      "line": 2312,
       "column": 36,
-      "stop_line": 2274,
+      "stop_line": 2312,
       "stop_column": 69,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -7117,9 +6529,9 @@
       "severity": "error"
     },
     {
-      "line": 2351,
+      "line": 2389,
       "column": 54,
-      "stop_line": 2351,
+      "stop_line": 2389,
       "stop_column": 70,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -7129,9 +6541,9 @@
       "severity": "error"
     },
     {
-      "line": 2372,
+      "line": 2410,
       "column": 26,
-      "stop_line": 2372,
+      "stop_line": 2410,
       "stop_column": 44,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -7141,9 +6553,9 @@
       "severity": "error"
     },
     {
-      "line": 2436,
+      "line": 2474,
       "column": 9,
-      "stop_line": 2436,
+      "stop_line": 2474,
       "stop_column": 22,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -7153,9 +6565,9 @@
       "severity": "error"
     },
     {
-      "line": 2495,
+      "line": 2533,
       "column": 43,
-      "stop_line": 2495,
+      "stop_line": 2533,
       "stop_column": 73,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -7165,9 +6577,9 @@
       "severity": "error"
     },
     {
-      "line": 2499,
+      "line": 2537,
       "column": 42,
-      "stop_line": 2499,
+      "stop_line": 2537,
       "stop_column": 64,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -7177,9 +6589,9 @@
       "severity": "error"
     },
     {
-      "line": 2504,
+      "line": 2542,
       "column": 12,
-      "stop_line": 2504,
+      "stop_line": 2542,
       "stop_column": 46,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -7189,9 +6601,9 @@
       "severity": "error"
     },
     {
-      "line": 2504,
+      "line": 2542,
       "column": 51,
-      "stop_line": 2504,
+      "stop_line": 2542,
       "stop_column": 77,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -7201,9 +6613,9 @@
       "severity": "error"
     },
     {
-      "line": 2542,
+      "line": 2580,
       "column": 27,
-      "stop_line": 2542,
+      "stop_line": 2580,
       "stop_column": 46,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -7213,9 +6625,9 @@
       "severity": "error"
     },
     {
-      "line": 2555,
+      "line": 2593,
       "column": 26,
-      "stop_line": 2555,
+      "stop_line": 2593,
       "stop_column": 44,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -7225,9 +6637,9 @@
       "severity": "error"
     },
     {
-      "line": 2641,
+      "line": 2679,
       "column": 13,
-      "stop_line": 2641,
+      "stop_line": 2679,
       "stop_column": 36,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -7237,9 +6649,9 @@
       "severity": "error"
     },
     {
-      "line": 2714,
+      "line": 2752,
       "column": 18,
-      "stop_line": 2714,
+      "stop_line": 2752,
       "stop_column": 26,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -7249,9 +6661,9 @@
       "severity": "error"
     },
     {
-      "line": 2715,
+      "line": 2753,
       "column": 17,
-      "stop_line": 2715,
+      "stop_line": 2753,
       "stop_column": 25,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -7261,9 +6673,9 @@
       "severity": "error"
     },
     {
-      "line": 2720,
+      "line": 2758,
       "column": 13,
-      "stop_line": 2720,
+      "stop_line": 2758,
       "stop_column": 28,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -7273,9 +6685,9 @@
       "severity": "error"
     },
     {
-      "line": 2736,
+      "line": 2774,
       "column": 13,
-      "stop_line": 2736,
+      "stop_line": 2774,
       "stop_column": 28,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
@@ -7489,57 +6901,9 @@
       "severity": "error"
     },
     {
-      "line": 147,
-      "column": 54,
-      "stop_line": 147,
-      "stop_column": 75,
-      "path": "src/pudl/transform/ferc1.py",
-      "code": -2,
-      "name": "bad-specialization",
-      "description": "Expected 2 type arguments for `dict`, got 1",
-      "concise_description": "Expected 2 type arguments for `dict`, got 1",
-      "severity": "error"
-    },
-    {
-      "line": 147,
-      "column": 59,
-      "stop_line": 147,
-      "stop_column": 74,
-      "path": "src/pudl/transform/ferc1.py",
-      "code": -2,
-      "name": "not-a-type",
-      "description": "Expected a type form, got instance of `slice[type[str], type[list[str]], None]`",
-      "concise_description": "Expected a type form, got instance of `slice[type[str], type[list[str]], None]`",
-      "severity": "error"
-    },
-    {
-      "line": 158,
-      "column": 45,
-      "stop_line": 158,
-      "stop_column": 67,
-      "path": "src/pudl/transform/ferc1.py",
-      "code": -2,
-      "name": "missing-attribute",
-      "description": "Object of class `str` has no attribute `items`",
-      "concise_description": "Object of class `str` has no attribute `items`",
-      "severity": "error"
-    },
-    {
-      "line": 178,
-      "column": 45,
-      "stop_line": 178,
-      "stop_column": 61,
-      "path": "src/pudl/transform/ferc1.py",
-      "code": -2,
-      "name": "bad-argument-type",
-      "description": "Argument `dict[Unknown, Unknown]` is not assignable to parameter `tables_to_fields` with type `str` in function `label_source_tables`",
-      "concise_description": "Argument `dict[Unknown, Unknown]` is not assignable to parameter `tables_to_fields` with type `str` in function `label_source_tables`",
-      "severity": "error"
-    },
-    {
-      "line": 367,
+      "line": 369,
       "column": 24,
-      "stop_line": 367,
+      "stop_line": 369,
       "stop_column": 44,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7549,9 +6913,9 @@
       "severity": "error"
     },
     {
-      "line": 386,
+      "line": 388,
       "column": 9,
-      "stop_line": 387,
+      "stop_line": 389,
       "stop_column": 36,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7561,9 +6925,9 @@
       "severity": "error"
     },
     {
-      "line": 454,
+      "line": 456,
       "column": 9,
-      "stop_line": 454,
+      "stop_line": 456,
       "stop_column": 32,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7573,9 +6937,9 @@
       "severity": "error"
     },
     {
-      "line": 778,
+      "line": 780,
       "column": 12,
-      "stop_line": 778,
+      "stop_line": 780,
       "stop_column": 48,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7585,9 +6949,9 @@
       "severity": "error"
     },
     {
-      "line": 784,
+      "line": 786,
       "column": 8,
-      "stop_line": 784,
+      "stop_line": 786,
       "stop_column": 66,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7597,9 +6961,9 @@
       "severity": "error"
     },
     {
-      "line": 784,
+      "line": 786,
       "column": 50,
-      "stop_line": 784,
+      "stop_line": 786,
       "stop_column": 54,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7609,9 +6973,9 @@
       "severity": "error"
     },
     {
-      "line": 790,
+      "line": 792,
       "column": 5,
-      "stop_line": 790,
+      "stop_line": 792,
       "stop_column": 36,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7621,9 +6985,9 @@
       "severity": "error"
     },
     {
-      "line": 791,
+      "line": 793,
       "column": 16,
-      "stop_line": 791,
+      "stop_line": 793,
       "stop_column": 46,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7633,9 +6997,9 @@
       "severity": "error"
     },
     {
-      "line": 792,
+      "line": 794,
       "column": 9,
-      "stop_line": 792,
+      "stop_line": 794,
       "stop_column": 40,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7645,9 +7009,9 @@
       "severity": "error"
     },
     {
-      "line": 968,
+      "line": 970,
       "column": 43,
-      "stop_line": 968,
+      "stop_line": 970,
       "stop_column": 66,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7657,9 +7021,9 @@
       "severity": "error"
     },
     {
-      "line": 1172,
+      "line": 1174,
       "column": 9,
-      "stop_line": 1172,
+      "stop_line": 1174,
       "stop_column": 70,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7669,9 +7033,9 @@
       "severity": "error"
     },
     {
-      "line": 1528,
+      "line": 1530,
       "column": 71,
-      "stop_line": 1530,
+      "stop_line": 1532,
       "stop_column": 10,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7681,9 +7045,9 @@
       "severity": "error"
     },
     {
-      "line": 1578,
+      "line": 1580,
       "column": 16,
-      "stop_line": 1578,
+      "stop_line": 1580,
       "stop_column": 19,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7693,9 +7057,9 @@
       "severity": "error"
     },
     {
-      "line": 1590,
+      "line": 1592,
       "column": 16,
-      "stop_line": 1590,
+      "stop_line": 1592,
       "stop_column": 24,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7705,9 +7069,9 @@
       "severity": "error"
     },
     {
-      "line": 1613,
+      "line": 1615,
       "column": 19,
-      "stop_line": 1613,
+      "stop_line": 1615,
       "stop_column": 54,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7717,9 +7081,9 @@
       "severity": "error"
     },
     {
-      "line": 1623,
+      "line": 1625,
       "column": 20,
-      "stop_line": 1623,
+      "stop_line": 1625,
       "stop_column": 26,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7729,9 +7093,9 @@
       "severity": "error"
     },
     {
-      "line": 1677,
+      "line": 1679,
       "column": 19,
-      "stop_line": 1677,
+      "stop_line": 1679,
       "stop_column": 24,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7741,9 +7105,9 @@
       "severity": "error"
     },
     {
-      "line": 1733,
+      "line": 1735,
       "column": 16,
-      "stop_line": 1733,
+      "stop_line": 1735,
       "stop_column": 43,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7753,9 +7117,9 @@
       "severity": "error"
     },
     {
-      "line": 1748,
+      "line": 1750,
       "column": 16,
-      "stop_line": 1748,
+      "stop_line": 1750,
       "stop_column": 58,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7765,51 +7129,27 @@
       "severity": "error"
     },
     {
-      "line": 1775,
+      "line": 1777,
       "column": 10,
-      "stop_line": 1775,
+      "stop_line": 1777,
       "stop_column": 31,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
       "name": "missing-attribute",
       "description": "Object of class `Properties` has no attribute `year`",
       "concise_description": "Object of class `Properties` has no attribute `year`",
-      "severity": "error"
-    },
-    {
-      "line": 1776,
-      "column": 12,
-      "stop_line": 1776,
-      "stop_column": 34,
-      "path": "src/pudl/transform/ferc1.py",
-      "code": -2,
-      "name": "missing-attribute",
-      "description": "Object of class `Properties` has no attribute `month`",
-      "concise_description": "Object of class `Properties` has no attribute `month`",
-      "severity": "error"
-    },
-    {
-      "line": 1777,
-      "column": 12,
-      "stop_line": 1777,
-      "stop_column": 32,
-      "path": "src/pudl/transform/ferc1.py",
-      "code": -2,
-      "name": "missing-attribute",
-      "description": "Object of class `Properties` has no attribute `day`",
-      "concise_description": "Object of class `Properties` has no attribute `day`",
       "severity": "error"
     },
     {
       "line": 1778,
       "column": 12,
       "stop_line": 1778,
-      "stop_column": 31,
+      "stop_column": 34,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
       "name": "missing-attribute",
-      "description": "Object of class `Properties` has no attribute `year`",
-      "concise_description": "Object of class `Properties` has no attribute `year`",
+      "description": "Object of class `Properties` has no attribute `month`",
+      "concise_description": "Object of class `Properties` has no attribute `month`",
       "severity": "error"
     },
     {
@@ -7820,14 +7160,38 @@
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
       "name": "missing-attribute",
-      "description": "Object of class `Properties` has no attribute `month`",
-      "concise_description": "Object of class `Properties` has no attribute `month`",
+      "description": "Object of class `Properties` has no attribute `day`",
+      "concise_description": "Object of class `Properties` has no attribute `day`",
       "severity": "error"
     },
     {
       "line": 1780,
       "column": 12,
       "stop_line": 1780,
+      "stop_column": 31,
+      "path": "src/pudl/transform/ferc1.py",
+      "code": -2,
+      "name": "missing-attribute",
+      "description": "Object of class `Properties` has no attribute `year`",
+      "concise_description": "Object of class `Properties` has no attribute `year`",
+      "severity": "error"
+    },
+    {
+      "line": 1781,
+      "column": 12,
+      "stop_line": 1781,
+      "stop_column": 32,
+      "path": "src/pudl/transform/ferc1.py",
+      "code": -2,
+      "name": "missing-attribute",
+      "description": "Object of class `Properties` has no attribute `month`",
+      "concise_description": "Object of class `Properties` has no attribute `month`",
+      "severity": "error"
+    },
+    {
+      "line": 1782,
+      "column": 12,
+      "stop_line": 1782,
       "stop_column": 30,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7837,9 +7201,9 @@
       "severity": "error"
     },
     {
-      "line": 1825,
+      "line": 1827,
       "column": 13,
-      "stop_line": 1825,
+      "stop_line": 1827,
       "stop_column": 85,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7849,9 +7213,9 @@
       "severity": "error"
     },
     {
-      "line": 1848,
+      "line": 1850,
       "column": 26,
-      "stop_line": 1858,
+      "stop_line": 1860,
       "stop_column": 6,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7861,9 +7225,9 @@
       "severity": "error"
     },
     {
-      "line": 1931,
+      "line": 1933,
       "column": 9,
-      "stop_line": 1931,
+      "stop_line": 1933,
       "stop_column": 74,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7873,9 +7237,9 @@
       "severity": "error"
     },
     {
-      "line": 2010,
+      "line": 2012,
       "column": 5,
-      "stop_line": 2010,
+      "stop_line": 2012,
       "stop_column": 13,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7885,9 +7249,9 @@
       "severity": "error"
     },
     {
-      "line": 2012,
+      "line": 2014,
       "column": 5,
-      "stop_line": 2012,
+      "stop_line": 2014,
       "stop_column": 11,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7897,9 +7261,9 @@
       "severity": "error"
     },
     {
-      "line": 2055,
+      "line": 2057,
       "column": 34,
-      "stop_line": 2055,
+      "stop_line": 2057,
       "stop_column": 60,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7909,9 +7273,9 @@
       "severity": "error"
     },
     {
-      "line": 2060,
+      "line": 2062,
       "column": 9,
-      "stop_line": 2060,
+      "stop_line": 2062,
       "stop_column": 24,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7921,9 +7285,9 @@
       "severity": "error"
     },
     {
-      "line": 2070,
+      "line": 2072,
       "column": 25,
-      "stop_line": 2070,
+      "stop_line": 2072,
       "stop_column": 41,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7933,9 +7297,9 @@
       "severity": "error"
     },
     {
-      "line": 2071,
+      "line": 2073,
       "column": 26,
-      "stop_line": 2071,
+      "stop_line": 2073,
       "stop_column": 43,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7945,9 +7309,9 @@
       "severity": "error"
     },
     {
-      "line": 2079,
+      "line": 2081,
       "column": 9,
-      "stop_line": 2079,
+      "stop_line": 2081,
       "stop_column": 23,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7957,9 +7321,9 @@
       "severity": "error"
     },
     {
-      "line": 2099,
+      "line": 2101,
       "column": 18,
-      "stop_line": 2099,
+      "stop_line": 2101,
       "stop_column": 44,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7969,9 +7333,9 @@
       "severity": "error"
     },
     {
-      "line": 2105,
+      "line": 2107,
       "column": 9,
-      "stop_line": 2105,
+      "stop_line": 2107,
       "stop_column": 22,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7981,9 +7345,9 @@
       "severity": "error"
     },
     {
-      "line": 2494,
+      "line": 2496,
       "column": 32,
-      "stop_line": 2494,
+      "stop_line": 2496,
       "stop_column": 37,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -7993,9 +7357,9 @@
       "severity": "error"
     },
     {
-      "line": 2494,
+      "line": 2496,
       "column": 52,
-      "stop_line": 2494,
+      "stop_line": 2496,
       "stop_column": 57,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8005,9 +7369,9 @@
       "severity": "error"
     },
     {
-      "line": 2548,
+      "line": 2550,
       "column": 44,
-      "stop_line": 2548,
+      "stop_line": 2550,
       "stop_column": 65,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8017,9 +7381,9 @@
       "severity": "error"
     },
     {
-      "line": 2704,
+      "line": 2706,
       "column": 32,
-      "stop_line": 2704,
+      "stop_line": 2706,
       "stop_column": 47,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8029,9 +7393,9 @@
       "severity": "error"
     },
     {
-      "line": 2726,
+      "line": 2728,
       "column": 16,
-      "stop_line": 2726,
+      "stop_line": 2728,
       "stop_column": 51,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8041,9 +7405,9 @@
       "severity": "error"
     },
     {
-      "line": 2734,
+      "line": 2736,
       "column": 18,
-      "stop_line": 2734,
+      "stop_line": 2736,
       "stop_column": 47,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8053,9 +7417,9 @@
       "severity": "error"
     },
     {
-      "line": 2755,
+      "line": 2757,
       "column": 13,
-      "stop_line": 2755,
+      "stop_line": 2757,
       "stop_column": 56,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8065,9 +7429,9 @@
       "severity": "error"
     },
     {
-      "line": 2765,
+      "line": 2767,
       "column": 9,
-      "stop_line": 2765,
+      "stop_line": 2767,
       "stop_column": 23,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8077,9 +7441,9 @@
       "severity": "error"
     },
     {
-      "line": 2781,
+      "line": 2783,
       "column": 72,
-      "stop_line": 2781,
+      "stop_line": 2783,
       "stop_column": 84,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8089,9 +7453,9 @@
       "severity": "error"
     },
     {
-      "line": 2919,
+      "line": 2921,
       "column": 81,
-      "stop_line": 2921,
+      "stop_line": 2923,
       "stop_column": 10,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8101,9 +7465,9 @@
       "severity": "error"
     },
     {
-      "line": 2922,
+      "line": 2924,
       "column": 83,
-      "stop_line": 2924,
+      "stop_line": 2926,
       "stop_column": 10,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8113,9 +7477,9 @@
       "severity": "error"
     },
     {
-      "line": 3010,
+      "line": 3012,
       "column": 51,
-      "stop_line": 3010,
+      "stop_line": 3012,
       "stop_column": 65,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8125,9 +7489,9 @@
       "severity": "error"
     },
     {
-      "line": 3025,
+      "line": 3027,
       "column": 55,
-      "stop_line": 3025,
+      "stop_line": 3027,
       "stop_column": 70,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8137,9 +7501,9 @@
       "severity": "error"
     },
     {
-      "line": 3237,
+      "line": 3239,
       "column": 32,
-      "stop_line": 3237,
+      "stop_line": 3239,
       "stop_column": 47,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8149,9 +7513,9 @@
       "severity": "error"
     },
     {
-      "line": 3289,
+      "line": 3291,
       "column": 16,
-      "stop_line": 3289,
+      "stop_line": 3291,
       "stop_column": 51,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8161,9 +7525,9 @@
       "severity": "error"
     },
     {
-      "line": 3332,
+      "line": 3334,
       "column": 9,
-      "stop_line": 3332,
+      "stop_line": 3334,
       "stop_column": 23,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8173,9 +7537,9 @@
       "severity": "error"
     },
     {
-      "line": 3339,
+      "line": 3341,
       "column": 13,
-      "stop_line": 3340,
+      "stop_line": 3342,
       "stop_column": 28,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8185,9 +7549,9 @@
       "severity": "error"
     },
     {
-      "line": 3509,
+      "line": 3511,
       "column": 13,
-      "stop_line": 3510,
+      "stop_line": 3512,
       "stop_column": 25,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8197,9 +7561,9 @@
       "severity": "error"
     },
     {
-      "line": 3541,
+      "line": 3543,
       "column": 13,
-      "stop_line": 3541,
+      "stop_line": 3543,
       "stop_column": 56,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8209,33 +7573,9 @@
       "severity": "error"
     },
     {
-      "line": 3759,
+      "line": 3784,
       "column": 9,
-      "stop_line": 3759,
-      "stop_column": 26,
-      "path": "src/pudl/transform/ferc1.py",
-      "code": -2,
-      "name": "bad-override",
-      "description": "Class member `SteamPlantsFuelTableTransformer.drop_invalid_rows` overrides parent class `Ferc1AbstractTableTransformer` in an inconsistent manner\n  `SteamPlantsFuelTableTransformer.drop_invalid_rows` has type `(self: SteamPlantsFuelTableTransformer, df: DataFrame, params: InvalidRows | None = None) -> DataFrame`, which is not assignable to `(self: SteamPlantsFuelTableTransformer, df: DataFrame, params: list[InvalidRows] | None = None) -> DataFrame`, the type of `Ferc1AbstractTableTransformer.drop_invalid_rows`\n  Signature mismatch:\n  expected: def drop_invalid_rows(self: SteamPlantsFuelTableTransformer, df: DataFrame, params: list[InvalidRows] | None = None) -> Dat...\n                                                                                                ^^^^^^^^^^^^^^^^^ parameters\n  found:    def drop_invalid_rows(self: SteamPlantsFuelTableTransformer, df: DataFrame, params: InvalidRows | None = None) -> DataFrame...\n                                                                                                ^^^^^^^^^^^ parameters",
-      "concise_description": "Class member `SteamPlantsFuelTableTransformer.drop_invalid_rows` overrides parent class `Ferc1AbstractTableTransformer` in an inconsistent manner",
-      "severity": "error"
-    },
-    {
-      "line": 3768,
-      "column": 46,
-      "stop_line": 3768,
-      "stop_column": 52,
-      "path": "src/pudl/transform/ferc1.py",
-      "code": -2,
-      "name": "bad-argument-type",
-      "description": "Argument `InvalidRows | None` is not assignable to parameter `params` with type `list[InvalidRows] | None` in function `pudl.transform.classes.AbstractTableTransformer.drop_invalid_rows`",
-      "concise_description": "Argument `InvalidRows | None` is not assignable to parameter `params` with type `list[InvalidRows] | None` in function `pudl.transform.classes.AbstractTableTransformer.drop_invalid_rows`",
-      "severity": "error"
-    },
-    {
-      "line": 3782,
-      "column": 9,
-      "stop_line": 3782,
+      "stop_line": 3784,
       "stop_column": 23,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8245,9 +7585,9 @@
       "severity": "error"
     },
     {
-      "line": 3784,
+      "line": 3786,
       "column": 14,
-      "stop_line": 3784,
+      "stop_line": 3786,
       "stop_column": 36,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8257,9 +7597,9 @@
       "severity": "error"
     },
     {
-      "line": 3869,
+      "line": 3871,
       "column": 20,
-      "stop_line": 3869,
+      "stop_line": 3871,
       "stop_column": 49,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8269,9 +7609,9 @@
       "severity": "error"
     },
     {
-      "line": 4010,
+      "line": 4012,
       "column": 16,
-      "stop_line": 4010,
+      "stop_line": 4012,
       "stop_column": 35,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8281,9 +7621,9 @@
       "severity": "error"
     },
     {
-      "line": 4020,
+      "line": 4022,
       "column": 14,
-      "stop_line": 4020,
+      "stop_line": 4022,
       "stop_column": 36,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8293,9 +7633,9 @@
       "severity": "error"
     },
     {
-      "line": 4290,
+      "line": 4292,
       "column": 24,
-      "stop_line": 4290,
+      "stop_line": 4292,
       "stop_column": 37,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8305,9 +7645,9 @@
       "severity": "error"
     },
     {
-      "line": 4498,
+      "line": 4500,
       "column": 33,
-      "stop_line": 4498,
+      "stop_line": 4500,
       "stop_column": 75,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8317,9 +7657,9 @@
       "severity": "error"
     },
     {
-      "line": 4994,
+      "line": 4996,
       "column": 9,
-      "stop_line": 4994,
+      "stop_line": 4996,
       "stop_column": 23,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8329,9 +7669,9 @@
       "severity": "error"
     },
     {
-      "line": 4997,
+      "line": 4999,
       "column": 16,
-      "stop_line": 4997,
+      "stop_line": 4999,
       "stop_column": 38,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8341,9 +7681,9 @@
       "severity": "error"
     },
     {
-      "line": 5052,
+      "line": 5054,
       "column": 9,
-      "stop_line": 5052,
+      "stop_line": 5054,
       "stop_column": 21,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8353,9 +7693,9 @@
       "severity": "error"
     },
     {
-      "line": 5060,
+      "line": 5062,
       "column": 16,
-      "stop_line": 5060,
+      "stop_line": 5062,
       "stop_column": 36,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8365,9 +7705,9 @@
       "severity": "error"
     },
     {
-      "line": 5103,
+      "line": 5105,
       "column": 9,
-      "stop_line": 5103,
+      "stop_line": 5105,
       "stop_column": 23,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8377,9 +7717,9 @@
       "severity": "error"
     },
     {
-      "line": 5109,
+      "line": 5111,
       "column": 18,
-      "stop_line": 5109,
+      "stop_line": 5111,
       "stop_column": 42,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8389,9 +7729,9 @@
       "severity": "error"
     },
     {
-      "line": 5323,
+      "line": 5325,
       "column": 14,
-      "stop_line": 5323,
+      "stop_line": 5325,
       "stop_column": 36,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8401,9 +7741,9 @@
       "severity": "error"
     },
     {
-      "line": 5400,
+      "line": 5402,
       "column": 14,
-      "stop_line": 5400,
+      "stop_line": 5402,
       "stop_column": 36,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8413,9 +7753,9 @@
       "severity": "error"
     },
     {
-      "line": 5490,
+      "line": 5492,
       "column": 9,
-      "stop_line": 5490,
+      "stop_line": 5492,
       "stop_column": 20,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8425,9 +7765,9 @@
       "severity": "error"
     },
     {
-      "line": 5521,
+      "line": 5523,
       "column": 19,
-      "stop_line": 5521,
+      "stop_line": 5523,
       "stop_column": 38,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8437,9 +7777,9 @@
       "severity": "error"
     },
     {
-      "line": 5524,
+      "line": 5526,
       "column": 9,
-      "stop_line": 5524,
+      "stop_line": 5526,
       "stop_column": 23,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8449,9 +7789,9 @@
       "severity": "error"
     },
     {
-      "line": 5532,
+      "line": 5534,
       "column": 14,
-      "stop_line": 5532,
+      "stop_line": 5534,
       "stop_column": 36,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8461,9 +7801,9 @@
       "severity": "error"
     },
     {
-      "line": 5610,
+      "line": 5612,
       "column": 9,
-      "stop_line": 5610,
+      "stop_line": 5612,
       "stop_column": 20,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8473,9 +7813,9 @@
       "severity": "error"
     },
     {
-      "line": 5619,
+      "line": 5621,
       "column": 13,
-      "stop_line": 5620,
+      "stop_line": 5622,
       "stop_column": 25,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8485,9 +7825,9 @@
       "severity": "error"
     },
     {
-      "line": 5635,
+      "line": 5637,
       "column": 14,
-      "stop_line": 5635,
+      "stop_line": 5637,
       "stop_column": 36,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8497,9 +7837,9 @@
       "severity": "error"
     },
     {
-      "line": 5638,
+      "line": 5640,
       "column": 9,
-      "stop_line": 5638,
+      "stop_line": 5640,
       "stop_column": 22,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8509,9 +7849,9 @@
       "severity": "error"
     },
     {
-      "line": 5640,
+      "line": 5642,
       "column": 16,
-      "stop_line": 5640,
+      "stop_line": 5642,
       "stop_column": 37,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8521,9 +7861,9 @@
       "severity": "error"
     },
     {
-      "line": 5825,
+      "line": 5827,
       "column": 20,
-      "stop_line": 5825,
+      "stop_line": 5827,
       "stop_column": 25,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8533,9 +7873,9 @@
       "severity": "error"
     },
     {
-      "line": 5870,
+      "line": 5872,
       "column": 35,
-      "stop_line": 5870,
+      "stop_line": 5872,
       "stop_column": 83,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8545,9 +7885,9 @@
       "severity": "error"
     },
     {
-      "line": 5933,
+      "line": 5935,
       "column": 16,
-      "stop_line": 5933,
+      "stop_line": 5935,
       "stop_column": 45,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8557,9 +7897,9 @@
       "severity": "error"
     },
     {
-      "line": 6003,
+      "line": 6005,
       "column": 9,
-      "stop_line": 6003,
+      "stop_line": 6005,
       "stop_column": 23,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8569,9 +7909,9 @@
       "severity": "error"
     },
     {
-      "line": 6006,
+      "line": 6008,
       "column": 13,
-      "stop_line": 6007,
+      "stop_line": 6009,
       "stop_column": 28,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8581,9 +7921,9 @@
       "severity": "error"
     },
     {
-      "line": 6061,
+      "line": 6063,
       "column": 14,
-      "stop_line": 6061,
+      "stop_line": 6063,
       "stop_column": 33,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8593,9 +7933,9 @@
       "severity": "error"
     },
     {
-      "line": 6076,
+      "line": 6078,
       "column": 72,
-      "stop_line": 6078,
+      "stop_line": 6080,
       "stop_column": 10,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8605,9 +7945,9 @@
       "severity": "error"
     },
     {
-      "line": 6136,
+      "line": 6138,
       "column": 16,
-      "stop_line": 6136,
+      "stop_line": 6138,
       "stop_column": 35,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8617,9 +7957,9 @@
       "severity": "error"
     },
     {
-      "line": 6148,
+      "line": 6150,
       "column": 72,
-      "stop_line": 6150,
+      "stop_line": 6152,
       "stop_column": 10,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8629,9 +7969,9 @@
       "severity": "error"
     },
     {
-      "line": 6165,
+      "line": 6167,
       "column": 74,
-      "stop_line": 6167,
+      "stop_line": 6169,
       "stop_column": 10,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8641,9 +7981,9 @@
       "severity": "error"
     },
     {
-      "line": 6184,
+      "line": 6186,
       "column": 9,
-      "stop_line": 6184,
+      "stop_line": 6186,
       "stop_column": 22,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8653,9 +7993,9 @@
       "severity": "error"
     },
     {
-      "line": 6219,
+      "line": 6221,
       "column": 14,
-      "stop_line": 6219,
+      "stop_line": 6221,
       "stop_column": 35,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8665,9 +8005,9 @@
       "severity": "error"
     },
     {
-      "line": 6324,
+      "line": 6326,
       "column": 16,
-      "stop_line": 6324,
+      "stop_line": 6326,
       "stop_column": 35,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8677,9 +8017,9 @@
       "severity": "error"
     },
     {
-      "line": 6384,
+      "line": 6386,
       "column": 16,
-      "stop_line": 6384,
+      "stop_line": 6386,
       "stop_column": 38,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8689,9 +8029,9 @@
       "severity": "error"
     },
     {
-      "line": 6413,
+      "line": 6415,
       "column": 72,
-      "stop_line": 6415,
+      "stop_line": 6417,
       "stop_column": 10,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8701,9 +8041,9 @@
       "severity": "error"
     },
     {
-      "line": 6422,
+      "line": 6424,
       "column": 13,
-      "stop_line": 6423,
+      "stop_line": 6425,
       "stop_column": 28,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8713,9 +8053,9 @@
       "severity": "error"
     },
     {
-      "line": 6547,
+      "line": 6549,
       "column": 24,
-      "stop_line": 6547,
+      "stop_line": 6549,
       "stop_column": 49,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8725,9 +8065,9 @@
       "severity": "error"
     },
     {
-      "line": 6548,
+      "line": 6550,
       "column": 25,
-      "stop_line": 6548,
+      "stop_line": 6550,
       "stop_column": 51,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8737,9 +8077,9 @@
       "severity": "error"
     },
     {
-      "line": 6550,
+      "line": 6552,
       "column": 13,
-      "stop_line": 6550,
+      "stop_line": 6552,
       "stop_column": 56,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8749,9 +8089,9 @@
       "severity": "error"
     },
     {
-      "line": 6573,
+      "line": 6575,
       "column": 9,
-      "stop_line": 6573,
+      "stop_line": 6575,
       "stop_column": 21,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8761,9 +8101,9 @@
       "severity": "error"
     },
     {
-      "line": 6598,
+      "line": 6600,
       "column": 16,
-      "stop_line": 6598,
+      "stop_line": 6600,
       "stop_column": 36,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8773,9 +8113,9 @@
       "severity": "error"
     },
     {
-      "line": 6707,
+      "line": 6709,
       "column": 27,
-      "stop_line": 6707,
+      "stop_line": 6709,
       "stop_column": 36,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8785,9 +8125,9 @@
       "severity": "error"
     },
     {
-      "line": 6713,
+      "line": 6715,
       "column": 27,
-      "stop_line": 6713,
+      "stop_line": 6715,
       "stop_column": 36,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8797,9 +8137,9 @@
       "severity": "error"
     },
     {
-      "line": 6749,
+      "line": 6751,
       "column": 55,
-      "stop_line": 6749,
+      "stop_line": 6751,
       "stop_column": 64,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8809,9 +8149,9 @@
       "severity": "error"
     },
     {
-      "line": 6783,
+      "line": 6785,
       "column": 12,
-      "stop_line": 6787,
+      "stop_line": 6789,
       "stop_column": 6,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8821,9 +8161,9 @@
       "severity": "error"
     },
     {
-      "line": 6975,
+      "line": 6977,
       "column": 17,
-      "stop_line": 6975,
+      "stop_line": 6977,
       "stop_column": 51,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8833,9 +8173,9 @@
       "severity": "error"
     },
     {
-      "line": 7001,
+      "line": 7003,
       "column": 21,
-      "stop_line": 7003,
+      "stop_line": 7005,
       "stop_column": 43,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8845,9 +8185,9 @@
       "severity": "error"
     },
     {
-      "line": 7307,
+      "line": 7309,
       "column": 39,
-      "stop_line": 7307,
+      "stop_line": 7309,
       "stop_column": 87,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8857,9 +8197,9 @@
       "severity": "error"
     },
     {
-      "line": 7318,
+      "line": 7320,
       "column": 17,
-      "stop_line": 7318,
+      "stop_line": 7320,
       "stop_column": 43,
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
@@ -8965,18 +8305,6 @@
       "severity": "error"
     },
     {
-      "line": 102,
-      "column": 9,
-      "stop_line": 102,
-      "stop_column": 42,
-      "path": "src/pudl/transform/nrelatb.py",
-      "code": -2,
-      "name": "invalid-annotation",
-      "description": "`idx_are_same_or_subset_of_idx_all` method cls type `Self@TableUnstacker` is not a valid `type[...]` annotation",
-      "concise_description": "`idx_are_same_or_subset_of_idx_all` method cls type `Self@TableUnstacker` is not a valid `type[...]` annotation",
-      "severity": "error"
-    },
-    {
       "line": 336,
       "column": 19,
       "stop_line": 337,
@@ -9037,9 +8365,9 @@
       "severity": "error"
     },
     {
-      "line": 138,
+      "line": 143,
       "column": 1,
-      "stop_line": 138,
+      "stop_line": 143,
       "stop_column": 71,
       "path": "src/pudl/transform/phmsagas.py",
       "code": -2,
@@ -9049,9 +8377,9 @@
       "severity": "error"
     },
     {
-      "line": 452,
+      "line": 457,
       "column": 32,
-      "stop_line": 452,
+      "stop_line": 457,
       "stop_column": 52,
       "path": "src/pudl/transform/phmsagas.py",
       "code": -2,
@@ -9061,9 +8389,9 @@
       "severity": "error"
     },
     {
-      "line": 465,
+      "line": 470,
       "column": 32,
-      "stop_line": 465,
+      "stop_line": 470,
       "stop_column": 52,
       "path": "src/pudl/transform/phmsagas.py",
       "code": -2,
@@ -9073,9 +8401,9 @@
       "severity": "error"
     },
     {
-      "line": 490,
+      "line": 495,
       "column": 64,
-      "stop_line": 490,
+      "stop_line": 495,
       "stop_column": 69,
       "path": "src/pudl/transform/phmsagas.py",
       "code": -2,
@@ -9337,9 +8665,9 @@
       "severity": "error"
     },
     {
-      "line": 684,
+      "line": 690,
       "column": 9,
-      "stop_line": 685,
+      "stop_line": 691,
       "stop_column": 14,
       "path": "src/pudl/transform/sec10k.py",
       "code": -2,
@@ -9397,21 +8725,9 @@
       "severity": "error"
     },
     {
-      "line": 113,
-      "column": 55,
-      "stop_line": 113,
-      "stop_column": 69,
-      "path": "src/pudl/workspace/datastore.py",
-      "code": -2,
-      "name": "bad-specialization",
-      "description": "Expected 1 type argument for `list`, got 2",
-      "concise_description": "Expected 1 type argument for `list`, got 2",
-      "severity": "error"
-    },
-    {
-      "line": 118,
+      "line": 116,
       "column": 72,
-      "stop_line": 118,
+      "stop_line": 116,
       "stop_column": 84,
       "path": "src/pudl/workspace/datastore.py",
       "code": -2,
@@ -9421,33 +8737,9 @@
       "severity": "error"
     },
     {
-      "line": 122,
-      "column": 33,
-      "stop_line": 122,
-      "stop_column": 37,
-      "path": "src/pudl/workspace/datastore.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `name` with type `str`\n  The declared type does not allow `None`. Consider changing the declared type to `str | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `name` with type `str`",
-      "severity": "error"
-    },
-    {
-      "line": 140,
-      "column": 42,
-      "stop_line": 140,
-      "stop_column": 46,
-      "path": "src/pudl/workspace/datastore.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `name` with type `str`\n  The declared type does not allow `None`. Consider changing the declared type to `str | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `name` with type `str`",
-      "severity": "error"
-    },
-    {
-      "line": 323,
+      "line": 321,
       "column": 16,
-      "stop_line": 323,
+      "stop_line": 321,
       "stop_column": 55,
       "path": "src/pudl/workspace/datastore.py",
       "code": -2,
@@ -9457,9 +8749,9 @@
       "severity": "error"
     },
     {
-      "line": 360,
+      "line": 358,
       "column": 42,
-      "stop_line": 360,
+      "stop_line": 358,
       "stop_column": 49,
       "path": "src/pudl/workspace/datastore.py",
       "code": -2,
@@ -9469,9 +8761,9 @@
       "severity": "error"
     },
     {
-      "line": 556,
+      "line": 554,
       "column": 43,
-      "stop_line": 556,
+      "stop_line": 554,
       "stop_column": 61,
       "path": "src/pudl/workspace/datastore.py",
       "code": -2,
@@ -9481,9 +8773,9 @@
       "severity": "error"
     },
     {
-      "line": 565,
+      "line": 563,
       "column": 50,
-      "stop_line": 565,
+      "stop_line": 563,
       "stop_column": 68,
       "path": "src/pudl/workspace/datastore.py",
       "code": -2,
@@ -9493,9 +8785,9 @@
       "severity": "error"
     },
     {
-      "line": 585,
+      "line": 583,
       "column": 42,
-      "stop_line": 585,
+      "stop_line": 583,
       "stop_column": 53,
       "path": "src/pudl/workspace/datastore.py",
       "code": -2,
@@ -9505,9 +8797,9 @@
       "severity": "error"
     },
     {
-      "line": 589,
+      "line": 587,
       "column": 56,
-      "stop_line": 589,
+      "stop_line": 587,
       "stop_column": 63,
       "path": "src/pudl/workspace/datastore.py",
       "code": -2,
@@ -9517,9 +8809,9 @@
       "severity": "error"
     },
     {
-      "line": 611,
+      "line": 609,
       "column": 52,
-      "stop_line": 611,
+      "stop_line": 609,
       "stop_column": 63,
       "path": "src/pudl/workspace/datastore.py",
       "code": -2,
@@ -9721,9 +9013,9 @@
       "severity": "error"
     },
     {
-      "line": 262,
+      "line": 356,
       "column": 9,
-      "stop_line": 262,
+      "stop_line": 356,
       "stop_column": 57,
       "path": "tests/conftest.py",
       "code": -2,
@@ -9733,9 +9025,9 @@
       "severity": "error"
     },
     {
-      "line": 263,
+      "line": 357,
       "column": 9,
-      "stop_line": 263,
+      "stop_line": 357,
       "stop_column": 58,
       "path": "tests/conftest.py",
       "code": -2,
@@ -9745,39 +9037,15 @@
       "severity": "error"
     },
     {
-      "line": 264,
+      "line": 358,
       "column": 9,
-      "stop_line": 264,
+      "stop_line": 358,
       "stop_column": 60,
       "path": "tests/conftest.py",
       "code": -2,
       "name": "unsupported-operation",
       "description": "`/` is not supported between `str` and `Literal['ferc714_xbrl.sqlite']`\n  Cannot find `__truediv__` or `__rtruediv__`",
       "concise_description": "`/` is not supported between `str` and `Literal['ferc714_xbrl.sqlite']`",
-      "severity": "error"
-    },
-    {
-      "line": 39,
-      "column": 9,
-      "stop_line": 39,
-      "stop_column": 84,
-      "path": "tests/integration/analysis/ferc1_eia_train_test.py",
-      "code": -2,
-      "name": "bad-argument-type",
-      "description": "Argument `Traversable` is not assignable to parameter `filepath_or_buffer` with type `PathLike[str] | ReadCsvBuffer[bytes] | ReadCsvBuffer[str] | str` in function `pandas.io.parsers.readers.read_csv`\n  Protocol `PathLike` requires attribute `__fspath__`",
-      "concise_description": "Argument `Traversable` is not assignable to parameter `filepath_or_buffer` with type `PathLike[str] | ReadCsvBuffer[bytes] | ReadCsvBuffer[str] | str` in function `pandas.io.parsers.readers.read_csv`",
-      "severity": "error"
-    },
-    {
-      "line": 192,
-      "column": 17,
-      "stop_line": 192,
-      "stop_column": 68,
-      "path": "tests/integration/analysis/ferc1_eia_train_test.py",
-      "code": -2,
-      "name": "bad-argument-type",
-      "description": "Argument `str` is not assignable to parameter `self` with type `Path` in function `pathlib.Path.unlink`",
-      "concise_description": "Argument `str` is not assignable to parameter `self` with type `Path` in function `pathlib.Path.unlink`",
       "severity": "error"
     },
     {
@@ -9841,11 +9109,35 @@
       "severity": "error"
     },
     {
+      "line": 39,
+      "column": 9,
+      "stop_line": 39,
+      "stop_column": 84,
+      "path": "tests/pipeline/analysis/ferc1_eia_train_test.py",
+      "code": -2,
+      "name": "bad-argument-type",
+      "description": "Argument `Traversable` is not assignable to parameter `filepath_or_buffer` with type `PathLike[str] | ReadCsvBuffer[bytes] | ReadCsvBuffer[str] | str` in function `pandas.io.parsers.readers.read_csv`\n  Protocol `PathLike` requires attribute `__fspath__`",
+      "concise_description": "Argument `Traversable` is not assignable to parameter `filepath_or_buffer` with type `PathLike[str] | ReadCsvBuffer[bytes] | ReadCsvBuffer[str] | str` in function `pandas.io.parsers.readers.read_csv`",
+      "severity": "error"
+    },
+    {
+      "line": 192,
+      "column": 17,
+      "stop_line": 192,
+      "stop_column": 68,
+      "path": "tests/pipeline/analysis/ferc1_eia_train_test.py",
+      "code": -2,
+      "name": "bad-argument-type",
+      "description": "Argument `str` is not assignable to parameter `self` with type `Path` in function `pathlib.Path.unlink`",
+      "concise_description": "Argument `str` is not assignable to parameter `self` with type `Path` in function `pathlib.Path.unlink`",
+      "severity": "error"
+    },
+    {
       "line": 30,
       "column": 18,
       "stop_line": 30,
       "stop_column": 34,
-      "path": "tests/integration/analysis/timeseries_plot_test.py",
+      "path": "tests/pipeline/analysis/timeseries_plot_test.py",
       "code": -2,
       "name": "bad-argument-type",
       "description": "Argument `tuple[Literal['SWPP'], Literal['OPPD']]` is not assignable to parameter `idx_vals` with type `tuple[Any]` in function `pudl.analysis.timeseries_evaluation.plot_imputation`",
@@ -9857,7 +9149,7 @@
       "column": 15,
       "stop_line": 76,
       "stop_column": 25,
-      "path": "tests/integration/analysis/timeseries_plot_test.py",
+      "path": "tests/pipeline/analysis/timeseries_plot_test.py",
       "code": -2,
       "name": "bad-argument-type",
       "description": "Argument `tuple[float, float]` is not assignable to parameter `xylim` with type `tuple[float] | None` in function `pudl.analysis.timeseries_evaluation.plot_correlation`",
@@ -9869,7 +9161,7 @@
       "column": 16,
       "stop_line": 42,
       "stop_column": 67,
-      "path": "tests/integration/extract/ferc_xbrl_extract_test.py",
+      "path": "tests/pipeline/extract/ferc_xbrl_extract_test.py",
       "code": -2,
       "name": "missing-attribute",
       "description": "Object of class `NoneType` has no attribute `get_dataset_years`",
@@ -9881,7 +9173,7 @@
       "column": 36,
       "stop_line": 225,
       "stop_column": 44,
-      "path": "tests/integration/glue/glue_test.py",
+      "path": "tests/pipeline/glue/glue_test.py",
       "code": -2,
       "name": "bad-index",
       "description": "Cannot index into `dict[str, DataFrame]`\n  Argument `DataFrame` is not assignable to parameter `key` with type `str` in function `dict.__getitem__`",
@@ -9893,7 +9185,7 @@
       "column": 27,
       "stop_line": 28,
       "stop_column": 29,
-      "path": "tests/integration/notebooks_test.py",
+      "path": "tests/pipeline/notebooks_test.py",
       "code": -2,
       "name": "bad-argument-type",
       "description": "Argument `nbformat.v1.nbbase.NotebookNode | list[nbformat.v1.nbbase.NotebookNode | list[nbformat.v1.nbbase.NotebookNode | list[Unknown] | Unknown] | Unknown] | Unknown` is not assignable to parameter `nb` with type `nbformat.notebooknode.NotebookNode` in function `nbconvert.preprocessors.execute.ExecutePreprocessor.preprocess`",
@@ -10021,18 +9313,6 @@
       "severity": "error"
     },
     {
-      "line": 85,
-      "column": 13,
-      "stop_line": 85,
-      "stop_column": 86,
-      "path": "tests/unit/analysis/ml_tools_test.py",
-      "code": -2,
-      "name": "bad-index",
-      "description": "Cannot index into `list[Run]`\n  No matching overload found for function `list.__getitem__` called with arguments: (list[str])\n  Possible overloads:\n    (i: SupportsIndex, /) -> Run [closest match]\n    (s: slice[SupportsIndex | None, SupportsIndex | None, SupportsIndex | Unknown | None], /) -> list[Run]\n  Argument `list[str]` is not assignable to parameter `i` with type `SupportsIndex` in function `list.__getitem__`",
-      "concise_description": "Cannot index into `list[Run]`",
-      "severity": "error"
-    },
-    {
       "line": 254,
       "column": 20,
       "stop_line": 254,
@@ -10045,9 +9325,9 @@
       "severity": "error"
     },
     {
-      "line": 563,
+      "line": 658,
       "column": 33,
-      "stop_line": 563,
+      "stop_line": 658,
       "stop_column": 52,
       "path": "tests/unit/analysis/plant_parts_eia_test.py",
       "code": -2,
@@ -10093,9 +9373,9 @@
       "severity": "error"
     },
     {
-      "line": 139,
+      "line": 144,
       "column": 27,
-      "stop_line": 139,
+      "stop_line": 144,
       "stop_column": 55,
       "path": "tests/unit/dagster/asset_checks_test.py",
       "code": -2,
@@ -10213,9 +9493,9 @@
       "severity": "error"
     },
     {
-      "line": 334,
+      "line": 301,
       "column": 33,
-      "stop_line": 337,
+      "stop_line": 304,
       "stop_column": 10,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10225,9 +9505,9 @@
       "severity": "error"
     },
     {
-      "line": 365,
+      "line": 332,
       "column": 61,
-      "stop_line": 369,
+      "stop_line": 336,
       "stop_column": 6,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10237,9 +9517,9 @@
       "severity": "error"
     },
     {
-      "line": 379,
+      "line": 346,
       "column": 5,
-      "stop_line": 379,
+      "stop_line": 346,
       "stop_column": 26,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10249,9 +9529,9 @@
       "severity": "error"
     },
     {
-      "line": 381,
+      "line": 348,
       "column": 5,
-      "stop_line": 381,
+      "stop_line": 348,
       "stop_column": 59,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10261,9 +9541,9 @@
       "severity": "error"
     },
     {
-      "line": 411,
+      "line": 378,
       "column": 9,
-      "stop_line": 411,
+      "stop_line": 378,
       "stop_column": 38,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10273,9 +9553,9 @@
       "severity": "error"
     },
     {
-      "line": 423,
+      "line": 390,
       "column": 63,
-      "stop_line": 427,
+      "stop_line": 394,
       "stop_column": 6,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10285,9 +9565,9 @@
       "severity": "error"
     },
     {
-      "line": 439,
+      "line": 406,
       "column": 5,
-      "stop_line": 439,
+      "stop_line": 406,
       "stop_column": 26,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10297,9 +9577,9 @@
       "severity": "error"
     },
     {
-      "line": 440,
+      "line": 407,
       "column": 5,
-      "stop_line": 440,
+      "stop_line": 407,
       "stop_column": 59,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10309,9 +9589,9 @@
       "severity": "error"
     },
     {
-      "line": 471,
+      "line": 438,
       "column": 9,
-      "stop_line": 471,
+      "stop_line": 438,
       "stop_column": 38,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10321,9 +9601,9 @@
       "severity": "error"
     },
     {
-      "line": 484,
+      "line": 451,
       "column": 61,
-      "stop_line": 488,
+      "stop_line": 455,
       "stop_column": 6,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10333,9 +9613,9 @@
       "severity": "error"
     },
     {
-      "line": 498,
+      "line": 465,
       "column": 19,
-      "stop_line": 498,
+      "stop_line": 465,
       "stop_column": 70,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10345,9 +9625,9 @@
       "severity": "error"
     },
     {
-      "line": 505,
+      "line": 472,
       "column": 5,
-      "stop_line": 505,
+      "stop_line": 472,
       "stop_column": 26,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10357,9 +9637,9 @@
       "severity": "error"
     },
     {
-      "line": 506,
+      "line": 473,
       "column": 5,
-      "stop_line": 506,
+      "stop_line": 473,
       "stop_column": 59,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10369,9 +9649,9 @@
       "severity": "error"
     },
     {
-      "line": 533,
+      "line": 500,
       "column": 61,
-      "stop_line": 537,
+      "stop_line": 504,
       "stop_column": 6,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10381,9 +9661,9 @@
       "severity": "error"
     },
     {
-      "line": 543,
+      "line": 510,
       "column": 5,
-      "stop_line": 543,
+      "stop_line": 510,
       "stop_column": 26,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10393,9 +9673,9 @@
       "severity": "error"
     },
     {
-      "line": 544,
+      "line": 511,
       "column": 5,
-      "stop_line": 544,
+      "stop_line": 511,
       "stop_column": 59,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10405,9 +9685,9 @@
       "severity": "error"
     },
     {
-      "line": 831,
+      "line": 798,
       "column": 40,
-      "stop_line": 831,
+      "stop_line": 798,
       "stop_column": 62,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10429,9 +9709,9 @@
       "severity": "error"
     },
     {
-      "line": 627,
+      "line": 659,
       "column": 55,
-      "stop_line": 627,
+      "stop_line": 659,
       "stop_column": 68,
       "path": "tests/unit/deploy/deploy_pudl_test.py",
       "code": -2,
@@ -10753,9 +10033,9 @@
       "severity": "error"
     },
     {
-      "line": 455,
+      "line": 812,
       "column": 13,
-      "stop_line": 455,
+      "stop_line": 812,
       "stop_column": 38,
       "path": "tests/unit/metadata/metadata_test.py",
       "code": -2,
@@ -11413,9 +10693,9 @@
       "severity": "error"
     },
     {
-      "line": 607,
+      "line": 606,
       "column": 18,
-      "stop_line": 607,
+      "stop_line": 606,
       "stop_column": 64,
       "path": "tests/unit/settings_test.py",
       "code": -2,
@@ -11425,9 +10705,9 @@
       "severity": "error"
     },
     {
-      "line": 608,
+      "line": 607,
       "column": 16,
-      "stop_line": 608,
+      "stop_line": 607,
       "stop_column": 52,
       "path": "tests/unit/settings_test.py",
       "code": -2,
@@ -11521,21 +10801,9 @@
       "severity": "error"
     },
     {
-      "line": 746,
-      "column": 77,
-      "stop_line": 746,
-      "stop_column": 79,
-      "path": "tests/unit/transform/classes_test.py",
-      "code": -2,
-      "name": "invalid-annotation",
-      "description": "Tuple literal cannot be used in annotations",
-      "concise_description": "Tuple literal cannot be used in annotations",
-      "severity": "error"
-    },
-    {
-      "line": 1021,
+      "line": 1023,
       "column": 9,
-      "stop_line": 1021,
+      "stop_line": 1023,
       "stop_column": 24,
       "path": "tests/unit/transform/classes_test.py",
       "code": -2,
@@ -11545,9 +10813,9 @@
       "severity": "error"
     },
     {
-      "line": 1029,
+      "line": 1031,
       "column": 9,
-      "stop_line": 1029,
+      "stop_line": 1031,
       "stop_column": 23,
       "path": "tests/unit/transform/classes_test.py",
       "code": -2,
@@ -11557,9 +10825,9 @@
       "severity": "error"
     },
     {
-      "line": 1041,
+      "line": 1043,
       "column": 9,
-      "stop_line": 1041,
+      "stop_line": 1043,
       "stop_column": 22,
       "path": "tests/unit/transform/classes_test.py",
       "code": -2,
@@ -11768,7 +11036,7 @@
       "path": "tests/unit/transform/ferc1_test.py",
       "code": -2,
       "name": "no-matching-overload",
-      "description": "No matching overload found for function `numpy._core.multiarray.where` called with arguments: (Unknown, Literal['calculated_value'], NAType)\n  Possible overloads:\n    (condition: ArrayLike, x: None = None, y: None = None, /) -> tuple[ndarray[tuple[Any, ...], dtype[signedinteger[_NBitIntP]]], ...]\n    (condition: ArrayLike, x: ArrayLike, y: ArrayLike, /) -> ndarray [closest match]\n  Argument `NAType` is not assignable to parameter `y` with type `Buffer | _NestedSequence[bytes | complex | str] | _NestedSequence[_SupportsArray[dtype]] | _SupportsArray[dtype] | bytes | complex | str` in function `numpy._core.multiarray.where`",
+      "description": "No matching overload found for function `numpy._core.multiarray.where` called with arguments: (Unknown, Literal['calculated_value'], NAType)\n  Possible overloads:\n    (condition: ndarray[tuple[Never, Never, Never, Never]], x: None = None, y: None = None, /) -> tuple[ndarray[tuple[int], dtype[signedinteger[_NBitIntP]]], ...]\n    (condition: _ToArray1D, x: None = None, y: None = None, /) -> tuple[ndarray[tuple[int], dtype[signedinteger[_NBitIntP]]]]\n    (condition: _ToArray2D, x: None = None, y: None = None, /) -> tuple[ndarray[tuple[int], dtype[signedinteger[_NBitIntP]]], ndarray[tuple[int], dtype[signedinteger[_NBitIntP]]]]\n    (condition: _ToArray3D, x: None = None, y: None = None, /) -> tuple[ndarray[tuple[int], dtype[signedinteger[_NBitIntP]]], ndarray[tuple[int], dtype[signedinteger[_NBitIntP]]], ndarray[tuple[int], dtype[signedinteger[_NBitIntP]]]]\n    (condition: _ArrayLike, x: None = None, y: None = None, /) -> tuple[ndarray[tuple[int], dtype[signedinteger[_NBitIntP]]], ...]\n    (condition: ArrayLike, x: ArrayLike, y: ArrayLike, /) -> ndarray [closest match]\n  Argument `NAType` is not assignable to parameter `y` with type `Buffer | _NestedSequence[bytes | complex | str] | _NestedSequence[_SupportsArray[dtype]] | _SupportsArray[dtype] | bytes | complex | str` in function `numpy._core.multiarray.where`",
       "concise_description": "No matching overload found for function `numpy._core.multiarray.where` called with arguments: (Unknown, Literal['calculated_value'], NAType)",
       "severity": "error"
     },
@@ -11797,9 +11065,9 @@
       "severity": "error"
     },
     {
-      "line": 842,
+      "line": 860,
       "column": 5,
-      "stop_line": 842,
+      "stop_line": 860,
       "stop_column": 30,
       "path": "tests/unit/validate/dbt_helper_test.py",
       "code": -2,

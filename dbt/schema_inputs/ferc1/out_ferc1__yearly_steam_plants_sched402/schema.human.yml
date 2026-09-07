@@ -22,7 +22,6 @@ sources:
                   capex_annual_per_mwh: report_year >= 1995
           - check_row_counts_per_partition:
               arguments:
-                table_name: out_ferc1__yearly_steam_plants_sched402
                 partition_expr: report_year
           - expect_one2one_mapping:
               arguments:

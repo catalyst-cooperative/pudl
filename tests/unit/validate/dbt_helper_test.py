@@ -190,6 +190,24 @@ my_table,2023,100
             [],
         ),
         (
+            ["check_row_counts_per_partition"],
+            [None],
+        ),
+        (
+            [
+                {
+                    "check_row_counts_per_partition": {
+                        "arguments": {"partition_expr": "report_year"}
+                    }
+                }
+            ],
+            ["report_year"],
+        ),
+        (
+            ["some_other_bare_test"],
+            [],
+        ),
+        (
             None,
             [],
         ),

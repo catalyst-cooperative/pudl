@@ -35,7 +35,9 @@ class PathPermissionError(click.ClickException):
     """Permission check failure annotated with the stage that failed."""
 
     check: PermissionCheck
-    message: str
+    # click.ClickException.message is annotated Final, but we deliberately reuse the
+    # name so this dataclass field feeds click's own rendering.
+    message: str  # type: ignore[bad-override]
 
     def __post_init__(self) -> None:
         """Initialize the underlying Click exception message."""
