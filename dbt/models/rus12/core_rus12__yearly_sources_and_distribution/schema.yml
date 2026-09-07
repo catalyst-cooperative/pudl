@@ -4,10 +4,16 @@ sources:
     tables:
       - name: core_rus12__yearly_sources_and_distribution
         data_tests:
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - borrower_id_rus
+                pk_table_name: source('pudl', 'core_rus12__entity_borrowers')
+                pk_column_names:
+                  - borrower_id_rus
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
               arguments:
-                table_name: core_rus12__yearly_sources_and_distribution
                 partition_expr: EXTRACT(YEAR FROM report_date)
           - subcomponents_sum_to_total:
               arguments:
@@ -36,7 +42,9 @@ sources:
                   - total_energy_accounted
                 total_label: total_energy_losses
                 tolerance: 1
-              description: Check that total_energy_losses equals energy_available_for_sale minus total_energy_accounted.
+              description: |-
+                Check that total_energy_losses equals energy_available_for_sale minus
+                total_energy_accounted.
           - subcomponents_sum_to_total:
               arguments:
                 group_by_columns:
@@ -65,7 +73,9 @@ sources:
                   - net_energy_wheeled
                 total_label: energy_available_for_sale
                 tolerance: 1
-              description: Check that energy_available_for_sale equals total_plant + purchased_power + net_interchange + net_energy_wheeled.
+              description: |-
+                Check that energy_available_for_sale equals total_plant + purchased_power +
+                net_interchange + net_energy_wheeled.
               config:
                 error_if: ">4"
           - subcomponents_sum_to_total:
@@ -81,7 +91,9 @@ sources:
                   - energy_used_by_borrower
                 tolerance: 1
                 total_label: total_energy_accounted
-              description: Check that total_energy_accounted equals total_sales + energy_furnished_without_charge + energy_used_by_borrower.
+              description: |-
+                Check that total_energy_accounted equals total_sales + energy_furnished_without_charge +
+                energy_used_by_borrower.
         columns:
           - name: report_date
           - name: borrower_id_rus
