@@ -2,14 +2,62 @@ run_coordinator:
   module: dagster
   class: QueuedRunCoordinator
   config:
-    # Each partition run opens its own DuckDB connection; too many at once
-    # oversubscribe the VM's cores and exhaust its RAM (see PUDL_DUCKDB_* in
-    # builds/ferceqr_batch.sh). 12 heavy quarters is about what a
-    # c4d-standard-32 (124 GiB) holds with those per-connection caps in place.
-    max_concurrent_runs: 24
-    # Launch dequeued runs in parallel. The default serial dequeue loop (one
-    # launch per ~5s tick) can't refill freed slots fast enough when many short
-    # partition backfill runs finish close together, so steady-state occupancy
-    # sits well below max_concurrent_runs.
+    # NOTE: the run limit lives under `concurrency > runs > max_concurrent_runs`
+    # below, not here -- Dagster rejects `max_concurrent_runs` in
+    # `run_coordinator.config` once a top-level `concurrency` block is present.
+    #
+    # Launch dequeued runs in parallel so freed slots refill without waiting for
+    # the ~5s serial dequeue tick. Kept low (2) so the initial backfill wave
+    # ramps over ~30-60s instead of dumping 24 run workers onto the gRPC server
+    # and the box at once.
     dequeue_use_threads: true
-    dequeue_num_workers: 8
+    dequeue_num_workers: 2
+
+concurrency:
+  runs:
+    # Steady-state occupancy at 24 concurrent partition runs is healthy on a
+    # 32-vCPU box (measured load ~30/32 once the runs desync). The danger is the
+    # cold start: without a cap, all 24 runs enter the memory-heavy
+    # extract_ferceqr step within seconds of each other and their synchronized
+    # DuckDB working sets spike RAM before anything desyncs -- on the old
+    # c4d-standard-32 (124 GiB) the 2026-09-06 run went 1.6% -> 84% RAM in 60s
+    # and the OOM-killer took 4 runs. The `ferceqr_extract` pool below bounds
+    # concurrent extracts; combined with the c4d-highmem-32 (252 GiB) this keeps
+    # max_concurrent_runs high so transform/write tails still overlap.
+    max_concurrent_runs: 24
+  pools:
+    # extract_ferceqr is tagged pool="ferceqr_extract" (see pudl.extract.ferceqr).
+    # This caps how many of those steps run simultaneously across all partition
+    # runs. The per-pool limit is set explicitly in builds/ferceqr_batch.sh via
+    # `dagster instance concurrency set` (1.13 YAML only supports a pool-wide
+    # default); default_limit here is the backstop if that step is skipped.
+    default_limit: 12
+    # Default granularity is "op": at most N copies of a pooled op/asset run at
+    # once, regardless of how many runs are in flight. That is what we want --
+    # the extract step is the memory-heavy phase, not the whole run.
+    granularity: op
+
+# Detect run workers that die without reporting a failure -- e.g. SIGKILL from
+# the kernel OOM-killer, which is how the 2026-09-06 run lost 4 partitions (no
+# RUN_FAILURE, no traceback, just a silent gap in the logs). Without this a
+# crashed run sits in STARTED forever and the only thing that notices is the
+# deploy asset's missing-partition check.
+run_monitoring:
+  enabled: true
+  # Mark a run failed if it never leaves STARTING within this long (gRPC server
+  # backpressure during the cold-start wave can strand launches).
+  start_timeout_seconds: 600
+  # The DefaultRunLauncher can't resume a dead run worker in place, so this must
+  # be 0: run_monitoring marks the crashed run FAILED and `run_retries` below
+  # relaunches it as a fresh run.
+  max_resume_run_attempts: 0
+  poll_interval_seconds: 60
+  free_slots_after_run_end_seconds: 300
+
+# Automatically retry FAILED runs. A partition that gets OOM-killed in the cold
+# start wave (now marked failed by run_monitoring rather than vanishing) is
+# retried as a new run, which lands after the herd has desynced and the
+# ferceqr_extract pool has free slots -- so it should succeed the second time.
+run_retries:
+  enabled: true
+  max_retries: 1
