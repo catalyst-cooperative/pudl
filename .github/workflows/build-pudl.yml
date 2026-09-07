@@ -198,7 +198,7 @@ jobs:
             --container-env GCP_BILLING_PROJECT=${{ secrets.GCP_BILLING_PROJECT }} \
             --container-env GITHUB_ACTION_TRIGGER=${{ github.event_name }} \
             --container-env GIT_TAG=${{ env.GIT_TAG }} \
-            --container-env OMP_NUM_THREADS=4 \
+            --container-env OMP_NUM_THREADS=12 \
             --container-env OMP_WAIT_POLICY=passive \
             --container-env NUMEXPR_NUM_THREADS=4 \
             --container-env PUDL_BOT_PAT=${{ secrets.PUDL_BOT_PAT }} \
