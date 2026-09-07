@@ -32,8 +32,8 @@ function log_vm_labels() {
     zone="$(curl -s -H "Metadata-Flavor: Google" "${meta}/zone" 2>/dev/null | awk -F/ '{print $NF}')" || return 0
     echo "VM instance: ${name} (${zone})"
     gcloud compute instances describe "$name" --zone "$zone" \
-        --format='value(labels)' 2>/dev/null \
-        || echo "Could not read VM instance labels (missing compute.instances.get?)."
+        --format='value(labels)' 2>/dev/null ||
+        echo "Could not read VM instance labels (missing compute.instances.get?)."
 }
 
 function validate_partition_range_inputs() {
@@ -67,8 +67,7 @@ function run_ferceqr_etl() {
         --max-workers 64 &
     dagster_grpc_server_pid=$!
     if ! timeout 300 bash -c \
-        "until dagster api grpc-health-check --socket '${grpc_socket}' 2>/dev/null; do sleep 2; done"
-    then
+        "until dagster api grpc-health-check --socket '${grpc_socket}' 2>/dev/null; do sleep 2; done"; then
         echo "ERROR: Dagster gRPC code server never became healthy." >&2
         touch "$PUDL_OUTPUT/FERCEQR_FAILURE"
         return 1
@@ -126,8 +125,8 @@ function send_zulip_notification() {
         -d "type=stream" \
         -d "to=pudl-deployments" \
         -d "topic=build-deploy-ferceqr" \
-        -d "content=${message}" \
-        || echo "Warning: Zulip notification failed." >&2
+        -d "content=${message}" ||
+        echo "Warning: Zulip notification failed." >&2
     set -x
 }
 
@@ -171,8 +170,8 @@ function remove_staging_dirs() {
     if [[ -z "${PUDL_FERCEQR_DEPLOYMENT_CONFIG_PATH:-}" ]]; then
         return 0
     fi
-    python3 "${PUDL_ROOT_PATH}/builds/ferceqr_cleanup_staging.py" 2>&1 \
-        || echo "Warning: staging directory cleanup failed." >&2
+    python3 "${PUDL_ROOT_PATH}/builds/ferceqr_cleanup_staging.py" 2>&1 ||
+        echo "Warning: staging directory cleanup failed." >&2
 }
 
 ########################################################################################
@@ -195,8 +194,8 @@ cp "${PUDL_ROOT_PATH}/builds/dagster-ferceqr.yaml" "${DAGSTER_HOME}/dagster.yaml
 # oversubscribe the VM's cores. 2 threads x 12 pooled extracts = 24 <= 32.
 # When a quarter's working set exceeds memory_limit DuckDB spills to
 # temp_directory rather than failing.
-export PUDL_DUCKDB_THREADS=2
-export PUDL_DUCKDB_MEMORY_LIMIT=6GB
+export PUDL_DUCKDB_THREADS=4
+export PUDL_DUCKDB_MEMORY_LIMIT=8GB
 export PUDL_DUCKDB_TEMP_DIRECTORY="${PUDL_OUTPUT}/duckdb_tmp"
 mkdir -p "$PUDL_DUCKDB_TEMP_DIRECTORY"
 
@@ -217,11 +216,11 @@ if [[ -z "${PUDL_FERCEQR_DEPLOYMENT_CONFIG_PATH:-}" ]]; then
 fi
 
 if ! {
-    validate_partition_range_inputs && \
-    authenticate_gcp && \
-    check_path_permissions --read "$PUDL_FERCEQR_ARCHIVE_PATH" && \
-    check_path_permissions --write --check-ferceqr-deployment-paths "$GCS_LOGS_BUCKET" && \
-    python -c "from dagster import DagsterInstance; DagsterInstance.get()"
+    validate_partition_range_inputs &&
+        authenticate_gcp &&
+        check_path_permissions --read "$PUDL_FERCEQR_ARCHIVE_PATH" &&
+        check_path_permissions --write --check-ferceqr-deployment-paths "$GCS_LOGS_BUCKET" &&
+        python -c "from dagster import DagsterInstance; DagsterInstance.get()"
 }; then
     exit 1
 fi
@@ -234,7 +233,7 @@ log_vm_labels
 # pool= tag on the extract multi_asset and the `concurrency` block in
 # dagster-ferceqr.yaml). Done here rather than in dagster.yaml because 1.13's
 # YAML only supports a pool-wide default_limit, not a per-pool value. Idempotent.
-dagster instance concurrency set ferceqr_extract 12
+dagster instance concurrency set ferceqr_extract 16
 
 run_ferceqr_etl
 
