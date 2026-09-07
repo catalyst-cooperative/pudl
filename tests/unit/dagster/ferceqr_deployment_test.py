@@ -299,6 +299,34 @@ def test_deploy_ferceqr_success_path_writes_success_and_notifies(mocker, tmp_pat
     )
 
 
+def test_deploy_ferceqr_no_targets_writes_datapackage_and_skips_publish(
+    mocker, tmp_path
+):
+    """With no deployment targets configured (deployment_mode "none"), the build
+    is a success and the datapackage is still written for review, but nothing is
+    published -- and it is not an error."""
+    source_root = tmp_path / "source"
+    deploy_context = _build_deploy_context(tmp_path, mocker, targets=None)
+    (tmp_path / "FERCEQR_FAILURE").write_text("stale failure")
+    _mock_deploy_dependencies(mocker, deploy_context, source_root, ["2013q3", "2013q4"])
+    notification = mocker.patch.object(
+        deploy_ferceqr,
+        "build_ferceqr_notification",
+        return_value="build succeeded, deployment skipped",
+    )
+
+    deploy_ferceqr.deploy_ferceqr(deploy_context)
+
+    assert (tmp_path / "FERCEQR_SUCCESS").exists()
+    assert not (tmp_path / "FERCEQR_FAILURE").exists()
+    # Datapackage is written even though nothing is published.
+    assert (tmp_path / deploy_ferceqr.DATAPACKAGE_FILENAME).exists()
+    # No staging directories were created -- nothing was uploaded.
+    assert not any(p.name.startswith("._staging_") for p in tmp_path.iterdir())
+    notification.assert_called_once_with(deploy_context, outcome="SKIPPED")
+    deploy_context.resources.zulip_notification.send_stream_message.assert_called_once()
+
+
 def test_deploy_ferceqr_missing_partition_fails_closed(mocker, tmp_path):
     """A missing Parquet partition aborts the deploy before anything is uploaded."""
     source_root = tmp_path / "source"
@@ -361,8 +389,10 @@ def test_deploy_ferceqr_staging_mismatch_aborts_before_promote(mocker, tmp_path)
 
 
 def test_deploy_ferceqr_requires_source_partitions(mocker, tmp_path):
-    """Deployment should fail closed if the run is missing source partition tags."""
-    deploy_context = _build_deploy_context(tmp_path, mocker)
+    """With targets configured but no source partition tags, fail closed."""
+    deploy_context = _build_deploy_context(
+        tmp_path, mocker, targets=[UPath(tmp_path / "deploy")]
+    )
     mocker.patch.object(deploy_ferceqr, "logger", mocker.Mock())
 
     with pytest.raises(RuntimeError, match="no deployable partitions"):

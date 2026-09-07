@@ -227,6 +227,8 @@ def _run_for_targets(
 
     The first exception raised by any target propagates once all have finished.
     """
+    if not targets:
+        return
     if len(targets) == 1:
         step(targets[0])
         return
@@ -440,7 +442,7 @@ def _compute_deploy_duration(context: dg.AssetExecutionContext) -> str | None:
 
 def build_ferceqr_notification(
     context: dg.AssetExecutionContext,
-    outcome: Literal["SUCCESS", "FAILURE"],
+    outcome: Literal["SUCCESS", "FAILURE", "SKIPPED"],
 ) -> str:
     """Build a Markdown notification string for FERC EQR deployment outcomes.
 
@@ -490,11 +492,11 @@ def build_ferceqr_notification(
         )
 
     # Build the Markdown.
-    title = (
-        "\n# :check: FERC EQR Deployment Succeeded"
-        if outcome == "SUCCESS"
-        else "\n# :x: FERC EQR Deployment Failed"
-    )
+    title = {
+        "SUCCESS": "\n# :check: FERC EQR Deployment Succeeded",
+        "FAILURE": "\n# :x: FERC EQR Deployment Failed",
+        "SKIPPED": "\n# :check: FERC EQR Build Succeeded (deployment skipped)",
+    }[outcome]
     lines = [title, ""]
     lines.append(f"- Build ID: `{build_id}`")
     if source_run_id:
@@ -598,15 +600,34 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
         raise RuntimeError("FERC EQR deployment run has no deployable partitions.")
 
     # Write the datapackage alongside the parquet data in pudl_output so it can
-    # be deployed like any other file and remains as a record of the build.
+    # be deployed like any other file and remains as a record of the build. Built
+    # even when there is nothing to publish, so it can be reviewed and tested as
+    # a development artifact.
     datapackage_path = Path(pudl_paths.pudl_output) / DATAPACKAGE_FILENAME
     PUDL_PACKAGE.to_frictionless(include_pattern=r"core_ferceqr.*").to_json(
         str(datapackage_path)
     )
 
+    targets = _deployment_targets(ferceqr_deployment.resolved_targets())
+    if not targets:
+        # deployment_mode "none" (or an unset deployment config) is a deliberate
+        # choice -- e.g. a tuning run that doesn't want the GCS->S3 egress. The
+        # build still succeeded and the datapackage is written; report success
+        # and skip publishing rather than failing.
+        logger.info(
+            f"No FERC EQR deployment targets configured; build succeeded, "
+            f"datapackage written to {datapackage_path}, skipping publish."
+        )
+        zulip.send_stream_message(
+            stream="pudl-deployments",
+            topic="build-deploy-ferceqr",
+            content=build_ferceqr_notification(context, outcome="SKIPPED"),
+        )
+        _write_status_file("FERCEQR_SUCCESS", pudl_paths)
+        return
+
     table_files = _source_parquet_files(source_partitions)
     expected_sizes = _expected_object_sizes(table_files, datapackage_path)
-    targets = _deployment_targets(ferceqr_deployment.resolved_targets())
 
     logger.info("FERC EQR build successful, deploying FERC EQR data.")
     try:
