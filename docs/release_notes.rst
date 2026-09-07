@@ -197,6 +197,14 @@ Developer Experience
   structured ``related_identifiers`` for better DataCite/OpenAIRE indexing. See issue
   :issue:`3326` and PR :pr:`5484`.
 
+
+New Data Tests & Validations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Add validation tests for ``core_rus12__yearly_sources_and_distribution``
+  and ``out_rus12__yearly_sources_and_distribution``. See issue :issue:`5368`,
+  PR :pr:`5479`, and PR :pr:`5564`.
+
 .. _release-v2026.8.0:
 
 ---------------------------------------------------------------------------------------
