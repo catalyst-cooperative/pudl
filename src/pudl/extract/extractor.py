@@ -344,19 +344,24 @@ dagster_dict_str_strint = DagsterType(
 
 
 def partition_extractor_factory(
-    extractor_cls: type[GenericExtractor], name: str
+    extractor_cls: type[GenericExtractor],
+    name: str,
+    op_tags: dict | None = None,
 ) -> OpDefinition:
     """Construct a Dagster op that extracts one partition of data, given an extractor.
 
     Args:
         extractor_cls: Class of type :class:`Extractor` used to extract the data.
         name: Name of an Excel based dataset (e.g. "eia860").
+        op_tags: Optional Dagster op tags (e.g. ``{"dagster/priority": -10}``) applied
+            to the per-partition extraction op.
     """
 
     @op(
         required_resource_keys={"datastore"},
         name=f"extract_single_{name}_partition",
         ins={"part_dict": In(dagster_type=dagster_dict_str_strint)},
+        tags=op_tags,
     )
     def extract_single_partition(
         context, part_dict: dict[str, str | int]
@@ -434,7 +439,9 @@ def partitions_from_data_config_factory(name: str) -> OpDefinition:
 
 
 def raw_df_factory(
-    extractor_cls: type[GenericExtractor], name: str
+    extractor_cls: type[GenericExtractor],
+    name: str,
+    op_tags: dict | None = None,
 ) -> AssetsDefinition:
     """Return a dagster graph asset to extract raw DataFrames from CSV or Excel files.
 
@@ -442,9 +449,12 @@ def raw_df_factory(
         extractor_cls: The dataset-specific CSV or Excel extractor used to extract the
             data. Must correspond to the dataset identified by ``name``.
         name: Name of a CSV or Excel based dataset (e.g. "eia860" or "eia930").
+        op_tags: Optional Dagster op tags applied to the per-partition extraction op.
+            Used to set a low ``dagster/priority`` on datasets that are extracted but
+            not yet integrated downstream, so they act as late-DAG filler.
     """
     # Build a Dagster op that can extract a single year/half-year of data
-    partition_extractor = partition_extractor_factory(extractor_cls, name)
+    partition_extractor = partition_extractor_factory(extractor_cls, name, op_tags)
     # Get the list of target partitions to extract from the PUDL data config object
     # which is stored in the Dagster context that is available to all ops.
     partitions_from_data_config = partitions_from_data_config_factory(name)
