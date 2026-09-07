@@ -7,6 +7,7 @@ from dagster import AssetIn, AssetsDefinition, asset
 
 import pudl.helpers as helpers
 import pudl.logging_helpers
+from pudl.dagster.op_tags import ISLAND_OP_TAGS
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -111,6 +112,9 @@ def finished_rus_asset_factory(
         ins={_core_table_name: AssetIn()},
         name=table_name,
         io_manager_key=io_manager_key,
+        # RUS is not yet integrated downstream; deprioritize so the whole dataset
+        # (extract -> _core -> core -> out) acts as late-DAG filler.
+        op_tags=ISLAND_OP_TAGS,
     )
     def finished_rus_asset(**kwargs) -> pd.DataFrame:
         """Convert RUS _core table to core - the io manager will handle the schema."""
