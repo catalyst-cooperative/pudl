@@ -233,7 +233,7 @@ log_vm_labels
 # pool= tag on the extract multi_asset and the `concurrency` block in
 # dagster-ferceqr.yaml). Done here rather than in dagster.yaml because 1.13's
 # YAML only supports a pool-wide default_limit, not a per-pool value. Idempotent.
-dagster instance concurrency set ferceqr_extract 16
+dagster instance concurrency set ferceqr_extract 18
 
 run_ferceqr_etl
 
