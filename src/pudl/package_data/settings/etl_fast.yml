@@ -75,7 +75,7 @@ pudl:
   phmsagas:
     years: [2024]
   nrelatb:
-    years: [2024]
+    years: [2025]
   gridpathratoolkit:
     technology_types: ["wind"]
     processing_levels: ["extended"]
