@@ -385,6 +385,21 @@ def _save_extract_errors(
         "raw_ferceqr__index_pub": dg.AssetOut(kinds={"duckdb"}),
         "raw_ferceqr__extract_errors": dg.AssetOut(kinds={"duckdb"}),
     },
+    # This is the memory-heavy phase of a partition run: it opens a DuckDB
+    # connection and streams every filing's CSVs through it. In the FERC EQR
+    # backfill many partition runs execute at once (max_concurrent_runs in
+    # builds/dagster-ferceqr.yaml), and newest-first ordering front-loads the
+    # largest quarters, so without a cap all of the first wave hit this step
+    # together and their combined DuckDB working sets exhaust the VM's RAM. The
+    # `ferceqr_extract` pool bounds how many run concurrently; the limit is set
+    # in builds/ferceqr_batch.sh (default_limit in dagster-ferceqr.yaml is the
+    # backstop).
+    pool="ferceqr_extract",
+    # A genuinely transient failure here (a DuckDB error on one filing, an
+    # object-store blip pulling the quarter archive) shouldn't doom the whole
+    # deploy. This does NOT catch an OOM SIGKILL of the run worker -- that is
+    # handled at the run level by run_monitoring + run_retries (dagster.yaml).
+    retry_policy=dg.RetryPolicy(max_retries=1, delay=30),
 )
 def extract_ferceqr(
     context: dg.AssetExecutionContext,

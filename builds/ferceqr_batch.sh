@@ -19,6 +19,23 @@ function write_aws_credentials() {
     set -x
 }
 
+function log_vm_labels() {
+    # Diagnostic: print the labels actually attached to this VM instance, to
+    # confirm Batch propagated `batch-job-id`/`pipeline` from allocationPolicy.
+    # Cloud Monitoring only enriches VM metrics with these (as
+    # metadata.user_labels) after its scraper polls the instance, which a
+    # short-lived Batch VM can miss -- the job-level labels on the task logs are
+    # the reliable path. Best-effort; needs compute.instances.get on the VM SA.
+    local meta="http://metadata.google.internal/computeMetadata/v1/instance"
+    local name zone
+    name="$(curl -s -H "Metadata-Flavor: Google" "${meta}/name" 2>/dev/null)" || return 0
+    zone="$(curl -s -H "Metadata-Flavor: Google" "${meta}/zone" 2>/dev/null | awk -F/ '{print $NF}')" || return 0
+    echo "VM instance: ${name} (${zone})"
+    gcloud compute instances describe "$name" --zone "$zone" \
+        --format='value(labels)' 2>/dev/null \
+        || echo "Could not read VM instance labels (missing compute.instances.get?)."
+}
+
 function validate_partition_range_inputs() {
     if [[ -n "${FERCEQR_START_PARTITION:-}" || -n "${FERCEQR_END_PARTITION:-}" ]]; then
         if [[ -z "${FERCEQR_START_PARTITION:-}" || -z "${FERCEQR_END_PARTITION:-}" ]]; then
@@ -174,12 +191,10 @@ FERCEQR_BUILD_TIMEOUT_SECONDS=$((FERCEQR_BUILD_TIMEOUT_HOURS * 3600))
 # Select the FERC EQR-specific dagster configuration from the repo copy.
 cp "${PUDL_ROOT_PATH}/builds/dagster-ferceqr.yaml" "${DAGSTER_HOME}/dagster.yaml"
 
-# Cap each DuckDB connection so the ~12 concurrent partition runs
-# (max_concurrent_runs in dagster-ferceqr.yaml) don't collectively oversubscribe
-# the VM's cores or exhaust its RAM. Sized for a c4d-standard-32 (32 vCPU,
-# 124 GiB): 12 runs x 2 threads = 24 <= 32; 12 x 6 GiB = 72 GiB of DuckDB
-# buffers, leaving headroom for Python/pyarrow/Dagster. Spills land on the
-# 1 TB data disk rather than /tmp. See pudl.helpers.duckdb_connect.
+# Cap each DuckDB connection so the concurrent partition runs don't collectively
+# oversubscribe the VM's cores. 2 threads x 12 pooled extracts = 24 <= 32.
+# When a quarter's working set exceeds memory_limit DuckDB spills to
+# temp_directory rather than failing.
 export PUDL_DUCKDB_THREADS=2
 export PUDL_DUCKDB_MEMORY_LIMIT=6GB
 export PUDL_DUCKDB_TEMP_DIRECTORY="${PUDL_OUTPUT}/duckdb_tmp"
@@ -212,11 +227,31 @@ if ! {
 fi
 
 ferceqr_etl_started=true
+
+log_vm_labels
+
+# Set the cross-run limit for the `ferceqr_extract` concurrency pool (see the
+# pool= tag on the extract multi_asset and the `concurrency` block in
+# dagster-ferceqr.yaml). Done here rather than in dagster.yaml because 1.13's
+# YAML only supports a pool-wide default_limit, not a per-pool value. Idempotent.
+dagster instance concurrency set ferceqr_extract 12
+
 run_ferceqr_etl
 
 # Check if build was successful and return appropriate return value
 if [ ! -f "${PUDL_OUTPUT}/FERCEQR_SUCCESS" ]; then
     echo "FERC EQR Build failed!"
+    # Surface kernel OOM kills: a run worker that is SIGKILLed leaves no
+    # RUN_FAILURE and no traceback in the Dagster logs, so without this the only
+    # symptom is missing partitions at deploy time. Best-effort -- dmesg may be
+    # unreadable depending on container capabilities.
+    if command -v dmesg >/dev/null 2>&1; then
+        oom_lines="$(dmesg -T 2>/dev/null | grep -iE 'out of memory|oom-kill|killed process' | tail -n 20)"
+        if [[ -n "$oom_lines" ]]; then
+            echo "Kernel OOM-killer activity detected during this build:"
+            echo "$oom_lines"
+        fi
+    fi
     exit 1
 fi
 
