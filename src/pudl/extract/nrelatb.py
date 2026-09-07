@@ -40,17 +40,13 @@ class Extractor(GenericExtractor):
         """
         filename = self.source_filename(page, **partition)
 
-        for resource_key, zf in self.ds.get_zipfile_resources(
-            self._dataset_name, **partition
+        with (
+            self.ds.get_zipfile_resource(
+                self._dataset_name, sector="electricity", **partition
+            ) as zf,
+            zf.open(filename) as f,
         ):
-            archive_name = str(resource_key).lower()
-            if "electricity" not in archive_name:
-                continue
-            with zf.open(filename) as f:
-                return pd.read_parquet(f)
-        raise FileNotFoundError(
-            f"No electricity parquet file found for {self._dataset_name} {partition}"
-        )
+            return pd.read_parquet(f)
 
 
 raw_nrelatb__all_dfs = raw_df_factory(Extractor, name="nrelatb")

@@ -553,20 +553,6 @@ class Datastore:
 
         return retry(retryable, retry_on=(zipfile.BadZipFile))
 
-    def get_zipfile_resources(
-        self, dataset: str, **filters: Any
-    ) -> Iterator[tuple[PudlResourceKey, zipfile.ZipFile]]:
-        """Iterates over resources that match filters and opens each as ZipFile."""
-        for resource_key, content in self.get_resources(dataset, **filters):
-            yield (
-                resource_key,
-                retry(
-                    zipfile.ZipFile,
-                    retry_on=(zipfile.BadZipFile),
-                    file=io.BytesIO(content),
-                ),
-            )
-
     def get_zipfile_file_names(self, zip_file: zipfile.ZipFile):
         """Given a zipfile, return a list of the file names in it."""
         return zipfile.ZipFile.namelist(zip_file)
