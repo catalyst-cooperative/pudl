@@ -24,14 +24,14 @@ concurrency:
     # and the OOM-killer took 4 runs. The `ferceqr_extract` pool below bounds
     # concurrent extracts; combined with the c4d-highmem-32 (252 GiB) this keeps
     # max_concurrent_runs high so transform/write tails still overlap.
-    max_concurrent_runs: 20
+    max_concurrent_runs: 24
   pools:
     # extract_ferceqr is tagged pool="ferceqr_extract" (see pudl.extract.ferceqr).
     # This caps how many of those steps run simultaneously across all partition
     # runs. The per-pool limit is set explicitly in builds/ferceqr_batch.sh via
     # `dagster instance concurrency set` (1.13 YAML only supports a pool-wide
     # default); default_limit here is the backstop if that step is skipped.
-    default_limit: 16
+    default_limit: 18
     # Default granularity is "op": at most N copies of a pooled op/asset run at
     # once, regardless of how many runs are in flight. That is what we want --
     # the extract step is the memory-heavy phase, not the whole run.
