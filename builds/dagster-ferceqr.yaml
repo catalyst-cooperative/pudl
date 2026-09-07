@@ -16,14 +16,7 @@ run_coordinator:
 concurrency:
   runs:
     # Steady-state occupancy at 24 concurrent partition runs is healthy on a
-    # 32-vCPU box (measured load ~30/32 once the runs desync). The danger is the
-    # cold start: without a cap, all 24 runs enter the memory-heavy
-    # extract_ferceqr step within seconds of each other and their synchronized
-    # DuckDB working sets spike RAM before anything desyncs -- on the old
-    # c4d-standard-32 (124 GiB) the 2026-09-06 run went 1.6% -> 84% RAM in 60s
-    # and the OOM-killer took 4 runs. The `ferceqr_extract` pool below bounds
-    # concurrent extracts; combined with the c4d-highmem-32 (252 GiB) this keeps
-    # max_concurrent_runs high so transform/write tails still overlap.
+    # 32-vCPU machine. Measured load 20-34 for most of the run.
     max_concurrent_runs: 24
   pools:
     # extract_ferceqr is tagged pool="ferceqr_extract" (see pudl.extract.ferceqr).

@@ -135,7 +135,7 @@ class ObjectStore(ABC):
     @classmethod
     def for_uri(
         cls, uri: str, storage_options: dict[str, Any] | None = None
-    ) -> "ObjectStore":
+    ) -> ObjectStore:
         """Return an :class:`ObjectStore` capable of operating on *uri*.
 
         *storage_options* mirrors the per-target config in the FERC EQR
