@@ -19,6 +19,7 @@ from dagster import asset
 
 import pudl.logging_helpers
 from pudl.extract.epacems import EpaCemsDatastore, EpaCemsPartition
+from pudl.dagster.op_tags import ISLAND_OP_TAGS
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -136,7 +137,7 @@ class EpaMatsDatastore(EpaCemsDatastore):
     # extraction acts as late-DAG filler -- backfilling idle executor slots during
     # the serial tail of the ETL instead of competing with the critical path at
     # startup.
-    op_tags={"dagster/priority": -10},
+    op_tags=ISLAND_OP_TAGS,
 )
 def raw_epamats__hourly_emissions(context) -> pd.DataFrame:
     """Extract raw EPA MATS hourly emissions data and return as a pandas DataFrame."""
