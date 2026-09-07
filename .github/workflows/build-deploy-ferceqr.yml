@@ -151,7 +151,7 @@ jobs:
             --container-env GCS_LOGS_BUCKET=${{ env.GCS_LOGS_BUCKET }} \
             --container-env GITHUB_ACTION_TRIGGER=${{ github.event_name }} \
             --container-env PUDL_BOT_PAT=${{ secrets.PUDL_BOT_PAT }} \
-            --machine-type c4d-highmem-32 \
+            --machine-type c4d-standard-32 \
             --disk-gb 1000 \
             --disk-type hyperdisk-balanced \
             --batch-job-id "build-deploy-ferceqr-${{ env.BATCH_JOB_ID }}" \
