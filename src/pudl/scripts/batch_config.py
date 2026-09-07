@@ -173,12 +173,16 @@ def to_config(
         "logsPolicy": {"destination": "CLOUD_LOGGING"},
         # Batch copies these job-level labels onto every `batch_task_logs` entry (as
         # `labels.<key>`), unlike the `allocationPolicy` instance labels above which
-        # only surface on VM metrics. Repeating `pipeline` here lets the dashboard's
-        # Logs widget filter by pipeline via the `${pipeline}` template variable,
-        # matching the behavior of the metric widgets.
+        # only surface on VM metrics. Repeating `pipeline` and `batch-job-id` here
+        # lets the dashboard's Logs widget filter/group the same way its metric
+        # widgets do. `batch-job-id` in particular is unreliable on VM metrics for
+        # short-lived jobs -- Cloud Monitoring only enriches `metadata.user_labels`
+        # after its metadata scraper has polled the instance, which a ~30-minute
+        # Batch VM can miss entirely -- but it always lands on the logs.
         "labels": {
             "component": "build",
             "pipeline": pipeline,
+            "batch-job-id": batch_job_id,
         },
     }
 
