@@ -194,8 +194,8 @@ cp "${PUDL_ROOT_PATH}/builds/dagster-ferceqr.yaml" "${DAGSTER_HOME}/dagster.yaml
 # oversubscribe the VM's cores. 2 threads x 12 pooled extracts = 24 <= 32.
 # When a quarter's working set exceeds memory_limit DuckDB spills to
 # temp_directory rather than failing.
-export PUDL_DUCKDB_THREADS=4
-export PUDL_DUCKDB_MEMORY_LIMIT=8GB
+export PUDL_DUCKDB_THREADS=2
+export PUDL_DUCKDB_MEMORY_LIMIT=4GB
 export PUDL_DUCKDB_TEMP_DIRECTORY="${PUDL_OUTPUT}/duckdb_tmp"
 mkdir -p "$PUDL_DUCKDB_TEMP_DIRECTORY"
 
@@ -233,7 +233,7 @@ log_vm_labels
 # pool= tag on the extract multi_asset and the `concurrency` block in
 # dagster-ferceqr.yaml). Done here rather than in dagster.yaml because 1.13's
 # YAML only supports a pool-wide default_limit, not a per-pool value. Idempotent.
-dagster instance concurrency set ferceqr_extract 16
+dagster instance concurrency set ferceqr_extract 24
 
 run_ferceqr_etl
 
