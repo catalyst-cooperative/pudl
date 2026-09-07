@@ -353,8 +353,9 @@ def partition_extractor_factory(
     Args:
         extractor_cls: Class of type :class:`Extractor` used to extract the data.
         name: Name of an Excel based dataset (e.g. "eia860").
-        op_tags: Optional Dagster op tags (e.g. ``{"dagster/priority": -10}``) applied
-            to the per-partition extraction op.
+        op_tags: Optional Dagster op tags (e.g.
+            :data:`pudl.dagster.op_tags.ISLAND_OP_TAGS`) applied to the per-partition
+            extraction op.
     """
 
     @op(

@@ -22,6 +22,7 @@ import pandas as pd
 from dagster import AssetOut, asset, multi_asset
 
 from pudl import logging_helpers
+from pudl.dagster.op_tags import ISLAND_OP_TAGS
 from pudl.helpers import (
     ParquetData,
     duckdb_extract_zipped_csv,
@@ -63,7 +64,7 @@ def _clean_column_names(
     # it. Deprioritize this heavy per-year weather extraction so it backfills idle
     # executor slots during the serial tail of the ETL rather than competing with
     # the critical path at startup.
-    op_tags={"dagster/priority": -10},
+    op_tags=ISLAND_OP_TAGS,
 )
 def extract_vcerare(
     context,
@@ -102,7 +103,7 @@ def extract_vcerare(
 @asset(
     required_resource_keys={"datastore", "global_data_config"},
     # See extract_vcerare: VCE RARE is not yet integrated downstream.
-    op_tags={"dagster/priority": -10},
+    op_tags=ISLAND_OP_TAGS,
 )
 def raw_vcerare__lat_lon_fips(context) -> pd.DataFrame:
     """Extract lat/lon to FIPS and county mapping CSV.

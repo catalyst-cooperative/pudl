@@ -1,7 +1,7 @@
 execution:
   config:
     multiprocess:
-      max_concurrent: 0
+      max_concurrent: 24
       tag_concurrency_limits:
         - key: memory-use
           value: high
