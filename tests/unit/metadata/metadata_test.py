@@ -3,7 +3,7 @@
 import json
 import re
 from datetime import date
-from typing import Any
+from typing import Any, Literal
 
 import duckdb.sqltypes
 import frictionless
@@ -215,7 +215,10 @@ def test_field_to_sql_duckdb_integer_primary_key_has_no_autoincrement() -> None:
         engine.dispose()
 
 
-def test_resource_to_sql_duckdb_excludes_foreign_keys_when_requested() -> None:
+@pytest.mark.parametrize("dialect", ["sqlite", "duckdb"])
+def test_resource_to_sql_excludes_foreign_keys_when_requested(
+    dialect: Literal["sqlite", "duckdb"],
+) -> None:
     """include_foreign_keys=False should omit FK constraints under any dialect."""
     parent = Resource(
         name="parent",
@@ -244,13 +247,13 @@ def test_resource_to_sql_duckdb_excludes_foreign_keys_when_requested() -> None:
     )
 
     metadata = sa.MetaData()
-    parent.to_sql(metadata, dialect="duckdb", include_foreign_keys=False)
-    table = child.to_sql(metadata, dialect="duckdb", include_foreign_keys=False)
+    parent.to_sql(metadata, dialect=dialect, include_foreign_keys=False)
+    table = child.to_sql(metadata, dialect=dialect, include_foreign_keys=False)
     assert list(table.foreign_keys) == []
 
     metadata_with_fk = sa.MetaData()
-    parent.to_sql(metadata_with_fk, dialect="duckdb")
-    table_with_fk = child.to_sql(metadata_with_fk, dialect="duckdb")
+    parent.to_sql(metadata_with_fk, dialect=dialect)
+    table_with_fk = child.to_sql(metadata_with_fk, dialect=dialect)
     assert list(table_with_fk.foreign_keys) != []
 
 
@@ -259,16 +262,14 @@ def test_field_to_sql_duckdb_same_name_different_enum_values_get_distinct_types(
 ):
     """Two fields sharing a name but not their enum values must not share a type.
 
-    Regression test: PUDL reuses field names like "plant_type" across many
-    resources with resource-specific enum overrides (see
-    FIELD_METADATA_BY_RESOURCE) that don't all share the same allowed values.
-    Naming the DuckDB ENUM type after the field name alone caused whichever
-    resource's column got created first to "win" -- every other table with the
-    same field name but different values then failed to load, since its real
-    values weren't members of the first table's enum type. Caught via a real
-    Dagster pudl_duckdb run (e.g. "combined_cycle" is a valid "plant_type" value
-    in some FERC1 resources but not in the RUS12 resources that also use that
-    field name, whichever one happened to run first).
+    Regression test: PUDL reuses field names like "plant_type" across many resources
+    with resource-specific enum overrides (see FIELD_METADATA_BY_RESOURCE) that don't
+    all share the same allowed values. Naming the DuckDB ENUM type after the field name
+    alone caused whichever resource's column got created first to "win" -- every other
+    table with the same field name but different values then failed to load, since its
+    real values weren't members of the first table's enum type. Caught via a real
+    Dagster pudl_duckdb run (e.g. "combined_cycle" is a valid "plant_type" value in some
+    FERC1 resources but not in the RUS12 resources that also use that field name).
     """
     hydro_plant_type = Field(
         name="plant_type",
