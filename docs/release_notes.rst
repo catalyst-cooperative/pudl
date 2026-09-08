@@ -116,10 +116,8 @@ Bug Fixes & Data Cleaning
   surfaced a related gap, also fixed here, where one generator's status transition could
   silently block an unrelated group of generators at the same plant from being rescued.
   Both are now covered by a systematic sweep of unit tests, plus new dbt data quality
-  tests on how much reported generation and fuel survives allocation. The new dbt
-  tests replace the in-ETL ``test_original_gf_vs_the_allocated_by_gens_gf`` and
-  ``_test_gen_pm_fuel_output`` reconciliation checks, which have been removed. Thanks
-  to :user:`grgmiller` for surfacing and starting this fix. See :issue:`5440` and PRs
+  tests on how much reported generation and fuel survives allocation. to
+  :user:`grgmiller` for surfacing and starting this fix. See :issue:`5440` and PRs
   :pr:`5419,5511`.
 * Fixed several sources of non-deterministic row counts, where identical code and data
   produced different results on different machines (e.g. local macOS vs. nightly Linux
