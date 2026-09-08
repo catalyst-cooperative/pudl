@@ -26,15 +26,6 @@ Output Formats & Distribution
   or the new ``pudl.duckdb`` database. This deprecation does not affect the minimally
   processed raw FERC data, which will continue to be distributed as SQLite. See PR
   :pr:`5538`.
-* Added a data validation test that checks ``pudl.sqlite``, ``pudl.duckdb``, and the
-  Parquet outputs are mutually consistent: every table defined in ``PUDL_PACKAGE`` is
-  present in both databases, neither database has extra tables, and every table has the
-  same columns and the same row count in SQLite, DuckDB, and its source Parquet file.
-  See PR :pr:`5538`.
-* Replaced the ``pudl_sqlite_engine`` pytest fixture (a SQLAlchemy engine) with
-  ``pudl_sqlite_connection``, a DuckDB connection that reads ``pudl.sqlite`` via
-  DuckDB's ``sqlite`` extension, so tests query both build outputs through one API as
-  PUDL moves toward DuckDB. See PR :pr:`5538`.
 
 New Data
 ^^^^^^^^
@@ -182,6 +173,11 @@ Bug Fixes & Data Cleaning
   virtual-host addressing hit a TLS certificate mismatch; the examples now create an
   anonymous path-style S3 secret (``CREATE SECRET (TYPE s3, PROVIDER config, REGION
   'us-west-2', URL_STYLE 'path')``) before querying. See PR :pr:`5538`.
+* Added a data validation test that checks ``pudl.sqlite``, ``pudl.duckdb``, and the
+  Parquet outputs are mutually consistent: every table defined in ``PUDL_PACKAGE`` is
+  present in both databases, neither database has extra tables, and every table has the
+  same columns and the same row count in SQLite, DuckDB, and its source Parquet file.
+  See PR :pr:`5538`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -255,6 +251,10 @@ Developer Experience
   longer written to SQLite during the ETL, there is no schema for Alembic to manage, so
   ``alembic.ini``, the ``migrations/`` directory, and the ``alembic`` dependency have
   been removed. See PR :pr:`5538`.
+* Replaced the ``pudl_sqlite_engine`` pytest fixture (a SQLAlchemy engine) with
+  ``pudl_sqlite_connection``, a DuckDB connection that reads ``pudl.sqlite`` via
+  DuckDB's ``sqlite`` extension, so tests query both build outputs through one API as
+  PUDL moves toward DuckDB. See PR :pr:`5538`.
 
 .. _release-v2026.8.0:
 
