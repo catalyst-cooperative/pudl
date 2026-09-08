@@ -1083,7 +1083,7 @@ def _transition_date_in_report_year(
     """
     if operational_status == "retired":
         report_year_starts = pd.to_datetime(report_year.astype(str) + "-01-01")
-        is_transitioning =  transition_date >= report_year_starts
+        is_transitioning = transition_date >= report_year_starts
     elif operational_status == "proposed":
         report_year_ends = pd.to_datetime((report_year + 1).astype(str) + "-01-01")
         is_transitioning = transition_date < report_year_ends
