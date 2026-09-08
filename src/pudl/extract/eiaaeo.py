@@ -21,7 +21,7 @@ from pandera.pandas import DataFrameModel, Field
 from pydantic import BaseModel
 
 import pudl.logging_helpers
-from pudl.dagster.op_tags import ISLAND_OP_TAGS
+from pudl.dagster.op_tags import COLD_PATH_OP_TAGS
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -427,7 +427,7 @@ class AEOTaxonomy:
     # it. Deprioritize this multi-minute extraction so it backfills idle executor
     # slots during the serial tail of the ETL rather than competing with the
     # critical path at startup.
-    op_tags=ISLAND_OP_TAGS,
+    op_tags=COLD_PATH_OP_TAGS,
 )
 def raw_eiaaeo(context: AssetExecutionContext):
     """Extract tables from EIA's Annual Energy Outlook.
