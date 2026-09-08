@@ -64,9 +64,9 @@ class DeploymentPlan(BaseModel):
 
     git_tag: str
     environment: Literal["staging", "production"]
-    # Tri-state overrides for the cloud storage upload targets. ``None`` means "use
-    # the default for this deploy type" (see ``upload_to_gcs``/``upload_to_s3``); an
-    # explicit bool forces the target on or off regardless of deploy type.
+    # Overrides for the cloud storage upload targets. ``None`` means "use the default
+    # for this deploy type" (see ``upload_to_gcs``/``upload_to_s3``); an explicit bool
+    # forces the target on or off regardless of the deploy type default.
     deploy_to_gcs: bool | None = None
     deploy_to_s3: bool | None = None
 
