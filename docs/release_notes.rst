@@ -178,6 +178,18 @@ Bug Fixes & Data Cleaning
   present in both databases, neither database has extra tables, and every table has the
   same columns and the same row count in SQLite, DuckDB, and its source Parquet file.
   See PR :pr:`5538`.
+* Retyped the ``code`` column of four coding tables from string to integer, matching the
+  twelve integer-typed foreign key columns across the EIA-860, RUS-7, and RUS-12 tables
+  that already referenced them. The mismatch had been silently masked by SQLite being
+  lazy about types, and our new ``dbt`` foreign key checks erroring out silently on
+  columns of incompatible types. ``Package`` construction now validates that foreign key
+  columns and their referenced primary key column declare the same type. See
+  :issue:`5552` and PR :pr:`5554`.
+* Re-enabled foreign key constraint enforcement when writing ``pudl.duckdb``, which had
+  previously been disabled because of the type mismatches described above. Enforcing
+  referential integrity on write adds about 140 seconds to a full build, but also.
+  increases the size of ``pudl.duckdb`` from 9 GB to 15 GB. See :issue:`5552` and PR
+  :pr:`5554`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
