@@ -33,13 +33,12 @@ SELECT
     )
 FROM {{ model }} AS child_rows
 ANTI JOIN {{ pk_table_name }} AS parent_rows
--- Compare the key columns as text. This is type-safe no matter how the child and
--- parent columns are declared: a native comparison between mismatched types
--- (e.g. an integer child key against a string parent key) throws a conversion
--- error, and then the test can't report anything at all. Equality of scalar key
--- values round-trips through VARCHAR unchanged, so this doesn't change which rows
--- are flagged as missing. Whether the FK column types agree is a schema question
--- that belongs with the PUDL metadata, not in this data test.
+-- Always compare the key columns as text. A comparison between mismatched types
+-- (e.g. integer child key vs. string parent key) throws a conversion error, and
+-- then the test can't report anything at all. This resulted in a handful of
+-- FK checks being silently skipped historically. Whether the FK column types
+-- agree is a schema question that belongs with the PUDL metadata, not in this
+-- data test. See https://github.com/catalyst-cooperative/pudl/pull/5554
 ON
     {% for fk_column_name, pk_column_name in zip(fk_column_names, pk_column_names) %}
     CAST(child_rows.{{ fk_column_name }} AS VARCHAR) = CAST(parent_rows.{{ pk_column_name }} AS VARCHAR)
