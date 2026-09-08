@@ -1083,13 +1083,15 @@ def _transition_date_in_report_year(
     """
     if operational_status == "retired":
         report_year_starts = pd.to_datetime(report_year.astype(str) + "-01-01")
-        return transition_date >= report_year_starts
-    if operational_status == "proposed":
+        is_transitioning =  transition_date >= report_year_starts
+    elif operational_status == "proposed":
         report_year_ends = pd.to_datetime((report_year + 1).astype(str) + "-01-01")
-        return transition_date < report_year_ends
-    raise ValueError(
-        f"operational_status must be 'retired' or 'proposed', not {operational_status!r}"
-    )
+        is_transitioning = transition_date < report_year_ends
+    else:
+        raise ValueError(
+            f"operational_status must be 'retired' or 'proposed', not {operational_status!r}"
+        )
+    return is_transitioning
 
 
 def _identify_entirely_transitioned_groups(
