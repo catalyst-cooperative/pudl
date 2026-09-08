@@ -21,6 +21,7 @@ import pandas as pd
 from dagster import AssetIn, asset
 
 import pudl.logging_helpers
+from pudl.dagster.op_tags import HOT_PATH_OP_TAGS
 from pudl.extract.ferc714 import (
     FERC714_XBRL_SQLITE_ASSET_KEY,
     TABLE_NAME_MAP_FERC714,
@@ -1165,7 +1166,7 @@ class HourlyPlanningAreaDemand:
     deps=[FERC714_XBRL_SQLITE_ASSET_KEY],
     required_resource_keys={"pudl_paths"},
     io_manager_key="parquet_io_manager",
-    op_tags={"memory-use": "high"},
+    op_tags={"memory-use": "high"} | HOT_PATH_OP_TAGS,
     compute_kind="pandas",
 )
 def core_ferc714__hourly_planning_area_demand(

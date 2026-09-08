@@ -35,6 +35,7 @@ from dagster import (
 )
 
 import pudl.logging_helpers
+from pudl.dagster.op_tags import HOT_PATH_OP_TAGS
 from pudl.helpers import convert_cols_dtypes, make_changelog
 from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.metadata.dtypes import apply_pudl_dtypes, get_pudl_dtypes
@@ -702,6 +703,7 @@ def harvest_entity_tables(  # noqa: C901
     },
     required_resource_keys={"global_data_config"},
     io_manager_key="pudl_io_manager",
+    op_tags=HOT_PATH_OP_TAGS,
 )
 def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:
     """Creates a set of more complete boiler generator associations.
@@ -1249,6 +1251,7 @@ def harvested_entity_asset_factory(
         },
         required_resource_keys={"global_data_config"},
         name=f"harvested_{entity.value}_eia",
+        op_tags=HOT_PATH_OP_TAGS,
     )
     def harvested_entity(context, **clean_dfs):
         """Harvesting IDs & consistent static attributes for EIA entity."""
@@ -1344,6 +1347,7 @@ def finished_eia_asset_factory(
         ins={_core_table_name: AssetIn()},
         name=table_name,
         io_manager_key=io_manager_key,
+        op_tags=HOT_PATH_OP_TAGS,
     )
     def finished_eia_asset(**kwargs) -> pd.DataFrame:
         """Enforce PUDL DB schema on a cleaned EIA dataframe."""

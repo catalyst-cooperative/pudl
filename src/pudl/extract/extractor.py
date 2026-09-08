@@ -451,8 +451,11 @@ def raw_df_factory(
             data. Must correspond to the dataset identified by ``name``.
         name: Name of a CSV or Excel based dataset (e.g. "eia860" or "eia930").
         op_tags: Optional Dagster op tags applied to the per-partition extraction op.
-            Used to set a low ``dagster/priority`` on datasets that are extracted but
-            not yet integrated downstream, so they act as late-DAG filler.
+            Used to set ``dagster/priority`` -- low
+            (:data:`pudl.dagster.op_tags.ISLAND_OP_TAGS`) for datasets that are
+            extracted but not yet integrated downstream so they act as late-DAG
+            filler, or high (:data:`pudl.dagster.op_tags.HOT_PATH_OP_TAGS`) for
+            datasets on the critical path.
     """
     # Build a Dagster op that can extract a single year/half-year of data
     partition_extractor = partition_extractor_factory(extractor_cls, name, op_tags)

@@ -6,6 +6,7 @@ from dagster import asset, asset_check
 
 import pudl.helpers
 import pudl.logging_helpers
+from pudl.dagster.op_tags import HOT_PATH_OP_TAGS
 from pudl.helpers import drop_records_with_null_in_column
 from pudl.metadata.classes import PUDL_PACKAGE, DataSource
 from pudl.metadata.codes import CODE_METADATA
@@ -17,7 +18,7 @@ from pudl.transform.eia861 import clean_nerc
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-@asset
+@asset(op_tags=HOT_PATH_OP_TAGS)
 def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame:
     """Pull and transform the ownership table.
 
@@ -163,7 +164,7 @@ def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame
     return own_df
 
 
-@asset
+@asset(op_tags=HOT_PATH_OP_TAGS)
 def _core_eia860__generators(
     raw_eia860__generator_proposed: pd.DataFrame,
     raw_eia860__generator_existing: pd.DataFrame,
@@ -366,7 +367,7 @@ def _core_eia860__generators(
     return gens_df
 
 
-@asset
+@asset(op_tags=HOT_PATH_OP_TAGS)
 def _core_eia860__generators_solar(
     raw_eia860__generator_solar_existing: pd.DataFrame,
     raw_eia860__generator_solar_retired: pd.DataFrame,
@@ -427,7 +428,7 @@ def _core_eia860__generators_solar(
     return solar_df
 
 
-@asset
+@asset(op_tags=HOT_PATH_OP_TAGS)
 def _core_eia860__generators_energy_storage(
     raw_eia860__generator_energy_storage_existing: pd.DataFrame,
     raw_eia860__generator_energy_storage_proposed: pd.DataFrame,
@@ -506,7 +507,7 @@ def _core_eia860__generators_energy_storage(
     return storage_df
 
 
-@asset
+@asset(op_tags=HOT_PATH_OP_TAGS)
 def _core_eia860__generators_wind(
     raw_eia860__generator_wind_existing: pd.DataFrame,
     raw_eia860__generator_wind_retired: pd.DataFrame,
@@ -555,7 +556,7 @@ def _core_eia860__generators_wind(
     return wind_df
 
 
-@asset
+@asset(op_tags=HOT_PATH_OP_TAGS)
 def _core_eia860__generators_multifuel(
     raw_eia860__multifuel_existing: pd.DataFrame,
     raw_eia860__multifuel_proposed: pd.DataFrame,
@@ -639,7 +640,7 @@ def _core_eia860__generators_multifuel(
     return multifuel_df
 
 
-@asset
+@asset(op_tags=HOT_PATH_OP_TAGS)
 def _core_eia860__plants(raw_eia860__plant: pd.DataFrame) -> pd.DataFrame:
     """Pull and transform the plants table.
 
@@ -718,7 +719,7 @@ def _core_eia860__plants(raw_eia860__plant: pd.DataFrame) -> pd.DataFrame:
     return p_df
 
 
-@asset
+@asset(op_tags=HOT_PATH_OP_TAGS)
 def _core_eia860__boiler_generator_assn(
     raw_eia860__boiler_generator_assn: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -747,7 +748,7 @@ def _core_eia860__boiler_generator_assn(
     return b_g_df
 
 
-@asset
+@asset(op_tags=HOT_PATH_OP_TAGS)
 def _core_eia860__utilities(raw_eia860__utility: pd.DataFrame) -> pd.DataFrame:
     """Pull and transform the utilities table.
 
@@ -831,7 +832,7 @@ def _core_eia860__utilities(raw_eia860__utility: pd.DataFrame) -> pd.DataFrame:
     return u_df
 
 
-@asset
+@asset(op_tags=HOT_PATH_OP_TAGS)
 def _core_eia860__boilers(
     raw_eia860__emission_control_strategies: pd.DataFrame,
     raw_eia860__boiler_info: pd.DataFrame,
@@ -1040,7 +1041,7 @@ def _core_eia860__boilers(
     return b_df
 
 
-@asset
+@asset(op_tags=HOT_PATH_OP_TAGS)
 def _core_eia860__emissions_control_equipment(
     raw_eia860__emissions_control_equipment: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -1163,7 +1164,7 @@ def _core_eia860__emissions_control_equipment(
     return emce_df
 
 
-@asset
+@asset(op_tags=HOT_PATH_OP_TAGS)
 def _core_eia860__boiler_emissions_control_equipment_assn(
     raw_eia860__boiler_so2: pd.DataFrame,
     raw_eia860__boiler_mercury: pd.DataFrame,
@@ -1242,7 +1243,7 @@ def _core_eia860__boiler_emissions_control_equipment_assn(
     return bece_df
 
 
-@asset
+@asset(op_tags=HOT_PATH_OP_TAGS)
 def _core_eia860__boiler_cooling(
     raw_eia860__boiler_cooling: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -1266,7 +1267,7 @@ def _core_eia860__boiler_cooling(
     return bc_assn
 
 
-@asset
+@asset(op_tags=HOT_PATH_OP_TAGS)
 def _core_eia860__boiler_stack_flue(
     raw_eia860__boiler_stack_flue: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -1308,7 +1309,7 @@ def _core_eia860__boiler_stack_flue(
     return bsf_assn
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="pudl_io_manager", op_tags=HOT_PATH_OP_TAGS)
 def _core_eia860__cooling_equipment(
     raw_eia860__cooling_equipment: pd.DataFrame,
     _core_censuspep__yearly_geocodes: pd.DataFrame,
@@ -1420,7 +1421,7 @@ def cooling_equipment_continuity(cooling_equipment):
     )
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="pudl_io_manager", op_tags=HOT_PATH_OP_TAGS)
 def _core_eia860__fgd_equipment(
     raw_eia860__fgd_equipment: pd.DataFrame,
     _core_censuspep__yearly_geocodes: pd.DataFrame,
