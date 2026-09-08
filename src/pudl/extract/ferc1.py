@@ -80,6 +80,7 @@ from dagster import (
 )
 
 import pudl.logging_helpers
+from pudl.dagster.op_tags import HOT_PATH_OP_TAGS
 from pudl.extract.dbf import (
     FercDbfExtractor,
     PartitionedDataFrame,
@@ -424,7 +425,11 @@ raw_ferc1_assets = create_raw_ferc1_assets()
 # asset name.
 
 
-@asset(deps=[FERC1_XBRL_SQLITE_ASSET_KEY], required_resource_keys={"pudl_paths"})
+@asset(
+    deps=[FERC1_XBRL_SQLITE_ASSET_KEY],
+    required_resource_keys={"pudl_paths"},
+    op_tags=HOT_PATH_OP_TAGS,
+)
 def raw_ferc1_xbrl__metadata_json(
     context,
 ) -> dict[str, dict[str, list[dict[str, Any]]]]:
