@@ -86,7 +86,7 @@ builds deploy to ``staging``. This is passed into the Batch container as the
 
 ``build-pudl`` also decides which cloud storage targets the build's outputs will be
 published to. Nightly and stable builds always deploy to both GCS and S3. Manually
-dispatched branch builds deploy GCS-only by default and skip S3 to avoid egress
+dispatched branch builds deploy to GCS by default and skip S3 to avoid egress
 charges. The ``build-pudl`` workflow-dispatch form exposes ``deploy_to_gcs`` /
 ``deploy_to_s3`` checkboxes to override the default behaviors.
 
