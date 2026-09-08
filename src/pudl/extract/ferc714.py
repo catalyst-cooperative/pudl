@@ -10,6 +10,7 @@ import pandas as pd
 from dagster import AssetKey, AssetsDefinition, AssetSpec, asset
 
 import pudl.logging_helpers
+from pudl.dagster.op_tags import HOT_PATH_OP_TAGS
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -107,7 +108,7 @@ def raw_ferc714_csv_asset_factory(table_name: str) -> AssetsDefinition:
         required_resource_keys={"datastore", "global_data_config"},
         compute_kind="pandas",
         op_tags=(
-            {"dagster/priority": 10}
+            HOT_PATH_OP_TAGS
             if table_name in _FERC714_CSV_CRITICAL_PATH_TABLES
             else None
         ),

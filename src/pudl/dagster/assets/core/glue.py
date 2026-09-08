@@ -14,6 +14,7 @@ import pudl.glue.ferc1_eia
 import pudl.glue.ferc714
 import pudl.helpers
 import pudl.logging_helpers
+from pudl.dagster.op_tags import HOT_PATH_OP_TAGS
 from pudl.metadata.classes import DataSource, Package
 from pudl.metadata.dtypes import apply_pudl_dtypes
 
@@ -29,6 +30,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
     },
     can_subset=True,
     required_resource_keys={"datastore", "global_data_config"},
+    op_tags=HOT_PATH_OP_TAGS,
 )
 def create_glue_tables(context):
     """Extract, transform and load CSVs for the FERC-EIA Glue tables.
