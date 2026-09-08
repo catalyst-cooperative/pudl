@@ -21,6 +21,16 @@ sources:
               arguments:
                 group_by_columns: [borrower_id_rus, report_date]
                 categorical_column: source_of_energy
+                value_column: cost
+                subcomponents_list: ["received_into_system_gross"]
+                negative_subcomponents_list: ["delivered_out_of_system_gross"]
+                total_label: "net_interchange"
+                tolerance: 1
+              description: "Check that total cost equals received minus delivered (gross)."
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns: [borrower_id_rus, report_date]
+                categorical_column: source_of_energy
                 value_column: net_energy_received_mwh
                 subcomponents_list: ["energy_available_for_sale"]
                 negative_subcomponents_list: ["total_energy_accounted"]
@@ -38,6 +48,17 @@ sources:
                 total_label: "net_energy_wheeled"
                 tolerance: 1
               description: "Check that net_energy_wheeled equals received minus delivered (wheeling)."
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns: [borrower_id_rus, report_date]
+                categorical_column: source_of_energy
+                value_column: cost
+                subcomponents_list: ["received_into_system_wheeling"]
+                negative_subcomponents_list:
+                  ["delivered_out_of_system_wheeling"]
+                total_label: "net_energy_wheeled"
+                tolerance: 1
+              description: "Check that total cost equals received minus delivered (wheeling)."
           - subcomponents_sum_to_total:
               arguments:
                 group_by_columns: [borrower_id_rus, report_date]
