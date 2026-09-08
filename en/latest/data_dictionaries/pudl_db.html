@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="pudl_db.html.md" />
-    <title>PUDL Data Dictionary &#8212; PUDL 2026.8.1.dev39 documentation</title>
+    <title>PUDL Data Dictionary &#8212; PUDL 2026.8.1.dev40 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../_static/documentation_options.js?v=c87640b2"></script>
+    <script src="../_static/documentation_options.js?v=e0eb14ee"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev39 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev39 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev40 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev40 documentation - Home"/>
   
   
 </a></div>
@@ -49528,7 +49528,7 @@ R</label><div class="sd-tab-content docutils">
 <p>Noticed any irregularities with this table? <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&amp;table=core_phmsagas__yearly_distribution_by_install_decade">File a report.</a></p>
 <p>Annual time series of miles of mains and the number of services in operation at the end of the year by install decade.</p>
 <dl class="simple">
-<dt>Most-recent data:</dt><dd><p>2024</p>
+<dt>Most-recent data:</dt><dd><p>2025</p>
 </dd>
 <dt>Processing:</dt><dd><p>Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.</p>
 </dd>
@@ -49650,7 +49650,7 @@ R</label><div class="sd-tab-content docutils">
 <p>Noticed any irregularities with this table? <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&amp;table=core_phmsagas__yearly_distribution_operators">File a report.</a></p>
 <p>Annual time series of distribution operator information.</p>
 <dl class="simple">
-<dt>Most-recent data:</dt><dd><p>2024</p>
+<dt>Most-recent data:</dt><dd><p>2025</p>
 </dd>
 <dt>Processing:</dt><dd><p>Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.</p>
 </dd>
@@ -60534,36 +60534,34 @@ R</label><div class="sd-tab-content docutils">
 </div>
 </section>
 </section>
-<section id="i-core-phmsagas-yearly-distribution-by-install-decade">
-<span id="id1724"></span><h2>_core_phmsagas__yearly_distribution_by_install_decade<a class="headerlink" href="#i-core-phmsagas-yearly-distribution-by-install-decade" title="Link to this heading">#</a></h2>
-<p>Noticed any irregularities with this table? <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&amp;table=_core_phmsagas__yearly_distribution_by_install_decade">File a report.</a></p>
-<p>Annual time series of miles of mains and the number of services in operation at the end of the year by install decade.</p>
+<section id="core-phmsagas-yearly-distribution-by-material">
+<span id="i-core-phmsagas-yearly-distribution-by-material"></span><h2>_core_phmsagas__yearly_distribution_by_material<a class="headerlink" href="#core-phmsagas-yearly-distribution-by-material" title="Link to this heading">#</a></h2>
+<p>Noticed any irregularities with this table? <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&amp;table=_core_phmsagas__yearly_distribution_by_material">File a report.</a></p>
+<p>Annual time series of miles of mains and the number of services in operation at the end of the year by material for each gas distribution operator.</p>
 <dl class="simple">
-<dt>Most-recent data:</dt><dd><p>2024</p>
+<dt>Most-recent data:</dt><dd><p>2025</p>
 </dd>
 <dt>Processing:</dt><dd><p>Data has been cleaned but not tidied/normalized. Published only temporarily and may be removed without notice.</p>
 </dd>
-<dt>Source:</dt><dd><p>Pipelines and Hazardous Materials Safety Administration (PHMSA) Annual Natural Gas Report (Part B - System Description / Section 4)</p>
+<dt>Source:</dt><dd><p>Pipelines and Hazardous Materials Safety Administration (PHMSA) Annual Natural Gas Report (Part B - System Description / Section 1 - General)</p>
 </dd>
-<dt>Primary key:</dt><dd><p>report_id, report_date, operator_id_phmsa, operating_state, install_decade</p>
+<dt>Primary key:</dt><dd><p>This table has no primary key. We expect the primary key for this table should be report_id, operator_id_phmsa, operating_state and material. However, there are nulls in the operating_state across several years of reporting.</p>
 </dd>
 </dl>
-<section id="id1725">
-<h3>Usage Warnings<a class="headerlink" href="#id1725" title="Link to this heading">#</a></h3>
+<section id="id1724">
+<h3>Usage Warnings<a class="headerlink" href="#id1724" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>This table has been concatenated across all years and re-organized into a logical structure, but the data has not been fully cleaned. Except some inconsistent units, data types and values over the years of reported data. Once fully cleaned, this table will be deprecated and replaced with a core table.</p></li>
 <li><p>Some columns contain subtotals; use caution when choosing columns to aggregate.</p></li>
+<li><p>The categories of material types have changed slightly over the years (ex: cast and wrought iron were broken up in two categories before 1984).</p></li>
+<li><p>Beginning in 2004, companies file one report per state. The operating_state column has not been normalized and may contain more than one state in earlier years of data.</p></li>
 </ul>
 </section>
-<section id="id1726">
-<h3>Additional Details<a class="headerlink" href="#id1726" title="Link to this heading">#</a></h3>
-<p>The records with an install decade of total_decade are a total - beware of aggregating these values.</p>
-</section>
-<section id="id1727">
-<h3>Access methods<a class="headerlink" href="#id1727" title="Link to this heading">#</a></h3>
+<section id="id1725">
+<h3>Access methods<a class="headerlink" href="#id1725" title="Link to this heading">#</a></h3>
 <ul class="simple">
-<li><p><a class="reference external" href="https://data.catalyst.coop/preview/pudl/_core_phmsagas__yearly_distribution_by_install_decade">Browse and query this table online</a></p></li>
-<li><p><a class="reference external" href="https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/_core_phmsagas__yearly_distribution_by_install_decade.parquet">Download this table as a Parquet file</a></p></li>
+<li><p><a class="reference external" href="https://data.catalyst.coop/preview/pudl/_core_phmsagas__yearly_distribution_by_material">Browse and query this table online</a></p></li>
+<li><p><a class="reference external" href="https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/_core_phmsagas__yearly_distribution_by_material.parquet">Download this table as a Parquet file</a></p></li>
 </ul>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-1486" name="sd-tab-set-373" type="radio">
@@ -60571,7 +60569,7 @@ R</label><div class="sd-tab-content docutils">
 pandas</label><div class="sd-tab-content docutils">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>
-      <span class="s2">"s3://pudl.catalyst.coop/nightly/_core_phmsagas__yearly_distribution_by_install_decade.parquet"</span><span class="p">,</span>
+      <span class="s2">"s3://pudl.catalyst.coop/nightly/_core_phmsagas__yearly_distribution_by_material.parquet"</span><span class="p">,</span>
       <span class="n">dtype_backend</span><span class="o">=</span><span class="s2">"pyarrow"</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
@@ -60582,7 +60580,7 @@ pandas</label><div class="sd-tab-content docutils">
 polars</label><div class="sd-tab-content docutils">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>
-      <span class="s2">"s3://pudl.catalyst.coop/nightly/_core_phmsagas__yearly_distribution_by_install_decade.parquet"</span><span class="p">,</span>
+      <span class="s2">"s3://pudl.catalyst.coop/nightly/_core_phmsagas__yearly_distribution_by_material.parquet"</span><span class="p">,</span>
       <span class="n">storage_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"aws_region"</span><span class="p">:</span> <span class="s2">"us-west-2"</span><span class="p">,</span> <span class="s2">"aws_skip_signature"</span><span class="p">:</span> <span class="s2">"True"</span><span class="p">},</span>
 <span class="p">)</span>
 </pre></div>
@@ -60591,139 +60589,12 @@ polars</label><div class="sd-tab-content docutils">
 <input id="sd-tab-item-1488" name="sd-tab-set-373" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-1488">
 SQL (DuckDB)</label><div class="sd-tab-content docutils">
-<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="s1">'s3://pudl.catalyst.coop/nightly/_core_phmsagas__yearly_distribution_by_install_decade.parquet'</span><span class="p">;</span>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="s1">'s3://pudl.catalyst.coop/nightly/_core_phmsagas__yearly_distribution_by_material.parquet'</span><span class="p">;</span>
 </pre></div>
 </div>
 </div>
 <input id="sd-tab-item-1489" name="sd-tab-set-373" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-1489">
-R</label><div class="sd-tab-content docutils">
-<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">library</span><span class="p">(</span><span class="n">arrow</span><span class="p">)</span>
-<span class="n">df</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">read_parquet</span><span class="p">(</span>
-<span class="w">      </span><span class="s">"s3://pudl.catalyst.coop/nightly/_core_phmsagas__yearly_distribution_by_install_decade.parquet"</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
-</section>
-<section id="id1728">
-<h3>Columns<a class="headerlink" href="#id1728" title="Link to this heading">#</a></h3>
-<div class="pst-scrollable-table-container"><table class="table">
-<thead>
-<tr class="row-odd"><th class="head"><p><strong>Field Name</strong></p></th>
-<th class="head"><p><strong>Type</strong></p></th>
-<th class="head"><p><strong>Unit</strong></p></th>
-<th class="head"><p><strong>Description</strong></p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>commodity</p></td>
-<td><p>string</p></td>
-<td></td>
-<td><p>The type of gas delivered by the distribution pipeline.</p></td>
-</tr>
-<tr class="row-odd"><td><p>install_decade</p></td>
-<td><p>string</p></td>
-<td></td>
-<td><p>The decade the distribution pipeline was installed.</p></td>
-</tr>
-<tr class="row-even"><td><p>mains_miles</p></td>
-<td><p>number</p></td>
-<td><p>mile</p></td>
-<td><p>The miles of mains distribution pipeline.</p></td>
-</tr>
-<tr class="row-odd"><td><p>operating_state</p></td>
-<td><p>string</p></td>
-<td></td>
-<td><p>State that the distribution utility is reporting for. Prior to 2004, this may be a list of states.</p></td>
-</tr>
-<tr class="row-even"><td><p>operator_id_phmsa</p></td>
-<td><p>integer</p></td>
-<td></td>
-<td><p>PHMSA unique operator ID. A value of zero represents an unknown operator ID.</p></td>
-</tr>
-<tr class="row-odd"><td><p>report_date</p></td>
-<td><p>date</p></td>
-<td></td>
-<td><p>Date reported.</p></td>
-</tr>
-<tr class="row-even"><td><p>report_id</p></td>
-<td><p>integer</p></td>
-<td></td>
-<td><p>Report number of the PHMSA Gas utility submission.</p></td>
-</tr>
-<tr class="row-odd"><td><p>services</p></td>
-<td><p>integer</p></td>
-<td><p>count</p></td>
-<td><p>Number of services in system at end of year.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</section>
-</section>
-<section id="core-phmsagas-yearly-distribution-by-material">
-<span id="i-core-phmsagas-yearly-distribution-by-material"></span><h2>_core_phmsagas__yearly_distribution_by_material<a class="headerlink" href="#core-phmsagas-yearly-distribution-by-material" title="Link to this heading">#</a></h2>
-<p>Noticed any irregularities with this table? <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&amp;table=_core_phmsagas__yearly_distribution_by_material">File a report.</a></p>
-<p>Annual time series of miles of mains and the number of services in operation at the end of the year by material for each gas distribution operator.</p>
-<dl class="simple">
-<dt>Most-recent data:</dt><dd><p>2024</p>
-</dd>
-<dt>Processing:</dt><dd><p>Data has been cleaned but not tidied/normalized. Published only temporarily and may be removed without notice.</p>
-</dd>
-<dt>Source:</dt><dd><p>Pipelines and Hazardous Materials Safety Administration (PHMSA) Annual Natural Gas Report (Part B - System Description / Section 1 - General)</p>
-</dd>
-<dt>Primary key:</dt><dd><p>This table has no primary key. We expect the primary key for this table should be report_id, operator_id_phmsa, operating_state and material. However, there are nulls in the operating_state across several years of reporting.</p>
-</dd>
-</dl>
-<section id="id1729">
-<h3>Usage Warnings<a class="headerlink" href="#id1729" title="Link to this heading">#</a></h3>
-<ul class="simple">
-<li><p>This table has been concatenated across all years and re-organized into a logical structure, but the data has not been fully cleaned. Except some inconsistent units, data types and values over the years of reported data. Once fully cleaned, this table will be deprecated and replaced with a core table.</p></li>
-<li><p>Some columns contain subtotals; use caution when choosing columns to aggregate.</p></li>
-<li><p>The categories of material types have changed slightly over the years (ex: cast and wrought iron were broken up in two categories before 1984).</p></li>
-<li><p>Beginning in 2004, companies file one report per state. The operating_state column has not been normalized and may contain more than one state in earlier years of data.</p></li>
-</ul>
-</section>
-<section id="id1730">
-<h3>Access methods<a class="headerlink" href="#id1730" title="Link to this heading">#</a></h3>
-<ul class="simple">
-<li><p><a class="reference external" href="https://data.catalyst.coop/preview/pudl/_core_phmsagas__yearly_distribution_by_material">Browse and query this table online</a></p></li>
-<li><p><a class="reference external" href="https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/_core_phmsagas__yearly_distribution_by_material.parquet">Download this table as a Parquet file</a></p></li>
-</ul>
-<div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-1490" name="sd-tab-set-374" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1490">
-pandas</label><div class="sd-tab-content docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>
-      <span class="s2">"s3://pudl.catalyst.coop/nightly/_core_phmsagas__yearly_distribution_by_material.parquet"</span><span class="p">,</span>
-      <span class="n">dtype_backend</span><span class="o">=</span><span class="s2">"pyarrow"</span><span class="p">,</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<input id="sd-tab-item-1491" name="sd-tab-set-374" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1491">
-polars</label><div class="sd-tab-content docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>
-      <span class="s2">"s3://pudl.catalyst.coop/nightly/_core_phmsagas__yearly_distribution_by_material.parquet"</span><span class="p">,</span>
-      <span class="n">storage_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"aws_region"</span><span class="p">:</span> <span class="s2">"us-west-2"</span><span class="p">,</span> <span class="s2">"aws_skip_signature"</span><span class="p">:</span> <span class="s2">"True"</span><span class="p">},</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<input id="sd-tab-item-1492" name="sd-tab-set-374" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1492">
-SQL (DuckDB)</label><div class="sd-tab-content docutils">
-<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="s1">'s3://pudl.catalyst.coop/nightly/_core_phmsagas__yearly_distribution_by_material.parquet'</span><span class="p">;</span>
-</pre></div>
-</div>
-</div>
-<input id="sd-tab-item-1493" name="sd-tab-set-374" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1493">
 R</label><div class="sd-tab-content docutils">
 <div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">library</span><span class="p">(</span><span class="n">arrow</span><span class="p">)</span>
 <span class="n">df</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">read_parquet</span><span class="p">(</span>
@@ -60734,8 +60605,8 @@ R</label><div class="sd-tab-content docutils">
 </div>
 </div>
 </section>
-<section id="id1731">
-<h3>Columns<a class="headerlink" href="#id1731" title="Link to this heading">#</a></h3>
+<section id="id1726">
+<h3>Columns<a class="headerlink" href="#id1726" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p><strong>Field Name</strong></p></th>
@@ -60795,7 +60666,7 @@ R</label><div class="sd-tab-content docutils">
 <p>Noticed any irregularities with this table? <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&amp;table=_core_phmsagas__yearly_distribution_by_material_and_size">File a report.</a></p>
 <p>Annual time series of miles of mains and the number of services in operation at the end of the year by material and size of pipe.</p>
 <dl class="simple">
-<dt>Most-recent data:</dt><dd><p>2024</p>
+<dt>Most-recent data:</dt><dd><p>2025</p>
 </dd>
 <dt>Processing:</dt><dd><p>Data has been cleaned but not tidied/normalized. Published only temporarily and may be removed without notice.</p>
 </dd>
@@ -60804,8 +60675,8 @@ R</label><div class="sd-tab-content docutils">
 <dt>Primary key:</dt><dd><p>This table has no primary key. We expect the primary key for this table should be report_id, operator_id_phmsa, operating_state, main_size and material. There are nulls in the operating_state across several years of reporting.</p>
 </dd>
 </dl>
-<section id="id1732">
-<h3>Usage Warnings<a class="headerlink" href="#id1732" title="Link to this heading">#</a></h3>
+<section id="id1727">
+<h3>Usage Warnings<a class="headerlink" href="#id1727" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>This table has been concatenated across all years and re-organized into a logical structure, but the data has not been fully cleaned. Except some inconsistent units, data types and values over the years of reported data. Once fully cleaned, this table will be deprecated and replaced with a core table.</p></li>
 <li><p>Some columns contain subtotals; use caution when choosing columns to aggregate.</p></li>
@@ -60814,15 +60685,15 @@ R</label><div class="sd-tab-content docutils">
 <li><p>Beginning in 2004, companies file one report per state. The operating_state column has not been normalized and may contain more than one state in earlier years of data.</p></li>
 </ul>
 </section>
-<section id="id1733">
-<h3>Access methods<a class="headerlink" href="#id1733" title="Link to this heading">#</a></h3>
+<section id="id1728">
+<h3>Access methods<a class="headerlink" href="#id1728" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><a class="reference external" href="https://data.catalyst.coop/preview/pudl/_core_phmsagas__yearly_distribution_by_material_and_size">Browse and query this table online</a></p></li>
 <li><p><a class="reference external" href="https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/_core_phmsagas__yearly_distribution_by_material_and_size.parquet">Download this table as a Parquet file</a></p></li>
 </ul>
 <div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-1494" name="sd-tab-set-375" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1494">
+<input checked="checked" id="sd-tab-item-1490" name="sd-tab-set-374" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1490">
 pandas</label><div class="sd-tab-content docutils">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>
@@ -60832,8 +60703,8 @@ pandas</label><div class="sd-tab-content docutils">
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-1495" name="sd-tab-set-375" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1495">
+<input id="sd-tab-item-1491" name="sd-tab-set-374" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1491">
 polars</label><div class="sd-tab-content docutils">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>
@@ -60843,15 +60714,15 @@ polars</label><div class="sd-tab-content docutils">
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-1496" name="sd-tab-set-375" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1496">
+<input id="sd-tab-item-1492" name="sd-tab-set-374" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1492">
 SQL (DuckDB)</label><div class="sd-tab-content docutils">
 <div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="s1">'s3://pudl.catalyst.coop/nightly/_core_phmsagas__yearly_distribution_by_material_and_size.parquet'</span><span class="p">;</span>
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-1497" name="sd-tab-set-375" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1497">
+<input id="sd-tab-item-1493" name="sd-tab-set-374" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1493">
 R</label><div class="sd-tab-content docutils">
 <div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">library</span><span class="p">(</span><span class="n">arrow</span><span class="p">)</span>
 <span class="n">df</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">read_parquet</span><span class="p">(</span>
@@ -60862,8 +60733,8 @@ R</label><div class="sd-tab-content docutils">
 </div>
 </div>
 </section>
-<section id="id1734">
-<h3>Columns<a class="headerlink" href="#id1734" title="Link to this heading">#</a></h3>
+<section id="id1729">
+<h3>Columns<a class="headerlink" href="#id1729" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p><strong>Field Name</strong></p></th>
@@ -60933,7 +60804,7 @@ R</label><div class="sd-tab-content docutils">
 <p>Noticed any irregularities with this table? <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&amp;table=_core_phmsagas__yearly_distribution_excavation_damages">File a report.</a></p>
 <p>Annual time series of excavation damages from various sources.</p>
 <dl class="simple">
-<dt>Most-recent data:</dt><dd><p>2024</p>
+<dt>Most-recent data:</dt><dd><p>2025</p>
 </dd>
 <dt>Processing:</dt><dd><p>Data has been cleaned but not tidied/normalized. Published only temporarily and may be removed without notice.</p>
 </dd>
@@ -60942,22 +60813,22 @@ R</label><div class="sd-tab-content docutils">
 <dt>Primary key:</dt><dd><p>report_id, damage_type, damage_sub_type</p>
 </dd>
 </dl>
-<section id="id1735">
-<h3>Usage Warnings<a class="headerlink" href="#id1735" title="Link to this heading">#</a></h3>
+<section id="id1730">
+<h3>Usage Warnings<a class="headerlink" href="#id1730" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>This table has been concatenated across all years and re-organized into a logical structure, but the data has not been fully cleaned. Except some inconsistent units, data types and values over the years of reported data. Once fully cleaned, this table will be deprecated and replaced with a core table.</p></li>
 <li><p>Some columns contain subtotals; use caution when choosing columns to aggregate.</p></li>
 </ul>
 </section>
-<section id="id1736">
-<h3>Access methods<a class="headerlink" href="#id1736" title="Link to this heading">#</a></h3>
+<section id="id1731">
+<h3>Access methods<a class="headerlink" href="#id1731" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><a class="reference external" href="https://data.catalyst.coop/preview/pudl/_core_phmsagas__yearly_distribution_excavation_damages">Browse and query this table online</a></p></li>
 <li><p><a class="reference external" href="https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/_core_phmsagas__yearly_distribution_excavation_damages.parquet">Download this table as a Parquet file</a></p></li>
 </ul>
 <div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-1498" name="sd-tab-set-376" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1498">
+<input checked="checked" id="sd-tab-item-1494" name="sd-tab-set-375" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1494">
 pandas</label><div class="sd-tab-content docutils">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>
@@ -60967,8 +60838,8 @@ pandas</label><div class="sd-tab-content docutils">
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-1499" name="sd-tab-set-376" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1499">
+<input id="sd-tab-item-1495" name="sd-tab-set-375" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1495">
 polars</label><div class="sd-tab-content docutils">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>
@@ -60978,15 +60849,15 @@ polars</label><div class="sd-tab-content docutils">
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-1500" name="sd-tab-set-376" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1500">
+<input id="sd-tab-item-1496" name="sd-tab-set-375" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1496">
 SQL (DuckDB)</label><div class="sd-tab-content docutils">
 <div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="s1">'s3://pudl.catalyst.coop/nightly/_core_phmsagas__yearly_distribution_excavation_damages.parquet'</span><span class="p">;</span>
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-1501" name="sd-tab-set-376" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1501">
+<input id="sd-tab-item-1497" name="sd-tab-set-375" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1497">
 R</label><div class="sd-tab-content docutils">
 <div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">library</span><span class="p">(</span><span class="n">arrow</span><span class="p">)</span>
 <span class="n">df</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">read_parquet</span><span class="p">(</span>
@@ -60997,8 +60868,8 @@ R</label><div class="sd-tab-content docutils">
 </div>
 </div>
 </section>
-<section id="id1737">
-<h3>Columns<a class="headerlink" href="#id1737" title="Link to this heading">#</a></h3>
+<section id="id1732">
+<h3>Columns<a class="headerlink" href="#id1732" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p><strong>Field Name</strong></p></th>
@@ -61058,7 +60929,7 @@ R</label><div class="sd-tab-content docutils">
 <p>Noticed any irregularities with this table? <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&amp;table=_core_phmsagas__yearly_distribution_filings">File a report.</a></p>
 <p>Annual time series of filings (aka submissions) from gas distribution system operators.</p>
 <dl class="simple">
-<dt>Most-recent data:</dt><dd><p>2024</p>
+<dt>Most-recent data:</dt><dd><p>2025</p>
 </dd>
 <dt>Processing:</dt><dd><p>Data has been cleaned but not tidied/normalized. Published only temporarily and may be removed without notice.</p>
 </dd>
@@ -61067,25 +60938,25 @@ R</label><div class="sd-tab-content docutils">
 <dt>Primary key:</dt><dd><p>report_id, report_date, operator_id_phmsa</p>
 </dd>
 </dl>
-<section id="id1738">
-<h3>Usage Warnings<a class="headerlink" href="#id1738" title="Link to this heading">#</a></h3>
+<section id="id1733">
+<h3>Usage Warnings<a class="headerlink" href="#id1733" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>This table has been concatenated across all years and re-organized into a logical structure, but the data has not been fully cleaned. Except some inconsistent units, data types and values over the years of reported data. Once fully cleaned, this table will be deprecated and replaced with a core table.</p></li>
 </ul>
 </section>
-<section id="id1739">
-<h3>Additional Details<a class="headerlink" href="#id1739" title="Link to this heading">#</a></h3>
+<section id="id1734">
+<h3>Additional Details<a class="headerlink" href="#id1734" title="Link to this heading">#</a></h3>
 <p>This table contains information about the filer and filing type. This includes information about who filed but also whether this was an original filing or a correction.</p>
 </section>
-<section id="id1740">
-<h3>Access methods<a class="headerlink" href="#id1740" title="Link to this heading">#</a></h3>
+<section id="id1735">
+<h3>Access methods<a class="headerlink" href="#id1735" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><a class="reference external" href="https://data.catalyst.coop/preview/pudl/_core_phmsagas__yearly_distribution_filings">Browse and query this table online</a></p></li>
 <li><p><a class="reference external" href="https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/_core_phmsagas__yearly_distribution_filings.parquet">Download this table as a Parquet file</a></p></li>
 </ul>
 <div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-1502" name="sd-tab-set-377" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1502">
+<input checked="checked" id="sd-tab-item-1498" name="sd-tab-set-376" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1498">
 pandas</label><div class="sd-tab-content docutils">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>
@@ -61095,8 +60966,8 @@ pandas</label><div class="sd-tab-content docutils">
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-1503" name="sd-tab-set-377" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1503">
+<input id="sd-tab-item-1499" name="sd-tab-set-376" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1499">
 polars</label><div class="sd-tab-content docutils">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>
@@ -61106,15 +60977,15 @@ polars</label><div class="sd-tab-content docutils">
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-1504" name="sd-tab-set-377" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1504">
+<input id="sd-tab-item-1500" name="sd-tab-set-376" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1500">
 SQL (DuckDB)</label><div class="sd-tab-content docutils">
 <div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="s1">'s3://pudl.catalyst.coop/nightly/_core_phmsagas__yearly_distribution_filings.parquet'</span><span class="p">;</span>
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-1505" name="sd-tab-set-377" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1505">
+<input id="sd-tab-item-1501" name="sd-tab-set-376" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1501">
 R</label><div class="sd-tab-content docutils">
 <div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">library</span><span class="p">(</span><span class="n">arrow</span><span class="p">)</span>
 <span class="n">df</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">read_parquet</span><span class="p">(</span>
@@ -61125,8 +60996,8 @@ R</label><div class="sd-tab-content docutils">
 </div>
 </div>
 </section>
-<section id="id1741">
-<h3>Columns<a class="headerlink" href="#id1741" title="Link to this heading">#</a></h3>
+<section id="id1736">
+<h3>Columns<a class="headerlink" href="#id1736" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p><strong>Field Name</strong></p></th>
@@ -61216,7 +61087,7 @@ R</label><div class="sd-tab-content docutils">
 <p>Noticed any irregularities with this table? <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&amp;table=_core_phmsagas__yearly_distribution_leaks">File a report.</a></p>
 <p>Annual time series of total and hazardous leaks eliminated or repaired during the report year.</p>
 <dl class="simple">
-<dt>Most-recent data:</dt><dd><p>2024</p>
+<dt>Most-recent data:</dt><dd><p>2025</p>
 </dd>
 <dt>Processing:</dt><dd><p>Data has been cleaned but not tidied/normalized. Published only temporarily and may be removed without notice.</p>
 </dd>
@@ -61225,23 +61096,23 @@ R</label><div class="sd-tab-content docutils">
 <dt>Primary key:</dt><dd><p>This table has no primary key. We expect the primary key for this table should be report_id, operator_id_phmsa, operating_state, leak_severity and leak_source. There are nulls in the operating_state across several years of reporting.</p>
 </dd>
 </dl>
-<section id="id1742">
-<h3>Usage Warnings<a class="headerlink" href="#id1742" title="Link to this heading">#</a></h3>
+<section id="id1737">
+<h3>Usage Warnings<a class="headerlink" href="#id1737" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>This table has been concatenated across all years and re-organized into a logical structure, but the data has not been fully cleaned. Except some inconsistent units, data types and values over the years of reported data. Once fully cleaned, this table will be deprecated and replaced with a core table.</p></li>
 <li><p>Some columns contain subtotals; use caution when choosing columns to aggregate.</p></li>
 <li><p>Beginning in 2004, companies file one report per state. The operating_state column has not been normalized and may contain more than one state in earlier years of data.</p></li>
 </ul>
 </section>
-<section id="id1743">
-<h3>Access methods<a class="headerlink" href="#id1743" title="Link to this heading">#</a></h3>
+<section id="id1738">
+<h3>Access methods<a class="headerlink" href="#id1738" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><a class="reference external" href="https://data.catalyst.coop/preview/pudl/_core_phmsagas__yearly_distribution_leaks">Browse and query this table online</a></p></li>
 <li><p><a class="reference external" href="https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/_core_phmsagas__yearly_distribution_leaks.parquet">Download this table as a Parquet file</a></p></li>
 </ul>
 <div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-1506" name="sd-tab-set-378" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1506">
+<input checked="checked" id="sd-tab-item-1502" name="sd-tab-set-377" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1502">
 pandas</label><div class="sd-tab-content docutils">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>
@@ -61251,8 +61122,8 @@ pandas</label><div class="sd-tab-content docutils">
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-1507" name="sd-tab-set-378" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1507">
+<input id="sd-tab-item-1503" name="sd-tab-set-377" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1503">
 polars</label><div class="sd-tab-content docutils">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>
@@ -61262,15 +61133,15 @@ polars</label><div class="sd-tab-content docutils">
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-1508" name="sd-tab-set-378" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1508">
+<input id="sd-tab-item-1504" name="sd-tab-set-377" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1504">
 SQL (DuckDB)</label><div class="sd-tab-content docutils">
 <div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="s1">'s3://pudl.catalyst.coop/nightly/_core_phmsagas__yearly_distribution_leaks.parquet'</span><span class="p">;</span>
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-1509" name="sd-tab-set-378" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1509">
+<input id="sd-tab-item-1505" name="sd-tab-set-377" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1505">
 R</label><div class="sd-tab-content docutils">
 <div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">library</span><span class="p">(</span><span class="n">arrow</span><span class="p">)</span>
 <span class="n">df</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">read_parquet</span><span class="p">(</span>
@@ -61281,8 +61152,8 @@ R</label><div class="sd-tab-content docutils">
 </div>
 </div>
 </section>
-<section id="id1744">
-<h3>Columns<a class="headerlink" href="#id1744" title="Link to this heading">#</a></h3>
+<section id="id1739">
+<h3>Columns<a class="headerlink" href="#id1739" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p><strong>Field Name</strong></p></th>
@@ -61347,7 +61218,7 @@ R</label><div class="sd-tab-content docutils">
 <p>Noticed any irregularities with this table? <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&amp;table=_core_phmsagas__yearly_distribution_misc">File a report.</a></p>
 <p>Annual time series of miscellaneous distribution information.</p>
 <dl class="simple">
-<dt>Most-recent data:</dt><dd><p>2024</p>
+<dt>Most-recent data:</dt><dd><p>2025</p>
 </dd>
 <dt>Processing:</dt><dd><p>Data has been cleaned but not tidied/normalized. Published only temporarily and may be removed without notice.</p>
 </dd>
@@ -61356,22 +61227,22 @@ R</label><div class="sd-tab-content docutils">
 <dt>Primary key:</dt><dd><p>This table has no primary key. We expect the primary key for this table should be report_id, operator_id_phmsa, and operating_state. There are nulls in the operating_state across several years of reporting.</p>
 </dd>
 </dl>
-<section id="id1745">
-<h3>Usage Warnings<a class="headerlink" href="#id1745" title="Link to this heading">#</a></h3>
+<section id="id1740">
+<h3>Usage Warnings<a class="headerlink" href="#id1740" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>This table has been concatenated across all years and re-organized into a logical structure, but the data has not been fully cleaned. Except some inconsistent units, data types and values over the years of reported data. Once fully cleaned, this table will be deprecated and replaced with a core table.</p></li>
 <li><p>Beginning in 2004, companies file one report per state. The operating_state column has not been normalized and may contain more than one state in earlier years of data.</p></li>
 </ul>
 </section>
-<section id="id1746">
-<h3>Access methods<a class="headerlink" href="#id1746" title="Link to this heading">#</a></h3>
+<section id="id1741">
+<h3>Access methods<a class="headerlink" href="#id1741" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><a class="reference external" href="https://data.catalyst.coop/preview/pudl/_core_phmsagas__yearly_distribution_misc">Browse and query this table online</a></p></li>
 <li><p><a class="reference external" href="https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/_core_phmsagas__yearly_distribution_misc.parquet">Download this table as a Parquet file</a></p></li>
 </ul>
 <div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-1510" name="sd-tab-set-379" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1510">
+<input checked="checked" id="sd-tab-item-1506" name="sd-tab-set-378" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1506">
 pandas</label><div class="sd-tab-content docutils">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>
@@ -61381,8 +61252,8 @@ pandas</label><div class="sd-tab-content docutils">
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-1511" name="sd-tab-set-379" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1511">
+<input id="sd-tab-item-1507" name="sd-tab-set-378" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1507">
 polars</label><div class="sd-tab-content docutils">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>
@@ -61392,15 +61263,15 @@ polars</label><div class="sd-tab-content docutils">
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-1512" name="sd-tab-set-379" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1512">
+<input id="sd-tab-item-1508" name="sd-tab-set-378" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1508">
 SQL (DuckDB)</label><div class="sd-tab-content docutils">
 <div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="s1">'s3://pudl.catalyst.coop/nightly/_core_phmsagas__yearly_distribution_misc.parquet'</span><span class="p">;</span>
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-1513" name="sd-tab-set-379" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1513">
+<input id="sd-tab-item-1509" name="sd-tab-set-378" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1509">
 R</label><div class="sd-tab-content docutils">
 <div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">library</span><span class="p">(</span><span class="n">arrow</span><span class="p">)</span>
 <span class="n">df</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">read_parquet</span><span class="p">(</span>
@@ -61411,8 +61282,8 @@ R</label><div class="sd-tab-content docutils">
 </div>
 </div>
 </section>
-<section id="id1747">
-<h3>Columns<a class="headerlink" href="#id1747" title="Link to this heading">#</a></h3>
+<section id="id1742">
+<h3>Columns<a class="headerlink" href="#id1742" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p><strong>Field Name</strong></p></th>
@@ -61516,14 +61387,14 @@ R</label><div class="sd-tab-content docutils">
 <dt>Primary key:</dt><dd><p>This table has no primary key.</p>
 </dd>
 </dl>
-<section id="id1748">
-<h3>Usage Warnings<a class="headerlink" href="#id1748" title="Link to this heading">#</a></h3>
+<section id="id1743">
+<h3>Usage Warnings<a class="headerlink" href="#id1743" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>This table is meant for forensic purposes only. It contains all values which were used to choose canonical or golden-record. See <a class="reference external" href="https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html">Entity Resolution Methodology</a> for a fuller conceptual overview.</p></li>
 </ul>
 </section>
-<section id="id1750">
-<h3>Additional Details<a class="headerlink" href="#id1750" title="Link to this heading">#</a></h3>
+<section id="id1745">
+<h3>Additional Details<a class="headerlink" href="#id1745" title="Link to this heading">#</a></h3>
 <p>This is a forensic table containing the input values used to
 choose canonical values during entity resolution. It is not a cleaned up table - it
 is meant for forensic purposes only. If you have a question about why a value is
@@ -61531,15 +61402,15 @@ reported in an <code class="docutils literal notranslate"><span class="pre">scd<
 that were used as ingredients to find the canonical value. You can filter by the
 column_name and the entity id to find all of the possible input values.</p>
 </section>
-<section id="id1751">
-<h3>Access methods<a class="headerlink" href="#id1751" title="Link to this heading">#</a></h3>
+<section id="id1746">
+<h3>Access methods<a class="headerlink" href="#id1746" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><a class="reference external" href="https://data.catalyst.coop/preview/pudl/_core_rus12__forensics_entity_resolution_borrowers">Browse and query this table online</a></p></li>
 <li><p><a class="reference external" href="https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/_core_rus12__forensics_entity_resolution_borrowers.parquet">Download this table as a Parquet file</a></p></li>
 </ul>
 <div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-1514" name="sd-tab-set-380" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1514">
+<input checked="checked" id="sd-tab-item-1510" name="sd-tab-set-379" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1510">
 pandas</label><div class="sd-tab-content docutils">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>
@@ -61549,8 +61420,8 @@ pandas</label><div class="sd-tab-content docutils">
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-1515" name="sd-tab-set-380" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1515">
+<input id="sd-tab-item-1511" name="sd-tab-set-379" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1511">
 polars</label><div class="sd-tab-content docutils">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>
@@ -61560,15 +61431,15 @@ polars</label><div class="sd-tab-content docutils">
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-1516" name="sd-tab-set-380" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1516">
+<input id="sd-tab-item-1512" name="sd-tab-set-379" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1512">
 SQL (DuckDB)</label><div class="sd-tab-content docutils">
 <div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="s1">'s3://pudl.catalyst.coop/nightly/_core_rus12__forensics_entity_resolution_borrowers.parquet'</span><span class="p">;</span>
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-1517" name="sd-tab-set-380" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1517">
+<input id="sd-tab-item-1513" name="sd-tab-set-379" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1513">
 R</label><div class="sd-tab-content docutils">
 <div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">library</span><span class="p">(</span><span class="n">arrow</span><span class="p">)</span>
 <span class="n">df</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">read_parquet</span><span class="p">(</span>
@@ -61579,8 +61450,8 @@ R</label><div class="sd-tab-content docutils">
 </div>
 </div>
 </section>
-<section id="id1752">
-<h3>Columns<a class="headerlink" href="#id1752" title="Link to this heading">#</a></h3>
+<section id="id1747">
+<h3>Columns<a class="headerlink" href="#id1747" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p><strong>Field Name</strong></p></th>
@@ -61654,14 +61525,14 @@ R</label><div class="sd-tab-content docutils">
 <dt>Primary key:</dt><dd><p>This table has no primary key.</p>
 </dd>
 </dl>
-<section id="id1753">
-<h3>Usage Warnings<a class="headerlink" href="#id1753" title="Link to this heading">#</a></h3>
+<section id="id1748">
+<h3>Usage Warnings<a class="headerlink" href="#id1748" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>This table is meant for forensic purposes only. It contains all values which were used to choose canonical or golden-record. See <a class="reference external" href="https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html">Entity Resolution Methodology</a> for a fuller conceptual overview.</p></li>
 </ul>
 </section>
-<section id="id1755">
-<h3>Additional Details<a class="headerlink" href="#id1755" title="Link to this heading">#</a></h3>
+<section id="id1750">
+<h3>Additional Details<a class="headerlink" href="#id1750" title="Link to this heading">#</a></h3>
 <p>This is a forensic table containing the input values used to
 choose canonical values during entity resolution. It is not a cleaned up table - it
 is meant for forensic purposes only. If you have a question about why a value is
@@ -61669,15 +61540,15 @@ reported in an <code class="docutils literal notranslate"><span class="pre">scd<
 that were used as ingredients to find the canonical value. You can filter by the
 column_name and the entity id to find all of the possible input values.</p>
 </section>
-<section id="id1756">
-<h3>Access methods<a class="headerlink" href="#id1756" title="Link to this heading">#</a></h3>
+<section id="id1751">
+<h3>Access methods<a class="headerlink" href="#id1751" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><a class="reference external" href="https://data.catalyst.coop/preview/pudl/_core_rus7__forensics_entity_resolution_borrowers">Browse and query this table online</a></p></li>
 <li><p><a class="reference external" href="https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/_core_rus7__forensics_entity_resolution_borrowers.parquet">Download this table as a Parquet file</a></p></li>
 </ul>
 <div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-1518" name="sd-tab-set-381" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1518">
+<input checked="checked" id="sd-tab-item-1514" name="sd-tab-set-380" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1514">
 pandas</label><div class="sd-tab-content docutils">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>
@@ -61687,8 +61558,8 @@ pandas</label><div class="sd-tab-content docutils">
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-1519" name="sd-tab-set-381" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1519">
+<input id="sd-tab-item-1515" name="sd-tab-set-380" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1515">
 polars</label><div class="sd-tab-content docutils">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>
@@ -61698,15 +61569,15 @@ polars</label><div class="sd-tab-content docutils">
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-1520" name="sd-tab-set-381" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1520">
+<input id="sd-tab-item-1516" name="sd-tab-set-380" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1516">
 SQL (DuckDB)</label><div class="sd-tab-content docutils">
 <div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="s1">'s3://pudl.catalyst.coop/nightly/_core_rus7__forensics_entity_resolution_borrowers.parquet'</span><span class="p">;</span>
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-1521" name="sd-tab-set-381" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1521">
+<input id="sd-tab-item-1517" name="sd-tab-set-380" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1517">
 R</label><div class="sd-tab-content docutils">
 <div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">library</span><span class="p">(</span><span class="n">arrow</span><span class="p">)</span>
 <span class="n">df</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">read_parquet</span><span class="p">(</span>
@@ -61717,8 +61588,8 @@ R</label><div class="sd-tab-content docutils">
 </div>
 </div>
 </section>
-<section id="id1757">
-<h3>Columns<a class="headerlink" href="#id1757" title="Link to this heading">#</a></h3>
+<section id="id1752">
+<h3>Columns<a class="headerlink" href="#id1752" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p><strong>Field Name</strong></p></th>
@@ -64161,62 +64032,55 @@ R</label><div class="sd-tab-content docutils">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1723">Columns</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#i-core-phmsagas-yearly-distribution-by-install-decade">_core_phmsagas__yearly_distribution_by_install_decade</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1725">Usage Warnings</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1726">Additional Details</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1727">Access methods</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1728">Columns</a></li>
-</ul>
-</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#core-phmsagas-yearly-distribution-by-material">_core_phmsagas__yearly_distribution_by_material</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1729">Usage Warnings</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1730">Access methods</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1731">Columns</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1724">Usage Warnings</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1725">Access methods</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1726">Columns</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#core-phmsagas-yearly-distribution-by-material-and-size">_core_phmsagas__yearly_distribution_by_material_and_size</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1732">Usage Warnings</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1733">Access methods</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1734">Columns</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1727">Usage Warnings</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1728">Access methods</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1729">Columns</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#core-phmsagas-yearly-distribution-excavation-damages">_core_phmsagas__yearly_distribution_excavation_damages</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1735">Usage Warnings</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1736">Access methods</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1737">Columns</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1730">Usage Warnings</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1731">Access methods</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1732">Columns</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#core-phmsagas-yearly-distribution-filings">_core_phmsagas__yearly_distribution_filings</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1738">Usage Warnings</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1739">Additional Details</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1740">Access methods</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1741">Columns</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1733">Usage Warnings</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1734">Additional Details</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1735">Access methods</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1736">Columns</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#core-phmsagas-yearly-distribution-leaks">_core_phmsagas__yearly_distribution_leaks</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1742">Usage Warnings</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1743">Access methods</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1744">Columns</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1737">Usage Warnings</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1738">Access methods</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1739">Columns</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#core-phmsagas-yearly-distribution-misc">_core_phmsagas__yearly_distribution_misc</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1745">Usage Warnings</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1740">Usage Warnings</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1741">Access methods</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1742">Columns</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#core-rus12-forensics-entity-resolution-borrowers">_core_rus12__forensics_entity_resolution_borrowers</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1743">Usage Warnings</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1745">Additional Details</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1746">Access methods</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1747">Columns</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#core-rus12-forensics-entity-resolution-borrowers">_core_rus12__forensics_entity_resolution_borrowers</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#core-rus7-forensics-entity-resolution-borrowers">_core_rus7__forensics_entity_resolution_borrowers</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1748">Usage Warnings</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1750">Additional Details</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1751">Access methods</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1752">Columns</a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#core-rus7-forensics-entity-resolution-borrowers">_core_rus7__forensics_entity_resolution_borrowers</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1753">Usage Warnings</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1755">Additional Details</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1756">Access methods</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1757">Columns</a></li>
 </ul>
 </li>
 </ul>

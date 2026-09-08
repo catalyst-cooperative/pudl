@@ -26335,7 +26335,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of miles of mains and the number of services in operation at the end of the year by install decade.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -26412,7 +26412,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of distribution operator information.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -33184,88 +33184,6 @@ df <- read_parquet(
 | utility_id_eia     | integer    |            | The EIA Utility Identification number.                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | valid_until_date   | date       |            | The record in the changelog is valid until this date. The record is valid from the report_date up until but not including the valid_until_date.                                                                                                                                                                                                                                                                                                             |
 
-<a id="i-core-phmsagas-yearly-distribution-by-install-decade"></a>
-
-## \_core_phmsagas_\_yearly_distribution_by_install_decade
-
-Noticed any irregularities with this table? [File a report.](https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=_core_phmsagas__yearly_distribution_by_install_decade)
-
-Annual time series of miles of mains and the number of services in operation at the end of the year by install decade.
-
-Most-recent data:
-: 2024
-
-Processing:
-: Data has been cleaned but not tidied/normalized. Published only temporarily and may be removed without notice.
-
-Source:
-: Pipelines and Hazardous Materials Safety Administration (PHMSA) Annual Natural Gas Report (Part B - System Description / Section 4)
-
-Primary key:
-: report_id, report_date, operator_id_phmsa, operating_state, install_decade
-
-### Usage Warnings
-
-* This table has been concatenated across all years and re-organized into a logical structure, but the data has not been fully cleaned. Except some inconsistent units, data types and values over the years of reported data. Once fully cleaned, this table will be deprecated and replaced with a core table.
-* Some columns contain subtotals; use caution when choosing columns to aggregate.
-
-### Additional Details
-
-The records with an install decade of total_decade are a total - beware of aggregating these values.
-
-### Access methods
-
-* [Browse and query this table online](https://data.catalyst.coop/preview/pudl/_core_phmsagas__yearly_distribution_by_install_decade)
-* [Download this table as a Parquet file](https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/_core_phmsagas__yearly_distribution_by_install_decade.parquet)
-
-### pandas
-
-```python
-import pandas as pd
-df = pd.read_parquet(
-      "s3://pudl.catalyst.coop/nightly/_core_phmsagas__yearly_distribution_by_install_decade.parquet",
-      dtype_backend="pyarrow",
-)
-```
-
-### polars
-
-```python
-import polars as pl
-df = pl.read_parquet(
-      "s3://pudl.catalyst.coop/nightly/_core_phmsagas__yearly_distribution_by_install_decade.parquet",
-      storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
-)
-```
-
-### SQL (DuckDB)
-
-```sql
-SELECT * FROM 's3://pudl.catalyst.coop/nightly/_core_phmsagas__yearly_distribution_by_install_decade.parquet';
-```
-
-### R
-
-```r
-library(arrow)
-df <- read_parquet(
-      "s3://pudl.catalyst.coop/nightly/_core_phmsagas__yearly_distribution_by_install_decade.parquet"
-)
-```
-
-### Columns
-
-| **Field Name**    | **Type**   | **Unit**   | **Description**                                                                                    |
-|-------------------|------------|------------|----------------------------------------------------------------------------------------------------|
-| commodity         | string     |            | The type of gas delivered by the distribution pipeline.                                            |
-| install_decade    | string     |            | The decade the distribution pipeline was installed.                                                |
-| mains_miles       | number     | mile       | The miles of mains distribution pipeline.                                                          |
-| operating_state   | string     |            | State that the distribution utility is reporting for. Prior to 2004, this may be a list of states. |
-| operator_id_phmsa | integer    |            | PHMSA unique operator ID. A value of zero represents an unknown operator ID.                       |
-| report_date       | date       |            | Date reported.                                                                                     |
-| report_id         | integer    |            | Report number of the PHMSA Gas utility submission.                                                 |
-| services          | integer    | count      | Number of services in system at end of year.                                                       |
-
 <a id="i-core-phmsagas-yearly-distribution-by-material"></a>
 
 ## \_core_phmsagas_\_yearly_distribution_by_material
@@ -33275,7 +33193,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of miles of mains and the number of services in operation at the end of the year by material for each gas distribution operator.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned but not tidied/normalized. Published only temporarily and may be removed without notice.
@@ -33355,7 +33273,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of miles of mains and the number of services in operation at the end of the year by material and size of pipe.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned but not tidied/normalized. Published only temporarily and may be removed without notice.
@@ -33438,7 +33356,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of excavation damages from various sources.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned but not tidied/normalized. Published only temporarily and may be removed without notice.
@@ -33516,7 +33434,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of filings (aka submissions) from gas distribution system operators.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned but not tidied/normalized. Published only temporarily and may be removed without notice.
@@ -33603,7 +33521,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of total and hazardous leaks eliminated or repaired during the report year.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned but not tidied/normalized. Published only temporarily and may be removed without notice.
@@ -33683,7 +33601,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of miscellaneous distribution information.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned but not tidied/normalized. Published only temporarily and may be removed without notice.

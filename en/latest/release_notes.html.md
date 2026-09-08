@@ -60,6 +60,8 @@ This is the upcoming PUDL release.
 * Added the `core_phmsagas__yearly_distribution_by_install_decade` table, which
   reports [PHMSA](data_sources/phmsagas.html.md) gas distribution mains miles and
   services by installation decade. See issue [#5266](https://github.com/catalyst-cooperative/pudl/issues/5266) and PR [#5443](https://github.com/catalyst-cooperative/pudl/pull/5443).
+* Added 2025 distribution and transmission data for
+  [PHMSA](data_sources/phmsagas.html.md). See issue [#5504](https://github.com/catalyst-cooperative/pudl/issues/5504) and [#5548](https://github.com/catalyst-cooperative/pudl/pull/5548).
 
 #### FERC EQR
 
@@ -122,6 +124,10 @@ This is the upcoming PUDL release.
 * Changed `subplant_id` in [core_epa_\_assn_eia_epacamd_subplant_ids](data_dictionaries/pudl_db.html.md#core-epa-assn-eia-epacamd-subplant-ids) to be
   1-indexed instead of 0-indexed within each `plant_id_eia`, so the first subplant at
   a plant is now `1` rather than `0`. See issue [#5499](https://github.com/catalyst-cooperative/pudl/issues/5499) and PR [#5541](https://github.com/catalyst-cooperative/pudl/pull/5541).
+* Retired the interim output `_core_phmsagas__yearly_distribution_by_install_decade`,
+  which was replaced by the cleaned and validated
+  [core_phmsagas_\_yearly_distribution_by_install_decade](data_dictionaries/pudl_db.html.md#core-phmsagas-yearly-distribution-by-install-decade). See [#5504](https://github.com/catalyst-cooperative/pudl/issues/5504) and
+  [#5548](https://github.com/catalyst-cooperative/pudl/pull/5548).
 
 ### Performance Improvements
 
