@@ -9158,7 +9158,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "R&D improvements while Market + Policy case includes policy and tax incentives. "
             "https://atb.nrel.gov/electricity/2024/financial_cases_&_methods"
         ),
-        "constraints": {"enum": ["Market", "R&D"]},
+        # TO-DO: 9/8/26 - in 2025 the model_case values were updated to the following strings:
+        # ['R&D', 'R&D + TC', 'Exp', 'Exp + TC']. My best guess is that TC = tax credit,
+        # and Exp = Expected and is a replacement for previous year's "Market" enum. I wonder
+        # whether we might want to unify these values (Market, Exp) over time or not. At the
+        # very least we can probably generate a map to more intuitive spelling (e.g.: TC ->
+        # tax_credit).
+        "constraints": {"enum": ["Market", "R&D", "R&D + TC", "Exp", "Exp + TC"]},
     },
     "model_tax_credit_case_nrelatb": {
         "type": "string",
