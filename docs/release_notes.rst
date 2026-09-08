@@ -26,6 +26,15 @@ Output Formats & Distribution
   or the new ``pudl.duckdb`` database. This deprecation does not affect the minimally
   processed raw FERC data, which will continue to be distributed as SQLite. See PR
   :pr:`5538`.
+* Added a data validation test that checks ``pudl.sqlite``, ``pudl.duckdb``, and the
+  Parquet outputs are mutually consistent: every table defined in ``PUDL_PACKAGE`` is
+  present in both databases, neither database has extra tables, and every table has the
+  same columns and the same row count in SQLite, DuckDB, and its source Parquet file.
+  See PR :pr:`5538`.
+* Replaced the ``pudl_sqlite_engine`` pytest fixture (a SQLAlchemy engine) with
+  ``pudl_sqlite_connection``, a DuckDB connection that reads ``pudl.sqlite`` via
+  DuckDB's ``sqlite`` extension, so tests query both build outputs through one API as
+  PUDL moves toward DuckDB. See PR :pr:`5538`.
 
 New Data
 ^^^^^^^^
