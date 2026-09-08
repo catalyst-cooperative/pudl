@@ -1,17 +1,14 @@
-r"""Dagster assets that assembles pudl.sqlite and pudl.duckdb from PUDL's Parquet outputs.
+r"""Dagster assets that assemble pudl.sqlite and pudl.duckdb from Parquet files.
 
 Both databases are assembled by one function, :func:`_write_pudl_db` which creates the
-empty schema through a throwaway SQLAlchemy engine. Each table's Parquet file is read
-with DuckDB and a DuckDB connection is used to insert it into the datase. Everything
-that differs between the two databases is cued by :class:`_DatabaseTarget`'s ``db_type``
-field (``"sqlite"`` or ``"duckdb"``), which every other type-dependent value -- the
-``PUDL_PACKAGE.to_sql()`` call that shapes the schema, the SQLAlchemy engine URL,
-whether rows land in the DuckDB file or an ``ATTACH``\\ ed SQLite file, whether the
-pre-write primary-key check runs -- is derived from, so the two can never end up
-specified inconsistently.
+empty schema via a throwaway SQLAlchemy engine. DuckDB is used to read each Parquet file
+and insert it into the appropriate database table. Parameters that differ between the
+two output formats are curated by :class:`_DatabaseTarget`. The ``db_type`` field
+(``"sqlite"`` or ``"duckdb"``), determines the other type-dependent values, constructed
+by the class.
 
-:data:`SQLITE_TARGET` and :data:`DUCKDB_TARGET` are the two instances;
-:func:`build_pudl_db_asset` wraps either one in a Dagster asset.
+:data:`SQLITE_TARGET` and :data:`DUCKDB_TARGET` are the two :class:`_DatabaseTarget`
+instances, and :func:`build_pudl_db_asset` wraps each in its own Dagster asset.
 """
 
 from collections.abc import Sequence
@@ -30,7 +27,7 @@ from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
-_SQLITE_ATTACH_ALIAS = "pudl_sqlite_out"
+_SQLITE_ATTACH_ALIAS = "pudl_sqlite"
 """Alias that the destination pudl.sqlite database is attached to through DuckDB."""
 
 _WRITE_EXCEPTIONS: tuple[type[Exception], ...] = (ValueError, duckdb.Error)
@@ -67,7 +64,7 @@ class TableWriteError:
 
 @dataclass
 class TableWriteReport:
-    """Outcome of building a database: what wrote successfully, and what didn't."""
+    """Outcome of building a database: mostly error reports, if any."""
 
     row_counts: dict[str, int] = field(default_factory=dict)
     """Mapping of table name to number of rows written, per successfully written table."""
@@ -113,18 +110,17 @@ def _has_integer_rowid_alias_pk(resource: Resource) -> bool:
     key value was expected) is quietly laundered into a plausible-looking row instead of
     failing loudly.
 
-    This only applies to a single-column ``integer``/``year`` primary key (``year`` also
-    maps to ``sa.BigInteger`` -- see ``FIELD_DTYPES_SQLITE``). Composite (multi-column)
-    primary keys and non-integer single-column primary keys are not ROWID aliases, so
-    SQLite's own ``NOT NULL``/``UNIQUE`` enforcement on those columns works exactly as
-    expected.
+    This only applies to a single-column ``integer`` (or ``year``) primary keys.
+    Composite (multi-column) primary keys and non-integer single-column primary keys are
+    not ROWID aliases, so SQLite's own ``NOT NULL``/``UNIQUE`` enforcement on those
+    columns works as expected.
 
     Args:
         resource: Metadata Resource for the table, whose ``schema.primary_key`` and
             field types are inspected.
 
     Returns:
-        True if the resource has a single-column ``integer``/``year`` primary key.
+        True if the resource has a single-column ``integer`` (or ``year``) primary key.
         False for composite or non-integer primary keys.
     """
     pk = resource.schema.primary_key
@@ -137,11 +133,10 @@ def _has_integer_rowid_alias_pk(resource: Resource) -> bool:
 def _validate_primary_key(resource: Resource, paths: PudlPaths) -> None:
     """Check a table's Parquet data against its own primary key before writing.
 
-    Only does anything when :func:`_has_integer_rowid_alias_pk` is True, since that is
-    the only kind of primary key SQLite doesn't already enforce ``NOT NULL`` /
-    ``UNIQUE`` on correctly. For all other cases SQLite's own constraint enforcement at
-    insert time is sufficient, and this returns immediately without reading the Parquet
-    file.
+    Only active when :func:`_has_integer_rowid_alias_pk` is True, since that is the only
+    kind of primary key SQLite doesn't already enforce ``NOT NULL`` / ``UNIQUE`` on
+    correctly. For all other cases SQLite's own constraint enforcement at insert time is
+    sufficient, and this returns immediately without reading the Parquet file.
 
     Args:
         resource: Metadata Resource for the table to check.
@@ -171,18 +166,18 @@ def _copy_table(
 
     DuckDB reads the Parquet file with its columnar engine and writes the rows straight
     into ``table_ref`` -- either a table in the DuckDB file itself, or a table in an
-    ``ATTACH``\\ ed SQLite database (see :func:`_write_pudl_db`). Column order comes from
-    the resource metadata so the ``SELECT`` lines up with the destination schema
-    regardless of the Parquet file's column order.
+    attached SQLite database (see :func:`_write_pudl_db`). Column order comes from the
+    resource metadata so the ``SELECT`` lines up with the destination schema regardless
+    of the Parquet file's column order.
 
     ``PRIMARY KEY`` / ``NOT NULL`` / ``UNIQUE`` (and, for DuckDB, ``CHECK``) are
     enforced by the destination as the rows land. SQLite foreign keys are declared
     but, per SQLite's default (``PRAGMA foreign_keys = OFF``), not checked on write;
-    the DuckDB schema has no foreign keys at all.
+    the DuckDB schema has no foreign keys disabled.
 
     Args:
         conn: An open DuckDB connection. For the SQLite target the destination
-            database must already be ``ATTACH``\\ ed under :data:`_SQLITE_ATTACH_ALIAS`.
+            database must already be attached under :data:`_SQLITE_ATTACH_ALIAS`.
         resource: Metadata Resource for the table being written; supplies the
             ordered column list.
         parquet_path: Path to the source Parquet file for this table.
@@ -229,7 +224,7 @@ class _DatabaseTarget:
 
     @property
     def attach_as_sqlite(self) -> bool:
-        r"""Whether rows are written to ``ATTACH``\\ ed SQLite DB rather than DuckDB."""
+        r"""Whether rows are written to attached SQLite DB rather than DuckDB."""
         return self.db_type == "sqlite"
 
     @property
@@ -299,10 +294,10 @@ SQLITE_TARGET = _DatabaseTarget(
 DUCKDB_TARGET = _DatabaseTarget(
     db_type="duckdb",
     description=(
-        "DuckDB database rebuilt from PUDL's Parquet outputs after the ETL "
+        "DuckDB database assembled from PUDL's Parquet outputs after the ETL "
         "completes. Written to $PUDL_OUTPUT/pudl.duckdb. Includes only tables "
         "whose Resource has create_database_schema=True. Foreign key "
-        "constraints are excluded for performance."
+        "constraints are excluded due to increased file size."
     ),
 )
 
@@ -315,16 +310,14 @@ def _write_pudl_db(
 ) -> TableWriteReport:
     r"""Build a fresh database at ``db_path`` and stream the given tables into it.
 
-    Creates the empty schema through a throwaway SQLAlchemy engine (so a named
-    ``ENUM`` shared by several tables is created once, and comments/constraints are
-    emitted consistently), then has a DuckDB connection read each table's Parquet
-    file and insert it -- into the DuckDB file directly, or into an ``ATTACH``\\ ed
-    SQLite file, per ``target``.
+    Creates the empty schema through a throwaway SQLAlchemy engine derived from the PUDL
+    metadata and then uses DuckDB to read the table's data from Parquet and insert it
+    into the appropriate database table.
 
     Tables are written independently: a failure in one (see :data:`_WRITE_EXCEPTIONS`)
-    is caught and recorded rather than aborting the run, so a single call surfaces
-    every problem across all tables at once. Separated from the Dagster asset wrapper
-    so it's directly unit-testable without a Dagster execution context.
+    is caught and recorded rather than aborting the run, so a single call surfaces every
+    problem across all tables at once. This function is separated from the Dagster asset
+    wrapper so it's directly unit-testable without a Dagster execution context.
 
     Args:
         target: Which database to build (:data:`SQLITE_TARGET` or
@@ -350,10 +343,6 @@ def _write_pudl_db(
     target.build_metadata().create_all(engine)
     engine.dispose()
 
-    # Every insert runs through DuckDB. For DuckDB the connection is the database
-    # file itself; for SQLite we open an in-memory DuckDB and ATTACH the file (whose
-    # path comes from PudlPaths, not user input -- DuckDB has no parameter binding
-    # for ATTACH targets).
     conn = duckdb.connect() if target.attach_as_sqlite else duckdb.connect(str(db_path))
     conn.execute("PRAGMA disable_progress_bar")
     if target.attach_as_sqlite:
@@ -402,8 +391,8 @@ def build_pudl_db_asset(
         target: Which database to build (:data:`SQLITE_TARGET` or
             :data:`DUCKDB_TARGET`).
         asset_keys: Keys of the Parquet-writing assets whose tables should be
-            included (i.e. ``Resource.create_database_schema`` is True). Used both as
-            the asset's dependencies and as the table list.
+            included (i.e. ``Resource.create_database_schema`` is True). Used both to
+            define the the asset's dependencies and the list of tables to insert.
 
     Returns:
         A Dagster :class:`~dagster.AssetsDefinition` for the ``target``'s asset.

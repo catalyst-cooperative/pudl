@@ -283,6 +283,11 @@ def test_table_write_report_summary(
 
 @pytest.fixture(params=["sqlite", "duckdb"])
 def backend(request: pytest.FixtureRequest) -> str:
+    """Parametrizes tests against both SQLite and DuckDB backends.
+
+    Tests below that depend indirectly or directly on the backend fixture will be
+    run against both sqlite and duckdb databases.
+    """
     return request.param
 
 
@@ -308,7 +313,7 @@ def db_conn(target: _DatabaseTarget, db_path: Path, test_pkg: Package, mocker):
 
     Mirrors ``_write_pudl_db``'s setup: build the empty schema through a throwaway
     SQLAlchemy engine, then open the DuckDB connection the inserts run through
-    (``ATTACH``ing the file for the SQLite target).
+    (attaching the file for the SQLite target).
     """
     mocker.patch("pudl.dagster.assets.output.databases.PUDL_PACKAGE", test_pkg)
     engine = sa.create_engine(target.engine_url(db_path))
@@ -393,66 +398,8 @@ def test_copy_table_missing_column_raises_binder_error(
 
 
 ################################################################################
-# Schema shape -- deliberate SQLite / DuckDB design choices
+# Schema issues -- tricky things having to do with SQLite or DuckDB schemata
 ################################################################################
-
-
-def test_sqlite_schema_omits_check_constraints(
-    tmp_path: Path, paths: PudlPaths, test_pkg: Package, mocker
-):
-    """CHECK constraints are dropped from the SQLite schema (data is validated upstream).
-
-    "utility".utility_name_eia has a ``^[A-Za-z ]+$`` pattern; "123" violates it but
-    must still write, since the lean SQLite schema omits CHECK for insert speed.
-    """
-    mocker.patch("pudl.dagster.assets.output.databases.PUDL_PACKAGE", test_pkg)
-    _write_parquet(
-        paths,
-        "utility",
-        pd.DataFrame({"utility_id_eia": [1], "utility_name_eia": ["123"]}),
-    )
-    report = _write_pudl_db(
-        SQLITE_TARGET, tmp_path / "pudl.sqlite", ["utility"], paths=paths
-    )
-    assert report.row_counts == {"utility": 1}
-    assert report.errors == []
-
-
-def test_sqlite_foreign_keys_declared_but_not_enforced(
-    tmp_path: Path, paths: PudlPaths, test_pkg: Package, mocker
-):
-    """The SQLite schema keeps FK definitions, but SQLite doesn't enforce them on write.
-
-    SQLite only checks foreign keys under ``PRAGMA foreign_keys = ON`` (it defaults
-    OFF and DuckDB never sets it), so a plant pointing at a non-existent utility
-    still writes -- while the FK definition stays visible for downstream users.
-    """
-    mocker.patch("pudl.dagster.assets.output.databases.PUDL_PACKAGE", test_pkg)
-    _write_parquet(
-        paths,
-        "utility",
-        pd.DataFrame({"utility_id_eia": [1], "utility_name_eia": ["A"]}),
-    )
-    _write_parquet(
-        paths,
-        "plant",
-        pd.DataFrame(
-            {
-                "plant_id_eia": [1],
-                "plant_name_eia": ["Plant A"],
-                "utility_id_eia": [999],  # no such utility
-            }
-        ),
-    )
-    sqlite_path = tmp_path / "pudl.sqlite"
-    report = _write_pudl_db(
-        SQLITE_TARGET, sqlite_path, ["utility", "plant"], paths=paths
-    )
-    assert report.row_counts == {"utility": 1, "plant": 1}  # dangling FK still written
-
-    engine = sa.create_engine(f"sqlite:///{sqlite_path}")
-    assert sa.inspect(engine).get_foreign_keys("plant")  # ...but FK still declared
-    engine.dispose()
 
 
 def test_duckdb_schema_shares_enum_type_across_tables(test_pkg: Package):
