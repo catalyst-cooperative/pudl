@@ -13,8 +13,9 @@ See [Generator Operational Characteristics](../../../../methodology/operational_
 
 ## Attributes
 
-| [`logger`](#pudl.analysis.operational_characteristics.logger)   |    |
-|-----------------------------------------------------------|----|
+| [`logger`](#pudl.analysis.operational_characteristics.logger)                       |                                                                     |
+|-------------------------------------------------------------------------------|---------------------------------------------------------------------|
+| [`EARLIEST_USABLE_YEAR_QUARTER`](#pudl.analysis.operational_characteristics.EARLIEST_USABLE_YEAR_QUARTER) | Earliest EPA CEMS year-quarter treated as usable for this analysis. |
 
 ## Functions
 
@@ -23,8 +24,8 @@ See [Generator Operational Characteristics](../../../../methodology/operational_
 | [`_year_quarter_to_ordinal`](#pudl.analysis.operational_characteristics._year_quarter_to_ordinal)(→ int)                          | Convert a `YYYYqN` string into a zero-based quarter ordinal.                  |
 | [`_ordinal_to_quarter_start`](#pudl.analysis.operational_characteristics._ordinal_to_quarter_start)(→ pandas.Timestamp)            | Convert a zero-based quarter ordinal into its first UTC timestamp.            |
 | [`_ordinal_to_year_quarter`](#pudl.analysis.operational_characteristics._ordinal_to_year_quarter)(→ str)                          | Convert a zero-based quarter ordinal into its `YYYYqN` string.                |
-| [`_assert_required_quarters_available`](#pudl.analysis.operational_characteristics._assert_required_quarters_available)(→ None)              | Raise if the configured EPA CEMS quarters don't cover the trailing window.    |
-| [`_select_target_year_quarter`](#pudl.analysis.operational_characteristics._select_target_year_quarter)(→ str)                       | Pick the year-quarter to treat as the end of the analysis window.             |
+| [`_missing_required_quarters`](#pudl.analysis.operational_characteristics._missing_required_quarters)(→ list[str])                  | List quarters in the trailing window ending at `target_year_quarter`.         |
+| [`_select_target_year_quarters`](#pudl.analysis.operational_characteristics._select_target_year_quarters)(→ list[str])                | Choose the EPA CEMS year-quarters that each end a full analysis window.       |
 | [`filter_cems_for_heat_rate_analysis`](#pudl.analysis.operational_characteristics.filter_cems_for_heat_rate_analysis)(→ polars.LazyFrame)   | Filter hourly EPA CEMS records to the configured analysis window.             |
 | [`_add_run_id_expr`](#pudl.analysis.operational_characteristics._add_run_id_expr)(→ polars.Expr)                          | Build an expression assigning run IDs to consecutive hourly observations.     |
 | [`assign_groupwise_load_factor_bins`](#pudl.analysis.operational_characteristics.assign_groupwise_load_factor_bins)(→ polars.DataFrame)    | Fully vectorized, per-unit equal-width load-factor binning.                   |
@@ -37,11 +38,22 @@ See [Generator Operational Characteristics](../../../../methodology/operational_
 | [`filter_for_min_stable_bin`](#pudl.analysis.operational_characteristics.filter_for_min_stable_bin)(→ polars.DataFrame)            | Filter out records below the minimum stable bin.                              |
 | [`calculate_min_up_or_down_times`](#pudl.analysis.operational_characteristics.calculate_min_up_or_down_times)(→ polars.DataFrame)       | Calculate minimum up or down times.                                           |
 | [`estimate_operational_characteristics_by_unit`](#pudl.analysis.operational_characteristics.estimate_operational_characteristics_by_unit)(...)        | Estimate operational characteristics for every EPA CEMS plant-unit pair.      |
-| [`out_epacems__yearly_operational_characteristics`](#pudl.analysis.operational_characteristics.out_epacems__yearly_operational_characteristics)(...)     | Estimate EPA CEMS unit operational characteristics for every unit.            |
+| [`out_epacems__yearly_operational_characteristics`](#pudl.analysis.operational_characteristics.out_epacems__yearly_operational_characteristics)(...)     | Estimate EPA CEMS unit operational characteristics for every unit and year.   |
 
 ## Module Contents
 
 ### pudl.analysis.operational_characteristics.logger
+
+### pudl.analysis.operational_characteristics.EARLIEST_USABLE_YEAR_QUARTER *= '1998q1'*
+
+Earliest EPA CEMS year-quarter treated as usable for this analysis.
+
+EPA CEMS’s first few years of reporting (1995-1997) are known to have poor and
+inconsistent unit coverage, making them unsuitable for estimating these
+operational characteristics. Quarters before this are treated as unavailable
+for this analysis regardless of what’s actually present in the EPA CEMS data
+config, so the earliest feasible `report_year` in production (a 3-year /
+12-quarter trailing window) is 2000, not 1997.
 
 ### pudl.analysis.operational_characteristics.\_get_heat_rate_analysis_config(context: [dagster.AssetExecutionContext](https://docs.dagster.io/api/dagster/execution/#dagster.AssetExecutionContext)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [int](https://docs.python.org/3/library/functions.html#int)]
 
@@ -62,29 +74,57 @@ UTC), so this deliberately returns a naive `Timestamp` to compare against it.
 
 Convert a zero-based quarter ordinal into its `YYYYqN` string.
 
-### pudl.analysis.operational_characteristics.\_assert_required_quarters_available(year_quarters: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], target_year_quarter: [str](https://docs.python.org/3/library/stdtypes.html#str), num_quarters: [int](https://docs.python.org/3/library/functions.html#int)) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.analysis.operational_characteristics.\_missing_required_quarters(year_quarters: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], target_year_quarter: [str](https://docs.python.org/3/library/stdtypes.html#str), num_quarters: [int](https://docs.python.org/3/library/functions.html#int)) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]
 
-Raise if the configured EPA CEMS quarters don’t cover the trailing window.
+List quarters in the trailing window ending at `target_year_quarter`.
 
-`EpaCemsDataConfig` only validates that each configured year-quarter is a
-real partition and that there are no duplicates – it does not require the
-list to be contiguous. Nothing downstream would otherwise notice a gap:
-[`_select_target_year_quarter()`](#pudl.analysis.operational_characteristics._select_target_year_quarter) only needs a max(), and
-[`filter_cems_for_heat_rate_analysis()`](#pudl.analysis.operational_characteristics.filter_cems_for_heat_rate_analysis) filters purely by timestamp
-range, with no visibility into which quarters were actually requested. This
-check makes a missing or discontinuous configuration fail loudly instead of
-silently producing estimates from a partial window.
+Specifically, the quarters in that window that are absent from
+`year_quarters`. `EpaCemsDataConfig` only validates that each
+configured year-quarter is a real partition and that there are no
+duplicates – it does not require the list to be contiguous, so a
+trailing window can have gaps even in a config that otherwise looks
+reasonable.
 
-### pudl.analysis.operational_characteristics.\_select_target_year_quarter(year_quarters: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+### pudl.analysis.operational_characteristics.\_select_target_year_quarters(year_quarters: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], num_quarters: [int](https://docs.python.org/3/library/functions.html#int)) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]
 
-Pick the year-quarter to treat as the end of the analysis window.
+Choose the EPA CEMS year-quarters that each end a full analysis window.
 
-Prefers the most recent year-quarter ending in Q4 (i.e. the most recent
-*complete* calendar year), which reproduces the historical whole-year
-behavior of this analysis in production. Falls back to the single most
-recent year-quarter of any kind when no Q4 is present – e.g. in the fast
-ETL / CI, which only has a single quarter of EPA CEMS data and can’t
-produce a Q4-ending window at all.
+The analysis produces one set of operational characteristics per calendar
+year, computed from a trailing window of `num_quarters` quarters ending
+in that year’s Q4. This returns the end-of-window year-quarter for every
+calendar year that both:
+
+- has its Q4 present in `year_quarters` (considering only quarters at or
+  after [`EARLIEST_USABLE_YEAR_QUARTER`](#pudl.analysis.operational_characteristics.EARLIEST_USABLE_YEAR_QUARTER) as available at all), and
+- has all `num_quarters` quarters of its trailing window available.
+
+In production, with a 12-quarter window and EPA CEMS data reaching back to
+the late 1990s, this yields one `YYYYq4` value per year from 2000 through
+the most recent complete year.
+
+The fast ETL and pytest configs load only a single EPA CEMS quarter and
+set `num_quarters` to 1, so no Q4-ending window exists. In that case the
+single latest usable year-quarter (e.g. `"2022q1"`) is returned as its
+own one-quarter window, and the caller treats its calendar year as the
+report year. This fallback quarter is returned as-is rather than coerced
+to Q4, because the loaded data only covers that specific quarter.
+
+* **Parameters:**
+  * **year_quarters** – Every EPA CEMS `YYYYqN` partition available to the
+    run, as configured in the Dagster settings. Need not be sorted or
+    contiguous.
+  * **num_quarters** – Length of the trailing window, in quarters, that each
+    returned year-quarter must have fully available.
+* **Returns:**
+  Sorted list of `YYYYqN` year-quarters, one per analyzable calendar
+  year, each usable as the `final_year_quarter` of a
+  `num_quarters`-long window. Normally every entry ends in `q4`; in
+  the single-quarter fast-ETL case the one entry is the loaded quarter.
+* **Raises:**
+  [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – if no configured year-quarter is at or after
+  [`EARLIEST_USABLE_YEAR_QUARTER`](#pudl.analysis.operational_characteristics.EARLIEST_USABLE_YEAR_QUARTER), or if no candidate
+  year-quarter has its full trailing window available – e.g.
+  `num_quarters` is larger than the usable EPA CEMS history.
 
 ### pudl.analysis.operational_characteristics.filter_cems_for_heat_rate_analysis(core_epacems_\_hourly_emissions: polars.LazyFrame, final_year_quarter: [str](https://docs.python.org/3/library/stdtypes.html#str), num_quarters: [int](https://docs.python.org/3/library/functions.html#int), states: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [None](https://docs.python.org/3/library/constants.html#None) = None) → polars.LazyFrame
 
@@ -212,4 +252,14 @@ unit at once – there’s no per-unit or per-batch Python looping, and no
 
 ### pudl.analysis.operational_characteristics.out_epacems_\_yearly_operational_characteristics(context: [dagster.AssetExecutionContext](https://docs.dagster.io/api/dagster/execution/#dagster.AssetExecutionContext), core_epacems_\_hourly_emissions: polars.LazyFrame) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
-Estimate EPA CEMS unit operational characteristics for every unit.
+Estimate EPA CEMS unit operational characteristics for every unit and year.
+
+Computes one set of characteristics per state per calendar year that has a
+full trailing window of EPA CEMS data available (see
+[`_select_target_year_quarters()`](#pudl.analysis.operational_characteristics._select_target_year_quarters)), looping over states within each year.
+Each `(year, state)` pair’s hourly CEMS data is filtered, reduced down to a
+handful of per-unit summary rows, and immediately discarded, so peak memory
+stays bounded by a single state’s window (observed ~16 GB for CA or TX) no
+matter how many years get processed. All of the resulting per-unit summary
+rows – on the order of 100,000 total across every year and state, versus
+billions of hourly input records – are concatenated once at the very end.

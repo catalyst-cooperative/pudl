@@ -47,6 +47,14 @@ This is the upcoming PUDL release.
   available for all reporting states rather than just California. The output is
   experimental and marked accordingly, since we are soliciting feedback from the
   community on the underlying methodology. See issue [#5106](https://github.com/catalyst-cooperative/pudl/issues/5106) and PR [#5190](https://github.com/catalyst-cooperative/pudl/pull/5190).
+* [out_epacems_\_yearly_operational_characteristics](data_dictionaries/pudl_db.html.md#out-epacems-yearly-operational-characteristics) now reports these estimates for
+  every calendar year with a full three-year trailing window of usable EPA CEMS data,
+  rather than only the most recent year, going back to 2000 (EPA CEMS’s first three
+  reporting years, 1995-1997, are excluded due to known poor unit coverage). Also
+  recalibrated the associated dbt data validations against physically grounded bounds
+  (e.g. the 3.412 MMBtu/MWh thermodynamic floor on heat rates, and the exact trailing
+  window length as an upper bound on minimum up/down times) rather than thresholds fit
+  to a single year of data. See PR [#5474](https://github.com/catalyst-cooperative/pudl/pull/5474).
 
 ### Expanded Data Coverage
 
