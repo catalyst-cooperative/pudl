@@ -16,3 +16,20 @@ import when an ``extract``/``transform`` module imports it back.
 # not a concurrency cap, so a deprioritized asset still runs early whenever a slot
 # would otherwise sit idle.
 ISLAND_OP_TAGS = {"dagster/priority": -10}
+
+# Assets on the "hot path": the transitive upstream inputs of the handful of
+# assets that consistently determine the wall-clock runtime of the whole PUDL
+# DAG (currently ``out_ferc714__hourly_planning_area_demand``,
+# ``out_eia__monthly_generators`` and
+# ``out_pudl__yearly_assn_eia_ferc1_plant_parts``). Give every asset on that path
+# a high scheduling priority so the ready-step queue always favours it over
+# unrelated work -- in particular over the deprioritised ISLAND_OP_TAGS chains and
+# the default-priority datasets that are integrated but not on the critical path.
+# Like ``dagster/priority`` generally this is a soft tiebreaker for the ready
+# queue, not a concurrency reservation: a hot-path asset still yields its slot
+# once it has run, and still queues behind hard limits such as the
+# ``memory-use: high`` tag_concurrency_limit.
+#
+# Regenerate the hot-path membership with ``pixi run hot_path <asset>`` after
+# integrating a new data year or otherwise reshaping the DAG.
+HOT_PATH_OP_TAGS = {"dagster/priority": 10}
