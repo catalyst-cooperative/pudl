@@ -999,55 +999,37 @@ def _identify_transitioning_generators(
 
 
 def identify_retiring_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
-    """Identify any generators labeled "retired" whose annual status doesn't match reality.
+    """Identify any generators whose annual "retired" label doesn't match other reporting.
 
-    See :func:`_identify_transitioning_generators` for the shared logic. These are
-    "retired" generators that either:
-
-    A) have at least one month where ``report_date <= generator_retirement_date``,
-       meaning they hadn't actually retired yet as of that month despite being
-       labeled "retired" for the whole year -- this could reflect a genuine mid-year
-       retirement, or a retirement date that's been on the books for years without
-       the annual label ever catching up, OR
-    B) report generator-specific generation data in the g table, OR
-    C) have non-zero generation or fuel reported in the gf table for a PM/ESC combo
-       that is unique to that generator at the plant.
+    Thin wrapper around :func:`_identify_transitioning_generators` for the
+    ``"retired"`` direction (keyed on ``generator_retirement_date``). See that
+    function for the qualifying conditions, the date comparison used, and the
+    month-retention behavior.
 
     Args:
         gen_assoc: table of generators with stacked energy sources and broadcasted
             net generation data. Output of :func:`associate_generator_tables`.
 
     Returns:
-        The subset of ``gen_assoc`` rows belonging to retiring generators, with every
-        month of each retiring generator's data retained for the report_years it
-        qualified in.
+        The subset of ``gen_assoc`` rows belonging to retiring generators.
     """
     return _identify_transitioning_generators(gen_assoc, operational_status="retired")
 
 
 def identify_newly_operating_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
-    """Identify any generators labeled "proposed" whose annual status doesn't match reality.
+    """Identify any generators whose annual "proposed" label doesn't match other reporting.
 
-    See :func:`_identify_transitioning_generators` for the shared logic. These are
-    "proposed" generators that either:
-
-    A) have at least one month where ``report_date >= generator_operating_date``,
-       meaning they'd already started operating as of that month despite being
-       labeled "proposed" for the whole year -- this could reflect a genuine mid-year
-       start of operations, or an operating date that's been on the books for years
-       (even decades) without the annual label ever catching up, OR
-    B) report generator-specific generation data in the g table, OR
-    C) have non-zero generation or fuel reported in the gf table for a PM/ESC combo
-       that is unique to that generator at the plant.
+    Thin wrapper around :func:`_identify_transitioning_generators` for the
+    ``"proposed"`` direction (keyed on ``generator_operating_date``). See that
+    function for the qualifying conditions, the date comparison used, and the
+    month-retention behavior.
 
     Args:
         gen_assoc: table of generators with stacked energy sources and broadcasted
             net generation data. Output of :func:`associate_generator_tables`.
 
     Returns:
-        The subset of ``gen_assoc`` rows belonging to newly operating generators,
-        with every month of each newly operating generator's data retained for the
-        report_years it qualified in.
+        The subset of ``gen_assoc`` rows belonging to newly operating generators.
     """
     return _identify_transitioning_generators(gen_assoc, operational_status="proposed")
 
@@ -1057,7 +1039,7 @@ def _transition_date_in_report_year(
     transition_date: pd.Series,
     report_year: pd.Series,
 ) -> pd.Series:
-    """True if a generator's transition falls within ``report_year``.
+    """Make a boolean series indicating if a generator's transition falls in ``report_year``.
 
     For ``"retired"``, true if the retirement date falls on or after the start of
     ``report_year``. For ``"proposed"``, true if the operating date falls on or
