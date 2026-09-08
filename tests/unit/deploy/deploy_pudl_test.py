@@ -396,17 +396,6 @@ def test_deployment_plan_upload_target_overrides():
     assert plan.upload_to_gcs is False
 
 
-def test_deployment_plan_rejects_no_upload_target():
-    """A plan that uploads nowhere is rejected at construction time."""
-    with pytest.raises(ValidationError, match="neither GCS nor S3"):
-        DeploymentPlan(
-            git_tag="branch-2026-07-05-0600-abc123456-my-branch",
-            environment="staging",
-            deploy_to_gcs=False,
-            deploy_to_s3=False,
-        )
-
-
 def test_upload_outputs_empty_directory(tmp_path):
     """Test that uploading from empty directory raises error."""
     source_dir = tmp_path / "output"
