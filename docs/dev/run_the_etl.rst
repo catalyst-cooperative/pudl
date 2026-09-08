@@ -30,7 +30,6 @@ If you use coding agents, you may also want to check out `the Dagster agent skil
 <https://github.com/dagster-io/skills>`__:
 
 * `dagster-expert <https://github.com/dagster-io/skills/blob/master/skills/dagster-expert/skills/dagster-expert/SKILL.md>`__
-* `dignified-python <https://github.com/dagster-io/skills/blob/master/skills/dignified-python/skills/dignified-python/SKILL.md>`__
 * `AI Driven Data Engineering <https://courses.dagster.io/courses/ai-driven-data-engineering>`__ (Dagster Course)
 
 These skills are also configured in the PUDL repo and can be installed with this pixi
@@ -68,7 +67,7 @@ Core Dagster concepts used in PUDL
   primary building blocks in Dagster. They represent the underlying entities in our
   pipelines, such as database tables or machine learning models. In PUDL, most assets
   represent a :py:class:`pandas.DataFrame` that is written to Parquet
-  and SQLite files on disk. Depending on which part of the PUDL DAG you are looking at,
+  files on disk. Depending on which part of the PUDL DAG you are looking at,
   assets might represent messy raw dataframes extracted from spreadsheets, partially
   cleaned intermediary dataframes, or fully normalized tables ready for distribution.
 * **Resources** [`Dagster ref <https://docs.dagster.io/guides/build/external-resources>`__] are
@@ -83,10 +82,10 @@ Core Dagster concepts used in PUDL
 * **IO Managers** [`Dagster ref <https://docs.dagster.io/guides/build/io-managers>`__] in Dagster let
   us keep the code for data processing separate from the code for reading and writing
   data. PUDL defines I/O Managers for reading data out of the FERC SQLite databases we
-  curate, for reading and writing Parquet files, and for writing out to SQLite. For
-  example :class:`pudl.dagster.io_managers.PudlMixedFormatIOManager` allows assets to
-  read and write dataframes to SQLite and Parquet-backed outputs using a single logical
-  interface.
+  curate, and for reading and writing the Parquet files that hold the processed PUDL
+  tables. The fully processed data is packaged into the ``pudl.duckdb`` and
+  ``pudl.sqlite`` databases by a separate Dagster asset that runs after the ETL,
+  reading from those Parquet outputs.
 * **Jobs** [`Dagster ref <https://docs.dagster.io/guides/build/jobs>`__] are preconfigured collections
   of assets, resources and IO Managers.  Jobs are the main unit of execution in Dagster.
   The main jobs assembled in :mod:`pudl.dagster` are:
