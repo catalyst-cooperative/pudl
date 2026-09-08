@@ -3,7 +3,7 @@
 import pandas as pd
 from dagster import asset
 
-from pudl.dagster.op_tags import ISLAND_OP_TAGS
+from pudl.dagster.op_tags import COLD_PATH_OP_TAGS
 from pudl.extract.csv import CsvExtractor
 from pudl.extract.extractor import GenericMetadata, PartitionSelection, raw_df_factory
 
@@ -42,13 +42,13 @@ class Extractor(CsvExtractor):
         return df
 
 
-raw_rus7__all_dfs = raw_df_factory(Extractor, name="rus7", op_tags=ISLAND_OP_TAGS)
+raw_rus7__all_dfs = raw_df_factory(Extractor, name="rus7", op_tags=COLD_PATH_OP_TAGS)
 
 
 def raw_rus7_asset_factory(table_name: str):
     """Create raw RUS Form 7 asset for a specific page."""
 
-    @asset(name=f"raw_rus7__{table_name}", op_tags=ISLAND_OP_TAGS)
+    @asset(name=f"raw_rus7__{table_name}", op_tags=COLD_PATH_OP_TAGS)
     def _raw_rus7__page(raw_rus7__all_dfs: dict[str, pd.DataFrame]):
         """Extract raw RUS Form 7 data from CSV sheets into dataframes.
 

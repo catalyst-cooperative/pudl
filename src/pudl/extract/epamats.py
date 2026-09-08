@@ -20,7 +20,7 @@ from dagster import asset
 from pydantic import BaseModel, StringConstraints
 
 import pudl.logging_helpers
-from pudl.dagster.op_tags import ISLAND_OP_TAGS
+from pudl.dagster.op_tags import COLD_PATH_OP_TAGS
 from pudl.workspace.datastore import Datastore
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -168,7 +168,7 @@ class EpaMatsDatastore:
     # extraction acts as late-DAG filler -- backfilling idle executor slots during
     # the serial tail of the ETL instead of competing with the critical path at
     # startup.
-    op_tags=ISLAND_OP_TAGS,
+    op_tags=COLD_PATH_OP_TAGS,
 )
 def raw_epamats__hourly_emissions(context) -> pd.DataFrame:
     """Extract raw EPA MATS hourly emissions data and return as a pandas DataFrame."""

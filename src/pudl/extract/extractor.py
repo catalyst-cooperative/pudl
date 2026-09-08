@@ -354,7 +354,7 @@ def partition_extractor_factory(
         extractor_cls: Class of type :class:`Extractor` used to extract the data.
         name: Name of an Excel based dataset (e.g. "eia860").
         op_tags: Optional Dagster op tags (e.g.
-            :data:`pudl.dagster.op_tags.ISLAND_OP_TAGS`) applied to the per-partition
+            :data:`pudl.dagster.op_tags.COLD_PATH_OP_TAGS`) applied to the per-partition
             extraction op.
     """
 
@@ -452,7 +452,7 @@ def raw_df_factory(
         name: Name of a CSV or Excel based dataset (e.g. "eia860" or "eia930").
         op_tags: Optional Dagster op tags applied to the per-partition extraction op.
             Used to set ``dagster/priority`` -- low
-            (:data:`pudl.dagster.op_tags.ISLAND_OP_TAGS`) for datasets that are
+            (:data:`pudl.dagster.op_tags.COLD_PATH_OP_TAGS`) for datasets that are
             extracted but not yet integrated downstream so they act as late-DAG
             filler, or high (:data:`pudl.dagster.op_tags.HOT_PATH_OP_TAGS`) for
             datasets on the critical path.
