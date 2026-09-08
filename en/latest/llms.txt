@@ -1,6 +1,6 @@
 # PUDL
 
-> PUDL 2026.8.1.dev42 documentation
+> PUDL 2026.8.1.dev43 documentation
 
 
 2016-2026, Catalyst Cooperative, CC-BY-4.0
@@ -127,7 +127,6 @@
 - [pudl.extract.ferceqr](autoapi/pudl/extract/ferceqr/index.html.md): Extract FERC EQR data.
 - [pudl.extract.gridpathratoolkit](autoapi/pudl/extract/gridpathratoolkit/index.html.md): Extract GridPath RA Toolkit renewable energy generation profiles from zipped CSVs.
 - [pudl.extract.nrelatb](autoapi/pudl/extract/nrelatb/index.html.md): Routines used for extracting the raw NREL ATB data.
-- [pudl.extract.parquet](autoapi/pudl/extract/parquet/index.html.md): Extractor for Parquet data.
 - [pudl.extract.phmsagas](autoapi/pudl/extract/phmsagas/index.html.md): Retrieves data from PHMSA natural gas spreadsheets for analysis.
 - [pudl.extract.rus12](autoapi/pudl/extract/rus12/index.html.md): Extract USDA RUS Form 12 data from CSVs.
 - [pudl.extract.rus7](autoapi/pudl/extract/rus7/index.html.md): Extract USDA RUS Form 7 data from CSVs.

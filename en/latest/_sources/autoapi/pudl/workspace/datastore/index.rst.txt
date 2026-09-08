@@ -430,12 +430,6 @@ Module Contents
 
 
 
-   .. py:method:: get_zipfile_resources(dataset: str, **filters: Any) -> collections.abc.Iterator[tuple[pudl.workspace.resource_cache.PudlResourceKey, zipfile.ZipFile]]
-
-      Iterates over resources that match filters and opens each as ZipFile.
-
-
-
    .. py:method:: get_zipfile_file_names(zip_file: zipfile.ZipFile)
 
       Given a zipfile, return a list of the file names in it.

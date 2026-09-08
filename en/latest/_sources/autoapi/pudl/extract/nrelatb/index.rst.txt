@@ -38,7 +38,7 @@ Module Contents
 
 .. py:class:: Extractor(*args, **kwargs)
 
-   Bases: :py:obj:`pudl.extract.parquet.ParquetExtractor`
+   Bases: :py:obj:`pudl.extract.extractor.GenericExtractor`
 
 
    Extractor for NREL ATB.
@@ -47,6 +47,22 @@ Module Contents
    .. py:attribute:: METADATA
 
       Instance of metadata object to use with this extractor.
+
+
+   .. py:method:: source_filename(page: str, **partition: pudl.extract.extractor.PartitionSelection) -> str
+
+      Get the file name for the right page and part.
+
+      In this instance we are using the same methodology from the excel metadata extractor.
+
+
+
+   .. py:method:: load_source(page: str, **partition)
+
+      Fetch the electricity parquet file from the NREL ATB zip archive.
+
+      This is based on the csv extraction framework.
+
 
 
 .. py:data:: raw_nrelatb__all_dfs

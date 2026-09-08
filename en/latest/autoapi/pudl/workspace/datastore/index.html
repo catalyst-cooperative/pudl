@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
-    <title>pudl.workspace.datastore &#8212; PUDL 2026.8.1.dev42 documentation</title>
+    <title>pudl.workspace.datastore &#8212; PUDL 2026.8.1.dev43 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../../_static/documentation_options.js?v=691afa63"></script>
+    <script src="../../../../_static/documentation_options.js?v=c05a8e05"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev42 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev42 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev43 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev43 documentation - Home"/>
   
   
 </a></div>
@@ -558,7 +558,6 @@
 <li class="toctree-l3"><a class="reference internal" href="../../extract/ferceqr/index.html">pudl.extract.ferceqr</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../extract/gridpathratoolkit/index.html">pudl.extract.gridpathratoolkit</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../extract/nrelatb/index.html">pudl.extract.nrelatb</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../extract/parquet/index.html">pudl.extract.parquet</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../extract/phmsagas/index.html">pudl.extract.phmsagas</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../extract/rus12/index.html">pudl.extract.rus12</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../extract/rus7/index.html">pudl.extract.rus7</a></li>
@@ -1376,12 +1375,6 @@ cached. This triggers attempt to optimally cache these resources.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="pudl.workspace.datastore.Datastore.get_zipfile_resources">
-<span class="sig-name descname"><span class="pre">get_zipfile_resources</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">filters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterator" title="(in Python v3.14)"><span class="pre">collections.abc.Iterator</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../resource_cache/index.html#pudl.workspace.resource_cache.PudlResourceKey" title="pudl.workspace.resource_cache.PudlResourceKey"><span class="pre">pudl.workspace.resource_cache.PudlResourceKey</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/zipfile.html#zipfile.ZipFile" title="(in Python v3.14)"><span class="pre">zipfile.ZipFile</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#Datastore.get_zipfile_resources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.Datastore.get_zipfile_resources" title="Link to this definition">#</a></dt>
-<dd><p>Iterates over resources that match filters and opens each as ZipFile.</p>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="pudl.workspace.datastore.Datastore.get_zipfile_file_names">
 <span class="sig-name descname"><span class="pre">get_zipfile_file_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zip_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/zipfile.html#zipfile.ZipFile" title="(in Python v3.14)"><span class="pre">zipfile.ZipFile</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#Datastore.get_zipfile_file_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.Datastore.get_zipfile_file_names" title="Link to this definition">#</a></dt>
 <dd><p>Given a zipfile, return a list of the file names in it.</p>
@@ -1539,7 +1532,6 @@ cached. This triggers attempt to optimally cache these resources.</p></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.Datastore.remove_from_cache"><code class="docutils literal notranslate"><span class="pre">Datastore.remove_from_cache()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.Datastore.get_unique_resource"><code class="docutils literal notranslate"><span class="pre">Datastore.get_unique_resource()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.Datastore.get_zipfile_resource"><code class="docutils literal notranslate"><span class="pre">Datastore.get_zipfile_resource()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.Datastore.get_zipfile_resources"><code class="docutils literal notranslate"><span class="pre">Datastore.get_zipfile_resources()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.Datastore.get_zipfile_file_names"><code class="docutils literal notranslate"><span class="pre">Datastore.get_zipfile_file_names()</span></code></a></li>
 </ul>
 </li>

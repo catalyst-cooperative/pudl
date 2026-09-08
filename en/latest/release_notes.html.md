@@ -58,6 +58,11 @@ This is the upcoming PUDL release.
 
 ### Expanded Data Coverage
 
+#### NREL ATB
+
+* Updated the NREL ATB extractor and transformer to accommodate changes to the 2024
+  data and format. See issue [#5467](https://github.com/catalyst-cooperative/pudl/issues/5467) and PR [#5513](https://github.com/catalyst-cooperative/pudl/pull/5513).
+
 #### EIA-861
 
 * Added early release data from 2025 for [EIA-861](data_sources/eia861.html.md).

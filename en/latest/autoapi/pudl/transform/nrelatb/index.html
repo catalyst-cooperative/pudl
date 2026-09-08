@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
-    <title>pudl.transform.nrelatb &#8212; PUDL 2026.8.1.dev42 documentation</title>
+    <title>pudl.transform.nrelatb &#8212; PUDL 2026.8.1.dev43 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../../_static/documentation_options.js?v=691afa63"></script>
+    <script src="../../../../_static/documentation_options.js?v=c05a8e05"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev42 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev42 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev43 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev43 documentation - Home"/>
   
   
 </a></div>
@@ -558,7 +558,6 @@
 <li class="toctree-l3"><a class="reference internal" href="../../extract/ferceqr/index.html">pudl.extract.ferceqr</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../extract/gridpathratoolkit/index.html">pudl.extract.gridpathratoolkit</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../extract/nrelatb/index.html">pudl.extract.nrelatb</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../extract/parquet/index.html">pudl.extract.parquet</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../extract/phmsagas/index.html">pudl.extract.phmsagas</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../extract/rus12/index.html">pudl.extract.rus12</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../extract/rus7/index.html">pudl.extract.rus7</a></li>
@@ -1133,12 +1132,15 @@ tech details that exist in the data.</p>
 <dd><p>Broadcast the asterisk (wildcard) <code class="docutils literal notranslate"><span class="pre">cost_recovery_period_years</span></code>.</p>
 <p>Most of the records in this unstacked table have values in the
 <code class="docutils literal notranslate"><span class="pre">cost_recovery_period_years</span></code> column, but before broadcasting, about 15% of the
-table has an <code class="docutils literal notranslate"><span class="pre">*</span></code> in this column. This is a part of the tables primary key and
-because we know <code class="docutils literal notranslate"><span class="pre">*</span></code> in a primary key effectively means wildcard, we want to
-broadcast the records with an asterisk across the rest of the data. Unfortunately,
-there are still ~5% of records w/ <code class="docutils literal notranslate"><span class="pre">*</span></code> that don’t have associated records in the
-rest of the data (the are left_only records in <a class="reference internal" href="#pudl.transform.nrelatb._broadcast_core_metric_parameters" title="pudl.transform.nrelatb._broadcast_core_metric_parameters"><code class="xref py py-func docutils literal notranslate"><span class="pre">_broadcast_core_metric_parameters()</span></code></a>)
-so they end up with nulls in the <code class="docutils literal notranslate"><span class="pre">cost_recovery_period_years</span></code> column.</p>
+table has a null in this column, standing in for the <code class="docutils literal notranslate"><span class="pre">*</span></code> wildcard NREL uses in
+the raw data (already converted to null upstream, in
+<a class="reference internal" href="#pudl.transform.nrelatb._core_nrelatb__transform_start" title="pudl.transform.nrelatb._core_nrelatb__transform_start"><code class="xref py py-func docutils literal notranslate"><span class="pre">_core_nrelatb__transform_start()</span></code></a>). This is a part of the tables primary key
+and because we know a wildcard in a primary key effectively means “applies to
+everything”, we want to broadcast these records across the rest of the data.
+Unfortunately, there are still ~5% of records w/ a wildcard that don’t have
+associated records in the rest of the data (the are left_only records in
+<a class="reference internal" href="#pudl.transform.nrelatb._broadcast_core_metric_parameters" title="pudl.transform.nrelatb._broadcast_core_metric_parameters"><code class="xref py py-func docutils literal notranslate"><span class="pre">_broadcast_core_metric_parameters()</span></code></a>) so they end up with nulls in the
+<code class="docutils literal notranslate"><span class="pre">cost_recovery_period_years</span></code> column.</p>
 <p>Probably we could treat <code class="docutils literal notranslate"><span class="pre">cost_recovery_period_years</span></code> as a categorical column and/or
 figure out ways to fill in these nulls with the right set of merge keys.</p>
 </dd></dl>

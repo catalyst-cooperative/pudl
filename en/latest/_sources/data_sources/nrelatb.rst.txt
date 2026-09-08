@@ -14,7 +14,7 @@ NREL Annual Technology Baseline (ATB) for Electricity
    * - Source Format
      - Parquet
    * - Download Size
-     - 13 MB
+     - 457 MB
    * - Temporal Coverage
      - 2021-2024
    * - PUDL Code
