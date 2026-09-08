@@ -8062,7 +8062,7 @@ This module handles distribution of completed ETL builds to public cloud storage
 | [`clear_deployment_path`](autoapi/pudl/deploy/pudl/index.html.md#pudl.deploy.pudl.clear_deployment_path)(→ None)                              | Empty a cloud storage prefix before writing fresh deployment outputs.                 |
 | [`_upload_to_path`](autoapi/pudl/deploy/pudl/index.html.md#pudl.deploy.pudl._upload_to_path)(→ None)                                    | Clear (if requested) and upload all outputs to one destination path.                  |
 | [`_assert_permanent_paths_are_empty`](autoapi/pudl/deploy/pudl/index.html.md#pudl.deploy.pudl._assert_permanent_paths_are_empty)(→ None)                  | Refuse to deploy to a permanent, version-tagged path that already has content.        |
-| [`upload_outputs`](autoapi/pudl/deploy/pudl/index.html.md#pudl.deploy.pudl.upload_outputs)() → None)                                   | Upload outputs to cloud storage paths.                                                |
+| [`upload_outputs`](autoapi/pudl/deploy/pudl/index.html.md#pudl.deploy.pudl.upload_outputs)(, upload_to_gcs, upload_to_s3)              | Upload outputs to cloud storage paths.                                                |
 | [`update_git_branch`](autoapi/pudl/deploy/pudl/index.html.md#pudl.deploy.pudl.update_git_branch)(→ None)                                  | Merge git tag into branch and push to origin.                                         |
 | [`dispatch_github_workflow`](autoapi/pudl/deploy/pudl/index.html.md#pudl.deploy.pudl.dispatch_github_workflow)(→ None)                           | Trigger a workflow_dispatch event on a GitHub Actions workflow.                       |
 | [`trigger_zenodo_release`](autoapi/pudl/deploy/pudl/index.html.md#pudl.deploy.pudl.trigger_zenodo_release)(→ None)                             | Trigger Zenodo data release GitHub Actions workflow.                                  |
@@ -8124,11 +8124,34 @@ Configuration for the model, should be a dictionary conforming to [ConfigDict][p
 
 #### environment *: Literal['staging', 'production']*
 
+#### deploy_to_gcs *: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+
+#### deploy_to_s3 *: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+
 #### *property* deploy_type *: [DeploymentType](autoapi/pudl/deploy/pudl/index.html.md#pudl.deploy.pudl.DeploymentType)*
 
 The deploy type implied by `git_tag`’s shape.
 
 #### \_validate_branch_only_targets_staging() → [DeploymentPlan](autoapi/pudl/deploy/pudl/index.html.md#pudl.deploy.pudl.DeploymentPlan)
+
+#### \_validate_has_an_upload_target() → [DeploymentPlan](autoapi/pudl/deploy/pudl/index.html.md#pudl.deploy.pudl.DeploymentPlan)
+
+#### *property* upload_to_gcs *: [bool](https://docs.python.org/3/library/functions.html#bool)*
+
+Whether this deployment uploads outputs to GCS.
+
+Defaults to `True` for every deploy type – GCS has no egress fees and is
+the primary distribution target – but a build can still explicitly opt out
+(e.g. an S3-only test).
+
+#### *property* upload_to_s3 *: [bool](https://docs.python.org/3/library/functions.html#bool)*
+
+Whether this deployment uploads outputs to S3.
+
+Nightly and stable deploys default to `True`. Branch builds default to
+`False`: S3 egress costs more than a full ETL run, and the nightly build
+exercises the real S3 deployment every night anyway. A branch build can
+still opt in explicitly when that’s the thing being tested.
 
 #### *property* path_suffixes *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
 
@@ -8235,7 +8258,7 @@ Safe to call concurrently for different `(fs, path)` combinations – gcsfs
 and s3fs are both designed to support concurrent use from multiple threads,
 and each call here only touches its own independent bucket/path.
 
-### pudl.deploy.pudl.\_assert_permanent_paths_are_empty(gcs_fs: gcsfs.GCSFileSystem, s3_fs: s3fs.S3FileSystem, path_suffixes: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], immutable_suffixes: [frozenset](https://docs.python.org/3/library/stdtypes.html#frozenset)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.deploy.pudl.\_assert_permanent_paths_are_empty(gcs_fs: gcsfs.GCSFileSystem | [None](https://docs.python.org/3/library/constants.html#None), s3_fs: s3fs.S3FileSystem | [None](https://docs.python.org/3/library/constants.html#None), path_suffixes: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], immutable_suffixes: [frozenset](https://docs.python.org/3/library/stdtypes.html#frozenset)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [None](https://docs.python.org/3/library/constants.html#None)
 
 Refuse to deploy to a permanent, version-tagged path that already has content.
 
@@ -8247,16 +8270,17 @@ which almost always means the same version tag is being deployed a second time.
 That’s an invalid request, so we check and raise up front rather than silently
 uploading over the top of it.
 
-### pudl.deploy.pudl.upload_outputs(source_dir: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), path_suffixes: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], immutable_suffixes: [frozenset](https://docs.python.org/3/library/stdtypes.html#frozenset)[[str](https://docs.python.org/3/library/stdtypes.html#str)] = frozenset()) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.deploy.pudl.upload_outputs(source_dir: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), path_suffixes: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], immutable_suffixes: [frozenset](https://docs.python.org/3/library/stdtypes.html#frozenset)[[str](https://docs.python.org/3/library/stdtypes.html#str)] = frozenset(), upload_to_gcs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, upload_to_s3: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → [None](https://docs.python.org/3/library/constants.html#None)
 
 Upload outputs to cloud storage paths.
 
-Uploads all files from source directory to GCS and S3 using the provided path
-suffixes. Each suffix is uploaded to both gs://pudl.catalyst.coop/{suffix}/ and
-s3://pudl.catalyst.coop/{suffix}/. Any existing objects at a suffix are removed
-first, unless that suffix is listed in `immutable_suffixes` – a permanent,
-hold-protected versioned release path is never cleared, and instead must not
-exist at all yet (see `_assert_permanent_paths_are_empty`).
+Uploads all files from source directory to GCS and/or S3 using the provided path
+suffixes. Each enabled destination gets every suffix uploaded to
+gs://pudl.catalyst.coop/{suffix}/ and/or s3://pudl.catalyst.coop/{suffix}/. Any
+existing objects at a suffix are removed first, unless that suffix is listed in
+`immutable_suffixes` – a permanent, hold-protected versioned release path is
+never cleared, and instead must not exist at all yet (see
+`_assert_permanent_paths_are_empty`).
 
 Each (suffix, destination) pair is uploaded concurrently: GCS and S3 are separate
 network destinations, and this is I/O-bound work that releases the GIL.
@@ -8267,8 +8291,12 @@ network destinations, and this is I/O-bound work that releases the GIL.
   * **immutable_suffixes** – Path suffixes that should never be cleared before upload
     (e.g. a permanent stable-version path like “v2026.7.0”). It’s an error
     for one of these paths to already exist.
+  * **upload_to_gcs** – Whether to upload to GCS.
+  * **upload_to_s3** – Whether to upload to S3. Branch builds skip S3 by default
+    because its egress fees are large and the nightly build tests it anyway.
 * **Raises:**
-  [**RuntimeError**](https://docs.python.org/3/library/exceptions.html#RuntimeError) – If a permanent, immutable path already has content.
+  * [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – If neither `upload_to_gcs` nor `upload_to_s3` is enabled.
+  * [**RuntimeError**](https://docs.python.org/3/library/exceptions.html#RuntimeError) – If a permanent, immutable path already has content.
 
 ### pudl.deploy.pudl.update_git_branch(tag: [str](https://docs.python.org/3/library/stdtypes.html#str), branch: [str](https://docs.python.org/3/library/stdtypes.html#str), environment: Literal['staging', 'production'], github_token: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [None](https://docs.python.org/3/library/constants.html#None)
 
@@ -8367,13 +8395,13 @@ Everything `pudl_deploy`’s `main()` needs after resolving a deployment.
 
 #### local_logfile *: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)*
 
-### pudl.deploy.pudl.resolve_build(git_tag: [str](https://docs.python.org/3/library/stdtypes.html#str), environment: Literal['staging', 'production']) → [ResolvedBuild](autoapi/pudl/deploy/pudl/index.html.md#pudl.deploy.pudl.ResolvedBuild)
+### pudl.deploy.pudl.resolve_build(git_tag: [str](https://docs.python.org/3/library/stdtypes.html#str), environment: Literal['staging', 'production'], deploy_to_gcs: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, deploy_to_s3: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [ResolvedBuild](autoapi/pudl/deploy/pudl/index.html.md#pudl.deploy.pudl.ResolvedBuild)
 
 Resolve the deployment plan, locate the build, and set up local logging.
 
 Raises if `git_tag` doesn’t look like a nightly/stable/branch tag, if a
-branch tag is being deployed to production, or if no successful build exists
-for the tag yet.
+branch tag is being deployed to production, if no successful build exists
+for the tag yet, or if both cloud storage upload targets are disabled.
 
 ### *class* pudl.deploy.pudl.StageStatus(\*args, \*\*kwds)
 
@@ -21219,7 +21247,7 @@ reporting; “Upload outputs” is a hard prerequisite for the rest (a failure
 there raises and aborts the remaining stages, leaving them recorded as
 skipped), while the remaining stages are independent of one another.
 
-### pudl.scripts.pudl_deploy.main(ctx: click.Context, git_tag: [str](https://docs.python.org/3/library/stdtypes.html#str), environment: Literal['staging', 'production']) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.scripts.pudl_deploy.main(ctx: click.Context, git_tag: [str](https://docs.python.org/3/library/stdtypes.html#str), environment: Literal['staging', 'production'], deploy_to_gcs: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None), deploy_to_s3: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None)) → [None](https://docs.python.org/3/library/constants.html#None)
 
 Deploy PUDL ETL outputs to cloud storage and external services.
 
@@ -73668,7 +73696,10 @@ manually kicking off a PUDL deployment on your branch.
 
 To initiate a branch build, in the PUDL repo on GitHub go to [Actions](https://github.com/catalyst-cooperative/pudl/actions) and select [build-pudl](https://github.com/catalyst-cooperative/pudl/actions/workflows/build-pudl.yml).
 On the right hand side select Run Workflow and then select your branch in the dropdown
-and click the Run Workflow button. Shortly thereafter you should see a notification in
+and click the Run Workflow button. By default, branch builds deploy their outputs to GCS
+and skip the S3 bucket distribution. Leave the `deploy_to_s3` checkbox off
+unless you’re specifically testing the S3 deployment; the row count outputs described
+below are unaffected either way. Shortly thereafter you should see a notification in
 the `pudl-deployments` Zulip stream saying that the build has kicked off. You can
 track its progress and watch the logs in the [Google Cloud Console](https://console.cloud.google.com/monitoring/dashboards/builder/992bbe3f-17e6-49c4-a9e8-8f1925d4ec24).
 
@@ -76761,10 +76792,22 @@ stable-tag-push builds deploy to `production`, while manually dispatched branch
 builds deploy to `staging`. This is passed into the Batch container as the
 `DEPLOYMENT_ENVIRONMENT` environment variable.
 
-Upon a successful build (or if a successful build for the tagged commit already
-exists – see [Run a Versioned Release](dev/run_a_release.html.md)), `pudl_batch.sh` uses the `gh` CLI to trigger
-the `deploy-pudl` action via `workflow_dispatch`, passing the git tag and
-deployment environment as inputs.
+`build-pudl` also decides which cloud storage targets the build’s outputs will be
+published to. Nightly and stable builds always deploy to both GCS and S3. Manually
+dispatched branch builds deploy to GCS by default and skip S3 to avoid egress
+charges. The `build-pudl` workflow-dispatch form exposes `deploy_to_gcs` /
+`deploy_to_s3` checkboxes to override the default behaviors.
+
+Upon a successful build (or if a successful build for the tagged commit already exists
+– see [Run a Versioned Release](dev/run_a_release.html.md)), `pudl_batch.sh` uses the `gh` CLI to trigger the
+`deploy-pudl` action via `workflow_dispatch`, passing the git tag, deployment
+environment, and the two `deploy_to_*` flags as inputs. If neither storage target is
+enabled there is nothing for `deploy-pudl` to do (since branch builds don’t update git
+branches, redeploy the data viewer, or trigger a Zenodo release), so `pudl_batch.sh`
+skips triggering it entirely. No deployment is the right choice when a build is run only
+skips triggering it entirely. This gives us the option to trigger builds
+**whose only job is to regenerate row counts,** and not have to eat
+the cost of an unused deployment action.
 
 The `gcloud` command in `build-pudl` requires certain Google Cloud
 Platform (GCP) permissions to start and update the Google Batch VM. We use Workflow
@@ -76780,15 +76823,18 @@ or dispatched manually (e.g. to redeploy an existing build, or to test deploymen
 changes on a branch – see [Run a Versioned Release](dev/run_a_release.html.md)).
 
 The action takes a git tag, which should already have an associated successful build,
-and a `deployment_environment` (`staging` or `production`). It validates the tag
-format and, for nightly/stable tags (not branch tags), confirms the tagged commit is
-actually an ancestor of `main` before proceeding – this stops a manually mistagged
-commit from being pushed to production via `workflow_dispatch`, while still allowing
-a legitimate retry of an already-`main` tag. It then runs `pudl_deploy`
-(`src/pudl/scripts/pudl_deploy.py`), which:
+a `deployment_environment` (`staging` or `production`), and `deploy_to_gcs` /
+`deploy_to_s3` checkboxes (both default on when dispatched manually) that map to the
+`pudl_deploy` `--deploy-gcs/--no-deploy-gcs` and `--deploy-s3/--no-deploy-s3`
+options. It validates the tag format and, for nightly/stable tags (not branch tags),
+confirms the tagged commit is actually an ancestor of `main` before proceeding – this
+stops a manually mistagged commit from being pushed to production via
+`workflow_dispatch`, while still allowing a legitimate retry of an already-`main`
+tag. It then runs `pudl_deploy` (`src/pudl/scripts/pudl_deploy.py`), which:
 
-* Finds the outputs associated with the tag’s build and uploads them to GCS and S3,
-  clearing any stale objects at the destination first.
+* Finds the outputs associated with the tag’s build and uploads them to GCS and/or S3,
+  clearing any stale objects at the destination first. Nightly and stable deploys
+  upload to both; branch deploys upload to GCS only unless S3 was explicitly requested.
 * Redeploys the PUDL Data Viewer (“Eel Hole”) – nightly deployments only.
 * Updates the `nightly`/`stable` git branch and triggers a Zenodo release
   (unless it’s a branch deployment).
@@ -79214,6 +79260,15 @@ This is the upcoming PUDL release.
   so a shared Cloud Monitoring dashboard can filter resource-usage metrics by
   pipeline. VM sizes and the ETL’s process and thread parallelism were tuned to
   match measured resource usage and stop oversubscribing the CPUs. See [#5545](https://github.com/catalyst-cooperative/pudl/pull/5545).
+* Branch builds (`build-pudl` runs triggered via `workflow_dispatch`) now skip
+  the S3 deployment by default and only deploy to GCS. S3 egress fees cost more than
+  a full ETL run, and the nightly build already exercises the real S3 deployment
+  every night. The `build-pudl` and `deploy-pudl` workflow-dispatch forms expose
+  `deploy_to_gcs` / `deploy_to_s3` checkboxes to override this per run, and when
+  neither target is enabled `build-pudl` skips triggering `deploy-pudl`
+  altogether (e.g. a build run only to regenerate row counts). Nightly and stable
+  deployments are unchanged and still deploy to both. See issue [#5557](https://github.com/catalyst-cooperative/pudl/issues/5557) and PR
+  [#5558](https://github.com/catalyst-cooperative/pudl/pull/5558).
 * Fixed several issues with how `dbt_helper update-tables` renders `schema.yml`
   ([`pudl.dbt_schema`](autoapi/pudl/dbt_schema/index.html.md#module-pudl.dbt_schema)): long `description:` fields are now wrapped into readable
   paragraph blocks and strings that need quoting prefer double quotes. This now matches

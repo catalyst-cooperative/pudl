@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.deploy.pudl &#8212; PUDL 2026.8.1.dev41 documentation</title>
+    <title>pudl.deploy.pudl &#8212; PUDL 2026.8.1.dev42 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../_static/documentation_options.js?v=49ab6088"></script>
+    <script src="../../../_static/documentation_options.js?v=691afa63"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev41 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev41 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev42 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev42 documentation - Home"/>
   
   
 </a></div>
@@ -962,6 +962,17 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.DeploymentPlan.environment">[docs]</a>
     <span class="n">environment</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"staging"</span><span class="p">,</span> <span class="s2">"production"</span><span class="p">]</span></div>
 
+    <span class="c1"># Overrides for the cloud storage upload targets. ``None`` means "use the default</span>
+    <span class="c1"># for this deploy type" (see ``upload_to_gcs``/``upload_to_s3``); an explicit bool</span>
+    <span class="c1"># forces the target on or off regardless of the deploy type default.</span>
+<div class="viewcode-block" id="DeploymentPlan.deploy_to_gcs">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.DeploymentPlan.deploy_to_gcs">[docs]</a>
+    <span class="n">deploy_to_gcs</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="DeploymentPlan.deploy_to_s3">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.DeploymentPlan.deploy_to_s3">[docs]</a>
+    <span class="n">deploy_to_s3</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
+
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="DeploymentPlan.deploy_type">
@@ -981,6 +992,49 @@ window.runMermaid = runMermaid;</script>
                 <span class="sa">f</span><span class="s2">"environment=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="si">!r}</span><span class="s2"> for git_tag=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">git_tag</span><span class="si">!r}</span><span class="s2">."</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span></div>
+
+
+    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"after"</span><span class="p">)</span>
+<div class="viewcode-block" id="DeploymentPlan._validate_has_an_upload_target">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.DeploymentPlan._validate_has_an_upload_target">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_has_an_upload_target</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"DeploymentPlan"</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">upload_to_gcs</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">upload_to_s3</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Deployment for git_tag=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">git_tag</span><span class="si">!r}</span><span class="s2"> has neither GCS nor S3 "</span>
+                <span class="s2">"uploads enabled. It doesn't make sense to trigger a deployment "</span>
+                <span class="s2">"to nowhere, so something has probably gone wrong "</span>
+                <span class="s2">"in one of the systems that triggers deploy-pudl."</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="DeploymentPlan.upload_to_gcs">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.DeploymentPlan.upload_to_gcs">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">upload_to_gcs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Whether this deployment uploads outputs to GCS.</span>
+
+<span class="sd">        Defaults to ``True`` for every deploy type -- GCS has no egress fees and is</span>
+<span class="sd">        the primary distribution target -- but a build can still explicitly opt out</span>
+<span class="sd">        (e.g. an S3-only test).</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">deploy_to_gcs</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">deploy_to_gcs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">True</span></div>
+
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="DeploymentPlan.upload_to_s3">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.DeploymentPlan.upload_to_s3">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">upload_to_s3</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Whether this deployment uploads outputs to S3.</span>
+
+<span class="sd">        Nightly and stable deploys default to ``True``. Branch builds default to</span>
+<span class="sd">        ``False``: S3 egress costs more than a full ETL run, and the nightly build</span>
+<span class="sd">        exercises the real S3 deployment every night anyway. A branch build can</span>
+<span class="sd">        still opt in explicitly when that's the thing being tested.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">deploy_to_s3</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">deploy_to_s3</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">deploy_type</span> <span class="o">!=</span> <span class="n">DeploymentType</span><span class="o">.</span><span class="n">BRANCH</span></div>
 
 
     <span class="nd">@property</span>
@@ -1263,8 +1317,8 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_assert_permanent_paths_are_empty">
 <a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl._assert_permanent_paths_are_empty">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_assert_permanent_paths_are_empty</span><span class="p">(</span>
-    <span class="n">gcs_fs</span><span class="p">:</span> <span class="n">gcsfs</span><span class="o">.</span><span class="n">GCSFileSystem</span><span class="p">,</span>
-    <span class="n">s3_fs</span><span class="p">:</span> <span class="n">s3fs</span><span class="o">.</span><span class="n">S3FileSystem</span><span class="p">,</span>
+    <span class="n">gcs_fs</span><span class="p">:</span> <span class="n">gcsfs</span><span class="o">.</span><span class="n">GCSFileSystem</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">s3_fs</span><span class="p">:</span> <span class="n">s3fs</span><span class="o">.</span><span class="n">S3FileSystem</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">path_suffixes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">immutable_suffixes</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1285,6 +1339,8 @@ window.runMermaid = runMermaid;</script>
             <span class="p">(</span><span class="n">gcs_fs</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"gs://pudl.catalyst.coop/</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">/"</span><span class="p">),</span>
             <span class="p">(</span><span class="n">s3_fs</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"s3://pudl.catalyst.coop/</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">/"</span><span class="p">),</span>
         <span class="p">):</span>
+            <span class="k">if</span> <span class="n">fs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
             <span class="k">if</span> <span class="n">fs</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">"Refusing to deploy to </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">: it's a permanent, "</span>
@@ -1301,15 +1357,18 @@ window.runMermaid = runMermaid;</script>
     <span class="n">source_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">path_suffixes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">immutable_suffixes</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(),</span>
+    <span class="n">upload_to_gcs</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">upload_to_s3</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Upload outputs to cloud storage paths.</span>
 
-<span class="sd">    Uploads all files from source directory to GCS and S3 using the provided path</span>
-<span class="sd">    suffixes. Each suffix is uploaded to both gs://pudl.catalyst.coop/{suffix}/ and</span>
-<span class="sd">    s3://pudl.catalyst.coop/{suffix}/. Any existing objects at a suffix are removed</span>
-<span class="sd">    first, unless that suffix is listed in ``immutable_suffixes`` -- a permanent,</span>
-<span class="sd">    hold-protected versioned release path is never cleared, and instead must not</span>
-<span class="sd">    exist at all yet (see ``_assert_permanent_paths_are_empty``).</span>
+<span class="sd">    Uploads all files from source directory to GCS and/or S3 using the provided path</span>
+<span class="sd">    suffixes. Each enabled destination gets every suffix uploaded to</span>
+<span class="sd">    gs://pudl.catalyst.coop/{suffix}/ and/or s3://pudl.catalyst.coop/{suffix}/. Any</span>
+<span class="sd">    existing objects at a suffix are removed first, unless that suffix is listed in</span>
+<span class="sd">    ``immutable_suffixes`` -- a permanent, hold-protected versioned release path is</span>
+<span class="sd">    never cleared, and instead must not exist at all yet (see</span>
+<span class="sd">    ``_assert_permanent_paths_are_empty``).</span>
 
 <span class="sd">    Each (suffix, destination) pair is uploaded concurrently: GCS and S3 are separate</span>
 <span class="sd">    network destinations, and this is I/O-bound work that releases the GIL.</span>
@@ -1320,32 +1379,41 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        immutable_suffixes: Path suffixes that should never be cleared before upload</span>
 <span class="sd">            (e.g. a permanent stable-version path like "v2026.7.0"). It's an error</span>
 <span class="sd">            for one of these paths to already exist.</span>
+<span class="sd">        upload_to_gcs: Whether to upload to GCS.</span>
+<span class="sd">        upload_to_s3: Whether to upload to S3. Branch builds skip S3 by default</span>
+<span class="sd">            because its egress fees are large and the nightly build tests it anyway.</span>
 
 <span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If neither ``upload_to_gcs`` nor ``upload_to_s3`` is enabled.</span>
 <span class="sd">        RuntimeError: If a permanent, immutable path already has content.</span>
 <span class="sd">    """</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Uploading outputs to cloud storage"</span><span class="p">)</span>
 
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">upload_to_gcs</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">upload_to_s3</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">"upload_outputs called with neither GCS nor S3 uploads enabled."</span>
+        <span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">source_dir</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Source directory does not exist: </span><span class="si">{</span><span class="n">source_dir</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">source_dir</span><span class="o">.</span><span class="n">iterdir</span><span class="p">()):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Source directory is empty: </span><span class="si">{</span><span class="n">source_dir</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="c1"># NOTE (2026-02-11): our GCS distribution bucket is requester pays.</span>
-    <span class="n">gcs_fs</span> <span class="o">=</span> <span class="n">gcsfs</span><span class="o">.</span><span class="n">GCSFileSystem</span><span class="p">(</span><span class="n">requester_pays</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">s3_fs</span> <span class="o">=</span> <span class="n">s3fs</span><span class="o">.</span><span class="n">S3FileSystem</span><span class="p">()</span>
+    <span class="n">gcs_fs</span> <span class="o">=</span> <span class="n">gcsfs</span><span class="o">.</span><span class="n">GCSFileSystem</span><span class="p">(</span><span class="n">requester_pays</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">if</span> <span class="n">upload_to_gcs</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">s3_fs</span> <span class="o">=</span> <span class="n">s3fs</span><span class="o">.</span><span class="n">S3FileSystem</span><span class="p">()</span> <span class="k">if</span> <span class="n">upload_to_s3</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="n">_assert_permanent_paths_are_empty</span><span class="p">(</span><span class="n">gcs_fs</span><span class="p">,</span> <span class="n">s3_fs</span><span class="p">,</span> <span class="n">path_suffixes</span><span class="p">,</span> <span class="n">immutable_suffixes</span><span class="p">)</span>
 
+    <span class="n">destinations</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="n">fs</span><span class="p">,</span> <span class="n">scheme</span><span class="p">)</span> <span class="k">for</span> <span class="n">fs</span><span class="p">,</span> <span class="n">scheme</span> <span class="ow">in</span> <span class="p">((</span><span class="n">gcs_fs</span><span class="p">,</span> <span class="s2">"gs"</span><span class="p">),</span> <span class="p">(</span><span class="n">s3_fs</span><span class="p">,</span> <span class="s2">"s3"</span><span class="p">))</span> <span class="k">if</span> <span class="n">fs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="p">]</span>
     <span class="n">upload_targets</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">suffix</span> <span class="ow">in</span> <span class="n">path_suffixes</span><span class="p">:</span>
         <span class="n">clear_first</span> <span class="o">=</span> <span class="n">suffix</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">immutable_suffixes</span>
-        <span class="n">upload_targets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="p">(</span><span class="n">gcs_fs</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"gs://pudl.catalyst.coop/</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">/"</span><span class="p">,</span> <span class="n">clear_first</span><span class="p">)</span>
-        <span class="p">)</span>
-        <span class="n">upload_targets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="p">(</span><span class="n">s3_fs</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"s3://pudl.catalyst.coop/</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">/"</span><span class="p">,</span> <span class="n">clear_first</span><span class="p">)</span>
-        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">fs</span><span class="p">,</span> <span class="n">scheme</span> <span class="ow">in</span> <span class="n">destinations</span><span class="p">:</span>
+            <span class="n">upload_targets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">fs</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">scheme</span><span class="si">}</span><span class="s2">://pudl.catalyst.coop/</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">/"</span><span class="p">,</span> <span class="n">clear_first</span><span class="p">)</span>
+            <span class="p">)</span>
 
     <span class="k">with</span> <span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">upload_targets</span><span class="p">))</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
         <span class="n">futures</span> <span class="o">=</span> <span class="p">[</span>
@@ -1698,15 +1766,23 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="resolve_build">
 <a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.resolve_build">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">resolve_build</span><span class="p">(</span>
-    <span class="n">git_tag</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">environment</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"staging"</span><span class="p">,</span> <span class="s2">"production"</span><span class="p">]</span>
+    <span class="n">git_tag</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">environment</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"staging"</span><span class="p">,</span> <span class="s2">"production"</span><span class="p">],</span>
+    <span class="n">deploy_to_gcs</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">deploy_to_s3</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ResolvedBuild</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Resolve the deployment plan, locate the build, and set up local logging.</span>
 
 <span class="sd">    Raises if ``git_tag`` doesn't look like a nightly/stable/branch tag, if a</span>
-<span class="sd">    branch tag is being deployed to production, or if no successful build exists</span>
-<span class="sd">    for the tag yet.</span>
+<span class="sd">    branch tag is being deployed to production, if no successful build exists</span>
+<span class="sd">    for the tag yet, or if both cloud storage upload targets are disabled.</span>
 <span class="sd">    """</span>
-    <span class="n">plan</span> <span class="o">=</span> <span class="n">DeploymentPlan</span><span class="p">(</span><span class="n">git_tag</span><span class="o">=</span><span class="n">git_tag</span><span class="p">,</span> <span class="n">environment</span><span class="o">=</span><span class="n">environment</span><span class="p">)</span>
+    <span class="n">plan</span> <span class="o">=</span> <span class="n">DeploymentPlan</span><span class="p">(</span>
+        <span class="n">git_tag</span><span class="o">=</span><span class="n">git_tag</span><span class="p">,</span>
+        <span class="n">environment</span><span class="o">=</span><span class="n">environment</span><span class="p">,</span>
+        <span class="n">deploy_to_gcs</span><span class="o">=</span><span class="n">deploy_to_gcs</span><span class="p">,</span>
+        <span class="n">deploy_to_s3</span><span class="o">=</span><span class="n">deploy_to_s3</span><span class="p">,</span>
+    <span class="p">)</span>
 
     <span class="n">build_path</span> <span class="o">=</span> <span class="n">get_build_from_tag</span><span class="p">(</span><span class="n">git_tag</span><span class="p">)</span>
     <span class="n">build_id</span> <span class="o">=</span> <span class="n">build_path</span><span class="o">.</span><span class="n">name</span>

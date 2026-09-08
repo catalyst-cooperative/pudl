@@ -34,7 +34,7 @@ This module handles distribution of completed ETL builds to public cloud storage
 | [`clear_deployment_path`](#pudl.deploy.pudl.clear_deployment_path)(→ None)                              | Empty a cloud storage prefix before writing fresh deployment outputs.                 |
 | [`_upload_to_path`](#pudl.deploy.pudl._upload_to_path)(→ None)                                    | Clear (if requested) and upload all outputs to one destination path.                  |
 | [`_assert_permanent_paths_are_empty`](#pudl.deploy.pudl._assert_permanent_paths_are_empty)(→ None)                  | Refuse to deploy to a permanent, version-tagged path that already has content.        |
-| [`upload_outputs`](#pudl.deploy.pudl.upload_outputs)() → None)                                   | Upload outputs to cloud storage paths.                                                |
+| [`upload_outputs`](#pudl.deploy.pudl.upload_outputs)(, upload_to_gcs, upload_to_s3)              | Upload outputs to cloud storage paths.                                                |
 | [`update_git_branch`](#pudl.deploy.pudl.update_git_branch)(→ None)                                  | Merge git tag into branch and push to origin.                                         |
 | [`dispatch_github_workflow`](#pudl.deploy.pudl.dispatch_github_workflow)(→ None)                           | Trigger a workflow_dispatch event on a GitHub Actions workflow.                       |
 | [`trigger_zenodo_release`](#pudl.deploy.pudl.trigger_zenodo_release)(→ None)                             | Trigger Zenodo data release GitHub Actions workflow.                                  |
@@ -96,11 +96,34 @@ Configuration for the model, should be a dictionary conforming to [ConfigDict][p
 
 #### environment *: Literal['staging', 'production']*
 
+#### deploy_to_gcs *: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+
+#### deploy_to_s3 *: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+
 #### *property* deploy_type *: [DeploymentType](#pudl.deploy.pudl.DeploymentType)*
 
 The deploy type implied by `git_tag`’s shape.
 
 #### \_validate_branch_only_targets_staging() → [DeploymentPlan](#pudl.deploy.pudl.DeploymentPlan)
+
+#### \_validate_has_an_upload_target() → [DeploymentPlan](#pudl.deploy.pudl.DeploymentPlan)
+
+#### *property* upload_to_gcs *: [bool](https://docs.python.org/3/library/functions.html#bool)*
+
+Whether this deployment uploads outputs to GCS.
+
+Defaults to `True` for every deploy type – GCS has no egress fees and is
+the primary distribution target – but a build can still explicitly opt out
+(e.g. an S3-only test).
+
+#### *property* upload_to_s3 *: [bool](https://docs.python.org/3/library/functions.html#bool)*
+
+Whether this deployment uploads outputs to S3.
+
+Nightly and stable deploys default to `True`. Branch builds default to
+`False`: S3 egress costs more than a full ETL run, and the nightly build
+exercises the real S3 deployment every night anyway. A branch build can
+still opt in explicitly when that’s the thing being tested.
 
 #### *property* path_suffixes *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
 
@@ -207,7 +230,7 @@ Safe to call concurrently for different `(fs, path)` combinations – gcsfs
 and s3fs are both designed to support concurrent use from multiple threads,
 and each call here only touches its own independent bucket/path.
 
-### pudl.deploy.pudl.\_assert_permanent_paths_are_empty(gcs_fs: gcsfs.GCSFileSystem, s3_fs: s3fs.S3FileSystem, path_suffixes: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], immutable_suffixes: [frozenset](https://docs.python.org/3/library/stdtypes.html#frozenset)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.deploy.pudl.\_assert_permanent_paths_are_empty(gcs_fs: gcsfs.GCSFileSystem | [None](https://docs.python.org/3/library/constants.html#None), s3_fs: s3fs.S3FileSystem | [None](https://docs.python.org/3/library/constants.html#None), path_suffixes: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], immutable_suffixes: [frozenset](https://docs.python.org/3/library/stdtypes.html#frozenset)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [None](https://docs.python.org/3/library/constants.html#None)
 
 Refuse to deploy to a permanent, version-tagged path that already has content.
 
@@ -219,16 +242,17 @@ which almost always means the same version tag is being deployed a second time.
 That’s an invalid request, so we check and raise up front rather than silently
 uploading over the top of it.
 
-### pudl.deploy.pudl.upload_outputs(source_dir: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), path_suffixes: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], immutable_suffixes: [frozenset](https://docs.python.org/3/library/stdtypes.html#frozenset)[[str](https://docs.python.org/3/library/stdtypes.html#str)] = frozenset()) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.deploy.pudl.upload_outputs(source_dir: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), path_suffixes: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], immutable_suffixes: [frozenset](https://docs.python.org/3/library/stdtypes.html#frozenset)[[str](https://docs.python.org/3/library/stdtypes.html#str)] = frozenset(), upload_to_gcs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, upload_to_s3: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → [None](https://docs.python.org/3/library/constants.html#None)
 
 Upload outputs to cloud storage paths.
 
-Uploads all files from source directory to GCS and S3 using the provided path
-suffixes. Each suffix is uploaded to both gs://pudl.catalyst.coop/{suffix}/ and
-s3://pudl.catalyst.coop/{suffix}/. Any existing objects at a suffix are removed
-first, unless that suffix is listed in `immutable_suffixes` – a permanent,
-hold-protected versioned release path is never cleared, and instead must not
-exist at all yet (see `_assert_permanent_paths_are_empty`).
+Uploads all files from source directory to GCS and/or S3 using the provided path
+suffixes. Each enabled destination gets every suffix uploaded to
+gs://pudl.catalyst.coop/{suffix}/ and/or s3://pudl.catalyst.coop/{suffix}/. Any
+existing objects at a suffix are removed first, unless that suffix is listed in
+`immutable_suffixes` – a permanent, hold-protected versioned release path is
+never cleared, and instead must not exist at all yet (see
+`_assert_permanent_paths_are_empty`).
 
 Each (suffix, destination) pair is uploaded concurrently: GCS and S3 are separate
 network destinations, and this is I/O-bound work that releases the GIL.
@@ -239,8 +263,12 @@ network destinations, and this is I/O-bound work that releases the GIL.
   * **immutable_suffixes** – Path suffixes that should never be cleared before upload
     (e.g. a permanent stable-version path like “v2026.7.0”). It’s an error
     for one of these paths to already exist.
+  * **upload_to_gcs** – Whether to upload to GCS.
+  * **upload_to_s3** – Whether to upload to S3. Branch builds skip S3 by default
+    because its egress fees are large and the nightly build tests it anyway.
 * **Raises:**
-  [**RuntimeError**](https://docs.python.org/3/library/exceptions.html#RuntimeError) – If a permanent, immutable path already has content.
+  * [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – If neither `upload_to_gcs` nor `upload_to_s3` is enabled.
+  * [**RuntimeError**](https://docs.python.org/3/library/exceptions.html#RuntimeError) – If a permanent, immutable path already has content.
 
 ### pudl.deploy.pudl.update_git_branch(tag: [str](https://docs.python.org/3/library/stdtypes.html#str), branch: [str](https://docs.python.org/3/library/stdtypes.html#str), environment: Literal['staging', 'production'], github_token: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [None](https://docs.python.org/3/library/constants.html#None)
 
@@ -339,13 +367,13 @@ Everything `pudl_deploy`’s `main()` needs after resolving a deployment.
 
 #### local_logfile *: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)*
 
-### pudl.deploy.pudl.resolve_build(git_tag: [str](https://docs.python.org/3/library/stdtypes.html#str), environment: Literal['staging', 'production']) → [ResolvedBuild](#pudl.deploy.pudl.ResolvedBuild)
+### pudl.deploy.pudl.resolve_build(git_tag: [str](https://docs.python.org/3/library/stdtypes.html#str), environment: Literal['staging', 'production'], deploy_to_gcs: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, deploy_to_s3: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [ResolvedBuild](#pudl.deploy.pudl.ResolvedBuild)
 
 Resolve the deployment plan, locate the build, and set up local logging.
 
 Raises if `git_tag` doesn’t look like a nightly/stable/branch tag, if a
-branch tag is being deployed to production, or if no successful build exists
-for the tag yet.
+branch tag is being deployed to production, if no successful build exists
+for the tag yet, or if both cloud storage upload targets are disabled.
 
 ### *class* pudl.deploy.pudl.StageStatus(\*args, \*\*kwds)
 

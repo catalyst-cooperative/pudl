@@ -177,6 +177,15 @@ Developer Experience
   so a shared Cloud Monitoring dashboard can filter resource-usage metrics by
   pipeline. VM sizes and the ETL's process and thread parallelism were tuned to
   match measured resource usage and stop oversubscribing the CPUs. See :pr:`5545`.
+* Branch builds (``build-pudl`` runs triggered via ``workflow_dispatch``) now skip
+  the S3 deployment by default and only deploy to GCS. S3 egress fees cost more than
+  a full ETL run, and the nightly build already exercises the real S3 deployment
+  every night. The ``build-pudl`` and ``deploy-pudl`` workflow-dispatch forms expose
+  ``deploy_to_gcs`` / ``deploy_to_s3`` checkboxes to override this per run, and when
+  neither target is enabled ``build-pudl`` skips triggering ``deploy-pudl``
+  altogether (e.g. a build run only to regenerate row counts). Nightly and stable
+  deployments are unchanged and still deploy to both. See issue :issue:`5557` and PR
+  :pr:`5558`.
 * Fixed several issues with how ``dbt_helper update-tables`` renders ``schema.yml``
   (:mod:`pudl.dbt_schema`): long ``description:`` fields are now wrapped into readable
   paragraph blocks and strings that need quoting prefer double quotes. This now matches

@@ -75,7 +75,7 @@ Module Contents
    skipped), while the remaining stages are independent of one another.
 
 
-.. py:function:: main(ctx: click.Context, git_tag: str, environment: Literal['staging', 'production']) -> None
+.. py:function:: main(ctx: click.Context, git_tag: str, environment: Literal['staging', 'production'], deploy_to_gcs: bool | None, deploy_to_s3: bool | None) -> None
 
    Deploy PUDL ETL outputs to cloud storage and external services.
 

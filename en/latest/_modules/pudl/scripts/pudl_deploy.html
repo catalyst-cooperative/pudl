@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.scripts.pudl_deploy &#8212; PUDL 2026.8.1.dev41 documentation</title>
+    <title>pudl.scripts.pudl_deploy &#8212; PUDL 2026.8.1.dev42 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../_static/documentation_options.js?v=49ab6088"></script>
+    <script src="../../../_static/documentation_options.js?v=691afa63"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev41 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev41 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev42 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev42 documentation - Home"/>
   
   
 </a></div>
@@ -961,6 +961,8 @@ window.runMermaid = runMermaid;</script>
         <span class="n">source_dir</span><span class="o">=</span><span class="n">source_dir</span><span class="p">,</span>
         <span class="n">path_suffixes</span><span class="o">=</span><span class="n">plan</span><span class="o">.</span><span class="n">path_suffixes</span><span class="p">,</span>
         <span class="n">immutable_suffixes</span><span class="o">=</span><span class="n">plan</span><span class="o">.</span><span class="n">immutable_suffixes</span><span class="p">,</span>
+        <span class="n">upload_to_gcs</span><span class="o">=</span><span class="n">plan</span><span class="o">.</span><span class="n">upload_to_gcs</span><span class="p">,</span>
+        <span class="n">upload_to_s3</span><span class="o">=</span><span class="n">plan</span><span class="o">.</span><span class="n">upload_to_s3</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">plan</span><span class="o">.</span><span class="n">redeploy_eel_hole</span><span class="p">:</span>
@@ -1028,6 +1030,23 @@ window.runMermaid = runMermaid;</script>
     <span class="p">),</span>
     <span class="n">show_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">"--deploy-gcs/--no-deploy-gcs"</span><span class="p">,</span>
+    <span class="s2">"deploy_to_gcs"</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">"Force GCS upload on or off. If unset, defaults to on for every deploy type."</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">"--deploy-s3/--no-deploy-s3"</span><span class="p">,</span>
+    <span class="s2">"deploy_to_s3"</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">"Force S3 upload on or off. If unset, defaults to on for nightly/stable "</span>
+        <span class="s2">"deploys and off for branch builds (S3 egress fees are large)."</span>
+    <span class="p">),</span>
+<span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">pass_context</span>
 <div class="viewcode-block" id="main">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/pudl_deploy/index.html#pudl.scripts.pudl_deploy.main">[docs]</a>
@@ -1035,6 +1054,8 @@ window.runMermaid = runMermaid;</script>
     <span class="n">ctx</span><span class="p">:</span> <span class="n">click</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
     <span class="n">git_tag</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">environment</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"staging"</span><span class="p">,</span> <span class="s2">"production"</span><span class="p">],</span>
+    <span class="n">deploy_to_gcs</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">deploy_to_s3</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Deploy PUDL ETL outputs to cloud storage and external services.</span>
 
@@ -1077,6 +1098,8 @@ window.runMermaid = runMermaid;</script>
             <span class="n">stage_results</span><span class="o">=</span><span class="n">stage_results</span><span class="p">,</span>
             <span class="n">git_tag</span><span class="o">=</span><span class="n">git_tag</span><span class="p">,</span>
             <span class="n">environment</span><span class="o">=</span><span class="n">environment</span><span class="p">,</span>
+            <span class="n">deploy_to_gcs</span><span class="o">=</span><span class="n">deploy_to_gcs</span><span class="p">,</span>
+            <span class="n">deploy_to_s3</span><span class="o">=</span><span class="n">deploy_to_s3</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="c1"># run_stage's default fail_hard=True re-raises on failure instead of</span>
         <span class="c1"># returning, so reaching this line means resolve_build succeeded.</span>

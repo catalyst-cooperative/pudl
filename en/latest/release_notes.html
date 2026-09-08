@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="release_notes.html.md" />
-    <title>PUDL Release Notes &#8212; PUDL 2026.8.1.dev41 documentation</title>
+    <title>PUDL Release Notes &#8212; PUDL 2026.8.1.dev42 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="_static/documentation_options.js?v=49ab6088"></script>
+    <script src="_static/documentation_options.js?v=691afa63"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev41 documentation - Home"/>
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev41 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev42 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev42 documentation - Home"/>
   
   
 </a></div>
@@ -691,6 +691,15 @@ counts, and every VM and its logs are tagged with the pipeline that launched the
 so a shared Cloud Monitoring dashboard can filter resource-usage metrics by
 pipeline. VM sizes and the ETL’s process and thread parallelism were tuned to
 match measured resource usage and stop oversubscribing the CPUs. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5545">#5545</a>.</p></li>
+<li><p>Branch builds (<code class="docutils literal notranslate"><span class="pre">build-pudl</span></code> runs triggered via <code class="docutils literal notranslate"><span class="pre">workflow_dispatch</span></code>) now skip
+the S3 deployment by default and only deploy to GCS. S3 egress fees cost more than
+a full ETL run, and the nightly build already exercises the real S3 deployment
+every night. The <code class="docutils literal notranslate"><span class="pre">build-pudl</span></code> and <code class="docutils literal notranslate"><span class="pre">deploy-pudl</span></code> workflow-dispatch forms expose
+<code class="docutils literal notranslate"><span class="pre">deploy_to_gcs</span></code> / <code class="docutils literal notranslate"><span class="pre">deploy_to_s3</span></code> checkboxes to override this per run, and when
+neither target is enabled <code class="docutils literal notranslate"><span class="pre">build-pudl</span></code> skips triggering <code class="docutils literal notranslate"><span class="pre">deploy-pudl</span></code>
+altogether (e.g. a build run only to regenerate row counts). Nightly and stable
+deployments are unchanged and still deploy to both. See issue <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/5557">#5557</a> and PR
+<a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5558">#5558</a>.</p></li>
 <li><p>Fixed several issues with how <code class="docutils literal notranslate"><span class="pre">dbt_helper</span> <span class="pre">update-tables</span></code> renders <code class="docutils literal notranslate"><span class="pre">schema.yml</span></code>
 (<a class="reference internal" href="autoapi/pudl/dbt_schema/index.html#module-pudl.dbt_schema" title="pudl.dbt_schema"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.dbt_schema</span></code></a>): long <code class="docutils literal notranslate"><span class="pre">description:</span></code> fields are now wrapped into readable
 paragraph blocks and strings that need quoting prefer double quotes. This now matches
