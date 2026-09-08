@@ -60,12 +60,12 @@ There are six main stages of the allocation process in this module:
    granular :ref:`core_eia923__monthly_generation_fuel` table to the
    :py:const:`IDX_GENS_PM_ESC` level. More details on the allocation process are below
    (see :func:`allocate_gen_fuel_by_gen_esc` and :func:`allocate_fuel_by_gen_esc`).
-#. **Sanity check allocation**: Verify that the total allocated net generation and fuel
-   consumption within each plant is equal to the total of the originally reported values
-   within some tolerance (see :func:`test_original_gf_vs_the_allocated_by_gens_gf`).
-   Warn if assumptions about the data and the outputs aren't met (see
-   :func:`warn_if_missing_pms`, :func:`_test_frac`, :func:`test_gen_fuel_allocation` and
-   :func:`_test_gen_pm_fuel_output`)
+#. **Sanity check allocation**: Warn if assumptions about the data and the outputs
+   aren't met (see :func:`_warn_if_missing_pms`, :func:`_test_frac` and
+   :func:`test_gen_fuel_allocation`). Verifying that the total allocated net generation
+   and fuel consumption within each plant equals the originally reported values within
+   tolerance is handled by the ``validate_eia923__generation_fuel_allocation`` dbt
+   models.
 #. **Aggregate outputs**: Aggregate the allocated net generation and fuel consumption to
    the generator level, going from having primary keys of :py:const:`IDX_GENS_PM_ESC` to
    :py:const:`IDX_GENS` (see :func:`aggregate_gen_fuel_by_generator`).
@@ -134,7 +134,6 @@ net generation (if it's reported) or capacity (if generation is not reported).
 """
 
 import operator
-import os
 from typing import Literal
 
 # Useful high-level external modules.
@@ -384,9 +383,7 @@ def allocate_gen_fuel_by_generator_energy_source(
     # to allocate net generation from the gf table for each `IDX_PM_ESC` group
     gen_pm_fuel = prep_allocation_fraction(gen_assoc)
     # Net gen allocation
-    net_gen_alloc = allocate_gen_fuel_by_gen_esc(gen_pm_fuel).pipe(
-        _test_gen_pm_fuel_output, gf=gf, gen=gen
-    )
+    net_gen_alloc = allocate_gen_fuel_by_gen_esc(gen_pm_fuel)
     test_gen_fuel_allocation(gen, net_gen_alloc)
 
     # fuel allocation
@@ -405,16 +402,9 @@ def allocate_gen_fuel_by_generator_energy_source(
         validate="1:1",
         suffixes=("_net_gen_alloc", "_fuel_alloc"),
     ).sort_values(IDX_GENS_PM_ESC)
-    # When 2020 and 2022 data are used in the fast ETL (2020 data is necessary for
-    # having ample FERC-EIA training data and 2022 as the new year of data) the ci
-    # tests fail on exit code 143 for memory reasons while all tests pass locally.
-    # This function was identified as a large memory suck, therefore this conditional
-    # prevents the function from running as part of the ci and enables the tests to
-    # pass.
-    if not os.environ.get("GITHUB_ACTIONS", False):
-        _ = test_original_gf_vs_the_allocated_by_gens_gf(
-            gf=gf, gf_allocated=net_gen_fuel_alloc
-        )
+    # Plant-year reconciliation of the allocated output against the original
+    # generation_fuel totals is handled by the
+    # ``validate_eia923__generation_fuel_allocation`` dbt models.
     # There are a tiny number of records that have NaNs in the prime mover code
     # and for which the correct prime mover is unclear. Prime mover code is part
     # of the primary key for this table, so we have to drop them.
@@ -482,7 +472,7 @@ def select_input_data(
         + list(gens.filter(like="energy_source_code"))
         + list(gens.filter(like="startup_source_code")),
     ]
-    warn_if_missing_pms(gens)
+    _warn_if_missing_pms(gens)
     gen = (
         gen.loc[:, IDX_GENS + ["net_generation_mwh"]]
         # removes 4 records with NaN generator_id as of pudl v0.5
@@ -2202,13 +2192,15 @@ def allocate_bf_data_to_gens(
 ########################################################################################
 # Tests of Outputs
 ########################################################################################
-def warn_if_missing_pms(gens: pd.DataFrame) -> None:
+def _warn_if_missing_pms(gens: pd.DataFrame) -> None:
     """Log warning if there are too many null ``prime_mover_code`` s.
 
     Warn if prime mover codes in gens do not match the codes in the gf table this is
     something that should probably be fixed in the input data see
     https://github.com/catalyst-cooperative/pudl/issues/1585 set a threshold and ignore
     2001 bc most errors are 2001 errors.
+
+    This is an input data quality check that can't be migrated to dbt.
     """
     missing_pm = gens[
         gens["prime_mover_code"].isna()
@@ -2237,6 +2229,9 @@ def warn_if_missing_pms(gens: pd.DataFrame) -> None:
 def _test_frac(gen_pm_fuel: pd.DataFrame) -> pd.DataFrame:
     """Check if each of the IDX_PM_ESC groups frac's add up to 1.
 
+    This is used to test data expectations in an intermediate step of the allocation
+    process, and so can't be migrated to dbt.
+
     Args:
         gen_pm_fuel: table of generators with an allocation ``frac`` column, grouped
             by ``IDX_PM_ESC``. Output of :func:`allocate_gen_fuel_by_gen_esc`.
@@ -2262,104 +2257,13 @@ def _test_frac(gen_pm_fuel: pd.DataFrame) -> pd.DataFrame:
     return frac_test_bad
 
 
-def _test_gen_pm_fuel_output(
-    gen_pm_fuel: pd.DataFrame, gf: pd.DataFrame, gen: pd.DataFrame
-) -> pd.DataFrame:
-    """Log diagnostics comparing allocated net generation against the gf and g tables.
-
-    This is just for testing/debugging -- it doesn't assert anything, it logs how
-    closely the allocated ``net_generation_mwh`` sums back up to the reported gf-
-    and g-table totals, at both the ``IDX_PM_ESC`` and ``IDX_ESC`` grouping levels.
-
-    Args:
-        gen_pm_fuel: table of generators with allocated net generation. Output of
-            :func:`allocate_gen_fuel_by_gen_esc`.
-        gf: transformed :ref:`core_eia923__monthly_generation_fuel` table.
-        gen: transformed :ref:`core_eia923__monthly_generation` table.
-
-    Returns:
-        ``gen_pm_fuel`` with intermediate ``net_generation_mwh_test`` and
-        ``net_generation_mwh_diff`` columns dropped after being used to compute the
-        logged diagnostics.
-    """
-
-    def calc_net_gen_diff(gen_pm_fuel: pd.DataFrame, idx: list[str]) -> pd.DataFrame:
-        """Merge in group-level net generation totals and their diff from gf-table.
-
-        Args:
-            gen_pm_fuel: table of generators with allocated net generation.
-            idx: columns to group by when summing ``net_generation_mwh``.
-
-        Returns:
-            ``gen_pm_fuel`` with two new columns: ``net_generation_mwh_test`` (the
-            ``idx``-level sum of allocated ``net_generation_mwh``) and
-            ``net_generation_mwh_diff`` (that sum's difference from the reported
-            ``net_generation_mwh_gf_tbl``).
-        """
-        gen_pm_fuel_test = pd.merge(
-            gen_pm_fuel,
-            gen_pm_fuel.groupby(by=idx)[["net_generation_mwh"]]
-            .sum(min_count=1)
-            .add_suffix("_test")
-            .reset_index(),
-            on=idx,
-            how="outer",
-            validate="m:1",
-        ).assign(
-            net_generation_mwh_diff=lambda x: (
-                x.net_generation_mwh_gf_tbl - x.net_generation_mwh_test
-            )
-        )
-        return gen_pm_fuel_test
-
-    # make different totals and calc differences for two different indexes
-    gen_pm_fuel_test = calc_net_gen_diff(gen_pm_fuel, idx=IDX_PM_ESC)
-    gen_fuel_test = calc_net_gen_diff(gen_pm_fuel, idx=IDX_ESC)
-
-    gen_pm_fuel_test = gen_pm_fuel_test.assign(
-        net_generation_mwh_test=lambda x: x.net_generation_mwh_test.fillna(
-            gen_fuel_test.net_generation_mwh_test
-        ),
-        net_generation_mwh_diff=lambda x: x.net_generation_mwh_diff.fillna(
-            gen_fuel_test.net_generation_mwh_diff
-        ),
-    )
-
-    bad_diff = gen_pm_fuel_test[
-        (~np.isclose(gen_pm_fuel_test.net_generation_mwh_diff, 0))
-        & (gen_pm_fuel_test.net_generation_mwh_diff.notnull())
-    ]
-    logger.info(
-        f"{len(bad_diff) / len(gen_pm_fuel):.03%} of records have are partially "
-        "off from their 'IDX_PM_ESC' group"
-    )
-    no_cap_gen = gen_pm_fuel_test[
-        (gen_pm_fuel_test.capacity_mw.isnull())
-        & (gen_pm_fuel_test.net_generation_mwh_g_tbl.isnull())
-    ]
-    if len(no_cap_gen) > 15:
-        logger.warning(f"{len(no_cap_gen)} records have no capacity or net gen")
-    # remove the junk/corrective plants
-    fuel_net_gen = gf[gf.plant_id_eia != "99999"].net_generation_mwh.sum()
-    logger.info(
-        "gen v fuel table net gen diff:      "
-        f"{(gen.net_generation_mwh.sum()) / fuel_net_gen:.1%}"
-    )
-    logger.info(
-        "new v fuel table net gen diff:      "
-        f"{(gen_pm_fuel_test.net_generation_mwh.sum()) / fuel_net_gen:.1%}"
-    )
-
-    gen_pm_fuel_test = gen_pm_fuel_test.drop(
-        columns=["net_generation_mwh_test", "net_generation_mwh_diff"]
-    )
-    return gen_pm_fuel_test
-
-
 def test_gen_fuel_allocation(
     gen: pd.DataFrame, net_gen_alloc: pd.DataFrame, ratio: float = 0.05
 ) -> None:
     """Does the allocated MWh differ from the granular :ref:`core_eia923__monthly_generation`?
+
+    This test should be migrated to dbt, since it compares data from two finished
+    outputs.
 
     Args:
         gen: the ``core_eia923__monthly_generation`` table.
@@ -2391,109 +2295,3 @@ def test_gen_fuel_allocation(
         logger.warning(
             f"Many generator records that have allocated net gen more than {ratio:.0%}"
         )
-
-
-def test_original_gf_vs_the_allocated_by_gens_gf(
-    gf: pd.DataFrame,
-    gf_allocated: pd.DataFrame,
-    data_columns: list[str] = DATA_COLUMNS,
-    by: list[str] = ["year", "plant_id_eia"],
-    acceptance_threshold: float = 0.07,
-) -> pd.DataFrame:
-    """Test whether the allocated data and original data sum up to similar values.
-
-    Raises:
-        AssertionError: If the number of plant/years that are off by more than 5% is
-            not within acceptable level of tolerance.
-        AssertionError: If the difference between the allocated and original data for
-            any plant/year is off by more than x10 or x-5.
-    """
-    original_gf = (
-        gf.assign(year=lambda x: x.report_date.dt.year).groupby(by)[data_columns].sum()
-    )
-    allocated_gf = (
-        gf_allocated.assign(year=lambda x: x.report_date.dt.year)
-        .groupby(by)[data_columns]
-        .sum()
-    )
-    # Check how well the allocation is working on the aggregate. Is the vast majority of
-    # original generation & fuel from the gf table being allocated?
-    total_allocation_test = pd.merge(
-        pd.DataFrame(allocated_gf.sum(), columns=["allocated_sum"]),
-        pd.DataFrame(original_gf.sum(), columns=["original_sum"]),
-        right_index=True,
-        left_index=True,
-        validate="1:1",
-    ).assign(allocated_pct=lambda x: (x.allocated_sum / x.original_sum) * 100)[
-        ["allocated_pct"]
-    ]
-    logger.info(
-        "The % of the original data that has been allocated from the generation fuel "
-        f"table for each column is:\n{total_allocation_test}"
-    )
-    expected_allocation_pct = 94.6  # based on allocation error from Q2 2026 release.
-    # we know that with the fast ETL this coverage is weird bad because the last year
-    # of data is often a ytd year that doesn't get allocated.
-    if len(pd.to_datetime(gf.report_date).dt.year.unique()) <= 2:
-        expected_allocation_pct = expected_allocation_pct / 2
-    if not all(total_allocation_test.allocated_pct > expected_allocation_pct):
-        raise AssertionError(
-            "The total portion of generation or fuel being allocated dipped below "
-            f"the expected {expected_allocation_pct}%."
-        )
-    gf_test = pd.merge(
-        original_gf,
-        allocated_gf,
-        right_index=True,
-        left_index=True,
-        suffixes=("_og", "_allocated"),
-        how="outer",
-        validate="1:1",
-    )
-    # calculate the difference between the allocated and the original data
-    gf_test = gf_test.assign(
-        **{
-            f"{col}_diff": gf_test[f"{col}_allocated"] / gf_test[f"{col}_og"]
-            for col in data_columns
-        }
-    )
-    # remove the inf diffs for net gen if the allocated value if small. many seem to be
-    # a result of the MISSING_SENTINEL filling in.
-    if gf_test[
-        np.isinf(gf_test.net_generation_mwh_diff)
-        & ~(gf_test.net_generation_mwh_allocated < 1)
-    ].empty:
-        gf_test = gf_test[~np.isinf(gf_test.net_generation_mwh_diff)]
-
-    for data_col in data_columns:
-        col_test = gf_test[
-            (
-                (gf_test[f"{data_col}_diff"] > 1.05)
-                | (gf_test[f"{data_col}_diff"] < 0.95)
-            )
-            & (gf_test[f"{data_col}_diff"].notnull())
-        ]
-        off_by_5_perc = len(col_test) / len(gf_test)
-        logger.info(
-            f"{data_col}: {off_by_5_perc:.1%} of allocated plant/year's are off by more"
-            " than 5%"
-        )
-        if off_by_5_perc > acceptance_threshold:
-            raise AssertionError(
-                f"{len(col_test)} of {len(gf_test)} plants' ({off_by_5_perc:.1%}) allocated {data_col} are off"
-                " the original data by more than 5%. Expected < {acceptance_threshold:.1%}."
-            )
-        max_diff = round(gf_test[f"{data_col}_diff"].max(), 2)
-        min_diff = round(gf_test[f"{data_col}_diff"].min(), 2)
-        logger.info(
-            f"{data_col}: Min and max difference are x{min_diff} and x{max_diff}"
-        )
-        if max_diff > 10 or min_diff < -5:
-            raise AssertionError(
-                f"ahhhHHhh. {data_col} has some plant-year aggregations that that "
-                "allocated data that is off from the original core_eia923__monthly_generation_fuel "
-                "data by more than an accepted range of tolerance. \n"
-                f"  Min difference: {min_diff}\n"
-                f"  Max difference: {max_diff}"
-            )
-    return gf_test
