@@ -15,6 +15,7 @@ from dagster import (
 )
 
 import pudl.helpers
+from pudl.dagster.op_tags import HOT_PATH_OP_TAGS
 from pudl.metadata.dtypes import apply_pudl_dtypes
 from pudl.validate import quality as pv
 
@@ -239,8 +240,8 @@ def mcoe_asset_factory(
 mcoe_assets = [
     mcoe_asset
     for freq, op_tags in [
-        ("YS", {}),
-        ("MS", {"dagster/priority": 10}),
+        ("YS", HOT_PATH_OP_TAGS),
+        ("MS", HOT_PATH_OP_TAGS),
     ]
     for mcoe_asset in mcoe_asset_factory(
         freq=freq,

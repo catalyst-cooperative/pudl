@@ -4,6 +4,7 @@ import pandas as pd
 from dagster import Output, asset
 
 import pudl.logging_helpers
+from pudl.dagster.op_tags import HOT_PATH_OP_TAGS
 from pudl.extract import excel
 from pudl.extract.extractor import raw_df_factory
 
@@ -40,10 +41,12 @@ class Extractor(excel.ExcelExtractor):
         return df
 
 
-raw_censuspep__all_dfs = raw_df_factory(Extractor, name="censuspep")
+raw_censuspep__all_dfs = raw_df_factory(
+    Extractor, name="censuspep", op_tags=HOT_PATH_OP_TAGS
+)
 
 
-@asset
+@asset(op_tags=HOT_PATH_OP_TAGS)
 def raw_censuspep__geocodes(raw_censuspep__all_dfs):
     """Extract raw Census PEP FIPS codes data into dataframes.
 
