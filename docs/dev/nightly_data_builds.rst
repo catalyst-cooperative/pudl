@@ -97,7 +97,9 @@ environment, and the two ``deploy_to_*`` flags as inputs. If neither storage tar
 enabled there is nothing for ``deploy-pudl`` to do (since branch builds don't update git
 branches, redeploy the data viewer, or trigger a Zenodo release), so ``pudl_batch.sh``
 skips triggering it entirely. No deployment is the right choice when a build is run only
-to regenerate expected row counts.
+skips triggering it entirely. This gives us the option to trigger builds
+**whose only job is to regenerate row counts,** and not have to eat
+the cost of an unused deployment action.
 
 The ``gcloud`` command in ``build-pudl`` requires certain Google Cloud
 Platform (GCP) permissions to start and update the Google Batch VM. We use Workflow
