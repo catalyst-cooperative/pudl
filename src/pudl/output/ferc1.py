@@ -35,6 +35,7 @@ import pudl.analysis.fuel_by_plant
 import pudl.helpers
 import pudl.logging_helpers
 import pudl.transform.ferc1
+from pudl.dagster.op_tags import HOT_PATH_OP_TAGS
 from pudl.transform.ferc1 import (
     GroupMetricChecks,
     GroupMetricTolerances,
@@ -310,7 +311,7 @@ out_ferc1_assets = [
 
 @asset(
     compute_kind="Python",
-    op_tags={"dagster/priority": 10},
+    op_tags=HOT_PATH_OP_TAGS,
 )
 def _out_ferc1__yearly_plants_utilities(
     core_pudl__assn_ferc1_pudl_plants: pd.DataFrame,
@@ -343,7 +344,7 @@ def _out_ferc1__yearly_plants_utilities(
 @asset(
     io_manager_key="pudl_io_manager",
     compute_kind="Python",
-    op_tags={"dagster/priority": 10},
+    op_tags=HOT_PATH_OP_TAGS,
 )
 def out_ferc1__yearly_steam_plants_sched402(
     _out_ferc1__yearly_plants_utilities: pd.DataFrame,
@@ -403,7 +404,7 @@ def out_ferc1__yearly_steam_plants_sched402(
 @asset(
     io_manager_key="pudl_io_manager",
     compute_kind="Python",
-    op_tags={"dagster/priority": 10},
+    op_tags=HOT_PATH_OP_TAGS,
 )
 def out_ferc1__yearly_small_plants_sched410(
     core_ferc1__yearly_small_plants_sched410: pd.DataFrame,
@@ -444,7 +445,7 @@ def out_ferc1__yearly_small_plants_sched410(
 @asset(
     io_manager_key="pudl_io_manager",
     compute_kind="Python",
-    op_tags={"dagster/priority": 10},
+    op_tags=HOT_PATH_OP_TAGS,
 )
 def out_ferc1__yearly_hydroelectric_plants_sched406(
     core_ferc1__yearly_hydroelectric_plants_sched406: pd.DataFrame,
@@ -479,7 +480,7 @@ def out_ferc1__yearly_hydroelectric_plants_sched406(
 @asset(
     io_manager_key="pudl_io_manager",
     compute_kind="Python",
-    op_tags={"dagster/priority": 10},
+    op_tags=HOT_PATH_OP_TAGS,
 )
 def out_ferc1__yearly_pumped_storage_plants_sched408(
     core_ferc1__yearly_pumped_storage_plants_sched408: pd.DataFrame,
@@ -514,7 +515,7 @@ def out_ferc1__yearly_pumped_storage_plants_sched408(
 @asset(
     io_manager_key="pudl_io_manager",
     compute_kind="Python",
-    op_tags={"dagster/priority": 10},
+    op_tags=HOT_PATH_OP_TAGS,
 )
 def out_ferc1__yearly_steam_plants_fuel_sched402(
     core_ferc1__yearly_steam_plants_fuel_sched402: pd.DataFrame,
@@ -560,7 +561,7 @@ def out_ferc1__yearly_steam_plants_fuel_sched402(
 @asset(
     io_manager_key="pudl_io_manager",
     compute_kind="Python",
-    op_tags={"dagster/priority": 10},
+    op_tags=HOT_PATH_OP_TAGS,
 )
 def out_ferc1__yearly_all_plants(
     out_ferc1__yearly_steam_plants_sched402: pd.DataFrame,
@@ -625,7 +626,7 @@ def out_ferc1__yearly_all_plants(
         )
     },
     compute_kind="Python",
-    op_tags={"dagster/priority": 10},
+    op_tags=HOT_PATH_OP_TAGS,
 )
 def out_ferc1__yearly_steam_plants_fuel_by_plant_sched402(
     context,

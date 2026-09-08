@@ -8,6 +8,7 @@ from dagster import AssetsDefinition, Field, asset
 
 import pudl.helpers
 import pudl.logging_helpers
+from pudl.dagster.op_tags import HOT_PATH_OP_TAGS
 from pudl.metadata.dtypes import apply_pudl_dtypes
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -147,7 +148,11 @@ def drop_ytd_for_annual_tables(df: pd.DataFrame, freq: str) -> pd.DataFrame:
 #####################################################################################
 # Simple Denormalized Assets
 #####################################################################################
-@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
+@asset(
+    io_manager_key="pudl_io_manager",
+    compute_kind="Python",
+    op_tags=HOT_PATH_OP_TAGS,
+)
 def out_eia923__generation(
     core_eia923__monthly_generation: pd.DataFrame,
     _out_eia__plants_utilities: pd.DataFrame,
@@ -161,7 +166,11 @@ def out_eia923__generation(
     )
 
 
-@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
+@asset(
+    io_manager_key="pudl_io_manager",
+    compute_kind="Python",
+    op_tags=HOT_PATH_OP_TAGS,
+)
 def out_eia923__generation_fuel_combined(
     core_eia923__monthly_generation_fuel: pd.DataFrame,
     core_eia923__monthly_generation_fuel_nuclear: pd.DataFrame,
@@ -234,7 +243,11 @@ def out_eia923__generation_fuel_combined(
     return denorm_by_plant(gf, pu=_out_eia__plants_utilities)
 
 
-@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
+@asset(
+    io_manager_key="pudl_io_manager",
+    compute_kind="Python",
+    op_tags=HOT_PATH_OP_TAGS,
+)
 def out_eia923__energy_storage(
     core_eia923__monthly_energy_storage: pd.DataFrame,
     _out_eia__plants_utilities: pd.DataFrame,
@@ -246,7 +259,11 @@ def out_eia923__energy_storage(
     )
 
 
-@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
+@asset(
+    io_manager_key="pudl_io_manager",
+    compute_kind="Python",
+    op_tags=HOT_PATH_OP_TAGS,
+)
 def out_eia923__boiler_fuel(
     core_eia923__monthly_boiler_fuel: pd.DataFrame,
     _out_eia__plants_utilities: pd.DataFrame,
@@ -270,6 +287,7 @@ def out_eia923__boiler_fuel(
 
 @asset(
     io_manager_key="pudl_io_manager",
+    op_tags=HOT_PATH_OP_TAGS,
     config_schema={
         "fill": Field(
             bool,
@@ -378,6 +396,7 @@ def time_aggregated_eia923_asset_factory(
         name=f"out_eia923__{agg_freqs[freq]}_energy_storage",
         io_manager_key=io_manager_key,
         compute_kind="Python",
+        op_tags=HOT_PATH_OP_TAGS,
     )
     def energy_storage_agg_eia923(
         out_eia923__energy_storage: pd.DataFrame,
@@ -416,6 +435,7 @@ def time_aggregated_eia923_asset_factory(
         name=f"out_eia923__{agg_freqs[freq]}_generation",
         io_manager_key=io_manager_key,
         compute_kind="Python",
+        op_tags=HOT_PATH_OP_TAGS,
     )
     def generation_agg_eia923(
         out_eia923__generation: pd.DataFrame,
@@ -446,6 +466,7 @@ def time_aggregated_eia923_asset_factory(
         name=f"out_eia923__{agg_freqs[freq]}_generation_fuel_combined",
         io_manager_key=io_manager_key,
         compute_kind="Python",
+        op_tags=HOT_PATH_OP_TAGS,
     )
     def generation_fuel_combined_agg_eia923(
         out_eia923__generation_fuel_combined: pd.DataFrame,
@@ -515,6 +536,7 @@ def time_aggregated_eia923_asset_factory(
         name=f"out_eia923__{agg_freqs[freq]}_boiler_fuel",
         io_manager_key=io_manager_key,
         compute_kind="Python",
+        op_tags=HOT_PATH_OP_TAGS,
     )
     def boiler_fuel_agg_eia923(
         out_eia923__boiler_fuel: pd.DataFrame,
@@ -577,6 +599,7 @@ def time_aggregated_eia923_asset_factory(
         name=f"out_eia923__{agg_freqs[freq]}_fuel_receipts_costs",
         io_manager_key=io_manager_key,
         compute_kind="Python",
+        op_tags=HOT_PATH_OP_TAGS,
     )
     def fuel_receipts_costs_agg_eia923(
         out_eia923__fuel_receipts_costs: pd.DataFrame,

@@ -469,6 +469,7 @@ zenodo_data_release = "pudl.scripts.zenodo_data_release:main"
 generate_ferc_provenance = "pudl.scripts.generate_ferc_provenance:main"
 batch_config = "pudl.scripts.batch_config:main"
 pyrefly_diff_baseline = "pudl.scripts.pyrefly_diff_baseline:main"
+hot_path = "pudl.scripts.hot_path:main"
 
 [tool.ruff]
 # Configurations that apply to both the `format` and `lint` subcommands.
