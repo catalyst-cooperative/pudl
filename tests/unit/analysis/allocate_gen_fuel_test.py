@@ -539,7 +539,7 @@ def test_identify_retiring_generators_non_monotonic_status():
     flagged as retiring in both of its retired stretches, independently.
 
     ``identify_retiring_generators`` already scopes its checks to ``report_year``
-    (fixed in #3690, before the sibling ``identify_proposed_plants`` multiyear bug was
+    (fixed in #3690, before the sibling ``identify_proposed_groups`` multiyear bug was
     found), so this isn't expected to fail -- but it's worth locking in explicitly,
     since real EIA-860M data shows generators cycling through operational statuses
     non-monotonically (e.g. plant 314 in the published data goes from "retired" in
@@ -654,7 +654,7 @@ PLANT_LEVEL_CASES = pytest.mark.parametrize(
     "identify_fn,status,transition_date_col,transition_date",
     [
         pytest.param(
-            allocate_gen_fuel.identify_proposed_plants,
+            allocate_gen_fuel.identify_proposed_groups,
             "proposed",
             "generator_operating_date",
             "2030-01-01",
@@ -669,7 +669,7 @@ PLANT_LEVEL_CASES = pytest.mark.parametrize(
         ),
     ],
 )
-"""Shared parametrization for the ``identify_proposed_plants`` /
+"""Shared parametrization for the ``identify_proposed_groups`` /
 ``identify_retired_groups`` mirror-image test cases below.
 
 ``transition_date`` is chosen far enough from the 2023-2024 report_dates used in
@@ -685,7 +685,7 @@ def test_identify_plants_excludes_phantom_null_months(
     identify_fn, status, transition_date_col, transition_date
 ):
     """Within an otherwise-flagged plant-year, a month where nothing was reported
-    at all should be excluded from the output. ``identify_proposed_plants`` and
+    at all should be excluded from the output. ``identify_proposed_groups`` and
     ``identify_retired_groups`` should behave identically here.
     """
     gen_assoc = _gen_assoc_df(
@@ -711,7 +711,7 @@ def test_identify_plants_excludes_phantom_null_months(
     "identify_fn,csv_text,expected_periods,expected_status",
     [
         pytest.param(
-            allocate_gen_fuel.identify_proposed_plants,
+            allocate_gen_fuel.identify_proposed_groups,
             """plant_id_eia,generator_id,report_date,operational_status,prime_mover_code,energy_source_code,net_generation_mwh_gf_tbl,net_generation_mwh_g_tbl,generator_operating_date
 45678,GEN1,2023-01-01,proposed,ST,NG,100,,2025-01-01
 45678,GEN1,2023-02-01,proposed,ST,NG,110,,2025-01-01
@@ -747,7 +747,7 @@ def test_identify_plants_multiyear_status_change(
     ``gen_assoc`` should keep its genuinely-``expected_status`` years.
 
     Regression test for the bug described in :issue:`5440` and :pr:`5419`
-    (``identify_proposed_plants``) and its sibling bug in
+    (``identify_proposed_groups``) and its sibling bug in
     ``identify_retired_groups``, found while reviewing the fix: both functions
     checked whether a plant's operational_status was uniformly one status across
     the *entire* input frame, so a plant with mixed statuses across its history
@@ -797,7 +797,7 @@ def test_identify_plants_mixed_status_same_year(
     "identify_fn,csv_text,expected_periods,expected_status",
     [
         pytest.param(
-            allocate_gen_fuel.identify_proposed_plants,
+            allocate_gen_fuel.identify_proposed_groups,
             """plant_id_eia,generator_id,report_date,operational_status,prime_mover_code,energy_source_code,net_generation_mwh_gf_tbl,net_generation_mwh_g_tbl,generator_operating_date
 56401,GEN2,2005-01-01,proposed,ST,NG,10,,2020-01-01
 56401,GEN2,2006-01-01,proposed,ST,NG,20,,2020-01-01
@@ -918,14 +918,14 @@ def test_identify_plants_unknown_transition_date(
 
 
 def test_remove_inactive_generators_composability_independent_transitions():
-    """End-to-end check that ``identify_proposed_plants`` and
+    """End-to-end check that ``identify_proposed_groups`` and
     ``identify_newly_operating_generators`` compose correctly within
     ``remove_inactive_generators`` when multiple generators (at different plants)
     transition from proposed to existing independently, across multiple years.
 
     Plant 67890 is an entirely new plant: both of its generators are proposed
     together in 2023 and become existing together in 2024. This is the
-    plant-level, multi-year transition that ``identify_proposed_plants`` exists to
+    plant-level, multi-year transition that ``identify_proposed_groups`` exists to
     protect (its 2023 data must survive despite the plant's later 2024 "existing"
     status).
 
@@ -933,7 +933,7 @@ def test_remove_inactive_generators_composability_independent_transitions():
     time) that adds a *single* new generator (GEN1) in 2023, which then becomes
     existing itself in 2024. Because GEN2 is "existing" in the same years GEN1 is
     "proposed", plant 78901 never qualifies as "entirely proposed" in any year, so
-    ``identify_proposed_plants`` correctly ignores it — GEN1's 2023 data is instead
+    ``identify_proposed_groups`` correctly ignores it — GEN1's 2023 data is instead
     the responsibility of ``identify_newly_operating_generators``, which keeps it
     because GEN1 reports generator-specific data in the g table.
 
@@ -966,7 +966,7 @@ def test_remove_inactive_generators_composability_independent_transitions():
     assert len(out) == len(gen_assoc)
 
     # plant 67890's entirely-proposed 2023 months survive despite becoming an
-    # entirely-existing plant in 2024 (the identify_proposed_plants fix).
+    # entirely-existing plant in 2024 (the identify_proposed_groups fix).
     plant_67890_2023 = out[
         (out.plant_id_eia == 67890) & (pd.to_datetime(out.report_date).dt.year == 2023)
     ]
@@ -975,7 +975,7 @@ def test_remove_inactive_generators_composability_independent_transitions():
 
     # plant 78901's GEN1 is proposed alongside an already-existing GEN2, so it's
     # picked up by identify_newly_operating_generators rather than
-    # identify_proposed_plants, in both the years it's proposed and once it
+    # identify_proposed_groups, in both the years it's proposed and once it
     # becomes existing.
     plant_78901_gen1 = out[(out.plant_id_eia == 78901) & (out.generator_id == "GEN1")]
     assert len(plant_78901_gen1) == 4
@@ -985,7 +985,7 @@ def test_remove_inactive_generators_composability_independent_transitions():
     "identify_fn,status,transition_date_col,transition_date,report_dates",
     [
         pytest.param(
-            allocate_gen_fuel.identify_proposed_plants,
+            allocate_gen_fuel.identify_proposed_groups,
             "proposed",
             "generator_operating_date",
             "2022-06-01",
@@ -1007,7 +1007,7 @@ def test_identify_plants_excludes_mid_year_transition(
 ):
     """A plant transitioning status *during* the report_year (rather than having
     already transitioned before it began) should be excluded from
-    ``identify_proposed_plants``/``identify_retired_groups`` -- that's
+    ``identify_proposed_groups``/``identify_retired_groups`` -- that's
     ``identify_newly_operating_generators``/``identify_retiring_generators``'s
     responsibility instead, and double-counting would inflate the plant-level data
     with months that are already handled elsewhere.

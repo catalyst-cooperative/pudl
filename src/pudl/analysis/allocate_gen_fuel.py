@@ -803,7 +803,7 @@ def associate_generator_tables(
 
 
 def _label_gf_unique_to_gen(gen_assoc: pd.DataFrame) -> pd.DataFrame:
-    """Flag rows whose plant/month/PM/ESC combo has only one generator.
+    """Flag rows whose plant/date/PM/ESC combo has only one generator.
 
     A gf-table (:ref:`core_eia923__monthly_generation_fuel`) record is reported at
     plant/prime-mover/energy-source granularity, not per generator, so a nonzero
@@ -841,28 +841,26 @@ def remove_inactive_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     ``retired`` or ``proposed``. This includes several categories of generators/plants,
     which come in mirror-image pairs -- retiring/retired vs. newly operating/proposed --
     built from shared logic (:func:`_identify_transitioning_generators` and
-    :func:`_identify_entirely_transitioned_groups`) so the two directions can't silently
-    drift out of sync with each other:
+    :func:`_identify_entirely_transitioned_groups`):
 
         * ``retiring_generators``: generators that retire mid-year, or report data
           on or after their retirement date despite being labeled "retired" for the
           whole year.
-        * ``retired_plants``: entire prime_mover/energy_source_code groups that
-          supposedly retired prior to the current year but which report data. This
-          is scoped to the PM/ESC group, not the whole plant -- a different group
-          at the same plant with a different (or mixed, or mid-year-transitioning)
-          status doesn't disqualify this one, since gf-table data is reported at
-          PM/ESC granularity and so can never be ambiguous across groups. If a
-          group has a mix of gens which are existing and retired, they are not
-          included in this category.
+        * ``retired_pm_esc_groups``: entire prime_mover/energy_source_code groups that
+          supposedly retired prior to the current year but which report data. A
+          different group at the same plant with a different (or mixed, or
+          mid-year-transitioning) status doesn't disqualify this one, since gf-table
+          data is reported at PM/ESC granularity and so can never be ambiguous across
+          groups. If a group has a mix of gens which are existing and retired, they are
+          not included in this category.
         * ``newly_operating_generators``: generators that become operational mid-year,
           or report data before their operating date despite being labeled
           "proposed" for the whole year, or which start reporting non-zero data
           despite having no known operating date yet.
-        * ``proposed_plants``: entire prime_mover/energy_source_code groups that
+        * ``proposed_pm_esc_groups``: entire prime_mover/energy_source_code groups that
           have a ``proposed`` status but which start reporting data before their
           operating date, scoped per PM/ESC group for the same reason as
-          ``retired_plants`` above. If a group has a mix of gens which are
+          ``retired_pm_esc_groups`` above. If a group has a mix of gens which are
           existing and proposed, they are not included in this category.
 
     When we do not have generator-specific generation for a proposed/retired generator
@@ -892,18 +890,18 @@ def remove_inactive_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     gen_assoc = _label_gf_unique_to_gen(gen_assoc)
     existing = gen_assoc.loc[(gen_assoc.operational_status == "existing")]
     retiring_generators = identify_retiring_generators(gen_assoc)
-    retired_plants = identify_retired_groups(gen_assoc)
+    retired_pm_esc_groups = identify_retired_groups(gen_assoc)
     newly_operating_generators = identify_newly_operating_generators(gen_assoc)
-    proposed_plants = identify_proposed_plants(gen_assoc)
+    proposed_pm_esc_groups = identify_proposed_groups(gen_assoc)
     unassociated_plants = gen_assoc[gen_assoc.generator_id.isnull()]
 
     gen_assoc_removed = pd.concat(
         [
             existing,
             retiring_generators,
-            retired_plants,
+            retired_pm_esc_groups,
             newly_operating_generators,
-            proposed_plants,
+            proposed_pm_esc_groups,
             unassociated_plants,
         ]
     ).drop_duplicates(keep="first")
@@ -1100,9 +1098,9 @@ def _identify_entirely_transitioned_groups(
 ) -> pd.DataFrame:
     """Identify entire PM/ESC groups uniformly ``operational_status`` for a year, reporting anomalously.
 
-    Shared by :func:`identify_retired_groups` (a retired plant reporting generation
-    *after* its retirement date) and :func:`identify_proposed_plants` (a proposed
-    plant reporting generation *before* its operating date), so the two mirror-image
+    Shared by :func:`identify_retired_groups` (a retired group reporting generation
+    *after* its retirement date) and :func:`identify_proposed_groups` (a proposed
+    group reporting generation *before* its operating date), so the two mirror-image
     cases can't silently drift out of sync with each other.
 
     The "entirely `operational_status`" check is scoped to
@@ -1264,7 +1262,7 @@ def _identify_entirely_transitioned_groups(
 
 
 def identify_retired_groups(gen_assoc: pd.DataFrame) -> pd.DataFrame:
-    """Identify entire plants that have previously retired but are reporting data.
+    """Identify entire PM/ESC groups that have previously retired but are reporting data.
 
     See :func:`_identify_entirely_transitioned_groups` for the shared logic.
 
@@ -1282,8 +1280,8 @@ def identify_retired_groups(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     )
 
 
-def identify_proposed_plants(gen_assoc: pd.DataFrame) -> pd.DataFrame:
-    """Identify entirely new plants that are proposed but are already reporting data.
+def identify_proposed_groups(gen_assoc: pd.DataFrame) -> pd.DataFrame:
+    """Identify entirely new PM/ESC groups that are proposed but already reporting data.
 
     See :func:`_identify_entirely_transitioned_groups` for the shared logic.
 
