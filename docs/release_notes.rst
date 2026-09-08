@@ -9,6 +9,24 @@ v2026.9.0 (2026-09-xx)
 
 This is the upcoming PUDL release.
 
+Output Formats & Distribution
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* **Added a fully processed ``pudl.duckdb`` database.** After the ETL completes we now
+  assemble all of the non-hourly PUDL tables into a single `DuckDB
+  <https://duckdb.org>`__ database alongside ``pudl.sqlite``, built directly from the
+  Parquet outputs. It preserves the full set of column checks and primary key
+  constraints (foreign keys are omitted to keep the file size down) and is published to
+  S3, GCS, and Zenodo along with our the other outputs. See :doc:`data_access`. See PR
+  :pr:`5538`.
+* **The fully processed ``pudl.sqlite`` database is deprecated.** PUDL's ETL no longer
+  writes SQLite directly; ``pudl.sqlite`` is now built from the Parquet outputs after
+  the ETL purely for backwards compatibility. **We will stop producing SQLite versions
+  of the fully processed PUDL data in 2027.** Please migrate to the Parquet outputs
+  or the new ``pudl.duckdb`` database. This deprecation does not affect the minimally
+  processed raw FERC data, which will continue to be distributed as SQLite. See PR
+  :pr:`5538`.
+
 New Data
 ^^^^^^^^
 
@@ -150,6 +168,11 @@ Bug Fixes & Data Cleaning
   which was replaced by the cleaned and validated
   :ref:`core_phmsagas__yearly_distribution_by_install_decade`. See :issue:`5504` and
   :pr:`5548`.
+* Fixed the DuckDB examples in :doc:`data_access` and the per-table access snippets in
+  the data dictionary. Because our S3 bucket name contains dots, DuckDB's default
+  virtual-host addressing hit a TLS certificate mismatch; the examples now create an
+  anonymous path-style S3 secret (``CREATE SECRET (TYPE s3, PROVIDER config, REGION
+  'us-west-2', URL_STYLE 'path')``) before querying. See PR :pr:`5538`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -205,7 +228,7 @@ Developer Experience
   failures. A pytest collection hook enforces the ETL/no-ETL split. Also fixed a live
   Zulip notification firing from the test suite and tightened the dbt ``schema.yml``
   round-trip test. See issue :issue:`5508` and PR :pr:`5507`.
-* Do foreign key constraint validation with dbt instead of SQLite. Update our
+* Validate foreign key constraints with dbt instead of SQLite. Update our
   ``dbt_helper`` script to autogenerate FK constraint tests based on the PUDL metadata.
   Remove the SQLite based FK checking infrastructure. Also add sensible defaults for
   our row-count expectation checking test so we can remove boilerplate test specs.
@@ -219,6 +242,10 @@ Developer Experience
   corresponding GitHub-repo Zenodo software archive), which are also populated as
   structured ``related_identifiers`` for better DataCite/OpenAIRE indexing. See issue
   :issue:`3326` and PR :pr:`5484`.
+* Removed Alembic and the PUDL SQLite schema migrations. With PUDL's own tables no
+  longer written to SQLite during the ETL, there is no schema for Alembic to manage, so
+  ``alembic.ini``, the ``migrations/`` directory, and the ``alembic`` dependency have
+  been removed. See PR :pr:`5538`.
 
 .. _release-v2026.8.0:
 
