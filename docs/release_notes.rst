@@ -14,11 +14,12 @@ Output Formats & Distribution
 
 * **Added a fully processed ``pudl.duckdb`` database.** After the ETL completes we now
   assemble all of the non-hourly PUDL tables into a single `DuckDB
-  <https://duckdb.org>`__ database alongside ``pudl.sqlite``, built directly from the
-  Parquet outputs. It preserves the full set of column checks and primary key
-  constraints (foreign keys are omitted to keep the file size down) and is published to
-  S3, GCS, and Zenodo along with our the other outputs. See :doc:`data_access`. See PR
-  :pr:`5538`.
+  <https://duckdb.org>`__ database named ``pudl.duckdb`` alongside ``pudl.sqlite``,
+  both built directly from the Parquet outputs. It preserves the full set of column
+  checks and primary key constraints. Foreign key constraints are currently omitted due
+  to a handful of column type conflicts outlined in issue :issue:`5552` being addressed
+  in PR :pr:`5554`. Both databases are published to S3, GCS, and Zenodo along with our
+  other outputs. See :doc:`data_access`. See PR :pr:`5538`.
 * **The fully processed ``pudl.sqlite`` database is deprecated.** PUDL's ETL no longer
   writes SQLite directly; ``pudl.sqlite`` is now built from the Parquet outputs after
   the ETL purely for backwards compatibility. **We will stop producing SQLite versions
@@ -257,10 +258,11 @@ Developer Experience
   longer written to SQLite during the ETL, there is no schema for Alembic to manage, so
   ``alembic.ini``, the ``migrations/`` directory, and the ``alembic`` dependency have
   been removed. See PR :pr:`5538`.
-* Replaced the ``pudl_sqlite_engine`` pytest fixture (a SQLAlchemy engine) with
-  ``pudl_sqlite_connection``, a DuckDB connection that reads ``pudl.sqlite`` via
-  DuckDB's ``sqlite`` extension, so tests query both build outputs through one API as
-  PUDL moves toward DuckDB. See PR :pr:`5538`.
+* Replaced the ``pudl_engine`` pytest fixture (a SQLAlchemy engine) with
+  ``pudl_sqlite_connection`` alongside a ``pudl_duckdb_connection``. Both of which are
+  DuckDB connections. One dedicated to reading ``pudl.sqlite`` via DuckDB's ``sqlite``
+  extension, so tests query both build outputs through one API as PUDL moves toward
+  DuckDB. See PR :pr:`5538`.
 
 .. _release-v2026.8.0:
 

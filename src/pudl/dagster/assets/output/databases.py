@@ -297,7 +297,7 @@ DUCKDB_TARGET = _DatabaseTarget(
         "DuckDB database assembled from PUDL's Parquet outputs after the ETL "
         "completes. Written to $PUDL_OUTPUT/pudl.duckdb. Includes only tables "
         "whose Resource has create_database_schema=True. Foreign key "
-        "constraints are excluded due to increased file size."
+        "constraints are excluded due to a handful of type conflicts."
     ),
 )
 
