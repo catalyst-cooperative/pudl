@@ -63,18 +63,18 @@ CEMS data.
                 "experimental_wip",
                 {
                     "type": "custom",
-                    "description": "This table estimates values for each calendar year from a configurable trailing window of EPA CEMS quarters ending in that year (12 quarters, i.e. the most recent three full years, in production). Builds that only have a limited number of EPA CEMS quarters available, such as the fast ETL and CI, will produce estimates for a single partial year from a shorter, less accurate window.",
+                    "description": "This table estimates values for each calendar year from a trailing 3-year window of EPA CEMS reporting ending in that year.",
                 },
             ],
             "additional_details_text": """This table summarizes several inferred
-operational characteristics for each EPA CEMS emissions unit, for every calendar
-year that has a full trailing window of usable EPA CEMS quarters available, using
-hourly CEMS gross load and fuel heat content over that window. In production the
-window is the three full years (12 quarters) ending in each reported year, so the
-earliest reported year is limited by how far back that trailing window can reach.
-EPA CEMS's first three years of reporting (1995-1997) are excluded as unusable
-due to poor and inconsistent unit coverage, so the earliest reported year in
-production is 2000, not 1997.
+operational characteristics for each EPA CEMS emissions unit for every calendar year
+that has a full trailing window of usable EPA CEMS quarters available. It uses hourly
+CEMS gross load and fuel heat content over a trailing three calendar year window to
+estimate values for the final year of that window. The earliest year for which
+operational characteristics are estimated is constrained by how far back the trailing
+window can reach. The first three years of EPA CEMS reporting (1995-1997) are excluded
+as unusable due to poor data quality and inconsistent unit coverage. This means the
+earliest year for which we estimate operational characteristics is 2000, not 1997.
 
 The values are not directly reported to source agencies. They are derived from observed
 hourly operations. These variables should be treated as an analytical estimate rather
