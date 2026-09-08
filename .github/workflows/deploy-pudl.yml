@@ -15,6 +15,16 @@ on:
         options:
           - staging
           - production
+      deploy_to_gcs:
+        type: boolean
+        description: "Upload outputs to GCS?"
+        required: false
+        default: true
+      deploy_to_s3:
+        type: boolean
+        description: "Upload outputs to S3? (S3 egress fees are large)"
+        required: false
+        default: true
 
 jobs:
   deploy_pudl:
@@ -170,6 +180,8 @@ jobs:
             --container-arg="${{ env.GIT_TAG }}" \
             --container-arg="--environment" \
             --container-arg="${{ env.DEPLOYMENT_ENVIRONMENT }}" \
+            --container-arg="${{ inputs.deploy_to_gcs && '--deploy-gcs' || '--no-deploy-gcs' }}" \
+            --container-arg="${{ inputs.deploy_to_s3 && '--deploy-s3' || '--no-deploy-s3' }}" \
             --container-env GITHUB_TOKEN=${{ secrets.PUDL_BOT_PAT }} \
             --container-env AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
             --container-env AWS_DEFAULT_REGION=${{ secrets.AWS_DEFAULT_REGION }} \
