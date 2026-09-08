@@ -96,27 +96,46 @@ def _missing_required_quarters(
 def _select_target_year_quarters(
     year_quarters: list[str], num_quarters: int
 ) -> list[str]:
-    """Pick every year-quarter to treat as the end of a full-year analysis window.
+    """Choose the EPA CEMS year-quarters that each end a full analysis window.
 
-    Returns one Q4-ending year-quarter per calendar year that has a full
-    trailing ``num_quarters``-quarter window available, considering only
-    year-quarters at or after :data:`EARLIEST_USABLE_YEAR_QUARTER` as
-    available at all. This lets the analysis run for as many calendar years
-    as the usable EPA CEMS data will support (e.g. starting in 2000 in
-    production, with the default 3-year / 12-quarter window).
+    The analysis produces one set of operational characteristics per calendar
+    year, computed from a trailing window of ``num_quarters`` quarters ending
+    in that year's Q4. This returns the end-of-window year-quarter for every
+    calendar year that both:
 
-    Falls back to a single candidate, the latest usable year-quarter of any
-    kind, when no Q4 quarter is present at all -- e.g. the fast ETL / CI,
-    which only loads a single quarter of EPA CEMS data and can't produce any
-    Q4-ending window. That candidate is only kept if it alone satisfies
-    ``num_quarters`` (trivially true when ``num_quarters == 1``, which is how
-    the fast ETL and pytest configs are set up).
+    - has its Q4 present in ``year_quarters`` (considering only quarters at or
+      after :data:`EARLIEST_USABLE_YEAR_QUARTER` as available at all), and
+    - has all ``num_quarters`` quarters of its trailing window available.
+
+    In production, with a 12-quarter window and EPA CEMS data reaching back to
+    the late 1990s, this yields one ``YYYYq4`` value per year from 2000 through
+    the most recent complete year.
+
+    The fast ETL and pytest configs load only a single EPA CEMS quarter and
+    set ``num_quarters`` to 1, so no Q4-ending window exists. In that case the
+    single latest usable year-quarter (e.g. ``"2022q1"``) is returned as its
+    own one-quarter window, and the caller treats its calendar year as the
+    report year. This fallback quarter is returned as-is rather than coerced
+    to Q4, because the loaded data only covers that specific quarter.
+
+    Args:
+        year_quarters: Every EPA CEMS ``YYYYqN`` partition available to the
+            run, as configured in the Dagster settings. Need not be sorted or
+            contiguous.
+        num_quarters: Length of the trailing window, in quarters, that each
+            returned year-quarter must have fully available.
+
+    Returns:
+        Sorted list of ``YYYYqN`` year-quarters, one per analyzable calendar
+        year, each usable as the ``final_year_quarter`` of a
+        ``num_quarters``-long window. Normally every entry ends in ``q4``; in
+        the single-quarter fast-ETL case the one entry is the loaded quarter.
 
     Raises:
-        ValueError: if no configured year-quarter is usable at all, or if no
-            candidate year-quarter has a fully available trailing window --
-            e.g. ``num_quarters`` is configured larger than the usable EPA
-            CEMS history actually available.
+        ValueError: if no configured year-quarter is at or after
+            :data:`EARLIEST_USABLE_YEAR_QUARTER`, or if no candidate
+            year-quarter has its full trailing window available -- e.g.
+            ``num_quarters`` is larger than the usable EPA CEMS history.
     """
     usable_year_quarters = [
         year_quarter
