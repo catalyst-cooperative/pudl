@@ -7,6 +7,7 @@ import pandas as pd
 from dagster import AssetOut, Output, multi_asset
 
 import pudl.logging_helpers
+from pudl.dagster.op_tags import HOT_PATH_OP_TAGS
 from pudl.extract import excel
 from pudl.extract.extractor import raw_df_factory
 from pudl.helpers import remove_leading_zeros_from_numeric_strings
@@ -111,7 +112,7 @@ class Extractor(excel.ExcelExtractor):
         }
 
 
-raw_eia923__all_dfs = raw_df_factory(Extractor, name="eia923")
+raw_eia923__all_dfs = raw_df_factory(Extractor, name="eia923", op_tags=HOT_PATH_OP_TAGS)
 
 
 @multi_asset(
@@ -139,6 +140,7 @@ raw_eia923__all_dfs = raw_df_factory(Extractor, name="eia923")
         )
     },
     can_subset=True,
+    op_tags=HOT_PATH_OP_TAGS,
 )
 def extract_eia923(context, raw_eia923__all_dfs):
     """Extract raw EIA-923 data from excel sheets into dataframes."""

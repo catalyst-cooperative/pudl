@@ -6,13 +6,16 @@ from dagster import Field, asset
 
 import pudl.helpers
 import pudl.logging_helpers
+from pudl.dagster.op_tags import HOT_PATH_OP_TAGS
 from pudl.transform.eia import occurrence_consistency
 from pudl.transform.eia861 import add_backfilled_ba_code_column
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-@asset(io_manager_key="parquet_io_manager", compute_kind="Python")
+@asset(
+    io_manager_key="parquet_io_manager", compute_kind="Python", op_tags=HOT_PATH_OP_TAGS
+)
 def out_eia__yearly_utilities(
     core_eia__entity_utilities: pd.DataFrame,
     core_eia860__scd_utilities: pd.DataFrame,
@@ -53,7 +56,9 @@ def out_eia__yearly_utilities(
     return out_df
 
 
-@asset(io_manager_key="parquet_io_manager", compute_kind="Python")
+@asset(
+    io_manager_key="parquet_io_manager", compute_kind="Python", op_tags=HOT_PATH_OP_TAGS
+)
 def out_eia__yearly_plants(
     core_eia__entity_plants: pd.DataFrame,
     core_eia860__scd_plants: pd.DataFrame,
@@ -113,6 +118,7 @@ def out_eia__yearly_plants(
         ),
     },
     compute_kind="Python",
+    op_tags=HOT_PATH_OP_TAGS,
 )
 def _out_eia__yearly_generators(
     context,
@@ -329,7 +335,9 @@ def _out_eia__yearly_generators(
     return out_df
 
 
-@asset(io_manager_key="parquet_io_manager", compute_kind="Python")
+@asset(
+    io_manager_key="parquet_io_manager", compute_kind="Python", op_tags=HOT_PATH_OP_TAGS
+)
 def out_eia__yearly_boilers(
     core_eia860__scd_boilers: pd.DataFrame,
     core_eia__entity_boilers: pd.DataFrame,
@@ -413,7 +421,7 @@ def out_eia__yearly_boilers(
     return out_df
 
 
-@asset(compute_kind="Python")
+@asset(compute_kind="Python", op_tags=HOT_PATH_OP_TAGS)
 def _out_eia__plants_utilities(
     out_eia__yearly_plants: pd.DataFrame,
     out_eia__yearly_utilities: pd.DataFrame,
