@@ -19,7 +19,7 @@ class Extractor(CsvExtractor):
         self.METADATA = GenericMetadata("eia757a")
         super().__init__(*args, **kwargs)
 
-    def get_page_cols(self, page: str, partition_key: str) -> list[str]:
+    def get_page_cols(self, page: str, partition_selection: str) -> pd.RangeIndex:
         """Get the columns for a particular page and partition key.
 
         EIA 757A data has the same set of columns for all years,

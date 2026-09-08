@@ -44,7 +44,7 @@ class FercForm(Enum):
 class FrozenBaseModel(BaseModel):
     """BaseModel with global configuration."""
 
-    model_config: ConfigDict = ConfigDict(frozen=True, extra="forbid")
+    model_config = ConfigDict(frozen=True, extra="forbid")
 
 
 class GenericDataConfig(FrozenBaseModel):

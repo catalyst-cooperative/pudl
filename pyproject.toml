@@ -73,11 +73,9 @@ curl = ">=8.17"
 dagster = ">=1.13"
 dagster-dbt = ">=1!0.29"
 dagster-dg-cli = ">=1.13"
-dagster-gcp = ">=1!0.29"
 dagster-webserver = ">=1.13"
 dbt-core = ">=1.11.11"
 dbt-duckdb = ">=1.9.4"
-deepdiff = ">=8"
 doc8 = ">=2"
 email-validator = ">=1.0.3"
 filelock = ">=3.29"
@@ -104,8 +102,7 @@ jupyterlab = ">=4.6"
 jupyterlab-lsp = ">=5.2"
 lxml = ">=6.1"
 matplotlib-base = ">=3.11"
-memray = ">=1.18.0"
-mlflow = ">=3.14"
+mlflow = ">=3.16"
 nbconvert = ">=7"
 nbformat = ">=5.10"
 networkx = ">=3.6"
@@ -114,10 +111,9 @@ numba = ">=0.67"
 numexpr = ">=2.10"
 numpy = ">=2.5"
 packaging = ">=25"
-pandas = ">=2.3"
+pandas = ">=2.3,<3"
 pandoc = ">=3.7"
 pandera-polars = ">=0.31"
-parallel = ">=20250822"
 pint = ">=0.25.3"
 polars = ">=1.43"
 prek = ">=0.4.11"
@@ -169,7 +165,6 @@ urllib3 = ">=2.7"
 usaddress = ">=0.5.16,<0.6"
 uv = ">=0.11"
 xlsxwriter = ">=3.2"
-zip = ">=3.0"
 gh = ">=2.96.0,<3"
 
 [tool.pixi.pypi-dependencies]
@@ -184,6 +179,7 @@ duckdb-cli = ">=1.5,<1.6"
 jq = ">=1.8" # Primarily for agent skills use
 marimo = ">=0.23.15"
 matplotx = ">=0.3.10"
+memray = ">=1.18.0"
 plotly = ">=6.6"
 ripgrep = ">=15" # Primarily for agent skills use
 pyrefly = ">=1.2.0" # Experimental, also for agent skills use
@@ -210,8 +206,8 @@ description = "Type-check with pyrefly against the tracked baseline"
 [tool.pixi.feature.dev.tasks.pyrefly-update-baseline]
 cmd = "pyrefly check --baseline .pyrefly-baseline.json --update-baseline"
 
-[tool.pixi.feature.dev.tasks.pyrefly-baseline-diff]
-cmd = "pyrefly_baseline_diff"
+[tool.pixi.feature.dev.tasks.pyrefly-diff-baseline]
+cmd = "pyrefly_diff_baseline"
 description = """
 Diff .pyrefly-baseline.json against git HEAD by (file, code, description), ignoring \
 line/column churn. Run after `pyrefly check --baseline .pyrefly-baseline.json \
@@ -225,7 +221,10 @@ dev = { features = ["dev"], solve-group = "default" }
 # Reusable variables for pixi tasks
 DG_FULL_CONFIG = "src/pudl/package_data/settings/dg_full.yml"
 DG_NIGHTLY_CONFIG = "src/pudl/package_data/settings/dg_nightly.yml"
-
+# grpcio >= 1.83.0 is required by the Google Cloud Python libraries as of
+# October 2026 (post-quantum crypto migration). Until our resolved grpcio
+# crosses that version, silence the pre-migration FutureWarning.
+PYTHONWARNINGS = "ignore::FutureWarning:google.api_core._python_package_support,ignore::FutureWarning:google.auth.transport.grpc"
 ########################################################################################
 # Pixi task definitions. These are used by pixi to run various tasks in a consistent
 # environment. They can be run with `pixi run <task-name>`, and can depend on each other
@@ -471,7 +470,7 @@ update_zenodo_dois = "pudl.scripts.update_zenodo_dois:main"
 zenodo_data_release = "pudl.scripts.zenodo_data_release:main"
 generate_ferc_provenance = "pudl.scripts.generate_ferc_provenance:main"
 batch_config = "pudl.scripts.batch_config:main"
-pyrefly_baseline_diff = "pudl.scripts.pyrefly_baseline_diff:main"
+pyrefly_diff_baseline = "pudl.scripts.pyrefly_diff_baseline:main"
 
 [tool.ruff]
 # Configurations that apply to both the `format` and `lint` subcommands.
@@ -608,6 +607,7 @@ filterwarnings = [
     "ignore:Extension type 'geoarrow.wkb' is not registered:UserWarning",
     "ignore:invalid escape sequence:SyntaxWarning:stringcase",
     "ignore:invalid escape sequence:SyntaxWarning:parsedatetime",
+    "ignore:grpcio < 1.83.0 does not support Post-Quantum Cryptography:FutureWarning",
 ]
 
 # must not end with `--cov` since that will treat the first argument you pass
