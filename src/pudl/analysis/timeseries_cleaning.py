@@ -1918,9 +1918,9 @@ def impute_timeseries_asset_factory(  # noqa: C901
             a single imputation run (like BA/subregion demand), this column is used
             to compute simulation results for each set independently. This should
             point to a categorical column which defines which group a row belongs to.
-        op_tags: Tags applied to every op produced by the factory. Use
-            ``{"dagster/priority": N}`` to raise scheduling priority for assets on
-            the critical execution path.
+        op_tags: Tags applied to every op produced by the factory. Pass
+            :data:`pudl.dagster.op_tags.HOT_PATH_OP_TAGS` to raise scheduling
+            priority for assets on the critical execution path.
         settings: Configurable options for imputation
             (see :class:`ImputeTimeseriesSettings`).
     """

@@ -16,6 +16,7 @@ import pudl.logging_helpers
 from pudl.analysis.ml_tools import experiment_tracking, models
 from pudl.analysis.record_linkage import embed_dataframe
 from pudl.analysis.record_linkage.link_cross_year import link_ids_cross_year
+from pudl.dagster.op_tags import HOT_PATH_OP_TAGS
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -84,7 +85,7 @@ ferc_dataframe_embedder = embed_dataframe.dataframe_embedder_factory(
 )
 
 
-@op(tags={"dagster/priority": 10})
+@op(tags=HOT_PATH_OP_TAGS)
 def plants_steam_validate_ids(
     ferc_to_ferc_tracker: experiment_tracking.ExperimentTracker,
     ferc1_steam_df: pd.DataFrame,
@@ -134,7 +135,7 @@ def plants_steam_validate_ids(
     return ferc1_steam_df
 
 
-@op(tags={"dagster/priority": 10})
+@op(tags=HOT_PATH_OP_TAGS)
 def merge_steam_fuel_dfs(
     ferc1_steam_df: pd.DataFrame,
     fuel_fractions: pd.DataFrame,

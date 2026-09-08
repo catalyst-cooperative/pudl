@@ -4,11 +4,12 @@ import pandas as pd
 from dagster import asset
 
 import pudl.logging_helpers
+from pudl.dagster.op_tags import HOT_PATH_OP_TAGS
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-@asset(io_manager_key=None, compute_kind="Python")
+@asset(io_manager_key=None, compute_kind="Python", op_tags=HOT_PATH_OP_TAGS)
 def _out_eia__monthly_state_fuel_prices(
     core_eia__yearly_fuel_receipts_costs_aggs: pd.DataFrame,
 ) -> pd.DataFrame:

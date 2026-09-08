@@ -144,6 +144,7 @@ from dagster import AssetIn, AssetsDefinition, Field, asset
 import pudl.helpers
 import pudl.logging_helpers
 import pudl.output.eia923
+from pudl.dagster.op_tags import HOT_PATH_OP_TAGS
 from pudl.metadata.dtypes import apply_pudl_dtypes
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -225,7 +226,7 @@ def allocate_gen_fuel_asset_factory(
             "gens": AssetIn(key="_out_eia__yearly_generators"),
         },
         io_manager_key=io_manager_key,
-        op_tags={"memory-use": "high"},
+        op_tags={"memory-use": "high"} | HOT_PATH_OP_TAGS,
         compute_kind="Python",
         config_schema={
             "debug": Field(
@@ -274,6 +275,7 @@ def allocate_gen_fuel_asset_factory(
         },
         io_manager_key=io_manager_key,
         compute_kind="Python",
+        op_tags=HOT_PATH_OP_TAGS,
     )
     def gen_fuel_by_gen(
         net_gen_fuel_alloc: pd.DataFrame, pu: pd.DataFrame, bga: pd.DataFrame
@@ -300,6 +302,7 @@ def allocate_gen_fuel_asset_factory(
         },
         io_manager_key=io_manager_key,
         compute_kind="Python",
+        op_tags=HOT_PATH_OP_TAGS,
     )
     def gen_fuel_by_gen_esc_owner(
         net_gen_fuel_alloc: pd.DataFrame, gens: pd.DataFrame, own_eia860: pd.DataFrame

@@ -19,6 +19,7 @@ import pandas as pd
 from dagster import AssetOut, Output, asset, multi_asset
 
 import pudl.logging_helpers
+from pudl.dagster.op_tags import HOT_PATH_OP_TAGS
 from pudl.extract import excel
 from pudl.helpers import remove_leading_zeros_from_numeric_strings
 
@@ -115,7 +116,10 @@ def append_eia860m(
     return eia860_raw_dfs
 
 
-@asset(required_resource_keys={"datastore", "global_data_config"})
+@asset(
+    required_resource_keys={"datastore", "global_data_config"},
+    op_tags=HOT_PATH_OP_TAGS,
+)
 def raw_eia860m__all_dfs(context):
     """Extract raw EIA 860M data from excel sheets into dict of dataframes."""
     eia_data_config = context.resources.global_data_config.pudl.eia
@@ -143,6 +147,7 @@ def raw_eia860m__all_dfs(context):
         )
     },
     can_subset=True,
+    op_tags=HOT_PATH_OP_TAGS,
 )
 def extract_eia860m(context, raw_eia860m__all_dfs: dict[str, pd.DataFrame]):
     """Extract raw EIA data from excel sheets into dataframes."""

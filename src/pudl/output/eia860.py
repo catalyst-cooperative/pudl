@@ -4,10 +4,15 @@ import pandas as pd
 from dagster import asset
 
 import pudl.helpers
+from pudl.dagster.op_tags import HOT_PATH_OP_TAGS
 from pudl.metadata.codes import CODE_METADATA
 
 
-@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
+@asset(
+    io_manager_key="pudl_io_manager",
+    compute_kind="Python",
+    op_tags=HOT_PATH_OP_TAGS,
+)
 def out_eia860__yearly_ownership(
     _out_eia__plants_utilities: pd.DataFrame,
     core_eia860__scd_ownership: pd.DataFrame,
@@ -63,7 +68,11 @@ def out_eia860__yearly_ownership(
     return pudl.helpers.organize_cols(own_df, first_cols)
 
 
-@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
+@asset(
+    io_manager_key="pudl_io_manager",
+    compute_kind="Python",
+    op_tags=HOT_PATH_OP_TAGS,
+)
 def out_eia860__yearly_emissions_control_equipment(
     core_eia860__scd_emissions_control_equipment: pd.DataFrame,
     _out_eia__plants_utilities: pd.DataFrame,
