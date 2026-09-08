@@ -27,11 +27,10 @@ import sys
 
 import click
 
+from pudl.dagster.op_tags import PRIORITY_TAG
 from pudl.logging_helpers import get_logger
 
 logger = get_logger(__name__)
-
-PRIORITY_TAG = "dagster/priority"
 
 
 def _op_priority(node) -> int | None:

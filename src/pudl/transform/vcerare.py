@@ -11,7 +11,7 @@ from dagster import (
 )
 
 import pudl.logging_helpers
-from pudl.dagster.op_tags import ISLAND_OP_TAGS
+from pudl.dagster.op_tags import COLD_PATH_OP_TAGS
 from pudl.helpers import (
     ParquetData,
     cleanstrings_snake,
@@ -448,7 +448,7 @@ def merge_all_vce_tables(
     # in pudl.extract.vcerare, likewise deprioritized); nothing consumes this
     # table. Low priority so it acts as late-DAG filler rather than crowding the
     # critical path early.
-    op_tags={"memory-use": "high"} | ISLAND_OP_TAGS,
+    op_tags={"memory-use": "high"} | COLD_PATH_OP_TAGS,
     io_manager_key="parquet_io_manager",
 )
 def out_vcerare__hourly_available_capacity_factor(
