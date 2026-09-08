@@ -519,23 +519,6 @@ def _core_phmsagas__yearly_distribution_by_material(
     )
 
 
-@asset(compute_kind="pandas")
-def _core_phmsagas__yearly_distribution_by_install_decade(
-    _core_phmsagas__yearly_distribution: pd.DataFrame,
-) -> pd.DataFrame:
-    """Transform the _core table of the miles of main and services by decade."""
-    return _melt_merge_main_services(
-        _core_phmsagas__yearly_distribution,
-        MELT_PATTERNS["_core_phmsagas__yearly_distribution_by_install_decade"][
-            "main_pattern"
-        ],
-        MELT_PATTERNS["_core_phmsagas__yearly_distribution_by_install_decade"][
-            "services_pattern"
-        ],
-        {"install_decade": INSTALL_DECADE_PHMSAGAS},
-    )
-
-
 @asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
 def _core_phmsagas__yearly_distribution_by_material_and_size(
     _core_phmsagas__yearly_distribution: pd.DataFrame,
@@ -702,7 +685,7 @@ def _assert_install_decade_totals_match_expected(df: pd.DataFrame) -> None:
 
 @asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
 def core_phmsagas__yearly_distribution_by_install_decade(
-    _core_phmsagas__yearly_distribution_by_install_decade: pd.DataFrame,
+    _core_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
     """Create core_phmsagas__yearly_distribution_by_install_decade."""
     commodity_map = {
@@ -723,7 +706,17 @@ def core_phmsagas__yearly_distribution_by_install_decade(
         "OTHER GAS: Fuel Gas": "other",  # TODO: Is this sensible? Map somehow else??
     }
 
-    df = _core_phmsagas__yearly_distribution_by_install_decade.copy()
+    df = _melt_merge_main_services(
+        _core_phmsagas__yearly_distribution,
+        MELT_PATTERNS["_core_phmsagas__yearly_distribution_by_install_decade"][
+            "main_pattern"
+        ],
+        MELT_PATTERNS["_core_phmsagas__yearly_distribution_by_install_decade"][
+            "services_pattern"
+        ],
+        {"install_decade": INSTALL_DECADE_PHMSAGAS},
+    )
+
     df["commodity"] = df["commodity"].replace(commodity_map)
     df["commodity"] = df["commodity"].fillna("all")
     non_total_decade_mask = ~df["install_decade"].eq("total_decades")
