@@ -89,8 +89,9 @@ class DeploymentPlan(BaseModel):
         if not self.upload_to_gcs and not self.upload_to_s3:
             raise ValueError(
                 f"Deployment for git_tag={self.git_tag!r} has neither GCS nor S3 "
-                "uploads enabled -- there would be nothing to deploy. A build that "
-                "shouldn't deploy anywhere simply shouldn't trigger deploy-pudl."
+                "uploads enabled. It doesn't make sense to trigger a deployment "
+                "to nowhere, so something has probably gone wrong "
+                "in one of the systems that triggers deploy-pudl."
             )
         return self
 

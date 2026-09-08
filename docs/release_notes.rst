@@ -176,7 +176,7 @@ Developer Experience
   ``deploy_to_gcs`` / ``deploy_to_s3`` checkboxes to override this per run, and when
   neither target is enabled ``build-pudl`` skips triggering ``deploy-pudl``
   altogether (e.g. a build run only to regenerate row counts). Nightly and stable
-  deployments are unchanged and still deploy to both. See issue:`5557` and PR
+  deployments are unchanged and still deploy to both. See issue :issue:`5557` and PR
   :pr:`5558`.
 * Fixed several issues with how ``dbt_helper update-tables`` renders ``schema.yml``
   (:mod:`pudl.dbt_schema`): long ``description:`` fields are now wrapped into readable
