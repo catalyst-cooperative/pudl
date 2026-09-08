@@ -169,26 +169,21 @@ def _find_parquet_asset_keys(assets) -> list[dg.AssetKey]:
     return keys
 
 
-def _find_sqlite_asset_keys(assets) -> list[dg.AssetKey]:
-    """Return parquet asset keys for tables included in pudl.sqlite or pudl.duckdb.
-
-    Returns tables in topologically sorted order so that they can be inserted with
-    foreign key constraints enabled if desired. This is a subset of the parquet asset
-    keys, since not all parquet assets are included in the SQLite database.
-    """
-    sqlite_table_names = [t.name for t in PUDL_PACKAGE.to_sql().sorted_tables]
+def _find_sql_asset_keys(assets) -> list[dg.AssetKey]:
+    """Return the subset of parquet asset keys that refer to SQL tables."""
+    sql_table_names = [t.name for t in PUDL_PACKAGE.to_sql().sorted_tables]
     return [
         key
         for key in _find_parquet_asset_keys(assets)
-        if key.path[-1] in sqlite_table_names
+        if key.path[-1] in sql_table_names
     ]
 
 
-_sqlite_asset_keys = _find_sqlite_asset_keys(_base_assets)
+_sql_asset_keys = _find_sql_asset_keys(_base_assets)
 default_assets = _base_assets + [
     build_pudl_datapackage_asset(_find_parquet_asset_keys(_base_assets)),
-    build_pudl_db_asset(SQLITE_TARGET, _sqlite_asset_keys),
-    build_pudl_db_asset(DUCKDB_TARGET, _sqlite_asset_keys),
+    build_pudl_db_asset(SQLITE_TARGET, _sql_asset_keys),
+    build_pudl_db_asset(DUCKDB_TARGET, _sql_asset_keys),
 ]
 
 
