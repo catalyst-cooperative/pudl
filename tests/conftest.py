@@ -166,7 +166,7 @@ _FERCEQR_TEST_PATH = "tests/pipeline/ferceqr_test.py"
 def _slow_tests_in_fast_tiers(items) -> list[str]:
     """Return nodeids of ETL-dependent tests hiding in a supposedly fast tier.
 
-    Every fixture that actually runs the Dagster pipeline (``pudl_sqlite_engine``,
+    Every fixture that actually runs the Dagster pipeline (``pudl_sqlite_connection``,
     ``pudl_duckdb_connection``, ``ferc1_engine_dbf``, ``ferc1_engine_xbrl``,
     ``ferc714_engine_xbrl``, ``asset_value_loader``, and the FERC IO-manager/taxonomy-
     metadata fixtures built on top of them) depends, directly or transitively, on
@@ -612,7 +612,11 @@ def ferc1_engine_dbf(
 ) -> Generator[sa.Engine]:
     """Return the SQLAlchemy engine for the prebuilt FERC Form 1 DBF database.
 
-    Disposes the engine at session teardown -- see ``pudl_sqlite_engine`` for why.
+    Disposes the engine at session teardown so its pooled sqlite3 connections are
+    closed explicitly, rather than left for the interpreter to garbage collect at
+    shutdown -- by then pytest's warnings-catching context has already exited, so
+    the ``ignore:unclosed database`` filter in ``pyproject.toml`` no longer
+    applies, and the resulting ``ResourceWarning`` prints raw to stderr.
     """
     engine = _initialize_ferc_engine(
         ferc1_dbf_io_manager,
@@ -656,7 +660,7 @@ def ferc1_engine_xbrl(
 ) -> Generator[sa.Engine]:
     """Return the SQLAlchemy engine for the prebuilt FERC Form 1 XBRL database.
 
-    Disposes the engine at session teardown -- see ``pudl_sqlite_engine`` for why.
+    Disposes the engine at session teardown -- see ``ferc1_engine_dbf`` for why.
     """
     engine = _initialize_ferc_engine(
         ferc1_xbrl_io_manager,
@@ -695,7 +699,7 @@ def ferc714_engine_xbrl(
 ) -> Generator[sa.Engine]:
     """Return the SQLAlchemy engine for the prebuilt FERC Form 714 XBRL database.
 
-    Disposes the engine at session teardown -- see ``pudl_sqlite_engine`` for why.
+    Disposes the engine at session teardown -- see ``ferc1_engine_dbf`` for why.
     """
     engine = _initialize_ferc_engine(
         ferc714_xbrl_io_manager,
@@ -729,22 +733,26 @@ def ferc714_xbrl_taxonomy_metadata(
 
 
 @pytest.fixture(scope="session")
-def pudl_sqlite_engine(
+def pudl_sqlite_connection(
     prebuilt_outputs, pudl_test_paths: PudlPaths
-) -> Generator[sa.Engine]:
-    """Return the SQLAlchemy engine for the prepared PUDL SQLite database.
+) -> Generator[duckdb.DuckDBPyConnection]:
+    """Return a DuckDB connection with the prepared PUDL SQLite database attached.
 
-    Disposes the engine at session teardown so its pooled sqlite3 connections are
-    closed explicitly, rather than left for the interpreter to garbage collect at
-    shutdown -- by then pytest's warnings-catching context has already exited, so
-    the ``ignore:unclosed database`` filter in ``pyproject.toml`` no longer
-    applies, and the resulting ``ResourceWarning`` prints raw to stderr.
+    Uses DuckDB's ``sqlite`` extension to read ``pudl.sqlite`` rather than
+    SQLAlchemy, so tests can query the SQLite and DuckDB build outputs through one
+    identical API as PUDL moves toward DuckDB. The attached database is set as the
+    default schema via ``USE``, so tables can be referenced unqualified. Attached
+    read-only since tests should never mutate the shared build output.
     """
-    engine = sa.create_engine(pudl_test_paths.pudl_db)
+    conn = duckdb.connect()
+    conn.execute(
+        f"ATTACH '{pudl_test_paths.sqlite_db_path('pudl')}' AS pudl "
+        "(TYPE sqlite, READ_ONLY); USE pudl;"
+    )
     try:
-        yield engine
+        yield conn
     finally:
-        engine.dispose()
+        conn.close()
 
 
 @pytest.fixture(scope="session")

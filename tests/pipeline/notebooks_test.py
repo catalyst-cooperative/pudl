@@ -1,9 +1,9 @@
 from pathlib import Path
 
+import duckdb
 import nbformat
 import pytest
 from nbconvert.preprocessors import ExecutePreprocessor
-from sqlalchemy.engine import Engine
 
 
 @pytest.mark.skip(
@@ -20,7 +20,11 @@ from sqlalchemy.engine import Engine
         "devtools/debug-harvesting.ipynb",
     ],
 )
-def test_notebook_exec(notebook: str, pudl_sqlite_engine: Engine, test_dir: Path):
+def test_notebook_exec(
+    notebook: str,
+    pudl_sqlite_connection: duckdb.DuckDBPyConnection,
+    test_dir: Path,
+):
     nb_path = test_dir.parent / notebook
     with nb_path.open() as f:
         nb = nbformat.read(f, as_version=4)

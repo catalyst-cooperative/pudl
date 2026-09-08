@@ -2,7 +2,6 @@
 
 import duckdb
 import pytest
-import sqlalchemy as sa
 
 from pudl.helpers import get_parquet_table
 
@@ -26,17 +25,21 @@ def test_pudl_parquet_outputs():
 
 
 @pytest.mark.order(2)
-def test_pudl_sqlite_engine(pudl_sqlite_engine: sa.Engine):
+def test_pudl_sqlite_connection(pudl_sqlite_connection: duckdb.DuckDBPyConnection):
     """Verify that key PUDL tables exist and are populated in pudl.sqlite."""
-    insp = sa.inspect(pudl_sqlite_engine)
+    table_names = {
+        row[0]
+        for row in pudl_sqlite_connection.execute(
+            "SELECT table_name FROM information_schema.tables "
+            "WHERE table_schema = 'main'"
+        ).fetchall()
+    }
     for table_name in REQUIRED_TABLES:
-        assert table_name in insp.get_table_names()
-    with pudl_sqlite_engine.connect() as connection:
-        for table_name in REQUIRED_TABLES:
-            first_row = connection.execute(
-                sa.select(sa.literal(1)).select_from(sa.table(table_name)).limit(1)
-            ).scalar()
-            assert first_row is not None, f"Expected {table_name} to contain data."
+        assert table_name in table_names
+        first_row = pudl_sqlite_connection.execute(
+            f'SELECT 1 FROM "{table_name}" LIMIT 1'  # noqa: S608
+        ).fetchone()
+        assert first_row is not None, f"Expected {table_name} to contain data."
 
 
 @pytest.mark.order(2)
