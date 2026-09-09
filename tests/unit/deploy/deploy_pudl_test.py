@@ -83,6 +83,10 @@ def test_prepare_outputs_for_distribution(tmp_path):
     (output_dir / f"{build_id}.log").write_text("build log")
     (output_dir / f"{build_id}-deploy-2026-07-04-0700.log").write_text("deploy log")
     (output_dir / "success").write_text("")
+    (output_dir / "missing_plants_in_plants_ferc1.csv").write_text("unmapped plants")
+    (output_dir / "missing_utility_id_eia_in_utilities_eia.csv").write_text(
+        "unmapped utils"
+    )
 
     for parquet_dir in parquet_dirs:
         parquet_dir.mkdir()
@@ -142,6 +146,10 @@ def test_prepare_outputs_for_distribution(tmp_path):
     # for consumers of the distributed outputs.
     assert list(output_dir.glob("*.log")) == []
     assert not (output_dir / "success").exists()
+
+    # The unmapped FERC1/EIA ID mapping CSVs are development-only artifacts and
+    # must never be distributed publicly (see pudl.dagster.assets.core.unmapped_ids).
+    assert list(output_dir.glob("missing_*.csv")) == []
 
 
 def test_upload_outputs_nightly(tmp_path):

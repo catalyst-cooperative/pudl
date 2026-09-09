@@ -23,7 +23,7 @@ import pudl.analysis
 import pudl.extract
 import pudl.output
 import pudl.transform
-from pudl.dagster.assets.core import eiaapi_electricity, glue, static
+from pudl.dagster.assets.core import eiaapi_electricity, glue, static, unmapped_ids
 from pudl.dagster.assets.core.datapackage import build_pudl_datapackage_asset
 from pudl.dagster.assets.deploy import ferceqr as deploy_ferceqr
 from pudl.dagster.assets.raw import ferc_to_sqlite
@@ -56,6 +56,7 @@ raw_module_groups = {
 
 core_module_groups = {
     "core_assn": [glue],
+    "core_unmapped_ids": [unmapped_ids],
     "core_censusdp1tract": [
         pudl.extract.censusdp1tract,
         pudl.output.censusdp1tract,
