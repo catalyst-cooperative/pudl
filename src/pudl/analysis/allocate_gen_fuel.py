@@ -1001,42 +1001,55 @@ def identify_generators_coming_online(gen_assoc: pd.DataFrame) -> pd.DataFrame:
 
 
 def identify_proposed_plants(gen_assoc: pd.DataFrame) -> pd.DataFrame:
-    """Identify entirely new plants that are proposed but are already reporting data."""
-    # Get a list of all of the plants that have a proposed generator with non-null and non-zero gf generation
-    proposed_generators_with_reported_bf = list(
-        gen_assoc.loc[
-            (gen_assoc.operational_status == "proposed")
-            & (gen_assoc.net_generation_mwh_gf_tbl.notnull())
-            & (gen_assoc.net_generation_mwh_gf_tbl != 0),
-            "plant_id_eia",
-        ].unique()
-    )
+    """Identify entirely new plants that are proposed but are already reporting data.
 
-    # create a table for all of these plants that identifies all of the unique operational statuses
-    plants_with_any_proposed_generators = gen_assoc.loc[
-        gen_assoc["plant_id_eia"].isin(proposed_generators_with_reported_bf),
-        ["plant_id_eia", "operational_status"],
+    The "entirely proposed" status must be evaluated per year (``report_year``), not
+    across the full extent of ``gen_assoc``. If ``gen_assoc`` spans multiple years and a
+    plant is proposed in some years and existing in others (e.g. it comes online), the
+    plant would otherwise never pass the "entirely proposed" test for *any* of its
+    years, since the full-history view of the plant contains both statuses. This
+    silently drops legitimate generation/fuel data for the plant's genuinely-all-
+    proposed years. Scoping the check to report_year fixes this while still correctly
+    excluding plants that mix proposed and existing generators within the same year.
+    """
+    gen_assoc = gen_assoc.assign(report_year=lambda x: x.report_date.dt.year)
+
+    # Get a list of all of the plant-years that have a proposed generator with
+    # non-null and non-zero gf generation
+    proposed_plant_years_with_reported_gf = gen_assoc.loc[
+        (gen_assoc.operational_status == "proposed")
+        & (gen_assoc.net_generation_mwh_gf_tbl.notnull())
+        & (gen_assoc.net_generation_mwh_gf_tbl != 0),
+        ["plant_id_eia", "report_year"],
     ].drop_duplicates()
 
-    # filter this list to those plant ids where the only operational status is "proposed"
-    # i.e. where the entire plant is new
-    entirely_new_plants = list(
-        plants_with_any_proposed_generators.loc[
-            (
-                ~plants_with_any_proposed_generators.duplicated(
-                    subset="plant_id_eia", keep=False
-                )
-            )
-            & (plants_with_any_proposed_generators["operational_status"] == "proposed"),
-            "plant_id_eia",
-        ].unique()
-    )
+    # create a table for all of these plant-years that identifies all of the unique
+    # operational statuses reported for that plant in that year
+    plants_with_any_proposed_generators = gen_assoc.merge(
+        proposed_plant_years_with_reported_gf,
+        how="inner",
+        on=["plant_id_eia", "report_year"],
+    )[["plant_id_eia", "report_year", "operational_status"]].drop_duplicates()
 
-    # keep data for these proposed plants in months where there is reported data
-    proposed_plants = gen_assoc[
-        gen_assoc["plant_id_eia"].isin(entirely_new_plants)
-        & gen_assoc["net_generation_mwh_gf_tbl"].notnull()
-    ]
+    # filter this list to those plant-years where the only operational status is
+    # "proposed", i.e. where the entire plant is new for that year
+    entirely_new_plant_years = plants_with_any_proposed_generators.loc[
+        (
+            ~plants_with_any_proposed_generators.duplicated(
+                subset=["plant_id_eia", "report_year"], keep=False
+            )
+        )
+        & (plants_with_any_proposed_generators["operational_status"] == "proposed"),
+        ["plant_id_eia", "report_year"],
+    ].drop_duplicates()
+
+    # keep data for these proposed plant-years in months where there is reported data
+    proposed_plants = gen_assoc.merge(
+        entirely_new_plant_years, how="inner", on=["plant_id_eia", "report_year"]
+    )
+    proposed_plants = proposed_plants[
+        proposed_plants["net_generation_mwh_gf_tbl"].notnull()
+    ].drop(columns=["report_year"])
 
     return proposed_plants
 
