@@ -1,5 +1,6 @@
 """Test the pudl_sqlite/pudl_duckdb assets that rebuild databases from Parquet."""
 
+import sqlite3
 from functools import partial
 from pathlib import Path
 
@@ -237,6 +238,46 @@ def test_validate_primary_key_skips_non_rowid_alias_pk(
     nonexistent file would raise instead of silently passing.
     """
     _validate_primary_key(test_pkg.get_resource(resource_name), paths)
+
+
+@pytest.mark.parametrize(
+    ("column_type", "null_pk_rejected"),
+    [
+        ("INTEGER", False),  # ROWID alias: NULL is silently replaced with a rowid
+        ("BIGINT", True),  # not a ROWID alias: NOT NULL enforced normally
+    ],
+)
+def test_sqlite_rowid_alias_needs_exact_integer_type(
+    tmp_path: Path, column_type: str, null_pk_rejected: bool
+):
+    """SQLite only ROWID-aliases a single-column PK when its type is exactly INTEGER.
+
+    BIGINT has INTEGER affinity but is *not* a ROWID alias, so SQLite enforces its
+    NOT NULL constraint like any other column. This is the quirk
+    _has_integer_rowid_alias_pk / _validate_primary_key guard against -- and, since
+    PUDL now emits BIGINT for its ``integer`` fields (see
+    test_pudl_sqlite_schema_uses_bigint_for_integer_fields), that guard is currently
+    belt-and-suspenders rather than load-bearing.
+    """
+    con = sqlite3.connect(tmp_path / "rowid.sqlite")
+    try:
+        con.execute(f"CREATE TABLE t (i {column_type} NOT NULL, PRIMARY KEY (i))")
+        if null_pk_rejected:
+            with pytest.raises(sqlite3.IntegrityError, match="NOT NULL"):
+                con.execute("INSERT INTO t (i) VALUES (NULL)")
+        else:
+            con.execute("INSERT INTO t (i) VALUES (NULL)")
+            assert con.execute("SELECT i FROM t").fetchone() == (1,)
+    finally:
+        con.close()
+
+
+def test_pudl_sqlite_schema_uses_bigint_for_integer_fields(test_pkg: Package):
+    """PUDL's SQLite DDL declares ``integer`` primary-key columns as BIGINT."""
+    metadata = test_pkg.to_sql(dialect="sqlite", check_types=False, check_values=False)
+    column = metadata.tables["utility"].columns["utility_id_eia"]
+    ddl_type = column.type.compile(sa.create_engine("sqlite://").dialect)
+    assert ddl_type == "BIGINT"
 
 
 ################################################################################
