@@ -19,7 +19,6 @@ from pathlib import Path
 
 import duckdb
 import pandas as pd
-import polars as pl
 from dagster import AssetOut, asset, multi_asset
 
 from pudl import logging_helpers
@@ -64,20 +63,10 @@ def _clean_column_names(
 def extract_vcerare(
     context,
 ) -> tuple[dict[int, ParquetData], dict[int, ParquetData], dict[int, ParquetData]]:
-    """Extract data from all vcerare pages and write to parquet files.
-
-    We do this for all CSV files up until the year 2024, at which point Pattern began processing
-    Parquet files with all profiles in a single table.
-    """
+    """Extract data from all vcerare pages and write to parquet files."""
     extracted_tables = defaultdict(dict)
 
-    # Loop through all years in settings and extract years where there is a CSV file
-    csv_years = [
-        year
-        for year in context.resources.global_data_config.pudl.vcerare.years
-        if year < 2024
-    ]
-    for year in csv_years:
+    for year in context.resources.global_data_config.pudl.vcerare.years:
         partitions = {"year": year}
         # Extract each raw table, clean column names, then offload to parquet
         for page, relation in duckdb_extract_zipped_csv(
@@ -117,31 +106,3 @@ def raw_vcerare__lat_lon_fips(context) -> pd.DataFrame:
             BytesIO(ds.get_unique_resource("vcerare", fips=partition_data_config.fips))
         )
     return pd.DataFrame()
-
-
-@asset(required_resource_keys={"datastore", "global_data_config"})
-def raw_vcerare__county_profiles(context) -> pl.LazyFrame:
-    """Extract county profiles Parquet file to Pandas DataFrame.
-
-    These files began to be published by Pattern in 2024, and we prefer them to the CSV
-    files previously published as they already contain concatenated data.
-    """
-    ds = context.resources.datastore
-    dfs_list = []
-    parquet_years = [
-        year
-        for year in context.resources.global_data_config.pudl.vcerare.years
-        if year >= 2024
-    ]
-
-    for year in parquet_years:
-        with (
-            ds.get_zipfile_resource(dataset="vcerare", year=year) as zf,
-            zf.open(f"County_Capacity_Factors_{year}.parquet") as f,
-        ):
-            df = pl.scan_parquet(f)
-            dfs_list.append(df)
-
-    if dfs_list:  # If files returned in the config
-        return pl.concat(dfs_list)
-    return pl.LazyFrame()

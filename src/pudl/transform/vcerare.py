@@ -141,7 +141,7 @@ def _stack_cap_fac_df(
     logger.info(f"Reshaping wide format to long format for {df_name} table.")
 
     # Identify which columns are county columns (not metadata)
-    id_cols = ["datetime_utc", "hour_of_year", "report_year"]
+    id_cols = ["hour_of_year", "report_year"]
     county_cols = [col for col in df.columns if col not in id_cols]
 
     # Use Polars unpivot to convert wide → long
@@ -172,23 +172,15 @@ def _add_time_cols(df: pl.DataFrame, df_name: str) -> pl.DataFrame:
 
     # This data is compiled for modeling purposes and skips the last
     # day of a leap year. When adding a datetime column, we need
-    # to make sure that we skip the 31st of December, 2020 and that
+    # to make sure that we skip the 31st of December on leap years and that
     # every year has exactly 8760 hours in it.
 
-    # Get all years in the data
-    all_years = df.select("report_year").unique().collect().to_series().to_list()
-
-    # Build datetime index
-    datetime_lists = []
-    for year in all_years:
-        datetime_lists.extend(
-            pd.date_range(start=f"{year}-01-01", periods=8760, freq="h")
-        )
-
-    datetime_series = pl.Series("datetime_utc", datetime_lists)
-
-    # Append to dataframe (assumes data is in hour order)
-    df = df.with_columns(datetime_series)
+    # Compute datetime from year start + hours offset
+    # hour_of_year ranges from 1-8760, so subtract 1 to get 0-based offset
+    df = df.with_columns(
+        datetime_utc=pl.datetime(pl.col("report_year"), 1, 1)
+        + pl.duration(hours=pl.col("hour_of_year") - 1)
+    )
 
     return df
 
@@ -199,10 +191,10 @@ def _drop_city_cols(df: pl.DataFrame, df_name: str) -> pl.DataFrame:
     We do this early since the columns can be dropped by name here, and we don't have to
     search through all of the stacked rows to find matching records.
     """
-    city_names = ["bedford_city_virginia", "clifton_forge_city_virginia"]
-    logger.info(f"Dropping {city_names} from {df_name} table.")
+    city_state_names = ["bedford_city_virginia", "clifton_forge_city_virginia"]
+    logger.info(f"Dropping {city_state_names} from {df_name} table.")
 
-    return df.filter(~pl.col("county_state_names").is_in(city_names))
+    return df.filter(~pl.col("county_state_names").is_in(city_state_names))
 
 
 def _make_cap_fac_frac(df: pl.DataFrame, df_name: str) -> pl.DataFrame:
@@ -216,24 +208,20 @@ def _make_cap_fac_frac(df: pl.DataFrame, df_name: str) -> pl.DataFrame:
 def _check_for_valid_counties(
     df: pl.DataFrame, clean_fips_df: pd.DataFrame, df_name: str
 ) -> pl.DataFrame:
-    """Verify county names in data match FIPS table before unstacking.
-
-    This validation must happen on wide format where county columns can be compared
-    directly to the FIPS dataframe.
-    """
+    """Verify county names in data match FIPS table."""
     logger.info(f"Checking for valid counties in the {df_name} table.")
 
-    county_state_names_fips = clean_fips_df.county_state_names.unique().tolist()
-    expected_non_counties = ["report_year", "hour_of_year"]
-    non_county_cols = [
-        x
-        for x in county_state_names_fips
-        if x not in df.columns + expected_non_counties
-    ]
+    county_names_fips = clean_fips_df.county_state_names.unique().tolist()
+
+    county_names_cap = (
+        df.select(pl.col("county_state_names")).unique().collect().to_series().to_list()
+    )
+    non_county_cols = [x for x in county_names_cap if x not in county_names_fips]
+
     if non_county_cols:
         raise AssertionError(
             f"""found unexpected columns that aren't in the FIPS table:
-            {non_county_cols}."""
+            {non_county_cols}. FIPS values are {county_names_fips}"""
         )
     return df
 
@@ -366,12 +354,17 @@ def _spot_fix_great_lakes_values(sr: pd.Series) -> pd.Series:
     return sr.replace("lake_hurron_michigan", "lake_huron_michigan")
 
 
-def _spot_fix_great_lakes_columns(df: pd.DataFrame) -> pd.DataFrame:
-    """Normalize spelling of great lakes in column names."""
-    return df.rename(
-        {
-            "lake_hurron_michigan": "lake_huron_michigan",
-        }
+def _spot_fix_great_lakes_polars(df: pd.DataFrame, df_name: str) -> pd.DataFrame:
+    """Normalize spelling of great lakes in place names.
+
+    If the data comes from CSV, this column is called county_state_name.
+    If the data comes from Parquet, this column is called place_name and does not contain
+    the state name in it.
+    """
+    return df.with_columns(
+        county_state_names=pl.col("county_state_names").replace(
+            "lake_hurron_michigan", "lake_huron_michigan"
+        )
     )
 
 
@@ -405,17 +398,17 @@ def one_year_hourly_available_capacity_factor(
     }
     return {
         _table_name(df_name): persist_table_as_parquet(
-            _spot_fix_great_lakes_columns(df)
+            df.pipe(_stack_cap_fac_df, df_name)
+            .pipe(_spot_fix_great_lakes_polars, df_name)
             .pipe(_check_for_valid_counties, fips_df_census, df_name)
             .pipe(_add_time_cols, df_name)
-            .pipe(_stack_cap_fac_df, df_name)
             .pipe(_drop_city_cols, df_name)
             .pipe(_make_cap_fac_frac, df_name)
             .pipe(_clip_unexpected_2016_pv_capacity, df_name, year),
             table_name=_table_name(df_name),
             partitions={"year": year},
         )
-        for df_name, df in raw_dict.items()
+        for df_name, df in raw_dict.items()  # TODO: Add profiles into here :)
     }
 
 
