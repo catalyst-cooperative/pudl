@@ -14,7 +14,6 @@ import pudl.logging_helpers
 from pudl.helpers import (
     ParquetData,
     cleanstrings_snake,
-    df_from_parquet,
     lf_from_parquet,
     persist_table_as_parquet,
     simplify_columns,
@@ -121,7 +120,42 @@ def _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips: pd.DataFrame) -> pd.DataFr
     return lat_long_fips
 
 
-def _add_time_cols(df: pd.DataFrame, df_name: str) -> pd.DataFrame:
+def _stack_cap_fac_df(
+    df: pl.DataFrame,
+    df_name: str,
+) -> pl.DataFrame:
+    """Function to transform each capacity factor table individually to save memory.
+
+    The main transforms are turning county/subregion columns into county/subregion rows
+    and renaming columns to be more human-readable and compatible with the FIPS df
+    that will get merged in.
+
+    This function is intended to save memory by being applied to each individual
+    capacity factor table rather than the giant combined one.
+    """
+    logger.info(f"Stacking the county/subregion columns for {df_name} table.")
+    """Convert wide-format capacity factor table to long format using Polars.
+
+    Takes county columns and stacks them into rows with a county_state_names column.
+    """
+    logger.info(f"Reshaping wide format to long format for {df_name} table.")
+
+    # Identify which columns are county columns (not metadata)
+    id_cols = ["datetime_utc", "hour_of_year", "report_year"]
+    county_cols = [col for col in df.columns if col not in id_cols]
+
+    # Use Polars unpivot to convert wide → long
+    df_long = df.unpivot(
+        index=id_cols,
+        on=county_cols,
+        variable_name="county_state_names",
+        value_name=f"capacity_factor_{df_name}",
+    ).with_columns(pl.col("county_state_names").cast(pl.Categorical))
+
+    return df_long
+
+
+def _add_time_cols(df: pl.DataFrame, df_name: str) -> pl.DataFrame:
     """Add datetime and hour_of_year columns.
 
     This function adds a datetime column and a hour_of_year column.
@@ -133,107 +167,74 @@ def _add_time_cols(df: pd.DataFrame, df_name: str) -> pd.DataFrame:
     For leap years (2020, 2024), December 31st is excluded.
     """
     logger.info(f"Adding time columns for {df_name} table")
-    df.report_year = df.report_year.astype(int)  # Ensure this is getting read as an int
+    # Convert report_year to int
+    df = df.with_columns(pl.col("report_year").cast(pl.Int32))
 
     # This data is compiled for modeling purposes and skips the last
     # day of a leap year. When adding a datetime column, we need
     # to make sure that we skip the 31st of December, 2020 and that
     # every year has exactly 8760 hours in it.
-    all_years = df.report_year.unique()
-    datetime8760_index = pd.DatetimeIndex(
-        pd.concat(
-            [
-                pd.Series(pd.date_range(start=f"{year}-01-01", periods=8760, freq="h"))
-                for year in all_years
-            ]
+
+    # Get all years in the data
+    all_years = df.select("report_year").unique().collect().to_series().to_list()
+
+    # Build datetime index
+    datetime_lists = []
+    for year in all_years:
+        datetime_lists.extend(
+            pd.date_range(start=f"{year}-01-01", periods=8760, freq="h")
         )
-    )
-    new_time_col = pd.DataFrame(
-        {
-            "datetime_utc": datetime8760_index,
-        }
-    )
-    df = pd.concat(
-        [df.reset_index(drop=True), new_time_col.reset_index(drop=True)], axis="columns"
-    )
+
+    datetime_series = pl.Series("datetime_utc", datetime_lists)
+
+    # Append to dataframe (assumes data is in hour order)
+    df = df.with_columns(datetime_series)
+
     return df
 
 
-def _drop_city_cols(df: pd.DataFrame, df_name: str) -> pd.DataFrame:
+def _drop_city_cols(df: pl.DataFrame, df_name: str) -> pl.DataFrame:
     """Drop city columns from the capacity factor tables before stacking.
 
     We do this early since the columns can be dropped by name here, and we don't have to
     search through all of the stacked rows to find matching records.
     """
-    city_cols = [
-        x
-        for x in ["bedford_city_virginia", "clifton_forge_city_virginia"]
-        if x in df.columns
-    ]
-    logger.info(f"Dropping {city_cols} from {df_name} table.")
-    return df.drop(columns=city_cols)
+    city_names = ["bedford_city_virginia", "clifton_forge_city_virginia"]
+    logger.info(f"Dropping {city_names} from {df_name} table.")
+
+    return df.filter(~pl.col("county_state_names").is_in(city_names))
 
 
-def _stack_cap_fac_df(df: pd.DataFrame, df_name: str) -> pd.DataFrame:
-    """Function to transform each capacity factor table individually to save memory.
-
-    The main transforms are turning county/subregion columns into county/subregion rows
-    and renaming columns to be more human-readable and compatible with the FIPS df
-    that will get merged in.
-
-    This function is intended to save memory by being applied to each individual
-    capacity factor table rather than the giant combined one.
-    """
-    logger.info(f"Stacking the county/subregion columns for {df_name} table.")
-    df_stacked = (
-        df.set_index(["datetime_utc", "hour_of_year", "report_year"])
-        .stack()
-        .reset_index()
-        .rename(
-            columns={
-                "level_3": "county_state_names",
-                0: f"capacity_factor_{df_name}",
-            }
-        )
-        .assign(county_state_names=lambda x: pd.Categorical(x.county_state_names))
-    )
-    return df_stacked
-
-
-def _make_cap_fac_frac(df: pd.DataFrame, df_name: str) -> pd.DataFrame:
-    """Make the capacity factor column a fraction instead of a percentage.
-
-    This step happens before the table gets stacked to save memory.
-    """
+def _make_cap_fac_frac(df: pl.DataFrame, df_name: str) -> pl.DataFrame:
+    """Make the capacity factor column a fraction instead of a percentage."""
     logger.info(f"Converting capacity factor into a fraction for {df_name} table.")
-    county_cols = [
-        x
-        for x in df.columns
-        if x not in ["report_year", "hour_of_year", "datetime_utc"]
-    ]
-    df[county_cols] = df[county_cols] / 100
-    return df
+
+    cf_col = f"capacity_factor_{df_name}"
+    return df.with_columns((pl.col(cf_col) / 100).alias(cf_col))
 
 
 def _check_for_valid_counties(
-    df: pd.DataFrame, clean_fips_df: pd.DataFrame, df_name: str
-) -> pd.DataFrame:
-    """Make sure the state_county values show up in the FIPS table.
+    df: pl.DataFrame, clean_fips_df: pd.DataFrame, df_name: str
+) -> pl.DataFrame:
+    """Verify county names in data match FIPS table before unstacking.
 
-    This step happens before the table gets stacked to save memory.
+    This validation must happen on wide format where county columns can be compared
+    directly to the FIPS dataframe.
     """
     logger.info(f"Checking for valid counties in the {df_name} table.")
+
     county_state_names_fips = clean_fips_df.county_state_names.unique().tolist()
-    county_state_names_cap_fac = df.columns.tolist()
     expected_non_counties = ["report_year", "hour_of_year"]
     non_county_cols = [
         x
         for x in county_state_names_fips
-        if x not in county_state_names_cap_fac + expected_non_counties
+        if x not in df.columns + expected_non_counties
     ]
     if non_county_cols:
-        raise AssertionError(f"""found unexpected columns that aren't in the FIPS table:
-{non_county_cols}.""")
+        raise AssertionError(
+            f"""found unexpected columns that aren't in the FIPS table:
+            {non_county_cols}."""
+        )
     return df
 
 
@@ -326,7 +327,9 @@ def _standardize_census_names(vce_fips_df: pd.DataFrame, census_pep_data: pd.Dat
     return names_df
 
 
-def _clip_unexpected_2016_pv_capacity(df: pd.DataFrame, df_name: str, year: int):
+def _clip_unexpected_2016_pv_capacity(
+    df: pl.LazyFrame, df_name: str, year: int
+) -> pl.LazyFrame:
     """Handle unexpectedly large PV capacity values in 2016.
 
     In 2016, there are a few values for PV capacity factors that exceed the maximum
@@ -336,13 +339,25 @@ def _clip_unexpected_2016_pv_capacity(df: pd.DataFrame, df_name: str, year: int)
     data should conform to the expectation of no-null values.
     """
     if (year == 2016) and (df_name == "solar_pv"):
+        cf_col = "capacity_factor_solar_pv"
+        outlier_count = (
+            df.filter(pl.col(cf_col) > 1.10).select(pl.len()).collect().item()
+        )
         logger.info(
-            f"{len(df.loc[df.capacity_factor_solar_pv > 1.10])} out-of-bounds PV capacity factor values found in the 2016 data. Clipping these values."
+            f"{outlier_count} out-of-bounds PV capacity factor values found in 2016. Clipping these values."
         )
-        assert len(df.loc[df.capacity_factor_solar_pv > 1.10]) == 365, (
-            f"Found {len(df.loc[df.capacity_factor_solar_pv > 1.10])} solar capacity values over 1.10, expected 365."
+
+        assert outlier_count == 365, (
+            f"Found {outlier_count} solar capacity values over 1.10, expected 365."
         )
-        df.loc[df.capacity_factor_solar_pv > 1.10, "capacity_factor_solar_pv"] = 1.10
+
+        df = df.with_columns(
+            pl.when(pl.col(cf_col) > 1.10)
+            .then(1.10)
+            .otherwise(pl.col(cf_col))
+            .alias(cf_col)
+        )
+
     return df
 
 
@@ -354,7 +369,7 @@ def _spot_fix_great_lakes_values(sr: pd.Series) -> pd.Series:
 def _spot_fix_great_lakes_columns(df: pd.DataFrame) -> pd.DataFrame:
     """Normalize spelling of great lakes in column names."""
     return df.rename(
-        columns={
+        {
             "lake_hurron_michigan": "lake_huron_michigan",
         }
     )
@@ -363,9 +378,9 @@ def _spot_fix_great_lakes_columns(df: pd.DataFrame) -> pd.DataFrame:
 def one_year_hourly_available_capacity_factor(
     year: int,
     fips_df_census: pd.DataFrame,
-    raw_vcerare__fixed_solar_pv_lat_upv: pd.DataFrame,
-    raw_vcerare__offshore_wind_power_140m: pd.DataFrame,
-    raw_vcerare__onshore_wind_power_100m: pd.DataFrame,
+    raw_vcerare__fixed_solar_pv_lat_upv: pl.LazyFrame,
+    raw_vcerare__offshore_wind_power_140m: pl.LazyFrame,
+    raw_vcerare__onshore_wind_power_100m: pl.LazyFrame,
 ) -> dict[str, ParquetData]:
     """Transform raw Vibrant Clean Energy renewable generation profiles.
 
@@ -393,9 +408,9 @@ def one_year_hourly_available_capacity_factor(
             _spot_fix_great_lakes_columns(df)
             .pipe(_check_for_valid_counties, fips_df_census, df_name)
             .pipe(_add_time_cols, df_name)
+            .pipe(_stack_cap_fac_df, df_name)
             .pipe(_drop_city_cols, df_name)
             .pipe(_make_cap_fac_frac, df_name)
-            .pipe(_stack_cap_fac_df, df_name)
             .pipe(_clip_unexpected_2016_pv_capacity, df_name, year),
             table_name=_table_name(df_name),
             partitions={"year": year},
@@ -495,13 +510,13 @@ def out_vcerare__hourly_available_capacity_factor(
         transformed_tables = one_year_hourly_available_capacity_factor(
             year=year,
             fips_df_census=fips_df_census,
-            raw_vcerare__fixed_solar_pv_lat_upv=df_from_parquet(
+            raw_vcerare__fixed_solar_pv_lat_upv=lf_from_parquet(
                 raw_vcerare__fixed_solar_pv_lat_upv[year],
             ),
-            raw_vcerare__offshore_wind_power_140m=df_from_parquet(
+            raw_vcerare__offshore_wind_power_140m=lf_from_parquet(
                 raw_vcerare__offshore_wind_power_140m[year],
             ),
-            raw_vcerare__onshore_wind_power_100m=df_from_parquet(
+            raw_vcerare__onshore_wind_power_100m=lf_from_parquet(
                 raw_vcerare__onshore_wind_power_100m[year],
             ),
         )

@@ -19,6 +19,7 @@ from pathlib import Path
 
 import duckdb
 import pandas as pd
+import polars as pl
 from dagster import AssetOut, asset, multi_asset
 
 from pudl import logging_helpers
@@ -119,7 +120,7 @@ def raw_vcerare__lat_lon_fips(context) -> pd.DataFrame:
 
 
 @asset(required_resource_keys={"datastore", "global_data_config"})
-def raw_vcerare__county_profiles(context) -> pd.DataFrame:
+def raw_vcerare__county_profiles(context) -> pl.LazyFrame:
     """Extract county profiles Parquet file to Pandas DataFrame.
 
     These files began to be published by Pattern in 2024, and we prefer them to the CSV
@@ -138,9 +139,9 @@ def raw_vcerare__county_profiles(context) -> pd.DataFrame:
             ds.get_zipfile_resource(dataset="vcerare", year=year) as zf,
             zf.open(f"County_Capacity_Factors_{year}.parquet") as f,
         ):
-            df = pd.read_parquet(f)
+            df = pl.scan_parquet(f)
             dfs_list.append(df)
 
     if dfs_list:  # If files returned in the config
-        return pd.concat(dfs_list)
-    return pd.DataFrame()
+        return pl.concat(dfs_list)
+    return pl.LazyFrame()
