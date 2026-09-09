@@ -19,8 +19,12 @@ class PudlPaths(BaseSettings):
     variables. Other paths of relevance are derived from these.
     """
 
-    pudl_input: Path | str
-    pudl_output: Path | str
+    # Annotated as plain ``Path`` (not ``Path | str``) because ``normalize_paths``
+    # below runs in ``mode="before"`` and coerces whatever is passed -- string,
+    # relative path, etc. -- into an absolute ``Path`` before validation. Callers
+    # can still pass strings; downstream code always sees a ``Path``.
+    pudl_input: Path
+    pudl_output: Path
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     @field_validator("pudl_input", "pudl_output", mode="before")
