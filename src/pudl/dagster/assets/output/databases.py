@@ -356,6 +356,8 @@ def _write_pudl_db(
     try:
         for n, table_name in enumerate(table_names, start=1):
             logger.info(f"Writing {target.db_type} {n}/{n_tables} {table_name}")
+            # Kept outside the try/except because if we can't get the resource,
+            # that's a schema problem, not a data problem.
             resource = PUDL_PACKAGE.get_resource(table_name)
             try:
                 if target.check_primary_keys:
