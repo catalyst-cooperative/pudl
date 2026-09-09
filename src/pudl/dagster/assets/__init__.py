@@ -27,9 +27,8 @@ from pudl.dagster.assets.core import eiaapi_electricity, glue, static
 from pudl.dagster.assets.core.datapackage import build_pudl_datapackage_asset
 from pudl.dagster.assets.deploy import ferceqr as deploy_ferceqr
 from pudl.dagster.assets.output.databases import (
-    DUCKDB_TARGET,
-    SQLITE_TARGET,
-    build_pudl_db_asset,
+    build_pudl_duckdb_asset,
+    build_pudl_sqlite_asset,
 )
 from pudl.dagster.assets.raw import ferc_to_sqlite
 from pudl.metadata.classes import PUDL_PACKAGE
@@ -192,8 +191,8 @@ def _find_sql_asset_keys(assets) -> list[dg.AssetKey]:
 _sql_asset_keys = _find_sql_asset_keys(_base_assets)
 default_assets = _base_assets + [
     build_pudl_datapackage_asset(_find_parquet_asset_keys(_base_assets)),
-    build_pudl_db_asset(SQLITE_TARGET, _sql_asset_keys),
-    build_pudl_db_asset(DUCKDB_TARGET, _sql_asset_keys),
+    build_pudl_sqlite_asset(_sql_asset_keys),
+    build_pudl_duckdb_asset(_sql_asset_keys),
 ]
 
 

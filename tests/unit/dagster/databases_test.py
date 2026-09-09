@@ -1,7 +1,8 @@
 """Test the pudl_sqlite/pudl_duckdb assets that rebuild databases from Parquet."""
 
 import sqlite3
-from functools import partial
+from collections.abc import Callable, Generator, Sequence
+from contextlib import contextmanager
 from pathlib import Path
 
 import duckdb
@@ -11,19 +12,73 @@ import sqlalchemy as sa
 
 from pudl.dagster.assets.output.databases import (
     _DUCKDB_MAX_IDENTIFIER_LENGTH,
-    _SQLITE_ATTACH_ALIAS,
-    DUCKDB_TARGET,
-    SQLITE_TARGET,
     TableWriteErrorInfo,
     TableWriteReport,
     _copy_table,
-    _DatabaseTarget,
     _has_integer_rowid_alias_pk,
     _validate_primary_key,
-    _write_pudl_db,
+    _write_pudl_duckdb,
+    _write_pudl_sqlite,
 )
 from pudl.metadata.classes import Package, Resource
 from pudl.workspace.setup import PudlPaths
+
+DB_TYPES = ["sqlite", "duckdb"]
+"""The two database formats every cross-format test is parametrized over."""
+
+
+def _db_path(db_type: str, paths: PudlPaths) -> Path:
+    """Where the writer for ``db_type`` puts its output file."""
+    return (
+        paths.sqlite_path("pudl") if db_type == "sqlite" else paths.duckdb_path("pudl")
+    )
+
+
+def _write_db(
+    db_type: str, table_names: Sequence[str], paths: PudlPaths
+) -> TableWriteReport:
+    """Dispatch to the writer for ``db_type`` so parametrized tests stay terse."""
+    writer = _write_pudl_sqlite if db_type == "sqlite" else _write_pudl_duckdb
+    return writer(table_names, paths)
+
+
+@contextmanager
+def _destination(
+    db_type: str, paths: PudlPaths, package: Package
+) -> Generator[tuple[duckdb.DuckDBPyConnection, Callable[[str], str]]]:
+    """Create ``package``'s empty schema and open the connection ``_copy_table`` uses.
+
+    Mirrors the setup inside ``_write_pudl_sqlite`` / ``_write_pudl_duckdb`` so
+    ``_copy_table`` can be exercised in isolation: lay down the schema through a
+    throwaway SQLAlchemy engine, then yield the DuckDB connection the inserts run
+    through (in-memory with the SQLite file attached, or the DuckDB file directly) and
+    the function that quotes a destination table reference, closing the connection on
+    exit.
+    """
+    db_path = _db_path(db_type, paths)
+    engine = sa.create_engine(f"{db_type}:///{db_path}")
+    if db_type == "sqlite":
+        metadata = package.to_sql(
+            dialect="sqlite", check_types=False, check_values=False
+        )
+    else:
+        engine.dialect.max_identifier_length = _DUCKDB_MAX_IDENTIFIER_LENGTH
+        metadata = package.to_sql(dialect="duckdb", include_foreign_keys=False)
+    metadata.create_all(engine)
+    engine.dispose()
+
+    if db_type == "sqlite":
+        conn = duckdb.connect()
+        conn.execute("LOAD sqlite")
+        conn.execute(f"ATTACH '{db_path}' AS pudl_sqlite (TYPE sqlite)")
+        prefix = "pudl_sqlite."
+    else:
+        conn = duckdb.connect(str(db_path))
+        prefix = ""
+    try:
+        yield conn, lambda table: f'{prefix}"{table}"'
+    finally:
+        conn.close()
 
 
 @pytest.fixture
@@ -162,9 +217,9 @@ def _write_parquet(paths: PudlPaths, table_name: str, df: pd.DataFrame) -> None:
     df.to_parquet(paths.parquet_path(table_name))
 
 
-def _row_count(target: _DatabaseTarget, db_path: Path, table_name: str) -> int:
+def _row_count(db_type: str, db_path: Path, table_name: str) -> int:
     """Row count of ``table_name``, read back through a SQLAlchemy engine."""
-    engine = sa.create_engine(target.engine_url(db_path))
+    engine = sa.create_engine(f"{db_type}:///{db_path}")
     try:
         with engine.connect() as conn:
             return conn.exec_driver_sql(
@@ -292,13 +347,18 @@ def test_table_write_error_str_includes_debugging_context():
     [
         (
             TableWriteReport(
+                db_path=Path("pudl.sqlite"),
                 row_counts={"plant": 1},
                 errors=[TableWriteErrorInfo("utility", ValueError("bad primary key"))],
             ),
             ["1/2", "utility: ValueError: bad primary key"],
         ),
         (
-            TableWriteReport(row_counts={"utility": 1, "plant": 1}, errors=[]),
+            TableWriteReport(
+                db_path=Path("pudl.sqlite"),
+                row_counts={"utility": 1, "plant": 1},
+                errors=[],
+            ),
             ["Wrote all 2 table(s)."],
         ),
     ],
@@ -318,62 +378,9 @@ def test_table_write_report_summary(
 ################################################################################
 
 
-@pytest.fixture(params=["sqlite", "duckdb"])
-def backend(request: pytest.FixtureRequest) -> str:
-    """Parametrizes tests against both SQLite and DuckDB backends.
-
-    Tests below that depend indirectly or directly on the backend fixture will be
-    run against both sqlite and duckdb databases.
-    """
-    return request.param
-
-
-@pytest.fixture
-def target(backend: str) -> _DatabaseTarget:
-    return SQLITE_TARGET if backend == "sqlite" else DUCKDB_TARGET
-
-
-@pytest.fixture
-def write_db(target: _DatabaseTarget):
-    """``_write_pudl_db`` bound to the parametrized target."""
-    return partial(_write_pudl_db, target)
-
-
-@pytest.fixture
-def db_path(backend: str, tmp_path: Path) -> Path:
-    return tmp_path / f"pudl.{backend}"
-
-
-@pytest.fixture
-def db_conn(target: _DatabaseTarget, db_path: Path, test_pkg: Package, mocker):
-    """An open DuckDB connection writing into a freshly-created schema for ``target``.
-
-    Mirrors ``_write_pudl_db``'s setup: build the empty schema through a throwaway
-    SQLAlchemy engine, then open the DuckDB connection the inserts run through
-    (attaching the file for the SQLite target).
-    """
-    mocker.patch("pudl.dagster.assets.output.databases.PUDL_PACKAGE", test_pkg)
-    engine = sa.create_engine(target.engine_url(db_path))
-    if target.max_identifier_length is not None:
-        engine.dialect.max_identifier_length = target.max_identifier_length
-    target.build_metadata().create_all(engine)
-    engine.dispose()
-
-    conn = duckdb.connect() if target.attach_as_sqlite else duckdb.connect(str(db_path))
-    if target.attach_as_sqlite:
-        conn.execute("LOAD sqlite")
-        conn.execute(f"ATTACH '{db_path}' AS {_SQLITE_ATTACH_ALIAS} (TYPE sqlite)")
-    try:
-        yield conn
-    finally:
-        conn.close()
-
-
+@pytest.mark.parametrize("db_type", DB_TYPES)
 def test_copy_table_returns_row_count(
-    db_conn: duckdb.DuckDBPyConnection,
-    target: _DatabaseTarget,
-    paths: PudlPaths,
-    test_pkg: Package,
+    db_type: str, paths: PudlPaths, test_pkg: Package
 ):
     """The number of rows in the destination table after the insert is returned."""
     _write_parquet(
@@ -383,20 +390,19 @@ def test_copy_table_returns_row_count(
             {"utility_id_eia": [1, 2, 3], "utility_name_eia": ["A", "B", "C"]}
         ),
     )
-    row_count = _copy_table(
-        db_conn,
-        test_pkg.get_resource("utility"),
-        paths.parquet_path("utility"),
-        table_ref=target.table_ref("utility"),
-    )
+    with _destination(db_type, paths, test_pkg) as (conn, table_ref):
+        row_count = _copy_table(
+            conn,
+            test_pkg.get_resource("utility"),
+            paths.parquet_path("utility"),
+            table_ref=table_ref("utility"),
+        )
     assert row_count == 3
 
 
+@pytest.mark.parametrize("db_type", DB_TYPES)
 def test_copy_table_reports_constraint_violation_as_duckdb_error(
-    db_conn: duckdb.DuckDBPyConnection,
-    target: _DatabaseTarget,
-    paths: PudlPaths,
-    test_pkg: Package,
+    db_type: str, paths: PudlPaths, test_pkg: Package
 ):
     """A NOT NULL violation surfaces as duckdb.Error -- what _WRITE_EXCEPTIONS catches."""
     _write_parquet(
@@ -404,33 +410,37 @@ def test_copy_table_reports_constraint_violation_as_duckdb_error(
         "utility",
         pd.DataFrame({"utility_id_eia": [1], "utility_name_eia": [None]}),
     )
-    with pytest.raises(duckdb.Error, match="NOT NULL"):
+    with (
+        _destination(db_type, paths, test_pkg) as (conn, table_ref),
+        pytest.raises(duckdb.Error, match="NOT NULL"),
+    ):
         _copy_table(
-            db_conn,
+            conn,
             test_pkg.get_resource("utility"),
             paths.parquet_path("utility"),
-            table_ref=target.table_ref("utility"),
+            table_ref=table_ref("utility"),
         )
 
 
+@pytest.mark.parametrize("db_type", DB_TYPES)
 def test_copy_table_missing_column_raises_binder_error(
-    db_conn: duckdb.DuckDBPyConnection,
-    target: _DatabaseTarget,
-    paths: PudlPaths,
-    test_pkg: Package,
+    db_type: str, paths: PudlPaths, test_pkg: Package
 ):
     """A Parquet file missing a declared column raises a DuckDB binder error.
 
     ``duckdb.BinderException`` is a ``duckdb.Error`` subclass, so a schema mismatch
-    is caught per-table by ``_write_pudl_db`` rather than aborting the run.
+    is caught per-table by the writers rather than aborting the run.
     """
     _write_parquet(paths, "utility", pd.DataFrame({"utility_id_eia": [1]}))
-    with pytest.raises(duckdb.BinderException, match="utility_name_eia"):
+    with (
+        _destination(db_type, paths, test_pkg) as (conn, table_ref),
+        pytest.raises(duckdb.BinderException, match="utility_name_eia"),
+    ):
         _copy_table(
-            db_conn,
+            conn,
             test_pkg.get_resource("utility"),
             paths.parquet_path("utility"),
-            table_ref=target.table_ref("utility"),
+            table_ref=table_ref("utility"),
         )
 
 
@@ -466,11 +476,11 @@ def test_duckdb_schema_shares_enum_type_across_tables(test_pkg: Package):
 
 
 def test_duckdb_build_persists_enum_constraint(
-    paths: PudlPaths, tmp_path: Path, test_pkg: Package, mocker
+    paths: PudlPaths, test_pkg: Package, mocker
 ):
     """An enum-constrained column lands in the built pudl.duckdb as a real ENUM.
 
-    Runs the full _write_pudl_db path (SQLAlchemy create_all + DuckDB inserts) and
+    Runs the full _write_pudl_duckdb path (SQLAlchemy create_all + DuckDB inserts) and
     then reopens the file with the native DuckDB API -- the way downstream users do
     -- to confirm sa.Enum compiled to an enforced ENUM column rather than being
     silently dropped to VARCHAR by duckdb-engine. Also shows the enum values land in
@@ -484,18 +494,19 @@ def test_duckdb_build_persists_enum_constraint(
             {"id": [1, 2], "operational_status_code": ["retired", "existing"]}
         ),
     )
-    db_path = tmp_path / "pudl.duckdb"
 
-    report = _write_pudl_db(DUCKDB_TARGET, db_path, ["generator_status"], paths=paths)
+    report = _write_pudl_duckdb(["generator_status"], paths)
     assert report.errors == []
+    db_path = report.db_path
 
     with duckdb.connect(str(db_path), read_only=True) as conn:
-        (data_type,) = conn.execute(
+        row = conn.execute(
             "SELECT data_type FROM information_schema.columns "
             "WHERE table_name = 'generator_status' "
             "AND column_name = 'operational_status_code'"
         ).fetchone()
-    assert data_type == "ENUM('existing', 'retired')"
+    assert row is not None
+    assert row[0] == "ENUM('existing', 'retired')"
 
     with duckdb.connect(str(db_path)) as conn, pytest.raises(duckdb.Error):
         conn.execute("INSERT INTO generator_status VALUES (3, 'bogus')")
@@ -506,10 +517,9 @@ def test_duckdb_build_persists_enum_constraint(
 ################################################################################
 
 
+@pytest.mark.parametrize("db_type", DB_TYPES)
 def test_write_pudl_db_end_to_end(
-    write_db,
-    target: _DatabaseTarget,
-    db_path: Path,
+    db_type: str,
     paths: PudlPaths,
     test_pkg: Package,
     mocker,
@@ -533,19 +543,18 @@ def test_write_pudl_db_end_to_end(
         ),
     )
 
-    report = write_db(db_path, ["utility", "plant"], paths=paths)
+    report = _write_db(db_type, ["utility", "plant"], paths)
 
     assert report.row_counts == {"utility": 2, "plant": 2}
     assert report.errors == []
-    assert db_path.exists()
-    assert _row_count(target, db_path, "utility") == 2
-    assert _row_count(target, db_path, "plant") == 2
+    assert report.db_path.exists()
+    assert _row_count(db_type, report.db_path, "utility") == 2
+    assert _row_count(db_type, report.db_path, "plant") == 2
 
 
+@pytest.mark.parametrize("db_type", DB_TYPES)
 def test_write_pudl_db_replaces_existing_file(
-    write_db,
-    target: _DatabaseTarget,
-    db_path: Path,
+    db_type: str,
     paths: PudlPaths,
     test_pkg: Package,
     mocker,
@@ -557,18 +566,17 @@ def test_write_pudl_db_replaces_existing_file(
         "utility",
         pd.DataFrame({"utility_id_eia": [1], "utility_name_eia": ["A"]}),
     )
-    db_path.write_text("not a real database file")
+    _db_path(db_type, paths).write_text("not a real database file")
 
-    report = write_db(db_path, ["utility"], paths=paths)
+    report = _write_db(db_type, ["utility"], paths)
 
     assert report.errors == []
-    assert _row_count(target, db_path, "utility") == 1
+    assert _row_count(db_type, report.db_path, "utility") == 1
 
 
+@pytest.mark.parametrize("db_type", DB_TYPES)
 def test_write_pudl_db_continues_past_failing_table(
-    write_db,
-    target: _DatabaseTarget,
-    db_path: Path,
+    db_type: str,
     paths: PudlPaths,
     test_pkg: Package,
     mocker,
@@ -594,11 +602,11 @@ def test_write_pudl_db_continues_past_failing_table(
         ),
     )
 
-    report = write_db(db_path, ["utility", "plant"], paths=paths)
+    report = _write_db(db_type, ["utility", "plant"], paths)
 
     assert report.row_counts == {"plant": 1}
     assert report.failed_tables == ["utility"]
     assert len(report.errors) == 1
     assert isinstance(report.errors[0].exception, duckdb.Error)
-    assert _row_count(target, db_path, "plant") == 1
-    assert _row_count(target, db_path, "utility") == 0
+    assert _row_count(db_type, report.db_path, "plant") == 1
+    assert _row_count(db_type, report.db_path, "utility") == 0
