@@ -465,8 +465,30 @@ def extract_ferceqr(
         "rejected_record_counts": rejected_record_counts,
     }
     logger.info(f"Extraction summary for {year_quarter}: {extraction_stats}")
+
+    # Duplicate the same numbers as individual scalar metadata entries, in addition to
+    # the single JSON blob above: Dagster's UI can only auto-plot a metric's trend
+    # across a partitioned asset's materializations (its "Plots" tab) from top-level
+    # int/float metadata values, not from fields nested inside a JSON blob.
+    scalar_metadata = {
+        "total_filings": dg.MetadataValue.int(len(filing_names)),
+        "corrupt_filings": dg.MetadataValue.int(corrupt_filing_count),
+        **{
+            f"table_file_count_{table_type}": dg.MetadataValue.int(count)
+            for table_type, count in table_file_counts.items()
+        },
+        **{
+            f"rejected_records_{reason.lower().replace(' ', '_')}": dg.MetadataValue.int(
+                count
+            )
+            for reason, count in rejected_record_counts.items()
+        },
+    }
     context.add_output_metadata(
-        metadata={"extraction_stats": dg.MetadataValue.json(extraction_stats)},
+        metadata={
+            "extraction_stats": dg.MetadataValue.json(extraction_stats),
+            **scalar_metadata,
+        },
         output_name="raw_ferceqr__extract_errors",
     )
 

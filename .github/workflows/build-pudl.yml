@@ -2,6 +2,17 @@
 name: build-pudl
 on:
   workflow_dispatch:
+    inputs:
+      deploy_to_gcs:
+        type: boolean
+        description: "Deploy build outputs to GCS? (branch builds only)"
+        required: false
+        default: true
+      deploy_to_s3:
+        type: boolean
+        description: "Deploy build outputs to S3? (branch builds only; S3 egress fees are large)"
+        required: false
+        default: false
   push:
     tags:
       # Run a build when a stable tag is pushed. If a build has already been run
@@ -19,6 +30,10 @@ env:
   SKIP_BUILD: "false"
   GIT_TAG: ""
   BUILD_ID: ""
+  # Nightly and stable builds always deploy to both targets; branch builds
+  # (workflow_dispatch) override these from the workflow inputs below.
+  DEPLOY_TO_GCS: "true"
+  DEPLOY_TO_S3: "true"
 
 jobs:
   build_and_deploy_pudl:
@@ -56,9 +71,13 @@ jobs:
               echo "DEPLOYMENT_ENVIRONMENT=production" >> "$GITHUB_ENV"
               BUILD_ID_RAW="nightly-$BUILD_ID_SUFFIX"
           elif [[ ${{ github.event_name }} == "workflow_dispatch" ]]; then
-              echo "DEPLOYMENT_ENVIRONMENT=staging" >> "$GITHUB_ENV"
               BUILD_ID_RAW="branch-$BUILD_ID_SUFFIX"
-              echo "GIT_TAG=$BUILD_ID_RAW" >> "$GITHUB_ENV"
+              {
+                echo "DEPLOYMENT_ENVIRONMENT=staging"
+                echo "DEPLOY_TO_GCS=${{ inputs.deploy_to_gcs }}"
+                echo "DEPLOY_TO_S3=${{ inputs.deploy_to_s3 }}"
+                echo "GIT_TAG=$BUILD_ID_RAW"
+              } >> "$GITHUB_ENV"
           elif [[ ${{ github.event_name }} == "push" ]]; then
               echo "GIT_TAG=${{ github.ref_name }}" >>  "$GITHUB_ENV"
               echo "DEPLOYMENT_ENVIRONMENT=production" >> "$GITHUB_ENV"
@@ -73,6 +92,8 @@ jobs:
           echo "GIT_TAG: $GIT_TAG"
           echo "BUILD_ID: $BUILD_ID"
           echo "DEPLOYMENT_ENVIRONMENT: $DEPLOYMENT_ENVIRONMENT"
+          echo "DEPLOY_TO_GCS: $DEPLOY_TO_GCS"
+          echo "DEPLOY_TO_S3: $DEPLOY_TO_S3"
 
       - name: Tag build
         if: ${{ (env.SKIP_BUILD != 'true') && (github.event_name != 'push') }}
@@ -172,6 +193,8 @@ jobs:
             --container-env BUILD_ID=${{ env.BUILD_ID }} \
             --container-env BUILD_REF=${{ github.ref_name }} \
             --container-env DEPLOYMENT_ENVIRONMENT=${{ env.DEPLOYMENT_ENVIRONMENT }} \
+            --container-env DEPLOY_TO_GCS=${{ env.DEPLOY_TO_GCS }} \
+            --container-env DEPLOY_TO_S3=${{ env.DEPLOY_TO_S3 }} \
             --container-env GCP_BILLING_PROJECT=${{ secrets.GCP_BILLING_PROJECT }} \
             --container-env GITHUB_ACTION_TRIGGER=${{ github.event_name }} \
             --container-env GIT_TAG=${{ env.GIT_TAG }} \

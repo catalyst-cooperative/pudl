@@ -39,6 +39,8 @@ EIA-923
   :ref:`out_eia923__yearly_energy_storage` providing monthly and yearly aggregations.
   All three include plant and utility metadata. See issue :issue:`4311` and PR
   :pr:`5489`.
+* Extracted the unprocessed ``raw_eia923__source_and_disposition`` table for further
+  future cleaning, see PR :pr:`5546`. Thanks to contributor :user:`giovannicozzolongo`!
 
 EPA CEMS
 ~~~~~~~~
@@ -52,9 +54,23 @@ EPA CEMS
   available for all reporting states rather than just California. The output is
   experimental and marked accordingly, since we are soliciting feedback from the
   community on the underlying methodology. See issue :issue:`5106` and PR :pr:`5190`.
+* :ref:`out_epacems__yearly_operational_characteristics` now reports these estimates for
+  every calendar year with a full three-year trailing window of usable EPA CEMS data,
+  rather than only the most recent year, going back to 2000 (EPA CEMS's first three
+  reporting years, 1995-1997, are excluded due to known poor unit coverage). Also
+  recalibrated the associated dbt data validations against physically grounded bounds
+  (e.g. the 3.412 MMBtu/MWh thermodynamic floor on heat rates, and the exact trailing
+  window length as an upper bound on minimum up/down times) rather than thresholds fit
+  to a single year of data. See PR :pr:`5474`.
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
+
+NREL ATB
+~~~~~~~~
+
+* Updated the NREL ATB extractor and transformer to accommodate changes to the 2024
+  data and format. See issue :issue:`5467` and PR :pr:`5513`.
 
 EIA-861
 ~~~~~~~
@@ -68,11 +84,19 @@ PHMSA
 * Added the ``core_phmsagas__yearly_distribution_by_install_decade`` table, which
   reports :doc:`PHMSA <data_sources/phmsagas>` gas distribution mains miles and
   services by installation decade. See issue :issue:`5266` and PR :pr:`5443`.
+* Added 2025 distribution and transmission data for
+  :doc:`PHMSA <data_sources/phmsagas>`. See issue :issue:`5504` and :pr:`5548`.
 
 FERC EQR
 ~~~~~~~~
 
 * Added full 2026Q2 data for :doc:`FERC EQR <data_sources/ferceqr>`. See PR :pr:`5442`.
+
+EIA-860M
+~~~~~~~~
+
+* Added :doc:`EIA-860M <data_sources/eia860>` data through July 2026. See
+  issue :issue:`5549` and PR :pr:`5547`.
 
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -140,6 +164,10 @@ Bug Fixes & Data Cleaning
 * Changed ``subplant_id`` in :ref:`core_epa__assn_eia_epacamd_subplant_ids` to be
   1-indexed instead of 0-indexed within each ``plant_id_eia``, so the first subplant at
   a plant is now ``1`` rather than ``0``. See issue :issue:`5499` and PR :pr:`5541`.
+* Retired the interim output ``_core_phmsagas__yearly_distribution_by_install_decade``,
+  which was replaced by the cleaned and validated
+  :ref:`core_phmsagas__yearly_distribution_by_install_decade`. See :issue:`5504` and
+  :pr:`5548`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -152,6 +180,12 @@ Performance Improvements
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^
 
+* Added ``ferceqr_pipeline_diagnostics``, a metadata-only Dagster asset that
+  compiles the extraction stats and schema-check results already recorded for
+  every :doc:`FERC EQR <data_sources/ferceqr>` quarter into one wide table, so
+  anomalies like missing tables, rejected records, or primary-key violations
+  are visible across the whole backfill without opening each quarter's
+  materialization individually. See PR :pr:`5457`.
 * Reworked how the Google Batch jobs launched by the ``build-pudl``,
   ``deploy-pudl``, and ``build-deploy-ferceqr`` GitHub workflows are configured. The
   Batch config generator moved from ``devtools/`` into the package as the
@@ -161,6 +195,15 @@ Developer Experience
   so a shared Cloud Monitoring dashboard can filter resource-usage metrics by
   pipeline. VM sizes and the ETL's process and thread parallelism were tuned to
   match measured resource usage and stop oversubscribing the CPUs. See :pr:`5545`.
+* Branch builds (``build-pudl`` runs triggered via ``workflow_dispatch``) now skip
+  the S3 deployment by default and only deploy to GCS. S3 egress fees cost more than
+  a full ETL run, and the nightly build already exercises the real S3 deployment
+  every night. The ``build-pudl`` and ``deploy-pudl`` workflow-dispatch forms expose
+  ``deploy_to_gcs`` / ``deploy_to_s3`` checkboxes to override this per run, and when
+  neither target is enabled ``build-pudl`` skips triggering ``deploy-pudl``
+  altogether (e.g. a build run only to regenerate row counts). Nightly and stable
+  deployments are unchanged and still deploy to both. See issue :issue:`5557` and PR
+  :pr:`5558`.
 * Fixed several issues with how ``dbt_helper update-tables`` renders ``schema.yml``
   (:mod:`pudl.dbt_schema`): long ``description:`` fields are now wrapped into readable
   paragraph blocks and strings that need quoting prefer double quotes. This now matches
