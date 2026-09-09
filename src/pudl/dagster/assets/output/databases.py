@@ -255,8 +255,8 @@ class _DatabaseTarget:
     def db_path(self, paths: PudlPaths) -> Path:
         """Where the database file lives, given the workspace paths."""
         if self.db_type == "sqlite":
-            return paths.sqlite_db_path("pudl")
-        return paths.duckdb_db_path("pudl")
+            return paths.sqlite_path("pudl")
+        return paths.duckdb_path("pudl")
 
     def build_metadata(self) -> sa.MetaData:
         """Build the empty-schema ``MetaData`` for this database.

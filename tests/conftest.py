@@ -746,7 +746,7 @@ def pudl_sqlite_connection(
     """
     conn = duckdb.connect()
     conn.execute(
-        f"ATTACH '{pudl_test_paths.sqlite_db_path('pudl')}' AS pudl "
+        f"ATTACH '{pudl_test_paths.sqlite_path('pudl')}' AS pudl "
         "(TYPE sqlite, READ_ONLY); USE pudl;"
     )
     try:
@@ -767,7 +767,7 @@ def pudl_duckdb_connection(
     SQLAlchemy is used only to create the empty schema, never to read or write rows).
     Opened read-only since tests should never mutate the shared build output.
     """
-    conn = duckdb.connect(str(pudl_test_paths.duckdb_db_path("pudl")), read_only=True)
+    conn = duckdb.connect(str(pudl_test_paths.duckdb_path("pudl")), read_only=True)
     try:
         yield conn
     finally:

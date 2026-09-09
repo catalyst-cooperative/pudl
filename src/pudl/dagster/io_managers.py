@@ -190,7 +190,7 @@ class FercSqliteIOManagerBase(dg.ConfigurableIOManager):
     @property
     def db_path(self) -> Path:
         """Return the canonical SQLite path for this dataset and data format."""
-        return self.pudl_paths.sqlite_db_path(self.db_name)
+        return self.pudl_paths.sqlite_path(self.db_name)
 
     @property
     def engine(self) -> sa.Engine:
