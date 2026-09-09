@@ -14,7 +14,7 @@ from pudl.dagster.assets.output.databases import (
     _SQLITE_ATTACH_ALIAS,
     DUCKDB_TARGET,
     SQLITE_TARGET,
-    TableWriteError,
+    TableWriteErrorInfo,
     TableWriteReport,
     _copy_table,
     _DatabaseTarget,
@@ -200,12 +200,8 @@ def test_validate_primary_key_wraps_check_primary_key_errors(
 ):
     """Errors from resource.check_primary_key() are wrapped in a ValueError.
 
-    resource.check_primary_key()'s own detection logic -- null vs. duplicate values,
-    chunking, the polars/pandas backends -- is already covered by
-    tests/unit/metadata/metadata_test.py, so it isn't re-tested here. This only
-    confirms that _validate_primary_key runs that check for a ROWID-alias primary
-    key and re-raises whatever it finds as a ValueError naming the resource, which is
-    the part of the wrapper that's actually ours.
+    check_primary_key() behavior is tested in tests/unit/metadata/metadata_test.py, this
+    only checks that the error is properly wrapped/attributed to the right table.
     """
     _write_parquet(
         paths,
@@ -287,7 +283,7 @@ def test_pudl_sqlite_schema_uses_bigint_for_integer_fields(test_pkg: Package):
 
 def test_table_write_error_str_includes_debugging_context():
     """The error string identifies the table, exception type, and message."""
-    error = TableWriteError("utility", ValueError("bad primary key"))
+    error = TableWriteErrorInfo("utility", ValueError("bad primary key"))
     assert str(error) == "utility: ValueError: bad primary key"
 
 
@@ -297,7 +293,7 @@ def test_table_write_error_str_includes_debugging_context():
         (
             TableWriteReport(
                 row_counts={"plant": 1},
-                errors=[TableWriteError("utility", ValueError("bad primary key"))],
+                errors=[TableWriteErrorInfo("utility", ValueError("bad primary key"))],
             ),
             ["1/2", "utility: ValueError: bad primary key"],
         ),

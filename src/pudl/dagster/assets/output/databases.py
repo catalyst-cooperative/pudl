@@ -49,7 +49,7 @@ Required because duckdb-engine's SQLAlchemy dialect subclasses postgresql's, inh
 
 
 @dataclass
-class TableWriteError:
+class TableWriteErrorInfo:
     """A single table's failed write: which table, and the exception that stopped it."""
 
     table_name: str
@@ -68,8 +68,8 @@ class TableWriteReport:
 
     row_counts: dict[str, int] = field(default_factory=dict)
     """Mapping of table name to number of rows written, per successfully written table."""
-    errors: list[TableWriteError] = field(default_factory=list)
-    """One :class:`TableWriteError` per failed table, in the order they failed."""
+    errors: list[TableWriteErrorInfo] = field(default_factory=list)
+    """One :class:`TableWriteErrorInfo` per failed table, in the order they failed."""
 
     @property
     def failed_tables(self) -> list[str]:
@@ -331,7 +331,7 @@ def _write_pudl_db(
 
     Returns:
         A :class:`TableWriteReport` recording the row count for every table that
-        wrote successfully and a :class:`TableWriteError` for every one that didn't.
+        wrote successfully and a :class:`TableWriteErrorInfo` for every one that didn't.
     """
     paths = paths or PudlPaths()
     db_path.parent.mkdir(parents=True, exist_ok=True)
@@ -370,7 +370,7 @@ def _write_pudl_db(
                 )
             except _WRITE_EXCEPTIONS as exc:
                 logger.error(f"Failed to write {table_name} to {target.db_type}: {exc}")
-                report.errors.append(TableWriteError(table_name, exc))
+                report.errors.append(TableWriteErrorInfo(table_name, exc))
     finally:
         if target.attach_as_sqlite:
             conn.execute(f"DETACH {_SQLITE_ATTACH_ALIAS}")
@@ -433,7 +433,7 @@ def build_pudl_db_asset(
 __all__ = [
     "DUCKDB_TARGET",
     "SQLITE_TARGET",
-    "TableWriteError",
+    "TableWriteErrorInfo",
     "TableWriteReport",
     "build_pudl_db_asset",
 ]

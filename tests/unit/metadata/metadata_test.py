@@ -263,13 +263,8 @@ def test_field_to_sql_duckdb_same_name_different_enum_values_get_distinct_types(
     """Two fields sharing a name but not their enum values must not share a type.
 
     Regression test: PUDL reuses field names like "plant_type" across many resources
-    with resource-specific enum overrides (see FIELD_METADATA_BY_RESOURCE) that don't
-    all share the same allowed values. Naming the DuckDB ENUM type after the field name
-    alone caused whichever resource's column got created first to "win" -- every other
-    table with the same field name but different values then failed to load, since its
-    real values weren't members of the first table's enum type. Caught via a real
-    Dagster pudl_duckdb run (e.g. "combined_cycle" is a valid "plant_type" value in some
-    FERC1 resources but not in the RUS12 resources that also use that field name).
+    without sharing the same values. Each table should be constrained to their
+    *own* "plant_type", e.g. you shouldn't be able to put "steam" in a hydro table.
     """
     hydro_plant_type = Field(
         name="plant_type",
@@ -293,9 +288,6 @@ def test_field_to_sql_duckdb_same_name_different_enum_values_get_distinct_types(
         metadata.create_all(engine)
         with engine.begin() as conn:
             conn.execute(sa.text("INSERT INTO hydro_plants VALUES ('hydro')"))
-            # This is exactly the failure mode from the real bug: a value that's
-            # valid for fossil_plants' enum, but not hydro_plants', would have
-            # silently been checked against the wrong (first-created) type.
             conn.execute(sa.text("INSERT INTO fossil_plants VALUES ('combined_cycle')"))
             with pytest.raises(sa.exc.DBAPIError):
                 conn.execute(sa.text("INSERT INTO hydro_plants VALUES ('steam')"))

@@ -5,7 +5,7 @@ import pytest
 
 from pudl.helpers import get_parquet_table
 
-REQUIRED_TABLES = (
+EXPECTED_TABLES = (
     "core_pudl__entity_plants_pudl",
     "core_pudl__entity_utilities_pudl",
 )
@@ -19,7 +19,7 @@ def test_pudl_parquet_outputs():
     Foreign key validation lives in a separate data-validation test so the nightly
     build can report it independently from the rest of the integration suite.
     """
-    for table_name in REQUIRED_TABLES:
+    for table_name in EXPECTED_TABLES:
         df = get_parquet_table(table_name)
         assert not df.empty, f"Expected {table_name} to contain data."
 
@@ -34,12 +34,15 @@ def test_pudl_sqlite_connection(pudl_sqlite_connection: duckdb.DuckDBPyConnectio
             "WHERE table_schema = 'main'"
         ).fetchall()
     }
-    for table_name in REQUIRED_TABLES:
+    for table_name in EXPECTED_TABLES:
         assert table_name in table_names
-        first_row = pudl_sqlite_connection.execute(
-            f'SELECT 1 FROM "{table_name}" LIMIT 1'  # noqa: S608
-        ).fetchone()
-        assert first_row is not None, f"Expected {table_name} to contain data."
+        first_row_exists = (
+            pudl_sqlite_connection.execute(
+                f'SELECT 1 FROM "{table_name}" LIMIT 1'  # noqa: S608
+            ).fetchone()
+            is not None
+        )
+        assert first_row_exists, f"Expected {table_name} to contain data."
 
 
 @pytest.mark.order(2)
@@ -57,12 +60,15 @@ def test_pudl_duckdb_connection(pudl_duckdb_connection: duckdb.DuckDBPyConnectio
             "WHERE table_schema = 'main'"
         ).fetchall()
     }
-    for table_name in REQUIRED_TABLES:
+    for table_name in EXPECTED_TABLES:
         assert table_name in table_names
-        first_row = pudl_duckdb_connection.execute(
-            f'SELECT 1 FROM "{table_name}" LIMIT 1'  # noqa: S608
-        ).fetchone()
-        assert first_row is not None, f"Expected {table_name} to contain data."
+        first_row_exists = (
+            pudl_duckdb_connection.execute(
+                f'SELECT 1 FROM "{table_name}" LIMIT 1'  # noqa: S608
+            ).fetchone()
+            is not None
+        )
+        assert first_row_exists, f"Expected {table_name} to contain data."
 
         table_comment_row = pudl_duckdb_connection.execute(
             "SELECT comment FROM duckdb_tables() WHERE table_name = ?", [table_name]
