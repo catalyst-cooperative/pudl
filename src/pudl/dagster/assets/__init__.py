@@ -170,13 +170,23 @@ def _find_parquet_asset_keys(assets) -> list[dg.AssetKey]:
 
 
 def _find_sql_asset_keys(assets) -> list[dg.AssetKey]:
-    """Return the subset of parquet asset keys that refer to SQL tables."""
-    sql_table_names = [t.name for t in PUDL_PACKAGE.to_sql().sorted_tables]
-    return [
-        key
-        for key in _find_parquet_asset_keys(assets)
-        if key.path[-1] in sql_table_names
-    ]
+    """Return the parquet asset keys for tables written to pudl.sqlite / pudl.duckdb.
+
+    Keys are returned topologically sorted by foreign key dependency. That ordering only
+    holds because ``to_sql()`` includes foreign keys by default. Every SQL table must
+    also be materialized as a Parquet file, since the databases are built directly from
+    the Parquet outputs. Otherwise this raises at import time.
+    """
+    parquet_key_by_table = {
+        key.path[-1]: key for key in _find_parquet_asset_keys(assets)
+    }
+    sql_tables = [table.name for table in PUDL_PACKAGE.to_sql().sorted_tables]
+    if missing := set(sql_tables) - parquet_key_by_table.keys():
+        raise ValueError(
+            "Every table with create_database_schema=True must be written to a "
+            f"Parquet file, but these have no Parquet-writing asset: {sorted(missing)}"
+        )
+    return [parquet_key_by_table[table] for table in sql_tables]
 
 
 _sql_asset_keys = _find_sql_asset_keys(_base_assets)
