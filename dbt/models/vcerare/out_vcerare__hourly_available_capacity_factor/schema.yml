@@ -42,6 +42,8 @@ sources:
                   arguments:
                     value_set:
                       - "{{ dbt_date.date(2020, 12, 31) }}"
+                      - "{{ dbt_date.date(2024, 12, 31) }}"
+                  description: "Check that leap years are treated as expected (December 31st not reported)."
           - name: report_year
             data_tests:
               - not_null

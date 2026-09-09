@@ -24,7 +24,6 @@ from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
-
 def _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips: pd.DataFrame) -> pd.DataFrame:
     """Prep the lat_long_fips table to merge into the capacity factor tables.
 
@@ -130,7 +129,7 @@ def _add_time_cols(df: pd.DataFrame, df_name: str) -> pd.DataFrame:
     purposes. The report_year column is also helpful for filtering,
     so we keep all three!
 
-    For leap years (2020), December 31st is excluded.
+    For leap years (2020, 2024), December 31st is excluded.
     """
     logger.info(f"Adding time columns for {df_name} table")
     df.report_year = df.report_year.astype(int)  # Ensure this is getting read as an int
