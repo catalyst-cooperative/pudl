@@ -31,6 +31,7 @@ sources:
                   - other_fuel
                 total_label: total_fuel
                 tolerance: 10
+                minimum_total_coverage: 0.9
               row_condition: plant_type == 'steam'
               description: Check that steam fuel subcomponents sum to total.
           - subcomponents_sum_to_total:
@@ -49,6 +50,7 @@ sources:
                   - other_fuel
                 total_label: total_fuel
                 tolerance: 10
+                minimum_total_coverage: 0.9
               row_condition: plant_type IN ('internal_combustion', 'combined_cycle')
               description: Check that IC and CC fuel subcomponents sum to total.
           - subcomponents_sum_to_total:
@@ -69,6 +71,7 @@ sources:
                   - less_fuel_acquisition_adjustment
                 total_label: net_fuel
                 tolerance: 10
+                minimum_total_coverage: 0.9
               row_condition: plant_type == 'nuclear'
               description: Check that nuclear fuel less the acquisition adjustment sums to net fuel.
           # CALCULATE NON-FUEL OPERATION COST SUBTOTALS BY PLANT TYPE
@@ -90,6 +93,7 @@ sources:
                   - rents
                 total_label: non_fuels_subtotal
                 tolerance: 10
+                minimum_total_coverage: 0.9
               row_condition: plant_type == 'steam'
               description: Check that steam non-fuel subcomponents sum to the non-fuels subtotal.
           - subcomponents_sum_to_total:
@@ -112,6 +116,7 @@ sources:
                   - rents
                 total_label: non_fuels_subtotal
                 tolerance: 10
+                minimum_total_coverage: 0.9
               row_condition: plant_type == 'combined_cycle'
               description: Check that CC non-fuel subcomponents sum to the non-fuels subtotal.
           - subcomponents_sum_to_total:
@@ -130,6 +135,7 @@ sources:
                   - rents
                 total_label: non_fuels_subtotal
                 tolerance: 10
+                minimum_total_coverage: 0.9
               row_condition: plant_type == 'internal_combustion'
               description: Check that IC non-fuel subcomponents sum to the non-fuels subtotal.
           # CALCULATE OPERATIONS COST TOTALS BY PLANT TYPE
@@ -147,6 +153,7 @@ sources:
                   - non_fuels_subtotal
                 total_label: operations_total
                 tolerance: 10
+                minimum_total_coverage: 0.9
               row_condition: plant_type IN ('steam', 'internal_combustion', 'combined_cycle')
               description: Check that steam, IC and CC operation subcomponents sum to total.
           - subcomponents_sum_to_total:
@@ -168,6 +175,7 @@ sources:
                   - rents
                 total_label: operations_total
                 tolerance: 10
+                minimum_total_coverage: 0.9
               row_condition: plant_type == 'hydro'
               description: Check that hydro operation subcomponents sum to total.
           - subcomponents_sum_to_total:
@@ -190,6 +198,7 @@ sources:
                   - rents
                 total_label: operations_total
                 tolerance: 10
+                minimum_total_coverage: 0.9
               row_condition: plant_type == 'nuclear'
               description: Check that nuclear operation subcomponents sum to total.
           # CALCULATE MAINTENANCE COST TOTALS BY PLANT TYPE
@@ -210,6 +219,7 @@ sources:
                   - maintenance_other_plant
                 total_label: maintenance_total
                 tolerance: 10
+                minimum_total_coverage: 0.9
               row_condition: plant_type == 'steam'
               description: Check that steam maintenance subcomponents sum to total.
           - subcomponents_sum_to_total:
@@ -229,6 +239,7 @@ sources:
                   - maintenance_miscellaneous_plant
                 total_label: maintenance_total
                 tolerance: 10
+                minimum_total_coverage: 0.9
               row_condition: plant_type == 'hydro'
               description: Check that hydro maintenance subcomponents sum to total.
           - subcomponents_sum_to_total:
@@ -248,6 +259,7 @@ sources:
                   - maintenance_other_plant
                 total_label: maintenance_total
                 tolerance: 10
+                minimum_total_coverage: 0.9
               row_condition: plant_type == 'nuclear'
               description: Check that nuclear maintenance subcomponents sum to total.
           - subcomponents_sum_to_total:
@@ -266,6 +278,7 @@ sources:
                   - maintenance_other_plant
                 total_label: maintenance_total
                 tolerance: 10
+                minimum_total_coverage: 0.9
               row_condition: plant_type IN ('internal_combustion', 'combined_cycle')
               description: Check that IC and CC maintenance subcomponents sum to total.
           # CALCULATE TOTAL OPERATIONS AND MAINTENANCE COSTS
@@ -288,6 +301,7 @@ sources:
                   - reactor_credits
                 total_label: total
                 tolerance: 10
+                minimum_total_coverage: 0.9
               description: Check that operations and maintenance totals sum to total opex.
           # CALCULATE TOTAL FIXED COSTS
           - subcomponents_sum_to_total:
@@ -304,6 +318,7 @@ sources:
                   - interest
                 total_label: total_fixed
                 tolerance: 10
+                minimum_total_coverage: 0.9
               row_condition: cost_group == 'capex'
               description: Check that fixed cost subcomponents sum to total fixed costs.
           # CALCULATE TOTAL POWER COSTS ACROSS COST GROUPS
@@ -329,6 +344,7 @@ sources:
                   - [capex, plant_acquisition_adjustment]
                 total_label: [total, power]
                 tolerance: 10
+                minimum_total_coverage: 0.9
               description: Check that opex and fixed cost totals sum to total power costs.
         columns:
           - name: cost

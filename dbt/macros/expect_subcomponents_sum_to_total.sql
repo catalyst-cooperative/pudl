@@ -39,7 +39,8 @@
     tolerance=0.01,
     row_condition=None,
     subcomponents_list=None,
-    negative_subcomponents_list=None
+    negative_subcomponents_list=None,
+    minimum_total_coverage=None
 ) %}
 
 {#- Argument documentation lives in dbt/macros/schema.yml. -#}
@@ -106,6 +107,28 @@ SELECT *
 FROM summary
 WHERE ABS(subcomponents_sum - grand_total) > {{ tolerance }}
 
+{% if minimum_total_coverage is not none %}
+UNION ALL
+
+-- Groups with subcomponents but no matching total record are skipped by the
+-- comparison above, because comparing against a NULL grand_total is never
+-- true. That means a total_label that doesn't match the data (a typo, or a
+-- renamed category in a future data update) passes silently. When the
+-- fraction of groups (among those with matching subcomponents) that also
+-- have a total record falls below minimum_total_coverage, return the
+-- missing-total groups as failures.
+SELECT *
+FROM summary
+WHERE subcomponents_sum IS NOT NULL
+    AND grand_total IS NULL
+    AND (
+        SELECT COUNT(*) FILTER (WHERE grand_total IS NOT NULL)
+            < {{ minimum_total_coverage }} * COUNT(*)
+        FROM summary
+        WHERE subcomponents_sum IS NOT NULL
+    )
+{% endif %}
+
 {% endmacro %}
 
 {% test subcomponents_sum_to_total(
@@ -117,7 +140,8 @@ WHERE ABS(subcomponents_sum - grand_total) > {{ tolerance }}
     tolerance=0.01,
     row_condition=None,
     subcomponents_list=None,
-    negative_subcomponents_list=None
+    negative_subcomponents_list=None,
+    minimum_total_coverage=None
 ) %}
 
 {{ subcomponents_sum_to_total_check(
@@ -129,7 +153,8 @@ WHERE ABS(subcomponents_sum - grand_total) > {{ tolerance }}
     tolerance=tolerance,
     row_condition=row_condition,
     subcomponents_list=subcomponents_list,
-    negative_subcomponents_list=negative_subcomponents_list
+    negative_subcomponents_list=negative_subcomponents_list,
+    minimum_total_coverage=minimum_total_coverage
 ) }}
 
 {% endtest %}

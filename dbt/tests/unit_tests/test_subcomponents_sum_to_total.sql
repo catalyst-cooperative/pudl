@@ -29,21 +29,35 @@ WITH test_costs AS (
         ('entity_4', 'ops',   'a',     10.0),
         ('entity_4', 'ops',   'b',     20.0),
         ('entity_4', 'ops',   'total', 30.5), -- diff 0.5 <= tolerance 1
+        -- entity_5: ops subcomponents but no total record at all
+        ('entity_5', 'ops',   'a',     10.0),
+        ('entity_5', 'ops',   'b',     20.0),
     ) AS t(entity_id, grp, cat, val)
 ),
 
 expected_mismatch_counts AS (
     SELECT * FROM (VALUES
         -- Single-column mode: sum cat IN (a, b) vs cat = total among ops rows.
-        -- Only entity_3 is off by more than the tolerance of 1.
+        -- Only entity_3 is off by more than the tolerance of 1; entity_5 has
+        -- no total record and is silently skipped by default.
         ('single_column_subcomponents', 1),
         -- Single-column "everything except the total" mode over ops rows:
         -- same expectation as the explicit list above.
         ('single_column_all_but_total', 1),
         -- Tuple mode: (ops, total) + (maint, total) - (adj, total) vs
         -- (grand, total). Only entity_2's grand total is inconsistent;
-        -- entity_3 and entity_4 have no grand total so they are not counted.
-        ('tuple_cross_group_totals', 1)
+        -- entities 3-5 have no grand total so they are not counted.
+        ('tuple_cross_group_totals', 1),
+        -- With minimum_total_coverage above the actual coverage (4 of the 5
+        -- entities with ops subcomponents have an ops total = 0.8 < 0.9),
+        -- missing-total entity_5 is returned alongside entity_3.
+        ('coverage_below_minimum', 2),
+        -- With minimum_total_coverage below the actual coverage
+        -- (0.75 <= 0.8), missing-total groups stay tolerated.
+        ('coverage_above_minimum', 1),
+        -- A total_label that matches nothing gives 0 coverage, so every
+        -- entity with subcomponents is returned instead of silently passing.
+        ('coverage_catches_wrong_total_label', 5)
     ) AS t(check_name, num_mismatches)
 ),
 
@@ -93,6 +107,60 @@ observed_mismatch_counts AS (
                 negative_subcomponents_list=[['adj', 'total']],
                 total_label=['grand', 'total'],
                 tolerance=1
+            )
+        }})) AS num_mismatches
+
+    UNION ALL
+
+    SELECT
+        'coverage_below_minimum' AS check_name,
+        (SELECT COUNT(*) FROM ({{
+            subcomponents_sum_to_total_check(
+                'test_costs',
+                group_by_columns=['entity_id'],
+                categorical_column='cat',
+                value_column='val',
+                subcomponents_list=['a', 'b'],
+                total_label='total',
+                tolerance=1,
+                row_condition="grp = 'ops'",
+                minimum_total_coverage=0.9
+            )
+        }})) AS num_mismatches
+
+    UNION ALL
+
+    SELECT
+        'coverage_above_minimum' AS check_name,
+        (SELECT COUNT(*) FROM ({{
+            subcomponents_sum_to_total_check(
+                'test_costs',
+                group_by_columns=['entity_id'],
+                categorical_column='cat',
+                value_column='val',
+                subcomponents_list=['a', 'b'],
+                total_label='total',
+                tolerance=1,
+                row_condition="grp = 'ops'",
+                minimum_total_coverage=0.75
+            )
+        }})) AS num_mismatches
+
+    UNION ALL
+
+    SELECT
+        'coverage_catches_wrong_total_label' AS check_name,
+        (SELECT COUNT(*) FROM ({{
+            subcomponents_sum_to_total_check(
+                'test_costs',
+                group_by_columns=['entity_id'],
+                categorical_column='cat',
+                value_column='val',
+                subcomponents_list=['a', 'b'],
+                total_label='no_such_total',
+                tolerance=1,
+                row_condition="grp = 'ops'",
+                minimum_total_coverage=0.9
             )
         }})) AS num_mismatches
 )

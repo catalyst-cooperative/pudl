@@ -40,6 +40,9 @@ macros:
       - name: negative_subcomponents_list
         type: list of strings or list of lists of strings
         description: Value(s) of the categorical column(s) identifying the records to subtract, e.g. adjustments reported as "less X" line items.
+      - name: minimum_total_coverage
+        type: float
+        description: Minimum fraction (0-1) of groups with matching subcomponents that must also have a matching total record. Groups without a total record are normally skipped, so a total_label that doesn't match the data (a typo, or a category renamed in a future data update) passes silently; when coverage falls below this threshold, the missing-total groups are returned as failures instead. Defaults to None (no coverage check), since some totals are legitimately sparse.
   - name: subcomponent_one_label_condition
     description: Render a SQL condition matching one subcomponent or total label for subcomponents_sum_to_total_check.
     arguments:

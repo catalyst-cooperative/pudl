@@ -108,8 +108,11 @@ New Data Tests & Validations
   the totals validations for :ref:`core_rus12__yearly_plant_costs` and
   :ref:`out_rus12__yearly_plant_costs`, adding maintenance, operations &
   maintenance, fixed cost, and total power cost checks, and fixing several
-  existing checks that referenced non-existent cost categories. See issues
-  :issue:`5378,5154` and PR :pr:`5510`.
+  existing checks that referenced non-existent cost categories. The test also
+  gained an opt-in ``minimum_total_coverage`` argument that catches totals
+  which silently match no records at all (e.g. a misspelled ``total_label`` or
+  a category renamed in a future data update), enabled for all of the plant
+  costs checks. See issues :issue:`5378,5154` and PR :pr:`5510`.
 
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
