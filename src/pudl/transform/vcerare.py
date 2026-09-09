@@ -24,6 +24,7 @@ from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
+
 def _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips: pd.DataFrame) -> pd.DataFrame:
     """Prep the lat_long_fips table to merge into the capacity factor tables.
 
