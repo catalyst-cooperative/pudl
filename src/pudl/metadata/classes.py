@@ -902,8 +902,10 @@ class Field(PudlMeta):
             # values, in different tables; see FIELD_METADATA_BY_RESOURCE). Naming the
             # dtype after the field alone would silently share one table's enum values
             # with another's column of the same name, causing conflicts. Suffixing with
-            # a hash of the sorted value set keeps genuinely identical enums sharing one
-            # dtype while giving each distinct value set its own.
+            # a hash of the value set keeps genuinely identical enums sharing one dtype
+            # while giving each distinct value set its own. The hash is order-stable
+            # without an explicit sort() here because FieldConstraints.enum always comes
+            # back sorted -- see its _sort_deterministically validator.
             enum_hash = sha1(  # noqa: S324
                 repr(self.constraints.enum).encode("utf-8")
             ).hexdigest()[:8]

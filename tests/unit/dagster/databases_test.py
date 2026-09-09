@@ -428,6 +428,42 @@ def test_duckdb_schema_shares_enum_type_across_tables(test_pkg: Package):
     engine.dispose()
 
 
+def test_duckdb_build_persists_enum_constraint(
+    paths: PudlPaths, tmp_path: Path, test_pkg: Package, mocker
+):
+    """An enum-constrained column lands in the built pudl.duckdb as a real ENUM.
+
+    Runs the full _write_pudl_db path (SQLAlchemy create_all + DuckDB inserts) and
+    then reopens the file with the native DuckDB API -- the way downstream users do
+    -- to confirm sa.Enum compiled to an enforced ENUM column rather than being
+    silently dropped to VARCHAR by duckdb-engine. Also shows the enum values land in
+    the sorted order FieldConstraints.enum guarantees.
+    """
+    mocker.patch("pudl.dagster.assets.output.databases.PUDL_PACKAGE", test_pkg)
+    _write_parquet(
+        paths,
+        "generator_status",
+        pd.DataFrame(
+            {"id": [1, 2], "operational_status_code": ["retired", "existing"]}
+        ),
+    )
+    db_path = tmp_path / "pudl.duckdb"
+
+    report = _write_pudl_db(DUCKDB_TARGET, db_path, ["generator_status"], paths=paths)
+    assert report.errors == []
+
+    with duckdb.connect(str(db_path), read_only=True) as conn:
+        (data_type,) = conn.execute(
+            "SELECT data_type FROM information_schema.columns "
+            "WHERE table_name = 'generator_status' "
+            "AND column_name = 'operational_status_code'"
+        ).fetchone()
+    assert data_type == "ENUM('existing', 'retired')"
+
+    with duckdb.connect(str(db_path)) as conn, pytest.raises(duckdb.Error):
+        conn.execute("INSERT INTO generator_status VALUES (3, 'bogus')")
+
+
 ################################################################################
 # End to end, against both backends
 ################################################################################
