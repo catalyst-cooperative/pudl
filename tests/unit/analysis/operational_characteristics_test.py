@@ -16,9 +16,9 @@ import pytest
 
 from pudl.analysis.operational_characteristics import (
     _add_run_id_expr,
-    _assert_required_quarters_available,
+    _missing_required_quarters,
     _ordinal_to_quarter_start,
-    _select_target_year_quarter,
+    _select_target_year_quarters,
     _year_quarter_to_ordinal,
     assign_groupwise_load_factor_bins,
     calculate_min_up_or_down_times,
@@ -99,68 +99,118 @@ def test_year_quarter_ordinal_round_trip_across_year_boundary():
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.parametrize(
-    "year_quarters,expected",
-    [
-        # Production shape: many quarters available, including q4s. Must
-        # pick the latest q4 so the window stays a whole-calendar-year one,
-        # reproducing the historical behavior of this analysis. The gaps
-        # here (no 2022q2/q3, no 2023q1-q3) are irrelevant to this function
-        # -- it only ever needs max(), never checks continuity -- so this
-        # also confirms gaps elsewhere in the list don't confuse it.
-        (["2022q1", "2022q4", "2023q4", "2024q1", "2024q2"], "2023q4"),
-        # Fast ETL / CI shape: only a single non-q4 quarter is available at
-        # all. This is exactly the case that used to raise ValueError (empty
-        # sequence passed to max()) before the fallback was added.
-        (["2024q1"], "2024q1"),
-        # Multiple non-q4 quarters available, still no q4: falls back to the
-        # single most recent one rather than erroring.
-        (["2023q3", "2024q1", "2024q2"], "2024q2"),
-    ],
-)
-def test_select_target_year_quarter(year_quarters, expected):
-    """Target selection must prefer the latest q4, falling back gracefully.
-
-    This directly guards the bug that motivated this module's quarters
-    refactor: picking a target quarter used to assume a q4 was always
-    present, which crashed outright under the fast ETL / CI's restricted
-    EPA CEMS data.
-    """
-    assert _select_target_year_quarter(year_quarters) == expected
-
-
-def test_asserts_required_quarters_available_in_year_quarters():
-    """Raise when the EPA CEMS data config doesn't cover the trailing window.
+def test_missing_required_quarters_finds_gaps():
+    """Raise-worthy gaps in a trailing window must be listed exactly.
 
     ``EpaCemsDataConfig`` (see ``pudl.settings``) only validates that each
     configured year-quarter is a real partition and that there are no
     duplicates -- it does not require the list to be contiguous. So a config
-    like the one below, with a gap from 2022q2 through 2023q3, is legal as
-    far as Pydantic is concerned.
-
-    Nothing downstream of the config would ever notice that gap on its own:
-    ``_select_target_year_quarter`` only needs a max(), and
-    ``filter_cems_for_heat_rate_analysis`` filters hourly CEMS data purely by
-    timestamp range, with no visibility into which quarters were actually
-    requested. Without an explicit check like this one, a discontinuous (or
-    just too-short) ``year_quarters`` config would silently produce
-    estimates from a partial window instead of failing loudly.
+    like the one below, with a gap from 2023q1 through 2023q3, is legal as
+    far as Pydantic is concerned. Nothing downstream would notice that gap on
+    its own: ``filter_cems_for_heat_rate_analysis`` filters hourly CEMS data
+    purely by timestamp range, with no visibility into which quarters were
+    actually requested.
     """
     year_quarters = ["2022q1", "2022q4", "2023q4", "2024q1", "2024q2"]
-    with pytest.raises(ValueError, match="2023q1"):
-        # Trailing 6 quarters ending 2024q2 requires 2023q1-q3, none of
-        # which are present in year_quarters.
-        _assert_required_quarters_available(
-            year_quarters, target_year_quarter="2024q2", num_quarters=6
-        )
+    # Trailing 6 quarters ending 2024q2 requires 2023q1-q3, none of which are
+    # present in year_quarters.
+    assert _missing_required_quarters(
+        year_quarters, target_year_quarter="2024q2", num_quarters=6
+    ) == ["2023q1", "2023q2", "2023q3"]
 
 
-def test_asserts_required_quarters_available_passes_when_fully_covered():
-    """The same check must not raise when the trailing window is fully covered."""
+def test_missing_required_quarters_empty_when_fully_covered():
+    """The same check must return nothing when the trailing window is fully covered."""
     year_quarters = ["2022q1", "2022q2", "2022q3", "2022q4", "2023q1"]
-    _assert_required_quarters_available(
-        year_quarters, target_year_quarter="2023q1", num_quarters=4
+    assert (
+        _missing_required_quarters(
+            year_quarters, target_year_quarter="2023q1", num_quarters=4
+        )
+        == []
     )
+
+
+def test_select_target_year_quarters_multi_year_production_shape():
+    """Every calendar year with a full trailing window should be returned.
+
+    Even though EPA CEMS data technically starts in 1995, 1995-1997 are
+    excluded as unusable (see ``EARLIEST_USABLE_YEAR_QUARTER``), so with a
+    3-year (12-quarter) trailing window, 2000 is the earliest calendar year
+    with enough *usable* history behind it -- 1998 and 1999 must be silently
+    excluded too, with no special-casing beyond the usability floor, because
+    their trailing windows still reach back into the excluded years.
+    """
+    year_quarters = [
+        f"{year}q{quarter}" for year in range(1995, 2002) for quarter in range(1, 5)
+    ]
+    assert _select_target_year_quarters(year_quarters, num_quarters=12) == [
+        "2000q4",
+        "2001q4",
+    ]
+
+
+def test_select_target_year_quarters_excludes_pre_1998_data_entirely():
+    """1995-1997 must never be selectable, even with a short trailing window.
+
+    This is a direct regression test for the "first three years of EPA CEMS
+    reporting are too poor-quality to use" decision: even a 1-year (4
+    quarter) window, which would otherwise make 1995 immediately feasible,
+    must still exclude every year before 1998.
+    """
+    year_quarters = [
+        f"{year}q{quarter}" for year in range(1995, 1999) for quarter in range(1, 5)
+    ]
+    assert _select_target_year_quarters(year_quarters, num_quarters=4) == ["1998q4"]
+
+
+def test_select_target_year_quarters_raises_when_entirely_before_usable_floor():
+    """A config with no usable data at all should fail loudly, not return []."""
+    year_quarters = ["1995q1", "1996q4", "1997q4"]
+    with pytest.raises(ValueError, match="1998q1"):
+        _select_target_year_quarters(year_quarters, num_quarters=4)
+
+
+def test_select_target_year_quarters_excludes_only_the_year_with_a_gap():
+    """A year whose trailing window has a gap in the middle must be excluded.
+
+    Unlike the "not enough history yet" case above, this isolates a gap in
+    the *interior* of the configured year_quarters: 2020 is missing
+    entirely, so 2018 (too early for its own 2-year window) and 2021 (whose
+    2-year window needs 2020) both get excluded, while 2019 and 2022 --
+    neither of which needs 2020 -- are unaffected.
+    """
+    year_quarters = [
+        f"{year}q{quarter}"
+        for year in [2018, 2019, 2021, 2022]
+        for quarter in range(1, 5)
+    ]
+    assert _select_target_year_quarters(year_quarters, num_quarters=8) == [
+        "2019q4",
+        "2022q4",
+    ]
+
+
+def test_select_target_year_quarters_fast_etl_fallback():
+    """A single non-q4 quarter falls back to one candidate, not an error.
+
+    This is exactly the fast ETL / CI shape (e.g. ``year_quarters: ["2024q1"]``
+    in ``etl_fast.yml``), which used to crash outright (empty sequence passed
+    to ``max()``) before this fallback existed.
+    """
+    assert _select_target_year_quarters(["2024q1"], num_quarters=1) == ["2024q1"]
+
+
+def test_select_target_year_quarters_raises_when_nothing_is_feasible():
+    """Raise rather than silently return an empty table when nothing works.
+
+    If ``num_quarters`` is configured larger than the available EPA CEMS
+    history, no calendar year -- not even the most recent one -- can satisfy
+    the trailing window, so this should fail loudly rather than materialize
+    an empty result that would be easy to miss.
+    """
+    year_quarters = ["2022q1", "2022q2", "2022q3", "2022q4"]
+    with pytest.raises(ValueError, match="None of the configured"):
+        _select_target_year_quarters(year_quarters, num_quarters=12)
 
 
 # ---------------------------------------------------------------------------
@@ -260,9 +310,9 @@ def test_filter_cems_silently_returns_partial_data_when_a_quarter_is_missing():
     2023q2 (nominally the middle of a 4-quarter window), and the filter just
     returns the surrounding quarters with a hole in the middle, no error.
 
-    This is why :func:`_assert_required_quarters_available` exists as a
-    separate, config-level check: it's the thing that's actually supposed to
-    catch a discontinuous or too-short EPA CEMS configuration, not this
+    This is why :func:`_select_target_year_quarters` checks coverage
+    separately, at the config level: it's the thing that's actually supposed
+    to catch a discontinuous or too-short EPA CEMS configuration, not this
     function, which by design only understands raw timestamps.
     """
     rows = [

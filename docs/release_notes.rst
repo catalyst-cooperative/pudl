@@ -54,9 +54,23 @@ EPA CEMS
   available for all reporting states rather than just California. The output is
   experimental and marked accordingly, since we are soliciting feedback from the
   community on the underlying methodology. See issue :issue:`5106` and PR :pr:`5190`.
+* :ref:`out_epacems__yearly_operational_characteristics` now reports these estimates for
+  every calendar year with a full three-year trailing window of usable EPA CEMS data,
+  rather than only the most recent year, going back to 2000 (EPA CEMS's first three
+  reporting years, 1995-1997, are excluded due to known poor unit coverage). Also
+  recalibrated the associated dbt data validations against physically grounded bounds
+  (e.g. the 3.412 MMBtu/MWh thermodynamic floor on heat rates, and the exact trailing
+  window length as an upper bound on minimum up/down times) rather than thresholds fit
+  to a single year of data. See PR :pr:`5474`.
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
+
+NREL ATB
+~~~~~~~~
+
+* Updated the NREL ATB extractor and transformer to accommodate changes to the 2024
+  data and format. See issue :issue:`5467` and PR :pr:`5513`.
 
 EIA-861
 ~~~~~~~
@@ -179,6 +193,15 @@ Developer Experience
   so a shared Cloud Monitoring dashboard can filter resource-usage metrics by
   pipeline. VM sizes and the ETL's process and thread parallelism were tuned to
   match measured resource usage and stop oversubscribing the CPUs. See :pr:`5545`.
+* Branch builds (``build-pudl`` runs triggered via ``workflow_dispatch``) now skip
+  the S3 deployment by default and only deploy to GCS. S3 egress fees cost more than
+  a full ETL run, and the nightly build already exercises the real S3 deployment
+  every night. The ``build-pudl`` and ``deploy-pudl`` workflow-dispatch forms expose
+  ``deploy_to_gcs`` / ``deploy_to_s3`` checkboxes to override this per run, and when
+  neither target is enabled ``build-pudl`` skips triggering ``deploy-pudl``
+  altogether (e.g. a build run only to regenerate row counts). Nightly and stable
+  deployments are unchanged and still deploy to both. See issue :issue:`5557` and PR
+  :pr:`5558`.
 * Fixed several issues with how ``dbt_helper update-tables`` renders ``schema.yml``
   (:mod:`pudl.dbt_schema`): long ``description:`` fields are now wrapped into readable
   paragraph blocks and strings that need quoting prefer double quotes. This now matches
