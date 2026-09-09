@@ -387,8 +387,8 @@ depends-on = ["ferc-to-sqlite-clean"]
 description = "Build FERC databases from scratch"
 
 [tool.pixi.tasks.pudl-clean]
-cmd = "bash -c 'shopt -s nullglob; rm -f $PUDL_OUTPUT/pudl.sqlite'"
-description = "Remove PUDL SQLite database"
+cmd = "bash -c 'shopt -s nullglob; rm -f $PUDL_OUTPUT/pudl.sqlite $PUDL_OUTPUT/pudl.duckdb'"
+description = "Remove PUDL databases"
 
 [tool.pixi.tasks.pudl]
 cmd = "dg launch --job pudl --config $DG_FULL_CONFIG"
