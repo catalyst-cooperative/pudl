@@ -6,7 +6,6 @@ sources:
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
               arguments:
-                table_name: out_vcerare__hourly_available_capacity_factor
                 partition_expr: report_year
           - expect_valid_hour_of_year
           - dbt_expectations.expect_compound_columns_to_be_unique:

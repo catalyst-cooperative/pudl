@@ -4,6 +4,13 @@ sources:
     tables:
       - name: out_rus12__yearly_plant_labor
         data_tests:
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - borrower_id_rus
+                pk_table_name: source('pudl', 'core_rus12__entity_borrowers')
+                pk_column_names:
+                  - borrower_id_rus
           - expect_columns_not_all_null
           - dbt_utils.expression_is_true:
               arguments:
@@ -23,7 +30,6 @@ sources:
                 error_if: ">526"
           - check_row_counts_per_partition:
               arguments:
-                table_name: out_rus12__yearly_plant_labor
                 partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: report_date

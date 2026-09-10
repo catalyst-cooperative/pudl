@@ -109,9 +109,7 @@ class DatapackageDescriptor:
         matches = [self._match_from_partition(parts, k, v) for k, v in filters.items()]
         return all(matches)
 
-    def _match_from_partition(
-        self, parts: dict[str, str], k: str, v: str | list[str, str]
-    ):
+    def _match_from_partition(self, parts: dict[str, str], k: str, v: str | list[str]):
         if isinstance(
             parts.get(k), list
         ):  # If partitions are list, match whole list if it contains desired element
@@ -119,7 +117,7 @@ class DatapackageDescriptor:
         return str(parts.get(k)).lower() == str(v).lower()
 
     def get_resources(
-        self: Self, name: str = None, **filters: Any
+        self: Self, name: str | None = None, **filters: Any
     ) -> Iterator[PudlResourceKey]:
         """Returns series of PudlResourceKey identifiers for matching resources.
 
@@ -137,7 +135,7 @@ class DatapackageDescriptor:
                     dataset=self.dataset, doi=self.doi, name=res["name"]
                 )
 
-    def get_partitions(self, name: str = None) -> dict[str, set[str]]:
+    def get_partitions(self, name: str | None = None) -> dict[str, set[str]]:
         """Return mapping of known partition keys to their allowed known values."""
         partitions: dict[str, set[str]] = defaultdict(set)
         for res in self.datapackage_json["resources"]:
@@ -554,16 +552,6 @@ class Datastore:
             return zipfile.ZipFile(resource)
 
         return retry(retryable, retry_on=(zipfile.BadZipFile))
-
-    def get_zipfile_resources(
-        self, dataset: str, **filters: Any
-    ) -> Iterator[tuple[PudlResourceKey, zipfile.ZipFile]]:
-        """Iterates over resources that match filters and opens each as ZipFile."""
-        for resource_key, content in self.get_resources(dataset, **filters):
-            yield (
-                resource_key,
-                retry(zipfile.ZipFile, retry_on=(zipfile.BadZipFile), file=content),
-            )
 
     def get_zipfile_file_names(self, zip_file: zipfile.ZipFile):
         """Given a zipfile, return a list of the file names in it."""

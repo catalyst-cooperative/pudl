@@ -226,18 +226,27 @@ def _log_update_result(result: UpdateResult):
 
 
 def _extract_row_count_partitions(table: DbtTable) -> list[str | None]:
-    """Extract partition columns from check_row_counts_per_partition tests in a DbtTable."""
+    """Extract partition columns from check_row_counts_per_partition tests in a DbtTable.
+
+    A bare ``check_row_counts_per_partition`` string entry (no ``arguments:``) relies
+    on the test's default ``partition_expr`` of ``None``, so it counts as a row-counts
+    test with no partition expression.
+    """
     partitions: list[str | None] = []
 
     if table.data_tests:
         for test in table.data_tests:
+            if isinstance(test, str):
+                if test == "check_row_counts_per_partition":
+                    partitions.append(None)
+                continue
             if "check_row_counts_per_partition" not in test:
                 continue
-            if not isinstance(test, dict):
-                raise ValueError(f"Row counts test expected to be a dictionary: {test}")
             test_def = test.get("check_row_counts_per_partition")
             if isinstance(test_def, dict):
                 partitions.append(test_def.get("arguments", {}).get("partition_expr"))
+            else:
+                partitions.append(None)
 
     return partitions
 

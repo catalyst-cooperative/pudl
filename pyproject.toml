@@ -60,7 +60,7 @@ preview = ["pixi-build"]
 # For any dependency with an upper bound on the version, please add a
 # comment explaining why it's necessary.
 [tool.pixi.dependencies]
-alembic = ">=1.17"
+beautifulsoup4 = ">=4.15"
 boto3 = ">=1.35"
 bottleneck = ">=1.5.0"
 "catalystcoop.dbfread" = ">=3.0,<3.1"
@@ -72,11 +72,9 @@ curl = ">=8.17"
 dagster = ">=1.13"
 dagster-dbt = ">=1!0.29"
 dagster-dg-cli = ">=1.13"
-dagster-gcp = ">=1!0.29"
 dagster-webserver = ">=1.13"
 dbt-core = ">=1.11.11"
 dbt-duckdb = ">=1.9.4"
-deepdiff = ">=8"
 doc8 = ">=2"
 email-validator = ">=1.0.3"
 filelock = ">=3.29"
@@ -101,9 +99,9 @@ jupyter-lsp = ">=2.3"
 jupyter-resource-usage = ">=1.2"
 jupyterlab = ">=4.6"
 jupyterlab-lsp = ">=5.2"
+lxml = ">=6.1"
 matplotlib-base = ">=3.11"
-memray = ">=1.18.0"
-mlflow = ">=3.14"
+mlflow = ">=3.16"
 nbconvert = ">=7"
 nbformat = ">=5.10"
 networkx = ">=3.6"
@@ -112,10 +110,9 @@ numba = ">=0.67"
 numexpr = ">=2.10"
 numpy = ">=2.5"
 packaging = ">=25"
-pandas = ">=2.3"
+pandas = ">=2.3,<3"
 pandoc = ">=3.7"
 pandera-polars = ">=0.31"
-parallel = ">=20250822"
 pint = ">=0.25.3"
 polars = ">=1.43"
 prek = ">=0.4.11"
@@ -167,7 +164,6 @@ urllib3 = ">=2.7"
 usaddress = ">=0.5.16,<0.6"
 uv = ">=0.11"
 xlsxwriter = ">=3.2"
-zip = ">=3.0"
 gh = ">=2.96.0,<3"
 
 [tool.pixi.pypi-dependencies]
@@ -176,12 +172,16 @@ gh = ">=2.96.0,<3"
 # happen to only be available via PyPI.
 "catalystcoop.pudl" = { path = ".", editable = true }
 detect-secrets = ">=1.5"
+# conda-forge's duckdb-engine recipe pins duckdb<=1.0.0; PyPI's own metadata has no
+# such upper bound, and works fine with the newer python-duckdb pinned above.
+duckdb-engine = ">=0.17"
 
 [tool.pixi.feature.dev.dependencies]
 duckdb-cli = ">=1.5,<1.6"
 jq = ">=1.8" # Primarily for agent skills use
 marimo = ">=0.23.15"
 matplotx = ">=0.3.10"
+memray = ">=1.18.0"
 plotly = ">=6.6"
 ripgrep = ">=15" # Primarily for agent skills use
 pyrefly = ">=1.2.0" # Experimental, also for agent skills use
@@ -208,8 +208,8 @@ description = "Type-check with pyrefly against the tracked baseline"
 [tool.pixi.feature.dev.tasks.pyrefly-update-baseline]
 cmd = "pyrefly check --baseline .pyrefly-baseline.json --update-baseline"
 
-[tool.pixi.feature.dev.tasks.pyrefly-baseline-diff]
-cmd = "pyrefly_baseline_diff"
+[tool.pixi.feature.dev.tasks.pyrefly-diff-baseline]
+cmd = "pyrefly_diff_baseline"
 description = """
 Diff .pyrefly-baseline.json against git HEAD by (file, code, description), ignoring \
 line/column churn. Run after `pyrefly check --baseline .pyrefly-baseline.json \
@@ -223,7 +223,10 @@ dev = { features = ["dev"], solve-group = "default" }
 # Reusable variables for pixi tasks
 DG_FULL_CONFIG = "src/pudl/package_data/settings/dg_full.yml"
 DG_NIGHTLY_CONFIG = "src/pudl/package_data/settings/dg_nightly.yml"
-
+# grpcio >= 1.83.0 is required by the Google Cloud Python libraries as of
+# October 2026 (post-quantum crypto migration). Until our resolved grpcio
+# crosses that version, silence the pre-migration FutureWarning.
+PYTHONWARNINGS = "ignore::FutureWarning:google.api_core._python_package_support,ignore::FutureWarning:google.auth.transport.grpc"
 ########################################################################################
 # Pixi task definitions. These are used by pixi to run various tasks in a consistent
 # environment. They can be run with `pixi run <task-name>`, and can depend on each other
@@ -384,30 +387,21 @@ depends-on = ["ferc-to-sqlite-clean"]
 description = "Build FERC databases from scratch"
 
 [tool.pixi.tasks.pudl-clean]
-cmd = "bash -c 'shopt -s nullglob; rm -f $PUDL_OUTPUT/pudl.sqlite'"
-description = "Remove PUDL SQLite database"
+cmd = "bash -c 'shopt -s nullglob; rm -f $PUDL_OUTPUT/pudl.sqlite $PUDL_OUTPUT/pudl.duckdb'"
+description = "Remove PUDL databases"
 
 [tool.pixi.tasks.pudl]
-cmd = """
-alembic upgrade head && \
-dg launch --job pudl --config $DG_FULL_CONFIG
-"""
+cmd = "dg launch --job pudl --config $DG_FULL_CONFIG"
 depends-on = ["pudl-clean"]
 description = "Run the full PUDL ETL without rebuilding raw FERC SQLite databases"
 
 [tool.pixi.tasks.pudl-with-ferc-to-sqlite]
-cmd = """
-alembic upgrade head && \
-dg launch --job pudl_with_ferc_to_sqlite --config $DG_FULL_CONFIG
-"""
+cmd = "dg launch --job pudl_with_ferc_to_sqlite --config $DG_FULL_CONFIG"
 depends-on = ["ferc-to-sqlite-clean", "pudl-clean"]
 description = "Run the full PUDL ETL including rebuilding raw FERC SQLite databases"
 
 [tool.pixi.tasks.pudl-with-ferc-to-sqlite-nightly]
-cmd = """
-alembic upgrade head && \
-dg launch --job pudl_with_ferc_to_sqlite --config $DG_NIGHTLY_CONFIG
-"""
+cmd = "dg launch --job pudl_with_ferc_to_sqlite --config $DG_NIGHTLY_CONFIG"
 depends-on = ["ferc-to-sqlite-clean", "pudl-clean"]
 description = "Run the full PUDL ETL (including FERC) using the nightly Dagster config"
 
@@ -455,7 +449,6 @@ description = "Install skills from lockfile"
 [project.scripts]
 auto_match_utilities = "pudl.scripts.auto_match_utilities:main"
 metadata_to_rst = "pudl.scripts.metadata_to_rst:main"
-pudl_check_fks = "pudl.scripts.pudl_check_fks:main"
 pudl_datastore = "pudl.scripts.pudl_datastore:main"
 pudl_deploy = "pudl.scripts.pudl_deploy:main"
 pudl_check_for_build = "pudl.scripts.pudl_check_for_build:main"
@@ -469,15 +462,16 @@ resource_description = "pudl.scripts.resource_description:main"
 update_zenodo_dois = "pudl.scripts.update_zenodo_dois:main"
 zenodo_data_release = "pudl.scripts.zenodo_data_release:main"
 generate_ferc_provenance = "pudl.scripts.generate_ferc_provenance:main"
-pyrefly_baseline_diff = "pudl.scripts.pyrefly_baseline_diff:main"
+batch_config = "pudl.scripts.batch_config:main"
+pyrefly_diff_baseline = "pudl.scripts.pyrefly_diff_baseline:main"
 
 [tool.ruff]
 # Configurations that apply to both the `format` and `lint` subcommands.
 target-version = "py313"
 line-length = 88
 indent-width = 4
-# Don't touch autogenerated alembic migrations and ignore notebooks for now
-exclude = ["migrations/versions", "*.ipynb"]
+# Ignore notebooks for now
+exclude = ["*.ipynb"]
 
 [tool.ruff.format]
 # Configuration specfic to the `format` subcommand.
@@ -550,7 +544,6 @@ extend-select = ["NPY201"] # preview rule to easy migration to Numpy 2.0
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"] # Ignore unused imports
 "tests/*" = ["D"]
-"migrations/*" = ["D", "Q"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["pudl"]
@@ -606,6 +599,7 @@ filterwarnings = [
     "ignore:Extension type 'geoarrow.wkb' is not registered:UserWarning",
     "ignore:invalid escape sequence:SyntaxWarning:stringcase",
     "ignore:invalid escape sequence:SyntaxWarning:parsedatetime",
+    "ignore:grpcio < 1.83.0 does not support Post-Quantum Cryptography:FutureWarning",
 ]
 
 # must not end with `--cov` since that will treat the first argument you pass
@@ -715,7 +709,6 @@ extend-exclude = [
     "*.json",
     ".github/skills/pudl-dev/references/datapackage.schema.json",
     "src/pudl/metadata/codes.py",
-    "migrations/",
     "notebooks/",
     "devtools/",
     "tests/",

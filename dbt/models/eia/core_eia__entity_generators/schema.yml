@@ -4,6 +4,13 @@ sources:
     tables:
       - name: core_eia__entity_generators
         data_tests:
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - plant_id_eia
+                pk_table_name: source('pudl', 'core_eia__entity_plants')
+                pk_column_names:
+                  - plant_id_eia
           - expect_columns_not_all_null:
               description: |-
                 The can_switch_when_operating column is only reported in a single year, but assumed to
@@ -13,10 +20,7 @@ sources:
               arguments:
                 exclude_columns:
                   - can_switch_when_operating
-          - check_row_counts_per_partition:
-              arguments:
-                table_name: core_eia__entity_generators
-                partition_expr: null
+          - check_row_counts_per_partition
         columns:
           - name: plant_id_eia
           - name: generator_id

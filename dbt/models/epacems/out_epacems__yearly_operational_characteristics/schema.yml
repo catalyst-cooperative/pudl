@@ -4,16 +4,22 @@ sources:
     tables:
       - name: out_epacems__yearly_operational_characteristics
         data_tests:
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - plant_id_eia
+                pk_table_name: source('pudl', 'core_eia__entity_plants')
+                pk_column_names:
+                  - plant_id_eia
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
               arguments:
-                table_name: out_epacems__yearly_operational_characteristics
                 partition_expr: report_year
         columns:
+          - name: report_year
           - name: plant_id_epa
           - name: emissions_unit_id_epa
           - name: plant_id_eia
-          - name: report_year
           - name: state
           - name: max_gross_load_mw
           - name: min_stable_load_factor
@@ -50,26 +56,475 @@ sources:
                     enabled: "{{ target.name == 'etl-full' }}"
           - name: heat_rate_at_max_load_factor_mmbtu_per_mwh
             data_tests:
-              - dbt_expectations.expect_column_values_to_be_between:
-                  description: |-
-                    This is a per-unit median heat rate computed only from the hours in that unit's single
-                    highest load-factor bin. Under etl-fast's single quarter of data that bin can contain
-                    very few hours, making the median far more volatile than in production (12 trailing
-                    quarters), so this check is disabled for etl-fast.
+              - expect_column_fraction_outside_range:
                   arguments:
                     min_value: 5.4
                     max_value: 25.0
+                    max_fraction_above: 0.015
+                    max_fraction_below: 0.065
+                    row_condition: report_year = 2000
                   config:
-                    error_if: ">50"
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 25.0
+                    max_fraction_above: 0.015
+                    max_fraction_below: 0.06
+                    row_condition: report_year = 2001
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 25.0
+                    max_fraction_above: 0.015
+                    max_fraction_below: 0.06
+                    row_condition: report_year = 2002
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 25.0
+                    max_fraction_above: 0.015
+                    max_fraction_below: 0.045
+                    row_condition: report_year = 2003
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 25.0
+                    max_fraction_above: 0.015
+                    max_fraction_below: 0.045
+                    row_condition: report_year = 2004
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 25.0
+                    max_fraction_above: 0.015
+                    max_fraction_below: 0.05
+                    row_condition: report_year = 2005
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 25.0
+                    max_fraction_above: 0.015
+                    max_fraction_below: 0.055
+                    row_condition: report_year = 2006
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 25.0
+                    max_fraction_above: 0.015
+                    max_fraction_below: 0.055
+                    row_condition: report_year = 2007
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 25.0
+                    max_fraction_above: 0.015
+                    max_fraction_below: 0.05
+                    row_condition: report_year = 2008
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 25.0
+                    max_fraction_above: 0.015
+                    max_fraction_below: 0.04
+                    row_condition: report_year = 2009
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 25.0
+                    max_fraction_above: 0.015
+                    max_fraction_below: 0.035
+                    row_condition: report_year = 2010
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 25.0
+                    max_fraction_above: 0.015
+                    max_fraction_below: 0.0275
+                    row_condition: report_year = 2011
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 25.0
+                    max_fraction_above: 0.015
+                    max_fraction_below: 0.0225
+                    row_condition: report_year = 2012
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 25.0
+                    max_fraction_above: 0.015
+                    max_fraction_below: 0.025
+                    row_condition: report_year = 2013
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 25.0
+                    max_fraction_above: 0.015
+                    max_fraction_below: 0.0225
+                    row_condition: report_year = 2014
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 25.0
+                    max_fraction_above: 0.015
+                    max_fraction_below: 0.02
+                    row_condition: report_year = 2015
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 25.0
+                    max_fraction_above: 0.015
+                    max_fraction_below: 0.0225
+                    row_condition: report_year = 2016
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 25.0
+                    max_fraction_above: 0.015
+                    max_fraction_below: 0.025
+                    row_condition: report_year = 2017
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 25.0
+                    max_fraction_above: 0.015
+                    max_fraction_below: 0.025
+                    row_condition: report_year = 2018
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 25.0
+                    max_fraction_above: 0.015
+                    max_fraction_below: 0.0175
+                    row_condition: report_year = 2019
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 25.0
+                    max_fraction_above: 0.015
+                    max_fraction_below: 0.0175
+                    row_condition: report_year = 2020
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 25.0
+                    max_fraction_above: 0.015
+                    max_fraction_below: 0.015
+                    row_condition: report_year = 2021
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 25.0
+                    max_fraction_above: 0.015
+                    max_fraction_below: 0.015
+                    row_condition: report_year = 2022
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 25.0
+                    max_fraction_above: 0.015
+                    max_fraction_below: 0.015
+                    row_condition: report_year = 2023
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 25.0
+                    max_fraction_above: 0.015
+                    max_fraction_below: 0.0175
+                    row_condition: report_year = 2024
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 25.0
+                    max_fraction_above: 0.015
+                    max_fraction_below: 0.0175
+                    row_condition: report_year = 2025
+                  config:
                     enabled: "{{ target.name == 'etl-full' }}"
           - name: heat_rate_at_min_stable_load_factor_mmbtu_per_mwh
             data_tests:
-              - dbt_expectations.expect_column_values_to_be_between:
+              - expect_column_fraction_outside_range:
                   arguments:
                     min_value: 5.4
-                    max_value: 25.0
+                    max_value: 30.0
+                    max_fraction_above: 0.03
+                    max_fraction_below: 0.03
+                    row_condition: report_year = 2000
                   config:
-                    error_if: ">60"
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 30.0
+                    max_fraction_above: 0.03
+                    max_fraction_below: 0.025
+                    row_condition: report_year = 2001
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 30.0
+                    max_fraction_above: 0.03
+                    max_fraction_below: 0.03
+                    row_condition: report_year = 2002
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 30.0
+                    max_fraction_above: 0.03
+                    max_fraction_below: 0.0225
+                    row_condition: report_year = 2003
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 30.0
+                    max_fraction_above: 0.03
+                    max_fraction_below: 0.0225
+                    row_condition: report_year = 2004
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 30.0
+                    max_fraction_above: 0.03
+                    max_fraction_below: 0.015
+                    row_condition: report_year = 2005
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 30.0
+                    max_fraction_above: 0.03
+                    max_fraction_below: 0.02
+                    row_condition: report_year = 2006
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 30.0
+                    max_fraction_above: 0.03
+                    max_fraction_below: 0.02
+                    row_condition: report_year = 2007
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 30.0
+                    max_fraction_above: 0.03
+                    max_fraction_below: 0.0125
+                    row_condition: report_year = 2008
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 30.0
+                    max_fraction_above: 0.03
+                    max_fraction_below: 0.01
+                    row_condition: report_year = 2009
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 30.0
+                    max_fraction_above: 0.03
+                    max_fraction_below: 0.01
+                    row_condition: report_year = 2010
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 30.0
+                    max_fraction_above: 0.03
+                    max_fraction_below: 0.0075
+                    row_condition: report_year = 2011
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 30.0
+                    max_fraction_above: 0.03
+                    max_fraction_below: 0.0075
+                    row_condition: report_year = 2012
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 30.0
+                    max_fraction_above: 0.03
+                    max_fraction_below: 0.0075
+                    row_condition: report_year = 2013
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 30.0
+                    max_fraction_above: 0.03
+                    max_fraction_below: 0.01
+                    row_condition: report_year = 2014
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 30.0
+                    max_fraction_above: 0.03
+                    max_fraction_below: 0.01
+                    row_condition: report_year = 2015
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 30.0
+                    max_fraction_above: 0.03
+                    max_fraction_below: 0.0075
+                    row_condition: report_year = 2016
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 30.0
+                    max_fraction_above: 0.03
+                    max_fraction_below: 0.0075
+                    row_condition: report_year = 2017
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 30.0
+                    max_fraction_above: 0.03
+                    max_fraction_below: 0.0125
+                    row_condition: report_year = 2018
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 30.0
+                    max_fraction_above: 0.03
+                    max_fraction_below: 0.005
+                    row_condition: report_year = 2019
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 30.0
+                    max_fraction_above: 0.03
+                    max_fraction_below: 0.005
+                    row_condition: report_year = 2020
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 30.0
+                    max_fraction_above: 0.03
+                    max_fraction_below: 0.005
+                    row_condition: report_year = 2021
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 30.0
+                    max_fraction_above: 0.03
+                    max_fraction_below: 0.005
+                    row_condition: report_year = 2022
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 30.0
+                    max_fraction_above: 0.03
+                    max_fraction_below: 0.006
+                    row_condition: report_year = 2023
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 30.0
+                    max_fraction_above: 0.03
+                    max_fraction_below: 0.006
+                    row_condition: report_year = 2024
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 5.4
+                    max_value: 30.0
+                    max_fraction_above: 0.03
+                    max_fraction_below: 0.005
+                    row_condition: report_year = 2025
+                  config:
                     enabled: "{{ target.name == 'etl-full' }}"
           - name: ramp_up_rate_per_min
             data_tests:

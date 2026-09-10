@@ -5,7 +5,6 @@ sources:
         data_tests:
           - check_row_counts_per_partition:
               arguments:
-                table_name: core_rus12__monthly_demand_and_energy_at_power_sources
                 partition_expr: EXTRACT(YEAR FROM report_date)
           - dbt_utils.expression_is_true:
               arguments:

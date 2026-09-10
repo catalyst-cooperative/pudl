@@ -4,13 +4,26 @@ sources:
     tables:
       - name: core_eia861__yearly_reliability
         data_tests:
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - data_maturity
+                pk_table_name: source('pudl', 'core_pudl__codes_data_maturities')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - momentary_interruption_definition
+                pk_table_name: source('pudl', 'core_eia__codes_momentary_interruptions')
+                pk_column_names:
+                  - code
           - expect_columns_not_all_null:
               arguments:
                 row_conditions:
                   short_form: EXTRACT(year FROM report_date) = 2019
           - check_row_counts_per_partition:
               arguments:
-                table_name: core_eia861__yearly_reliability
                 partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: caidi_w_major_event_days_minus_loss_of_service_minutes

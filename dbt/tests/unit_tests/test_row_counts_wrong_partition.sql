@@ -19,7 +19,7 @@ expected_mismatch_counts as (
 result_comparison AS (
     SELECT (SELECT COUNT(*)
     FROM ({{
-        row_counts_per_partition('test_table', 'test_table', 'report_year', force_row_counts_table='test_row_counts')
+        row_counts_per_partition(api.Relation.create(identifier='test_table'), 'report_year', force_row_counts_table='test_row_counts')
     }})) as observed_mismatch_count,
     num_mismatches AS expected_mismatch_count,
     FROM expected_mismatch_counts

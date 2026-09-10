@@ -4,6 +4,20 @@ sources:
     tables:
       - name: core_eia860__scd_utilities
         data_tests:
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - data_maturity
+                pk_table_name: source('pudl', 'core_pudl__codes_data_maturities')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - utility_id_eia
+                pk_table_name: source('pudl', 'core_eia__entity_utilities')
+                pk_column_names:
+                  - utility_id_eia
           - expect_columns_not_all_null:
               arguments:
                 ignore_eia860m_nulls: true
@@ -28,7 +42,6 @@ sources:
                   phone_extension_2: EXTRACT(year FROM report_date) <= 2006
           - check_row_counts_per_partition:
               arguments:
-                table_name: core_eia860__scd_utilities
                 partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: utility_id_eia
