@@ -51,6 +51,10 @@
 
       .. code-block:: sql
 
+         INSTALL httpfs;
+         LOAD httpfs;
+         -- Path-style S3 addressing is required because our bucket name contains dots.
+         CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
          SELECT
              -- Select only a subset of columns to reduce network and memory usage
              state,

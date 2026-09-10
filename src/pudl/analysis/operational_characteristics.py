@@ -26,6 +26,17 @@ from pudl.metadata.enums import EPACEMS_STATES
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
+EARLIEST_USABLE_YEAR_QUARTER = "1998q1"
+"""Earliest EPA CEMS year-quarter treated as usable for this analysis.
+
+EPA CEMS's first few years of reporting (1995-1997) are known to have poor and
+inconsistent unit coverage, making them unsuitable for estimating these
+operational characteristics. Quarters before this are treated as unavailable
+for this analysis regardless of what's actually present in the EPA CEMS data
+config, so the earliest feasible ``report_year`` in production (a 3-year /
+12-quarter trailing window) is 2000, not 1997.
+"""
+
 
 def _get_heat_rate_analysis_config(
     context: AssetExecutionContext,
@@ -61,51 +72,105 @@ def _ordinal_to_year_quarter(ordinal: int) -> str:
     return f"{year}q{quarter + 1}"
 
 
-def _assert_required_quarters_available(
+def _missing_required_quarters(
     year_quarters: list[str], target_year_quarter: str, num_quarters: int
-) -> None:
-    """Raise if the configured EPA CEMS quarters don't cover the trailing window.
+) -> list[str]:
+    """List quarters in the trailing window ending at ``target_year_quarter``.
 
-    ``EpaCemsDataConfig`` only validates that each configured year-quarter is a
-    real partition and that there are no duplicates -- it does not require the
-    list to be contiguous. Nothing downstream would otherwise notice a gap:
-    :func:`_select_target_year_quarter` only needs a max(), and
-    :func:`filter_cems_for_heat_rate_analysis` filters purely by timestamp
-    range, with no visibility into which quarters were actually requested. This
-    check makes a missing or discontinuous configuration fail loudly instead of
-    silently producing estimates from a partial window.
+    Specifically, the quarters in that window that are absent from
+    ``year_quarters``. ``EpaCemsDataConfig`` only validates that each
+    configured year-quarter is a real partition and that there are no
+    duplicates -- it does not require the list to be contiguous, so a
+    trailing window can have gaps even in a config that otherwise looks
+    reasonable.
     """
     target_ordinal = _year_quarter_to_ordinal(target_year_quarter)
     required_ordinals = range(target_ordinal - num_quarters + 1, target_ordinal + 1)
-    missing = sorted(
+    return sorted(
         _ordinal_to_year_quarter(ordinal)
         for ordinal in required_ordinals
         if _ordinal_to_year_quarter(ordinal) not in year_quarters
     )
-    if missing:
+
+
+def _select_target_year_quarters(
+    year_quarters: list[str], num_quarters: int
+) -> list[str]:
+    """Choose the EPA CEMS year-quarters that each end a full analysis window.
+
+    The analysis produces one set of operational characteristics per calendar
+    year, computed from a trailing window of ``num_quarters`` quarters ending
+    in that year's Q4. This returns the end-of-window year-quarter for every
+    calendar year that both:
+
+    - has its Q4 present in ``year_quarters`` (considering only quarters at or
+      after :data:`EARLIEST_USABLE_YEAR_QUARTER` as available at all), and
+    - has all ``num_quarters`` quarters of its trailing window available.
+
+    In production, with a 12-quarter window and EPA CEMS data reaching back to
+    the late 1990s, this yields one ``YYYYq4`` value per year from 2000 through
+    the most recent complete year.
+
+    The fast ETL and pytest configs load only a single EPA CEMS quarter and
+    set ``num_quarters`` to 1, so no Q4-ending window exists. In that case the
+    single latest usable year-quarter (e.g. ``"2022q1"``) is returned as its
+    own one-quarter window, and the caller treats its calendar year as the
+    report year. This fallback quarter is returned as-is rather than coerced
+    to Q4, because the loaded data only covers that specific quarter.
+
+    Args:
+        year_quarters: Every EPA CEMS ``YYYYqN`` partition available to the
+            run, as configured in the Dagster settings. Need not be sorted or
+            contiguous.
+        num_quarters: Length of the trailing window, in quarters, that each
+            returned year-quarter must have fully available.
+
+    Returns:
+        Sorted list of ``YYYYqN`` year-quarters, one per analyzable calendar
+        year, each usable as the ``final_year_quarter`` of a
+        ``num_quarters``-long window. Normally every entry ends in ``q4``; in
+        the single-quarter fast-ETL case the one entry is the loaded quarter.
+
+    Raises:
+        ValueError: if no configured year-quarter is at or after
+            :data:`EARLIEST_USABLE_YEAR_QUARTER`, or if no candidate
+            year-quarter has its full trailing window available -- e.g.
+            ``num_quarters`` is larger than the usable EPA CEMS history.
+    """
+    usable_year_quarters = [
+        year_quarter
+        for year_quarter in year_quarters
+        if year_quarter >= EARLIEST_USABLE_YEAR_QUARTER
+    ]
+    if not usable_year_quarters:
         raise ValueError(
-            f"EPA CEMS year_quarters is missing quarters required for this "
-            f"analysis's trailing {num_quarters}-quarter window ending at "
-            f"{target_year_quarter}: {missing}."
+            "None of the configured EPA CEMS year_quarters are at or after "
+            f"{EARLIEST_USABLE_YEAR_QUARTER}, the earliest year-quarter this "
+            "analysis treats as usable."
         )
 
-
-def _select_target_year_quarter(year_quarters: list[str]) -> str:
-    """Pick the year-quarter to treat as the end of the analysis window.
-
-    Prefers the most recent year-quarter ending in Q4 (i.e. the most recent
-    *complete* calendar year), which reproduces the historical whole-year
-    behavior of this analysis in production. Falls back to the single most
-    recent year-quarter of any kind when no Q4 is present -- e.g. in the fast
-    ETL / CI, which only has a single quarter of EPA CEMS data and can't
-    produce a Q4-ending window at all.
-    """
-    q4_years = [
+    q4_years = sorted(
         year_quarter.removesuffix("q4")
-        for year_quarter in year_quarters
+        for year_quarter in usable_year_quarters
         if year_quarter.endswith("q4")
+    )
+    candidates = (
+        [f"{year}q4" for year in q4_years] if q4_years else [max(usable_year_quarters)]
+    )
+    feasible = [
+        year_quarter
+        for year_quarter in candidates
+        if not _missing_required_quarters(
+            usable_year_quarters, year_quarter, num_quarters
+        )
     ]
-    return f"{max(q4_years)}q4" if q4_years else max(year_quarters)
+    if not feasible:
+        raise ValueError(
+            f"None of the configured EPA CEMS year_quarters have the "
+            f"{num_quarters} trailing quarters required to compute operational "
+            "characteristics for any calendar year."
+        )
+    return feasible
 
 
 def filter_cems_for_heat_rate_analysis(
@@ -713,41 +778,53 @@ def out_epacems__yearly_operational_characteristics(
     context: AssetExecutionContext,
     core_epacems__hourly_emissions: pl.LazyFrame,
 ) -> pd.DataFrame:
-    """Estimate EPA CEMS unit operational characteristics for every unit."""
+    """Estimate EPA CEMS unit operational characteristics for every unit and year.
+
+    Computes one set of characteristics per state per calendar year that has a
+    full trailing window of EPA CEMS data available (see
+    :func:`_select_target_year_quarters`), looping over states within each year.
+    Each ``(year, state)`` pair's hourly CEMS data is filtered, reduced down to a
+    handful of per-unit summary rows, and immediately discarded, so peak memory
+    stays bounded by a single state's window (observed ~16 GB for CA or TX) no
+    matter how many years get processed. All of the resulting per-unit summary
+    rows -- on the order of 100,000 total across every year and state, versus
+    billions of hourly input records -- are concatenated once at the very end.
+    """
     heat_rate_config = _get_heat_rate_analysis_config(context)
     year_quarters = context.resources.global_data_config.pudl.epacems.year_quarters
-    target_year_quarter = _select_target_year_quarter(year_quarters)
-    _assert_required_quarters_available(
-        year_quarters, target_year_quarter, heat_rate_config["num_quarters"]
+    target_year_quarters = _select_target_year_quarters(
+        year_quarters, heat_rate_config["num_quarters"]
     )
-    report_year = int(target_year_quarter[:4])
 
-    state_dfs = []
-    for state in sorted(EPACEMS_STATES):
-        logger.info(
-            f"Deriving unit-level operational characteristics from {state} EPA CEMS "
-        )
-        # Filtering the lazyframe first down to only one state and only the last few
-        # quarters (number of quarters based on the asset's num_quarters config).
-        # Filter first to ensure the full hourly cems data isn't loaded into memory.
-        cems = filter_cems_for_heat_rate_analysis(
-            core_epacems__hourly_emissions=core_epacems__hourly_emissions,
-            final_year_quarter=target_year_quarter,
-            num_quarters=heat_rate_config["num_quarters"],
-            states=[state],
-        )
-        # This step does the bulk of the work. The output here is a table with one
-        # record per unit with all of the derived characteristics
-        state_df = estimate_operational_characteristics_by_unit(
-            cems=cems,
-            min_stable_consecutive_hours=heat_rate_config[
-                "min_stable_consecutive_hours"
-            ],
-        )
-        state_dfs.append(state_df)
+    all_dfs = []
+    for target_year_quarter in target_year_quarters:
+        report_year = int(target_year_quarter[:4])
+        logger.info(f"=== STARTING {report_year} ===")
+        for state in sorted(EPACEMS_STATES):
+            logger.info(
+                f"Deriving operational characteristics for EPA CEMS units: "
+                f"{report_year}-{state}."
+            )
+            # Filtering the lazyframe first down to only one state and only the
+            # last few quarters (number of quarters based on the asset's
+            # num_quarters config). Filter first to ensure the full hourly cems
+            # data isn't loaded into memory.
+            cems = filter_cems_for_heat_rate_analysis(
+                core_epacems__hourly_emissions=core_epacems__hourly_emissions,
+                final_year_quarter=target_year_quarter,
+                num_quarters=heat_rate_config["num_quarters"],
+                states=[state],
+            )
+            # This step does the bulk of the work. The output here is a table
+            # with one record per unit with all of the derived characteristics.
+            state_df = estimate_operational_characteristics_by_unit(
+                cems=cems,
+                min_stable_consecutive_hours=heat_rate_config[
+                    "min_stable_consecutive_hours"
+                ],
+            )
+            all_dfs.append(
+                state_df.with_columns(pl.lit(report_year).alias("report_year"))
+            )
 
-    return (
-        pl.concat(state_dfs)
-        .with_columns(pl.lit(report_year).alias("report_year"))
-        .to_pandas()
-    )
+    return pl.concat(all_dfs).to_pandas()
