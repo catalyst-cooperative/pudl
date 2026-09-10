@@ -605,18 +605,26 @@ filterwarnings = [
 # must not end with `--cov` since that will treat the first argument you pass
 # to pytest as a coverage source! see
 # https://github.com/catalyst-cooperative/pudl/issues/3609
+# If you need logs to be visible in the terminal, override log_cli:
+#   pytest -v -o log_cli=true tests/unit/foo_test.py
+# The prebuilt_outputs fixture streams the fast-ETL subprocess output to the
+# terminal directly (see tests/conftest.py) so progress is still visible there.
 addopts = [
-    "--verbose",
     "--cov",
     "--cov-append",
     "--cov-config=pyproject.toml",
     "--cov-report=",
     "--durations=20",
+    "-ra",
+    "--tb=short",
 ]
 log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
 log_date_format = "%Y-%m-%d %H:%M:%S"
-log_cli = true
+log_cli = false
 log_cli_level = "INFO"
+# Level for logs captured and shown on failing/xpassing tests ("Captured log call").
+# Without this pytest captures DEBUG too, which is pure noise in failure output.
+log_level = "INFO"
 doctest_optionflags = [
     "NORMALIZE_WHITESPACE",
     "IGNORE_EXCEPTION_DETAIL",
