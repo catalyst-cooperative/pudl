@@ -137,7 +137,7 @@ def _stack_cap_fac_df(
 
     # Identify which columns are county columns (not metadata)
     id_cols = ["hour_of_year", "report_year"]
-    county_cols = [col for col in lf.columns if col not in id_cols]
+    county_cols = [col for col in lf.collect_schema().names() if col not in id_cols]
 
     # Use Polars unpivot to convert wide → long
     lf_long = lf.unpivot(
@@ -171,7 +171,7 @@ def _add_time_cols(lf: pl.LazyFrame, lf_name: str, year: int) -> pl.LazyFrame:
 
     if year >= 2024:
         assert (
-            lf.schema["hour_of_year"] == pl.Datetime
+            lf.collect_schema()["hour_of_year"] == pl.Datetime
         )  # Check column is in expected format
         lf = lf.rename({"hour_of_year": "datetime_utc"}).with_columns(
             hour_of_year=(pl.col("datetime_utc").dt.ordinal_day() - 1) * 24
