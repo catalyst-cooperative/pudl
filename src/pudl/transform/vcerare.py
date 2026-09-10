@@ -25,6 +25,10 @@ from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
+# Non-county columns in the wide raw capacity factor tables; everything else is a
+# per-county/subregion capacity factor column.
+HOURLY_ID_COLS = ["hour_of_year", "report_year"]
+
 
 def _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips: pd.DataFrame) -> pd.DataFrame:
     """Prep the lat_long_fips table to merge into the capacity factor tables.
@@ -154,12 +158,13 @@ def _stack_cap_fac_df(
     logger.info(f"Stacking the county/subregion columns for {lf_name} table.")
 
     # Identify which columns are county columns (not metadata)
-    id_cols = ["hour_of_year", "report_year"]
-    county_cols = [col for col in lf.collect_schema().names() if col not in id_cols]
+    county_cols = [
+        col for col in lf.collect_schema().names() if col not in HOURLY_ID_COLS
+    ]
 
     # Use Polars unpivot to convert wide → long
     lf_long = lf.unpivot(
-        index=id_cols,
+        index=HOURLY_ID_COLS,
         on=county_cols,
         variable_name="county_state_names",
         value_name=f"capacity_factor_{lf_name}",
@@ -283,8 +288,12 @@ def _check_for_valid_counties(
 ) -> pl.LazyFrame:
     """Check that every place name in the data appears in the FIPS mapping table.
 
+    Runs on the wide raw table so the place names can be read straight from the
+    schema (they are the non-identifier column names), avoiding a data scan.
+
     Args:
-        lf: A stacked capacity factor table with a ``county_state_names`` column.
+        lf: A wide raw capacity factor table with one column per place name plus
+            the ``HOURLY_ID_COLS`` identifier columns.
         clean_fips_df: The cleaned lat/lon/FIPS table, whose ``county_state_names``
             column is the set of expected place names.
         lf_name: Short table label, used for logging and the error message.
@@ -293,22 +302,23 @@ def _check_for_valid_counties(
         ``lf`` unchanged; this is a validation pass-through.
 
     Raises:
-        AssertionError: If the data contains any ``county_state_names`` value that is
-            not present in ``clean_fips_df``.
+        AssertionError: If the data contains any place name that is not present in
+            ``clean_fips_df``.
     """
     logger.info(f"Checking for valid counties in the {lf_name} table.")
 
     # Fragile coupling: this runs before _drop_city_cols, so the city place names
-    # (bedford_city_virginia, clifton_forge_city_virginia) are still in the data
-    # here. The check only passes because _standardize_census_names deliberately
-    # adds those same city rows back into clean_fips_df. If the set of non-county
-    # place names kept by the two functions ever drifts apart, this will raise.
+    # (bedford_city_virginia, clifton_forge_city_virginia) are still present as
+    # columns here. The check only passes because _standardize_census_names
+    # deliberately adds those same city rows back into clean_fips_df. If the set of
+    # non-county place names kept by the two functions ever drifts apart, this
+    # raises.
     county_names_fips = clean_fips_df.county_state_names.unique().tolist()
 
-    county_names_cap = (
-        lf.select(pl.col("county_state_names")).unique().collect().to_series().to_list()
-    )
-    unexpected_place_names = [x for x in county_names_cap if x not in county_names_fips]
+    data_place_names = [
+        col for col in lf.collect_schema().names() if col not in HOURLY_ID_COLS
+    ]
+    unexpected_place_names = [x for x in data_place_names if x not in county_names_fips]
 
     if unexpected_place_names:
         raise AssertionError(
@@ -495,24 +505,22 @@ def _spot_fix_great_lakes_capacity_factor(
     """Normalize the misspelled Lake Huron place name in a capacity factor table.
 
     VCE RARE spells Lake Huron as ``lake_hurron_michigan`` in the raw capacity
-    factor data. This is the same fix ``_spot_fix_great_lakes_fips`` applies to
-    the lat/lon/FIPS table; both are needed because the misspelling appears in
-    both raw sources and the two tables are joined on ``county_state_names`` in
-    ``merge_all_vce_tables``.
+    factor data, where each place name is a column. This is the same fix
+    ``_spot_fix_great_lakes_fips`` applies to the lat/lon/FIPS table; both are
+    needed because the misspelling appears in both raw sources and the two tables
+    are joined on ``county_state_names`` in ``merge_all_vce_tables``. It runs
+    before ``_check_for_valid_counties`` so the corrected name matches the FIPS
+    table.
 
     Args:
-        lf: A stacked capacity factor table with a ``county_state_names`` column.
+        lf: A wide raw capacity factor table with one column per place name.
         lf_name: Label for the table, used only for logging by the caller.
 
     Returns:
-        The LazyFrame with ``lake_hurron_michigan`` replaced by
-        ``lake_huron_michigan`` in ``county_state_names``.
+        The LazyFrame with any ``lake_hurron_michigan`` column renamed to
+        ``lake_huron_michigan``.
     """
-    return lf.with_columns(
-        county_state_names=pl.col("county_state_names").replace(
-            "lake_hurron_michigan", "lake_huron_michigan"
-        )
-    )
+    return lf.rename({"lake_hurron_michigan": "lake_huron_michigan"}, strict=False)
 
 
 def one_year_hourly_available_capacity_factor(
@@ -562,9 +570,9 @@ def one_year_hourly_available_capacity_factor(
     }
     return {
         _table_name(lf_name): persist_table_as_parquet(
-            lf.pipe(_stack_cap_fac_df, lf_name)
-            .pipe(_spot_fix_great_lakes_capacity_factor, lf_name)
+            lf.pipe(_spot_fix_great_lakes_capacity_factor, lf_name)
             .pipe(_check_for_valid_counties, fips_df_census, lf_name)
+            .pipe(_stack_cap_fac_df, lf_name)
             .pipe(_add_time_cols, lf_name, year)
             .pipe(_drop_city_cols, lf_name)
             .pipe(_make_cap_fac_frac, lf_name)

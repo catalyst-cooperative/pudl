@@ -109,6 +109,38 @@ def _datetime_hour_lf(report_year: int, n_hours: int) -> pl.LazyFrame:
     )
 
 
+def test_check_for_valid_counties_passes():
+    """A wide table whose place-name columns are all in the FIPS table passes."""
+    clean_fips_df = pd.DataFrame(
+        {"county_state_names": ["adams_washington", "asotin_washington"]}
+    )
+    lf = pl.LazyFrame(
+        {
+            "hour_of_year": [1],
+            "report_year": [2024],
+            "adams_washington": [0.0],
+            "asotin_washington": [0.0],
+        }
+    )
+    result = vcerare._check_for_valid_counties(lf, clean_fips_df, "solar_pv")
+    assert result.collect_schema().names() == lf.collect_schema().names()
+
+
+def test_check_for_valid_counties_raises_on_unexpected_place_name():
+    """A place-name column missing from the FIPS table raises AssertionError."""
+    clean_fips_df = pd.DataFrame({"county_state_names": ["adams_washington"]})
+    lf = pl.LazyFrame(
+        {
+            "hour_of_year": [1],
+            "report_year": [2024],
+            "adams_washington": [0.0],
+            "not_a_real_county": [0.0],
+        }
+    )
+    with pytest.raises(AssertionError, match="not_a_real_county"):
+        vcerare._check_for_valid_counties(lf, clean_fips_df, "solar_pv")
+
+
 @pytest.mark.parametrize(
     ("lf", "year", "last_datetime"),
     [
