@@ -20,6 +20,7 @@ For the underlying Dagster concept, see [https://docs.dagster.io/guides/build/as
 
 * [pudl.dagster.assets.core](core/index.html.md)
 * [pudl.dagster.assets.deploy](deploy/index.html.md)
+* [pudl.dagster.assets.output](output/index.html.md)
 * [pudl.dagster.assets.raw](raw/index.html.md)
 
 ## Attributes

@@ -8,12 +8,12 @@ pudl.dagster.io_managers
    Dagster IO managers used by PUDL assets.
 
    This module defines the IO-manager implementations that translate between Dagster asset
-   execution and PUDL's storage formats, including SQLite, Parquet (with native GeoParquet
-   support for assets that return a :class:`geopandas.GeoDataFrame`), and the FERC
-   prerequisite databases. Put :class:`dagster.IOManager` and
-   :class:`dagster.ConfigurableIOManager` classes here, along with configured singleton
-   instances that the default code location reuses. Keep data-processing logic out of this
-   module; it should focus on persistence, loading, and storage-compatibility concerns.
+   execution and PUDL's storage formats, including Parquet (with native GeoParquet support
+   for assets that return a :class:`geopandas.GeoDataFrame`) and the FERC prerequisite
+   SQLite databases. Put :class:`dagster.IOManager` and :class:`dagster.ConfigurableIOManager`
+   classes here, along with configured singleton instances that the default code location
+   reuses. Keep data-processing logic out of this module; it should focus on persistence,
+   loading, and storage-compatibility concerns.
 
    For the underlying Dagster concept, see https://docs.dagster.io/guides/build/io-managers
 
@@ -25,9 +25,6 @@ Attributes
 .. autoapisummary::
 
    pudl.dagster.io_managers.logger
-   pudl.dagster.io_managers.MINIMUM_SQLITE_VERSION
-   pudl.dagster.io_managers.ALEMBIC_AUTOGENERATE_PLUGINS
-   pudl.dagster.io_managers.pudl_mixed_format_io_manager
    pudl.dagster.io_managers.parquet_io_manager
    pudl.dagster.io_managers.ferc1_dbf_sqlite_io_manager
    pudl.dagster.io_managers.ferc1_xbrl_sqlite_io_manager
@@ -40,10 +37,7 @@ Classes
 
 .. autoapisummary::
 
-   pudl.dagster.io_managers.PudlMixedFormatIOManager
-   pudl.dagster.io_managers.SqliteIOManager
    pudl.dagster.io_managers.PudlParquetIOManager
-   pudl.dagster.io_managers.PudlSqliteIOManager
    pudl.dagster.io_managers.FercSqliteIOManagerBase
    pudl.dagster.io_managers.FercDbfSqliteIOManager
    pudl.dagster.io_managers.FercXbrlSqliteIOManager
@@ -63,14 +57,6 @@ Module Contents
 
 .. py:data:: logger
 
-.. py:data:: MINIMUM_SQLITE_VERSION
-   :value: '3.32.0'
-
-
-.. py:data:: ALEMBIC_AUTOGENERATE_PLUGINS
-   :value: ['alembic.autogenerate.*', '~alembic.autogenerate.checkconstraint_byname']
-
-
 .. py:function:: _get_dagster_instance_if_available(context: dagster.InputContext) -> dagster.DagsterInstance | None
 
    Return the Dagster instance from an input context if one was provided.
@@ -87,157 +73,6 @@ Module Contents
 .. py:function:: get_table_name_from_context(context: dagster.InputContext | dagster.OutputContext) -> str
 
    Retrieves the table name from the context object.
-
-
-.. py:class:: PudlMixedFormatIOManager(**data: Any)
-
-   Bases: :py:obj:`dagster.ConfigurableIOManager`
-
-
-   Format switching IOManager that supports sqlite and parquet.
-
-   This IOManager provides for the use of parquet files along with the standard SQLite
-   database produced by PUDL.
-
-
-   .. py:attribute:: write_to_parquet
-      :type:  bool
-      :value: True
-
-
-      If true, data will be written to parquet files.
-
-
-   .. py:attribute:: read_from_parquet
-      :type:  bool
-      :value: True
-
-
-      If true, data will be read from parquet files instead of sqlite.
-
-
-   .. py:attribute:: pudl_paths
-      :type:  dagster.ResourceDependency[pudl.dagster.resources.PudlPathsResource]
-
-
-   .. py:method:: validate_parquet_settings() -> PudlMixedFormatIOManager
-
-      Ensure the configured read/write mode is internally consistent.
-
-
-
-   .. py:property:: _sqlite_io_manager
-      :type: PudlSqliteIOManager
-
-
-      Build the SQLite-backed runtime IO manager lazily.
-
-
-   .. py:property:: _parquet_io_manager
-      :type: PudlParquetIOManager
-
-
-      Build the Parquet-backed runtime IO manager lazily.
-
-
-   .. py:method:: handle_output(context: dagster.OutputContext, obj: pandas.DataFrame) -> None
-
-      Passes the output to the appropriate IO manager instance.
-
-
-
-   .. py:method:: load_input(context: dagster.InputContext) -> pandas.DataFrame | geopandas.GeoDataFrame | polars.LazyFrame
-
-      Reads input from the appropriate IO manager instance.
-
-
-
-.. py:class:: SqliteIOManager(base_dir: str, db_name: str, md: sqlalchemy.MetaData | None = None, timeout: float = 1000.0)
-
-   Bases: :py:obj:`dagster.IOManager`
-
-
-   IO Manager that writes and retrieves dataframes from a SQLite database.
-
-
-   .. py:attribute:: base_dir
-
-
-   .. py:attribute:: db_name
-
-
-   .. py:attribute:: md
-      :value: None
-
-
-
-   .. py:attribute:: engine
-      :value: None
-
-
-
-   .. py:method:: _setup_database(timeout: float = 1000.0) -> sqlalchemy.Engine
-
-      Create database and metadata if they don't exist.
-
-      :param timeout: How many seconds the connection should wait before raising an
-                      exception, if the database is locked by another connection.  If another
-                      connection opens a transaction to modify the database, it will be locked
-                      until that transaction is committed.
-
-      :returns: SQL Alchemy engine that connects to a database in the base_dir.
-      :rtype: engine
-
-
-
-   .. py:method:: _get_sqlalchemy_table(table_name: str) -> sqlalchemy.Table
-
-      Get SQL Alchemy Table object from metadata given a table_name.
-
-      :param table_name: The name of the table to look up.
-
-      :returns: Corresponding SQL Alchemy Table in SqliteIOManager metadata.
-      :rtype: table
-
-      :raises ValueError: if table_name does not exist in the SqliteIOManager metadata.
-
-
-
-   .. py:method:: _handle_pandas_output(context: dagster.OutputContext, df: pandas.DataFrame) -> None
-
-      Write dataframe to the database.
-
-      SQLite does not support concurrent writes to the database. Instead, SQLite
-      queues write transactions and executes them one at a time.  This allows the
-      assets to be processed in parallel. See the `SQLAlchemy docs
-      <https://docs.sqlalchemy.org/en/14/dialects/sqlite.html#database-
-      locking-behavior-concurrency>`__ to learn more about SQLite concurrency.
-
-      :param context: dagster keyword that provides access to output information like
-                      asset name.
-      :param df: dataframe to write to the database.
-
-
-
-   .. py:method:: handle_output(context: dagster.OutputContext, obj: pandas.DataFrame) -> None
-
-      Handle an op or asset output.
-
-      :param context: dagster keyword that provides access output information like asset
-                      name.
-      :param obj: a dataframe to add to the database.
-
-      :raises TypeError: if an asset or op returns an unsupported datatype.
-
-
-
-   .. py:method:: load_input(context: dagster.InputContext) -> pandas.DataFrame
-
-      Load a dataframe from a sqlite database.
-
-      :param context: dagster keyword that provides access output information like asset
-                      name.
-
 
 
 .. py:class:: PudlParquetIOManager(**data: Any)
@@ -280,39 +115,6 @@ Module Contents
       Loads pudl table from parquet file.
 
 
-
-.. py:class:: PudlSqliteIOManager(base_dir: str, db_name: str, package: pudl.metadata.classes.Package | None = None, timeout: float = 1000.0)
-
-   Bases: :py:obj:`SqliteIOManager`
-
-
-   IO Manager that writes and retrieves dataframes from a SQLite database.
-
-   This class extends the SqliteIOManager class to manage database metadata and dtypes
-   using the :class:`pudl.metadata.classes.Package` class.
-
-
-   .. py:attribute:: package
-      :value: None
-
-
-
-   .. py:method:: _handle_pandas_output(context: dagster.OutputContext, df: pandas.DataFrame) -> None
-
-      Enforce PUDL DB schema and write dataframe to SQLite.
-
-
-
-   .. py:method:: load_input(context: dagster.InputContext) -> pandas.DataFrame
-
-      Load a dataframe from a sqlite database.
-
-      :param context: dagster keyword that provides access output information like asset
-                      name.
-
-
-
-.. py:data:: pudl_mixed_format_io_manager
 
 .. py:data:: parquet_io_manager
 

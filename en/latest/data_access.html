@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="data_access.html.md" />
-    <title>Data Access &#8212; PUDL 2026.8.1.dev45 documentation</title>
+    <title>Data Access &#8212; PUDL 2026.8.1.dev46 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="_static/documentation_options.js?v=8139bbd3"></script>
+    <script src="_static/documentation_options.js?v=a1882138"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev45 documentation - Home"/>
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev45 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev46 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev46 documentation - Home"/>
   
   
 </a></div>
@@ -609,7 +609,7 @@ spreadsheets. Download full tables as Parquet files to play with
 programmatically.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#access-kaggle"><span class="std std-ref">Kaggle</span></a></p></td>
-<td><p>SQLite, Parquet</p></td>
+<td><p>Parquet, DuckDB, SQLite</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">nightly</span></code></p></td>
 <td><p>Data Scientist, Data Analyst, Jupyter Notebook User</p></td>
 <td><p>Work with PUDL data products in Jupyter Notebooks via the web with minimal setup.
@@ -618,22 +618,30 @@ notebooks.
 Create and share your own interactive notebooks using PUDL data.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#access-cloud"><span class="std std-ref">Cloud Storage</span></a></p></td>
-<td><p>SQLite, Parquet</p></td>
+<td><p>Parquet, DuckDB, SQLite</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">nightly</span></code>, <code class="docutils literal notranslate"><span class="pre">stable</span></code></p></td>
 <td><p>Data Scientist, Analytics Engineer, Data Engineer, Cloud Developer</p></td>
 <td><p>Performant remote queries of clearly versioned PUDL Parquet outputs from cloud
 computing platforms or GitHub Actions.
-Fast bulk download of SQLite or Parquet outputs for local use.
+Fast bulk download of outputs for local use.
 Parquet based data warehouse for large-scale data analysis in the cloud.
-Integrates well with Pandas, DuckDB, and other dataframe libraries.</p></td>
+Integrates well with Pandas, Polars, DuckDB, and other dataframe libraries.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#access-zenodo"><span class="std std-ref">Zenodo Archives</span></a></p></td>
-<td><p>SQLite, Parquet</p></td>
+<td><p>Parquet, DuckDB, SQLite</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">stable</span></code></p></td>
 <td><p>Researcher, Publisher, Archivist</p></td>
 <td><p>Access a specific, immutable version of the PUDL data by DOI for citation in
 academic publications or other applications where long-term reproducibility is
 needed. Web-based bulk download of data for local analysis.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#access-agent-skill"><span class="std std-ref">Coding Agents (PUDL Agent Skill)</span></a></p></td>
+<td><p>Parquet</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">nightly</span></code>, <code class="docutils literal notranslate"><span class="pre">stable</span></code></p></td>
+<td><p>Coding Agent User</p></td>
+<td><p>Let an AI coding agent (Claude Code, OpenCode, Pi, etc.) discover PUDL tables,
+look up column meanings and data-quality caveats, and load the Parquet outputs
+into a notebook or script.</p></td>
 </tr>
 </tbody>
 </table>
@@ -652,33 +660,50 @@ When choosing an access method you’ll want to consider:</p>
 <span id="access-platform"></span><h3>Data Platform<a class="headerlink" href="#data-platform" title="Link to this heading">#</a></h3>
 <p>PUDL data is distributed on a number of different platforms to accommodate a variety of
 different use cases. These include <a class="reference internal" href="#access-viewer"><span class="std std-ref">PUDL Data Viewer</span></a>, <a class="reference internal" href="#access-kaggle"><span class="std std-ref">Kaggle</span></a>,
-<a class="reference internal" href="#access-cloud"><span class="std std-ref">Cloud Storage</span></a>, and <a class="reference internal" href="#access-zenodo"><span class="std std-ref">Zenodo Archives</span></a>.</p>
+<a class="reference internal" href="#access-cloud"><span class="std std-ref">Cloud Storage</span></a>, <a class="reference internal" href="#access-zenodo"><span class="std std-ref">Zenodo Archives</span></a>, and the <a class="reference internal" href="#access-agent-skill"><span class="std std-ref">PUDL agent skill</span></a> for use with AI coding agents.</p>
 </section>
 <section id="data-format">
 <span id="access-format"></span><h3>Data Format<a class="headerlink" href="#data-format" title="Link to this heading">#</a></h3>
-<p>PUDL data is distributed in two main file formats</p>
+<p>PUDL data is distributed in several file formats:</p>
 <ul class="simple">
+<li><p><a class="reference external" href="https://parquet.apache.org/docs/">Apache Parquet</a>: a compressed, columnar storage
+format in which each file stores a single table. Parquet supports rich data types and
+metadata, and is highly performant. <strong>Parquet is PUDL’s primary output format</strong>, and
+the format we recommend for all new work.</p></li>
+<li><p><a class="reference external" href="https://duckdb.org">DuckDB</a>: a fast, self-contained analytical database that holds
+many tables in a single file. We publish the fully processed PUDL data as a single
+<code class="docutils literal notranslate"><span class="pre">pudl.duckdb</span></code> database, assembled from the Parquet outputs. It preserves the full
+set of column types and primary key constraints, but omits foreign key constraints to
+keep the file size down.</p></li>
 <li><p><a class="reference external" href="https://www.sqlite.org">SQLite</a>: a self-contained relational database that holds
 many tables in a single file, supported by many programming languages and tools.</p></li>
-<li><p><a class="reference external" href="https://parquet.apache.org/docs/">Apache Parquet</a>: a compressed,
-columnar storage format in which each file stores a single table. Parquet supports
-rich data types and metadata, and is highly performant.</p></li>
 </ul>
-<p>All data is distributed with both formats, except:</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><strong>The ``pudl.sqlite`` database is being deprecated.</strong> It is currently provided
+purely for backwards compatibility, and <strong>we will stop producing SQLite versions of
+the fully processed PUDL data in 2027</strong>. Please migrate to the Parquet outputs
+or the new <code class="docutils literal notranslate"><span class="pre">pudl.duckdb</span></code> database. This deprecation does <strong>not</strong> affect the
+<a class="reference internal" href="#access-raw-ferc"><span class="std std-ref">minimally processed raw FERC data</span></a>, which will continue to be
+distributed as SQLite for the time being.</p>
+</div>
+<p>Not every table is available in every format:</p>
 <ul class="simple">
-<li><p><strong>Parquet Only</strong>: The hourly data tables are distributed only as Parquet files.
-These tables have <code class="docutils literal notranslate"><span class="pre">hourly</span></code> in their names.</p></li>
-<li><p><strong>SQLite Only</strong>: The <a class="reference internal" href="#access-raw-ferc"><span class="std std-ref">minimally processed FERC data</span></a> which we
-have converted from XBRL and DBF into SQLite are only available in SQLite.</p></li>
+<li><p><strong>Parquet only</strong>: The hourly data tables are distributed only as Parquet files. These
+tables have <code class="docutils literal notranslate"><span class="pre">hourly</span></code> in their names, and are excluded from the <code class="docutils literal notranslate"><span class="pre">pudl.duckdb</span></code> and
+<code class="docutils literal notranslate"><span class="pre">pudl.sqlite</span></code> databases.</p></li>
+<li><p><strong>SQLite only</strong>: The <a class="reference internal" href="#access-raw-ferc"><span class="std std-ref">minimally processed FERC data</span></a> which we
+have converted from XBRL and DBF into SQLite are only available in SQLite (and,
+experimentally, DuckDB — see <a class="reference internal" href="#access-raw-ferc-duckdb"><span class="std std-ref">Raw FERC XBRL data converted to DuckDB</span></a>).</p></li>
 </ul>
 <p>All Parquet data is available through <a class="reference internal" href="#access-viewer"><span class="std std-ref">PUDL Data Viewer</span></a> for previewing. It can be
 downloaded as a CSV through that platform if you need to work with it in spreadsheets.
 For programmatic use we <strong>strongly recommend</strong> that you access the Parquet files in
 S3 directly. See <a class="reference internal" href="#access-cloud"><span class="std std-ref">Cloud Storage</span></a>.</p>
-<p>All SQLite data can be downloaded from S3 (see <a class="reference internal" href="#access-cloud"><span class="std std-ref">Cloud Storage</span></a>) or our regular
-versionsed releases (see <a class="reference internal" href="#access-zenodo"><span class="std std-ref">Zenodo Archives</span></a>). We are <a class="reference external" href="https://github.com/catalyst-cooperative/eel-hole/issues/4">working on integrating all
-converted FERC databases</a>.
-into <a class="reference internal" href="#access-viewer"><span class="std std-ref">PUDL Data Viewer</span></a>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">pudl.duckdb</span></code> and <code class="docutils literal notranslate"><span class="pre">pudl.sqlite</span></code> databases and the raw FERC SQLite databases can
+be downloaded from S3 (see <a class="reference internal" href="#access-cloud"><span class="std std-ref">Cloud Storage</span></a>) or our regular versioned releases (see
+<a class="reference internal" href="#access-zenodo"><span class="std std-ref">Zenodo Archives</span></a>). All the converted FERC databases can also be accessed through
+<a class="reference internal" href="#access-viewer"><span class="std std-ref">PUDL Data Viewer</span></a>.</p>
 </section>
 <section id="data-version">
 <span id="access-version"></span><h3>Data Version<a class="headerlink" href="#data-version" title="Link to this heading">#</a></h3>
@@ -694,11 +719,12 @@ ephemeral and may not be as well validated as the <code class="docutils literal 
 </section>
 <section id="pudl-data-viewer">
 <span id="access-viewer"></span><h2>PUDL Data Viewer<a class="headerlink" href="#pudl-data-viewer" title="Link to this heading">#</a></h2>
-<p>We recently released the <a class="reference external" href="https://data.catalyst.coop/">PUDL Data Viewer</a> in beta.</p>
-<p>It provides flexible search of table metadata, live data preview with filtering
-and sorting, and CSV export of up to 5 million rows.</p>
-<p>Finally, it also has links to the Parquet downloads for each table, which you
-can view directly with tools like <a class="reference external" href="https://www.tadviewer.com/">Tad</a>.</p>
+<p>The <a class="reference external" href="https://data.catalyst.coop/">PUDL Data Viewer</a> provides flexible search of table
+metadata, live data preview with filtering and sorting, and CSV export of up to 5
+million rows. It provides access to all of the PUDL Parquet outputs, the minimally
+processed FERC Form 1, 2, 6, 60, and 714 data, and the FERC EQR.</p>
+<p>It also provides links to download Parquet files for each table, which you can view
+locally with tools like <a class="reference external" href="https://www.tadviewer.com/">Tad</a>.</p>
 </section>
 <section id="kaggle">
 <span id="access-kaggle"></span><h2>Kaggle<a class="headerlink" href="#kaggle" title="Link to this heading">#</a></h2>
@@ -718,7 +744,8 @@ be fast.</p>
 <p>All PUDL data products are freely available in the
 <a class="reference external" href="https://registry.opendata.aws/catalyst-cooperative-pudl/">AWS Open Data Registry</a>
 including both <code class="docutils literal notranslate"><span class="pre">stable</span></code> and <code class="docutils literal notranslate"><span class="pre">nightly</span></code> outputs and multiple years of past stable
-releases. These include data in both SQLite and Parquet formats. The AWS S3 bucket is:</p>
+releases. These include data in Parquet, DuckDB, and SQLite formats. The AWS S3 bucket
+is:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>s3://pudl.catalyst.coop
 </pre></div>
 </div>
@@ -728,8 +755,8 @@ bucket is:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>gs://pudl.catalyst.coop
 </pre></div>
 </div>
-<p>SQLite databases must be downloaded for local use, but Parquet files can be queried
-remotely using a number of different tools. Some examples below:</p>
+<p>The SQLite databases must be downloaded for local use, but Parquet and DuckDB files
+can be queried remotely using a number of different tools. Some examples below:</p>
 <section id="pandas">
 <h3>Pandas<a class="headerlink" href="#pandas" title="Link to this heading">#</a></h3>
 <p>Using <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.read_parquet.html">Pandas read_parquet()</a></p>
@@ -751,19 +778,95 @@ remotely using a number of different tools. Some examples below:</p>
 </section>
 <section id="duckdb">
 <h3>DuckDB<a class="headerlink" href="#duckdb" title="Link to this heading">#</a></h3>
-<p>Using <a class="reference external" href="https://duckdb.org/2021/06/25/querying-parquet.html">DuckDB</a>
-and the <a class="reference external" href="https://duckdb.org/docs/guides/network_cloud_storage/s3_import.html">httpfs extension</a></p>
+<p><a class="reference external" href="https://duckdb.org/2021/06/25/querying-parquet.html">DuckDB</a> with the <a class="reference external" href="https://duckdb.org/docs/guides/network_cloud_storage/s3_import.html">httpfs
+extension</a> can
+query the PUDL outputs in place on S3 — you don’t need to download anything first.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Our bucket name contains dots (<code class="docutils literal notranslate"><span class="pre">pudl.catalyst.coop</span></code>), which breaks DuckDB’s
+default virtual-host S3 addressing: the request goes to
+<code class="docutils literal notranslate"><span class="pre">pudl.catalyst.coop.s3.us-west-2.amazonaws.com</span></code>, and AWS’s wildcard TLS
+certificate (<code class="docutils literal notranslate"><span class="pre">*.s3.us-west-2.amazonaws.com</span></code>) only covers a single label, so the
+handshake fails. Create an anonymous S3 secret that uses path-style addressing to
+avoid this. It applies to both <code class="docutils literal notranslate"><span class="pre">read_parquet()</span></code> and <code class="docutils literal notranslate"><span class="pre">ATTACH</span></code>:</p>
+</div>
 <div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="c1">-- Install the httpfs extension once and it will be available in subsequent sessions</span>
 <span class="n">INSTALL</span><span class="w"> </span><span class="n">httpfs</span><span class="p">;</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">read_parquet</span><span class="p">(</span><span class="s1">'s3://pudl.catalyst.coop/nightly/core_eia__codes_energy_sources.parquet'</span><span class="p">);</span>
+<span class="k">LOAD</span><span class="w"> </span><span class="n">httpfs</span><span class="p">;</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="n">SECRET</span><span class="w"> </span><span class="p">(</span><span class="k">TYPE</span><span class="w"> </span><span class="n">s3</span><span class="p">,</span><span class="w"> </span><span class="n">PROVIDER</span><span class="w"> </span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">REGION</span><span class="w"> </span><span class="s1">'us-west-2'</span><span class="p">,</span><span class="w"> </span><span class="n">URL_STYLE</span><span class="w"> </span><span class="s1">'path'</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>To query an individual Parquet file:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">read_parquet</span><span class="p">(</span><span class="s1">'s3://pudl.catalyst.coop/nightly/core_eia__codes_energy_sources.parquet'</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>To query the full <code class="docutils literal notranslate"><span class="pre">pudl.duckdb</span></code> database, attach it read-only and refer to its tables
+by name:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="n">ATTACH</span><span class="w"> </span><span class="s1">'s3://pudl.catalyst.coop/nightly/pudl.duckdb'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pudl</span><span class="w"> </span><span class="p">(</span><span class="n">READ_ONLY</span><span class="p">);</span>
+<span class="k">SELECT</span>
+<span class="w">    </span><span class="n">report_date</span><span class="p">,</span>
+<span class="w">    </span><span class="n">plant_id_eia</span><span class="p">,</span>
+<span class="w">    </span><span class="n">generator_id</span><span class="p">,</span>
+<span class="w">    </span><span class="n">capacity_mw</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">pudl</span><span class="p">.</span><span class="n">out_eia__yearly_generators</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">technology_description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Nuclear'</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>The same works from the <a class="reference external" href="https://duckdb.org/docs/stable/clients/python/overview">DuckDB Python API</a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">duckdb</span>
+
+<span class="n">con</span> <span class="o">=</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+<span class="n">con</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">"INSTALL httpfs; LOAD httpfs;"</span><span class="p">)</span>
+<span class="n">con</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">"CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path')"</span><span class="p">)</span>
+<span class="n">con</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">"ATTACH 's3://pudl.catalyst.coop/nightly/pudl.duckdb' AS pudl (READ_ONLY)"</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">con</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+    <span class="s2">"SELECT * FROM pudl.out_eia__yearly_generators WHERE technology_description = 'Nuclear'"</span>
+<span class="p">)</span><span class="o">.</span><span class="n">df</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Downloading <code class="docutils literal notranslate"><span class="pre">pudl.duckdb</span></code> for local use works too, and will be faster if you plan to
+run many queries — see <a class="reference internal" href="#direct-download"><span class="std std-ref">Direct Links for Bulk Download</span></a>.</p>
+</section>
+<section id="polars">
+<h3>Polars<a class="headerlink" href="#polars" title="Link to this heading">#</a></h3>
+<p><a class="reference external" href="https://docs.pola.rs/">Polars</a> can scan the <a class="reference external" href="https://docs.pola.rs/user-guide/io/cloud-storage/">Parquet outputs directly from S3</a>, using lazy evaluation so that
+filters and column selection are pushed down and only the data you actually need is
+downloaded:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
+
+<span class="n">lf</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">scan_parquet</span><span class="p">(</span>
+    <span class="s2">"s3://pudl.catalyst.coop/nightly/out_eia__yearly_generators.parquet"</span><span class="p">,</span>
+    <span class="n">storage_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"aws_region"</span><span class="p">:</span> <span class="s2">"us-west-2"</span><span class="p">,</span> <span class="s2">"aws_skip_signature"</span><span class="p">:</span> <span class="s2">"true"</span><span class="p">},</span>
+<span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">lf</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"technology_description"</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"Nuclear"</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"generator_id"</span><span class="p">,</span> <span class="s2">"capacity_mw"</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </section>
-<section id="other-dataframe-libraries">
-<h3>Other Dataframe Libraries<a class="headerlink" href="#other-dataframe-libraries" title="Link to this heading">#</a></h3>
-<p>Similar functionality exists for the <a class="reference external" href="https://www.pmassicotte.com/posts/2024-05-01-query-s3-duckplyr/">dplyr library in R</a>, the <a class="reference external" href="https://docs.pola.rs/user-guide/io/cloud-storage/">polars
-library in Rust</a>, and many other
-programmatic data analysis tools.</p>
+<section id="r-dplyr">
+<h3>R (dplyr)<a class="headerlink" href="#r-dplyr" title="Link to this heading">#</a></h3>
+<p>The <a class="reference external" href="https://arrow.apache.org/docs/r/">arrow</a> package lets you <a class="reference external" href="https://www.pmassicotte.com/posts/2024-05-01-query-s3-duckplyr/">open a Parquet file
+directly from S3</a>
+with <a class="reference external" href="https://dplyr.tidyverse.org/">dplyr</a> verbs. Column selection and row filters
+are pushed down to Arrow, so only the data you ask for is read; call <code class="docutils literal notranslate"><span class="pre">collect()</span></code> to
+pull the result into a regular data frame:</p>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">library</span><span class="p">(</span><span class="n">arrow</span><span class="p">)</span>
+<span class="nf">library</span><span class="p">(</span><span class="n">dplyr</span><span class="p">)</span>
+
+<span class="n">generators</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">open_dataset</span><span class="p">(</span>
+<span class="w">  </span><span class="s">"s3://pudl.catalyst.coop/nightly/out_eia__yearly_generators.parquet"</span><span class="p">,</span>
+<span class="w">  </span><span class="n">format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"parquet"</span>
+<span class="p">)</span>
+
+<span class="n">df</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">generators</span><span class="w"> </span><span class="o">|&gt;</span>
+<span class="w">  </span><span class="nf">filter</span><span class="p">(</span><span class="n">technology_description</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"Nuclear"</span><span class="p">)</span><span class="w"> </span><span class="o">|&gt;</span>
+<span class="w">  </span><span class="nf">select</span><span class="p">(</span><span class="n">report_date</span><span class="p">,</span><span class="w"> </span><span class="n">plant_id_eia</span><span class="p">,</span><span class="w"> </span><span class="n">generator_id</span><span class="p">,</span><span class="w"> </span><span class="n">capacity_mw</span><span class="p">)</span><span class="w"> </span><span class="o">|&gt;</span>
+<span class="w">  </span><span class="nf">collect</span><span class="p">()</span>
+</pre></div>
+</div>
 </section>
 <section id="the-aws-cli">
 <h3>The AWS CLI<a class="headerlink" href="#the-aws-cli" title="Link to this heading">#</a></h3>
@@ -774,18 +877,18 @@ bucket to see what historic versions are available:</p>
 </pre></div>
 </div>
 <p>To list the contents of a particular version:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>aws<span class="w"> </span>s3<span class="w"> </span>ls<span class="w"> </span>--no-sign-request<span class="w"> </span>s3://pudl.catalyst.coop/v2024.8.0/
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>aws<span class="w"> </span>s3<span class="w"> </span>ls<span class="w"> </span>--no-sign-request<span class="w"> </span>s3://pudl.catalyst.coop/v2026.8.0/
 </pre></div>
 </div>
-<p>And then download the full PUDL SQLite database from the nightly build outputs:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>aws<span class="w"> </span>s3<span class="w"> </span>cp<span class="w"> </span>--no-sign-request<span class="w"> </span>s3://pudl.catalyst.coop/nightly/pudl.sqlite.zip<span class="w"> </span>.
+<p>To download the full PUDL DuckDB database (9 GB) from the nightly build outputs:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>aws<span class="w"> </span>s3<span class="w"> </span>cp<span class="w"> </span>--no-sign-request<span class="w"> </span>s3://pudl.catalyst.coop/nightly/pudl.duckdb<span class="w"> </span>.
 </pre></div>
 </div>
 </section>
 <section id="direct-links-for-bulk-download">
-<h3>Direct Links for Bulk Download<a class="headerlink" href="#direct-links-for-bulk-download" title="Link to this heading">#</a></h3>
+<span id="direct-download"></span><h3>Direct Links for Bulk Download<a class="headerlink" href="#direct-links-for-bulk-download" title="Link to this heading">#</a></h3>
 <p>The links below allow bulk download the most recent <code class="docutils literal notranslate"><span class="pre">nightly</span></code> builds of the PUDL
-parquet and SQLite outputs, as well as their associated metadata in JSON.</p>
+Parquet, DuckDB, and SQLite outputs, as well as their associated metadata in JSON.</p>
 <section id="fully-processed-parquet-data">
 <h4>Fully Processed Parquet Data<a class="headerlink" href="#fully-processed-parquet-data" title="Link to this heading">#</a></h4>
 <ul class="simple">
@@ -798,8 +901,20 @@ all PUDL Parquet files bundled together with the <code class="docutils literal n
 inside. Suitable for bulk download to a local machine.</p></li>
 </ul>
 </section>
+<section id="fully-processed-duckdb-database">
+<h4>Fully Processed DuckDB Database<a class="headerlink" href="#fully-processed-duckdb-database" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p><a class="reference external" href="https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/pudl.duckdb">Main PUDL Database</a></p></li>
+</ul>
+</section>
 <section id="fully-processed-sqlite-databases">
 <h4>Fully Processed SQLite Databases<a class="headerlink" href="#fully-processed-sqlite-databases" title="Link to this heading">#</a></h4>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The fully processed <code class="docutils literal notranslate"><span class="pre">pudl.sqlite</span></code> database is deprecated and will no longer be
+produced starting in 2027. See <a class="reference internal" href="#access-format"><span class="std std-ref">Data Format</span></a>. Use the Parquet outputs or the
+<code class="docutils literal notranslate"><span class="pre">pudl.duckdb</span></code> database instead.</p>
+</div>
 <ul class="simple">
 <li><p><a class="reference external" href="https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/pudl.sqlite.zip">Main PUDL Database</a> (~3GB)</p></li>
 <li><p><a class="reference external" href="https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/censusdp1tract.sqlite.zip">US Census DP1 Database (2010)</a></p></li>
@@ -849,12 +964,16 @@ inside. Suitable for bulk download to a local machine.</p></li>
 </li>
 </ul>
 </section>
-<section id="raw-ferc-xbrl-data-converted-to-duckdb-experimental">
-<span id="access-raw-ferc-duckdb"></span><h4>Raw FERC XBRL data converted to DuckDB (EXPERIMENTAL)<a class="headerlink" href="#raw-ferc-xbrl-data-converted-to-duckdb-experimental" title="Link to this heading">#</a></h4>
-<p>To enable remote querying of the converted FERC databases, we are experimenting with
-DuckDB as an output format. Currently it only includes the more recent XBRL data. Within
-DuckDB you can now do queries like this:</p>
-<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="n">INSTALL</span><span class="w"> </span><span class="n">httpfs</span><span class="p">;</span><span class="w"> </span><span class="k">LOAD</span><span class="w"> </span><span class="n">httpfs</span><span class="p">;</span>
+<section id="raw-ferc-xbrl-data-converted-to-duckdb">
+<span id="access-raw-ferc-duckdb"></span><h4>Raw FERC XBRL data converted to DuckDB<a class="headerlink" href="#raw-ferc-xbrl-data-converted-to-duckdb" title="Link to this heading">#</a></h4>
+<p>To enable remote querying of the converted FERC databases, we have started using DuckDB
+as an output format. Currently it only includes the more recent XBRL data. Within DuckDB
+you can now do queries like this:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="n">INSTALL</span><span class="w"> </span><span class="n">httpfs</span><span class="p">;</span>
+<span class="k">LOAD</span><span class="w"> </span><span class="n">httpfs</span><span class="p">;</span>
+<span class="c1">-- Path-style S3 addressing is required because our bucket name contains dots.</span>
+<span class="c1">-- See the DuckDB notes under Cloud Storage above.</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="n">SECRET</span><span class="w"> </span><span class="p">(</span><span class="k">TYPE</span><span class="w"> </span><span class="n">s3</span><span class="p">,</span><span class="w"> </span><span class="n">PROVIDER</span><span class="w"> </span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">REGION</span><span class="w"> </span><span class="s1">'us-west-2'</span><span class="p">,</span><span class="w"> </span><span class="n">URL_STYLE</span><span class="w"> </span><span class="s1">'path'</span><span class="p">);</span>
 <span class="n">ATTACH</span><span class="w"> </span><span class="s1">'s3://pudl.catalyst.coop/nightly/ferc1_xbrl.duckdb'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">ferc1_xbrl</span><span class="w"> </span><span class="p">(</span><span class="n">READ_ONLY</span><span class="p">);</span>
 <span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">ferc1_xbrl</span><span class="p">.</span><span class="n">transmission_lines_added_during_year_424_duration</span><span class="p">;</span>
 </pre></div>
@@ -871,8 +990,8 @@ with <code class="xref py py-meth docutils literal notranslate"><span class="pre
 </ul>
 </section>
 </section>
-<section id="ferc-eqr-experimental">
-<span id="access-ferceqr"></span><h3>FERC EQR (EXPERIMENTAL)<a class="headerlink" href="#ferc-eqr-experimental" title="Link to this heading">#</a></h3>
+<section id="ferc-eqr-form-920">
+<span id="access-ferceqr"></span><h3>FERC EQR (Form 920)<a class="headerlink" href="#ferc-eqr-form-920" title="Link to this heading">#</a></h3>
 <p>In early 2026 we started processing and distributing the
 <a class="reference internal" href="data_sources/ferceqr.html"><span class="doc">FERC Electric Quarterly Reports (EQR)</span></a> dataset as a
 partitioned Apache Parquet dataset. Even as Parquet the EQR is close to 100 GB, so
@@ -904,7 +1023,11 @@ examples:</p>
 <input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-0">
 SQL (DuckDB)</label><div class="sd-tab-content docutils">
-<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="s1">'s3://pudl.catalyst.coop/ferceqr/core_ferceqr__contracts/*.parquet'</span>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="n">INSTALL</span><span class="w"> </span><span class="n">httpfs</span><span class="p">;</span>
+<span class="k">LOAD</span><span class="w"> </span><span class="n">httpfs</span><span class="p">;</span>
+<span class="c1">-- Path-style S3 addressing is required because our bucket name contains dots.</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="n">SECRET</span><span class="w"> </span><span class="p">(</span><span class="k">TYPE</span><span class="w"> </span><span class="n">s3</span><span class="p">,</span><span class="w"> </span><span class="n">PROVIDER</span><span class="w"> </span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">REGION</span><span class="w"> </span><span class="s1">'us-west-2'</span><span class="p">,</span><span class="w"> </span><span class="n">URL_STYLE</span><span class="w"> </span><span class="s1">'path'</span><span class="p">);</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="s1">'s3://pudl.catalyst.coop/ferceqr/core_ferceqr__contracts/*.parquet'</span>
 <span class="k">WHERE</span><span class="w"> </span><span class="n">seller_company_name</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'%Bonneville%'</span>
 <span class="k">LIMIT</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
 </pre></div>
@@ -914,9 +1037,12 @@ SQL (DuckDB)</label><div class="sd-tab-content docutils">
 <label class="sd-tab-label" for="sd-tab-item-1">
 Python (DuckDB/Pandas)</label><div class="sd-tab-content docutils">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">duckdb</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="c1"># Path-style S3 addressing is required because our bucket name contains dots.</span>
+<span class="n">con</span> <span class="o">=</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+<span class="n">con</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">"INSTALL httpfs; LOAD httpfs;"</span><span class="p">)</span>
+<span class="n">con</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">"CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path')"</span><span class="p">)</span>
 <span class="c1"># Query S3 with DuckDB and convert the result to pandas</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">"""</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">con</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">"""</span>
 <span class="s2">   SELECT *</span>
 <span class="s2">   FROM 's3://pudl.catalyst.coop/ferceqr/core_ferceqr__contracts/*.parquet'</span>
 <span class="s2">   WHERE seller_company_name LIKE '%Bonneville%'</span>
@@ -945,6 +1071,25 @@ Python (Polars)</label><div class="sd-tab-content docutils">
 </div>
 </section>
 </section>
+<section id="coding-agents-pudl-agent-skill">
+<span id="access-agent-skill"></span><h2>Coding Agents (PUDL Agent Skill)<a class="headerlink" href="#coding-agents-pudl-agent-skill" title="Link to this heading">#</a></h2>
+<p>If you already work with an AI coding agent (Claude Code, OpenCode, Pi, and similar
+tools), you can install the <strong>PUDL agent skill</strong> from the
+<a class="reference external" href="https://github.com/catalyst-cooperative/agent-skills">catalyst-cooperative/agent-skills</a> repository on GitHub. The
+skill teaches your agent how to:</p>
+<ul class="simple">
+<li><p>discover which PUDL tables exist and what each table and column means,</p></li>
+<li><p>surface data-quality caveats and usage warnings recorded in the table metadata, and</p></li>
+<li><p>load the Parquet outputs directly from S3 or a local directory into a notebook or
+script.</p></li>
+</ul>
+<p>It reads the same published Parquet outputs and Frictionless metadata described
+elsewhere on this page, and does not require the <code class="docutils literal notranslate"><span class="pre">pudl</span></code> Python package to be
+installed. See the <a class="reference external" href="https://github.com/catalyst-cooperative/agent-skills/tree/main/skills/pudl">skill’s README</a> for
+installation and usage instructions. It builds on a companion <code class="docutils literal notranslate"><span class="pre">datapackage</span></code> skill
+defined in the same repository which provides similar help for any dataset described by
+a <code class="docutils literal notranslate"><span class="pre">datapackage.json</span></code> descriptor.</p>
+</section>
 <section id="zenodo-archives">
 <span id="access-zenodo"></span><h2>Zenodo Archives<a class="headerlink" href="#zenodo-archives" title="Link to this heading">#</a></h2>
 <p>If you want a specific, immutable version of our data for any reason, you can find them
@@ -952,9 +1097,9 @@ all <a class="reference external" href="https://zenodo.org/doi/10.5281/zenodo.36
 long-lived DOIs to each archive, suitable for citation in academic journals and other
 publications. The most recent versioned PUDL data release can always be found using this
 Concept DOI: <a class="reference external" href="https://doi.org/10.5281/zenodo.3653158">https://doi.org/10.5281/zenodo.3653158</a></p>
-<p>From Zenodo you can download individual SQLite databases, a zipfile containing all the
-Parquet files bundled together (<code class="docutils literal notranslate"><span class="pre">pudl_parquet.zip</span></code>, which includes a
-<code class="docutils literal notranslate"><span class="pre">datapackage.json</span></code> descriptor), and the standalone
+<p>From Zenodo you can download the <code class="docutils literal notranslate"><span class="pre">pudl.duckdb</span></code> database, individual SQLite databases,
+a zipfile containing all the Parquet files bundled together (<code class="docutils literal notranslate"><span class="pre">pudl_parquet.zip</span></code>, which
+includes a <code class="docutils literal notranslate"><span class="pre">datapackage.json</span></code> descriptor), and the standalone
 <code class="docutils literal notranslate"><span class="pre">pudl_parquet_datapackage.json</span></code> descriptor for browsing the schema without
 downloading any data.</p>
 <p>The documentation for the latest such stable build is <a class="reference external" href="https://docs.catalyst.coop/pudl/en/stable/">here</a>. You can access the
@@ -1044,18 +1189,21 @@ pre-processed data via one of the other access modes easier. But if you want to
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cloud-storage">Cloud Storage</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pandas">Pandas</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#duckdb">DuckDB</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#other-dataframe-libraries">Other Dataframe Libraries</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#polars">Polars</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#r-dplyr">R (dplyr)</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-aws-cli">The AWS CLI</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#direct-links-for-bulk-download">Direct Links for Bulk Download</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#fully-processed-parquet-data">Fully Processed Parquet Data</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#fully-processed-duckdb-database">Fully Processed DuckDB Database</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#fully-processed-sqlite-databases">Fully Processed SQLite Databases</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#raw-ferc-dbf-xbrl-data-converted-to-sqlite">Raw FERC DBF &amp; XBRL data converted to SQLite</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#raw-ferc-xbrl-data-converted-to-duckdb-experimental">Raw FERC XBRL data converted to DuckDB (EXPERIMENTAL)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#raw-ferc-xbrl-data-converted-to-duckdb">Raw FERC XBRL data converted to DuckDB</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ferc-eqr-experimental">FERC EQR (EXPERIMENTAL)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ferc-eqr-form-920">FERC EQR (Form 920)</a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#coding-agents-pudl-agent-skill">Coding Agents (PUDL Agent Skill)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#zenodo-archives">Zenodo Archives</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#raw-data">Raw Data</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#development-environment">Development Environment</a></li>

@@ -6,6 +6,23 @@
 
 This is the upcoming PUDL release.
 
+### Output Formats & Distribution
+
+* **Added a fully processed \`\`pudl.duckdb\`\` database.** After the ETL completes we now
+  assemble all of the non-hourly PUDL tables into a single [DuckDB](https://duckdb.org) database named `pudl.duckdb` alongside `pudl.sqlite`,
+  both built directly from the Parquet outputs. It preserves the full set of column
+  checks and primary key constraints. Foreign key constraints are currently omitted due
+  to a handful of column type conflicts outlined in issue [#5552](https://github.com/catalyst-cooperative/pudl/issues/5552) being addressed
+  in PR [#5554](https://github.com/catalyst-cooperative/pudl/pull/5554). Both databases are published to S3, GCS, and Zenodo along with our
+  other outputs. See [Data Access](data_access.html.md). See PR [#5538](https://github.com/catalyst-cooperative/pudl/pull/5538).
+* **The fully processed \`\`pudl.sqlite\`\` database is deprecated.** PUDL’s ETL no longer
+  writes SQLite directly; `pudl.sqlite` is now built from the Parquet outputs after
+  the ETL purely for backwards compatibility. **We will stop producing SQLite versions
+  of the fully processed PUDL data in 2027.** Please migrate to the Parquet outputs
+  or the new `pudl.duckdb` database. This deprecation does not affect the minimally
+  processed raw FERC data, which will continue to be distributed as SQLite. See PR
+  [#5538](https://github.com/catalyst-cooperative/pudl/pull/5538).
+
 ### New Data
 
 #### EIA-176
@@ -156,6 +173,16 @@ This is the upcoming PUDL release.
   which was replaced by the cleaned and validated
   [core_phmsagas_\_yearly_distribution_by_install_decade](data_dictionaries/pudl_db.html.md#core-phmsagas-yearly-distribution-by-install-decade). See [#5504](https://github.com/catalyst-cooperative/pudl/issues/5504) and
   [#5548](https://github.com/catalyst-cooperative/pudl/pull/5548).
+* Fixed the DuckDB examples in [Data Access](data_access.html.md) and the per-table access snippets in
+  the data dictionary. Because our S3 bucket name contains dots, DuckDB’s default
+  virtual-host addressing hit a TLS certificate mismatch; the examples now create an
+  anonymous path-style S3 secret (`CREATE SECRET (TYPE s3, PROVIDER config, REGION
+  'us-west-2', URL_STYLE 'path')`) before querying. See PR [#5538](https://github.com/catalyst-cooperative/pudl/pull/5538).
+* Added a data validation test that checks `pudl.sqlite`, `pudl.duckdb`, and the
+  Parquet outputs are mutually consistent: every table defined in `PUDL_PACKAGE` is
+  present in both databases, neither database has extra tables, and every table has the
+  same columns and the same row count in SQLite, DuckDB, and its source Parquet file.
+  See PR [#5538](https://github.com/catalyst-cooperative/pudl/pull/5538).
 
 ### Performance Improvements
 
@@ -209,7 +236,7 @@ This is the upcoming PUDL release.
   failures. A pytest collection hook enforces the ETL/no-ETL split. Also fixed a live
   Zulip notification firing from the test suite and tightened the dbt `schema.yml`
   round-trip test. See issue [#5508](https://github.com/catalyst-cooperative/pudl/issues/5508) and PR [#5507](https://github.com/catalyst-cooperative/pudl/pull/5507).
-* Do foreign key constraint validation with dbt instead of SQLite. Update our
+* Validate foreign key constraints with dbt instead of SQLite. Update our
   `dbt_helper` script to autogenerate FK constraint tests based on the PUDL metadata.
   Remove the SQLite based FK checking infrastructure. Also add sensible defaults for
   our row-count expectation checking test so we can remove boilerplate test specs.
@@ -223,6 +250,15 @@ This is the upcoming PUDL release.
   corresponding GitHub-repo Zenodo software archive), which are also populated as
   structured `related_identifiers` for better DataCite/OpenAIRE indexing. See issue
   [#3326](https://github.com/catalyst-cooperative/pudl/issues/3326) and PR [#5484](https://github.com/catalyst-cooperative/pudl/pull/5484).
+* Removed Alembic and the PUDL SQLite schema migrations. With PUDL’s own tables no
+  longer written to SQLite during the ETL, there is no schema for Alembic to manage, so
+  `alembic.ini`, the `migrations/` directory, and the `alembic` dependency have
+  been removed. See PR [#5538](https://github.com/catalyst-cooperative/pudl/pull/5538).
+* Replaced the `pudl_engine` pytest fixture (a SQLAlchemy engine) with
+  `pudl_sqlite_connection` alongside a `pudl_duckdb_connection`. Both of which are
+  DuckDB connections. One dedicated to reading `pudl.sqlite` via DuckDB’s `sqlite`
+  extension, so tests query both build outputs through one API as PUDL moves toward
+  DuckDB. See PR [#5538](https://github.com/catalyst-cooperative/pudl/pull/5538).
 
 <a id="release-v2026-8-0"></a>
 
@@ -1438,7 +1474,7 @@ deploying.
   SQLite) can be queried remotely when stored in a cloud bucket. This will also let us
   provide access to this relatively raw but complete FERC data through the [PUDL Data
   Viewer](https://data.catalyst.coop). Note that the XBRL data only covers 2021 to
-  the present. For links and an access example, see [Raw FERC XBRL data converted to DuckDB (EXPERIMENTAL)](data_access.html.md#access-raw-ferc-duckdb). See
+  the present. For links and an access example, see [Raw FERC XBRL data converted to DuckDB](data_access.html.md#access-raw-ferc-duckdb). See
   PR [#4782](https://github.com/catalyst-cooperative/pudl/pull/4782) for this change, which is mostly implemented in the
   1.7.x releases of our [FERC XBRL Extractor](https://github.com/catalyst-cooperative/ferc-xbrl-extractor/releases).
 

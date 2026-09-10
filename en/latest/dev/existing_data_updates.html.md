@@ -381,10 +381,6 @@ remain in the table where they are reported. See
 [Entity Resolution](../methodology/entity_resolution.html.md) for details on how harvested entity and yearly SCD
 tables are constructed.
 
-**5.5)** Once you’ve updated the metadata, you’ll need to update the alembic version.
-See the instructions for doing so in [Running the ETL Pipeline](run_the_etl.html.md). You may have already updated
-alembic if you used Dagster to materialize the raw and clean assets.
-
 ## 6. Connect Datasets
 
 ### A. FERC 1 & EIA Plants & Utilities

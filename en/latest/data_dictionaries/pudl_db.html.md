@@ -58,6 +58,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_censusdp1tract__counties.parquet';
 ```
 
@@ -327,6 +331,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_censusdp1tract__states.parquet';
 ```
 
@@ -596,6 +604,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_censusdp1tract__tracts.parquet';
 ```
 
@@ -864,6 +876,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_eia860__yearly_emissions_control_equipment.parquet';
 ```
 
@@ -953,6 +969,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_eia860__yearly_ownership.parquet';
 ```
 
@@ -1034,6 +1054,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_eia861__yearly_balancing_authority_service_territory.parquet';
 ```
 
@@ -1112,6 +1136,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_eia861__yearly_utility_service_territory.parquet';
 ```
 
@@ -1216,6 +1244,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_eia923__boiler_fuel.parquet';
 ```
 
@@ -1320,6 +1352,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_eia923__energy_storage.parquet';
 ```
 
@@ -1438,6 +1474,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_eia923__fuel_receipts_costs.parquet';
 ```
 
@@ -1569,6 +1609,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_eia923__generation.parquet';
 ```
 
@@ -1681,6 +1725,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_eia923__generation_fuel_combined.parquet';
 ```
 
@@ -1794,6 +1842,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_eia923__monthly_boiler_fuel.parquet';
 ```
 
@@ -1898,6 +1950,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_eia923__monthly_energy_storage.parquet';
 ```
 
@@ -2008,6 +2064,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_eia923__monthly_fuel_receipts_costs.parquet';
 ```
 
@@ -2124,6 +2184,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_eia923__monthly_generation.parquet';
 ```
 
@@ -2245,6 +2309,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_eia923__monthly_generation_fuel_by_generator.parquet';
 ```
 
@@ -2356,6 +2424,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_eia923__monthly_generation_fuel_by_generator_energy_source.parquet';
 ```
 
@@ -2466,6 +2538,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_eia923__monthly_generation_fuel_combined.parquet';
 ```
 
@@ -2578,6 +2654,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_eia923__yearly_boiler_fuel.parquet';
 ```
 
@@ -2682,6 +2762,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_eia923__yearly_energy_storage.parquet';
 ```
 
@@ -2792,6 +2876,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_eia923__yearly_fuel_receipts_costs.parquet';
 ```
 
@@ -2908,6 +2996,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_eia923__yearly_generation.parquet';
 ```
 
@@ -3029,6 +3121,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_eia923__yearly_generation_fuel_by_generator.parquet';
 ```
 
@@ -3140,6 +3236,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_eia923__yearly_generation_fuel_by_generator_energy_source.parquet';
 ```
 
@@ -3258,6 +3358,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_eia923__yearly_generation_fuel_by_generator_energy_source_owner.parquet';
 ```
 
@@ -3372,6 +3476,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_eia923__yearly_generation_fuel_combined.parquet';
 ```
 
@@ -3463,6 +3571,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_eia930__hourly_aggregated_demand.parquet';
 ```
 
@@ -3544,6 +3656,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_eia930__hourly_operations.parquet';
 ```
 
@@ -3632,6 +3748,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_eia930__hourly_subregion_demand.parquet';
 ```
 
@@ -3749,6 +3869,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_eia__monthly_generators.parquet';
 ```
 
@@ -3942,6 +4066,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_eia__yearly_assn_plant_parts_plant_gen.parquet';
 ```
 
@@ -4040,6 +4168,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_eia__yearly_boilers.parquet';
 ```
 
@@ -4258,6 +4390,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_eia__yearly_generators.parquet';
 ```
 
@@ -4465,6 +4601,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_eia__yearly_generators_by_ownership.parquet';
 ```
 
@@ -4604,6 +4744,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_eia__yearly_plant_parts.parquet';
 ```
 
@@ -4730,6 +4874,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_eia__yearly_plants.parquet';
 ```
 
@@ -4866,6 +5014,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_eia__yearly_utilities.parquet';
 ```
 
@@ -4982,6 +5134,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_epacems__yearly_operational_characteristics.parquet';
 ```
 
@@ -5075,6 +5231,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_ferc1__yearly_all_plants.parquet';
 ```
 
@@ -5225,6 +5385,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_ferc1__yearly_balance_sheet_assets_sched110.parquet';
 ```
 
@@ -5309,6 +5473,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_ferc1__yearly_balance_sheet_liabilities_sched110.parquet';
 ```
 
@@ -5393,6 +5561,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_ferc1__yearly_cash_flows_sched120.parquet';
 ```
 
@@ -5478,6 +5650,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_ferc1__yearly_depreciation_by_function_sched219.parquet';
 ```
 
@@ -5566,6 +5742,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_ferc1__yearly_depreciation_changes_sched219.parquet';
 ```
 
@@ -5656,6 +5836,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_ferc1__yearly_depreciation_factors_sched336.parquet';
 ```
 
@@ -5746,6 +5930,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_ferc1__yearly_depreciation_summary_sched336.parquet';
 ```
 
@@ -5841,6 +6029,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_ferc1__yearly_detailed_balance_sheet_assets.parquet';
 ```
 
@@ -5937,6 +6129,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_ferc1__yearly_detailed_balance_sheet_liabilities.parquet';
 ```
 
@@ -6032,6 +6228,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_ferc1__yearly_detailed_income_statements.parquet';
 ```
 
@@ -6120,6 +6320,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_ferc1__yearly_energy_dispositions_sched401.parquet';
 ```
 
@@ -6204,6 +6408,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_ferc1__yearly_energy_sources_sched401.parquet';
 ```
 
@@ -6289,6 +6497,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_ferc1__yearly_hydroelectric_plants_sched406.parquet';
 ```
 
@@ -6403,6 +6615,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_ferc1__yearly_income_statements_sched114.parquet';
 ```
 
@@ -6486,6 +6702,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_ferc1__yearly_operating_expenses_sched320.parquet';
 ```
 
@@ -6572,6 +6792,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_ferc1__yearly_operating_revenues_sched300.parquet';
 ```
 
@@ -6657,6 +6881,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_ferc1__yearly_other_regulatory_assets_sched232.parquet';
 ```
 
@@ -6741,6 +6969,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_ferc1__yearly_other_regulatory_liabilities_sched278.parquet';
 ```
 
@@ -6827,6 +7059,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_ferc1__yearly_plant_in_service_sched204.parquet';
 ```
 
@@ -6919,6 +7155,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_ferc1__yearly_pumped_storage_plants_sched408.parquet';
 ```
 
@@ -7044,6 +7284,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_ferc1__yearly_purchased_power_and_exchanges_sched326.parquet';
 ```
 
@@ -7148,6 +7392,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_ferc1__yearly_rate_base.parquet';
 ```
 
@@ -7237,6 +7485,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_ferc1__yearly_retained_earnings_sched118.parquet';
 ```
 
@@ -7379,6 +7631,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_ferc1__yearly_sales_by_rate_schedules_sched304.parquet';
 ```
 
@@ -7479,6 +7735,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_ferc1__yearly_small_plants_sched410.parquet';
 ```
 
@@ -7573,6 +7833,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_ferc1__yearly_steam_plants_fuel_by_plant_sched402.parquet';
 ```
 
@@ -7669,6 +7933,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_ferc1__yearly_steam_plants_fuel_sched402.parquet';
 ```
 
@@ -7757,6 +8025,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_ferc1__yearly_steam_plants_sched402.parquet';
 ```
 
@@ -7889,6 +8161,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_ferc1__yearly_transmission_lines_sched422.parquet';
 ```
 
@@ -7982,6 +8258,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_ferc1__yearly_utility_plant_summary_sched200.parquet';
 ```
 
@@ -8075,6 +8355,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_ferc714__georeferenced_respondents.parquet';
 ```
 
@@ -8180,6 +8464,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_ferc714__hourly_estimated_state_demand.parquet';
 ```
 
@@ -8259,6 +8547,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_ferc714__hourly_planning_area_demand.parquet';
 ```
 
@@ -8338,6 +8630,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_ferc714__respondents_with_fips.parquet';
 ```
 
@@ -8421,6 +8717,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_ferc714__summarized_demand.parquet';
 ```
 
@@ -8513,6 +8813,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_gridpathratoolkit__hourly_available_capacity_factor.parquet';
 ```
 
@@ -8615,6 +8919,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_pudl__yearly_assn_eia_ferc1_plant_parts.parquet';
 ```
 
@@ -8802,6 +9110,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus12__monthly_demand_and_energy_at_delivery_points.parquet';
 ```
 
@@ -8882,6 +9194,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus12__monthly_demand_and_energy_at_power_sources.parquet';
 ```
 
@@ -8962,6 +9278,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus12__yearly_balance_sheet_assets.parquet';
 ```
 
@@ -9041,6 +9361,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus12__yearly_balance_sheet_liabilities.parquet';
 ```
 
@@ -9117,6 +9441,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus12__yearly_depreciation_changes.parquet';
 ```
 
@@ -9202,6 +9530,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus12__yearly_depreciation_misc.parquet';
 ```
 
@@ -9277,6 +9609,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus12__yearly_external_financial_risk_ratio.parquet';
 ```
 
@@ -9356,6 +9692,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus12__yearly_investments.parquet';
 ```
 
@@ -9435,6 +9775,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus12__yearly_lines_stations_labor_materials_cost.parquet';
 ```
 
@@ -9516,6 +9860,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus12__yearly_loans.parquet';
 ```
 
@@ -9595,6 +9943,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus12__yearly_long_term_debt.parquet';
 ```
 
@@ -9673,6 +10025,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus12__yearly_meeting_and_board.parquet';
 ```
 
@@ -9754,6 +10110,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus12__yearly_non_utility_plant_changes.parquet';
 ```
 
@@ -9839,6 +10199,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus12__yearly_plant_costs.parquet';
 ```
 
@@ -9924,6 +10288,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus12__yearly_plant_factors_and_maximum_demand.parquet';
 ```
 
@@ -10013,6 +10381,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus12__yearly_plant_labor.parquet';
 ```
 
@@ -10105,6 +10477,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus12__yearly_plant_operations_by_borrower.parquet';
 ```
 
@@ -10210,6 +10586,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus12__yearly_plant_operations_by_plant.parquet';
 ```
 
@@ -10299,6 +10679,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus12__yearly_renewable_plants.parquet';
 ```
 
@@ -10392,6 +10776,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus12__yearly_sources_and_distribution.parquet';
 ```
 
@@ -10470,6 +10858,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus12__yearly_sources_and_distribution_by_plant_type.parquet';
 ```
 
@@ -10549,6 +10941,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus12__yearly_statement_of_operations.parquet';
 ```
 
@@ -10641,6 +11037,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus12__yearly_utility_plant_changes.parquet';
 ```
 
@@ -10722,6 +11122,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus7__yearly_balance_sheet_assets.parquet';
 ```
 
@@ -10799,6 +11203,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus7__yearly_balance_sheet_liabilities.parquet';
 ```
 
@@ -10879,6 +11287,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus7__yearly_customer_energy_efficiency_and_conservation_loans.parquet';
 ```
 
@@ -10961,6 +11373,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus7__yearly_distribution_services.parquet';
 ```
 
@@ -11036,6 +11452,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus7__yearly_employee_statistics.parquet';
 ```
 
@@ -11116,6 +11536,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus7__yearly_energy_efficiency.parquet';
 ```
 
@@ -11198,6 +11622,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus7__yearly_energy_purchased.parquet';
 ```
 
@@ -11281,6 +11709,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus7__yearly_external_financial_risk_ratio.parquet';
 ```
 
@@ -11359,6 +11791,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus7__yearly_investments.parquet';
 ```
 
@@ -11444,6 +11880,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus7__yearly_loans.parquet';
 ```
 
@@ -11523,6 +11963,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus7__yearly_long_term_debt.parquet';
 ```
 
@@ -11601,6 +12045,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus7__yearly_long_term_leases.parquet';
 ```
 
@@ -11677,6 +12125,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus7__yearly_materials_and_supplies.parquet';
 ```
 
@@ -11757,6 +12209,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus7__yearly_meeting_and_board.parquet';
 ```
 
@@ -11838,6 +12294,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus7__yearly_owed_by_customers.parquet';
 ```
 
@@ -11914,6 +12374,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus7__yearly_patronage_capital.parquet';
 ```
 
@@ -11995,6 +12459,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus7__yearly_power_requirements.parquet';
 ```
 
@@ -12079,6 +12547,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus7__yearly_power_requirements_electric_customers.parquet';
 ```
 
@@ -12155,6 +12627,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus7__yearly_power_requirements_electric_sales.parquet';
 ```
 
@@ -12232,6 +12708,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus7__yearly_service_interruptions.parquet';
 ```
 
@@ -12310,6 +12790,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus7__yearly_statement_of_operations.parquet';
 ```
 
@@ -12394,6 +12878,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus7__yearly_transmission_and_distribution_mileage.parquet';
 ```
 
@@ -12471,6 +12959,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus7__yearly_utility_plant_changes.parquet';
 ```
 
@@ -12558,6 +13050,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_sec10k__changelog_company_name.parquet';
 ```
 
@@ -12643,6 +13139,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_sec10k__parents_and_subsidiaries.parquet';
 ```
 
@@ -12764,6 +13264,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_sec10k__quarterly_company_information.parquet';
 ```
 
@@ -12877,6 +13381,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_sec10k__quarterly_filings.parquet';
 ```
 
@@ -12989,6 +13497,10 @@ df = (
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT
     -- Select only a subset of columns to reduce network and memory usage
     report_year,
@@ -12998,11 +13510,11 @@ SELECT
     state,
     place_name,
     capacity_factor_solar_pv
-FROM 's3://pudl.catalyst.coop/nightly/out_vcerare__hourly_available_capacity_factor.parquet';
+FROM 's3://pudl.catalyst.coop/nightly/out_vcerare__hourly_available_capacity_factor.parquet'
 WHERE
     -- Select data for only a single year and state to reduce network and memory usage
     report_year = 2022
-    AND state = "CO";
+    AND state = 'CO';
 ```
 
 ### Columns
@@ -13073,6 +13585,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia176__yearly_company_characteristics.parquet';
 ```
 
@@ -13178,6 +13694,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia176__yearly_gas_disposition.parquet';
 ```
 
@@ -13266,6 +13786,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia176__yearly_gas_disposition_by_consumer.parquet';
 ```
 
@@ -13347,6 +13871,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia176__yearly_gas_disposition_other.parquet';
 ```
 
@@ -13422,6 +13950,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia176__yearly_gas_exports.parquet';
 ```
 
@@ -13500,6 +14032,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia176__yearly_gas_imports.parquet';
 ```
 
@@ -13585,6 +14121,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia176__yearly_gas_supply.parquet';
 ```
 
@@ -13655,6 +14195,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia176__yearly_liquefied_natural_gas_inventory.parquet';
 ```
 
@@ -13730,6 +14274,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia176__yearly_supplemental_gaseous_fuel_supplies.parquet';
 ```
 
@@ -13804,6 +14352,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia191__monthly_gas_storage.parquet';
 ```
 
@@ -13885,6 +14437,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia860__assn_boiler_cooling.parquet';
 ```
 
@@ -13963,6 +14519,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia860__assn_boiler_generator.parquet';
 ```
 
@@ -14038,6 +14598,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia860__assn_boiler_stack_flue.parquet';
 ```
 
@@ -14114,6 +14678,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia860__assn_yearly_boiler_emissions_control_equipment.parquet';
 ```
 
@@ -14205,6 +14773,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia860__scd_boilers.parquet';
 ```
 
@@ -14381,6 +14953,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia860__scd_emissions_control_equipment.parquet';
 ```
 
@@ -14480,6 +15056,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia860__scd_generators.parquet';
 ```
 
@@ -14618,6 +15198,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia860__scd_generators_energy_storage.parquet';
 ```
 
@@ -14716,6 +15300,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia860__scd_generators_multifuel.parquet';
 ```
 
@@ -14836,6 +15424,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia860__scd_generators_solar.parquet';
 ```
 
@@ -14932,6 +15524,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia860__scd_generators_wind.parquet';
 ```
 
@@ -15006,6 +15602,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia860__scd_ownership.parquet';
 ```
 
@@ -15104,6 +15704,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia860__scd_plants.parquet';
 ```
 
@@ -15230,6 +15834,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia860__scd_utilities.parquet';
 ```
 
@@ -15332,6 +15940,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia860m__changelog_generators.parquet';
 ```
 
@@ -15431,6 +16043,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia861__assn_balancing_authority.parquet';
 ```
 
@@ -15500,6 +16116,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia861__assn_utility.parquet';
 ```
 
@@ -15574,6 +16194,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia861__yearly_advanced_metering_infrastructure.parquet';
 ```
 
@@ -15655,6 +16279,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia861__yearly_balancing_authority.parquet';
 ```
 
@@ -15733,6 +16361,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia861__yearly_demand_response.parquet';
 ```
 
@@ -15812,6 +16444,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia861__yearly_demand_response_water_heater.parquet';
 ```
 
@@ -15896,6 +16532,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia861__yearly_demand_side_management_ee_dr.parquet';
 ```
 
@@ -16003,6 +16643,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia861__yearly_demand_side_management_misc.parquet';
 ```
 
@@ -16095,6 +16739,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia861__yearly_demand_side_management_sales.parquet';
 ```
 
@@ -16183,6 +16831,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia861__yearly_distributed_generation_fuel.parquet';
 ```
 
@@ -16269,6 +16921,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia861__yearly_distributed_generation_misc.parquet';
 ```
 
@@ -16359,6 +17015,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia861__yearly_distributed_generation_tech.parquet';
 ```
 
@@ -16431,6 +17091,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia861__yearly_distribution_systems.parquet';
 ```
 
@@ -16509,6 +17173,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia861__yearly_dynamic_pricing.parquet';
 ```
 
@@ -16599,6 +17267,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia861__yearly_energy_efficiency.parquet';
 ```
 
@@ -16685,6 +17357,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia861__yearly_green_pricing.parquet';
 ```
 
@@ -16761,6 +17437,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia861__yearly_mergers.parquet';
 ```
 
@@ -16850,6 +17530,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia861__yearly_net_metering_customer_fuel_class.parquet';
 ```
 
@@ -16928,6 +17612,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia861__yearly_net_metering_misc.parquet';
 ```
 
@@ -17009,6 +17697,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia861__yearly_non_net_metering_customer_fuel_class.parquet';
 ```
 
@@ -17094,6 +17786,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia861__yearly_non_net_metering_misc.parquet';
 ```
 
@@ -17186,6 +17882,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia861__yearly_operational_data_misc.parquet';
 ```
 
@@ -17296,6 +17996,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia861__yearly_operational_data_revenue.parquet';
 ```
 
@@ -17404,6 +18108,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia861__yearly_reliability.parquet';
 ```
 
@@ -17491,6 +18199,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia861__yearly_sales.parquet';
 ```
 
@@ -17571,6 +18283,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia861__yearly_service_territory.parquet';
 ```
 
@@ -17661,6 +18377,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia861__yearly_short_form.parquet';
 ```
 
@@ -17747,6 +18467,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia861__yearly_utility_data_misc.parquet';
 ```
 
@@ -17832,6 +18556,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia861__yearly_utility_data_nerc.parquet';
 ```
 
@@ -17904,6 +18632,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia861__yearly_utility_data_rto.parquet';
 ```
 
@@ -17993,6 +18725,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia923__entity_coalmine.parquet';
 ```
 
@@ -18091,6 +18827,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia923__fuel_receipts_costs.parquet';
 ```
 
@@ -18197,6 +18937,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia923__monthly_boiler_fuel.parquet';
 ```
 
@@ -18283,6 +19027,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia923__monthly_energy_storage.parquet';
 ```
 
@@ -18377,6 +19125,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia923__monthly_generation.parquet';
 ```
 
@@ -18467,6 +19219,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia923__monthly_generation_fuel.parquet';
 ```
 
@@ -18557,6 +19313,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia923__monthly_generation_fuel_nuclear.parquet';
 ```
 
@@ -18642,6 +19402,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia930__hourly_interchange.parquet';
 ```
 
@@ -18729,6 +19493,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia930__hourly_net_generation_by_energy_source.parquet';
 ```
 
@@ -18819,6 +19587,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia930__hourly_operations.parquet';
 ```
 
@@ -18900,6 +19672,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia930__hourly_subregion_demand.parquet';
 ```
 
@@ -18969,6 +19745,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__codes_averaging_periods.parquet';
 ```
 
@@ -19037,6 +19817,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__codes_balancing_authorities.parquet';
 ```
 
@@ -19111,6 +19895,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__codes_balancing_authority_subregions.parquet';
 ```
 
@@ -19179,6 +19967,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__codes_boiler_generator_assn_types.parquet';
 ```
 
@@ -19247,6 +20039,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__codes_boiler_status.parquet';
 ```
 
@@ -19315,6 +20111,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__codes_boiler_types.parquet';
 ```
 
@@ -19383,6 +20183,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__codes_coalmine_types.parquet';
 ```
 
@@ -19451,6 +20255,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__codes_contract_types.parquet';
 ```
 
@@ -19520,6 +20328,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__codes_cooling_system_types.parquet';
 ```
 
@@ -19588,6 +20400,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__codes_cooling_tower_types.parquet';
 ```
 
@@ -19656,6 +20472,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__codes_cooling_water_sources.parquet';
 ```
 
@@ -19724,6 +20544,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__codes_cooling_water_types.parquet';
 ```
 
@@ -19792,6 +20616,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__codes_emission_control_equipment_types.parquet';
 ```
 
@@ -19865,6 +20693,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__codes_energy_sources.parquet';
 ```
 
@@ -19940,6 +20772,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__codes_environmental_equipment_manufacturers.parquet';
 ```
 
@@ -20008,6 +20844,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__codes_firing_types.parquet';
 ```
 
@@ -20077,6 +20917,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__codes_fuel_transportation_modes.parquet';
 ```
 
@@ -20149,6 +20993,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__codes_fuel_types_agg.parquet';
 ```
 
@@ -20216,6 +21064,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__codes_mercury_compliance_strategies.parquet';
 ```
 
@@ -20284,6 +21136,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__codes_momentary_interruptions.parquet';
 ```
 
@@ -20352,6 +21208,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__codes_nox_compliance_strategies.parquet';
 ```
 
@@ -20420,6 +21280,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__codes_nox_control_status.parquet';
 ```
 
@@ -20488,6 +21352,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__codes_nox_units.parquet';
 ```
 
@@ -20561,6 +21429,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__codes_operational_status.parquet';
 ```
 
@@ -20630,6 +21502,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__codes_particulate_compliance_strategies.parquet';
 ```
 
@@ -20698,6 +21574,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__codes_particulate_units.parquet';
 ```
 
@@ -20767,6 +21647,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__codes_prime_movers.parquet';
 ```
 
@@ -20835,6 +21719,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__codes_regulations.parquet';
 ```
 
@@ -20903,6 +21791,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__codes_reporting_frequencies.parquet';
 ```
 
@@ -20976,6 +21868,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__codes_sector_consolidated.parquet';
 ```
 
@@ -21044,6 +21940,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__codes_so2_compliance_strategies.parquet';
 ```
 
@@ -21112,6 +22012,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__codes_so2_units.parquet';
 ```
 
@@ -21180,6 +22084,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__codes_sorbent_types.parquet';
 ```
 
@@ -21248,6 +22156,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__codes_steam_plant_types.parquet';
 ```
 
@@ -21316,6 +22228,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__codes_storage_enclosure_types.parquet';
 ```
 
@@ -21384,6 +22300,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__codes_storage_technology_types.parquet';
 ```
 
@@ -21452,6 +22372,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__codes_wet_dry_bottom.parquet';
 ```
 
@@ -21520,6 +22444,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__codes_wind_quality_class.parquet';
 ```
 
@@ -21609,6 +22537,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__entity_boilers.parquet';
 ```
 
@@ -21695,6 +22627,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__entity_generators.parquet';
 ```
 
@@ -21797,6 +22733,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__entity_plants.parquet';
 ```
 
@@ -21889,6 +22829,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__entity_utilities.parquet';
 ```
 
@@ -21956,6 +22900,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia__yearly_fuel_receipts_costs_aggs.parquet';
 ```
 
@@ -22028,6 +22976,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eiaaeo__yearly_projected_electric_sales.parquet';
 ```
 
@@ -22126,6 +23078,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eiaaeo__yearly_projected_energy_use_by_sector_and_type.parquet';
 ```
 
@@ -22199,6 +23155,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type.parquet';
 ```
 
@@ -22272,6 +23232,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology.parquet';
 ```
 
@@ -22355,6 +23319,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type.parquet';
 ```
 
@@ -22445,6 +23413,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_epa__assn_eia_epacamd.parquet';
 ```
 
@@ -22551,6 +23523,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_epa__assn_eia_epacamd_subplant_ids.parquet';
 ```
 
@@ -22666,6 +23642,10 @@ df = (
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT
     -- Select only a subset of columns to reduce network and memory usage
     state,
@@ -22759,6 +23739,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_ferc1__codes_power_purchase_types.parquet';
 ```
 
@@ -22832,6 +23816,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_ferc1__yearly_balance_sheet_assets_sched110.parquet';
 ```
 
@@ -22912,6 +23900,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_ferc1__yearly_balance_sheet_liabilities_sched110.parquet';
 ```
 
@@ -22992,6 +23984,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_ferc1__yearly_cash_flows_sched120.parquet';
 ```
 
@@ -23073,6 +24069,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_ferc1__yearly_depreciation_by_function_sched219.parquet';
 ```
 
@@ -23157,6 +24157,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_ferc1__yearly_depreciation_changes_sched219.parquet';
 ```
 
@@ -23243,6 +24247,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_ferc1__yearly_depreciation_factors_sched336.parquet';
 ```
 
@@ -23329,6 +24337,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_ferc1__yearly_depreciation_summary_sched336.parquet';
 ```
 
@@ -23412,6 +24424,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_ferc1__yearly_energy_dispositions_sched401.parquet';
 ```
 
@@ -23492,6 +24508,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_ferc1__yearly_energy_sources_sched401.parquet';
 ```
 
@@ -23573,6 +24593,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_ferc1__yearly_hydroelectric_plants_sched406.parquet';
 ```
 
@@ -23684,6 +24708,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_ferc1__yearly_identification_certification.parquet';
 ```
 
@@ -23781,6 +24809,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_ferc1__yearly_income_statements_sched114.parquet';
 ```
 
@@ -23860,6 +24892,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_ferc1__yearly_operating_expenses_sched320.parquet';
 ```
 
@@ -23942,6 +24978,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_ferc1__yearly_operating_revenues_sched300.parquet';
 ```
 
@@ -24023,6 +25063,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_ferc1__yearly_other_regulatory_assets_sched232.parquet';
 ```
 
@@ -24103,6 +25147,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_ferc1__yearly_other_regulatory_liabilities_sched278.parquet';
 ```
 
@@ -24186,6 +25234,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_ferc1__yearly_plant_in_service_sched204.parquet';
 ```
 
@@ -24274,6 +25326,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_ferc1__yearly_pumped_storage_plants_sched408.parquet';
 ```
 
@@ -24392,6 +25448,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_ferc1__yearly_purchased_power_and_exchanges_sched326.parquet';
 ```
 
@@ -24480,6 +25540,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_ferc1__yearly_retained_earnings_sched118.parquet';
 ```
 
@@ -24618,6 +25682,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_ferc1__yearly_sales_by_rate_schedules_sched304.parquet';
 ```
 
@@ -24714,6 +25782,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_ferc1__yearly_small_plants_sched410.parquet';
 ```
 
@@ -24805,6 +25877,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_ferc1__yearly_steam_plants_fuel_sched402.parquet';
 ```
 
@@ -24886,6 +25962,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_ferc1__yearly_steam_plants_sched402.parquet';
 ```
 
@@ -25000,6 +26080,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_ferc1__yearly_transmission_lines_sched422.parquet';
 ```
 
@@ -25089,6 +26173,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_ferc1__yearly_utility_plant_summary_sched200.parquet';
 ```
 
@@ -25177,6 +26265,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_ferc714__hourly_planning_area_demand.parquet';
 ```
 
@@ -25253,6 +26345,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_ferc714__respondent_id.parquet';
 ```
 
@@ -25333,6 +26429,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_ferc714__yearly_planning_area_demand_forecast.parquet';
 ```
 
@@ -25412,6 +26512,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_ferc__codes_accounts.parquet';
 ```
 
@@ -25480,6 +26584,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_ferc__entity_companies.parquet';
 ```
 
@@ -25537,36 +26645,88 @@ Primary key:
 * [Browse and query this table online](https://data.catalyst.coop/preview/pudl/core_ferceqr__contracts)
 
 #### NOTE
-This table is partitioned into multiple Parquet files which can be treated
-as a single Parquet dataset.
+This table is partitioned into multiple Parquet files (one per quarter) which can be
+treated as a single Parquet dataset.
 
 ### pandas
 
 ```python
 import pandas as pd
-# Select all Parquet files under this bucket prefix.
+# Read a single quarterly Parquet file and select a subset of columns.
 df = pd.read_parquet(
-    "s3://pudl.catalyst.coop/ferceqr/core_ferceqr__contracts/",
+    "s3://pudl.catalyst.coop/ferceqr/core_ferceqr__contracts/2024q1.parquet",
     dtype_backend="pyarrow",
+    columns=[
+        "seller_company_name",
+        "customer_company_name",
+        "product_name",
+        "quantity",
+        "units",
+        "rate",
+        "rate_units",
+        "commencement_date_of_contract_term",
+        "contract_termination_date",
+    ],
 )
+df = df[
+    (df["seller_company_name"] == "Bonneville Power Administration")
+    & (df["product_name"] == "ENERGY")
+]
 ```
 
 ### polars
 
 ```python
 import polars as pl
-# Select all Parquet files under this bucket prefix.
-df = pl.read_parquet(
-    "s3://pudl.catalyst.coop/ferceqr/core_ferceqr__contracts/",
-    storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+df = (
+    # Use scan_parquet (lazy evaluation) so the filter is pushed down.
+    pl.scan_parquet(
+        "s3://pudl.catalyst.coop/ferceqr/core_ferceqr__contracts/2024q1.parquet",
+        storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+    )
+    .select(
+        [
+            "seller_company_name",
+            "customer_company_name",
+            "product_name",
+            "quantity",
+            "units",
+            "rate",
+            "rate_units",
+            "commencement_date_of_contract_term",
+            "contract_termination_date",
+        ]
+    )
+    .filter(
+        (pl.col("seller_company_name") == "Bonneville Power Administration")
+        & (pl.col("product_name") == "ENERGY")
+    )
+    .collect()
 )
 ```
 
 ### SQL (DuckDB)
 
 ```sql
--- Use a wildcard to select all parquet files with this bucket prefix.
-SELECT * FROM 's3://pudl.catalyst.coop/ferceqr/core_ferceqr__contracts/*.parquet';
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
+SELECT
+    -- Select a subset of columns to reduce network and memory usage
+    seller_company_name,
+    customer_company_name,
+    product_name,
+    quantity,
+    units,
+    rate,
+    rate_units,
+    commencement_date_of_contract_term,
+    contract_termination_date
+-- Limit to 2024Q1 data by querying only a single Parquet file
+FROM 's3://pudl.catalyst.coop/ferceqr/core_ferceqr__contracts/2024q1.parquet'
+WHERE seller_company_name = 'Bonneville Power Administration'
+    AND product_name = 'ENERGY';
 ```
 
 ### R
@@ -25575,11 +26735,21 @@ SELECT * FROM 's3://pudl.catalyst.coop/ferceqr/core_ferceqr__contracts/*.parquet
 library(arrow)
 library(dplyr)
 
-# Establish S3 connection
-bucket <- s3_bucket("pudl.catalyst.coop/ferceqr/core_ferceqr__contracts")
-
-# Read all parquet files in that prefix
-df <- open_dataset(bucket) |> collect()
+# Read a single quarterly Parquet file and filter to one seller.
+df <- open_dataset(
+    "s3://pudl.catalyst.coop/ferceqr/core_ferceqr__contracts/2024q1.parquet",
+    format = "parquet"
+  ) |>
+  filter(
+    seller_company_name == "Bonneville Power Administration",
+    product_name == "ENERGY"
+  ) |>
+  select(
+    seller_company_name, customer_company_name, product_name,
+    quantity, units, rate, rate_units,
+    commencement_date_of_contract_term, contract_termination_date
+  ) |>
+  collect()
 ```
 
 ### Columns
@@ -25649,17 +26819,35 @@ Primary key:
 * [Browse and query this table online](https://data.catalyst.coop/preview/pudl/core_ferceqr__quarterly_identity)
 
 #### NOTE
-This table is partitioned into multiple Parquet files which can be treated
-as a single Parquet dataset.
+This table is partitioned into multiple Parquet files (one per quarter) which can be
+treated as a single Parquet dataset: point each tool at the directory prefix rather
+than an individual file. Each quarter restates the full roster of registered
+companies, so the whole table is large (hundreds of thousands of rows). The examples
+below read the whole partitioned dataset but push a column selection and a filter
+(recent quarters, companies in one state) down to the reader, so only the matching
+data is actually fetched. Adjust or drop the filters as needed.
 
 ### pandas
 
 ```python
 import pandas as pd
-# Select all Parquet files under this bucket prefix.
+# Point at the directory prefix to read every quarterly file as one dataset.
 df = pd.read_parquet(
     "s3://pudl.catalyst.coop/ferceqr/core_ferceqr__quarterly_identity/",
     dtype_backend="pyarrow",
+    columns=[
+        "year_quarter",
+        "company_id_ferc",
+        "company_name",
+        "contact_city",
+        "contact_state",
+        "transactions_reported_to_index_price_publishers",
+    ],
+    # Row-group level filters, pushed down to the Parquet reader.
+    filters=[
+        ("year_quarter", ">=", "2025q1"),
+        ("contact_state", "==", "CA"),
+    ],
 )
 ```
 
@@ -25667,18 +26855,50 @@ df = pd.read_parquet(
 
 ```python
 import polars as pl
-# Select all Parquet files under this bucket prefix.
-df = pl.read_parquet(
-    "s3://pudl.catalyst.coop/ferceqr/core_ferceqr__quarterly_identity/",
-    storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+df = (
+    # scan_parquet on the directory prefix; lazy evaluation pushes the
+    # column selection and filter down to the Parquet reader.
+    pl.scan_parquet(
+        "s3://pudl.catalyst.coop/ferceqr/core_ferceqr__quarterly_identity/",
+        storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+    )
+    .select(
+        [
+            "year_quarter",
+            "company_id_ferc",
+            "company_name",
+            "contact_city",
+            "contact_state",
+            "transactions_reported_to_index_price_publishers",
+        ]
+    )
+    .filter(
+        (pl.col("year_quarter") >= "2025q1")
+        & (pl.col("contact_state") == "CA")
+    )
+    .collect()
 )
 ```
 
 ### SQL (DuckDB)
 
 ```sql
--- Use a wildcard to select all parquet files with this bucket prefix.
-SELECT * FROM 's3://pudl.catalyst.coop/ferceqr/core_ferceqr__quarterly_identity/*.parquet';
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
+SELECT
+    -- Select a subset of columns to reduce network and memory usage
+    year_quarter,
+    company_id_ferc,
+    company_name,
+    contact_city,
+    contact_state,
+    transactions_reported_to_index_price_publishers
+-- Use a wildcard to read every quarterly Parquet file as one dataset
+FROM 's3://pudl.catalyst.coop/ferceqr/core_ferceqr__quarterly_identity/*.parquet'
+WHERE year_quarter >= '2025q1'
+    AND contact_state = 'CA';
 ```
 
 ### R
@@ -25687,11 +26907,17 @@ SELECT * FROM 's3://pudl.catalyst.coop/ferceqr/core_ferceqr__quarterly_identity/
 library(arrow)
 library(dplyr)
 
-# Establish S3 connection
+# Open the directory prefix as a dataset; filter() and select() are pushed
+# down to the Parquet reader.
 bucket <- s3_bucket("pudl.catalyst.coop/ferceqr/core_ferceqr__quarterly_identity")
-
-# Read all parquet files in that prefix
-df <- open_dataset(bucket) |> collect()
+df <- open_dataset(bucket) |>
+  filter(year_quarter >= "2025q1", contact_state == "CA") |>
+  select(
+    year_quarter, company_id_ferc, company_name,
+    contact_city, contact_state,
+    transactions_reported_to_index_price_publishers
+  ) |>
+  collect()
 ```
 
 ### Columns
@@ -25771,6 +26997,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 -- Use a wildcard to select all parquet files with this bucket prefix.
 SELECT * FROM 's3://pudl.catalyst.coop/ferceqr/core_ferceqr__quarterly_index_pub/*.parquet';
 ```
@@ -25877,6 +27107,10 @@ df = (
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 -- Select some data relevant to tracking solar PPA prices
 SELECT
     -- Select a subset of columns to reduce network and memory usage
@@ -25985,6 +27219,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_gridpathratoolkit__assn_generator_aggregation_group.parquet';
 ```
 
@@ -26067,6 +27305,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_nrelatb__yearly_projected_cost_performance.parquet';
 ```
 
@@ -26154,6 +27396,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_nrelatb__yearly_projected_financial_cases.parquet';
 ```
 
@@ -26230,6 +27476,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_nrelatb__yearly_projected_financial_cases_by_scenario.parquet';
 ```
 
@@ -26307,6 +27557,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_nrelatb__yearly_technology_status.parquet';
 ```
 
@@ -26382,6 +27636,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_phmsagas__yearly_distribution_by_install_decade.parquet';
 ```
 
@@ -26459,6 +27717,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_phmsagas__yearly_distribution_operators.parquet';
 ```
 
@@ -26540,6 +27802,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_pudl__assn_eia_pudl_plants.parquet';
 ```
 
@@ -26609,6 +27875,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_pudl__assn_eia_pudl_utilities.parquet';
 ```
 
@@ -26681,6 +27951,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_pudl__assn_ferc1_dbf_pudl_utilities.parquet';
 ```
 
@@ -26756,6 +28030,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_pudl__assn_ferc1_pudl_plants.parquet';
 ```
 
@@ -26832,6 +28110,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_pudl__assn_ferc1_pudl_utilities.parquet';
 ```
 
@@ -26904,6 +28186,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_pudl__assn_ferc1_xbrl_pudl_utilities.parquet';
 ```
 
@@ -26973,6 +28259,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_pudl__assn_ferc714_csv_pudl_respondents.parquet';
 ```
 
@@ -27046,6 +28336,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_pudl__assn_ferc714_pudl_respondents.parquet';
 ```
 
@@ -27114,6 +28408,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_pudl__assn_ferc714_xbrl_pudl_respondents.parquet';
 ```
 
@@ -27182,6 +28480,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_pudl__assn_utilities_plants.parquet';
 ```
 
@@ -27250,6 +28552,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_pudl__codes_data_maturities.parquet';
 ```
 
@@ -27314,6 +28620,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_pudl__codes_datasources.parquet';
 ```
 
@@ -27384,6 +28694,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_pudl__codes_imputation_reasons.parquet';
 ```
 
@@ -27448,6 +28762,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_pudl__codes_subdivisions.parquet';
 ```
 
@@ -27525,6 +28843,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_pudl__entity_plants_pudl.parquet';
 ```
 
@@ -27593,6 +28915,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_pudl__entity_utilities_pudl.parquet';
 ```
 
@@ -27679,6 +29005,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus12__entity_borrowers.parquet';
 ```
 
@@ -27747,6 +29077,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus12__monthly_demand_and_energy_at_delivery_points.parquet';
 ```
 
@@ -27821,6 +29155,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus12__monthly_demand_and_energy_at_power_sources.parquet';
 ```
 
@@ -27898,6 +29236,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus12__yearly_balance_sheet_assets.parquet';
 ```
 
@@ -27974,6 +29316,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus12__yearly_balance_sheet_liabilities.parquet';
 ```
 
@@ -28044,6 +29390,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus12__yearly_depreciation_changes.parquet';
 ```
 
@@ -28123,6 +29473,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus12__yearly_depreciation_misc.parquet';
 ```
 
@@ -28192,6 +29546,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus12__yearly_external_financial_risk_ratio.parquet';
 ```
 
@@ -28268,6 +29626,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus12__yearly_investments.parquet';
 ```
 
@@ -28341,6 +29703,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus12__yearly_lines_stations_labor_materials_cost.parquet';
 ```
 
@@ -28416,6 +29782,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus12__yearly_loans.parquet';
 ```
 
@@ -28489,6 +29859,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus12__yearly_long_term_debt.parquet';
 ```
 
@@ -28561,6 +29935,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus12__yearly_meeting_and_board.parquet';
 ```
 
@@ -28636,6 +30014,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus12__yearly_non_utility_plant_changes.parquet';
 ```
 
@@ -28718,6 +30100,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus12__yearly_plant_costs.parquet';
 ```
 
@@ -28797,6 +30183,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus12__yearly_plant_factors_and_maximum_demand.parquet';
 ```
 
@@ -28883,6 +30273,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus12__yearly_plant_labor.parquet';
 ```
 
@@ -28969,6 +30363,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus12__yearly_plant_operations_by_borrower.parquet';
 ```
 
@@ -29068,6 +30466,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus12__yearly_plant_operations_by_plant.parquet';
 ```
 
@@ -29151,6 +30553,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus12__yearly_renewable_plants.parquet';
 ```
 
@@ -29238,6 +30644,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus12__yearly_sources_and_distribution.parquet';
 ```
 
@@ -29310,6 +30720,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus12__yearly_sources_and_distribution_by_plant_type.parquet';
 ```
 
@@ -29386,6 +30800,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus12__yearly_statement_of_operations.parquet';
 ```
 
@@ -29475,6 +30893,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus12__yearly_utility_plant_changes.parquet';
 ```
 
@@ -29568,6 +30990,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus7__entity_borrowers.parquet';
 ```
 
@@ -29640,6 +31066,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus7__yearly_balance_sheet_assets.parquet';
 ```
 
@@ -29714,6 +31144,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus7__yearly_balance_sheet_liabilities.parquet';
 ```
 
@@ -29788,6 +31222,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus7__yearly_customer_energy_efficiency_and_conservation_loans.parquet';
 ```
 
@@ -29867,6 +31305,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus7__yearly_distribution_services.parquet';
 ```
 
@@ -29936,6 +31378,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus7__yearly_employee_statistics.parquet';
 ```
 
@@ -30013,6 +31459,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus7__yearly_energy_efficiency.parquet';
 ```
 
@@ -30089,6 +31539,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus7__yearly_energy_purchased.parquet';
 ```
 
@@ -30166,6 +31620,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus7__yearly_external_financial_risk_ratio.parquet';
 ```
 
@@ -30238,6 +31696,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus7__yearly_investments.parquet';
 ```
 
@@ -30317,6 +31779,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus7__yearly_loans.parquet';
 ```
 
@@ -30390,6 +31856,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus7__yearly_long_term_debt.parquet';
 ```
 
@@ -30462,6 +31932,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus7__yearly_long_term_leases.parquet';
 ```
 
@@ -30532,6 +32006,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus7__yearly_materials_and_supplies.parquet';
 ```
 
@@ -30606,6 +32084,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus7__yearly_meeting_and_board.parquet';
 ```
 
@@ -30681,6 +32163,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus7__yearly_owed_by_customers.parquet';
 ```
 
@@ -30754,6 +32240,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus7__yearly_patronage_capital.parquet';
 ```
 
@@ -30829,6 +32319,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus7__yearly_power_requirements.parquet';
 ```
 
@@ -30907,6 +32401,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus7__yearly_power_requirements_electric_customers.parquet';
 ```
 
@@ -30977,6 +32475,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus7__yearly_power_requirements_electric_sales.parquet';
 ```
 
@@ -31051,6 +32553,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus7__yearly_service_interruptions.parquet';
 ```
 
@@ -31126,6 +32632,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus7__yearly_statement_of_operations.parquet';
 ```
 
@@ -31207,6 +32717,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus7__yearly_transmission_and_distribution_mileage.parquet';
 ```
 
@@ -31281,6 +32795,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus7__yearly_utility_plant_changes.parquet';
 ```
 
@@ -31352,6 +32870,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus__codes_fuel_types.parquet';
 ```
 
@@ -31416,6 +32938,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus__codes_investment_types.parquet';
 ```
 
@@ -31491,6 +33017,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities.parquet';
 ```
 
@@ -31566,6 +33096,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_sec10k__assn_exhibit_21_subsidiaries_and_filers.parquet';
 ```
 
@@ -31647,6 +33181,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_sec10k__assn_sec10k_filers_and_eia_utilities.parquet';
 ```
 
@@ -31733,6 +33271,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_sec10k__changelog_company_name.parquet';
 ```
 
@@ -31824,6 +33366,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_sec10k__quarterly_company_information.parquet';
 ```
 
@@ -31929,6 +33475,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_sec10k__quarterly_exhibit_21_company_ownership.parquet';
 ```
 
@@ -32012,6 +33562,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_sec10k__quarterly_filings.parquet';
 ```
 
@@ -32104,6 +33658,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/_core_eia860__cooling_equipment.parquet';
 ```
 
@@ -32215,6 +33773,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/_core_eia860__fgd_equipment.parquet';
 ```
 
@@ -32336,6 +33898,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/_core_eia923__monthly_cooling_system_information.parquet';
 ```
 
@@ -32439,6 +34005,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/_core_eia923__yearly_byproduct_disposition.parquet';
 ```
 
@@ -32527,6 +34097,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/_core_eia923__yearly_byproduct_expenses_and_revenues.parquet';
 ```
 
@@ -32631,6 +34205,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/_core_eia923__yearly_emissions_control.parquet';
 ```
 
@@ -32733,6 +34311,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/_core_eia923__yearly_fgd_operation_maintenance.parquet';
 ```
 
@@ -32824,6 +34406,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/_core_eia923__yearly_fuel_stocks.parquet';
 ```
 
@@ -32906,6 +34492,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/_core_eia__forensics_entity_resolution_boilers.parquet';
 ```
 
@@ -32991,6 +34581,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/_core_eia__forensics_entity_resolution_generators.parquet';
 ```
 
@@ -33077,6 +34671,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/_core_eia__forensics_entity_resolution_plants.parquet';
 ```
 
@@ -33162,6 +34760,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/_core_eia__forensics_entity_resolution_utilities.parquet';
 ```
 
@@ -33243,6 +34845,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/_core_phmsagas__yearly_distribution_by_material.parquet';
 ```
 
@@ -33324,6 +34930,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/_core_phmsagas__yearly_distribution_by_material_and_size.parquet';
 ```
 
@@ -33404,6 +35014,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/_core_phmsagas__yearly_distribution_excavation_damages.parquet';
 ```
 
@@ -33485,6 +35099,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/_core_phmsagas__yearly_distribution_filings.parquet';
 ```
 
@@ -33570,6 +35188,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/_core_phmsagas__yearly_distribution_leaks.parquet';
 ```
 
@@ -33649,6 +35271,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/_core_phmsagas__yearly_distribution_misc.parquet';
 ```
 
@@ -33742,6 +35368,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/_core_rus12__forensics_entity_resolution_borrowers.parquet';
 ```
 
@@ -33829,6 +35459,10 @@ df = pl.read_parquet(
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/nightly/_core_rus7__forensics_entity_resolution_borrowers.parquet';
 ```
 

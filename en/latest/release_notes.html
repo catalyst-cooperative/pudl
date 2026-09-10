@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="release_notes.html.md" />
-    <title>PUDL Release Notes &#8212; PUDL 2026.8.1.dev45 documentation</title>
+    <title>PUDL Release Notes &#8212; PUDL 2026.8.1.dev46 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="_static/documentation_options.js?v=8139bbd3"></script>
+    <script src="_static/documentation_options.js?v=a1882138"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev45 documentation - Home"/>
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev45 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev46 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev46 documentation - Home"/>
   
   
 </a></div>
@@ -515,6 +515,25 @@
 <section id="v2026-9-0-2026-09-xx">
 <span id="release-v2026-9-0"></span><h2>v2026.9.0 (2026-09-xx)<a class="headerlink" href="#v2026-9-0-2026-09-xx" title="Link to this heading">#</a></h2>
 <p>This is the upcoming PUDL release.</p>
+<section id="output-formats-distribution">
+<h3>Output Formats &amp; Distribution<a class="headerlink" href="#output-formats-distribution" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Added a fully processed ``pudl.duckdb`` database.</strong> After the ETL completes we now
+assemble all of the non-hourly PUDL tables into a single <a class="reference external" href="https://duckdb.org">DuckDB</a> database named <code class="docutils literal notranslate"><span class="pre">pudl.duckdb</span></code> alongside <code class="docutils literal notranslate"><span class="pre">pudl.sqlite</span></code>,
+both built directly from the Parquet outputs. It preserves the full set of column
+checks and primary key constraints. Foreign key constraints are currently omitted due
+to a handful of column type conflicts outlined in issue <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/5552">#5552</a> being addressed
+in PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5554">#5554</a>. Both databases are published to S3, GCS, and Zenodo along with our
+other outputs. See <a class="reference internal" href="data_access.html"><span class="doc">Data Access</span></a>. See PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5538">#5538</a>.</p></li>
+<li><p><strong>The fully processed ``pudl.sqlite`` database is deprecated.</strong> PUDL’s ETL no longer
+writes SQLite directly; <code class="docutils literal notranslate"><span class="pre">pudl.sqlite</span></code> is now built from the Parquet outputs after
+the ETL purely for backwards compatibility. <strong>We will stop producing SQLite versions
+of the fully processed PUDL data in 2027.</strong> Please migrate to the Parquet outputs
+or the new <code class="docutils literal notranslate"><span class="pre">pudl.duckdb</span></code> database. This deprecation does not affect the minimally
+processed raw FERC data, which will continue to be distributed as SQLite. See PR
+<a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5538">#5538</a>.</p></li>
+</ul>
+</section>
 <section id="new-data">
 <h3>New Data<a class="headerlink" href="#new-data" title="Link to this heading">#</a></h3>
 <section id="eia-176">
@@ -686,6 +705,16 @@ a plant is now <code class="docutils literal notranslate"><span class="pre">1</s
 which was replaced by the cleaned and validated
 <a class="reference internal" href="data_dictionaries/pudl_db.html#core-phmsagas-yearly-distribution-by-install-decade"><span class="std std-ref">core_phmsagas__yearly_distribution_by_install_decade</span></a>. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/5504">#5504</a> and
 <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5548">#5548</a>.</p></li>
+<li><p>Fixed the DuckDB examples in <a class="reference internal" href="data_access.html"><span class="doc">Data Access</span></a> and the per-table access snippets in
+the data dictionary. Because our S3 bucket name contains dots, DuckDB’s default
+virtual-host addressing hit a TLS certificate mismatch; the examples now create an
+anonymous path-style S3 secret (<code class="docutils literal notranslate"><span class="pre">CREATE</span> <span class="pre">SECRET</span> <span class="pre">(TYPE</span> <span class="pre">s3,</span> <span class="pre">PROVIDER</span> <span class="pre">config,</span> <span class="pre">REGION</span>
+<span class="pre">'us-west-2',</span> <span class="pre">URL_STYLE</span> <span class="pre">'path')</span></code>) before querying. See PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5538">#5538</a>.</p></li>
+<li><p>Added a data validation test that checks <code class="docutils literal notranslate"><span class="pre">pudl.sqlite</span></code>, <code class="docutils literal notranslate"><span class="pre">pudl.duckdb</span></code>, and the
+Parquet outputs are mutually consistent: every table defined in <code class="docutils literal notranslate"><span class="pre">PUDL_PACKAGE</span></code> is
+present in both databases, neither database has extra tables, and every table has the
+same columns and the same row count in SQLite, DuckDB, and its source Parquet file.
+See PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5538">#5538</a>.</p></li>
 </ul>
 </section>
 <section id="performance-improvements">
@@ -743,7 +772,7 @@ tests weren’t getting run until the merge queue, leading to unexpected late-st
 failures. A pytest collection hook enforces the ETL/no-ETL split. Also fixed a live
 Zulip notification firing from the test suite and tightened the dbt <code class="docutils literal notranslate"><span class="pre">schema.yml</span></code>
 round-trip test. See issue <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/5508">#5508</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5507">#5507</a>.</p></li>
-<li><p>Do foreign key constraint validation with dbt instead of SQLite. Update our
+<li><p>Validate foreign key constraints with dbt instead of SQLite. Update our
 <code class="docutils literal notranslate"><span class="pre">dbt_helper</span></code> script to autogenerate FK constraint tests based on the PUDL metadata.
 Remove the SQLite based FK checking infrastructure. Also add sensible defaults for
 our row-count expectation checking test so we can remove boilerplate test specs.
@@ -757,6 +786,15 @@ links (versioned docs, data dictionary, S3/GCS paths, the GitHub release, and th
 corresponding GitHub-repo Zenodo software archive), which are also populated as
 structured <code class="docutils literal notranslate"><span class="pre">related_identifiers</span></code> for better DataCite/OpenAIRE indexing. See issue
 <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/3326">#3326</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5484">#5484</a>.</p></li>
+<li><p>Removed Alembic and the PUDL SQLite schema migrations. With PUDL’s own tables no
+longer written to SQLite during the ETL, there is no schema for Alembic to manage, so
+<code class="docutils literal notranslate"><span class="pre">alembic.ini</span></code>, the <code class="docutils literal notranslate"><span class="pre">migrations/</span></code> directory, and the <code class="docutils literal notranslate"><span class="pre">alembic</span></code> dependency have
+been removed. See PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5538">#5538</a>.</p></li>
+<li><p>Replaced the <code class="docutils literal notranslate"><span class="pre">pudl_engine</span></code> pytest fixture (a SQLAlchemy engine) with
+<code class="docutils literal notranslate"><span class="pre">pudl_sqlite_connection</span></code> alongside a <code class="docutils literal notranslate"><span class="pre">pudl_duckdb_connection</span></code>. Both of which are
+DuckDB connections. One dedicated to reading <code class="docutils literal notranslate"><span class="pre">pudl.sqlite</span></code> via DuckDB’s <code class="docutils literal notranslate"><span class="pre">sqlite</span></code>
+extension, so tests query both build outputs through one API as PUDL moves toward
+DuckDB. See PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5538">#5538</a>.</p></li>
 </ul>
 </section>
 </section>
@@ -2147,7 +2185,7 @@ deploying.</p>
 SQLite) can be queried remotely when stored in a cloud bucket. This will also let us
 provide access to this relatively raw but complete FERC data through the <a class="reference external" href="https://data.catalyst.coop">PUDL Data
 Viewer</a>. Note that the XBRL data only covers 2021 to
-the present. For links and an access example, see <a class="reference internal" href="data_access.html#access-raw-ferc-duckdb"><span class="std std-ref">Raw FERC XBRL data converted to DuckDB (EXPERIMENTAL)</span></a>. See
+the present. For links and an access example, see <a class="reference internal" href="data_access.html#access-raw-ferc-duckdb"><span class="std std-ref">Raw FERC XBRL data converted to DuckDB</span></a>. See
 PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4782">#4782</a> for this change, which is mostly implemented in the
 1.7.x releases of our <a class="reference external" href="https://github.com/catalyst-cooperative/ferc-xbrl-extractor/releases">FERC XBRL Extractor</a>.</p></li>
 </ul>
@@ -5151,6 +5189,7 @@ there are users relying on this setup who need access to a well defined release.
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v2026-9-0-2026-09-xx">v2026.9.0 (2026-09-xx)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#output-formats-distribution">Output Formats &amp; Distribution</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#new-data">New Data</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#eia-176">EIA-176</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#eia-923">EIA-923</a></li>

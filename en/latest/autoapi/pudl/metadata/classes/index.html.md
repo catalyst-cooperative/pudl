@@ -421,9 +421,23 @@ Return PyArrow data type.
 
 Return a PyArrow Field appropriate to the field.
 
-#### to_sql(dialect: Literal['sqlite'] = 'sqlite', check_types: [bool](https://docs.python.org/3/library/functions.html#bool) = True, check_values: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → sqlalchemy.Column
+#### to_sql(dialect: Literal['sqlite', 'duckdb'] = 'sqlite', check_types: [bool](https://docs.python.org/3/library/functions.html#bool) = True, check_values: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → sqlalchemy.Column
 
-Return equivalent SQL column.
+Return equivalent SQL column for the given dialect.
+
+#### \_to_sql_sqlite(check_types: [bool](https://docs.python.org/3/library/functions.html#bool) = True, check_values: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → sqlalchemy.Column
+
+Return equivalent SQL column for the SQLite dialect.
+
+#### \_to_sql_duckdb(check_values: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → sqlalchemy.Column
+
+Return equivalent SQL column for the DuckDB dialect.
+
+Unlike [`_to_sql_sqlite()`](#pudl.metadata.classes.Field._to_sql_sqlite), there is no `check_types` block here at
+all: DuckDB is statically typed, so a column declared e.g. `BIGINT`
+structurally can’t hold a string value. The `TYPEOF`/`DATETIME`/`GLOB`
+checks built for SQLite exist specifically to compensate for SQLite’s
+dynamic typing, and have no analog under DuckDB’s native column types.
 
 #### encode(col: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), dtype: [type](#pudl.metadata.classes.Field.type) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
 
@@ -961,7 +975,7 @@ A simple example illustrates the conversion to SQLAlchemy objects.
 >>> resource = Resource(name='a', schema=schema, description='A')
 >>> table = resource.to_sql()
 >>> table.columns.x
-Column('x', Integer(), ForeignKey('b.x'), CheckConstraint(...), table=<a>, primary_key=True, nullable=False, comment='X')
+Column('x', BigInteger(), ForeignKey('b.x'), CheckConstraint(...), table=<a>, primary_key=True, nullable=False, comment='X')
 >>> table.columns.y
 Column('y', Text(), ForeignKey('b.y'), CheckConstraint(...), table=<a>, comment='Y')
 ```
@@ -1186,9 +1200,27 @@ Return field with the given name if it’s part of the Resources.
 
 Return a list of all the field names in the resource schema.
 
-#### to_sql(metadata: sqlalchemy.MetaData | [None](https://docs.python.org/3/library/constants.html#None) = None, check_types: [bool](https://docs.python.org/3/library/functions.html#bool) = True, check_values: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → sqlalchemy.Table
+#### to_sql(metadata: sqlalchemy.MetaData | [None](https://docs.python.org/3/library/constants.html#None) = None, dialect: Literal['sqlite', 'duckdb'] = 'sqlite', check_types: [bool](https://docs.python.org/3/library/functions.html#bool) = True, check_values: [bool](https://docs.python.org/3/library/functions.html#bool) = True, include_foreign_keys: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → sqlalchemy.Table
 
 Return equivalent SQL Table.
+
+* **Parameters:**
+  * **metadata** – SQLAlchemy metadata to attach the table to.
+  * **dialect** – passed through to each field’s [`Field.to_sql()`](#pudl.metadata.classes.Field.to_sql).
+  * **check_types** – passed through to each field’s [`Field.to_sql()`](#pudl.metadata.classes.Field.to_sql).
+    Ignored under the `duckdb` dialect (see [`Field._to_sql_duckdb()`](#pudl.metadata.classes.Field._to_sql_duckdb)).
+  * **check_values** – passed through to each field’s [`Field.to_sql()`](#pudl.metadata.classes.Field.to_sql).
+  * **include_foreign_keys** – if False, omit foreign key constraints entirely.
+    DuckDB enforces these at insert time by validating against the
+    referenced table while SQLite does not.
+
+The table itself gets a `comment` of [`description`](#pudl.metadata.classes.Resource.description), mirroring the
+per-column comments each field already gets from [`Field.to_sql()`](#pudl.metadata.classes.Field.to_sql).
+SQLite’s dialect has no table (or column) comment support at all
+(`supports_comments` is False), so `create_all()` silently drops it
+there – same as it already does for column comments. DuckDB does support
+table comments, so they’re written for real and visible via
+`duckdb_tables()`/`information_schema`.
 
 #### to_frictionless() → frictionless.Resource
 
@@ -1609,20 +1641,26 @@ Return the resource with the given name if it is in the Package.
 
 Output to an RST file.
 
-#### to_sql(check_types: [bool](https://docs.python.org/3/library/functions.html#bool) = True, check_values: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → sqlalchemy.MetaData
+#### to_sql(dialect: Literal['sqlite', 'duckdb'] = 'sqlite', check_types: [bool](https://docs.python.org/3/library/functions.html#bool) = True, check_values: [bool](https://docs.python.org/3/library/functions.html#bool) = True, include_foreign_keys: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → sqlalchemy.MetaData
 
 Return equivalent SQL MetaData.
+
+* **Parameters:**
+  * **dialect** – passed through to each resource’s [`Resource.to_sql()`](#pudl.metadata.classes.Resource.to_sql).
+  * **check_types** – passed through to each resource’s [`Resource.to_sql()`](#pudl.metadata.classes.Resource.to_sql).
+  * **check_values** – passed through to each resource’s [`Resource.to_sql()`](#pudl.metadata.classes.Resource.to_sql).
+  * **include_foreign_keys** – passed through to each resource’s
+    [`Resource.to_sql()`](#pudl.metadata.classes.Resource.to_sql).
 
 #### get_sorted_resources() → [StrictList](#pudl.metadata.classes.StrictList)[[Resource](#pudl.metadata.classes.Resource)]
 
 Get a list of sorted Resources.
 
-Currently Resources are listed in reverse alphabetical order based
-on their name which results in the following order to promote output
-tables to users and push intermediate tables to the bottom of the
-docs: output, core, intermediate.
-In the future we might want to have more fine grain control over how
-Resources are sorted.
+Currently Resources are listed in reverse alphabetical order based on their name
+which results in the following order to promote output tables to users and push
+intermediate tables to the bottom of the docs: output, core, intermediate. In
+the future we might want to have more fine grain control over how Resources are
+sorted.
 
 * **Returns:**
   A sorted list of resources.

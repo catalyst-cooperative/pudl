@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
-    <title>pudl.metadata.dtypes &#8212; PUDL 2026.8.1.dev45 documentation</title>
+    <title>pudl.metadata.dtypes &#8212; PUDL 2026.8.1.dev46 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../../_static/documentation_options.js?v=8139bbd3"></script>
+    <script src="../../../../_static/documentation_options.js?v=a1882138"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev45 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev45 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev46 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev46 documentation - Home"/>
   
   
 </a></div>
@@ -509,6 +509,7 @@
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../dagster/assets/index.html">pudl.dagster.assets</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../dagster/assets/core/index.html">pudl.dagster.assets.core</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../dagster/assets/deploy/index.html">pudl.dagster.assets.deploy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../dagster/assets/output/index.html">pudl.dagster.assets.output</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../dagster/assets/raw/index.html">pudl.dagster.assets.raw</a></li>
 </ul>
 </details></li>
@@ -899,19 +900,22 @@ cycle.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.dtypes.FIELD_DTYPES_PYARROW" title="pudl.metadata.dtypes.FIELD_DTYPES_PYARROW"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FIELD_DTYPES_PYARROW</span></code></a></p></td>
 <td><p>Pyarrow data type by simplified PUDL field type.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.dtypes.FIELD_DTYPES_SQLITE" title="pudl.metadata.dtypes.FIELD_DTYPES_SQLITE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FIELD_DTYPES_SQLITE</span></code></a></p></td>
-<td><p>SQLAlchemy column types by simplified PUDL field type.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.dtypes.FIELD_DTYPES_SQLALCHEMY" title="pudl.metadata.dtypes.FIELD_DTYPES_SQLALCHEMY"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FIELD_DTYPES_SQLALCHEMY</span></code></a></p></td>
+<td><p>Generic SQLAlchemy column types by simplified PUDL field type.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.dtypes.CONSTRAINT_DTYPES" title="pudl.metadata.dtypes.CONSTRAINT_DTYPES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CONSTRAINT_DTYPES</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.dtypes.FIELD_DTYPES_SQLITE" title="pudl.metadata.dtypes.FIELD_DTYPES_SQLITE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FIELD_DTYPES_SQLITE</span></code></a></p></td>
+<td><p>SQLAlchemy column types for the SQLite dialect specifically.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.dtypes.CONSTRAINT_DTYPES" title="pudl.metadata.dtypes.CONSTRAINT_DTYPES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CONSTRAINT_DTYPES</span></code></a></p></td>
 <td><p>Python types for field constraints by simplified PUDL field type.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.dtypes.PERIODS" title="pudl.metadata.dtypes.PERIODS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PERIODS</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.dtypes.PERIODS" title="pudl.metadata.dtypes.PERIODS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PERIODS</span></code></a></p></td>
 <td><p>Functions converting datetimes to period start times, by time period.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.dtypes.PudlDtypeBackend" title="pudl.metadata.dtypes.PudlDtypeBackend"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PudlDtypeBackend</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.dtypes.PudlDtypeBackend" title="pudl.metadata.dtypes.PudlDtypeBackend"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PudlDtypeBackend</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.dtypes._DTYPE_MAPS_BY_BACKEND" title="pudl.metadata.dtypes._DTYPE_MAPS_BY_BACKEND"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_DTYPE_MAPS_BY_BACKEND</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.dtypes._DTYPE_MAPS_BY_BACKEND" title="pudl.metadata.dtypes._DTYPE_MAPS_BY_BACKEND"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_DTYPE_MAPS_BY_BACKEND</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -971,9 +975,30 @@ cycle.</p>
 </dd></dl>
 
 <dl class="py data">
+<dt class="sig sig-object py" id="pudl.metadata.dtypes.FIELD_DTYPES_SQLALCHEMY">
+<span class="sig-prename descclassname"><span class="pre">pudl.metadata.dtypes.</span></span><span class="sig-name descname"><span class="pre">FIELD_DTYPES_SQLALCHEMY</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../classes/index.html#pudl.metadata.classes.Field.type" title="pudl.metadata.classes.Field.type"><span class="pre">type</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine" title="(in SQLAlchemy v2.1)"><span class="pre">sqlalchemy.types.TypeEngine</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine" title="(in SQLAlchemy v2.1)"><span class="pre">sqlalchemy.types.TypeEngine</span></a><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/dtypes.html#FIELD_DTYPES_SQLALCHEMY"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.dtypes.FIELD_DTYPES_SQLALCHEMY" title="Link to this definition">#</a></dt>
+<dd><p>Generic SQLAlchemy column types by simplified PUDL field type.</p>
+<p>For use with any dialect where SQLAlchemy itself compiles the DDL from these generic
+types via <code class="docutils literal notranslate"><span class="pre">metadata.create_all()</span></code> – currently DuckDB, via
+<a class="reference internal" href="../classes/index.html#pudl.metadata.classes.Field._to_sql_duckdb" title="pudl.metadata.classes.Field._to_sql_duckdb"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pudl.metadata.classes.Field._to_sql_duckdb()</span></code></a>. Not used for SQLite; see
+<a class="reference internal" href="#pudl.metadata.dtypes.FIELD_DTYPES_SQLITE" title="pudl.metadata.dtypes.FIELD_DTYPES_SQLITE"><code class="xref py py-data docutils literal notranslate"><span class="pre">FIELD_DTYPES_SQLITE</span></code></a> for that.</p>
+<p><code class="docutils literal notranslate"><span class="pre">BigInteger</span></code>/<code class="docutils literal notranslate"><span class="pre">Double</span></code> are used here (rather than <code class="docutils literal notranslate"><span class="pre">Integer</span></code>/<code class="docutils literal notranslate"><span class="pre">Float</span></code>) so that a
+dialect enforcing the declared column width – unlike SQLite, which stores every
+“INTEGER” affinity value as a dynamically-sized up-to-8-byte integer and every “REAL”
+affinity value as an 8-byte IEEE double regardless of the declared type name – still
+gets the right physical size.</p>
+</dd></dl>
+
+<dl class="py data">
 <dt class="sig sig-object py" id="pudl.metadata.dtypes.FIELD_DTYPES_SQLITE">
 <span class="sig-prename descclassname"><span class="pre">pudl.metadata.dtypes.</span></span><span class="sig-name descname"><span class="pre">FIELD_DTYPES_SQLITE</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../classes/index.html#pudl.metadata.classes.Field.type" title="pudl.metadata.classes.Field.type"><span class="pre">type</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine" title="(in SQLAlchemy v2.1)"><span class="pre">sqlalchemy.types.TypeEngine</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine" title="(in SQLAlchemy v2.1)"><span class="pre">sqlalchemy.types.TypeEngine</span></a><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/dtypes.html#FIELD_DTYPES_SQLITE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.dtypes.FIELD_DTYPES_SQLITE" title="Link to this definition">#</a></dt>
-<dd><p>SQLAlchemy column types by simplified PUDL field type.</p>
+<dd><p>SQLAlchemy column types for the SQLite dialect specifically.</p>
+<p>Identical to <a class="reference internal" href="#pudl.metadata.dtypes.FIELD_DTYPES_SQLALCHEMY" title="pudl.metadata.dtypes.FIELD_DTYPES_SQLALCHEMY"><code class="xref py py-data docutils literal notranslate"><span class="pre">FIELD_DTYPES_SQLALCHEMY</span></code></a> except for <code class="docutils literal notranslate"><span class="pre">datetime</span></code>: SQLite has no
+native timestamp storage type, so datetimes are stored as text, and
+<code class="xref py py-class docutils literal notranslate"><span class="pre">SQLITE_DATETIME</span></code> is a custom decorator (see <code class="docutils literal notranslate"><span class="pre">to_sqlite_dtype()</span></code>) needed to
+get microsecond precision out of that text column. DuckDB has a native <code class="docutils literal notranslate"><span class="pre">TIMESTAMP</span></code>
+type that already stores microseconds, so <code class="docutils literal notranslate"><span class="pre">FIELD_DTYPES_SQLALCHEMY</span></code>’s plain
+<code class="docutils literal notranslate"><span class="pre">sa.DateTime</span></code> is correct for it as-is.</p>
 </dd></dl>
 
 <dl class="py data">
@@ -1163,6 +1188,7 @@ types. If provided, resource field types are authoritative.</p></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.dtypes.FIELD_DTYPES_DUCKDB"><code class="docutils literal notranslate"><span class="pre">FIELD_DTYPES_DUCKDB</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.dtypes.FIELD_DTYPES_PANDAS"><code class="docutils literal notranslate"><span class="pre">FIELD_DTYPES_PANDAS</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.dtypes.FIELD_DTYPES_PYARROW"><code class="docutils literal notranslate"><span class="pre">FIELD_DTYPES_PYARROW</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.dtypes.FIELD_DTYPES_SQLALCHEMY"><code class="docutils literal notranslate"><span class="pre">FIELD_DTYPES_SQLALCHEMY</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.dtypes.FIELD_DTYPES_SQLITE"><code class="docutils literal notranslate"><span class="pre">FIELD_DTYPES_SQLITE</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.dtypes.CONSTRAINT_DTYPES"><code class="docutils literal notranslate"><span class="pre">CONSTRAINT_DTYPES</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.dtypes.PERIODS"><code class="docutils literal notranslate"><span class="pre">PERIODS</span></code></a></li>

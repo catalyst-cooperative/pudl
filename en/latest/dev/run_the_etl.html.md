@@ -9,56 +9,6 @@ just want to use the data we process and distribute.
 
 These instructions assume you have already gone through the [Development Setup](dev_setup.html.md#dev-setup).
 
-## Alembic
-
-PUDL uses [Alembic](https://alembic.sqlalchemy.org) to manage the creation our
-database and migrations of the schema as it changes over time. However, we only use
-file-based databases (SQLite, DuckDB) and these migrations are mostly a way to allow
-us to change the schema without needing to repopulate the entire database from scratch.
-They are not used in production.
-
-### Database initialization
-
-Before we run anything, we’ll need to make sure that the schema in the database
-actually matches the schema defined by the code. Run `pixi run alembic upgrade head`
-to create the database with the right schema. If you already have a `pudl.sqlite`
-you’ll probably need to delete it first.
-
-### Database schema migration
-
-If you’ve changed the database schema locally (by renaming a column, adding a table,
-defining a new primary key, changing a datatype, etc.), you’ll need to make a migration
-reflecting that change and apply the migration to the database to keep the database
-schema synchronized with the code:
-
-```bash
-$ pixi run alembic revision --autogenerate -m "Add my cool table"
-$ pixi run alembic upgrade head
-$ git add migrations
-$ git commit -m "Migration: added my cool table"
-```
-
-When switching branches, Alembic may refer to a migration version that is not
-on your current branch. This will manifest as an error like this when running an
-Alembic command:
-
-```default
-FAILED: Can't locate revision identified by '29d443aadf25'
-```
-
-If you encounter that, you will want to check out the git branch that *does*
-include that migration in the `migrations` directory. Then you should run
-`alembic downgrade head-1` to revert the database to the prior version. Then
-you can go back to the branch that doesn’t have your migration, and use Alembic
-in peace.
-
-If the migrations have diverged for more than one revision, you can specify the
-specific version you would like to downgrade to with its hash. You may also
-want to keep a copy of the old SQLite database around, so you can easily switch
-between branches without having to regenerate data.
-
-More information can be found in the [Alembic docs](https://alembic.sqlalchemy.org/en/latest/tutorial.html).
-
 ## Dagster
 
 Catalyst uses [Dagster](https://docs.dagster.io/) to manage our data pipelines.
@@ -76,7 +26,6 @@ Dagster’s excellent documentation:
 If you use coding agents, you may also want to check out [the Dagster agent skills](https://github.com/dagster-io/skills):
 
 * [dagster-expert](https://github.com/dagster-io/skills/blob/master/skills/dagster-expert/skills/dagster-expert/SKILL.md)
-* [dignified-python](https://github.com/dagster-io/skills/blob/master/skills/dignified-python/skills/dignified-python/SKILL.md)
 * [AI Driven Data Engineering](https://courses.dagster.io/courses/ai-driven-data-engineering) (Dagster Course)
 
 These skills are also configured in the PUDL repo and can be installed with this pixi
@@ -111,7 +60,7 @@ Dagster docs for more info.
   primary building blocks in Dagster. They represent the underlying entities in our
   pipelines, such as database tables or machine learning models. In PUDL, most assets
   represent a [`pandas.DataFrame`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) that is written to Parquet
-  and SQLite files on disk. Depending on which part of the PUDL DAG you are looking at,
+  files on disk. Depending on which part of the PUDL DAG you are looking at,
   assets might represent messy raw dataframes extracted from spreadsheets, partially
   cleaned intermediary dataframes, or fully normalized tables ready for distribution.
 * **Resources** [[Dagster ref](https://docs.dagster.io/guides/build/external-resources)] are
@@ -125,10 +74,10 @@ Dagster docs for more info.
 * **IO Managers** [[Dagster ref](https://docs.dagster.io/guides/build/io-managers)] in Dagster let
   us keep the code for data processing separate from the code for reading and writing
   data. PUDL defines I/O Managers for reading data out of the FERC SQLite databases we
-  curate, for reading and writing Parquet files, and for writing out to SQLite. For
-  example [`pudl.dagster.io_managers.PudlMixedFormatIOManager`](../autoapi/pudl/dagster/io_managers/index.html.md#pudl.dagster.io_managers.PudlMixedFormatIOManager) allows assets to
-  read and write dataframes to SQLite and Parquet-backed outputs using a single logical
-  interface.
+  curate, and for reading and writing the Parquet files that hold the processed PUDL
+  tables. The fully processed data is packaged into the `pudl.duckdb` and
+  `pudl.sqlite` databases by a separate Dagster asset that runs after the ETL,
+  reading from those Parquet outputs.
 * **Jobs** [[Dagster ref](https://docs.dagster.io/guides/build/jobs)] are preconfigured collections
   of assets, resources and IO Managers.  Jobs are the main unit of execution in Dagster.
   The main jobs assembled in [`pudl.dagster`](../autoapi/pudl/dagster/index.html.md#module-pudl.dagster) are:
@@ -452,7 +401,7 @@ $ pixi run dg launch --job pudl --config the/path/to/your/custom_dg_config.yml
 The commands above should result in a bunch of Python [`logging`](https://docs.python.org/3/library/logging.html#module-logging) output describing
 what Dagster is doing, and file outputs in the directory you specified via the
 `$PUDL_OUTPUT` environment variable. When the ETL is complete, you should see new
-files at e.g. `$PUDL_OUTPUT/ferc1_dbf.sqlite`, `$PUDL_OUTPUT/pudl.sqlite` and
+files at e.g. `$PUDL_OUTPUT/ferc1_dbf.sqlite` or
 `$PUDL_OUTPUT/core_epacems__hourly_emissions.parquet`.
 
 The Dagster CLI also has built-in help if you want additional information:

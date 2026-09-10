@@ -3,12 +3,12 @@
 Dagster IO managers used by PUDL assets.
 
 This module defines the IO-manager implementations that translate between Dagster asset
-execution and PUDL’s storage formats, including SQLite, Parquet (with native GeoParquet
-support for assets that return a [`geopandas.GeoDataFrame`](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame)), and the FERC
-prerequisite databases. Put [`dagster.IOManager`](https://docs.dagster.io/api/dagster/io-managers/#dagster.IOManager) and
-[`dagster.ConfigurableIOManager`](https://docs.dagster.io/api/dagster/io-managers/#dagster.ConfigurableIOManager) classes here, along with configured singleton
-instances that the default code location reuses. Keep data-processing logic out of this
-module; it should focus on persistence, loading, and storage-compatibility concerns.
+execution and PUDL’s storage formats, including Parquet (with native GeoParquet support
+for assets that return a [`geopandas.GeoDataFrame`](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame)) and the FERC prerequisite
+SQLite databases. Put [`dagster.IOManager`](https://docs.dagster.io/api/dagster/io-managers/#dagster.IOManager) and [`dagster.ConfigurableIOManager`](https://docs.dagster.io/api/dagster/io-managers/#dagster.ConfigurableIOManager)
+classes here, along with configured singleton instances that the default code location
+reuses. Keep data-processing logic out of this module; it should focus on persistence,
+loading, and storage-compatibility concerns.
 
 For the underlying Dagster concept, see [https://docs.dagster.io/guides/build/io-managers](https://docs.dagster.io/guides/build/io-managers)
 
@@ -16,9 +16,6 @@ For the underlying Dagster concept, see [https://docs.dagster.io/guides/build/io
 
 | [`logger`](#pudl.dagster.io_managers.logger)                         |    |
 |---------------------------------------------------------------------------------|----|
-| [`MINIMUM_SQLITE_VERSION`](#pudl.dagster.io_managers.MINIMUM_SQLITE_VERSION)         |    |
-| [`ALEMBIC_AUTOGENERATE_PLUGINS`](#pudl.dagster.io_managers.ALEMBIC_AUTOGENERATE_PLUGINS)   |    |
-| [`pudl_mixed_format_io_manager`](#pudl.dagster.io_managers.pudl_mixed_format_io_manager)   |    |
 | [`parquet_io_manager`](#pudl.dagster.io_managers.parquet_io_manager)             |    |
 | [`ferc1_dbf_sqlite_io_manager`](#pudl.dagster.io_managers.ferc1_dbf_sqlite_io_manager)    |    |
 | [`ferc1_xbrl_sqlite_io_manager`](#pudl.dagster.io_managers.ferc1_xbrl_sqlite_io_manager)   |    |
@@ -27,14 +24,11 @@ For the underlying Dagster concept, see [https://docs.dagster.io/guides/build/io
 
 ## Classes
 
-| [`PudlMixedFormatIOManager`](#pudl.dagster.io_managers.PudlMixedFormatIOManager)   | Format switching IOManager that supports sqlite and parquet.            |
-|-----------------------------------------------------------------------------|-------------------------------------------------------------------------|
-| [`SqliteIOManager`](#pudl.dagster.io_managers.SqliteIOManager)            | IO Manager that writes and retrieves dataframes from a SQLite database. |
-| [`PudlParquetIOManager`](#pudl.dagster.io_managers.PudlParquetIOManager)       | IOManager that writes pudl tables to pyarrow parquet files.             |
-| [`PudlSqliteIOManager`](#pudl.dagster.io_managers.PudlSqliteIOManager)        | IO Manager that writes and retrieves dataframes from a SQLite database. |
-| [`FercSqliteIOManagerBase`](#pudl.dagster.io_managers.FercSqliteIOManagerBase)    | Shared lazy-loading behavior for FERC SQLite Dagster IO managers.       |
-| [`FercDbfSqliteIOManager`](#pudl.dagster.io_managers.FercDbfSqliteIOManager)     | IO manager for reading tables from FERC DBF SQLite databases.           |
-| [`FercXbrlSqliteIOManager`](#pudl.dagster.io_managers.FercXbrlSqliteIOManager)    | IO manager for reading tables from a FERC XBRL SQLite database.         |
+| [`PudlParquetIOManager`](#pudl.dagster.io_managers.PudlParquetIOManager)    | IOManager that writes pudl tables to pyarrow parquet files.       |
+|--------------------------------------------------------------------------|-------------------------------------------------------------------|
+| [`FercSqliteIOManagerBase`](#pudl.dagster.io_managers.FercSqliteIOManagerBase) | Shared lazy-loading behavior for FERC SQLite Dagster IO managers. |
+| [`FercDbfSqliteIOManager`](#pudl.dagster.io_managers.FercDbfSqliteIOManager)  | IO manager for reading tables from FERC DBF SQLite databases.     |
+| [`FercXbrlSqliteIOManager`](#pudl.dagster.io_managers.FercXbrlSqliteIOManager) | IO manager for reading tables from a FERC XBRL SQLite database.   |
 
 ## Functions
 
@@ -45,10 +39,6 @@ For the underlying Dagster concept, see [https://docs.dagster.io/guides/build/io
 ## Module Contents
 
 ### pudl.dagster.io_managers.logger
-
-### pudl.dagster.io_managers.MINIMUM_SQLITE_VERSION *= '3.32.0'*
-
-### pudl.dagster.io_managers.ALEMBIC_AUTOGENERATE_PLUGINS *= ['alembic.autogenerate.\*', '~alembic.autogenerate.checkconstraint_byname']*
 
 ### pudl.dagster.io_managers.\_get_dagster_instance_if_available(context: [dagster.InputContext](https://docs.dagster.io/api/dagster/io-managers/#dagster.InputContext)) → [dagster.DagsterInstance](https://docs.dagster.io/api/dagster/internals/#dagster.DagsterInstance) | [None](https://docs.python.org/3/library/constants.html#None)
 
@@ -65,118 +55,6 @@ Returns `None` in two cases where provenance checks should be skipped:
 ### pudl.dagster.io_managers.get_table_name_from_context(context: [dagster.InputContext](https://docs.dagster.io/api/dagster/io-managers/#dagster.InputContext) | [dagster.OutputContext](https://docs.dagster.io/api/dagster/io-managers/#dagster.OutputContext)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
 
 Retrieves the table name from the context object.
-
-### *class* pudl.dagster.io_managers.PudlMixedFormatIOManager(\*\*data: Any)
-
-Bases: [`dagster.ConfigurableIOManager`](https://docs.dagster.io/api/dagster/io-managers/#dagster.ConfigurableIOManager)
-
-Format switching IOManager that supports sqlite and parquet.
-
-This IOManager provides for the use of parquet files along with the standard SQLite
-database produced by PUDL.
-
-#### write_to_parquet *: [bool](https://docs.python.org/3/library/functions.html#bool)* *= True*
-
-If true, data will be written to parquet files.
-
-#### read_from_parquet *: [bool](https://docs.python.org/3/library/functions.html#bool)* *= True*
-
-If true, data will be read from parquet files instead of sqlite.
-
-#### pudl_paths *: dagster.ResourceDependency[[pudl.dagster.resources.PudlPathsResource](../resources/index.html.md#pudl.dagster.resources.PudlPathsResource)]*
-
-#### validate_parquet_settings() → [PudlMixedFormatIOManager](#pudl.dagster.io_managers.PudlMixedFormatIOManager)
-
-Ensure the configured read/write mode is internally consistent.
-
-#### *property* \_sqlite_io_manager *: [PudlSqliteIOManager](#pudl.dagster.io_managers.PudlSqliteIOManager)*
-
-Build the SQLite-backed runtime IO manager lazily.
-
-#### *property* \_parquet_io_manager *: [PudlParquetIOManager](#pudl.dagster.io_managers.PudlParquetIOManager)*
-
-Build the Parquet-backed runtime IO manager lazily.
-
-#### handle_output(context: [dagster.OutputContext](https://docs.dagster.io/api/dagster/io-managers/#dagster.OutputContext), obj: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [None](https://docs.python.org/3/library/constants.html#None)
-
-Passes the output to the appropriate IO manager instance.
-
-#### load_input(context: [dagster.InputContext](https://docs.dagster.io/api/dagster/io-managers/#dagster.InputContext)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame) | polars.LazyFrame
-
-Reads input from the appropriate IO manager instance.
-
-### *class* pudl.dagster.io_managers.SqliteIOManager(base_dir: [str](https://docs.python.org/3/library/stdtypes.html#str), db_name: [str](https://docs.python.org/3/library/stdtypes.html#str), md: sqlalchemy.MetaData | [None](https://docs.python.org/3/library/constants.html#None) = None, timeout: [float](https://docs.python.org/3/library/functions.html#float) = 1000.0)
-
-Bases: [`dagster.IOManager`](https://docs.dagster.io/api/dagster/io-managers/#dagster.IOManager)
-
-IO Manager that writes and retrieves dataframes from a SQLite database.
-
-#### base_dir
-
-#### db_name
-
-#### md *= None*
-
-#### engine *= None*
-
-#### \_setup_database(timeout: [float](https://docs.python.org/3/library/functions.html#float) = 1000.0) → sqlalchemy.Engine
-
-Create database and metadata if they don’t exist.
-
-* **Parameters:**
-  **timeout** – How many seconds the connection should wait before raising an
-  exception, if the database is locked by another connection.  If another
-  connection opens a transaction to modify the database, it will be locked
-  until that transaction is committed.
-* **Returns:**
-  SQL Alchemy engine that connects to a database in the base_dir.
-* **Return type:**
-  [engine](#pudl.dagster.io_managers.SqliteIOManager.engine)
-
-#### \_get_sqlalchemy_table(table_name: [str](https://docs.python.org/3/library/stdtypes.html#str)) → sqlalchemy.Table
-
-Get SQL Alchemy Table object from metadata given a table_name.
-
-* **Parameters:**
-  **table_name** – The name of the table to look up.
-* **Returns:**
-  Corresponding SQL Alchemy Table in SqliteIOManager metadata.
-* **Return type:**
-  table
-* **Raises:**
-  [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – if table_name does not exist in the SqliteIOManager metadata.
-
-#### \_handle_pandas_output(context: [dagster.OutputContext](https://docs.dagster.io/api/dagster/io-managers/#dagster.OutputContext), df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [None](https://docs.python.org/3/library/constants.html#None)
-
-Write dataframe to the database.
-
-SQLite does not support concurrent writes to the database. Instead, SQLite
-queues write transactions and executes them one at a time.  This allows the
-assets to be processed in parallel. See the [SQLAlchemy docs](https://docs.sqlalchemy.org/en/14/dialects/sqlite.html#database-locking-behavior-concurrency) to learn more about SQLite concurrency.
-
-* **Parameters:**
-  * **context** – dagster keyword that provides access to output information like
-    asset name.
-  * **df** – dataframe to write to the database.
-
-#### handle_output(context: [dagster.OutputContext](https://docs.dagster.io/api/dagster/io-managers/#dagster.OutputContext), obj: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [None](https://docs.python.org/3/library/constants.html#None)
-
-Handle an op or asset output.
-
-* **Parameters:**
-  * **context** – dagster keyword that provides access output information like asset
-    name.
-  * **obj** – a dataframe to add to the database.
-* **Raises:**
-  [**TypeError**](https://docs.python.org/3/library/exceptions.html#TypeError) – if an asset or op returns an unsupported datatype.
-
-#### load_input(context: [dagster.InputContext](https://docs.dagster.io/api/dagster/io-managers/#dagster.InputContext)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
-
-Load a dataframe from a sqlite database.
-
-* **Parameters:**
-  **context** – dagster keyword that provides access output information like asset
-  name.
 
 ### *class* pudl.dagster.io_managers.PudlParquetIOManager(\*\*data: Any)
 
@@ -206,31 +84,6 @@ enforce exact column types on disk.
 #### load_input(context: [dagster.InputContext](https://docs.dagster.io/api/dagster/io-managers/#dagster.InputContext)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame) | polars.LazyFrame
 
 Loads pudl table from parquet file.
-
-### *class* pudl.dagster.io_managers.PudlSqliteIOManager(base_dir: [str](https://docs.python.org/3/library/stdtypes.html#str), db_name: [str](https://docs.python.org/3/library/stdtypes.html#str), package: [pudl.metadata.classes.Package](../../metadata/classes/index.html.md#pudl.metadata.classes.Package) | [None](https://docs.python.org/3/library/constants.html#None) = None, timeout: [float](https://docs.python.org/3/library/functions.html#float) = 1000.0)
-
-Bases: [`SqliteIOManager`](#pudl.dagster.io_managers.SqliteIOManager)
-
-IO Manager that writes and retrieves dataframes from a SQLite database.
-
-This class extends the SqliteIOManager class to manage database metadata and dtypes
-using the [`pudl.metadata.classes.Package`](../../metadata/classes/index.html.md#pudl.metadata.classes.Package) class.
-
-#### package *= None*
-
-#### \_handle_pandas_output(context: [dagster.OutputContext](https://docs.dagster.io/api/dagster/io-managers/#dagster.OutputContext), df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [None](https://docs.python.org/3/library/constants.html#None)
-
-Enforce PUDL DB schema and write dataframe to SQLite.
-
-#### load_input(context: [dagster.InputContext](https://docs.dagster.io/api/dagster/io-managers/#dagster.InputContext)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
-
-Load a dataframe from a sqlite database.
-
-* **Parameters:**
-  **context** – dagster keyword that provides access output information like asset
-  name.
-
-### pudl.dagster.io_managers.pudl_mixed_format_io_manager
 
 ### pudl.dagster.io_managers.parquet_io_manager
 
