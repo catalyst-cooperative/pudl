@@ -204,9 +204,12 @@ def _add_time_cols(lf: pl.LazyFrame, lf_name: str, year: int) -> pl.LazyFrame:
     lf = lf.with_columns(report_year=pl.col("report_year").cast(pl.Int32))
 
     if year >= 2024:
-        assert (
-            lf.collect_schema()["hour_of_year"] == pl.Datetime
-        )  # Check column is in expected format
+        hour_of_year_dtype = lf.collect_schema()["hour_of_year"]
+        assert hour_of_year_dtype == pl.Datetime, (
+            f"Expected the {lf_name} {year} table to publish hour_of_year as a "
+            f"datetime column (as VCE RARE has since 2024), got "
+            f"{hour_of_year_dtype}."
+        )
         lf = lf.rename({"hour_of_year": "datetime_utc"}).with_columns(
             hour_of_year=(pl.col("datetime_utc").dt.ordinal_day() - 1) * 24
             + pl.col("datetime_utc").dt.hour()
