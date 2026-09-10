@@ -116,7 +116,7 @@ EIA-860M
 
 * Added :doc:`EIA-860M <data_sources/eia860>` data through July 2026. See
   issue :issue:`5549` and PR :pr:`5547`.
-  
+
  Vibrant Pattern Futures Resource Adequacy Renewable Energy (RARE) Power Dataset
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
