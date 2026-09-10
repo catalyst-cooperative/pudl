@@ -277,10 +277,6 @@ Returns content of a resource assuming there is exactly one that matches.
 
 Retrieves unique resource and opens it as a ZipFile.
 
-#### get_zipfile_resources(dataset: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*filters: Any) → [collections.abc.Iterator](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterator)[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pudl.workspace.resource_cache.PudlResourceKey](../resource_cache/index.html.md#pudl.workspace.resource_cache.PudlResourceKey), [zipfile.ZipFile](https://docs.python.org/3/library/zipfile.html#zipfile.ZipFile)]]
-
-Iterates over resources that match filters and opens each as ZipFile.
-
 #### get_zipfile_file_names(zip_file: [zipfile.ZipFile](https://docs.python.org/3/library/zipfile.html#zipfile.ZipFile))
 
 Given a zipfile, return a list of the file names in it.

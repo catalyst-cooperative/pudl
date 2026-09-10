@@ -42,11 +42,11 @@ Module Contents
 
 
    .. py:attribute:: pudl_input
-      :type:  pathlib.Path | str
+      :type:  pathlib.Path
 
 
    .. py:attribute:: pudl_output
-      :type:  pathlib.Path | str
+      :type:  pathlib.Path
 
 
    .. py:attribute:: model_config
@@ -68,37 +68,21 @@ Module Contents
 
 
 
-   .. py:property:: pudl_db
-      :type: str
-
-
-      Returns url of locally stored pudl sqlite database.
-
-
-   .. py:method:: sqlite_db_uri(name: str) -> str
-
-      Returns url of locally stored pudl sqlite database with given name.
-
-      The name is expected to be the name of the database without the .sqlite
-      suffix. E.g. pudl, ferc1 and so on.
-
-
-
    .. py:method:: parquet_path(table_name: str | None = None) -> pathlib.Path
 
       Return path to parquet file for given database and table.
 
 
 
-   .. py:method:: sqlite_db_path(name: str) -> pathlib.Path
+   .. py:method:: sqlite_path(name: str) -> pathlib.Path
 
       Return path to locally stored SQLite DB file.
 
 
 
-   .. py:method:: duckdb_db_path(name: str) -> pathlib.Path
+   .. py:method:: duckdb_path(name: str) -> pathlib.Path
 
-      Return path to locally stored SQLite DB file.
+      Return path to locally stored DuckDB file.
 
 
 

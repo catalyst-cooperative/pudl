@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.workspace.setup &#8212; PUDL 2026.8.1.dev39 documentation</title>
+    <title>pudl.workspace.setup &#8212; PUDL 2026.8.1.dev46 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../_static/documentation_options.js?v=c87640b2"></script>
+    <script src="../../../_static/documentation_options.js?v=a1882138"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev39 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev39 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev46 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev46 documentation - Home"/>
   
   
 </a></div>
@@ -896,13 +896,17 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    variables. Other paths of relevance are derived from these.</span>
 <span class="sd">    """</span>
 
+    <span class="c1"># Annotated as plain ``Path`` (not ``Path | str``) because ``normalize_paths``</span>
+    <span class="c1"># below runs in ``mode="before"`` and coerces whatever is passed -- string,</span>
+    <span class="c1"># relative path, etc. -- into an absolute ``Path`` before validation. Callers</span>
+    <span class="c1"># can still pass strings; downstream code always sees a ``Path``.</span>
 <div class="viewcode-block" id="PudlPaths.pudl_input">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/setup/index.html#pudl.workspace.setup.PudlPaths.pudl_input">[docs]</a>
-    <span class="n">pudl_input</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span></div>
+    <span class="n">pudl_input</span><span class="p">:</span> <span class="n">Path</span></div>
 
 <div class="viewcode-block" id="PudlPaths.pudl_output">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/setup/index.html#pudl.workspace.setup.PudlPaths.pudl_output">[docs]</a>
-    <span class="n">pudl_output</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span></div>
+    <span class="n">pudl_output</span><span class="p">:</span> <span class="n">Path</span></div>
 
 <div class="viewcode-block" id="PudlPaths.model_config">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/setup/index.html#pudl.workspace.setup.PudlPaths.model_config">[docs]</a>
@@ -955,27 +959,6 @@ window.runMermaid = runMermaid;</script>
         <span class="k">return</span> <span class="bp">self</span></div>
 
 
-    <span class="nd">@property</span>
-<div class="viewcode-block" id="PudlPaths.pudl_db">
-<a class="viewcode-back" href="../../../autoapi/pudl/workspace/setup/index.html#pudl.workspace.setup.PudlPaths.pudl_db">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">pudl_db</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Returns url of locally stored pudl sqlite database."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sqlite_db_uri</span><span class="p">(</span><span class="s2">"pudl"</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="PudlPaths.sqlite_db_uri">
-<a class="viewcode-back" href="../../../autoapi/pudl/workspace/setup/index.html#pudl.workspace.setup.PudlPaths.sqlite_db_uri">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">sqlite_db_uri</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Returns url of locally stored pudl sqlite database with given name.</span>
-
-<span class="sd">        The name is expected to be the name of the database without the .sqlite</span>
-<span class="sd">        suffix. E.g. pudl, ferc1 and so on.</span>
-<span class="sd">        """</span>
-        <span class="c1"># SQLite URI has 3 slashes - 2 to separate URI scheme, 1 to separate creds</span>
-        <span class="c1"># sqlite://{credentials}/{db_path}</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">"sqlite:///</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sqlite_db_path</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span></div>
-
-
 <div class="viewcode-block" id="PudlPaths.parquet_path">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/setup/index.html#pudl.workspace.setup.PudlPaths.parquet_path">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">parquet_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
@@ -985,17 +968,17 @@ window.runMermaid = runMermaid;</script>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pudl_output</span> <span class="o">/</span> <span class="s2">"parquet"</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">.parquet"</span></div>
 
 
-<div class="viewcode-block" id="PudlPaths.sqlite_db_path">
-<a class="viewcode-back" href="../../../autoapi/pudl/workspace/setup/index.html#pudl.workspace.setup.PudlPaths.sqlite_db_path">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">sqlite_db_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<div class="viewcode-block" id="PudlPaths.sqlite_path">
+<a class="viewcode-back" href="../../../autoapi/pudl/workspace/setup/index.html#pudl.workspace.setup.PudlPaths.sqlite_path">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sqlite_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return path to locally stored SQLite DB file."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pudl_output</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.sqlite"</span></div>
 
 
-<div class="viewcode-block" id="PudlPaths.duckdb_db_path">
-<a class="viewcode-back" href="../../../autoapi/pudl/workspace/setup/index.html#pudl.workspace.setup.PudlPaths.duckdb_db_path">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">duckdb_db_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Return path to locally stored SQLite DB file."""</span>
+<div class="viewcode-block" id="PudlPaths.duckdb_path">
+<a class="viewcode-back" href="../../../autoapi/pudl/workspace/setup/index.html#pudl.workspace.setup.PudlPaths.duckdb_path">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">duckdb_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return path to locally stored DuckDB file."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pudl_output</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.duckdb"</span></div>
 
 

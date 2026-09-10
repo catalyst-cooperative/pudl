@@ -7,7 +7,6 @@
   * [Set Up Code Linting](dev_setup.html.md#set-up-code-linting)
   * [Creating a Workspace](dev_setup.html.md#creating-a-workspace)
 * [Running the ETL Pipeline](run_the_etl.html.md)
-  * [Alembic](run_the_etl.html.md#alembic)
   * [Dagster](run_the_etl.html.md#dagster)
   * [Running the ETL via the Dagster UI](run_the_etl.html.md#running-the-etl-via-the-dagster-ui)
   * [Running the ETL via CLI](run_the_etl.html.md#running-the-etl-via-cli)

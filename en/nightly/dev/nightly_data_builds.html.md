@@ -82,10 +82,22 @@ stable-tag-push builds deploy to `production`, while manually dispatched branch
 builds deploy to `staging`. This is passed into the Batch container as the
 `DEPLOYMENT_ENVIRONMENT` environment variable.
 
-Upon a successful build (or if a successful build for the tagged commit already
-exists – see [Run a Versioned Release](run_a_release.html.md)), `pudl_batch.sh` uses the `gh` CLI to trigger
-the `deploy-pudl` action via `workflow_dispatch`, passing the git tag and
-deployment environment as inputs.
+`build-pudl` also decides which cloud storage targets the build’s outputs will be
+published to. Nightly and stable builds always deploy to both GCS and S3. Manually
+dispatched branch builds deploy to GCS by default and skip S3 to avoid egress
+charges. The `build-pudl` workflow-dispatch form exposes `deploy_to_gcs` /
+`deploy_to_s3` checkboxes to override the default behaviors.
+
+Upon a successful build (or if a successful build for the tagged commit already exists
+– see [Run a Versioned Release](run_a_release.html.md)), `pudl_batch.sh` uses the `gh` CLI to trigger the
+`deploy-pudl` action via `workflow_dispatch`, passing the git tag, deployment
+environment, and the two `deploy_to_*` flags as inputs. If neither storage target is
+enabled there is nothing for `deploy-pudl` to do (since branch builds don’t update git
+branches, redeploy the data viewer, or trigger a Zenodo release), so `pudl_batch.sh`
+skips triggering it entirely. No deployment is the right choice when a build is run only
+skips triggering it entirely. This gives us the option to trigger builds
+**whose only job is to regenerate row counts,** and not have to eat
+the cost of an unused deployment action.
 
 The `gcloud` command in `build-pudl` requires certain Google Cloud
 Platform (GCP) permissions to start and update the Google Batch VM. We use Workflow
@@ -101,15 +113,18 @@ or dispatched manually (e.g. to redeploy an existing build, or to test deploymen
 changes on a branch – see [Run a Versioned Release](run_a_release.html.md)).
 
 The action takes a git tag, which should already have an associated successful build,
-and a `deployment_environment` (`staging` or `production`). It validates the tag
-format and, for nightly/stable tags (not branch tags), confirms the tagged commit is
-actually an ancestor of `main` before proceeding – this stops a manually mistagged
-commit from being pushed to production via `workflow_dispatch`, while still allowing
-a legitimate retry of an already-`main` tag. It then runs `pudl_deploy`
-(`src/pudl/scripts/pudl_deploy.py`), which:
+a `deployment_environment` (`staging` or `production`), and `deploy_to_gcs` /
+`deploy_to_s3` checkboxes (both default on when dispatched manually) that map to the
+`pudl_deploy` `--deploy-gcs/--no-deploy-gcs` and `--deploy-s3/--no-deploy-s3`
+options. It validates the tag format and, for nightly/stable tags (not branch tags),
+confirms the tagged commit is actually an ancestor of `main` before proceeding – this
+stops a manually mistagged commit from being pushed to production via
+`workflow_dispatch`, while still allowing a legitimate retry of an already-`main`
+tag. It then runs `pudl_deploy` (`src/pudl/scripts/pudl_deploy.py`), which:
 
-* Finds the outputs associated with the tag’s build and uploads them to GCS and S3,
-  clearing any stale objects at the destination first.
+* Finds the outputs associated with the tag’s build and uploads them to GCS and/or S3,
+  clearing any stale objects at the destination first. Nightly and stable deploys
+  upload to both; branch deploys upload to GCS only unless S3 was explicitly requested.
 * Redeploys the PUDL Data Viewer (“Eel Hole”) – nightly deployments only.
 * Updates the `nightly`/`stable` git branch and triggers a Zenodo release
   (unless it’s a branch deployment).

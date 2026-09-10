@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.analysis.operational_characteristics &#8212; PUDL 2026.8.1.dev39 documentation</title>
+    <title>pudl.analysis.operational_characteristics &#8212; PUDL 2026.8.1.dev46 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../_static/documentation_options.js?v=c87640b2"></script>
+    <script src="../../../_static/documentation_options.js?v=a1882138"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev39 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev39 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev46 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev46 documentation - Home"/>
   
   
 </a></div>
@@ -901,6 +901,20 @@ window.runMermaid = runMermaid;</script>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">logging_helpers</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="EARLIEST_USABLE_YEAR_QUARTER">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/operational_characteristics/index.html#pudl.analysis.operational_characteristics.EARLIEST_USABLE_YEAR_QUARTER">[docs]</a>
+<span class="n">EARLIEST_USABLE_YEAR_QUARTER</span> <span class="o">=</span> <span class="s2">"1998q1"</span></div>
+
+<span class="sd">"""Earliest EPA CEMS year-quarter treated as usable for this analysis.</span>
+
+<span class="sd">EPA CEMS's first few years of reporting (1995-1997) are known to have poor and</span>
+<span class="sd">inconsistent unit coverage, making them unsuitable for estimating these</span>
+<span class="sd">operational characteristics. Quarters before this are treated as unavailable</span>
+<span class="sd">for this analysis regardless of what's actually present in the EPA CEMS data</span>
+<span class="sd">config, so the earliest feasible ``report_year`` in production (a 3-year /</span>
+<span class="sd">12-quarter trailing window) is 2000, not 1997.</span>
+<span class="sd">"""</span>
+
 
 <div class="viewcode-block" id="_get_heat_rate_analysis_config">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/operational_characteristics/index.html#pudl.analysis.operational_characteristics._get_heat_rate_analysis_config">[docs]</a>
@@ -948,56 +962,110 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<div class="viewcode-block" id="_assert_required_quarters_available">
-<a class="viewcode-back" href="../../../autoapi/pudl/analysis/operational_characteristics/index.html#pudl.analysis.operational_characteristics._assert_required_quarters_available">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">_assert_required_quarters_available</span><span class="p">(</span>
+<div class="viewcode-block" id="_missing_required_quarters">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/operational_characteristics/index.html#pudl.analysis.operational_characteristics._missing_required_quarters">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_missing_required_quarters</span><span class="p">(</span>
     <span class="n">year_quarters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">target_year_quarter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">num_quarters</span><span class="p">:</span> <span class="nb">int</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Raise if the configured EPA CEMS quarters don't cover the trailing window.</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""List quarters in the trailing window ending at ``target_year_quarter``.</span>
 
-<span class="sd">    ``EpaCemsDataConfig`` only validates that each configured year-quarter is a</span>
-<span class="sd">    real partition and that there are no duplicates -- it does not require the</span>
-<span class="sd">    list to be contiguous. Nothing downstream would otherwise notice a gap:</span>
-<span class="sd">    :func:`_select_target_year_quarter` only needs a max(), and</span>
-<span class="sd">    :func:`filter_cems_for_heat_rate_analysis` filters purely by timestamp</span>
-<span class="sd">    range, with no visibility into which quarters were actually requested. This</span>
-<span class="sd">    check makes a missing or discontinuous configuration fail loudly instead of</span>
-<span class="sd">    silently producing estimates from a partial window.</span>
+<span class="sd">    Specifically, the quarters in that window that are absent from</span>
+<span class="sd">    ``year_quarters``. ``EpaCemsDataConfig`` only validates that each</span>
+<span class="sd">    configured year-quarter is a real partition and that there are no</span>
+<span class="sd">    duplicates -- it does not require the list to be contiguous, so a</span>
+<span class="sd">    trailing window can have gaps even in a config that otherwise looks</span>
+<span class="sd">    reasonable.</span>
 <span class="sd">    """</span>
     <span class="n">target_ordinal</span> <span class="o">=</span> <span class="n">_year_quarter_to_ordinal</span><span class="p">(</span><span class="n">target_year_quarter</span><span class="p">)</span>
     <span class="n">required_ordinals</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">target_ordinal</span> <span class="o">-</span> <span class="n">num_quarters</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">target_ordinal</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">missing</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span>
         <span class="n">_ordinal_to_year_quarter</span><span class="p">(</span><span class="n">ordinal</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">ordinal</span> <span class="ow">in</span> <span class="n">required_ordinals</span>
         <span class="k">if</span> <span class="n">_ordinal_to_year_quarter</span><span class="p">(</span><span class="n">ordinal</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">year_quarters</span>
-    <span class="p">)</span>
-    <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">"EPA CEMS year_quarters is missing quarters required for this "</span>
-            <span class="sa">f</span><span class="s2">"analysis's trailing </span><span class="si">{</span><span class="n">num_quarters</span><span class="si">}</span><span class="s2">-quarter window ending at "</span>
-            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">target_year_quarter</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">missing</span><span class="si">}</span><span class="s2">."</span>
-        <span class="p">)</span></div>
+    <span class="p">)</span></div>
 
 
 
-<div class="viewcode-block" id="_select_target_year_quarter">
-<a class="viewcode-back" href="../../../autoapi/pudl/analysis/operational_characteristics/index.html#pudl.analysis.operational_characteristics._select_target_year_quarter">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">_select_target_year_quarter</span><span class="p">(</span><span class="n">year_quarters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Pick the year-quarter to treat as the end of the analysis window.</span>
+<div class="viewcode-block" id="_select_target_year_quarters">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/operational_characteristics/index.html#pudl.analysis.operational_characteristics._select_target_year_quarters">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_select_target_year_quarters</span><span class="p">(</span>
+    <span class="n">year_quarters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">num_quarters</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Choose the EPA CEMS year-quarters that each end a full analysis window.</span>
 
-<span class="sd">    Prefers the most recent year-quarter ending in Q4 (i.e. the most recent</span>
-<span class="sd">    *complete* calendar year), which reproduces the historical whole-year</span>
-<span class="sd">    behavior of this analysis in production. Falls back to the single most</span>
-<span class="sd">    recent year-quarter of any kind when no Q4 is present -- e.g. in the fast</span>
-<span class="sd">    ETL / CI, which only has a single quarter of EPA CEMS data and can't</span>
-<span class="sd">    produce a Q4-ending window at all.</span>
+<span class="sd">    The analysis produces one set of operational characteristics per calendar</span>
+<span class="sd">    year, computed from a trailing window of ``num_quarters`` quarters ending</span>
+<span class="sd">    in that year's Q4. This returns the end-of-window year-quarter for every</span>
+<span class="sd">    calendar year that both:</span>
+
+<span class="sd">    - has its Q4 present in ``year_quarters`` (considering only quarters at or</span>
+<span class="sd">      after :data:`EARLIEST_USABLE_YEAR_QUARTER` as available at all), and</span>
+<span class="sd">    - has all ``num_quarters`` quarters of its trailing window available.</span>
+
+<span class="sd">    In production, with a 12-quarter window and EPA CEMS data reaching back to</span>
+<span class="sd">    the late 1990s, this yields one ``YYYYq4`` value per year from 2000 through</span>
+<span class="sd">    the most recent complete year.</span>
+
+<span class="sd">    The fast ETL and pytest configs load only a single EPA CEMS quarter and</span>
+<span class="sd">    set ``num_quarters`` to 1, so no Q4-ending window exists. In that case the</span>
+<span class="sd">    single latest usable year-quarter (e.g. ``"2022q1"``) is returned as its</span>
+<span class="sd">    own one-quarter window, and the caller treats its calendar year as the</span>
+<span class="sd">    report year. This fallback quarter is returned as-is rather than coerced</span>
+<span class="sd">    to Q4, because the loaded data only covers that specific quarter.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        year_quarters: Every EPA CEMS ``YYYYqN`` partition available to the</span>
+<span class="sd">            run, as configured in the Dagster settings. Need not be sorted or</span>
+<span class="sd">            contiguous.</span>
+<span class="sd">        num_quarters: Length of the trailing window, in quarters, that each</span>
+<span class="sd">            returned year-quarter must have fully available.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Sorted list of ``YYYYqN`` year-quarters, one per analyzable calendar</span>
+<span class="sd">        year, each usable as the ``final_year_quarter`` of a</span>
+<span class="sd">        ``num_quarters``-long window. Normally every entry ends in ``q4``; in</span>
+<span class="sd">        the single-quarter fast-ETL case the one entry is the loaded quarter.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: if no configured year-quarter is at or after</span>
+<span class="sd">            :data:`EARLIEST_USABLE_YEAR_QUARTER`, or if no candidate</span>
+<span class="sd">            year-quarter has its full trailing window available -- e.g.</span>
+<span class="sd">            ``num_quarters`` is larger than the usable EPA CEMS history.</span>
 <span class="sd">    """</span>
-    <span class="n">q4_years</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">year_quarter</span><span class="o">.</span><span class="n">removesuffix</span><span class="p">(</span><span class="s2">"q4"</span><span class="p">)</span>
+    <span class="n">usable_year_quarters</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">year_quarter</span>
         <span class="k">for</span> <span class="n">year_quarter</span> <span class="ow">in</span> <span class="n">year_quarters</span>
-        <span class="k">if</span> <span class="n">year_quarter</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"q4"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">year_quarter</span> <span class="o">&gt;=</span> <span class="n">EARLIEST_USABLE_YEAR_QUARTER</span>
     <span class="p">]</span>
-    <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">max</span><span class="p">(</span><span class="n">q4_years</span><span class="p">)</span><span class="si">}</span><span class="s2">q4"</span> <span class="k">if</span> <span class="n">q4_years</span> <span class="k">else</span> <span class="nb">max</span><span class="p">(</span><span class="n">year_quarters</span><span class="p">)</span></div>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">usable_year_quarters</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">"None of the configured EPA CEMS year_quarters are at or after "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">EARLIEST_USABLE_YEAR_QUARTER</span><span class="si">}</span><span class="s2">, the earliest year-quarter this "</span>
+            <span class="s2">"analysis treats as usable."</span>
+        <span class="p">)</span>
+
+    <span class="n">q4_years</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+        <span class="n">year_quarter</span><span class="o">.</span><span class="n">removesuffix</span><span class="p">(</span><span class="s2">"q4"</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">year_quarter</span> <span class="ow">in</span> <span class="n">usable_year_quarters</span>
+        <span class="k">if</span> <span class="n">year_quarter</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"q4"</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">candidates</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">q4"</span> <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">q4_years</span><span class="p">]</span> <span class="k">if</span> <span class="n">q4_years</span> <span class="k">else</span> <span class="p">[</span><span class="nb">max</span><span class="p">(</span><span class="n">usable_year_quarters</span><span class="p">)]</span>
+    <span class="p">)</span>
+    <span class="n">feasible</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">year_quarter</span>
+        <span class="k">for</span> <span class="n">year_quarter</span> <span class="ow">in</span> <span class="n">candidates</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_missing_required_quarters</span><span class="p">(</span>
+            <span class="n">usable_year_quarters</span><span class="p">,</span> <span class="n">year_quarter</span><span class="p">,</span> <span class="n">num_quarters</span>
+        <span class="p">)</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">feasible</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"None of the configured EPA CEMS year_quarters have the "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">num_quarters</span><span class="si">}</span><span class="s2"> trailing quarters required to compute operational "</span>
+            <span class="s2">"characteristics for any calendar year."</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">feasible</span></div>
 
 
 
@@ -1644,44 +1712,56 @@ window.runMermaid = runMermaid;</script>
     <span class="n">context</span><span class="p">:</span> <span class="n">AssetExecutionContext</span><span class="p">,</span>
     <span class="n">core_epacems__hourly_emissions</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Estimate EPA CEMS unit operational characteristics for every unit."""</span>
+<span class="w">    </span><span class="sd">"""Estimate EPA CEMS unit operational characteristics for every unit and year.</span>
+
+<span class="sd">    Computes one set of characteristics per state per calendar year that has a</span>
+<span class="sd">    full trailing window of EPA CEMS data available (see</span>
+<span class="sd">    :func:`_select_target_year_quarters`), looping over states within each year.</span>
+<span class="sd">    Each ``(year, state)`` pair's hourly CEMS data is filtered, reduced down to a</span>
+<span class="sd">    handful of per-unit summary rows, and immediately discarded, so peak memory</span>
+<span class="sd">    stays bounded by a single state's window (observed ~16 GB for CA or TX) no</span>
+<span class="sd">    matter how many years get processed. All of the resulting per-unit summary</span>
+<span class="sd">    rows -- on the order of 100,000 total across every year and state, versus</span>
+<span class="sd">    billions of hourly input records -- are concatenated once at the very end.</span>
+<span class="sd">    """</span>
     <span class="n">heat_rate_config</span> <span class="o">=</span> <span class="n">_get_heat_rate_analysis_config</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
     <span class="n">year_quarters</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">global_data_config</span><span class="o">.</span><span class="n">pudl</span><span class="o">.</span><span class="n">epacems</span><span class="o">.</span><span class="n">year_quarters</span>
-    <span class="n">target_year_quarter</span> <span class="o">=</span> <span class="n">_select_target_year_quarter</span><span class="p">(</span><span class="n">year_quarters</span><span class="p">)</span>
-    <span class="n">_assert_required_quarters_available</span><span class="p">(</span>
-        <span class="n">year_quarters</span><span class="p">,</span> <span class="n">target_year_quarter</span><span class="p">,</span> <span class="n">heat_rate_config</span><span class="p">[</span><span class="s2">"num_quarters"</span><span class="p">]</span>
+    <span class="n">target_year_quarters</span> <span class="o">=</span> <span class="n">_select_target_year_quarters</span><span class="p">(</span>
+        <span class="n">year_quarters</span><span class="p">,</span> <span class="n">heat_rate_config</span><span class="p">[</span><span class="s2">"num_quarters"</span><span class="p">]</span>
     <span class="p">)</span>
-    <span class="n">report_year</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">target_year_quarter</span><span class="p">[:</span><span class="mi">4</span><span class="p">])</span>
 
-    <span class="n">state_dfs</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">EPACEMS_STATES</span><span class="p">):</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">"Deriving unit-level operational characteristics from </span><span class="si">{</span><span class="n">state</span><span class="si">}</span><span class="s2"> EPA CEMS "</span>
-        <span class="p">)</span>
-        <span class="c1"># Filtering the lazyframe first down to only one state and only the last few</span>
-        <span class="c1"># quarters (number of quarters based on the asset's num_quarters config).</span>
-        <span class="c1"># Filter first to ensure the full hourly cems data isn't loaded into memory.</span>
-        <span class="n">cems</span> <span class="o">=</span> <span class="n">filter_cems_for_heat_rate_analysis</span><span class="p">(</span>
-            <span class="n">core_epacems__hourly_emissions</span><span class="o">=</span><span class="n">core_epacems__hourly_emissions</span><span class="p">,</span>
-            <span class="n">final_year_quarter</span><span class="o">=</span><span class="n">target_year_quarter</span><span class="p">,</span>
-            <span class="n">num_quarters</span><span class="o">=</span><span class="n">heat_rate_config</span><span class="p">[</span><span class="s2">"num_quarters"</span><span class="p">],</span>
-            <span class="n">states</span><span class="o">=</span><span class="p">[</span><span class="n">state</span><span class="p">],</span>
-        <span class="p">)</span>
-        <span class="c1"># This step does the bulk of the work. The output here is a table with one</span>
-        <span class="c1"># record per unit with all of the derived characteristics</span>
-        <span class="n">state_df</span> <span class="o">=</span> <span class="n">estimate_operational_characteristics_by_unit</span><span class="p">(</span>
-            <span class="n">cems</span><span class="o">=</span><span class="n">cems</span><span class="p">,</span>
-            <span class="n">min_stable_consecutive_hours</span><span class="o">=</span><span class="n">heat_rate_config</span><span class="p">[</span>
-                <span class="s2">"min_stable_consecutive_hours"</span>
-            <span class="p">],</span>
-        <span class="p">)</span>
-        <span class="n">state_dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">state_df</span><span class="p">)</span>
+    <span class="n">all_dfs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">target_year_quarter</span> <span class="ow">in</span> <span class="n">target_year_quarters</span><span class="p">:</span>
+        <span class="n">report_year</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">target_year_quarter</span><span class="p">[:</span><span class="mi">4</span><span class="p">])</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"=== STARTING </span><span class="si">{</span><span class="n">report_year</span><span class="si">}</span><span class="s2"> ==="</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">EPACEMS_STATES</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Deriving operational characteristics for EPA CEMS units: "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">report_year</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">state</span><span class="si">}</span><span class="s2">."</span>
+            <span class="p">)</span>
+            <span class="c1"># Filtering the lazyframe first down to only one state and only the</span>
+            <span class="c1"># last few quarters (number of quarters based on the asset's</span>
+            <span class="c1"># num_quarters config). Filter first to ensure the full hourly cems</span>
+            <span class="c1"># data isn't loaded into memory.</span>
+            <span class="n">cems</span> <span class="o">=</span> <span class="n">filter_cems_for_heat_rate_analysis</span><span class="p">(</span>
+                <span class="n">core_epacems__hourly_emissions</span><span class="o">=</span><span class="n">core_epacems__hourly_emissions</span><span class="p">,</span>
+                <span class="n">final_year_quarter</span><span class="o">=</span><span class="n">target_year_quarter</span><span class="p">,</span>
+                <span class="n">num_quarters</span><span class="o">=</span><span class="n">heat_rate_config</span><span class="p">[</span><span class="s2">"num_quarters"</span><span class="p">],</span>
+                <span class="n">states</span><span class="o">=</span><span class="p">[</span><span class="n">state</span><span class="p">],</span>
+            <span class="p">)</span>
+            <span class="c1"># This step does the bulk of the work. The output here is a table</span>
+            <span class="c1"># with one record per unit with all of the derived characteristics.</span>
+            <span class="n">state_df</span> <span class="o">=</span> <span class="n">estimate_operational_characteristics_by_unit</span><span class="p">(</span>
+                <span class="n">cems</span><span class="o">=</span><span class="n">cems</span><span class="p">,</span>
+                <span class="n">min_stable_consecutive_hours</span><span class="o">=</span><span class="n">heat_rate_config</span><span class="p">[</span>
+                    <span class="s2">"min_stable_consecutive_hours"</span>
+                <span class="p">],</span>
+            <span class="p">)</span>
+            <span class="n">all_dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">state_df</span><span class="o">.</span><span class="n">with_columns</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="n">report_year</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">"report_year"</span><span class="p">))</span>
+            <span class="p">)</span>
 
-    <span class="k">return</span> <span class="p">(</span>
-        <span class="n">pl</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">state_dfs</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">with_columns</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="n">report_year</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">"report_year"</span><span class="p">))</span>
-        <span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
-    <span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">pl</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">all_dfs</span><span class="p">)</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span></div>
 
 </pre></div>
 

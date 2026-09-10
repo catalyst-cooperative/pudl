@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.classes &#8212; PUDL 2026.8.1.dev39 documentation</title>
+    <title>pudl.metadata.classes &#8212; PUDL 2026.8.1.dev46 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../_static/documentation_options.js?v=c87640b2"></script>
+    <script src="../../../_static/documentation_options.js?v=a1882138"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev39 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev39 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev46 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev46 documentation - Home"/>
   
   
 </a></div>
@@ -932,6 +932,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">FIELD_DTYPES_PANDAS</span><span class="p">,</span>
     <span class="n">FIELD_DTYPES_POLARS</span><span class="p">,</span>
     <span class="n">FIELD_DTYPES_PYARROW</span><span class="p">,</span>
+    <span class="n">FIELD_DTYPES_SQLALCHEMY</span><span class="p">,</span>
     <span class="n">FIELD_DTYPES_SQLITE</span><span class="p">,</span>
     <span class="n">PERIODS</span><span class="p">,</span>
 <span class="p">)</span>
@@ -1855,15 +1856,30 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="Field.to_sql">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Field.to_sql">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_sql</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_sql</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">dialect</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"sqlite"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"sqlite"</span><span class="p">,</span>
+        <span class="n">dialect</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"sqlite"</span><span class="p">,</span> <span class="s2">"duckdb"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"sqlite"</span><span class="p">,</span>
         <span class="n">check_types</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">check_values</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Return equivalent SQL column."""</span>
-        <span class="k">if</span> <span class="n">dialect</span> <span class="o">!=</span> <span class="s2">"sqlite"</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Dialect </span><span class="si">{</span><span class="n">dialect</span><span class="si">}</span><span class="s2"> is not supported"</span><span class="p">)</span>
+<span class="w">        </span><span class="sd">"""Return equivalent SQL column for the given dialect."""</span>
+        <span class="k">if</span> <span class="n">dialect</span> <span class="o">==</span> <span class="s2">"sqlite"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to_sql_sqlite</span><span class="p">(</span>
+                <span class="n">check_types</span><span class="o">=</span><span class="n">check_types</span><span class="p">,</span> <span class="n">check_values</span><span class="o">=</span><span class="n">check_values</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">dialect</span> <span class="o">==</span> <span class="s2">"duckdb"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to_sql_duckdb</span><span class="p">(</span><span class="n">check_values</span><span class="o">=</span><span class="n">check_values</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Dialect </span><span class="si">{</span><span class="n">dialect</span><span class="si">}</span><span class="s2"> is not supported"</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Field._to_sql_sqlite">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Field._to_sql_sqlite">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_to_sql_sqlite</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">check_types</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">check_values</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return equivalent SQL column for the SQLite dialect."""</span>
         <span class="n">checks</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">_format_for_sql</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">identifier</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">check_types</span><span class="p">:</span>
@@ -1939,6 +1955,80 @@ window.runMermaid = runMermaid;</script>
             <span class="n">nullable</span><span class="o">=</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">required</span><span class="p">,</span>
             <span class="n">unique</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">unique</span><span class="p">,</span>
             <span class="n">comment</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Field._to_sql_duckdb">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Field._to_sql_duckdb">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_to_sql_duckdb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check_values</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return equivalent SQL column for the DuckDB dialect.</span>
+
+<span class="sd">        Unlike :meth:`_to_sql_sqlite`, there is no ``check_types`` block here at</span>
+<span class="sd">        all: DuckDB is statically typed, so a column declared e.g. ``BIGINT``</span>
+<span class="sd">        structurally can't hold a string value. The ``TYPEOF``/``DATETIME``/``GLOB``</span>
+<span class="sd">        checks built for SQLite exist specifically to compensate for SQLite's</span>
+<span class="sd">        dynamic typing, and have no analog under DuckDB's native column types.</span>
+<span class="sd">        """</span>
+        <span class="n">checks</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">_format_for_sql</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">identifier</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">check_values</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">min_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">checks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"LENGTH(</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">) &gt;= </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">min_length</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">max_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">checks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"LENGTH(</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">) &lt;= </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">max_length</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">minimum</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">minimum</span> <span class="o">=</span> <span class="n">_format_for_sql</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">minimum</span><span class="p">)</span>
+                <span class="n">checks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> &gt;= </span><span class="si">{</span><span class="n">minimum</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">maximum</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">maximum</span> <span class="o">=</span> <span class="n">_format_for_sql</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">maximum</span><span class="p">)</span>
+                <span class="n">checks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> &lt;= </span><span class="si">{</span><span class="n">maximum</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">pattern</span><span class="p">:</span>
+                <span class="n">pattern</span> <span class="o">=</span> <span class="n">_format_for_sql</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">pattern</span><span class="p">)</span>
+                <span class="c1"># DuckDB has no bare REGEXP keyword/operator (unlike SQLite);</span>
+                <span class="c1"># regexp_full_match() is the equivalent it actually supports.</span>
+                <span class="n">checks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"regexp_full_match(</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">pattern</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">':'</span><span class="p">,</span><span class="w"> </span><span class="sa">r</span><span class="s1">'\:'</span><span class="p">)</span><span class="si">}</span><span class="s2">)"</span>
+                <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">enum</span><span class="p">:</span>
+            <span class="c1"># Named ENUM types are shared across every table/column that requests the</span>
+            <span class="c1"># same name (see the module-level note above) -- but the same field *name*</span>
+            <span class="c1"># is reused across resources with different, resource- specific enum value</span>
+            <span class="c1"># sets (e.g. "plant_type" means something different, with different allowed</span>
+            <span class="c1"># values, in different tables; see FIELD_METADATA_BY_RESOURCE). Naming the</span>
+            <span class="c1"># dtype after the field alone would silently share one table's enum values</span>
+            <span class="c1"># with another's column of the same name, causing conflicts. Suffixing with</span>
+            <span class="c1"># a hash of the value set keeps genuinely identical enums sharing one dtype</span>
+            <span class="c1"># while giving each distinct value set its own. The hash is order-stable</span>
+            <span class="c1"># without an explicit sort() here because FieldConstraints.enum always comes</span>
+            <span class="c1"># back sorted -- see its _sort_deterministically validator.</span>
+            <span class="n">enum_hash</span> <span class="o">=</span> <span class="n">sha1</span><span class="p">(</span>  <span class="c1"># noqa: S324</span>
+                <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">enum</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()[:</span><span class="mi">8</span><span class="p">]</span>
+            <span class="n">dtype</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">Enum</span><span class="p">(</span>
+                <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">enum</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">enum_hash</span><span class="si">}</span><span class="s2">_enum"</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dtype</span> <span class="o">=</span> <span class="n">FIELD_DTYPES_SQLALCHEMY</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="p">,</span>
+            <span class="o">*</span><span class="p">[</span>
+                <span class="n">sa</span><span class="o">.</span><span class="n">CheckConstraint</span><span class="p">(</span>
+                    <span class="n">check</span><span class="p">,</span>
+                    <span class="n">name</span><span class="o">=</span><span class="n">sha1</span><span class="p">(</span><span class="n">check</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">))</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()[:</span><span class="mi">8</span><span class="p">],</span>  <span class="c1"># noqa: S324</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="n">checks</span>
+            <span class="p">],</span>
+            <span class="n">nullable</span><span class="o">=</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">required</span><span class="p">,</span>
+            <span class="n">unique</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">unique</span><span class="p">,</span>
+            <span class="n">comment</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
+            <span class="c1"># Prevents SQLAlchemy's postgres-derived DDL compiler (which</span>
+            <span class="c1"># duckdb-engine's dialect is built on) from upgrading an Integer</span>
+            <span class="c1"># primary-key column to SERIAL -- DuckDB has no such keyword. Set</span>
+            <span class="c1"># unconditionally since Field.to_sql() doesn't know here whether this</span>
+            <span class="c1"># column will end up part of the table's primary key (that's decided</span>
+            <span class="c1"># later, in Resource.to_sql()); harmless on non-PK columns.</span>
+            <span class="n">autoincrement</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 
@@ -3013,7 +3103,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        &gt;&gt;&gt; resource = Resource(name='a', schema=schema, description='A')</span>
 <span class="sd">        &gt;&gt;&gt; table = resource.to_sql()</span>
 <span class="sd">        &gt;&gt;&gt; table.columns.x</span>
-<span class="sd">        Column('x', Integer(), ForeignKey('b.x'), CheckConstraint(...), table=&lt;a&gt;, primary_key=True, nullable=False, comment='X')</span>
+<span class="sd">        Column('x', BigInteger(), ForeignKey('b.x'), CheckConstraint(...), table=&lt;a&gt;, primary_key=True, nullable=False, comment='X')</span>
 <span class="sd">        &gt;&gt;&gt; table.columns.y</span>
 <span class="sd">        Column('y', Text(), ForeignKey('b.y'), CheckConstraint(...), table=&lt;a&gt;, comment='Y')</span>
 
@@ -3410,25 +3500,50 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_sql</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">metadata</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">MetaData</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">dialect</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"sqlite"</span><span class="p">,</span> <span class="s2">"duckdb"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"sqlite"</span><span class="p">,</span>
         <span class="n">check_types</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">check_values</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">include_foreign_keys</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sa</span><span class="o">.</span><span class="n">Table</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Return equivalent SQL Table."""</span>
+<span class="w">        </span><span class="sd">"""Return equivalent SQL Table.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            metadata: SQLAlchemy metadata to attach the table to.</span>
+<span class="sd">            dialect: passed through to each field's :meth:`Field.to_sql`.</span>
+<span class="sd">            check_types: passed through to each field's :meth:`Field.to_sql`.</span>
+<span class="sd">                Ignored under the ``duckdb`` dialect (see :meth:`Field._to_sql_duckdb`).</span>
+<span class="sd">            check_values: passed through to each field's :meth:`Field.to_sql`.</span>
+<span class="sd">            include_foreign_keys: if False, omit foreign key constraints entirely.</span>
+<span class="sd">                DuckDB enforces these at insert time by validating against the</span>
+<span class="sd">                referenced table while SQLite does not.</span>
+
+<span class="sd">        The table itself gets a ``comment`` of :attr:`description`, mirroring the</span>
+<span class="sd">        per-column comments each field already gets from :meth:`Field.to_sql`.</span>
+<span class="sd">        SQLite's dialect has no table (or column) comment support at all</span>
+<span class="sd">        (``supports_comments`` is False), so ``create_all()`` silently drops it</span>
+<span class="sd">        there -- same as it already does for column comments. DuckDB does support</span>
+<span class="sd">        table comments, so they're written for real and visible via</span>
+<span class="sd">        ``duckdb_tables()``/``information_schema``.</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">metadata</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">metadata</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">MetaData</span><span class="p">()</span>
         <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">f</span><span class="o">.</span><span class="n">to_sql</span><span class="p">(</span>
+                <span class="n">dialect</span><span class="o">=</span><span class="n">dialect</span><span class="p">,</span>
                 <span class="n">check_types</span><span class="o">=</span><span class="n">check_types</span><span class="p">,</span>
                 <span class="n">check_values</span><span class="o">=</span><span class="n">check_values</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">fields</span>
         <span class="p">]</span>
-        <span class="n">constraints</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">constraints</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">sa</span><span class="o">.</span><span class="n">Constraint</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">primary_key</span><span class="p">:</span>
             <span class="n">constraints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sa</span><span class="o">.</span><span class="n">PrimaryKeyConstraint</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">primary_key</span><span class="p">))</span>
-        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">foreign_keys</span><span class="p">:</span>
-            <span class="n">constraints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">to_sql</span><span class="p">())</span>
-        <span class="k">return</span> <span class="n">sa</span><span class="o">.</span><span class="n">Table</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="o">*</span><span class="n">columns</span><span class="p">,</span> <span class="o">*</span><span class="n">constraints</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="n">include_foreign_keys</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">foreign_keys</span><span class="p">:</span>
+                <span class="n">constraints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">to_sql</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">sa</span><span class="o">.</span><span class="n">Table</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="o">*</span><span class="n">columns</span><span class="p">,</span> <span class="o">*</span><span class="n">constraints</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">description</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Resource.to_frictionless">
@@ -3661,7 +3776,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="s2">"The following columns are getting dropped when the table is written:"</span>
                 <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">dropped_columns</span><span class="si">}</span><span class="s2">. This is often the intended behavior. If you want "</span>
                 <span class="s2">"to keep any of these columns, add them to the metadata.resources "</span>
-                <span class="s2">"fields and update alembic."</span>
+                <span class="s2">"fields."</span>
             <span class="p">)</span>
 
         <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_df</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
@@ -4415,10 +4530,20 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Package.to_sql">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_sql</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
+        <span class="n">dialect</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"sqlite"</span><span class="p">,</span> <span class="s2">"duckdb"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"sqlite"</span><span class="p">,</span>
         <span class="n">check_types</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">check_values</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">include_foreign_keys</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sa</span><span class="o">.</span><span class="n">MetaData</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Return equivalent SQL MetaData."""</span>
+<span class="w">        </span><span class="sd">"""Return equivalent SQL MetaData.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dialect: passed through to each resource's :meth:`Resource.to_sql`.</span>
+<span class="sd">            check_types: passed through to each resource's :meth:`Resource.to_sql`.</span>
+<span class="sd">            check_values: passed through to each resource's :meth:`Resource.to_sql`.</span>
+<span class="sd">            include_foreign_keys: passed through to each resource's</span>
+<span class="sd">                :meth:`Resource.to_sql`.</span>
+<span class="sd">        """</span>
         <span class="n">metadata</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">MetaData</span><span class="p">(</span>
             <span class="n">naming_convention</span><span class="o">=</span><span class="p">{</span>
                 <span class="s2">"ix"</span><span class="p">:</span> <span class="s2">"ix_</span><span class="si">%(column_0_label)s</span><span class="s2">"</span><span class="p">,</span>
@@ -4432,8 +4557,10 @@ window.runMermaid = runMermaid;</script>
             <span class="k">if</span> <span class="n">resource</span><span class="o">.</span><span class="n">create_database_schema</span><span class="p">:</span>
                 <span class="n">_</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">to_sql</span><span class="p">(</span>
                     <span class="n">metadata</span><span class="p">,</span>
+                    <span class="n">dialect</span><span class="o">=</span><span class="n">dialect</span><span class="p">,</span>
                     <span class="n">check_types</span><span class="o">=</span><span class="n">check_types</span><span class="p">,</span>
                     <span class="n">check_values</span><span class="o">=</span><span class="n">check_values</span><span class="p">,</span>
+                    <span class="n">include_foreign_keys</span><span class="o">=</span><span class="n">include_foreign_keys</span><span class="p">,</span>
                 <span class="p">)</span>
         <span class="k">return</span> <span class="n">metadata</span></div>
 
@@ -4443,12 +4570,11 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_sorted_resources</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StrictList</span><span class="p">[</span><span class="n">Resource</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""Get a list of sorted Resources.</span>
 
-<span class="sd">        Currently Resources are listed in reverse alphabetical order based</span>
-<span class="sd">        on their name which results in the following order to promote output</span>
-<span class="sd">        tables to users and push intermediate tables to the bottom of the</span>
-<span class="sd">        docs: output, core, intermediate.</span>
-<span class="sd">        In the future we might want to have more fine grain control over how</span>
-<span class="sd">        Resources are sorted.</span>
+<span class="sd">        Currently Resources are listed in reverse alphabetical order based on their name</span>
+<span class="sd">        which results in the following order to promote output tables to users and push</span>
+<span class="sd">        intermediate tables to the bottom of the docs: output, core, intermediate. In</span>
+<span class="sd">        the future we might want to have more fine grain control over how Resources are</span>
+<span class="sd">        sorted.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A sorted list of resources.</span>

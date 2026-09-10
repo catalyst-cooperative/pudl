@@ -27,7 +27,6 @@ Classes & functions to process PHMSA natural gas data before loading into the PU
 | [`_core_phmsagas__yearly_distribution_filings`](#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_filings)(...)              | Transform information about filings (with PK report_id).                                |
 | [`core_phmsagas__yearly_distribution_operators`](#pudl.transform.phmsagas.core_phmsagas__yearly_distribution_operators)(...)             | Pull and transform the yearly distribution PHMSA data into operator-level data.         |
 | [`_core_phmsagas__yearly_distribution_by_material`](#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_by_material)(...)          | Transform the \_core table of the miles of main and services by material.               |
-| [`_core_phmsagas__yearly_distribution_by_install_decade`](#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_by_install_decade)(...)    | Transform the \_core table of the miles of main and services by decade.                 |
 | [`_core_phmsagas__yearly_distribution_by_material_and_size`](#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_by_material_and_size)(...) | Transform the \_core table of the miles of main and services by material type and size. |
 | [`_core_phmsagas__yearly_distribution_leaks`](#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_leaks)(...)                | Transform table of leaks - broken out by source and leak severity.                      |
 | [`_core_phmsagas__yearly_distribution_excavation_damages`](#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_excavation_damages)(...)   | Transform table of damages - broken out by type and sub-type.                           |
@@ -144,10 +143,6 @@ Transformations include:
 
 Transform the \_core table of the miles of main and services by material.
 
-### pudl.transform.phmsagas.\_core_phmsagas_\_yearly_distribution_by_install_decade(\_core_phmsagas_\_yearly_distribution: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
-
-Transform the \_core table of the miles of main and services by decade.
-
 ### pudl.transform.phmsagas.\_core_phmsagas_\_yearly_distribution_by_material_and_size(\_core_phmsagas_\_yearly_distribution: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Transform the \_core table of the miles of main and services by material type and size.
@@ -175,6 +170,6 @@ Transform this distribution table of miscellaneous numeric values.
 
 Assert known mismatch counts between reported and summed install decades.
 
-### pudl.transform.phmsagas.core_phmsagas_\_yearly_distribution_by_install_decade(\_core_phmsagas_\_yearly_distribution_by_install_decade: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.transform.phmsagas.core_phmsagas_\_yearly_distribution_by_install_decade(\_core_phmsagas_\_yearly_distribution: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Create core_phmsagas_\_yearly_distribution_by_install_decade.

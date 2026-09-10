@@ -60,7 +60,7 @@ reporting; “Upload outputs” is a hard prerequisite for the rest (a failure
 there raises and aborts the remaining stages, leaving them recorded as
 skipped), while the remaining stages are independent of one another.
 
-### pudl.scripts.pudl_deploy.main(ctx: click.Context, git_tag: [str](https://docs.python.org/3/library/stdtypes.html#str), environment: Literal['staging', 'production']) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.scripts.pudl_deploy.main(ctx: click.Context, git_tag: [str](https://docs.python.org/3/library/stdtypes.html#str), environment: Literal['staging', 'production'], deploy_to_gcs: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None), deploy_to_s3: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None)) → [None](https://docs.python.org/3/library/constants.html#None)
 
 Deploy PUDL ETL outputs to cloud storage and external services.
 

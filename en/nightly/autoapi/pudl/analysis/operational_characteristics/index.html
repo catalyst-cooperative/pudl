@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
-    <title>pudl.analysis.operational_characteristics &#8212; PUDL 2026.8.1.dev39 documentation</title>
+    <title>pudl.analysis.operational_characteristics &#8212; PUDL 2026.8.1.dev46 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../../_static/documentation_options.js?v=c87640b2"></script>
+    <script src="../../../../_static/documentation_options.js?v=a1882138"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev39 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev39 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev46 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev46 documentation - Home"/>
   
   
 </a></div>
@@ -509,6 +509,7 @@
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../dagster/assets/index.html">pudl.dagster.assets</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../dagster/assets/core/index.html">pudl.dagster.assets.core</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../dagster/assets/deploy/index.html">pudl.dagster.assets.deploy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../dagster/assets/output/index.html">pudl.dagster.assets.output</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../dagster/assets/raw/index.html">pudl.dagster.assets.raw</a></li>
 </ul>
 </details></li>
@@ -558,7 +559,6 @@
 <li class="toctree-l3"><a class="reference internal" href="../../extract/ferceqr/index.html">pudl.extract.ferceqr</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../extract/gridpathratoolkit/index.html">pudl.extract.gridpathratoolkit</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../extract/nrelatb/index.html">pudl.extract.nrelatb</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../extract/parquet/index.html">pudl.extract.parquet</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../extract/phmsagas/index.html">pudl.extract.phmsagas</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../extract/rus12/index.html">pudl.extract.rus12</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../extract/rus7/index.html">pudl.extract.rus7</a></li>
@@ -873,6 +873,9 @@ output row per unit via <a class="reference internal" href="#pudl.analysis.opera
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics.logger" title="pudl.analysis.operational_characteristics.logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logger</span></code></a></p></td>
 <td><p></p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics.EARLIEST_USABLE_YEAR_QUARTER" title="pudl.analysis.operational_characteristics.EARLIEST_USABLE_YEAR_QUARTER"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EARLIEST_USABLE_YEAR_QUARTER</span></code></a></p></td>
+<td><p>Earliest EPA CEMS year-quarter treated as usable for this analysis.</p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -893,11 +896,11 @@ output row per unit via <a class="reference internal" href="#pudl.analysis.opera
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics._ordinal_to_year_quarter" title="pudl.analysis.operational_characteristics._ordinal_to_year_quarter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_ordinal_to_year_quarter</span></code></a>(→ str)</p></td>
 <td><p>Convert a zero-based quarter ordinal into its <code class="docutils literal notranslate"><span class="pre">YYYYqN</span></code> string.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics._assert_required_quarters_available" title="pudl.analysis.operational_characteristics._assert_required_quarters_available"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_assert_required_quarters_available</span></code></a>(→ None)</p></td>
-<td><p>Raise if the configured EPA CEMS quarters don't cover the trailing window.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics._missing_required_quarters" title="pudl.analysis.operational_characteristics._missing_required_quarters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_missing_required_quarters</span></code></a>(→ list[str])</p></td>
+<td><p>List quarters in the trailing window ending at <code class="docutils literal notranslate"><span class="pre">target_year_quarter</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics._select_target_year_quarter" title="pudl.analysis.operational_characteristics._select_target_year_quarter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_select_target_year_quarter</span></code></a>(→ str)</p></td>
-<td><p>Pick the year-quarter to treat as the end of the analysis window.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics._select_target_year_quarters" title="pudl.analysis.operational_characteristics._select_target_year_quarters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_select_target_year_quarters</span></code></a>(→ list[str])</p></td>
+<td><p>Choose the EPA CEMS year-quarters that each end a full analysis window.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics.filter_cems_for_heat_rate_analysis" title="pudl.analysis.operational_characteristics.filter_cems_for_heat_rate_analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter_cems_for_heat_rate_analysis</span></code></a>(→ polars.LazyFrame)</p></td>
 <td><p>Filter hourly EPA CEMS records to the configured analysis window.</p></td>
@@ -936,7 +939,7 @@ output row per unit via <a class="reference internal" href="#pudl.analysis.opera
 <td><p>Estimate operational characteristics for every EPA CEMS plant-unit pair.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics.out_epacems__yearly_operational_characteristics" title="pudl.analysis.operational_characteristics.out_epacems__yearly_operational_characteristics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_epacems__yearly_operational_characteristics</span></code></a>(...)</p></td>
-<td><p>Estimate EPA CEMS unit operational characteristics for every unit.</p></td>
+<td><p>Estimate EPA CEMS unit operational characteristics for every unit and year.</p></td>
 </tr>
 </tbody>
 </table>
@@ -948,6 +951,18 @@ output row per unit via <a class="reference internal" href="#pudl.analysis.opera
 <dt class="sig sig-object py" id="pudl.analysis.operational_characteristics.logger">
 <span class="sig-prename descclassname"><span class="pre">pudl.analysis.operational_characteristics.</span></span><span class="sig-name descname"><span class="pre">logger</span></span><a class="reference internal" href="../../../../_modules/pudl/analysis/operational_characteristics.html#logger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.operational_characteristics.logger" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.analysis.operational_characteristics.EARLIEST_USABLE_YEAR_QUARTER">
+<span class="sig-prename descclassname"><span class="pre">pudl.analysis.operational_characteristics.</span></span><span class="sig-name descname"><span class="pre">EARLIEST_USABLE_YEAR_QUARTER</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'1998q1'</span></span><a class="reference internal" href="../../../../_modules/pudl/analysis/operational_characteristics.html#EARLIEST_USABLE_YEAR_QUARTER"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.operational_characteristics.EARLIEST_USABLE_YEAR_QUARTER" title="Link to this definition">#</a></dt>
+<dd><p>Earliest EPA CEMS year-quarter treated as usable for this analysis.</p>
+<p>EPA CEMS’s first few years of reporting (1995-1997) are known to have poor and
+inconsistent unit coverage, making them unsuitable for estimating these
+operational characteristics. Quarters before this are treated as unavailable
+for this analysis regardless of what’s actually present in the EPA CEMS data
+config, so the earliest feasible <code class="docutils literal notranslate"><span class="pre">report_year</span></code> in production (a 3-year /
+12-quarter trailing window) is 2000, not 1997.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pudl.analysis.operational_characteristics._get_heat_rate_analysis_config">
@@ -976,29 +991,62 @@ UTC), so this deliberately returns a naive <code class="docutils literal notrans
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pudl.analysis.operational_characteristics._assert_required_quarters_available">
-<span class="sig-prename descclassname"><span class="pre">pudl.analysis.operational_characteristics.</span></span><span class="sig-name descname"><span class="pre">_assert_required_quarters_available</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">year_quarters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_year_quarter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_quarters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/analysis/operational_characteristics.html#_assert_required_quarters_available"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.operational_characteristics._assert_required_quarters_available" title="Link to this definition">#</a></dt>
-<dd><p>Raise if the configured EPA CEMS quarters don’t cover the trailing window.</p>
-<p><code class="docutils literal notranslate"><span class="pre">EpaCemsDataConfig</span></code> only validates that each configured year-quarter is a
-real partition and that there are no duplicates – it does not require the
-list to be contiguous. Nothing downstream would otherwise notice a gap:
-<a class="reference internal" href="#pudl.analysis.operational_characteristics._select_target_year_quarter" title="pudl.analysis.operational_characteristics._select_target_year_quarter"><code class="xref py py-func docutils literal notranslate"><span class="pre">_select_target_year_quarter()</span></code></a> only needs a max(), and
-<a class="reference internal" href="#pudl.analysis.operational_characteristics.filter_cems_for_heat_rate_analysis" title="pudl.analysis.operational_characteristics.filter_cems_for_heat_rate_analysis"><code class="xref py py-func docutils literal notranslate"><span class="pre">filter_cems_for_heat_rate_analysis()</span></code></a> filters purely by timestamp
-range, with no visibility into which quarters were actually requested. This
-check makes a missing or discontinuous configuration fail loudly instead of
-silently producing estimates from a partial window.</p>
+<dt class="sig sig-object py" id="pudl.analysis.operational_characteristics._missing_required_quarters">
+<span class="sig-prename descclassname"><span class="pre">pudl.analysis.operational_characteristics.</span></span><span class="sig-name descname"><span class="pre">_missing_required_quarters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">year_quarters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_year_quarter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_quarters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/pudl/analysis/operational_characteristics.html#_missing_required_quarters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.operational_characteristics._missing_required_quarters" title="Link to this definition">#</a></dt>
+<dd><p>List quarters in the trailing window ending at <code class="docutils literal notranslate"><span class="pre">target_year_quarter</span></code>.</p>
+<p>Specifically, the quarters in that window that are absent from
+<code class="docutils literal notranslate"><span class="pre">year_quarters</span></code>. <code class="docutils literal notranslate"><span class="pre">EpaCemsDataConfig</span></code> only validates that each
+configured year-quarter is a real partition and that there are no
+duplicates – it does not require the list to be contiguous, so a
+trailing window can have gaps even in a config that otherwise looks
+reasonable.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pudl.analysis.operational_characteristics._select_target_year_quarter">
-<span class="sig-prename descclassname"><span class="pre">pudl.analysis.operational_characteristics.</span></span><span class="sig-name descname"><span class="pre">_select_target_year_quarter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">year_quarters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/analysis/operational_characteristics.html#_select_target_year_quarter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.operational_characteristics._select_target_year_quarter" title="Link to this definition">#</a></dt>
-<dd><p>Pick the year-quarter to treat as the end of the analysis window.</p>
-<p>Prefers the most recent year-quarter ending in Q4 (i.e. the most recent
-<em>complete</em> calendar year), which reproduces the historical whole-year
-behavior of this analysis in production. Falls back to the single most
-recent year-quarter of any kind when no Q4 is present – e.g. in the fast
-ETL / CI, which only has a single quarter of EPA CEMS data and can’t
-produce a Q4-ending window at all.</p>
+<dt class="sig sig-object py" id="pudl.analysis.operational_characteristics._select_target_year_quarters">
+<span class="sig-prename descclassname"><span class="pre">pudl.analysis.operational_characteristics.</span></span><span class="sig-name descname"><span class="pre">_select_target_year_quarters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">year_quarters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_quarters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/pudl/analysis/operational_characteristics.html#_select_target_year_quarters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.operational_characteristics._select_target_year_quarters" title="Link to this definition">#</a></dt>
+<dd><p>Choose the EPA CEMS year-quarters that each end a full analysis window.</p>
+<p>The analysis produces one set of operational characteristics per calendar
+year, computed from a trailing window of <code class="docutils literal notranslate"><span class="pre">num_quarters</span></code> quarters ending
+in that year’s Q4. This returns the end-of-window year-quarter for every
+calendar year that both:</p>
+<ul class="simple">
+<li><p>has its Q4 present in <code class="docutils literal notranslate"><span class="pre">year_quarters</span></code> (considering only quarters at or
+after <a class="reference internal" href="#pudl.analysis.operational_characteristics.EARLIEST_USABLE_YEAR_QUARTER" title="pudl.analysis.operational_characteristics.EARLIEST_USABLE_YEAR_QUARTER"><code class="xref py py-data docutils literal notranslate"><span class="pre">EARLIEST_USABLE_YEAR_QUARTER</span></code></a> as available at all), and</p></li>
+<li><p>has all <code class="docutils literal notranslate"><span class="pre">num_quarters</span></code> quarters of its trailing window available.</p></li>
+</ul>
+<p>In production, with a 12-quarter window and EPA CEMS data reaching back to
+the late 1990s, this yields one <code class="docutils literal notranslate"><span class="pre">YYYYq4</span></code> value per year from 2000 through
+the most recent complete year.</p>
+<p>The fast ETL and pytest configs load only a single EPA CEMS quarter and
+set <code class="docutils literal notranslate"><span class="pre">num_quarters</span></code> to 1, so no Q4-ending window exists. In that case the
+single latest usable year-quarter (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;2022q1&quot;</span></code>) is returned as its
+own one-quarter window, and the caller treats its calendar year as the
+report year. This fallback quarter is returned as-is rather than coerced
+to Q4, because the loaded data only covers that specific quarter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>year_quarters</strong> – Every EPA CEMS <code class="docutils literal notranslate"><span class="pre">YYYYqN</span></code> partition available to the
+run, as configured in the Dagster settings. Need not be sorted or
+contiguous.</p></li>
+<li><p><strong>num_quarters</strong> – Length of the trailing window, in quarters, that each
+returned year-quarter must have fully available.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Sorted list of <code class="docutils literal notranslate"><span class="pre">YYYYqN</span></code> year-quarters, one per analyzable calendar
+year, each usable as the <code class="docutils literal notranslate"><span class="pre">final_year_quarter</span></code> of a
+<code class="docutils literal notranslate"><span class="pre">num_quarters</span></code>-long window. Normally every entry ends in <code class="docutils literal notranslate"><span class="pre">q4</span></code>; in
+the single-quarter fast-ETL case the one entry is the loaded quarter.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – if no configured year-quarter is at or after
+<a class="reference internal" href="#pudl.analysis.operational_characteristics.EARLIEST_USABLE_YEAR_QUARTER" title="pudl.analysis.operational_characteristics.EARLIEST_USABLE_YEAR_QUARTER"><code class="xref py py-data docutils literal notranslate"><span class="pre">EARLIEST_USABLE_YEAR_QUARTER</span></code></a>, or if no candidate
+year-quarter has its full trailing window available – e.g.
+<code class="docutils literal notranslate"><span class="pre">num_quarters</span></code> is larger than the usable EPA CEMS history.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -1144,7 +1192,16 @@ unit at once – there’s no per-unit or per-batch Python looping, and no
 <dl class="py function">
 <dt class="sig sig-object py" id="pudl.analysis.operational_characteristics.out_epacems__yearly_operational_characteristics">
 <span class="sig-prename descclassname"><span class="pre">pudl.analysis.operational_characteristics.</span></span><span class="sig-name descname"><span class="pre">out_epacems__yearly_operational_characteristics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.dagster.io/api/dagster/execution/#dagster.AssetExecutionContext" title="(in Dagster)"><span class="pre">dagster.AssetExecutionContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">core_epacems__hourly_emissions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">polars.LazyFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.5)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/analysis/operational_characteristics.html#out_epacems__yearly_operational_characteristics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.operational_characteristics.out_epacems__yearly_operational_characteristics" title="Link to this definition">#</a></dt>
-<dd><p>Estimate EPA CEMS unit operational characteristics for every unit.</p>
+<dd><p>Estimate EPA CEMS unit operational characteristics for every unit and year.</p>
+<p>Computes one set of characteristics per state per calendar year that has a
+full trailing window of EPA CEMS data available (see
+<a class="reference internal" href="#pudl.analysis.operational_characteristics._select_target_year_quarters" title="pudl.analysis.operational_characteristics._select_target_year_quarters"><code class="xref py py-func docutils literal notranslate"><span class="pre">_select_target_year_quarters()</span></code></a>), looping over states within each year.
+Each <code class="docutils literal notranslate"><span class="pre">(year,</span> <span class="pre">state)</span></code> pair’s hourly CEMS data is filtered, reduced down to a
+handful of per-unit summary rows, and immediately discarded, so peak memory
+stays bounded by a single state’s window (observed ~16 GB for CA or TX) no
+matter how many years get processed. All of the resulting per-unit summary
+rows – on the order of 100,000 total across every year and state, versus
+billions of hourly input records – are concatenated once at the very end.</p>
 </dd></dl>
 
 </section>
@@ -1201,12 +1258,13 @@ unit at once – there’s no per-unit or per-batch Python looping, and no
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.operational_characteristics.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.operational_characteristics.EARLIEST_USABLE_YEAR_QUARTER"><code class="docutils literal notranslate"><span class="pre">EARLIEST_USABLE_YEAR_QUARTER</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.operational_characteristics._get_heat_rate_analysis_config"><code class="docutils literal notranslate"><span class="pre">_get_heat_rate_analysis_config()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.operational_characteristics._year_quarter_to_ordinal"><code class="docutils literal notranslate"><span class="pre">_year_quarter_to_ordinal()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.operational_characteristics._ordinal_to_quarter_start"><code class="docutils literal notranslate"><span class="pre">_ordinal_to_quarter_start()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.operational_characteristics._ordinal_to_year_quarter"><code class="docutils literal notranslate"><span class="pre">_ordinal_to_year_quarter()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.operational_characteristics._assert_required_quarters_available"><code class="docutils literal notranslate"><span class="pre">_assert_required_quarters_available()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.operational_characteristics._select_target_year_quarter"><code class="docutils literal notranslate"><span class="pre">_select_target_year_quarter()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.operational_characteristics._missing_required_quarters"><code class="docutils literal notranslate"><span class="pre">_missing_required_quarters()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.operational_characteristics._select_target_year_quarters"><code class="docutils literal notranslate"><span class="pre">_select_target_year_quarters()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.operational_characteristics.filter_cems_for_heat_rate_analysis"><code class="docutils literal notranslate"><span class="pre">filter_cems_for_heat_rate_analysis()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.operational_characteristics._add_run_id_expr"><code class="docutils literal notranslate"><span class="pre">_add_run_id_expr()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.operational_characteristics.assign_groupwise_load_factor_bins"><code class="docutils literal notranslate"><span class="pre">assign_groupwise_load_factor_bins()</span></code></a></li>

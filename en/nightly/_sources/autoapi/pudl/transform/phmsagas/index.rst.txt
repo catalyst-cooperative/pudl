@@ -39,7 +39,6 @@ Functions
    pudl.transform.phmsagas._core_phmsagas__yearly_distribution_filings
    pudl.transform.phmsagas.core_phmsagas__yearly_distribution_operators
    pudl.transform.phmsagas._core_phmsagas__yearly_distribution_by_material
-   pudl.transform.phmsagas._core_phmsagas__yearly_distribution_by_install_decade
    pudl.transform.phmsagas._core_phmsagas__yearly_distribution_by_material_and_size
    pudl.transform.phmsagas._core_phmsagas__yearly_distribution_leaks
    pudl.transform.phmsagas._core_phmsagas__yearly_distribution_excavation_damages
@@ -173,11 +172,6 @@ Module Contents
    Transform the _core table of the miles of main and services by material.
 
 
-.. py:function:: _core_phmsagas__yearly_distribution_by_install_decade(_core_phmsagas__yearly_distribution: pandas.DataFrame) -> pandas.DataFrame
-
-   Transform the _core table of the miles of main and services by decade.
-
-
 .. py:function:: _core_phmsagas__yearly_distribution_by_material_and_size(_core_phmsagas__yearly_distribution: pandas.DataFrame) -> pandas.DataFrame
 
    Transform the _core table of the miles of main and services by material type and size.
@@ -210,7 +204,7 @@ Module Contents
    Assert known mismatch counts between reported and summed install decades.
 
 
-.. py:function:: core_phmsagas__yearly_distribution_by_install_decade(_core_phmsagas__yearly_distribution_by_install_decade: pandas.DataFrame) -> pandas.DataFrame
+.. py:function:: core_phmsagas__yearly_distribution_by_install_decade(_core_phmsagas__yearly_distribution: pandas.DataFrame) -> pandas.DataFrame
 
    Create core_phmsagas__yearly_distribution_by_install_decade.
 

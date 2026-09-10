@@ -39,7 +39,6 @@ are ready for normalization and data cleaning by the data source specific module
 * [pudl.extract.ferceqr](ferceqr/index.html.md)
 * [pudl.extract.gridpathratoolkit](gridpathratoolkit/index.html.md)
 * [pudl.extract.nrelatb](nrelatb/index.html.md)
-* [pudl.extract.parquet](parquet/index.html.md)
 * [pudl.extract.phmsagas](phmsagas/index.html.md)
 * [pudl.extract.rus12](rus12/index.html.md)
 * [pudl.extract.rus7](rus7/index.html.md)

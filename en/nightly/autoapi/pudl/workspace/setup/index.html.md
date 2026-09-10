@@ -25,9 +25,9 @@ These settings provide access to various PUDL directories.
 It is primarily configured via PUDL_INPUT and PUDL_OUTPUT environment
 variables. Other paths of relevance are derived from these.
 
-#### pudl_input *: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path) | [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### pudl_input *: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)*
 
-#### pudl_output *: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path) | [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### pudl_output *: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)*
 
 #### model_config
 
@@ -41,28 +41,17 @@ Normalize configured paths to absolute `Path` objects.
 
 Create PUDL input and output directories if they don’t already exist.
 
-#### *property* pudl_db *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
-
-Returns url of locally stored pudl sqlite database.
-
-#### sqlite_db_uri(name: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
-
-Returns url of locally stored pudl sqlite database with given name.
-
-The name is expected to be the name of the database without the .sqlite
-suffix. E.g. pudl, ferc1 and so on.
-
 #### parquet_path(table_name: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)
 
 Return path to parquet file for given database and table.
 
-#### sqlite_db_path(name: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)
+#### sqlite_path(name: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)
 
 Return path to locally stored SQLite DB file.
 
-#### duckdb_db_path(name: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)
+#### duckdb_path(name: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)
 
-Return path to locally stored SQLite DB file.
+Return path to locally stored DuckDB file.
 
 #### output_file(filename: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)
 

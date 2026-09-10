@@ -37,6 +37,7 @@
   * [PUDL Data Viewer](data_access.html.md#pudl-data-viewer)
   * [Kaggle](data_access.html.md#kaggle)
   * [Cloud Storage](data_access.html.md#cloud-storage)
+  * [Coding Agents (PUDL Agent Skill)](data_access.html.md#coding-agents-pudl-agent-skill)
   * [Zenodo Archives](data_access.html.md#zenodo-archives)
   * [Raw Data](data_access.html.md#raw-data)
   * [Development Environment](data_access.html.md#development-environment)

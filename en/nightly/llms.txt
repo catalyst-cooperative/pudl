@@ -1,6 +1,6 @@
 # PUDL
 
-> PUDL 2026.8.1.dev39 documentation
+> PUDL 2026.8.1.dev46 documentation
 
 
 2016-2026, Catalyst Cooperative, CC-BY-4.0
@@ -83,6 +83,8 @@
 - [pudl.dagster.assets.core.static](autoapi/pudl/dagster/assets/core/static/index.html.md): Dagster assets for static reference tables.
 - [pudl.dagster.assets.deploy](autoapi/pudl/dagster/assets/deploy/index.html.md): Dagster assets dedicated to deploying data build products.
 - [pudl.dagster.assets.deploy.ferceqr](autoapi/pudl/dagster/assets/deploy/ferceqr/index.html.md): Define deployment helper assets for publishing FERC EQR outputs.
+- [pudl.dagster.assets.output](autoapi/pudl/dagster/assets/output/index.html.md): Output Dagster asset-definition modules for PUDL.
+- [pudl.dagster.assets.output.databases](autoapi/pudl/dagster/assets/output/databases/index.html.md): Dagster assets that assemble pudl.sqlite and pudl.duckdb from the Parquet outputs.
 - [pudl.dagster.assets.raw](autoapi/pudl/dagster/assets/raw/index.html.md): Raw Dagster asset-definition modules for PUDL.
 - [pudl.dagster.assets.raw.ferc_to_sqlite](autoapi/pudl/dagster/assets/raw/ferc_to_sqlite/index.html.md): Dagster asset definitions for granular FERC-to-SQLite extraction.
 - [pudl.dagster.build](autoapi/pudl/dagster/build/index.html.md): Assembles Dagster Definitions from default values and specified overrides.
@@ -127,7 +129,6 @@
 - [pudl.extract.ferceqr](autoapi/pudl/extract/ferceqr/index.html.md): Extract FERC EQR data.
 - [pudl.extract.gridpathratoolkit](autoapi/pudl/extract/gridpathratoolkit/index.html.md): Extract GridPath RA Toolkit renewable energy generation profiles from zipped CSVs.
 - [pudl.extract.nrelatb](autoapi/pudl/extract/nrelatb/index.html.md): Routines used for extracting the raw NREL ATB data.
-- [pudl.extract.parquet](autoapi/pudl/extract/parquet/index.html.md): Extractor for Parquet data.
 - [pudl.extract.phmsagas](autoapi/pudl/extract/phmsagas/index.html.md): Retrieves data from PHMSA natural gas spreadsheets for analysis.
 - [pudl.extract.rus12](autoapi/pudl/extract/rus12/index.html.md): Extract USDA RUS Form 12 data from CSVs.
 - [pudl.extract.rus7](autoapi/pudl/extract/rus7/index.html.md): Extract USDA RUS Form 7 data from CSVs.

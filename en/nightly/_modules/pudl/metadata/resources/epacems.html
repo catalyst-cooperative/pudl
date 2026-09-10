@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.resources.epacems &#8212; PUDL 2026.8.1.dev39 documentation</title>
+    <title>pudl.metadata.resources.epacems &#8212; PUDL 2026.8.1.dev46 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../../_static/documentation_options.js?v=c87640b2"></script>
+    <script src="../../../../_static/documentation_options.js?v=a1882138"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev39 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev39 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev46 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev46 documentation - Home"/>
   
   
 </a></div>
@@ -940,14 +940,18 @@ window.runMermaid = runMermaid;</script>
                 <span class="s2">"experimental_wip"</span><span class="p">,</span>
                 <span class="p">{</span>
                     <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"custom"</span><span class="p">,</span>
-                    <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"This table estimates values from a configurable trailing window of EPA CEMS quarters ending at the most recent complete year (12 quarters, i.e. the most recent three full years, in production). Builds that only have a limited number of EPA CEMS quarters available, such as the fast ETL and CI, will produce estimates from a shorter, less accurate window."</span><span class="p">,</span>
+                    <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"This table estimates values for each calendar year from a trailing 3-year window of EPA CEMS reporting ending in that year."</span><span class="p">,</span>
                 <span class="p">},</span>
             <span class="p">],</span>
             <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="s2">"""This table summarizes several inferred</span>
-<span class="s2">operational characteristics for each EPA CEMS emissions unit using hourly CEMS</span>
-<span class="s2">gross load and fuel heat content over a trailing window of EPA CEMS quarters. In</span>
-<span class="s2">production this window is the most recent three full years (12 quarters) of data,</span>
-<span class="s2">ending at the most recent complete calendar year.</span>
+<span class="s2">operational characteristics for each EPA CEMS emissions unit for every calendar year</span>
+<span class="s2">that has a full trailing window of usable EPA CEMS quarters available. It uses hourly</span>
+<span class="s2">CEMS gross load and fuel heat content over a trailing three calendar year window to</span>
+<span class="s2">estimate values for the final year of that window. The earliest year for which</span>
+<span class="s2">operational characteristics are estimated is constrained by how far back the trailing</span>
+<span class="s2">window can reach. The first three years of EPA CEMS reporting (1995-1997) are excluded</span>
+<span class="s2">as unusable due to poor data quality and inconsistent unit coverage. This means the</span>
+<span class="s2">earliest year for which we estimate operational characteristics is 2000, not 1997.</span>
 
 <span class="s2">The values are not directly reported to source agencies. They are derived from observed</span>
 <span class="s2">hourly operations. These variables should be treated as an analytical estimate rather</span>
@@ -958,10 +962,10 @@ window.runMermaid = runMermaid;</script>
         <span class="p">},</span>
         <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
             <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_year"</span><span class="p">,</span>
                 <span class="s2">"plant_id_epa"</span><span class="p">,</span>
                 <span class="s2">"emissions_unit_id_epa"</span><span class="p">,</span>
                 <span class="s2">"plant_id_eia"</span><span class="p">,</span>
-                <span class="s2">"report_year"</span><span class="p">,</span>
                 <span class="s2">"state"</span><span class="p">,</span>
                 <span class="s2">"max_gross_load_mw"</span><span class="p">,</span>
                 <span class="s2">"min_stable_load_factor"</span><span class="p">,</span>
@@ -972,7 +976,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="s2">"ramp_up_rate_per_min"</span><span class="p">,</span>
                 <span class="s2">"ramp_down_rate_per_min"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"plant_id_epa"</span><span class="p">,</span> <span class="s2">"emissions_unit_id_epa"</span><span class="p">],</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"report_year"</span><span class="p">,</span> <span class="s2">"plant_id_epa"</span><span class="p">,</span> <span class="s2">"emissions_unit_id_epa"</span><span class="p">],</span>
         <span class="p">},</span>
         <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"epacems"</span><span class="p">],</span>
         <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"epacems"</span><span class="p">,</span>
