@@ -11,7 +11,6 @@ import pytest
 import sqlalchemy as sa
 
 from pudl.dagster.assets.output.databases import (
-    _DUCKDB_MAX_IDENTIFIER_LENGTH,
     TableWriteErrorInfo,
     TableWriteReport,
     _copy_table,
@@ -62,23 +61,22 @@ def _destination(
             dialect="sqlite", check_types=False, check_values=False
         )
     else:
-        engine.dialect.max_identifier_length = _DUCKDB_MAX_IDENTIFIER_LENGTH
+        engine.dialect.max_identifier_length = 255
         metadata = package.to_sql(dialect="duckdb", include_foreign_keys=False)
     metadata.create_all(engine)
     engine.dispose()
 
     if db_type == "sqlite":
-        conn = duckdb.connect()
-        conn.execute("LOAD sqlite")
-        conn.execute(f"ATTACH '{db_path}' AS pudl_sqlite (TYPE sqlite)")
+        cm = duckdb.connect()
         prefix = "pudl_sqlite."
     else:
-        conn = duckdb.connect(str(db_path))
+        cm = duckdb.connect(str(db_path))
         prefix = ""
-    try:
+    with cm as conn:
+        if db_type == "sqlite":
+            conn.execute("LOAD sqlite")
+            conn.execute(f"ATTACH '{db_path}' AS pudl_sqlite (TYPE sqlite)")
         yield conn, lambda table: f'{prefix}"{table}"'
-    finally:
-        conn.close()
 
 
 @pytest.fixture
@@ -291,34 +289,36 @@ def test_validate_primary_key_skips_non_rowid_alias_pk(
     _validate_primary_key(test_pkg.get_resource(resource_name), paths)
 
 
-@pytest.mark.parametrize(
-    ("column_type", "null_pk_rejected"),
-    [
-        ("INTEGER", False),  # ROWID alias: NULL is silently replaced with a rowid
-        ("BIGINT", True),  # not a ROWID alias: NOT NULL enforced normally
-    ],
-)
-def test_sqlite_rowid_alias_needs_exact_integer_type(
-    tmp_path: Path, column_type: str, null_pk_rejected: bool
-):
-    """SQLite only ROWID-aliases a single-column PK when its type is exactly INTEGER.
+def test_sqlite_integer_pk_is_a_rowid_alias(tmp_path: Path):
+    """A single-column ``INTEGER`` PK is a ROWID alias: a NULL insert is silently
+    replaced with an auto-assigned rowid instead of raising, despite ``NOT NULL``.
 
-    BIGINT has INTEGER affinity but is *not* a ROWID alias, so SQLite enforces its
-    NOT NULL constraint like any other column. This is the quirk
-    _has_integer_rowid_alias_pk / _validate_primary_key guard against -- and, since
-    PUDL now emits BIGINT for its ``integer`` fields (see
-    test_pudl_sqlite_schema_uses_bigint_for_integer_fields), that guard is currently
+    This is the quirk _has_integer_rowid_alias_pk / _validate_primary_key guard
+    against.
+    """
+    con = sqlite3.connect(tmp_path / "rowid.sqlite")
+    try:
+        con.execute("CREATE TABLE t (i INTEGER NOT NULL, PRIMARY KEY (i))")
+        con.execute("INSERT INTO t (i) VALUES (NULL)")
+        assert con.execute("SELECT i FROM t").fetchone() == (1,)
+    finally:
+        con.close()
+
+
+def test_sqlite_bigint_pk_is_not_a_rowid_alias(tmp_path: Path):
+    """A ``BIGINT`` PK has INTEGER affinity but is *not* a ROWID alias, so SQLite
+    enforces its ``NOT NULL`` constraint like any other column.
+
+    Since PUDL now emits BIGINT for its ``integer`` fields (see
+    test_pudl_sqlite_schema_uses_bigint_for_integer_fields), the
+    _has_integer_rowid_alias_pk / _validate_primary_key guard is currently
     belt-and-suspenders rather than load-bearing.
     """
     con = sqlite3.connect(tmp_path / "rowid.sqlite")
     try:
-        con.execute(f"CREATE TABLE t (i {column_type} NOT NULL, PRIMARY KEY (i))")
-        if null_pk_rejected:
-            with pytest.raises(sqlite3.IntegrityError, match="NOT NULL"):
-                con.execute("INSERT INTO t (i) VALUES (NULL)")
-        else:
+        con.execute("CREATE TABLE t (i BIGINT NOT NULL, PRIMARY KEY (i))")
+        with pytest.raises(sqlite3.IntegrityError, match="NOT NULL"):
             con.execute("INSERT INTO t (i) VALUES (NULL)")
-            assert con.execute("SELECT i FROM t").fetchone() == (1,)
     finally:
         con.close()
 
@@ -460,7 +460,7 @@ def test_duckdb_schema_shares_enum_type_across_tables(test_pkg: Package):
     """
     metadata = test_pkg.to_sql(dialect="duckdb", include_foreign_keys=False)
     engine = sa.create_engine("duckdb:///:memory:")
-    engine.dialect.max_identifier_length = _DUCKDB_MAX_IDENTIFIER_LENGTH
+    engine.dialect.max_identifier_length = 255
     metadata.create_all(engine)  # should not raise CatalogException
     with engine.connect() as conn:
         conn.exec_driver_sql(

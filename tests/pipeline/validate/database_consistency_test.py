@@ -13,7 +13,8 @@ from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.workspace.setup import PudlPaths
 
 # Obtained the same way the pudl_sqlite / pudl_duckdb assets pick which tables to
-# write (see pudl.dagster.assets._find_sql_asset_keys), so the two lists can't drift.
+# write (see pudl.dagster.assets._find_sql_asset_keys), so the two lists hopefully
+# stay in sync... also we're going to delete SQLite soon so YOLO.
 EXPECTED_TABLES: list[str] = [
     table.name for table in PUDL_PACKAGE.to_sql().sorted_tables
 ]

@@ -34,29 +34,6 @@ schema) and the NOT NULL / UNIQUE / PRIMARY KEY / CHECK violations the destinati
 raises back through DuckDB as the rows are streamed in.
 """
 
-_DUCKDB_MAX_IDENTIFIER_LENGTH = 255
-"""Explicit maximum length for DuckDB identifiers.
-
-Required because duckdb-engine's SQLAlchemy dialect subclasses postgresql's, inheriting a
-63-character identifier length limit that DuckDB itself doesn't actually have.
-"""
-
-SQLITE_DESCRIPTION = (
-    "SQLite database assembled from PUDL's Parquet outputs after the ETL "
-    "completes. Written to $PUDL_OUTPUT/pudl.sqlite. Includes only tables "
-    "whose Resource has create_database_schema=True. CHECK constraints "
-    "are omitted for performance (data is already validated against the "
-    "full schema upstream); foreign keys are declared but, per SQLite's "
-    "default, not enforced on write."
-)
-
-DUCKDB_DESCRIPTION = (
-    "DuckDB database assembled from PUDL's Parquet outputs after the ETL "
-    "completes. Written to $PUDL_OUTPUT/pudl.duckdb. Includes only tables "
-    "whose Resource has create_database_schema=True. Foreign key "
-    "constraints are excluded due to a handful of type conflicts."
-)
-
 
 @dataclass
 class TableWriteErrorInfo:
@@ -167,7 +144,7 @@ def _copy_table(
 
 
 def _has_integer_rowid_alias_pk(resource: Resource) -> bool:
-    """Return whether a resource's primary key is susceptible to SQLite's ROWID alias.
+    """Return whether SQLite will silently fail NOT NULL constraints on this PK.
 
     When a table's primary key is a *single* column of ``integer`` (or ``year``) type,
     SQLite treats that column as an alias for its internal ``rowid`` rather than as an
@@ -260,14 +237,13 @@ def _write_pudl_sqlite(
     ).create_all(engine)
     engine.dispose()
 
-    conn = duckdb.connect()
-    conn.execute("PRAGMA disable_progress_bar")
-    conn.execute("LOAD sqlite")
-    conn.execute(f"ATTACH '{db_path}' AS {attach_alias} (TYPE sqlite)")  # noqa: S608
-
     report = TableWriteReport(db_path=db_path)
     n_tables = len(table_names)
-    try:
+    # Closing the connection detaches the SQLite database automatically.
+    with duckdb.connect() as conn:
+        conn.execute("PRAGMA disable_progress_bar")
+        conn.execute("LOAD sqlite")
+        conn.execute(f"ATTACH '{db_path}' AS {attach_alias} (TYPE sqlite)")  # noqa: S608
         for n, table_name in enumerate(table_names, start=1):
             logger.info(f"Writing SQLite {n}/{n_tables} {table_name}")
             # Fetched outside the try/except: a missing Resource is a schema bug,
@@ -284,9 +260,6 @@ def _write_pudl_sqlite(
             except _WRITE_EXCEPTIONS as exc:
                 logger.error(f"Failed to write {table_name} to sqlite: {exc}")
                 report.errors.append(TableWriteErrorInfo(table_name, exc))
-    finally:
-        conn.execute(f"DETACH {attach_alias}")
-        conn.close()
     return report
 
 
@@ -323,16 +296,17 @@ def _write_pudl_duckdb(
     db_path.unlink(missing_ok=True)
 
     engine = sa.create_engine(f"duckdb:///{db_path}")
-    engine.dialect.max_identifier_length = _DUCKDB_MAX_IDENTIFIER_LENGTH
+    # NOTE (2026-09-09): duckdb-engine's SQLAlchemy dialect inherits postgresql's
+    # 63-char limit; duckdb can support longer identifiers and we need them, so increase
+    # this limit.
+    engine.dialect.max_identifier_length = 255
     PUDL_PACKAGE.to_sql(dialect="duckdb", include_foreign_keys=False).create_all(engine)
     engine.dispose()
 
-    conn = duckdb.connect(str(db_path))
-    conn.execute("PRAGMA disable_progress_bar")
-
     report = TableWriteReport(db_path=db_path)
     n_tables = len(table_names)
-    try:
+    with duckdb.connect(str(db_path)) as conn:
+        conn.execute("PRAGMA disable_progress_bar")
         for n, table_name in enumerate(table_names, start=1):
             logger.info(f"Writing DuckDB {n}/{n_tables} {table_name}")
             # Fetched outside the try/except: a missing Resource is a schema bug,
@@ -348,8 +322,6 @@ def _write_pudl_duckdb(
             except _WRITE_EXCEPTIONS as exc:
                 logger.error(f"Failed to write {table_name} to duckdb: {exc}")
                 report.errors.append(TableWriteErrorInfo(table_name, exc))
-    finally:
-        conn.close()
     return report
 
 
@@ -365,7 +337,7 @@ def build_pudl_db_asset(
     write_db: Callable[[Sequence[str], PudlPaths], TableWriteReport],
     asset_keys: Sequence[dg.AssetKey],
 ) -> dg.AssetsDefinition:
-    """Build the Dagster asset that assembles one database from the Parquet outputs.
+    """Handles the shared logic that feeds error reports into Dagster metadata.
 
     Args:
         name: Asset name (``"pudl_sqlite"`` / ``"pudl_duckdb"``).
@@ -413,7 +385,14 @@ def build_pudl_sqlite_asset(asset_keys: Sequence[dg.AssetKey]) -> dg.AssetsDefin
     """Build the ``pudl_sqlite`` asset. Delete this once ``pudl.sqlite`` is retired."""
     return build_pudl_db_asset(
         name="pudl_sqlite",
-        description=SQLITE_DESCRIPTION,
+        description=(
+            "SQLite database assembled from PUDL's Parquet outputs after the ETL "
+            "completes. Written to $PUDL_OUTPUT/pudl.sqlite. Includes only tables "
+            "whose Resource has create_database_schema=True. CHECK constraints "
+            "are omitted for performance (data is already validated against the "
+            "full schema upstream); foreign keys are declared but, per SQLite's "
+            "default, not enforced on write."
+        ),
         write_db=_write_pudl_sqlite,
         asset_keys=asset_keys,
     )
@@ -423,7 +402,12 @@ def build_pudl_duckdb_asset(asset_keys: Sequence[dg.AssetKey]) -> dg.AssetsDefin
     """Build the ``pudl_duckdb`` asset."""
     return build_pudl_db_asset(
         name="pudl_duckdb",
-        description=DUCKDB_DESCRIPTION,
+        description=(
+            "DuckDB database assembled from PUDL's Parquet outputs after the ETL "
+            "completes. Written to $PUDL_OUTPUT/pudl.duckdb. Includes only tables "
+            "whose Resource has create_database_schema=True. Foreign key "
+            "constraints are excluded due to a handful of type conflicts."
+        ),
         write_db=_write_pudl_duckdb,
         asset_keys=asset_keys,
     )
