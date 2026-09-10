@@ -278,7 +278,7 @@ description = "Validate TOML files with Taplo"
 
 [tool.pixi.tasks.docs-check]
 cmd = """
-doc8 --quiet docs/ README.rst && \
+doc8 docs/ README.rst && \
 PUDL_DOCS_DISABLE_INTERSPHINX=1 coverage run --append -m sphinx --jobs auto -W -b dummy docs docs/_build/dummy
 """
 depends-on = ["docs-clean"]

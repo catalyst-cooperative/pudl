@@ -200,15 +200,7 @@ class FercSqliteIOManagerBase(dg.ConfigurableIOManager):
         return self._engine
 
     def teardown_after_execution(self, context: dg.InitResourceContext) -> None:
-        """Dispose the cached engine when the resource's lifecycle ends.
-
-        Without this, the pooled ``sqlite3`` connections held open by ``_engine`` are
-        left for the interpreter to garbage-collect at shutdown, which raises
-        ``ResourceWarning: unclosed database`` (see the FERC engine test fixtures in
-        ``tests/conftest.py`` for more context). Dagster calls this hook when the
-        resource is torn down -- after the ETL run, or when an ``AssetValueLoader``
-        or ``from_resource_context_cm`` context exits.
-        """
+        """Dispose the cached engine when the resource's lifecycle ends."""
         if self._engine is not None:
             self._engine.dispose()
             self._engine = None

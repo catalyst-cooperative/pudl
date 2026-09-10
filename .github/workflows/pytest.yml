@@ -202,11 +202,9 @@ jobs:
           test -s /tmp/dg-defs.json
 
   ci-lockfile:
-    # Server-side backstop for the local pixi-lock-update / pixi-lock-check hooks:
-    # fail fast and legibly if pixi.lock has drifted out of sync with
-    # pyproject.toml (most often after a rebase, where `merge=ours` keeps main's
-    # lockfile). setup-pixi's `locked: true` in the other jobs already errors on
-    # this, but buried inside their environment-install step.
+    # Backstop for the local pixi-lock-update / pixi-lock-check hooks, in case someone
+    # has not installed pre-commit or is bypassing it. Fails fast and legibly if
+    # pixi.lock has drifted out of sync with pyproject.toml
     runs-on: ubuntu-latest
     defaults:
       run:
