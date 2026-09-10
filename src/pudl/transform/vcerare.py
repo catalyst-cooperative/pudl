@@ -4,6 +4,8 @@ Wind and solar profiles are extracted separately, but concatenated into a single
 in this module, as they have exactly the same structure.
 """
 
+import calendar
+
 import pandas as pd
 import polars as pl
 from dagster import (
@@ -153,16 +155,17 @@ def _stack_cap_fac_df(
 def _add_time_cols(lf: pl.LazyFrame, lf_name: str, year: int) -> pl.LazyFrame:
     """Add datetime and hour_of_year columns.
 
-    This function adds a datetime column and a hour_of_year column.
-    The datetime column is important for merging the data with other
-    data, and the hour_of_year 1-8760 column is important for modeling
-    purposes. The report_year column is also helpful for filtering,
-    so we keep all three!
+    This function adds a datetime column and a hour_of_year column. The datetime column
+    is important for merging the data with other data, and the hour_of_year 1-8760
+    column is important for modeling purposes. The report_year column is also helpful
+    for filtering, so we keep all three!
 
-    For leap years (2020, 2024), December 31st is excluded.
+    On leap years December 31st is excluded so that every year has exactly 8760 hours.
+    Older vintages already omit it; newer ones may include it, so it is clipped here
+    based on whether ``year`` is a leap year.
 
-    After 2024, the data is published with a datetime column but no
-    hour_of_year, so we create the hour_of_year column instead.
+    After 2024, the data is published with a datetime column but no hour_of_year, so we
+    create the hour_of_year column instead.
     """
     logger.info(f"Adding time columns for {lf_name} table")
 
@@ -193,8 +196,14 @@ def _add_time_cols(lf: pl.LazyFrame, lf_name: str, year: int) -> pl.LazyFrame:
 
     # Ensure hour of year has uniform dtype for all years.
     lf = lf.with_columns(hour_of_year=pl.col("hour_of_year").cast(pl.Int32))
-    # Clip 2024 data that exceeds 8760 hours
-    lf = lf.filter(~((pl.col("report_year") == 2024) & (pl.col("hour_of_year") > 8760)))
+
+    # VCE RARE is compiled for modeling and every year must have exactly 8760
+    # hours, so December 31st is dropped on leap years. That day is ordinal day
+    # 366, i.e. the only day whose hour_of_year exceeds 8760, so this clip is a
+    # no-op when the raw data already excluded it (8760 hours) and drops it when
+    # the raw data included it (8784 hours).
+    if calendar.isleap(year):
+        lf = lf.filter(pl.col("hour_of_year") <= 8760)
 
     return lf
 
