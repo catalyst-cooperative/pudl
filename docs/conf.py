@@ -315,6 +315,7 @@ INCLUDED_SOURCES = [
     "ferc714",
     "ferceqr",
     "epacems",
+    "epamats",
     "epacamd_eia",
     "phmsagas",
     "rus12",
