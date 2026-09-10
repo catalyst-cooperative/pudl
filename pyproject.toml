@@ -258,8 +258,8 @@ description = "Remove all generated documentation files"
 
 [tool.pixi.tasks.docs-build]
 cmd = """
-doc8 docs/ README.rst && \
-python -m sphinx --jobs auto -W -b html docs docs/_build/html
+doc8 --quiet docs/ README.rst && \
+python -m sphinx --jobs auto --quiet -W -b html docs docs/_build/html
 """
 depends-on = ["docs-clean"]
 description = "Build PUDL docs using Sphinx"
@@ -278,7 +278,7 @@ description = "Validate TOML files with Taplo"
 
 [tool.pixi.tasks.docs-check]
 cmd = """
-doc8 docs/ README.rst && \
+doc8 --quiet docs/ README.rst && \
 PUDL_DOCS_DISABLE_INTERSPHINX=1 coverage run --append -m sphinx --jobs auto -W -b dummy docs docs/_build/dummy
 """
 depends-on = ["docs-clean"]
