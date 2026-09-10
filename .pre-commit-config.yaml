@@ -194,15 +194,6 @@ repos:
             done
           ' --
 
-      - id: unit-tests
-        name: unit-tests
-        stages: [pre-commit]
-        language: unsupported
-        verbose: false
-        pass_filenames: false
-        always_run: true
-        entry: pixi run pytest --no-cov --doctest-modules src/pudl tests/unit
-
 # Configuration for pre-commit.ci
 ci:
   autofix_commit_msg: |
@@ -214,12 +205,5 @@ ci:
   autoupdate_commit_msg: "[pre-commit.ci] pre-commit autoupdate"
   autoupdate_schedule: weekly
   skip:
-    [
-      detect-secrets,
-      nb-output-clear,
-      pixi-lock-update,
-      shellcheck,
-      trufflehog,
-      unit-tests,
-    ]
+    [detect-secrets, nb-output-clear, pixi-lock-update, shellcheck, trufflehog]
   submodules: false
