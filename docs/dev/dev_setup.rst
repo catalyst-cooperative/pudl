@@ -47,24 +47,27 @@ lockfile. Run this command once from within the cloned repository:
 
 .. warning::
 
-   **Never manually merge pixi.lock!** The lockfile (``pixi.lock``) is a
-   generated file that must be regenerated programmatically. The git configuration
-   above will automatically keep your version of the lockfile during merge conflicts,
-   but you must then regenerate it to reflect the merged dependencies.
+   **Never manually merge pixi.lock!** The lockfile (``pixi.lock``) is a generated file
+   that must be regenerated programmatically. The ``merge=ours`` git attribute plus the
+   configuration above keep *your* version of the lockfile during a merge conflict; you
+   must then re-solve it to reflect the merged dependencies. Our git hooks should do
+   this re-solve automatically once you have installed them with ``pixi run
+   prek-install`` (see :ref:`linting`).
 
-   After merging changes from another branch (e.g. ``main``) that modified
+   Note that ``merge=ours`` behaves differently under ``git rebase``. The
+   ``pixi-lock-update`` hook's ``post-rewrite`` trigger exists to repair this.
+
+   If you ever need to re-solve the lockfile by hand after merging changes that modified
    ``pyproject.toml``:
 
-   1. Complete the merge (the lockfile will keep your version due to the merge strategy)
-   2. Regenerate the lockfile to match the merged dependencies:
+   1. Complete the merge (the lockfile will keep your version due to ``merge=ours``)
+   2. Re-solve the lockfile to match the merged dependency specifications:
 
    .. code-block:: console
 
-      $ pixi update
+      $ pixi lock
 
    3. Commit the regenerated lockfile
-
-   This ensures your lockfile is consistent with the merged dependency specifications.
 
 -------------------------------------------------------------------------------
 Create the PUDL Dev Environment
