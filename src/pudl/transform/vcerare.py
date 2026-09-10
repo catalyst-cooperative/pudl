@@ -60,7 +60,7 @@ def _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips: pd.DataFrame) -> pd.DataFr
             county_state_names=lambda x: (
                 x.county_state_names.str.lower()
                 .replace({r"\.": "", "-": "_"}, regex=True)
-                .pipe(_spot_fix_great_lakes_values)
+                .pipe(_spot_fix_great_lakes_fips)
             )
         )
         # Fix FIPS codes with no leading zeros
@@ -225,6 +225,11 @@ def _check_for_valid_counties(
     """Verify county names in data match FIPS table."""
     logger.info(f"Checking for valid counties in the {lf_name} table.")
 
+    # Fragile coupling: this runs before _drop_city_cols, so the city place names
+    # (bedford_city_virginia, clifton_forge_city_virginia) are still in the data
+    # here. The check only passes because _standardize_census_names deliberately
+    # adds those same city rows back into clean_fips_df. If the set of non-county
+    # place names kept by the two functions ever drifts apart, this will raise.
     county_names_fips = clean_fips_df.county_state_names.unique().tolist()
 
     county_names_cap = (
@@ -365,17 +370,43 @@ def _clip_unexpected_2016_pv_capacity(
     return lf
 
 
-def _spot_fix_great_lakes_values(sr: pd.Series) -> pd.Series:
-    """Normalize spelling of great lakes in cell values."""
+def _spot_fix_great_lakes_fips(sr: pd.Series) -> pd.Series:
+    """Normalize the misspelled Lake Huron place name in the lat/lon/FIPS table.
+
+    VCE RARE spells Lake Huron as ``lake_hurron_michigan`` in the raw
+    ``county_state_names`` values of the lat/lon/FIPS mapping table. This must be
+    fixed so those values line up with the (separately fixed) capacity factor
+    tables when they are joined on ``county_state_names`` in
+    ``merge_all_vce_tables``. See ``_spot_fix_great_lakes_capacity_factor`` for
+    the equivalent fix applied to the capacity factor data.
+
+    Args:
+        sr: The ``county_state_names`` Series from the raw lat/lon/FIPS table.
+
+    Returns:
+        The Series with ``lake_hurron_michigan`` replaced by ``lake_huron_michigan``.
+    """
     return sr.replace("lake_hurron_michigan", "lake_huron_michigan")
 
 
-def _spot_fix_great_lakes_polars(lf: pl.LazyFrame, lf_name: str) -> pl.LazyFrame:
-    """Normalize spelling of great lakes in place names.
+def _spot_fix_great_lakes_capacity_factor(
+    lf: pl.LazyFrame, lf_name: str
+) -> pl.LazyFrame:
+    """Normalize the misspelled Lake Huron place name in a capacity factor table.
 
-    If the data comes from CSV, this column is called county_state_name.
-    If the data comes from Parquet, this column is called place_name and does not contain
-    the state name in it.
+    VCE RARE spells Lake Huron as ``lake_hurron_michigan`` in the raw capacity
+    factor data. This is the same fix ``_spot_fix_great_lakes_fips`` applies to
+    the lat/lon/FIPS table; both are needed because the misspelling appears in
+    both raw sources and the two tables are joined on ``county_state_names`` in
+    ``merge_all_vce_tables``.
+
+    Args:
+        lf: A stacked capacity factor table with a ``county_state_names`` column.
+        lf_name: Label for the table, used only for logging by the caller.
+
+    Returns:
+        The LazyFrame with ``lake_hurron_michigan`` replaced by
+        ``lake_huron_michigan`` in ``county_state_names``.
     """
     return lf.with_columns(
         county_state_names=pl.col("county_state_names").replace(
@@ -415,7 +446,7 @@ def one_year_hourly_available_capacity_factor(
     return {
         _table_name(lf_name): persist_table_as_parquet(
             lf.pipe(_stack_cap_fac_df, lf_name)
-            .pipe(_spot_fix_great_lakes_polars, lf_name)
+            .pipe(_spot_fix_great_lakes_capacity_factor, lf_name)
             .pipe(_check_for_valid_counties, fips_df_census, lf_name)
             .pipe(_add_time_cols, lf_name, year)
             .pipe(_drop_city_cols, lf_name)
@@ -460,6 +491,10 @@ def merge_all_vce_tables(
             validate="m:1",
         )
         .sort(by=["state", "place_name", "datetime_utc"])
+        # Note: this depends on ``vce_fips_table`` carrying an ``index`` column, which
+        # is added by the ``reset_index()`` call in
+        # ``out_vcerare__hourly_available_capacity_factor`` before that table is written
+        # to parquet. The ``index`` column is dropped again below.
         .drop(["index", "county_state_names"]),
         table_name=table_name,
         partitions={"year": year},
