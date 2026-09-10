@@ -9,6 +9,25 @@ v2026.9.0 (2026-09-xx)
 
 This is the upcoming PUDL release.
 
+Output Formats & Distribution
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* **Added a fully processed ``pudl.duckdb`` database.** After the ETL completes we now
+  assemble all of the non-hourly PUDL tables into a single `DuckDB
+  <https://duckdb.org>`__ database named ``pudl.duckdb`` alongside ``pudl.sqlite``,
+  both built directly from the Parquet outputs. It preserves the full set of column
+  checks and primary key constraints. Foreign key constraints are currently omitted due
+  to a handful of column type conflicts outlined in issue :issue:`5552` being addressed
+  in PR :pr:`5554`. Both databases are published to S3, GCS, and Zenodo along with our
+  other outputs. See :doc:`data_access`. See PR :pr:`5538`.
+* **The fully processed ``pudl.sqlite`` database is deprecated.** PUDL's ETL no longer
+  writes SQLite directly; ``pudl.sqlite`` is now built from the Parquet outputs after
+  the ETL purely for backwards compatibility. **We will stop producing SQLite versions
+  of the fully processed PUDL data in 2027.** Please migrate to the Parquet outputs
+  or the new ``pudl.duckdb`` database. This deprecation does not affect the minimally
+  processed raw FERC data, which will continue to be distributed as SQLite. See PR
+  :pr:`5538`.
+
 New Data
 ^^^^^^^^
 
@@ -54,9 +73,23 @@ EPA CEMS
   available for all reporting states rather than just California. The output is
   experimental and marked accordingly, since we are soliciting feedback from the
   community on the underlying methodology. See issue :issue:`5106` and PR :pr:`5190`.
+* :ref:`out_epacems__yearly_operational_characteristics` now reports these estimates for
+  every calendar year with a full three-year trailing window of usable EPA CEMS data,
+  rather than only the most recent year, going back to 2000 (EPA CEMS's first three
+  reporting years, 1995-1997, are excluded due to known poor unit coverage). Also
+  recalibrated the associated dbt data validations against physically grounded bounds
+  (e.g. the 3.412 MMBtu/MWh thermodynamic floor on heat rates, and the exact trailing
+  window length as an upper bound on minimum up/down times) rather than thresholds fit
+  to a single year of data. See PR :pr:`5474`.
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
+
+NREL ATB
+~~~~~~~~
+
+* Updated the NREL ATB extractor and transformer to accommodate changes to the 2024
+  data and format. See issue :issue:`5467` and PR :pr:`5513`.
 
 EIA-861
 ~~~~~~~
@@ -70,18 +103,35 @@ PHMSA
 * Added the ``core_phmsagas__yearly_distribution_by_install_decade`` table, which
   reports :doc:`PHMSA <data_sources/phmsagas>` gas distribution mains miles and
   services by installation decade. See issue :issue:`5266` and PR :pr:`5443`.
+* Added 2025 distribution and transmission data for
+  :doc:`PHMSA <data_sources/phmsagas>`. See issue :issue:`5504` and :pr:`5548`.
 
 FERC EQR
 ~~~~~~~~
 
 * Added full 2026Q2 data for :doc:`FERC EQR <data_sources/ferceqr>`. See PR :pr:`5442`.
 
-
 EIA-860M
 ~~~~~~~~
 
 * Added :doc:`EIA-860M <data_sources/eia860>` data through July 2026. See
   issue :issue:`5549` and PR :pr:`5547`.
+
+New Data Tests & Validations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* The ``subcomponents_sum_to_total`` dbt test can now identify subcomponents and
+  totals by a combination of categorical columns (e.g. ``(cost_group, cost_type)``
+  tuples) rather than values from a single column, enabling validation of
+  calculations that cross more than one categorical column. Used this to complete
+  the totals validations for :ref:`core_rus12__yearly_plant_costs` and
+  :ref:`out_rus12__yearly_plant_costs`, adding maintenance, operations &
+  maintenance, fixed cost, and total power cost checks, and fixing several
+  existing checks that referenced non-existent cost categories. The test also
+  gained an opt-in ``minimum_total_coverage`` argument that catches totals
+  which silently match no records at all (e.g. a misspelled ``total_label`` or
+  a category renamed in a future data update), enabled for all of the plant
+  costs checks. See issues :issue:`5378,5154` and PR :pr:`5510`.
 
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -136,6 +186,20 @@ Bug Fixes & Data Cleaning
 * Changed ``subplant_id`` in :ref:`core_epa__assn_eia_epacamd_subplant_ids` to be
   1-indexed instead of 0-indexed within each ``plant_id_eia``, so the first subplant at
   a plant is now ``1`` rather than ``0``. See issue :issue:`5499` and PR :pr:`5541`.
+* Retired the interim output ``_core_phmsagas__yearly_distribution_by_install_decade``,
+  which was replaced by the cleaned and validated
+  :ref:`core_phmsagas__yearly_distribution_by_install_decade`. See :issue:`5504` and
+  :pr:`5548`.
+* Fixed the DuckDB examples in :doc:`data_access` and the per-table access snippets in
+  the data dictionary. Because our S3 bucket name contains dots, DuckDB's default
+  virtual-host addressing hit a TLS certificate mismatch; the examples now create an
+  anonymous path-style S3 secret (``CREATE SECRET (TYPE s3, PROVIDER config, REGION
+  'us-west-2', URL_STYLE 'path')``) before querying. See PR :pr:`5538`.
+* Added a data validation test that checks ``pudl.sqlite``, ``pudl.duckdb``, and the
+  Parquet outputs are mutually consistent: every table defined in ``PUDL_PACKAGE`` is
+  present in both databases, neither database has extra tables, and every table has the
+  same columns and the same row count in SQLite, DuckDB, and its source Parquet file.
+  See PR :pr:`5538`.
 * Added unit tests for the ID assignment process that builds
   :ref:`core_epa__assn_eia_epacamd_subplant_ids`. Fixed several bugs that those tests
   exposed, including on that could split a physically connected group of generators into
@@ -168,6 +232,15 @@ Developer Experience
   so a shared Cloud Monitoring dashboard can filter resource-usage metrics by
   pipeline. VM sizes and the ETL's process and thread parallelism were tuned to
   match measured resource usage and stop oversubscribing the CPUs. See :pr:`5545`.
+* Branch builds (``build-pudl`` runs triggered via ``workflow_dispatch``) now skip
+  the S3 deployment by default and only deploy to GCS. S3 egress fees cost more than
+  a full ETL run, and the nightly build already exercises the real S3 deployment
+  every night. The ``build-pudl`` and ``deploy-pudl`` workflow-dispatch forms expose
+  ``deploy_to_gcs`` / ``deploy_to_s3`` checkboxes to override this per run, and when
+  neither target is enabled ``build-pudl`` skips triggering ``deploy-pudl``
+  altogether (e.g. a build run only to regenerate row counts). Nightly and stable
+  deployments are unchanged and still deploy to both. See issue :issue:`5557` and PR
+  :pr:`5558`.
 * Fixed several issues with how ``dbt_helper update-tables`` renders ``schema.yml``
   (:mod:`pudl.dbt_schema`): long ``description:`` fields are now wrapped into readable
   paragraph blocks and strings that need quoting prefer double quotes. This now matches
@@ -187,7 +260,7 @@ Developer Experience
   failures. A pytest collection hook enforces the ETL/no-ETL split. Also fixed a live
   Zulip notification firing from the test suite and tightened the dbt ``schema.yml``
   round-trip test. See issue :issue:`5508` and PR :pr:`5507`.
-* Do foreign key constraint validation with dbt instead of SQLite. Update our
+* Validate foreign key constraints with dbt instead of SQLite. Update our
   ``dbt_helper`` script to autogenerate FK constraint tests based on the PUDL metadata.
   Remove the SQLite based FK checking infrastructure. Also add sensible defaults for
   our row-count expectation checking test so we can remove boilerplate test specs.
@@ -201,6 +274,15 @@ Developer Experience
   corresponding GitHub-repo Zenodo software archive), which are also populated as
   structured ``related_identifiers`` for better DataCite/OpenAIRE indexing. See issue
   :issue:`3326` and PR :pr:`5484`.
+* Removed Alembic and the PUDL SQLite schema migrations. With PUDL's own tables no
+  longer written to SQLite during the ETL, there is no schema for Alembic to manage, so
+  ``alembic.ini``, the ``migrations/`` directory, and the ``alembic`` dependency have
+  been removed. See PR :pr:`5538`.
+* Replaced the ``pudl_engine`` pytest fixture (a SQLAlchemy engine) with
+  ``pudl_sqlite_connection`` alongside a ``pudl_duckdb_connection``. Both of which are
+  DuckDB connections. One dedicated to reading ``pudl.sqlite`` via DuckDB's ``sqlite``
+  extension, so tests query both build outputs through one API as PUDL moves toward
+  DuckDB. See PR :pr:`5538`.
 
 .. _release-v2026.8.0:
 

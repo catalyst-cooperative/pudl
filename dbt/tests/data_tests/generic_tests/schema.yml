@@ -64,6 +64,37 @@ macros:
         type: float
         description: Maximum acceptable fraction (between 0 and 1).
 
+  - name: test_expect_column_fraction_outside_range
+    description: >
+      Check that the fraction of non-null values below min_value and the fraction above
+      max_value each stay within an acceptable bound. Unlike
+      dbt_expectations.expect_column_values_to_be_between with error_if, which counts
+      absolute rows and therefore drifts as a table gains partitions, this expresses
+      tolerance as a share of the population. Combine with a per-year row_condition to
+      set expectations that tighten as data quality improves over time; a row_condition
+      that selects no rows passes, so years absent from the data do not fail.
+    arguments:
+      - name: column_name
+        type: string
+        description: The name of the column whose values are checked.
+      - name: min_value
+        type: float
+        description: Lower bound; values strictly below this count toward fraction_below.
+      - name: max_value
+        type: float
+        description: Upper bound; values strictly above this count toward fraction_above.
+      - name: max_fraction_below
+        type: float
+        description: Maximum acceptable fraction of values below min_value (0 to 1, default 0).
+      - name: max_fraction_above
+        type: float
+        description: Maximum acceptable fraction of values above max_value (0 to 1, default 0).
+      - name: row_condition
+        type: string
+        description: >
+          Optional SQL condition restricting the population the fractions are computed
+          over (e.g., "report_year = 2020").
+
   - name: test_expect_includes_all_value_combinations_from
     description: >
       Check that all values in a column or set of columns are the same as the same set
