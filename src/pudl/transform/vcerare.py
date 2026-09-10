@@ -305,12 +305,12 @@ def _check_for_valid_counties(
     county_names_cap = (
         lf.select(pl.col("county_state_names")).unique().collect().to_series().to_list()
     )
-    non_county_cols = [x for x in county_names_cap if x not in county_names_fips]
+    unexpected_place_names = [x for x in county_names_cap if x not in county_names_fips]
 
-    if non_county_cols:
+    if unexpected_place_names:
         raise AssertionError(
-            f"""found unexpected columns that aren't in the FIPS table:
-            {non_county_cols}. FIPS values are {county_names_fips}"""
+            f"Found {len(unexpected_place_names)} place name(s) in the {lf_name} "
+            f"table that aren't in the FIPS table: {unexpected_place_names}"
         )
     return lf
 
