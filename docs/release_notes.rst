@@ -74,6 +74,12 @@ FERC EQR
 
 * Added full 2026Q2 data for :doc:`FERC EQR <data_sources/ferceqr>`. See PR :pr:`5442`.
 
+Vibrant Pattern Futures Resource Adequacy Renewable Energy (RARE) Power Dataset
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Added 2024 data for :doc:`RARE <data_sources/vcerare>`. See issue :issue:`5544` and
+  PR :pr:`5570`.
+
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
