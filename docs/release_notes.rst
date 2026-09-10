@@ -111,12 +111,27 @@ FERC EQR
 
 * Added full 2026Q2 data for :doc:`FERC EQR <data_sources/ferceqr>`. See PR :pr:`5442`.
 
-
 EIA-860M
 ~~~~~~~~
 
 * Added :doc:`EIA-860M <data_sources/eia860>` data through July 2026. See
   issue :issue:`5549` and PR :pr:`5547`.
+
+New Data Tests & Validations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* The ``subcomponents_sum_to_total`` dbt test can now identify subcomponents and
+  totals by a combination of categorical columns (e.g. ``(cost_group, cost_type)``
+  tuples) rather than values from a single column, enabling validation of
+  calculations that cross more than one categorical column. Used this to complete
+  the totals validations for :ref:`core_rus12__yearly_plant_costs` and
+  :ref:`out_rus12__yearly_plant_costs`, adding maintenance, operations &
+  maintenance, fixed cost, and total power cost checks, and fixing several
+  existing checks that referenced non-existent cost categories. The test also
+  gained an opt-in ``minimum_total_coverage`` argument that catches totals
+  which silently match no records at all (e.g. a misspelled ``total_label`` or
+  a category renamed in a future data update), enabled for all of the plant
+  costs checks. See issues :issue:`5378,5154` and PR :pr:`5510`.
 
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
