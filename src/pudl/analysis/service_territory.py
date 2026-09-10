@@ -443,7 +443,7 @@ def service_territory_asset_factory(
 
 service_territory_eia861_assets = [
     service_territory_asset_factory(
-        entity_type=entity, io_manager_key="pudl_io_manager"
+        entity_type=entity, io_manager_key="parquet_io_manager"
     )
     for entity in ["balancing_authority", "utility"]
 ]

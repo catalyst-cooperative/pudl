@@ -325,7 +325,7 @@ FIRST_COLS = [
 
 
 @asset(
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     compute_kind="Python",
     op_tags={
         "memory-use": "high",
@@ -370,7 +370,7 @@ plant_parts_assets = [
 
 
 @asset(
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     compute_kind="Python",
     op_tags={
         "memory-use": "high",
@@ -1638,7 +1638,7 @@ def reassign_id_ownership_dupes(plant_parts_eia: pd.DataFrame) -> pd.DataFrame:
 
 
 @asset(
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     compute_kind="Python",
     op_tags={"dagster/priority": 10},
 )

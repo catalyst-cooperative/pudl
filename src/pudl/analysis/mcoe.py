@@ -191,7 +191,7 @@ def mcoe_asset_factory(
             ),
             "gens": AssetIn(key="_out_eia__yearly_generators"),
         },
-        io_manager_key="pudl_io_manager",
+        io_manager_key="parquet_io_manager",
         compute_kind="Python",
         op_tags=op_tags,
         config_schema={

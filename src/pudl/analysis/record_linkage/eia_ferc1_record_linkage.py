@@ -297,7 +297,7 @@ def get_best_matches(
 @op(
     out={
         "out_pudl__yearly_assn_eia_ferc1_plant_parts": Out(
-            io_manager_key="pudl_io_manager"
+            io_manager_key="parquet_io_manager"
         )
     },
     tags={

@@ -291,7 +291,7 @@ def core_epacems__hourly_emissions(
 @dg.asset(
     ins={
         "core_epacems__hourly_emissions": dg.AssetIn(
-            input_manager_key="pudl_io_manager"
+            input_manager_key="parquet_io_manager"
         ),
     },
 )

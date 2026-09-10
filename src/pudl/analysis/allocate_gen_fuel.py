@@ -324,7 +324,7 @@ allocate_gen_fuel_assets = [
     for freq in ["YS", "MS"]
     for allocated_net_gen_asset in allocate_gen_fuel_asset_factory(
         freq=freq,
-        io_manager_key="pudl_io_manager",
+        io_manager_key="parquet_io_manager",
     )
 ]
 

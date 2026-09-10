@@ -128,7 +128,7 @@ def _fill_sics(df: pd.DataFrame) -> pd.DataFrame:
 
 
 @dg.asset(
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     group_name="out_sec10k",
 )
 def out_sec10k__quarterly_filings(
@@ -146,7 +146,7 @@ def out_sec10k__quarterly_filings(
 
 
 @dg.asset(
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     group_name="out_sec10k",
 )
 def out_sec10k__quarterly_company_information(
@@ -190,7 +190,7 @@ def out_sec10k__quarterly_company_information(
 
 
 @dg.asset(
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     group_name="out_sec10k",
 )
 def out_sec10k__changelog_company_name(
@@ -226,7 +226,7 @@ def out_sec10k__changelog_company_name(
 
 
 @dg.asset(
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     group_name="out_sec10k",
 )
 def out_sec10k__parents_and_subsidiaries(
