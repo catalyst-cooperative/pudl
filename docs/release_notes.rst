@@ -309,6 +309,27 @@ Developer Experience
   altogether (e.g. a build run only to regenerate row counts). Nightly and stable
   deployments are unchanged and still deploy to both. See issue :issue:`5557` and PR
   :pr:`5558`.
+* Gave the ``core_ferc1__*`` and ``core_ferc714__*`` assets explicit ``deps`` on the
+  ``raw_ferc1_dbf__sqlite``, ``raw_ferc1_xbrl__sqlite``, and
+  ``raw_ferc714_xbrl__sqlite`` prerequisite databases. The dependency previously ran
+  only through unexecutable ``AssetSpec`` layers, so a wide multiprocess executor
+  could start a FERC transform before its SQLite database finished converting,
+  failing the run with ``No DB found``. See :pr:`5561`.
+* Tuned Dagster scheduling priorities so datasets that are extracted but not yet
+  integrated downstream act as late-ETL filler instead of contending for CPU with
+  the critical path at startup. FERC Forms 2, 6, and 60, PHMSA gas, EIA AEO, VCE
+  RARE, and EPA MATS extraction now carry a negative ``dagster/priority``; and
+  only the two FERC 714 CSV tables that feed the demand-imputation critical path
+  (``hourly_planning_area_demand``, ``respondent_id``) keep the raised priority.
+  See :pr:`5561`.
+* Added a ``pudl_dagster_postmortem`` script
+  (:mod:`pudl.scripts.pudl_dagster_postmortem`) that the nightly build runs after
+  the Dagster stage. It re-echoes any OOM-style worker-crash engine events, flags
+  steps that started but never finished, and marks a silently-killed run
+  ``FAILED`` so the instance stays consistent — the manual analog of the FERC EQR
+  build's ``run_monitoring``, which cannot apply to the in-process nightly ETL.
+  ``builds/pudl_batch.sh`` also now diagnoses a SIGKILL of the orchestrating
+  process explicitly. See :pr:`5561`.
 * Fixed several issues with how ``dbt_helper update-tables`` renders ``schema.yml``
   (:mod:`pudl.dbt_schema`): long ``description:`` fields are now wrapped into readable
   paragraph blocks and strings that need quoting prefer double quotes. This now matches
