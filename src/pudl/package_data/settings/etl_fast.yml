@@ -93,7 +93,7 @@ pudl:
     years: [2024]
     fips: True
   censuspep:
-    years: [2023, 2015, 2009]
+    years: [2024, 2015, 2009]
   rus7:
     years: [2019, 2020, 2021]
   rus12:

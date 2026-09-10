@@ -134,11 +134,6 @@ def _stack_cap_fac_df(
     capacity factor table rather than the giant combined one.
     """
     logger.info(f"Stacking the county/subregion columns for {df_name} table.")
-    """Convert wide-format capacity factor table to long format using Polars.
-
-    Takes county columns and stacks them into rows with a county_state_names column.
-    """
-    logger.info(f"Reshaping wide format to long format for {df_name} table.")
 
     # Identify which columns are county columns (not metadata)
     id_cols = ["hour_of_year", "report_year"]
@@ -155,7 +150,7 @@ def _stack_cap_fac_df(
     return df_long
 
 
-def _add_time_cols(df: pl.DataFrame, df_name: str) -> pl.DataFrame:
+def _add_time_cols(df: pl.DataFrame, df_name: str, year: int) -> pl.DataFrame:
     """Add datetime and hour_of_year columns.
 
     This function adds a datetime column and a hour_of_year column.
@@ -165,22 +160,41 @@ def _add_time_cols(df: pl.DataFrame, df_name: str) -> pl.DataFrame:
     so we keep all three!
 
     For leap years (2020, 2024), December 31st is excluded.
+
+    After 2024, the data is published with a datetime column but no
+    hour_of_year, so we create the hour_of_year column instead.
     """
     logger.info(f"Adding time columns for {df_name} table")
+
     # Convert report_year to int
-    df = df.with_columns(pl.col("report_year").cast(pl.Int32))
+    df = df.with_columns(report_year=pl.col("report_year").cast(pl.Int32))
 
-    # This data is compiled for modeling purposes and skips the last
-    # day of a leap year. When adding a datetime column, we need
-    # to make sure that we skip the 31st of December on leap years and that
-    # every year has exactly 8760 hours in it.
+    if year >= 2024:
+        assert (
+            df.schema["hour_of_year"] == pl.Datetime
+        )  # Check column is in expected format
+        df = df.rename({"hour_of_year": "datetime_utc"}).with_columns(
+            hour_of_year=(pl.col("datetime_utc").dt.ordinal_day() - 1) * 24
+            + pl.col("datetime_utc").dt.hour()
+            + 1
+        )  # Add 1 to conform to 0:00 as hour 1
+    else:
+        # This data is compiled for modeling purposes and skips the last
+        # day of a leap year. When adding a datetime column, we need
+        # to make sure that we skip the 31st of December on leap years and that
+        # every year has exactly 8760 hours in it.
 
-    # Compute datetime from year start + hours offset
-    # hour_of_year ranges from 1-8760, so subtract 1 to get 0-based offset
-    df = df.with_columns(
-        datetime_utc=pl.datetime(pl.col("report_year"), 1, 1)
-        + pl.duration(hours=pl.col("hour_of_year") - 1)
-    )
+        # Compute datetime from year start + hours offset
+        # hour_of_year ranges from 1-8760, so subtract 1 to get 0-based offset
+        df = df.with_columns(
+            datetime_utc=pl.datetime(pl.col("report_year"), 1, 1)
+            + pl.duration(hours=pl.col("hour_of_year") - 1)
+        )
+
+    # Ensure hour of year has uniform dtype for all years.
+    df = df.with_columns(hour_of_year=pl.col("hour_of_year").cast(pl.Int32))
+    # Clip 2024 data that exceeds 8760 hours
+    df = df.filter(~((pl.col("report_year") == 2024) & (pl.col("hour_of_year") > 8760)))
 
     return df
 
@@ -401,14 +415,14 @@ def one_year_hourly_available_capacity_factor(
             df.pipe(_stack_cap_fac_df, df_name)
             .pipe(_spot_fix_great_lakes_polars, df_name)
             .pipe(_check_for_valid_counties, fips_df_census, df_name)
-            .pipe(_add_time_cols, df_name)
+            .pipe(_add_time_cols, df_name, year)
             .pipe(_drop_city_cols, df_name)
             .pipe(_make_cap_fac_frac, df_name)
             .pipe(_clip_unexpected_2016_pv_capacity, df_name, year),
             table_name=_table_name(df_name),
             partitions={"year": year},
         )
-        for df_name, df in raw_dict.items()  # TODO: Add profiles into here :)
+        for df_name, df in raw_dict.items()
     }
 
 
