@@ -2,8 +2,13 @@
 
 .. note::
 
-   This table is partitioned into multiple Parquet files which can be treated
-   as a single Parquet dataset.
+   This table is partitioned into multiple Parquet files (one per quarter) which can be
+   treated as a single Parquet dataset: point each tool at the directory prefix rather
+   than an individual file. Each quarter restates the full roster of registered
+   companies, so the whole table is large (hundreds of thousands of rows). The examples
+   below read the whole partitioned dataset but push a column selection and a filter
+   (recent quarters, companies in one state) down to the reader, so only the matching
+   data is actually fetched. Adjust or drop the filters as needed.
 
 .. tab-set::
 
@@ -12,10 +17,23 @@
       .. code-block:: python
 
          import pandas as pd
-         # Select all Parquet files under this bucket prefix.
+         # Point at the directory prefix to read every quarterly file as one dataset.
          df = pd.read_parquet(
              "s3://pudl.catalyst.coop/ferceqr/{{ resource.name }}/",
              dtype_backend="pyarrow",
+             columns=[
+                 "year_quarter",
+                 "company_id_ferc",
+                 "company_name",
+                 "contact_city",
+                 "contact_state",
+                 "transactions_reported_to_index_price_publishers",
+             ],
+             # Row-group level filters, pushed down to the Parquet reader.
+             filters=[
+                 ("year_quarter", ">=", "2025q1"),
+                 ("contact_state", "==", "CA"),
+             ],
          )
 
    .. tab-item:: polars
@@ -23,18 +41,50 @@
       .. code-block:: python
 
          import polars as pl
-         # Select all Parquet files under this bucket prefix.
-         df = pl.read_parquet(
-             "s3://pudl.catalyst.coop/ferceqr/{{ resource.name }}/",
-             storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+         df = (
+             # scan_parquet on the directory prefix; lazy evaluation pushes the
+             # column selection and filter down to the Parquet reader.
+             pl.scan_parquet(
+                 "s3://pudl.catalyst.coop/ferceqr/{{ resource.name }}/",
+                 storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+             )
+             .select(
+                 [
+                     "year_quarter",
+                     "company_id_ferc",
+                     "company_name",
+                     "contact_city",
+                     "contact_state",
+                     "transactions_reported_to_index_price_publishers",
+                 ]
+             )
+             .filter(
+                 (pl.col("year_quarter") >= "2025q1")
+                 & (pl.col("contact_state") == "CA")
+             )
+             .collect()
          )
 
    .. tab-item:: SQL (DuckDB)
 
       .. code-block:: sql
 
-         -- Use a wildcard to select all parquet files with this bucket prefix.
-         SELECT * FROM 's3://pudl.catalyst.coop/ferceqr/{{ resource.name }}/*.parquet';
+         INSTALL httpfs;
+         LOAD httpfs;
+         -- Path-style S3 addressing is required because our bucket name contains dots.
+         CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
+         SELECT
+             -- Select a subset of columns to reduce network and memory usage
+             year_quarter,
+             company_id_ferc,
+             company_name,
+             contact_city,
+             contact_state,
+             transactions_reported_to_index_price_publishers
+         -- Use a wildcard to read every quarterly Parquet file as one dataset
+         FROM 's3://pudl.catalyst.coop/ferceqr/{{ resource.name }}/*.parquet'
+         WHERE year_quarter >= '2025q1'
+             AND contact_state = 'CA';
 
    .. tab-item:: R
 
@@ -43,8 +93,14 @@
          library(arrow)
          library(dplyr)
 
-         # Establish S3 connection
+         # Open the directory prefix as a dataset; filter() and select() are pushed
+         # down to the Parquet reader.
          bucket <- s3_bucket("pudl.catalyst.coop/ferceqr/{{ resource.name }}")
-
-         # Read all parquet files in that prefix
-         df <- open_dataset(bucket) |> collect()
+         df <- open_dataset(bucket) |>
+           filter(year_quarter >= "2025q1", contact_state == "CA") |>
+           select(
+             year_quarter, company_id_ferc, company_name,
+             contact_city, contact_state,
+             transactions_reported_to_index_price_publishers
+           ) |>
+           collect()
