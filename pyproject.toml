@@ -614,7 +614,6 @@ addopts = [
     "--cov-append",
     "--cov-config=pyproject.toml",
     "--cov-report=",
-    "--durations=20",
     "-ra",
     "--tb=short",
 ]
