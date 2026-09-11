@@ -1529,6 +1529,29 @@ def _make_test_zip(zip_path: Path) -> None:
         zf.writestr("__MACOSX/2020/._wanted.csv", "resource fork junk")
 
 
+def test_duckdb_extract_zipped_csv_only_extracts_requested_pages(tmp_path, mocker):
+    """Only the requested pages should be extracted, not every member of the zip."""
+    zip_path = tmp_path / "archive.zip"
+    _make_test_zip(zip_path)
+
+    datastore = mocker.Mock()
+    datastore.get_zipfile_resource.return_value = _fake_zipfile_resource(zip_path)
+    extractall_spy = mocker.spy(zipfile.ZipFile, "extractall")
+
+    results = list(
+        duckdb_extract_zipped_csv(
+            dataset="test",
+            partitions={"year": 2020},
+            pages=["wanted.csv"],
+            datasore=datastore,
+            zip_path=Path("2020/"),
+        )
+    )
+
+    assert [page for page, _ in results] == ["wanted.csv"]
+    assert extractall_spy.call_args.kwargs["members"] == ["2020/wanted.csv"]
+
+
 def test_duckdb_extract_zipped_csv_applies_explicit_column_types(tmp_path, mocker):
     """When column_types is given, it should drive the relation's names/types.
 
