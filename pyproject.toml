@@ -427,7 +427,7 @@ description = "Update dbt dependencies"
 [tool.pixi.tasks.devcontainer-install]
 cmd = """
 pixi install --frozen --locked \
-    && pixi run install-skills
+    && (pixi run install-skills || echo "skills install failed; continuing")
 """
 description = "Set up the dev container: install pixi environment, skills, and agent CLIs (run once after first start)"
 
