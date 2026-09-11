@@ -34,16 +34,16 @@ New Data
 EIA-176
 ~~~~~~~
 
-* Added :ref:`core_eia176__yearly_company_characteristics` with company operation
-  type, ownership type, and company characteristic fields from EIA Form 176 Part 3
-  (Lines A-D). Includes ``alternative_fleet_size``,
-  ``customer_choice_residential_eligible``,
+* Added :ref:`core_eia176__yearly_company_characteristics` with company operation type,
+  ownership type, and company characteristic fields from EIA Form 176 Part 3 (Lines
+  A-D). Includes ``alternative_fleet_size``, ``customer_choice_residential_eligible``,
   ``customer_choice_residential_participating``, ``has_sales_or_acquisitions``, and
-  ``natural_gas_pump_price_dollars_per_mcf`` (2014-2016 only). National-level
-  adjustment records (operating_state FX, MX, BL, OO) are excluded. The raw
-  ``is_other_ownership`` and ``is_other_ownership_2`` fields (which never co-occur)
-  are merged into a single ``is_other_ownership`` boolean.
-  See :issue:`4697` and :pr:`5412`.
+  ``natural_gas_pump_price_dollars_per_mcf`` (2014-2016 only). National-level adjustment
+  records (operating_state FX, MX, BL, OO) are excluded. The raw ``is_other_ownership``
+  and ``is_other_ownership_2`` fields (which never co-occur) are merged into a single
+  ``is_other_ownership`` boolean. See :issue:`4697` and :pr:`5412`. Thank's to
+  :user:`MeadBarrel` for all the work on getting natural gas data integrated into PUDL,
+  and the ongoing support from :user:`switchbox-data`.
 
 EIA-923
 ~~~~~~~
@@ -53,11 +53,12 @@ EIA-923
   generating facilities, aggregated by census division or state. The wide monthly
   source columns are reshaped into tall monthly records and the reported thousand-unit
   quantities are converted to base units. See issue :issue:`5081` and PR :pr:`5431`.
+  Thanks to :user:`lazizbekravshanov` for this contribution!
 * Added :ref:`out_eia923__energy_storage` for reported EIA-923 energy storage
   operations, with :ref:`out_eia923__monthly_energy_storage` and
   :ref:`out_eia923__yearly_energy_storage` providing monthly and yearly aggregations.
   All three include plant and utility metadata. See issue :issue:`4311` and PR
-  :pr:`5489`.
+  :pr:`5489`. Shout out to :user:`giovannicozzolongo` for this.
 * Extracted the unprocessed ``raw_eia923__source_and_disposition`` table for further
   future cleaning, see PR :pr:`5546`. Thanks to contributor :user:`giovannicozzolongo`!
 
@@ -82,40 +83,62 @@ EPA CEMS
   window length as an upper bound on minimum up/down times) rather than thresholds fit
   to a single year of data. See PR :pr:`5474`.
 
-Expanded Data Coverage
-^^^^^^^^^^^^^^^^^^^^^^
-
-NREL ATB
-~~~~~~~~
-
-* Updated the NREL ATB extractor and transformer to accommodate changes to the 2024
-  data and format. See issue :issue:`5467` and PR :pr:`5513`.
-
-EIA-861
-~~~~~~~
-
-* Added early release data from 2025 for :doc:`EIA-861 <data_sources/eia861>`.
-  See issue :issue:`5492` and PR :pr:`5493`.
-
 PHMSA
 ~~~~~
-
 * Added the ``core_phmsagas__yearly_distribution_by_install_decade`` table, which
   reports :doc:`PHMSA <data_sources/phmsagas>` gas distribution mains miles and
   services by installation decade. See issue :issue:`5266` and PR :pr:`5443`.
+
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+EIA-191
+~~~~~~~
+* Refreshed the raw data with a fresh archive. See PR :pr:`5572`
+
+EIA-860M
+~~~~~~~~
+* Added :doc:`EIA-860M <data_sources/eia860>` data through July 2026. See
+  issue :issue:`5549` and PR :pr:`5547`.
+
+EIA-861
+~~~~~~~
+* Added early release data from 2025 for :doc:`EIA-861 <data_sources/eia861>`.
+  See issue :issue:`5492` and PR :pr:`5493`.
+
+EIA-930
+~~~~~~~
+* Refreshed the raw data with a fresh archive. See PR :pr:`5572`
+
+EIA API Bulk Electricity Data
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+* Refreshed the raw data with a fresh archive. See PR :pr:`5572`
+
+EPA CEMS
+~~~~~~~~
+* Refreshed the raw data with a fresh archive. See PR :pr:`5572`
+
+EPA MATS
+~~~~~~~~
+* Refreshed the raw data with a fresh archive. See PR :pr:`5572`
+
+NREL ATB
+~~~~~~~~
+* Updated the NREL ATB extractor and transformer to accommodate changes to the 2024
+  data and format. See issue :issue:`5467` and PR :pr:`5513`.
+
+PHMSA
+~~~~~
 * Added 2025 distribution and transmission data for
   :doc:`PHMSA <data_sources/phmsagas>`. See issue :issue:`5504` and :pr:`5548`.
 
 FERC EQR
 ~~~~~~~~
-
 * Added full 2026Q2 data for :doc:`FERC EQR <data_sources/ferceqr>`. See PR :pr:`5442`.
 
-EIA-860M
-~~~~~~~~
-
-* Added :doc:`EIA-860M <data_sources/eia860>` data through July 2026. See
-  issue :issue:`5549` and PR :pr:`5547`.
+FERC Form 2
+~~~~~~~~~~~
+* Refreshed the raw data with a fresh archive. See PR :pr:`5572`
 
 Vibrant Pattern Futures Resource Adequacy Renewable Energy (RARE) Power Dataset
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
