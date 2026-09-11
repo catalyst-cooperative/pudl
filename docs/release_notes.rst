@@ -94,7 +94,8 @@ Expanded Data Coverage
 
 EIA-191
 ~~~~~~~
-* Refreshed the raw data with a fresh archive. See PR :pr:`5572`
+* Updated :doc:`EIA-191 <data_sources/eia191>` data to include additional records
+  through June 2026. See PR :pr:`5572`.
 
 EIA-860M
 ~~~~~~~~
@@ -108,19 +109,23 @@ EIA-861
 
 EIA-930
 ~~~~~~~
-* Refreshed the raw data with a fresh archive. See PR :pr:`5572`
+* Updated :doc:`EIA-930 <data_sources/eia930>` data to include data published up
+  through the beginning of September 2026. See PR :pr:`5572`.
 
 EIA API Bulk Electricity Data
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-* Refreshed the raw data with a fresh archive. See PR :pr:`5572`
+* Updated the EIA Bulk Electricity data to include data published up through the
+  beginning of June 2026. See PR :pr:`5572`.
 
 EPA CEMS
 ~~~~~~~~
-* Refreshed the raw data with a fresh archive. See PR :pr:`5572`
+* Updated the :doc:`EPA CEMS <data_sources/epacems>` data with additional records
+  through June 2026. See PR :pr:`5572`.
 
 EPA MATS
 ~~~~~~~~
-* Refreshed the raw data with a fresh archive. See PR :pr:`5572`
+* Updated the raw EPA MATS archive with additional records through 2026 Q2 (June
+  2026). This data is not yet deeply integrated into PUDL. See PR :pr:`5572`.
 
 NREL ATB
 ~~~~~~~~
@@ -138,7 +143,8 @@ FERC EQR
 
 FERC Form 2
 ~~~~~~~~~~~
-* Refreshed the raw data with a fresh archive. See PR :pr:`5572`
+* Updated the raw FERC Form 2 archive to include additional 2025 data. This data is
+  converted to SQLite, but not deeply integrated into PUDL. See PR :pr:`5572`.
 
 Vibrant Pattern Futures Resource Adequacy Renewable Energy (RARE) Power Dataset
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
