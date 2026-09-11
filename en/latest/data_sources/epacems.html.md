@@ -6,7 +6,7 @@
 | Respondents                     | Coal and high-sulfur fueled plants over 25MW                                                                                                                                     |
 | Records Liberated               | ~1 billion                                                                                                                                                                       |
 | Source Format                   | Comma Separated Value (.csv)                                                                                                                                                     |
-| Download Size                   | 10218 MB                                                                                                                                                                         |
+| Download Size                   | 10221 MB                                                                                                                                                                         |
 | Temporal Coverage               | 1995q1-2026q2                                                                                                                                                                    |
 | PUDL Code                       | `epacems`                                                                                                                                                                        |
 | Unprocessed Source Data Archive | [10.5281/zenodo.10233185](https://doi.org/10.5281/zenodo.10233185)                                                                                                               |
