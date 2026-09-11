@@ -2672,6 +2672,7 @@ def duckdb_extract_zipped_csv(
             directly from the CSV, before any cleaning) and returns a mapping of
             cleaned column name to DuckDB type.
     """
+    pages = list(pages)
     with (
         duckdb.connect() as conn,
         datasore.get_zipfile_resource(dataset=dataset, **partitions) as zf,
@@ -2680,7 +2681,10 @@ def duckdb_extract_zipped_csv(
         # Disable DuckDB progress bar, as it is quite noisy in the logs.
         conn.execute("PRAGMA disable_progress_bar")
         tmp_dir = Path(tmp_dir)
-        zf.extractall(tmp_dir)
+        # Only extract the members we actually need -- some archives (e.g. vcerare's
+        # 2024 vintage) bundle other files we never read, like a ~475 MB parquet file
+        # and __MACOSX/ junk.
+        zf.extractall(tmp_dir, members=[str(zip_path / page) for page in pages])
 
         for page in pages:
             csv_path = tmp_dir / zip_path / page
