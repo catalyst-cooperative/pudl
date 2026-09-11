@@ -12,15 +12,13 @@ crosswalk.
 """
 
 from pathlib import Path
-from typing import Annotated
 
 import pandas as pd
 import polars as pl
 from dagster import asset
-from pydantic import BaseModel, StringConstraints
 
 import pudl.logging_helpers
-from pudl.workspace.datastore import Datastore
+from pudl.extract.epacems import EpaCemsDatastore, EpaCemsPartition
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -100,64 +98,35 @@ DTYPE_DICT = {
 """Dict: Data types for EPA MATS columns."""
 
 
-class EpaMatsPartition(BaseModel):
-    """Represents a MATS partition identifying a unique quarterly resource file."""
+class EpaMatsPartition(EpaCemsPartition):
+    """Represents a MATS partition identifying a unique quarterly resource file.
 
-    year_quarter: Annotated[
-        str, StringConstraints(strict=True, pattern=r"^(19|20)\d{2}[q][1-4]$")
-    ]
-
-    @property
-    def year(self):
-        """Return the year associated with the year_quarter."""
-        return pd.to_datetime(self.year_quarter).year
-
-    @property
-    def quarter(self):
-        """Return the quarter associated with the year_quarter."""
-        return pd.to_datetime(self.year_quarter).quarter
-
-    def get_filters(self):
-        """Returns filters for retrieving given partition resource from Datastore."""
-        return {"year_quarter": self.year_quarter}
+    Inherits the year_quarter validation, year/quarter properties, and datastore
+    filters from :class:`EpaCemsPartition`; only the CSV filename differs.
+    """
 
     def get_quarterly_file(self) -> Path:
         """Return the name of the CSV file within the zip that holds quarterly data."""
         return Path(f"epamats-{self.year}q{self.quarter}.csv")
 
 
-class EpaMatsDatastore:
+class EpaMatsDatastore(EpaCemsDatastore):
     """Helper class to extract MATS resources from datastore.
 
     MATS resources are identified by a year and a quarter. Each year's data is in
-    a zip file containing 4 quarterly CSV files. This class implements get_data_frame
-    method that will rename columns for a quarterly CSV file.
+    a zip file containing 4 quarterly CSV files. Inherits the zip-reading and
+    column-renaming logic from :class:`EpaCemsDatastore`; only the dataset name,
+    column mapping, and dtypes differ.
     """
 
-    def __init__(self, datastore: Datastore):
-        """Construct datastore wrapper for loading raw EPA MATS data into dataframes."""
-        self.datastore = datastore
+    dataset_name: str = "epamats"
+    """Name of the dataset used to fetch zipfile resources from the datastore."""
 
-    def get_data_frame(self, partition: EpaMatsPartition) -> pl.LazyFrame:
-        """Constructs dataframe from a zipfile for a given (year_quarter) partition."""
-        with (
-            self.datastore.get_zipfile_resource(
-                "epamats", **partition.get_filters()
-            ) as zf,
-            zf.open(str(partition.get_quarterly_file()), "r") as csv_file,
-        ):
-            lf = pl.scan_csv(csv_file, low_memory=True, schema_overrides=DTYPE_DICT)
-            lf = (
-                lf.select(list(RENAME_DICT))
-                # dict[str, ...] can't satisfy Mapping's invariant key type
-                # against the union `.cast()` declares, even though `str` is
-                # one of the union members -- a typeshed limitation, not a
-                # real type mismatch.
-                .cast(DTYPE_DICT, strict=False)  # type: ignore[bad-argument-type]
-                .rename(RENAME_DICT, strict=False)
-            )
+    rename_dict: dict[str, str] = RENAME_DICT
+    """Mapping from raw column names to PUDL column names."""
 
-        return lf
+    dtype_dict = DTYPE_DICT
+    """Data types for the raw columns."""
 
 
 @asset(

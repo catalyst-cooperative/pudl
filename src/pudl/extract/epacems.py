@@ -115,8 +115,19 @@ class EpaCemsDatastore:
 
     EpaCems resources are identified by a year and a quarter. Each of these zip files
     contains one csv file. This class implements get_data_frame method that will
-    rename columns for a quarterly CSV file.
+    rename columns for a quarterly CSV file. Subclasses (e.g. the MATS extractor)
+    can override ``dataset_name``, ``rename_dict``, and ``dtype_dict`` to reuse the
+    same zip-reading logic for similarly-structured datasets.
     """
+
+    dataset_name: str = "epacems"
+    """Name of the dataset used to fetch zipfile resources from the datastore."""
+
+    rename_dict: dict[str, str] = API_RENAME_DICT
+    """Mapping from raw column names to PUDL column names."""
+
+    dtype_dict = API_DTYPE_DICT
+    """Data types for the raw columns."""
 
     def __init__(self, datastore: Datastore):
         """Construct datastore wrapper for loading raw EPA CEMS data into dataframes."""
@@ -126,15 +137,21 @@ class EpaCemsDatastore:
         """Constructs dataframe from a zipfile for a given (year_quarter) partition."""
         with (
             self.datastore.get_zipfile_resource(
-                "epacems", **partition.get_filters()
+                self.dataset_name, **partition.get_filters()
             ) as zf,
             zf.open(str(partition.get_quarterly_file()), "r") as csv_file,
         ):
-            lf = pl.scan_csv(csv_file, low_memory=True, schema_overrides=API_DTYPE_DICT)
+            lf = pl.scan_csv(
+                csv_file, low_memory=True, schema_overrides=self.dtype_dict
+            )
             lf = (
-                lf.select(list(API_RENAME_DICT))
-                .cast(API_DTYPE_DICT, strict=False)
-                .rename(API_RENAME_DICT, strict=False)
+                lf.select(list(self.rename_dict))
+                # dict[str, ...] can't satisfy Mapping's invariant key type
+                # against the union `.cast()` declares, even though `str` is
+                # one of the union members -- a typeshed limitation, not a
+                # real type mismatch.
+                .cast(self.dtype_dict, strict=False)  # type: ignore[bad-argument-type]
+                .rename(self.rename_dict, strict=False)
             )
 
         return lf
