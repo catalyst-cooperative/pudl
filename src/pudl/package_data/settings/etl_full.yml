@@ -472,10 +472,10 @@ pudl:
         "raw_sec10k__exhibit_21_company_ownership",
       ]
   vcerare:
-    years: [2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023]
+    years: [2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024]
     fips: True
   censuspep:
-    years: [2023, 2015, 2009]
+    years: [2024, 2015, 2009]
   rus12:
     years:
       [

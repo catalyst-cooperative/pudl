@@ -69,7 +69,6 @@ def extract_vcerare(
     # Loop through all years in settings and extract
     for year in context.resources.global_data_config.pudl.vcerare.years:
         partitions = {"year": year}
-
         # Extract each raw table, clean column names, then offload to parquet
         for page, relation in duckdb_extract_zipped_csv(
             dataset="vcerare",
