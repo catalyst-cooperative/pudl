@@ -1681,3 +1681,59 @@ def test_persist_table_as_parquet_duckdb_enum_written_as_dictionary(
     assert polars_result["code"].dtype == pl.Categorical
     assert polars_result["code"].to_list() == ["a", "b", "a"]
     assert set(polars_result["code"].unique().to_list()) == {"a", "b"}
+
+
+def test_persist_table_as_parquet_native_writer_round_trips_non_enum_relation(
+    tmp_path, monkeypatch
+):
+    """``use_native_duckdb_writer=True`` should write correct data for ENUM-free relations.
+
+    There's nothing for the native writer to lose here, so its output should match the
+    source data (and not carry a dictionary/Categorical type, unlike the default
+    Arrow-based writer).
+    """
+    monkeypatch.setenv("PUDL_OUTPUT", str(tmp_path / "output"))
+    monkeypatch.setenv("PUDL_INPUT", str(tmp_path / "input"))
+
+    con = duckdb.connect()
+    con.execute("CREATE TABLE t (name VARCHAR, value DOUBLE)")
+    con.execute("INSERT INTO t VALUES ('a', 1.0), ('b', 2.0), ('a', 3.0)")
+    rel = con.table("t")
+
+    parquet_data = persist_table_as_parquet(
+        rel,
+        table_name="_test__duckdb_native_writer",
+        use_native_duckdb_writer=True,
+    )
+
+    schema = pq.read_schema(parquet_data.parquet_path)
+    assert not pa.types.is_dictionary(schema.field("name").type)
+
+    pandas_result = pd.read_parquet(parquet_data.parquet_path)
+    assert pandas_result["name"].tolist() == ["a", "b", "a"]
+    assert pandas_result["value"].tolist() == [1.0, 2.0, 3.0]
+
+    polars_result = pl.read_parquet(parquet_data.parquet_path)
+    assert polars_result["name"].dtype == pl.String
+    assert polars_result["name"].to_list() == ["a", "b", "a"]
+
+
+def test_persist_table_as_parquet_native_writer_rejects_enum_relation(
+    tmp_path, monkeypatch
+):
+    """``use_native_duckdb_writer=True`` should raise, not silently drop, ENUM columns."""
+    monkeypatch.setenv("PUDL_OUTPUT", str(tmp_path / "output"))
+    monkeypatch.setenv("PUDL_INPUT", str(tmp_path / "input"))
+
+    con = duckdb.connect()
+    con.execute("CREATE TYPE test_enum AS ENUM ('a', 'b')")
+    con.execute("CREATE TABLE t (code test_enum, value INTEGER)")
+    con.execute("INSERT INTO t VALUES ('a', 1)")
+    rel = con.table("t")
+
+    with pytest.raises(ValueError, match="ENUM"):
+        persist_table_as_parquet(
+            rel,
+            table_name="_test__duckdb_native_writer_enum",
+            use_native_duckdb_writer=True,
+        )
