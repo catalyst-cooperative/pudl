@@ -2530,6 +2530,7 @@ def persist_table_as_parquet(
     partitions: dict[str, Any] | None = None,
     compression: Literal["zstd", "snappy", "gzip", "brotli"] = "zstd",
     use_native_duckdb_writer: bool = False,
+    allow_enum_columns: bool = False,
 ) -> ParquetData:
     """Write data from DataFrame or LazyFrame to disk as a parquet file.
 
@@ -2549,15 +2550,18 @@ def persist_table_as_parquet(
             preserves for consistency with PUDL's pandas/Polars writers -- only
             set this when ``table_data`` is known not to contain ENUM columns
             (e.g. it's a raw-extraction relation with no metadata ``Resource``
-            declaring an intended categorical type). Raises if any ENUM column
-            is present, to prevent silent dtype loss on a relation that later
-            grows one.
+            declaring an intended categorical type), or when that dtype loss is
+            acceptable (see ``allow_enum_columns``).
+        allow_enum_columns: Only used when ``use_native_duckdb_writer`` is
+            ``True``. If ``True``, skips the ENUM-column check above and writes
+            with the native writer regardless, flattening any ENUM column to a
+            plain string.
 
     Raises:
         TypeError: If ``table_data`` isn't a ``pd.DataFrame``, ``pl.LazyFrame``, or
             ``duckdb.DuckDBPyRelation``.
-        ValueError: If ``use_native_duckdb_writer`` is ``True`` and ``table_data``
-            contains an ENUM column.
+        ValueError: If ``use_native_duckdb_writer`` is ``True``, ``table_data``
+            contains an ENUM column, and ``allow_enum_columns`` is ``False``.
     """
     # Create ParquetData class to get path to write parquet file
     parquet_data = ParquetData(table_name=table_name, partitions=partitions or {})
@@ -2591,17 +2595,22 @@ def persist_table_as_parquet(
         # wall-clock cost of any one partition writing more slowly matters less
         # than getting correct, cross-backend-readable categorical dtypes.
         if use_native_duckdb_writer:
-            enum_cols = [
-                col
-                for col, dtype in zip(table_data.columns, table_data.types, strict=True)
-                if str(dtype).startswith("ENUM")
-            ]
-            if enum_cols:
-                raise ValueError(
-                    f"use_native_duckdb_writer=True was requested for {table_name}, "
-                    f"but it has ENUM column(s) {enum_cols} that would silently lose "
-                    "their dictionary type. Use the default Arrow-based writer instead."
-                )
+            if not allow_enum_columns:
+                enum_cols = [
+                    col
+                    for col, dtype in zip(
+                        table_data.columns, table_data.types, strict=True
+                    )
+                    if str(dtype).startswith("ENUM")
+                ]
+                if enum_cols:
+                    raise ValueError(
+                        f"use_native_duckdb_writer=True was requested for {table_name}, "
+                        f"but it has ENUM column(s) {enum_cols} that would silently lose "
+                        "their dictionary type. Use the default Arrow-based writer "
+                        "instead, or pass allow_enum_columns=True if that loss is "
+                        "acceptable for this table."
+                    )
             table_data.write_parquet(
                 str(parquet_data.parquet_path), compression=compression
             )
