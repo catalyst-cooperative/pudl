@@ -100,6 +100,7 @@ def extract_vcerare(
                         table_data=relation.select(f"*, {year} as report_year"),
                         table_name=VCERARE_PAGES[page],
                         partitions=partitions,
+                        use_native_duckdb_writer=True,
                     )
                 }
             )

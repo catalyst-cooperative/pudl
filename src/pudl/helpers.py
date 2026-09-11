@@ -2529,6 +2529,7 @@ def persist_table_as_parquet(
     table_name: str,
     partitions: dict[str, Any] | None = None,
     compression: Literal["zstd", "snappy", "gzip", "brotli"] = "zstd",
+    use_native_duckdb_writer: bool = False,
 ) -> ParquetData:
     """Write data from DataFrame or LazyFrame to disk as a parquet file.
 
@@ -2540,6 +2541,23 @@ def persist_table_as_parquet(
         table_name: Table name used to construct path to/name of parquet file.
         partitions: Optional partition dimension values indicating the data to be
             written.
+        use_native_duckdb_writer: Only used when ``table_data`` is a
+            ``DuckDBPyRelation``. If ``True``, use DuckDB's own multi-threaded
+            ``write_parquet()`` instead of the default Arrow-based batch writer.
+            This is faster, but flattens any ENUM columns down to plain strings,
+            losing the dictionary/Categorical type that the default writer
+            preserves for consistency with PUDL's pandas/Polars writers -- only
+            set this when ``table_data`` is known not to contain ENUM columns
+            (e.g. it's a raw-extraction relation with no metadata ``Resource``
+            declaring an intended categorical type). Raises if any ENUM column
+            is present, to prevent silent dtype loss on a relation that later
+            grows one.
+
+    Raises:
+        TypeError: If ``table_data`` isn't a ``pd.DataFrame``, ``pl.LazyFrame``, or
+            ``duckdb.DuckDBPyRelation``.
+        ValueError: If ``use_native_duckdb_writer`` is ``True`` and ``table_data``
+            contains an ENUM column.
     """
     # Create ParquetData class to get path to write parquet file
     parquet_data = ParquetData(table_name=table_name, partitions=partitions or {})
@@ -2572,12 +2590,28 @@ def persist_table_as_parquet(
         # data is processed rarely and quarters are written in parallel, so the
         # wall-clock cost of any one partition writing more slowly matters less
         # than getting correct, cross-backend-readable categorical dtypes.
-        reader = table_data.to_arrow_reader(batch_size=100_000)
-        with pq.ParquetWriter(
-            str(parquet_data.parquet_path), reader.schema, compression=compression
-        ) as writer:
-            for batch in reader:
-                writer.write_batch(batch)
+        if use_native_duckdb_writer:
+            enum_cols = [
+                col
+                for col, dtype in zip(table_data.columns, table_data.types, strict=True)
+                if str(dtype).startswith("ENUM")
+            ]
+            if enum_cols:
+                raise ValueError(
+                    f"use_native_duckdb_writer=True was requested for {table_name}, "
+                    f"but it has ENUM column(s) {enum_cols} that would silently lose "
+                    "their dictionary type. Use the default Arrow-based writer instead."
+                )
+            table_data.write_parquet(
+                str(parquet_data.parquet_path), compression=compression
+            )
+        else:
+            reader = table_data.to_arrow_reader(batch_size=100_000)
+            with pq.ParquetWriter(
+                str(parquet_data.parquet_path), reader.schema, compression=compression
+            ) as writer:
+                for batch in reader:
+                    writer.write_batch(batch)
     else:
         raise TypeError(
             "table_data must be of type pd.DataFrame, pl.LazyFrame or duckdb.DuckDBPyRelation."
