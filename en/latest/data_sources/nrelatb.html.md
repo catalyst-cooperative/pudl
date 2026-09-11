@@ -4,8 +4,8 @@
 |---------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Source Description              | The NREL Annual Technology Baseline (ATB) for Electricity publishes annual projections of operational and capital expenditures (by technology and vintage), as well as operating characteristics (by technology). |
 | Source Format                   | Parquet                                                                                                                                                                                                           |
-| Download Size                   | 457 MB                                                                                                                                                                                                            |
-| Temporal Coverage               | 2021-2024                                                                                                                                                                                                         |
+| Download Size                   | 478 MB                                                                                                                                                                                                            |
+| Temporal Coverage               | 2021-2025                                                                                                                                                                                                         |
 | PUDL Code                       | `nrelatb`                                                                                                                                                                                                         |
 | Unprocessed Source Data Archive | [10.5281/zenodo.10839267](https://doi.org/10.5281/zenodo.10839267)                                                                                                                                                |
 | Issues                          | [Open NREL Annual Technology Baseline (ATB) for Electricity issues](https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Anrelatb)                                    |
@@ -25,9 +25,9 @@ the names and descriptions of each of its fields.
 
 ## Background
 
-NREL publishes [Annual Technology Baseline (ATB)](https://atb.nrel.gov) data for the
-[Electricity](https://atb.nrel.gov/electricity) and
-[Transportation](https://atb.nrel.gov/transportation) sectors.
+NREL publishes [Annual Technology Baseline (ATB)](https://atb.nlr.gov/)
+data for the [Electricity](https://atb.nlr.gov/electricity/2025/data) and
+[Transportation](https://atb.nlr.gov/transportation/2024/data) sectors.
 
 The NREL Annual Technology Baseline (ATB) provides a consistent set of technology cost
 and performance data for energy analysis.
