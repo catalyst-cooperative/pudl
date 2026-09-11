@@ -102,6 +102,11 @@ This is the upcoming PUDL release.
 * Added [EIA-860M](data_sources/eia860.html.md) data through July 2026. See
   issue [#5549](https://github.com/catalyst-cooperative/pudl/issues/5549) and PR [#5547](https://github.com/catalyst-cooperative/pudl/pull/5547).
 
+#### Vibrant Pattern Futures Resource Adequacy Renewable Energy (RARE) Power Dataset
+
+* Added 2024 data for [RARE](data_sources/vcerare.html.md). See issue [#5544](https://github.com/catalyst-cooperative/pudl/issues/5544) and
+  PR [#5570](https://github.com/catalyst-cooperative/pudl/pull/5570).
+
 ### New Data Tests & Validations
 
 * The `subcomponents_sum_to_total` dbt test can now identify subcomponents and
