@@ -7,6 +7,7 @@ should probably live here. There are lost of transform type functions in here th
 with cleaning and restructuring dataframes.
 """
 
+import csv
 import importlib.resources
 import itertools
 import os
@@ -2138,7 +2139,7 @@ def scale_by_ownership(
             "fraction_owned",
         ]
         + list(operator_owner_col_map.values())
-    ].pipe(pudl.helpers.convert_cols_dtypes, "eia")
+    ].pipe(convert_cols_dtypes, "eia")
     # we're left merging BC we've removed the retired gens, which are
     # reported in the ownership table
     gens = gens.merge(
@@ -2618,7 +2619,7 @@ def df_from_parquet(
 @contextmanager
 def duckdb_relation_from_parquet(
     parquet_data: ParquetData, use_all_partitions: bool = False
-) -> tuple[duckdb.DuckDBPyRelation, duckdb.DuckDBPyConnection]:
+) -> Generator[tuple[duckdb.DuckDBPyRelation, duckdb.DuckDBPyConnection]]:
     """Create a duckdb relation to read from parquet files.
 
     This method is intended to be used as a context manager to keep the duckdb
@@ -2641,10 +2642,11 @@ def duckdb_relation_from_parquet(
 def duckdb_extract_zipped_csv(
     dataset: str,
     partitions: dict[str, Any],
-    pages: list[str],
+    pages: Iterable[str],
     datasore,
     zip_path: Path = Path(),
-) -> tuple[str, ParquetData]:
+    column_types: Callable[[list[str]], dict[str, str]] | None = None,
+) -> Generator[tuple[str, duckdb.DuckDBPyRelation]]:
     """Extract data from zipped CSV page(s) in a data archive.
 
     A common pattern for raw PUDL data is a set of zipfiles with one zipfile per
@@ -2654,6 +2656,11 @@ def duckdb_extract_zipped_csv(
     each CSV file within a zipfile, allowing the caller to perform transforms using
     the relation before writing to disk with the ``offload_table`` function.
 
+    ``column_types``, when provided, allows the caller to avoid using DuckDB's CSV
+    column type auto-detection entirely in favor of providing an explicit schema. This
+    is useful because header/type sniffing is the dominant cost for very wide CSVs. When
+    omitted, the function falls back to DuckDB's normal auto-detection.
+
     Args:
         dataset: Name of dataset (required to get archive from datastore).
         partition: Partitions of resource to extract data from.
@@ -2661,6 +2668,9 @@ def duckdb_extract_zipped_csv(
         datastore: Instance of PUDL datastore to get raw data.
         zip_path: Base path within zipfile that points to where CSV files are stored.
             If not explicitly set, assume CSV files are at the top level of the zipfile.
+        column_types: Optional callable that takes the raw header row (as read
+            directly from the CSV, before any cleaning) and returns a mapping of
+            cleaned column name to DuckDB type.
     """
     with (
         duckdb.connect() as conn,
@@ -2673,7 +2683,21 @@ def duckdb_extract_zipped_csv(
         zf.extractall(tmp_dir)
 
         for page in pages:
-            yield page, conn.read_csv(str(tmp_dir / zip_path / page))
+            csv_path = tmp_dir / zip_path / page
+            if column_types is None:
+                yield page, conn.read_csv(str(csv_path))
+            else:
+                with csv_path.open(newline="") as f:
+                    header_row = next(csv.reader(f))
+                yield (
+                    page,
+                    conn.read_csv(
+                        str(csv_path),
+                        header=True,
+                        auto_detect=False,
+                        columns=column_types(header_row),
+                    ),
+                )
 
 
 def normalize_year_fragments(
