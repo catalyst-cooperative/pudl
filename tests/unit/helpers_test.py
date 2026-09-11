@@ -1737,3 +1737,35 @@ def test_persist_table_as_parquet_native_writer_rejects_enum_relation(
             table_name="_test__duckdb_native_writer_enum",
             use_native_duckdb_writer=True,
         )
+
+
+def test_persist_table_as_parquet_native_writer_allow_enum_columns_flattens_to_string(
+    tmp_path, monkeypatch
+):
+    """``allow_enum_columns=True`` should skip the guard and flatten ENUM to string.
+
+    Intended for forensic/debugging outputs (e.g. FERC EQR's extract-errors table)
+    that aren't held to the distributed tables' cross-backend-Categorical
+    consistency expectation.
+    """
+    monkeypatch.setenv("PUDL_OUTPUT", str(tmp_path / "output"))
+    monkeypatch.setenv("PUDL_INPUT", str(tmp_path / "input"))
+
+    con = duckdb.connect()
+    con.execute("CREATE TYPE test_enum AS ENUM ('a', 'b')")
+    con.execute("CREATE TABLE t (code test_enum, value INTEGER)")
+    con.execute("INSERT INTO t VALUES ('a', 1), ('b', 2)")
+    rel = con.table("t")
+
+    parquet_data = persist_table_as_parquet(
+        rel,
+        table_name="_test__duckdb_native_writer_enum_allowed",
+        use_native_duckdb_writer=True,
+        allow_enum_columns=True,
+    )
+
+    schema = pq.read_schema(parquet_data.parquet_path)
+    assert not pa.types.is_dictionary(schema.field("code").type)
+
+    pandas_result = pd.read_parquet(parquet_data.parquet_path)
+    assert pandas_result["code"].tolist() == ["a", "b"]

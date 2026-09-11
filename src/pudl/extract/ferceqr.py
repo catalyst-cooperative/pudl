@@ -138,6 +138,7 @@ def _extract_ident(
         csv_rel.select(f"*, '{year_quarter}' AS year_quarter"),
         table_name=_get_table_name("ident", year_quarter),
         partitions={"filing": filing_name},
+        use_native_duckdb_writer=True,
     )
     return cid
 
@@ -167,6 +168,7 @@ def _extract_other_table(
         ),
         table_name=_get_table_name(table_type, year_quarter),
         partitions={"filing": filing_name},
+        use_native_duckdb_writer=True,
     )
 
 
@@ -361,6 +363,10 @@ def _save_extract_errors(
     ``raw_ferceqr__extract_errors`` table. ``extract_ferceqr`` builds its own
     :class:`~pudl.helpers.ParquetData` pointing at this same table/quarter after
     calling this function, the same way it does for the other four raw tables.
+
+    ``reject_errors.error_type`` is always a genuine DuckDB-internal ENUM (see
+    ``_get_rejected_record_counts``), so this uses ``allow_enum_columns=True`` to
+    write with the fast native writer.
     """
     persist_table_as_parquet(
         duckdb_connection.table("reject_errors")
@@ -373,6 +379,8 @@ def _save_extract_errors(
         ),
         table_name="raw_ferceqr__extract_errors",
         partitions={"year_quarter": year_quarter},
+        use_native_duckdb_writer=True,
+        allow_enum_columns=True,
     )
 
 
