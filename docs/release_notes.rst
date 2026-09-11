@@ -159,14 +159,13 @@ Bug Fixes & Data Cleaning
   :pr:`5458`.
 * Fixed ``allocate_gen_fuel.py`` silently dropping legitimate generation and fuel
   data for generators transitioning between ``proposed``/``existing`` or
-  ``existing``/``retired`` status across a multi-year ETL run, and unified the
-  previously drifted-apart retiring/proposed logic into shared helpers. Fixing this
-  surfaced a related gap, also fixed here, where one generator's status transition could
-  silently block an unrelated group of generators at the same plant from being rescued.
-  Both are now covered by a systematic sweep of unit tests, plus new dbt data quality
-  tests on how much reported generation and fuel survives allocation. to
-  :user:`grgmiller` for surfacing and starting this fix. See :issue:`5440` and PRs
-  :pr:`5419,5511`.
+  ``existing``/``retired`` status across a multi-year ETL run. Unified the slightly
+  different logics of these transitions into a single, shared, symmetric process. This
+  simplification exposed a bug in which one generator's status transition could silently
+  prevent data from another group of generators at the same plant from being allocated.
+  Added extensive unit tests an new dbt data quality tests validating that >=99.7% of
+  all reported generation and fuel survives allocation. Thanks to :user:`grgmiller` for
+  surfacing and starting this fix. See :issue:`5440` and PRs :pr:`5419,5511`.
 * Fixed several sources of non-deterministic row counts, where identical code and data
   produced different results on different machines (e.g. local macOS vs. nightly Linux
   builds) because several functions resolved ties among candidate values using
