@@ -922,7 +922,7 @@ SOURCES: dict[str, Any] = {
         },
         "working_partitions": {
             "years": list(
-                range(2021, 2025)
+                range(2021, 2026)
             ),  # see issue #3576 for why 2019 and 2020 are not working
         },
         "contributors": [
