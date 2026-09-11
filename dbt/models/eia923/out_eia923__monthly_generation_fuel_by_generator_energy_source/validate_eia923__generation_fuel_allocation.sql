@@ -1,20 +1,15 @@
 {#-
-    Compares the original, plant-level generation_fuel table (more complete but
-    less granular) against the fully allocated generator-level output, at
-    plant-year grain, so we can check how much of the original data was retained
-    by the allocation process.
+    Compares original, plant-level generation_fuel table (more complete but
+    less granular) against the fully allocated generator-level output per
+    plant-year to check how close the allocated totals are to the originals.
 
-    Two categories of report_year are excluded here, for every downstream test:
+    Two categories of report_year are excluded:
 
     * report_years for which the allocation process has not produced any output at
-      all (e.g. the most recent, still-in-progress report_year), since that's a
-      structural side effect of the ETL/allocation timing rather than an
-      allocation quality problem, and would otherwise permanently drag down every
-      downstream check regardless of how well the allocation is working.
-    * 2001 and 2002, a known, systemic early-data-quality era -- essentially every
-      plant in those two years retains only ~80-83% of its data, orders of
-      magnitude worse than every other year (which are all >99.7%). That's a
-      different phenomenon than what these tests are meant to monitor.
+      all (e.g. the most recent, still-in-progress report_year).
+    * 2001 and 2002, due to data quality issues. Plants typically retain only
+      ~80-83% of their generation / fuel in these years, while for every other
+      year it's >99.7%.
 -#}
 {% set metrics = ["net_generation_mwh", "fuel_consumed_mmbtu", "fuel_consumed_for_electricity_mmbtu"] %}
 
@@ -40,12 +35,6 @@ allocated as (
     group by report_year, plant_id_eia
 ),
 
--- report_years present in the original data but entirely absent from the
--- allocated output (e.g. the latest, still year-to-date report_year, which the
--- allocation process doesn't yet cover). A report_year with zero allocated rows
--- never appears as a group in `allocated` at all, so this has to be a set
--- difference on the distinct report_years themselves, not a null-sum check
--- within `allocated` -- there's no row there to be null in the first place.
 unallocated_report_years as (
     select distinct report_year from original
     except
