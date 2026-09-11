@@ -24613,7 +24613,7 @@ Hourly time series of estimated county-averaged capacity factors for wind and so
 
 
 Most-recent data:
-  2023
+  2024
 
 
 Processing:

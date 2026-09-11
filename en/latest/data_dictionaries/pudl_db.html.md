@@ -13419,7 +13419,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Hourly time series of estimated county-averaged capacity factors for wind and solar generating facilities across the contiguous United States (US), to be used as a tool and input for resource adequacy modeling and planning.
 
 Most-recent data:
-: 2023
+: 2024
 
 Processing:
 : Data is ready for use in analyses, but for practical reasons has not been denormalized and remains in narrow format.
