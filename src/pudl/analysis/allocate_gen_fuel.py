@@ -833,25 +833,23 @@ def remove_inactive_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     built from shared logic (:func:`_identify_transitioning_generators` and
     :func:`_identify_entirely_transitioned_groups`):
 
-        * ``retiring_generators``: generators that retire mid-year, or report data
-          on or after their retirement date despite being labeled "retired" for the
-          whole year.
-        * ``retired_pm_esc_groups``: entire prime_mover/energy_source_code groups that
-          supposedly retired prior to the current year but which report data. A
-          different group at the same plant with a different (or mixed, or
-          mid-year-transitioning) status doesn't disqualify this one, since gf-table
-          data is reported at PM/ESC granularity and so can never be ambiguous across
-          groups. If a group has a mix of gens which are existing and retired, they are
-          not included in this category.
-        * ``newly_operating_generators``: generators that become operational mid-year,
-          or report data before their operating date despite being labeled
-          "proposed" for the whole year, or which start reporting non-zero data
-          despite having no known operating date yet.
-        * ``proposed_pm_esc_groups``: entire prime_mover/energy_source_code groups that
-          have a ``proposed`` status but which start reporting data before their
-          operating date, scoped per PM/ESC group for the same reason as
-          ``retired_pm_esc_groups`` above. If a group has a mix of gens which are
-          existing and proposed, they are not included in this category.
+    * ``retiring_generators``: generators that retire mid-year, or report data on or
+      after their retirement date despite being labeled "retired" for the whole year.
+    * ``retired_pm_esc_groups``: entire prime_mover/energy_source_code groups that
+      supposedly retired prior to the current year but which report data. A different
+      group at the same plant with a different (or mixed, or mid-year-transitioning)
+      status doesn't disqualify this one, since gf-table data is reported at PM/ESC
+      granularity and so can never be ambiguous across groups. If a group has a mix of
+      gens which are existing and retired, they are not included in this category.
+    * ``newly_operating_generators``: generators that become operational mid-year, or
+      report data before their operating date despite being labeled "proposed" for the
+      whole year, or which start reporting non-zero data despite having no known
+      operating date yet.
+    * ``proposed_pm_esc_groups``: entire prime_mover/energy_source_code groups that
+      have a ``proposed`` status but which start reporting data before their operating
+      date, scoped per PM/ESC group for the same reason as ``retired_pm_esc_groups``
+      above. If a group has a mix of gens which are existing and proposed, they are not
+      included in this category.
 
     When we do not have generator-specific generation for a proposed/retired generator
     that is not newly operating/retiring mid-year, we can also look at whether there is
@@ -1095,7 +1093,7 @@ def _identify_entirely_transitioned_groups(
     * every generator reported for that PM/ESC-group-year shares ``operational_status``
       (no mixed status);
     * none of those generators' transition-date column falls within the report_year
-    (mid-year transitions are handled by :func:`_identify_transitioning_generators`).
+      (mid-year transitions are handled by :func:`_identify_transitioning_generators`).
 
     The final output is filtered to months with non-null generation fuel table
     generation, since there's nothing to allocate in months where nothing was reported.
