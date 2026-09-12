@@ -5,6 +5,7 @@ import pandas as pd
 from dagster import asset, asset_check
 
 import pudl.logging_helpers
+from pudl.dagster.op_tags import COLD_PATH_OP_TAGS
 from pudl.helpers import (
     standardize_na_values,
     standardize_phone_column,
@@ -21,6 +22,7 @@ from pudl.metadata.enums import (
 from pudl.metadata.patterns import INSTALL_DECADE_PHMSAGAS
 
 logger = pudl.logging_helpers.get_logger(__name__)
+
 
 ##############################################################################
 # Constants required for transforming PHMSAGAS
@@ -282,7 +284,7 @@ def backfill_zero_operator_id_phmsa(df: pd.DataFrame) -> pd.DataFrame:
     return filled_in
 
 
-@asset
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_phmsagas__yearly_distribution(
     raw_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -392,7 +394,9 @@ def _check_and_drop_log_if_always_in_report_id(df):
     return df
 
 
-@asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
+@asset(
+    io_manager_key="pudl_io_manager", compute_kind="pandas", op_tags=COLD_PATH_OP_TAGS
+)
 def _core_phmsagas__yearly_distribution_filings(
     _core_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -424,7 +428,9 @@ def _core_phmsagas__yearly_distribution_filings(
     return df
 
 
-@asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
+@asset(
+    io_manager_key="pudl_io_manager", compute_kind="pandas", op_tags=COLD_PATH_OP_TAGS
+)
 def core_phmsagas__yearly_distribution_operators(
     _core_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -502,7 +508,9 @@ def core_phmsagas__yearly_distribution_operators(
     return df
 
 
-@asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
+@asset(
+    io_manager_key="pudl_io_manager", compute_kind="pandas", op_tags=COLD_PATH_OP_TAGS
+)
 def _core_phmsagas__yearly_distribution_by_material(
     _core_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -519,7 +527,9 @@ def _core_phmsagas__yearly_distribution_by_material(
     )
 
 
-@asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
+@asset(
+    io_manager_key="pudl_io_manager", compute_kind="pandas", op_tags=COLD_PATH_OP_TAGS
+)
 def _core_phmsagas__yearly_distribution_by_material_and_size(
     _core_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -579,7 +589,9 @@ def _core_phmsagas__yearly_distribution_by_material_and_size(
     return df
 
 
-@asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
+@asset(
+    io_manager_key="pudl_io_manager", compute_kind="pandas", op_tags=COLD_PATH_OP_TAGS
+)
 def _core_phmsagas__yearly_distribution_leaks(
     _core_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -598,7 +610,9 @@ def _core_phmsagas__yearly_distribution_leaks(
     ).rename(columns={"mains_miles": "mains"})
 
 
-@asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
+@asset(
+    io_manager_key="pudl_io_manager", compute_kind="pandas", op_tags=COLD_PATH_OP_TAGS
+)
 def _core_phmsagas__yearly_distribution_excavation_damages(
     _core_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -618,7 +632,9 @@ def _core_phmsagas__yearly_distribution_excavation_damages(
     ).reset_index()
 
 
-@asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
+@asset(
+    io_manager_key="pudl_io_manager", compute_kind="pandas", op_tags=COLD_PATH_OP_TAGS
+)
 def _core_phmsagas__yearly_distribution_misc(
     _core_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -683,7 +699,9 @@ def _assert_install_decade_totals_match_expected(df: pd.DataFrame) -> None:
         )
 
 
-@asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
+@asset(
+    io_manager_key="pudl_io_manager", compute_kind="pandas", op_tags=COLD_PATH_OP_TAGS
+)
 def core_phmsagas__yearly_distribution_by_install_decade(
     _core_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:

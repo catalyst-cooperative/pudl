@@ -10,6 +10,7 @@ import dagster as dg
 import pudl.extract.eiaapi
 import pudl.logging_helpers
 import pudl.transform.eiaapi
+from pudl.dagster.op_tags import HOT_PATH_OP_TAGS
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -17,6 +18,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
 @dg.asset(
     io_manager_key="pudl_io_manager",
     required_resource_keys={"datastore"},
+    op_tags=HOT_PATH_OP_TAGS,
 )
 def core_eia__yearly_fuel_receipts_costs_aggs(context):
     """Extract and transform EIA API electricity aggregates.

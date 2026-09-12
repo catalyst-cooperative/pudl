@@ -16,6 +16,8 @@ import numpy as np
 import pandas as pd
 from dagster import AssetCheckResult, AssetChecksDefinition, asset, asset_check
 
+from pudl.dagster.op_tags import COLD_PATH_OP_TAGS
+
 
 def __sanitize_string(series: pd.Series) -> pd.Series:
     return (
@@ -204,7 +206,7 @@ def unstack(df: pd.DataFrame, eventual_pk: list[str]):
     return unstacked
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="pudl_io_manager", op_tags=COLD_PATH_OP_TAGS)
 def core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology(
     raw_eiaaeo__electric_power_projections_regional,
 ):
@@ -362,7 +364,7 @@ def core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology(
     return renamed_for_pudl
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="pudl_io_manager", op_tags=COLD_PATH_OP_TAGS)
 def core_eiaaeo__yearly_projected_electric_sales(
     raw_eiaaeo__electric_power_projections_regional,
 ):
@@ -431,7 +433,7 @@ def core_eiaaeo__yearly_projected_electric_sales(
     return renamed_for_pudl
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="pudl_io_manager", op_tags=COLD_PATH_OP_TAGS)
 def core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type(
     raw_eiaaeo__electric_power_projections_regional,
 ):
@@ -515,7 +517,7 @@ def core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type(
     return renamed_for_pudl
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="pudl_io_manager", op_tags=COLD_PATH_OP_TAGS)
 def core_eiaaeo__yearly_projected_energy_use_by_sector_and_type(
     raw_eiaaeo__energy_consumption_by_sector_and_source,
 ):
@@ -623,7 +625,7 @@ def core_eiaaeo__yearly_projected_energy_use_by_sector_and_type(
     return renamed_for_pudl
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="pudl_io_manager", op_tags=COLD_PATH_OP_TAGS)
 def core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type(
     raw_eiaaeo__electric_power_projections_regional,
 ):

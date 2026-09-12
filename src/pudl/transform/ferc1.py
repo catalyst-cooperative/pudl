@@ -29,7 +29,12 @@ from pydantic import BaseModel, Field, field_validator
 import pudl.helpers
 import pudl.logging_helpers
 import pudl.metadata.classes
-from pudl.extract.ferc1 import TABLE_NAME_MAP_FERC1
+from pudl.dagster.op_tags import HOT_PATH_OP_TAGS
+from pudl.extract.ferc1 import (
+    FERC1_DBF_SQLITE_ASSET_KEY,
+    FERC1_XBRL_SQLITE_ASSET_KEY,
+    TABLE_NAME_MAP_FERC1,
+)
 from pudl.helpers import (
     assert_cols_areclose,
     convert_cols_dtypes,
@@ -56,7 +61,7 @@ from pudl.workspace.setup import PudlPaths
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-@asset
+@asset(op_tags=HOT_PATH_OP_TAGS)
 def _core_ferc1_xbrl__metadata_json(
     raw_ferc1_xbrl__metadata_json: dict[str, dict[str, list[dict[str, Any]]]],
 ) -> dict[str, dict[str, list[dict[str, Any]]]]:
@@ -6689,6 +6694,12 @@ def ferc1_transform_asset_factory(
     @asset(
         name=table_name,
         ins=ins,
+        # The raw_ferc1_{dbf,xbrl}__* inputs are unexecutable AssetSpecs, so the
+        # dependency on the SQLite DBs they are read from is not enforced at
+        # execution-plan time. Depend on them explicitly so this asset waits for the
+        # DBF and XBRL conversions to finish. Unconfigured forms materialize their
+        # __sqlite asset as a near-instant no-op, so depending on both is safe.
+        deps=[FERC1_DBF_SQLITE_ASSET_KEY, FERC1_XBRL_SQLITE_ASSET_KEY],
         required_resource_keys={"pudl_paths"},
         io_manager_key=io_manager_key,
         op_tags=op_tags or {},
@@ -6748,9 +6759,7 @@ def create_ferc1_transform_assets() -> list[AssetsDefinition]:
     """
     assets = []
     for table_name, tfr_class in FERC1_TFR_CLASSES.items():
-        op_tags = (
-            {"dagster/priority": 10} if table_name in _FERC1_PLANT_TABLES else None
-        )
+        op_tags = HOT_PATH_OP_TAGS if table_name in _FERC1_PLANT_TABLES else None
         assets.append(
             ferc1_transform_asset_factory(table_name, tfr_class, op_tags=op_tags)
         )

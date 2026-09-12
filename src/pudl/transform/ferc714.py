@@ -21,7 +21,11 @@ import pandas as pd
 from dagster import AssetIn, asset
 
 import pudl.logging_helpers
-from pudl.extract.ferc714 import TABLE_NAME_MAP_FERC714
+from pudl.dagster.op_tags import HOT_PATH_OP_TAGS
+from pudl.extract.ferc714 import (
+    FERC714_XBRL_SQLITE_ASSET_KEY,
+    TABLE_NAME_MAP_FERC714,
+)
 from pudl.settings import Ferc714DataConfig
 from pudl.transform.classes import (
     RenameColumns,
@@ -697,6 +701,10 @@ class RespondentId:
             key="raw_ferc714_xbrl__identification_and_certification_01_1_duration"
         ),
     },
+    # The raw_ferc714_xbrl__* inputs are unexecutable AssetSpecs, so the dependency
+    # on the SQLite DB they are read from is not enforced at execution-plan time.
+    # Depend on it explicitly so this asset waits for the conversion to finish.
+    deps=[FERC714_XBRL_SQLITE_ASSET_KEY],
     required_resource_keys={"pudl_paths"},
     compute_kind="pandas",
 )
@@ -1154,9 +1162,11 @@ class HourlyPlanningAreaDemand:
             key="raw_ferc714_xbrl__planning_area_hourly_demand_and_forecast_summer_and_winter_peak_demand_and_annual_net_energy_for_load_03_2_instant"
         ),
     },
+    # See core_ferc714__respondent_id: force ordering after the XBRL SQLite conversion.
+    deps=[FERC714_XBRL_SQLITE_ASSET_KEY],
     required_resource_keys={"pudl_paths"},
     io_manager_key="parquet_io_manager",
-    op_tags={"memory-use": "high"},
+    op_tags={"memory-use": "high"} | HOT_PATH_OP_TAGS,
     compute_kind="pandas",
 )
 def core_ferc714__hourly_planning_area_demand(
@@ -1390,6 +1400,8 @@ class YearlyPlanningAreaDemandForecast:
             key="raw_ferc714_xbrl__planning_area_hourly_demand_and_forecast_summer_and_winter_peak_demand_and_annual_net_energy_for_load_table_03_2_duration"
         ),
     },
+    # See core_ferc714__respondent_id: force ordering after the XBRL SQLite conversion.
+    deps=[FERC714_XBRL_SQLITE_ASSET_KEY],
     required_resource_keys={"pudl_paths"},
     io_manager_key="pudl_io_manager",
     compute_kind="pandas",

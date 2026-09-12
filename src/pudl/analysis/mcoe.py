@@ -15,6 +15,7 @@ from dagster import (
 )
 
 import pudl.helpers
+from pudl.dagster.op_tags import HOT_PATH_OP_TAGS
 from pudl.metadata.dtypes import apply_pudl_dtypes
 from pudl.validate import quality as pv
 
@@ -236,16 +237,12 @@ def mcoe_asset_factory(
     ]
 
 
+# Both the yearly and monthly MCOE chains feed runtime-determining assets
+# (out_eia__monthly_generators and out_pudl__yearly_assn_eia_ferc1_plant_parts).
 mcoe_assets = [
     mcoe_asset
-    for freq, op_tags in [
-        ("YS", {}),
-        ("MS", {"dagster/priority": 10}),
-    ]
-    for mcoe_asset in mcoe_asset_factory(
-        freq=freq,
-        op_tags=op_tags,
-    )
+    for freq in ("YS", "MS")
+    for mcoe_asset in mcoe_asset_factory(freq=freq, op_tags=HOT_PATH_OP_TAGS)
 ]
 
 

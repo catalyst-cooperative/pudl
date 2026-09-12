@@ -5,6 +5,7 @@ from dagster import AssetIn, AssetOut, Output, asset, multi_asset
 
 import pudl.transform.rus as rus
 from pudl import logging_helpers
+from pudl.dagster.op_tags import COLD_PATH_OP_TAGS
 from pudl.helpers import cleanstrings_snake, make_changelog, multi_index_stack
 from pudl.metadata.enums import (
     DEPRECIATION_CHANGES_GROUP_RUS12,
@@ -19,7 +20,7 @@ from pudl.transform.eia import harvest_entity_tables
 logger = logging_helpers.get_logger(__name__)
 
 
-@asset
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus12__yearly_meeting_and_board(raw_rus12__meeting_and_board):
     """Transform the core_rus12__yearly_meeting_and_board table."""
     df = rus.early_transform(
@@ -37,7 +38,7 @@ def _core_rus12__yearly_meeting_and_board(raw_rus12__meeting_and_board):
     return df
 
 
-@asset
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus12__yearly_balance_sheet_assets(raw_rus12__balance_sheet):
     """Transform the core_rus12__yearly_balance_sheet_assets table."""
     df = rus.early_transform(raw_df=raw_rus12__balance_sheet)
@@ -57,7 +58,7 @@ def _core_rus12__yearly_balance_sheet_assets(raw_rus12__balance_sheet):
     return df
 
 
-@asset
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus12__yearly_balance_sheet_liabilities(raw_rus12__balance_sheet):
     """Transform the core_rus12__yearly_balance_sheet_liabilities table."""
     df = rus.early_transform(raw_df=raw_rus12__balance_sheet)
@@ -77,7 +78,7 @@ def _core_rus12__yearly_balance_sheet_liabilities(raw_rus12__balance_sheet):
     return df
 
 
-@asset
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus12__scd_borrowers(raw_rus12__borrowers):
     """Transform the core_rus12__scd_borrowers table."""
     df = rus.early_transform(raw_df=raw_rus12__borrowers)
@@ -88,7 +89,7 @@ def _core_rus12__scd_borrowers(raw_rus12__borrowers):
     )
 
 
-@asset
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus12__yearly_external_financial_risk_ratio(
     raw_rus12__external_financial_risk_ratio: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -98,7 +99,7 @@ def _core_rus12__yearly_external_financial_risk_ratio(
     return df
 
 
-@asset
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus12__yearly_investments(
     raw_rus12__investments: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -129,7 +130,7 @@ def _core_rus12__yearly_investments(
     return df
 
 
-@asset
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus12__yearly_renewable_plants(raw_rus12__renewable_plants):
     """Transform the core_rus12__yearly_renewable_plants table."""
     df = rus.early_transform(raw_df=raw_rus12__renewable_plants)
@@ -158,14 +159,14 @@ def _core_rus12__yearly_renewable_plants(raw_rus12__renewable_plants):
     return df
 
 
-@asset
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus12__yearly_long_term_debt(raw_rus12__long_term_debt):
     """Transform the core_rus12__yearly_long_term_debt table."""
     # TODO: the debt_description column could potentially get some cleaning.
     return rus.early_transform(raw_df=raw_rus12__long_term_debt)
 
 
-@asset
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus12__yearly_lines_stations_labor_materials_cost(
     raw_rus12__lines_and_stations_labor_materials,
 ):
@@ -195,7 +196,7 @@ def _core_rus12__yearly_lines_stations_labor_materials_cost(
     return df
 
 
-@asset
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus12__yearly_loans(raw_rus12__loans, raw_rus12__loan_guarantees):
     """Transform the raw_rus12__loans and raw_rus12__loan_guarantees tables."""
     df_loans = rus.early_transform(
@@ -214,7 +215,7 @@ def _core_rus12__yearly_loans(raw_rus12__loans, raw_rus12__loan_guarantees):
     return df
 
 
-@asset
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus12__yearly_plant_labor(raw_rus12__plant_labor):
     """Transform the raw_rus12__plant_labor table."""
     df = rus.early_transform(raw_df=raw_rus12__plant_labor)
@@ -235,7 +236,7 @@ def _core_rus12__yearly_plant_labor(raw_rus12__plant_labor):
     return df
 
 
-@asset
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus12__yearly_sources_and_distribution_by_plant_type(
     raw_rus12__sources_and_distribution,
 ):
@@ -273,7 +274,7 @@ def _core_rus12__yearly_sources_and_distribution_by_plant_type(
     return df
 
 
-@asset
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus12__yearly_sources_and_distribution(
     raw_rus12__sources_and_distribution,
 ):
@@ -318,7 +319,7 @@ def _core_rus12__yearly_sources_and_distribution(
     return df
 
 
-@asset
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus12__yearly_statement_of_operations(raw_rus12__statement_of_operations):
     """Transform the raw_rus12__statement_of_operations table.
 
@@ -367,7 +368,7 @@ def _core_rus12__yearly_statement_of_operations(raw_rus12__statement_of_operatio
     return df
 
 
-@asset
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus12__yearly_plant_costs(
     raw_rus12__combined_cycle_plant_costs: pd.DataFrame,
     raw_rus12__hydro_plant_costs: pd.DataFrame,
@@ -488,10 +489,11 @@ def fix_string_unit_id_rus(df):
 
 
 @multi_asset(
+    op_tags=COLD_PATH_OP_TAGS,
     outs={
         "_core_rus12__yearly_plant_operations_by_plant": AssetOut(),
         "_core_rus12__yearly_plant_operations_by_borrower": AssetOut(),
-    }
+    },
 )
 def _core_rus12__yearly_plant_operations(
     raw_rus12__combined_cycle_plant_operations: pd.DataFrame,
@@ -619,7 +621,7 @@ def _core_rus12__yearly_plant_operations(
     )
 
 
-@asset
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus12__monthly_demand_and_energy_at_delivery_points(
     raw_rus12__demand_and_energy_at_delivery_points,
 ) -> pd.DataFrame:
@@ -677,7 +679,7 @@ def _core_rus12__monthly_demand_and_energy_at_delivery_points(
     return df
 
 
-@asset
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus12__monthly_demand_and_energy_at_power_sources(
     raw_rus12__demand_and_energy_at_power_sources,
 ) -> pd.DataFrame:
@@ -740,7 +742,7 @@ def _core_rus12__monthly_demand_and_energy_at_power_sources(
     return df
 
 
-@asset
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus12__yearly_plant_factors_and_maximum_demand(
     raw_rus12__plant_factors_and_maximum_demand,
 ) -> pd.DataFrame:
@@ -799,7 +801,7 @@ def _core_rus12__yearly_plant_factors_and_maximum_demand(
     return backfill_plant_type(df)
 
 
-@asset
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus12__yearly_utility_plant_changes(
     raw_rus12__utility_plant_changes: pd.DataFrame,
 ):
@@ -823,7 +825,7 @@ def _core_rus12__yearly_utility_plant_changes(
     return df
 
 
-@asset
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus12__yearly_non_utility_plant_changes(raw_rus12__non_utility_plant):
     """Transform the non-utility plant changes table."""
     df = rus.early_transform(raw_df=raw_rus12__non_utility_plant)
@@ -848,7 +850,7 @@ def _core_rus12__yearly_non_utility_plant_changes(raw_rus12__non_utility_plant):
     return df
 
 
-@asset
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus12__yearly_depreciation_changes(
     raw_rus12__depreciation: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -882,7 +884,7 @@ def _core_rus12__yearly_depreciation_changes(
     return df
 
 
-@asset
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus12__yearly_depreciation_misc(
     raw_rus12__depreciation: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -911,6 +913,7 @@ _CORE_RUS12_TABLES = [f"_{t}" for t in HARVESTED_CORE_TABLES_RUS12]
 
 
 @multi_asset(
+    op_tags=COLD_PATH_OP_TAGS,
     ins={
         table_name: AssetIn()
         for table_name in ["_core_rus12__scd_borrowers"] + _CORE_RUS12_TABLES

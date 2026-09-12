@@ -456,6 +456,7 @@ metadata_to_rst = "pudl.scripts.metadata_to_rst:main"
 pudl_datastore = "pudl.scripts.pudl_datastore:main"
 pudl_deploy = "pudl.scripts.pudl_deploy:main"
 pudl_check_for_build = "pudl.scripts.pudl_check_for_build:main"
+pudl_dagster_postmortem = "pudl.scripts.pudl_dagster_postmortem:main"
 pudl_service_territories = "pudl.scripts.pudl_service_territories:main"
 dbt_helper = "pudl.scripts.dbt_helper:main"
 dghome = "pudl.scripts.dghome:main"
@@ -468,6 +469,7 @@ zenodo_data_release = "pudl.scripts.zenodo_data_release:main"
 generate_ferc_provenance = "pudl.scripts.generate_ferc_provenance:main"
 batch_config = "pudl.scripts.batch_config:main"
 pyrefly_diff_baseline = "pudl.scripts.pyrefly_diff_baseline:main"
+hot_path = "pudl.scripts.hot_path:main"
 
 [tool.ruff]
 # Configurations that apply to both the `format` and `lint` subcommands.
