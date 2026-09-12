@@ -712,63 +712,8 @@
     },
     {
       "path": "src/pudl/dagster/io_managers.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `PudlPathsResource` has no attribute `parquet_path`"
-    },
-    {
-      "path": "src/pudl/dagster/io_managers.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `dict[str, DataType]` is not assignable to parameter `dtypes` with type `DataType | DataTypeClass | DataTypeExpr | Mapping[DataType | DataTypeClass | Selector | str, DataType | DataTypeClass | type[Decimal | bool | bytes | date | datetime | float | int | list[Any] | object | str | time | timedelta | tuple[Any, ...] | None]] | Schema` in function `polars.lazyframe.frame.LazyFrame.cast`"
-    },
-    {
-      "path": "src/pudl/dagster/io_managers.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `PudlPathsResource` is not assignable to parameter `paths` with type `PudlPaths | None` in function `pudl.helpers.get_parquet_table_polars`"
-    },
-    {
-      "path": "src/pudl/dagster/io_managers.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `PudlPathsResource` is not assignable to parameter `paths` with type `PudlPaths | None` in function `pudl.helpers.get_parquet_table`"
-    },
-    {
-      "path": "src/pudl/dagster/io_managers.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `PudlPathsResource` has no attribute `sqlite_path`"
-    },
-    {
-      "path": "src/pudl/dagster/io_managers.py",
-      "name": "read-only",
-      "concise_description": "Cannot set field `_engine`"
-    },
-    {
-      "path": "src/pudl/dagster/io_managers.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `Engine | None` is not assignable to declared return type `Engine`"
-    },
-    {
-      "path": "src/pudl/dagster/io_managers.py",
-      "name": "read-only",
-      "concise_description": "Cannot set field `_metadata`"
-    },
-    {
-      "path": "src/pudl/dagster/io_managers.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `MetaData | None` is not assignable to declared return type `MetaData`"
-    },
-    {
-      "path": "src/pudl/dagster/io_managers.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `ZenodoDoiSettingsResource` has no attribute `get_doi`"
-    },
-    {
-      "path": "src/pudl/dagster/io_managers.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `GlobalDataConfigResource` has no attribute `ferc_to_sqlite`"
-    },
-    {
-      "path": "src/pudl/dagster/io_managers.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `GlobalDataConfigResource` has no attribute `pudl`"
     },
     {
       "path": "src/pudl/dagster/provenance.py",
@@ -811,11 +756,6 @@
       "concise_description": "Returned type `None` is not assignable to declared return type `FercSqliteProvenanceRecord`"
     },
     {
-      "path": "src/pudl/dagster/resources.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `ZenodoDoiSettingsResource` is not assignable to parameter `zenodo_dois` with type `ZenodoDoiSettings | None` in function `pudl.workspace.datastore.Datastore.__init__`"
-    },
-    {
       "path": "src/pudl/extract/dbf.py",
       "name": "unsupported-operation",
       "concise_description": "Cannot set item in `dict[Any, str]`"
@@ -837,33 +777,13 @@
     },
     {
       "path": "src/pudl/extract/dbf.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `Unknown | None` is not assignable to parameter `dataset` with type `FercForm | str` in function `pudl.settings.FercToSqliteDataConfig.get_data_config`"
-    },
-    {
-      "path": "src/pudl/extract/dbf.py",
       "name": "bad-return",
       "concise_description": "Returned type `FercDbfReader` is not assignable to declared return type `AbstractFercDbfReader`"
     },
     {
       "path": "src/pudl/extract/dbf.py",
       "name": "bad-argument-type",
-      "concise_description": "Argument `Unknown | None` is not assignable to parameter `dataset` with type `str` in function `FercDbfReader.__init__`"
-    },
-    {
-      "path": "src/pudl/extract/dbf.py",
-      "name": "unsupported-operation",
-      "concise_description": "`/` is not supported between `Path` and `None`"
-    },
-    {
-      "path": "src/pudl/extract/dbf.py",
-      "name": "bad-argument-type",
       "concise_description": "Argument `str` is not assignable to parameter `db_path` with type `Path` in function `convert_db_into_parquet`"
-    },
-    {
-      "path": "src/pudl/extract/dbf.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `Unknown | None` is not assignable to parameter `dataset` with type `str` in function `pudl.workspace.datastore.Datastore.get_datapackage_descriptor`"
     },
     {
       "path": "src/pudl/extract/dbf.py",
