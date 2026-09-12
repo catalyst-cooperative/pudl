@@ -1115,7 +1115,7 @@ def _identify_entirely_transitioned_groups(
     """
     group_cols = ["plant_id_eia", "prime_mover_code", "energy_source_code"]
     transition_date_col = _TRANSITION_DATE_COL[operational_status]
-    anomalous_report = operator.gt if operational_status == "retired" else operator.lt
+    has_stale_status = operator.gt if operational_status == "retired" else operator.lt
     gen_assoc = gen_assoc.assign(report_year=lambda x: x.report_date.dt.year)
 
     # Get a list of all of the PM/ESC-group-years with at least one generator reporting
@@ -1140,7 +1140,7 @@ def _identify_entirely_transitioned_groups(
     candidate_group_years = gen_assoc.loc[
         (gen_assoc.operational_status == operational_status)
         & (
-            anomalous_report(gen_assoc.report_date, gen_assoc[transition_date_col])
+            has_stale_status(gen_assoc.report_date, gen_assoc[transition_date_col])
             | gen_assoc[transition_date_col].isnull()
         )
         & (gen_assoc.net_generation_mwh_gf_tbl.notnull())
