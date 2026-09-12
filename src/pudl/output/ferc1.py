@@ -2377,7 +2377,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         # Construct a dataframe that links the leaf node IDs to their root nodes:
         leaves = self.forest_leaves
         roots = self.forest_roots
-        leaf_to_root_map = {
+        leaf_to_root_map: dict[NodeId, NodeId] = {
             leaf: root
             for leaf in leaves
             for root in roots
