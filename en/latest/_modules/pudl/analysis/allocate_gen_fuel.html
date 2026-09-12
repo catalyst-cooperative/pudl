@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.analysis.allocate_gen_fuel &#8212; PUDL 2026.8.1.dev50 documentation</title>
+    <title>pudl.analysis.allocate_gen_fuel &#8212; PUDL 2026.9.1.dev1 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../_static/documentation_options.js?v=449390f7"></script>
+    <script src="../../../_static/documentation_options.js?v=06b47d86"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev50 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev50 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev1 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev1 documentation - Home"/>
   
   
 </a></div>
@@ -932,12 +932,12 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">   granular :ref:`core_eia923__monthly_generation_fuel` table to the</span>
 <span class="sd">   :py:const:`IDX_GENS_PM_ESC` level. More details on the allocation process are below</span>
 <span class="sd">   (see :func:`allocate_gen_fuel_by_gen_esc` and :func:`allocate_fuel_by_gen_esc`).</span>
-<span class="sd">#. **Sanity check allocation**: Verify that the total allocated net generation and fuel</span>
-<span class="sd">   consumption within each plant is equal to the total of the originally reported values</span>
-<span class="sd">   within some tolerance (see :func:`test_original_gf_vs_the_allocated_by_gens_gf`).</span>
-<span class="sd">   Warn if assumptions about the data and the outputs aren't met (see</span>
-<span class="sd">   :func:`warn_if_missing_pms`, :func:`_test_frac`, :func:`test_gen_fuel_allocation` and</span>
-<span class="sd">   :func:`_test_gen_pm_fuel_output`)</span>
+<span class="sd">#. **Sanity check allocation**: Warn if assumptions about the data and the outputs</span>
+<span class="sd">   aren't met (see :func:`_warn_if_missing_pms`, :func:`_test_frac` and</span>
+<span class="sd">   :func:`test_gen_fuel_allocation`). Verifying that the total allocated net generation</span>
+<span class="sd">   and fuel consumption within each plant equals the originally reported values within</span>
+<span class="sd">   tolerance is handled by the ``validate_eia923__generation_fuel_allocation`` dbt</span>
+<span class="sd">   models.</span>
 <span class="sd">#. **Aggregate outputs**: Aggregate the allocated net generation and fuel consumption to</span>
 <span class="sd">   the generator level, going from having primary keys of :py:const:`IDX_GENS_PM_ESC` to</span>
 <span class="sd">   :py:const:`IDX_GENS` (see :func:`aggregate_gen_fuel_by_generator`).</span>
@@ -1005,7 +1005,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">net generation (if it's reported) or capacity (if generation is not reported).</span>
 <span class="sd">"""</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">operator</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
 
 <span class="c1"># Useful high-level external modules.</span>
@@ -1022,6 +1022,12 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/allocate_gen_fuel/index.html#pudl.analysis.allocate_gen_fuel.logger">[docs]</a>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">logging_helpers</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span></div>
 
+
+<div class="viewcode-block" id="AllocationFrequency">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/allocate_gen_fuel/index.html#pudl.analysis.allocate_gen_fuel.AllocationFrequency">[docs]</a>
+<span class="n">AllocationFrequency</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"YS"</span><span class="p">,</span> <span class="s2">"MS"</span><span class="p">]</span></div>
+
+<span class="sd">"""The two frequencies at which generation &amp; fuel data can be allocated."""</span>
 
 <div class="viewcode-block" id="IDX_GENS">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/allocate_gen_fuel/index.html#pudl.analysis.allocate_gen_fuel.IDX_GENS">[docs]</a>
@@ -1106,7 +1112,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="allocate_gen_fuel_asset_factory">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/allocate_gen_fuel/index.html#pudl.analysis.allocate_gen_fuel.allocate_gen_fuel_asset_factory">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">allocate_gen_fuel_asset_factory</span><span class="p">(</span>
-    <span class="n">freq</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"YS"</span><span class="p">,</span> <span class="s2">"MS"</span><span class="p">],</span>
+    <span class="n">freq</span><span class="p">:</span> <span class="n">AllocationFrequency</span><span class="p">,</span>
     <span class="n">io_manager_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">AssetsDefinition</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Build yearly and monthly net generation &amp; fuel consumption allocation assets."""</span>
@@ -1221,11 +1227,16 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<div class="viewcode-block" id="ALLOCATION_FREQUENCIES">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/allocate_gen_fuel/index.html#pudl.analysis.allocate_gen_fuel.ALLOCATION_FREQUENCIES">[docs]</a>
+<span class="n">ALLOCATION_FREQUENCIES</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">AllocationFrequency</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"YS"</span><span class="p">,</span> <span class="s2">"MS"</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="allocate_gen_fuel_assets">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/allocate_gen_fuel/index.html#pudl.analysis.allocate_gen_fuel.allocate_gen_fuel_assets">[docs]</a>
 <span class="n">allocate_gen_fuel_assets</span> <span class="o">=</span> <span class="p">[</span>
     <span class="n">allocated_net_gen_asset</span>
-    <span class="k">for</span> <span class="n">freq</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"YS"</span><span class="p">,</span> <span class="s2">"MS"</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">freq</span> <span class="ow">in</span> <span class="n">ALLOCATION_FREQUENCIES</span>
     <span class="k">for</span> <span class="n">allocated_net_gen_asset</span> <span class="ow">in</span> <span class="n">allocate_gen_fuel_asset_factory</span><span class="p">(</span>
         <span class="n">freq</span><span class="o">=</span><span class="n">freq</span><span class="p">,</span>
         <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">,</span>
@@ -1242,7 +1253,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">gen</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">bga</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">gens</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
-    <span class="n">freq</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"YS"</span><span class="p">,</span> <span class="s2">"MS"</span><span class="p">],</span>
+    <span class="n">freq</span><span class="p">:</span> <span class="n">AllocationFrequency</span><span class="p">,</span>
     <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Allocate net gen from gen_fuel table to the generator/energy_source_code level.</span>
@@ -1285,9 +1296,7 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># to allocate net generation from the gf table for each `IDX_PM_ESC` group</span>
     <span class="n">gen_pm_fuel</span> <span class="o">=</span> <span class="n">prep_allocation_fraction</span><span class="p">(</span><span class="n">gen_assoc</span><span class="p">)</span>
     <span class="c1"># Net gen allocation</span>
-    <span class="n">net_gen_alloc</span> <span class="o">=</span> <span class="n">allocate_gen_fuel_by_gen_esc</span><span class="p">(</span><span class="n">gen_pm_fuel</span><span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
-        <span class="n">_test_gen_pm_fuel_output</span><span class="p">,</span> <span class="n">gf</span><span class="o">=</span><span class="n">gf</span><span class="p">,</span> <span class="n">gen</span><span class="o">=</span><span class="n">gen</span>
-    <span class="p">)</span>
+    <span class="n">net_gen_alloc</span> <span class="o">=</span> <span class="n">allocate_gen_fuel_by_gen_esc</span><span class="p">(</span><span class="n">gen_pm_fuel</span><span class="p">)</span>
     <span class="n">test_gen_fuel_allocation</span><span class="p">(</span><span class="n">gen</span><span class="p">,</span> <span class="n">net_gen_alloc</span><span class="p">)</span>
 
     <span class="c1"># fuel allocation</span>
@@ -1306,16 +1315,9 @@ window.runMermaid = runMermaid;</script>
         <span class="n">validate</span><span class="o">=</span><span class="s2">"1:1"</span><span class="p">,</span>
         <span class="n">suffixes</span><span class="o">=</span><span class="p">(</span><span class="s2">"_net_gen_alloc"</span><span class="p">,</span> <span class="s2">"_fuel_alloc"</span><span class="p">),</span>
     <span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">IDX_GENS_PM_ESC</span><span class="p">)</span>
-    <span class="c1"># When 2020 and 2022 data are used in the fast ETL (2020 data is necessary for</span>
-    <span class="c1"># having ample FERC-EIA training data and 2022 as the new year of data) the ci</span>
-    <span class="c1"># tests fail on exit code 143 for memory reasons while all tests pass locally.</span>
-    <span class="c1"># This function was identified as a large memory suck, therefore this conditional</span>
-    <span class="c1"># prevents the function from running as part of the ci and enables the tests to</span>
-    <span class="c1"># pass.</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"GITHUB_ACTIONS"</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
-        <span class="n">_</span> <span class="o">=</span> <span class="n">test_original_gf_vs_the_allocated_by_gens_gf</span><span class="p">(</span>
-            <span class="n">gf</span><span class="o">=</span><span class="n">gf</span><span class="p">,</span> <span class="n">gf_allocated</span><span class="o">=</span><span class="n">net_gen_fuel_alloc</span>
-        <span class="p">)</span>
+    <span class="c1"># Plant-year reconciliation of the allocated output against the original</span>
+    <span class="c1"># generation_fuel totals is handled by the</span>
+    <span class="c1"># ``validate_eia923__generation_fuel_allocation`` dbt models.</span>
     <span class="c1"># There are a tiny number of records that have NaNs in the prime mover code</span>
     <span class="c1"># and for which the correct prime mover is unclear. Prime mover code is part</span>
     <span class="c1"># of the primary key for this table, so we have to drop them.</span>
@@ -1347,7 +1349,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">gen</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">bga</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">gens</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Select only the subset of input data needed for the allocation.</span>
 
 <span class="sd">    This includes both selecting only a subset of columns from most input tables, and</span>
@@ -1381,11 +1383,12 @@ window.runMermaid = runMermaid;</script>
             <span class="s2">"fuel_type_count"</span><span class="p">,</span>
             <span class="s2">"operational_status"</span><span class="p">,</span>
             <span class="s2">"generator_retirement_date"</span><span class="p">,</span>
+            <span class="s2">"generator_operating_date"</span><span class="p">,</span>
         <span class="p">]</span>
         <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">gens</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">like</span><span class="o">=</span><span class="s2">"energy_source_code"</span><span class="p">))</span>
         <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">gens</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">like</span><span class="o">=</span><span class="s2">"startup_source_code"</span><span class="p">)),</span>
     <span class="p">]</span>
-    <span class="n">warn_if_missing_pms</span><span class="p">(</span><span class="n">gens</span><span class="p">)</span>
+    <span class="n">_warn_if_missing_pms</span><span class="p">(</span><span class="n">gens</span><span class="p">)</span>
     <span class="n">gen</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">gen</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">IDX_GENS</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"net_generation_mwh"</span><span class="p">]]</span>
         <span class="c1"># removes 4 records with NaN generator_id as of pudl v0.5</span>
@@ -1405,8 +1408,8 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="standardize_input_frequency">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/allocate_gen_fuel/index.html#pudl.analysis.allocate_gen_fuel.standardize_input_frequency">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">standardize_input_frequency</span><span class="p">(</span>
-    <span class="n">bf</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">gens</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">gen</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">freq</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"MS"</span><span class="p">,</span> <span class="s2">"MS"</span><span class="p">]</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+    <span class="n">bf</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">gens</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">gen</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">freq</span><span class="p">:</span> <span class="n">AllocationFrequency</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Standardize the frequency of the input tables.</span>
 
 <span class="sd">    Employ :func:`distribute_annually_reported_data_to_months_if_annual` on the boiler</span>
@@ -1454,6 +1457,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">gens_at_freq</span><span class="p">[[</span><span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"generator_id"</span><span class="p">,</span> <span class="s2">"report_date"</span><span class="p">]],</span>
             <span class="n">how</span><span class="o">=</span><span class="s2">"outer"</span><span class="p">,</span>
             <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"generator_id"</span><span class="p">,</span> <span class="s2">"report_date"</span><span class="p">],</span>
+            <span class="n">validate</span><span class="o">=</span><span class="s2">"1:1"</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">bf</span><span class="p">,</span> <span class="n">gens_at_freq</span><span class="p">,</span> <span class="n">gen</span></div>
@@ -1578,7 +1582,11 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># merge the stacked df back onto the gens table</span>
     <span class="c1"># we first drop the cols_to_stack so we don't duplicate data</span>
     <span class="n">gens_stack</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
-        <span class="n">gens</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">esc</span><span class="p">),</span> <span class="n">gens_stack_prep</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="n">IDX_GENS</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">"outer"</span>
+        <span class="n">gens</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">esc</span><span class="p">),</span>
+        <span class="n">gens_stack_prep</span><span class="p">,</span>
+        <span class="n">on</span><span class="o">=</span><span class="n">IDX_GENS</span><span class="p">,</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">"outer"</span><span class="p">,</span>
+        <span class="n">validate</span><span class="o">=</span><span class="s2">"1:m"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">gens_stack</span></div>
 
@@ -1668,6 +1676,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">gen</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">"net_generation_mwh"</span><span class="p">:</span> <span class="s2">"net_generation_mwh_g_tbl"</span><span class="p">}),</span>
             <span class="n">on</span><span class="o">=</span><span class="n">IDX_GENS</span><span class="p">,</span>
             <span class="n">how</span><span class="o">=</span><span class="s2">"outer"</span><span class="p">,</span>
+            <span class="n">validate</span><span class="o">=</span><span class="s2">"m:1"</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">gf</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="n">IDX_PM_ESC</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">"outer"</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="s2">"m:1"</span><span class="p">,</span> <span class="n">indicator</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">remove_inactive_generators</span><span class="p">)</span>
@@ -1709,6 +1718,7 @@ window.runMermaid = runMermaid;</script>
         <span class="o">.</span><span class="n">reset_index</span><span class="p">(),</span>
         <span class="n">on</span><span class="o">=</span><span class="n">IDX_ESC</span><span class="p">,</span>
         <span class="n">how</span><span class="o">=</span><span class="s2">"outer"</span><span class="p">,</span>
+        <span class="n">validate</span><span class="o">=</span><span class="s2">"m:1"</span><span class="p">,</span>
     <span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">field_namespace</span><span class="o">=</span><span class="s2">"eia"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">gen_assoc</span></div>
 
@@ -1716,7 +1726,25 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="_label_gf_unique_to_gen">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/allocate_gen_fuel/index.html#pudl.analysis.allocate_gen_fuel._label_gf_unique_to_gen">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">_label_gf_unique_to_gen</span><span class="p">(</span><span class="n">gen_assoc</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_label_gf_unique_to_gen</span><span class="p">(</span><span class="n">gen_assoc</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Flag rows whose plant/date/PM/ESC combo has only one generator.</span>
+
+<span class="sd">    A gf-table (:ref:`core_eia923__monthly_generation_fuel`) record is reported at</span>
+<span class="sd">    plant/prime-mover/energy-source granularity, not per generator, so a nonzero</span>
+<span class="sd">    value can't always be attributed to a specific generator. When a given</span>
+<span class="sd">    plant/report_date/prime_mover_code/energy_source_code combination is only ever</span>
+<span class="sd">    reported by a single generator, though, any gf-table data for that combination</span>
+<span class="sd">    can only belong to that one generator.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        gen_assoc: table of generators with stacked energy sources and broadcasted</span>
+<span class="sd">            net generation data. Output of :func:`associate_generator_tables`.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ``gen_assoc`` with a new boolean ``gf_unique_to_gen`` column, True for rows</span>
+<span class="sd">        whose plant/report_date/prime_mover_code/energy_source_code combination is</span>
+<span class="sd">        reported by exactly one generator.</span>
+<span class="sd">    """</span>
     <span class="c1"># identify whether a PM/ESC combo is unique to the generator_id at the plant</span>
     <span class="n">gen_assoc</span><span class="p">[</span><span class="s2">"gf_unique_to_gen"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">gen_assoc</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
@@ -1737,59 +1765,68 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    that are retired (or proposed! or any other ``operational_status`` besides</span>
 <span class="sd">    ``existing``). However, we do want to keep the generators that report operational</span>
 <span class="sd">    statuses other than ``existing`` but which report non-zero data despite being</span>
-<span class="sd">    ``retired`` or ``proposed``. This includes several categories of generators/plants:</span>
+<span class="sd">    ``retired`` or ``proposed``. This includes several categories of generators/plants,</span>
+<span class="sd">    which come in mirror-image pairs -- retiring/retired vs. newly operating/proposed --</span>
+<span class="sd">    built from shared logic (:func:`_identify_transitioning_generators` and</span>
+<span class="sd">    :func:`_identify_entirely_transitioned_groups`):</span>
 
-<span class="sd">        * ``retiring_generators``: generators that retire mid-year or report data after</span>
-<span class="sd">          retiring.</span>
-<span class="sd">        * ``retired_plants``: entire plants that supposedly retired prior to</span>
-<span class="sd">          the current year but which report data. If a plant has a mix of gens</span>
-<span class="sd">          which are existing and retired, they are not included in this category.</span>
-<span class="sd">        * ``proposed_generators``: generators that become operational mid-year,</span>
-<span class="sd">          or which are marked as ``proposed`` but start reporting non-zero data</span>
-<span class="sd">        * ``proposed_plants``: entire plants that have a ``proposed`` status but</span>
-<span class="sd">          which start reporting data. If a plant has a mix of gens which are</span>
-<span class="sd">          existing and proposed, they are not included in this category.</span>
+<span class="sd">    * ``retiring_generators``: generators that retire mid-year, or report data on or</span>
+<span class="sd">      after their retirement date despite being labeled "retired" for the whole year.</span>
+<span class="sd">    * ``retired_pm_esc_groups``: entire prime_mover/energy_source_code groups that</span>
+<span class="sd">      supposedly retired prior to the current year but which report data. A different</span>
+<span class="sd">      group at the same plant with a different (or mixed, or mid-year-transitioning)</span>
+<span class="sd">      status doesn't disqualify this one, since gf-table data is reported at PM/ESC</span>
+<span class="sd">      granularity and so can never be ambiguous across groups. If a group has a mix of</span>
+<span class="sd">      gens which are existing and retired, they are not included in this category.</span>
+<span class="sd">    * ``newly_operating_generators``: generators that become operational mid-year, or</span>
+<span class="sd">      report data before their operating date despite being labeled "proposed" for the</span>
+<span class="sd">      whole year, or which start reporting non-zero data despite having no known</span>
+<span class="sd">      operating date yet.</span>
+<span class="sd">    * ``proposed_pm_esc_groups``: entire prime_mover/energy_source_code groups that</span>
+<span class="sd">      have a ``proposed`` status but which start reporting data before their operating</span>
+<span class="sd">      date, scoped per PM/ESC group for the same reason as ``retired_pm_esc_groups``</span>
+<span class="sd">      above. If a group has a mix of gens which are existing and proposed, they are not</span>
+<span class="sd">      included in this category.</span>
 
-<span class="sd">    When we do not have generator-specific generation for a proposed/retired</span>
-<span class="sd">    generator that is not coming online/retiring mid-year, we can also look</span>
-<span class="sd">    at whether there is generation reported for this generator in the gf table.</span>
-<span class="sd">    However, if a proposed/retired generator is part of an existing plant, it</span>
-<span class="sd">    is possible that the reported generation from the gf table belongs to one</span>
-<span class="sd">    of the other existing generators. Thus, we want to only keep proposed/retired</span>
-<span class="sd">    generators where the entire plant is proposed/retired (in which case the gf-</span>
+<span class="sd">    When we do not have generator-specific generation for a proposed/retired generator</span>
+<span class="sd">    that is not newly operating/retiring mid-year, we can also look at whether there is</span>
+<span class="sd">    generation reported for this generator in the gf table. However, if a</span>
+<span class="sd">    proposed/retired generator shares its prime_mover/energy_source_code group with an</span>
+<span class="sd">    existing generator, it is possible that the reported generation from the gf table</span>
+<span class="sd">    belongs to that other generator instead. Thus, we want to only keep proposed/retired</span>
+<span class="sd">    generators where the entire PM/ESC group is proposed/retired (in which case the gf-</span>
 <span class="sd">    reported generation could only come from one of the new/retired generators). If the</span>
-<span class="sd">    reported gf data is for a prime_mover / energy_source_code combo that is unique</span>
-<span class="sd">    to the retiring/proposed generator, we can identify it at the generator level.</span>
+<span class="sd">    reported gf data is for a prime_mover / energy_source_code combo that is unique to</span>
+<span class="sd">    the retiring/newly-operating generator, we can identify it at the generator level.</span>
 
 <span class="sd">    We also want to keep unassociated plants that have no ``generator_id`` which will</span>
 <span class="sd">    be associated via :func:`_allocate_unassociated_records`.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        gen_assoc: table of generators with stacked energy sources and broadcasted net</span>
-<span class="sd">            generation data from the core_eia923__monthly_generation and core_eia923__monthly_generation_fuel</span>
-<span class="sd">            tables. Output of :func:`associate_generator_tables`.</span>
+<span class="sd">            generation data from the core_eia923__monthly_generation and</span>
+<span class="sd">            core_eia923__monthly_generation_fuel tables. Output of</span>
+<span class="sd">            :func:`associate_generator_tables`.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ``gen_assoc`` filtered down to existing generators, unassociated plants, and</span>
+<span class="sd">        the retiring/retired/newly-operating/proposed categories described above.</span>
 <span class="sd">    """</span>
     <span class="n">gen_assoc</span> <span class="o">=</span> <span class="n">_label_gf_unique_to_gen</span><span class="p">(</span><span class="n">gen_assoc</span><span class="p">)</span>
-
     <span class="n">existing</span> <span class="o">=</span> <span class="n">gen_assoc</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">gen_assoc</span><span class="o">.</span><span class="n">operational_status</span> <span class="o">==</span> <span class="s2">"existing"</span><span class="p">)]</span>
-
     <span class="n">retiring_generators</span> <span class="o">=</span> <span class="n">identify_retiring_generators</span><span class="p">(</span><span class="n">gen_assoc</span><span class="p">)</span>
-
-    <span class="n">retired_plants</span> <span class="o">=</span> <span class="n">identify_retired_plants</span><span class="p">(</span><span class="n">gen_assoc</span><span class="p">)</span>
-
-    <span class="n">proposed_generators</span> <span class="o">=</span> <span class="n">identify_generators_coming_online</span><span class="p">(</span><span class="n">gen_assoc</span><span class="p">)</span>
-
-    <span class="n">proposed_plants</span> <span class="o">=</span> <span class="n">identify_proposed_plants</span><span class="p">(</span><span class="n">gen_assoc</span><span class="p">)</span>
-
+    <span class="n">retired_pm_esc_groups</span> <span class="o">=</span> <span class="n">identify_retired_groups</span><span class="p">(</span><span class="n">gen_assoc</span><span class="p">)</span>
+    <span class="n">newly_operating_generators</span> <span class="o">=</span> <span class="n">identify_newly_operating_generators</span><span class="p">(</span><span class="n">gen_assoc</span><span class="p">)</span>
+    <span class="n">proposed_pm_esc_groups</span> <span class="o">=</span> <span class="n">identify_proposed_groups</span><span class="p">(</span><span class="n">gen_assoc</span><span class="p">)</span>
     <span class="n">unassociated_plants</span> <span class="o">=</span> <span class="n">gen_assoc</span><span class="p">[</span><span class="n">gen_assoc</span><span class="o">.</span><span class="n">generator_id</span><span class="o">.</span><span class="n">isnull</span><span class="p">()]</span>
 
     <span class="n">gen_assoc_removed</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
         <span class="p">[</span>
             <span class="n">existing</span><span class="p">,</span>
             <span class="n">retiring_generators</span><span class="p">,</span>
-            <span class="n">retired_plants</span><span class="p">,</span>
-            <span class="n">proposed_generators</span><span class="p">,</span>
-            <span class="n">proposed_plants</span><span class="p">,</span>
+            <span class="n">retired_pm_esc_groups</span><span class="p">,</span>
+            <span class="n">newly_operating_generators</span><span class="p">,</span>
+            <span class="n">proposed_pm_esc_groups</span><span class="p">,</span>
             <span class="n">unassociated_plants</span><span class="p">,</span>
         <span class="p">]</span>
     <span class="p">)</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">keep</span><span class="o">=</span><span class="s2">"first"</span><span class="p">)</span>
@@ -1798,27 +1835,72 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<div class="viewcode-block" id="identify_retiring_generators">
-<a class="viewcode-back" href="../../../autoapi/pudl/analysis/allocate_gen_fuel/index.html#pudl.analysis.allocate_gen_fuel.identify_retiring_generators">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">identify_retiring_generators</span><span class="p">(</span><span class="n">gen_assoc</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Identify any generators that retire mid-year.</span>
+<div class="viewcode-block" id="_TRANSITION_DATE_COL">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/allocate_gen_fuel/index.html#pudl.analysis.allocate_gen_fuel._TRANSITION_DATE_COL">[docs]</a>
+<span class="n">_TRANSITION_DATE_COL</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">"retired"</span><span class="p">,</span> <span class="s2">"proposed"</span><span class="p">],</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"retired"</span><span class="p">:</span> <span class="s2">"generator_retirement_date"</span><span class="p">,</span>
+    <span class="s2">"proposed"</span><span class="p">:</span> <span class="s2">"generator_operating_date"</span><span class="p">,</span>
+<span class="p">}</span></div>
 
-<span class="sd">    These are "retired" generators that either:</span>
+<span class="sd">"""The column recording a generator's actual transition date, keyed by ``operational_status``."""</span>
 
-<span class="sd">    A) have a mid-year retirement date, OR</span>
-<span class="sd">    B) report generator-specific generation data in the g table for a month after the</span>
-<span class="sd">       retirement date, OR</span>
-<span class="sd">    C) Have non-zero generation or fuel reported in the gf table for a PM/ESC combo that</span>
-<span class="sd">       is unique to that generator at the plant, for a month after the retirement date.</span>
 
+<div class="viewcode-block" id="_identify_transitioning_generators">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/allocate_gen_fuel/index.html#pudl.analysis.allocate_gen_fuel._identify_transitioning_generators">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_identify_transitioning_generators</span><span class="p">(</span>
+    <span class="n">gen_assoc</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">operational_status</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"retired"</span><span class="p">,</span> <span class="s2">"proposed"</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Identify generators whose annual status is empirically inaccurate.</span>
+
+<span class="sd">    Shared by :func:`identify_retiring_generators` (retiring, keyed on</span>
+<span class="sd">    ``generator_retirement_date``) and :func:`identify_newly_operating_generators`</span>
+<span class="sd">    (newly operating, keyed on ``generator_operating_date``), so the two mirror-image</span>
+<span class="sd">    cases can't silently drift out of sync with each other.</span>
+
+<span class="sd">    A generator qualifies for a given ``report_year`` if ANY of the following hold:</span>
+
+<span class="sd">    A) the transition-date column shows the annual ``operational_status`` label is</span>
+<span class="sd">       stale for at least one month of the year -- e.g. a generator labeled "retired"</span>
+<span class="sd">       for the whole year whose ``report_date &lt;= generator_retirement_date`` (it</span>
+<span class="sd">       hadn't actually retired yet as of that month), or a generator labeled</span>
+<span class="sd">       "proposed" whose ``report_date &gt;= generator_operating_date`` (it had already</span>
+<span class="sd">       started operating as of that month). This check is purely date-based, with no</span>
+<span class="sd">       bound on *how* stale the label is -- a generator whose recorded transition date</span>
+<span class="sd">       is decades in the past, but whose annual status was simply never updated to</span>
+<span class="sd">       match, qualifies here just as readily as one that genuinely transitioned</span>
+<span class="sd">       mid-year, OR</span>
+<span class="sd">    B) it reports generator-specific generation data in the g table, OR</span>
+<span class="sd">    C) it has non-zero generation or fuel reported in the gf table for a PM/ESC combo</span>
+<span class="sd">       that is unique to that generator at the plant.</span>
+
+<span class="sd">    Once a generator qualifies for a report_year, every month of that generator's</span>
+<span class="sd">    data in that report_year is kept, since the annual status label can't be trusted</span>
+<span class="sd">    to isolate exactly which months are the anomalous ones.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        gen_assoc: table of generators with stacked energy sources and broadcasted</span>
+<span class="sd">            net generation data. Output of :func:`associate_generator_tables`.</span>
+<span class="sd">        operational_status: the ``operational_status`` value identifying candidate</span>
+<span class="sd">            generators (``"retired"`` or ``"proposed"``). Determines both the</span>
+<span class="sd">            transition-date column (:data:`_TRANSITION_DATE_COL`) and the comparison</span>
+<span class="sd">            used to detect condition A above (:func:`operator.le` for ``"retired"``,</span>
+<span class="sd">            :func:`operator.ge` for ``"proposed"``).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The subset of ``gen_assoc`` rows belonging to qualifying generators, with</span>
+<span class="sd">        every month of each qualifying generator's data retained for the</span>
+<span class="sd">        report_years it qualified in.</span>
 <span class="sd">    """</span>
+    <span class="n">transition_date_col</span> <span class="o">=</span> <span class="n">_TRANSITION_DATE_COL</span><span class="p">[</span><span class="n">operational_status</span><span class="p">]</span>
+    <span class="n">has_stale_status</span> <span class="o">=</span> <span class="n">operator</span><span class="o">.</span><span class="n">le</span> <span class="k">if</span> <span class="n">operational_status</span> <span class="o">==</span> <span class="s2">"retired"</span> <span class="k">else</span> <span class="n">operator</span><span class="o">.</span><span class="n">ge</span>
     <span class="n">gen_assoc</span> <span class="o">=</span> <span class="n">gen_assoc</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">report_year</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">report_date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="p">)</span>
-    <span class="c1"># identify the complete set of generator ids that are retiring mid year</span>
-    <span class="c1"># or have fuel or generation use while being labeled as retired.</span>
-    <span class="n">retiring_generator_identities</span> <span class="o">=</span> <span class="n">gen_assoc</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-        <span class="p">(</span><span class="n">gen_assoc</span><span class="o">.</span><span class="n">operational_status</span> <span class="o">==</span> <span class="s2">"retired"</span><span class="p">)</span>
+    <span class="c1"># identify the complete set of generator ids that are transitioning mid year</span>
+    <span class="c1"># or have fuel or generation use while being labeled as operational_status.</span>
+    <span class="n">transitioning_generator_ids</span> <span class="o">=</span> <span class="n">gen_assoc</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="p">(</span><span class="n">gen_assoc</span><span class="o">.</span><span class="n">operational_status</span> <span class="o">==</span> <span class="n">operational_status</span><span class="p">)</span>
         <span class="o">&amp;</span> <span class="p">(</span>
-            <span class="p">(</span><span class="n">gen_assoc</span><span class="o">.</span><span class="n">report_date</span> <span class="o">&lt;=</span> <span class="n">gen_assoc</span><span class="o">.</span><span class="n">generator_retirement_date</span><span class="p">)</span>
+            <span class="n">has_stale_status</span><span class="p">(</span><span class="n">gen_assoc</span><span class="o">.</span><span class="n">report_date</span><span class="p">,</span> <span class="n">gen_assoc</span><span class="p">[</span><span class="n">transition_date_col</span><span class="p">])</span>
             <span class="o">|</span> <span class="p">(</span>
                 <span class="n">gen_assoc</span><span class="o">.</span><span class="n">net_generation_mwh_g_tbl</span><span class="o">.</span><span class="n">notnull</span><span class="p">()</span>
                 <span class="o">|</span> <span class="p">(</span>
@@ -1837,151 +1919,299 @@ window.runMermaid = runMermaid;</script>
     <span class="p">]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
 
     <span class="c1"># merge these ids into gen_assoc and keep all months of data for these gens</span>
-    <span class="n">retiring_generators</span> <span class="o">=</span> <span class="n">gen_assoc</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
-        <span class="n">retiring_generator_identities</span><span class="p">,</span>
+    <span class="n">transitioning_generators</span> <span class="o">=</span> <span class="n">gen_assoc</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+        <span class="n">transitioning_generator_ids</span><span class="p">,</span>
         <span class="n">how</span><span class="o">=</span><span class="s2">"inner"</span><span class="p">,</span>
         <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"generator_id"</span><span class="p">,</span> <span class="s2">"report_year"</span><span class="p">],</span>
+        <span class="n">validate</span><span class="o">=</span><span class="s2">"m:1"</span><span class="p">,</span>
     <span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"report_year"</span><span class="p">])</span>
 
-    <span class="k">return</span> <span class="n">retiring_generators</span></div>
+    <span class="k">return</span> <span class="n">transitioning_generators</span></div>
 
 
 
-<div class="viewcode-block" id="identify_retired_plants">
-<a class="viewcode-back" href="../../../autoapi/pudl/analysis/allocate_gen_fuel/index.html#pudl.analysis.allocate_gen_fuel.identify_retired_plants">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">identify_retired_plants</span><span class="p">(</span><span class="n">gen_assoc</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Identify entire plants that have previously retired but are reporting data."""</span>
-    <span class="c1"># get a subset of the data that represents all plants that have completely retired before the start date</span>
-    <span class="c1"># Get a list of all of the plants with at least one retired generator and reports non-zero generation data</span>
-    <span class="c1"># after the generator retirement date</span>
-    <span class="n">retired_generators_with_reported_gf</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
-        <span class="n">gen_assoc</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-            <span class="p">(</span><span class="n">gen_assoc</span><span class="o">.</span><span class="n">operational_status</span> <span class="o">==</span> <span class="s2">"retired"</span><span class="p">)</span>
-            <span class="o">&amp;</span> <span class="p">(</span><span class="n">gen_assoc</span><span class="o">.</span><span class="n">report_date</span> <span class="o">&gt;</span> <span class="n">gen_assoc</span><span class="o">.</span><span class="n">generator_retirement_date</span><span class="p">)</span>
-            <span class="o">&amp;</span> <span class="p">(</span><span class="n">gen_assoc</span><span class="o">.</span><span class="n">net_generation_mwh_gf_tbl</span><span class="o">.</span><span class="n">notnull</span><span class="p">())</span>
-            <span class="o">&amp;</span> <span class="p">(</span><span class="n">gen_assoc</span><span class="o">.</span><span class="n">net_generation_mwh_g_tbl</span><span class="o">.</span><span class="n">isnull</span><span class="p">())</span>
-            <span class="o">&amp;</span> <span class="p">(</span><span class="n">gen_assoc</span><span class="o">.</span><span class="n">net_generation_mwh_gf_tbl</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">),</span>
-            <span class="s2">"plant_id_eia"</span><span class="p">,</span>
-        <span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
-    <span class="p">)</span>
+<div class="viewcode-block" id="identify_retiring_generators">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/allocate_gen_fuel/index.html#pudl.analysis.allocate_gen_fuel.identify_retiring_generators">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">identify_retiring_generators</span><span class="p">(</span><span class="n">gen_assoc</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Identify any generators whose annual "retired" label doesn't match other reporting.</span>
 
-    <span class="c1"># create a table for all of these plants that identifies all of the unique operational statuses</span>
-    <span class="n">plants_with_any_retired_generators</span> <span class="o">=</span> <span class="n">gen_assoc</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-        <span class="n">gen_assoc</span><span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">retired_generators_with_reported_gf</span><span class="p">),</span>
-        <span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"operational_status"</span><span class="p">,</span> <span class="s2">"generator_retirement_date"</span><span class="p">],</span>
-    <span class="p">]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+<span class="sd">    Thin wrapper around :func:`_identify_transitioning_generators` for the</span>
+<span class="sd">    ``"retired"`` direction (keyed on ``generator_retirement_date``). See that</span>
+<span class="sd">    function for the qualifying conditions, the date comparison used, and the</span>
+<span class="sd">    month-retention behavior.</span>
 
-    <span class="c1"># remove plants that have operational statuses other than retired</span>
-    <span class="n">plants_with_both_retired_and_and_existing_generators</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
-        <span class="n">plants_with_any_retired_generators</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-            <span class="p">(</span><span class="n">plants_with_any_retired_generators</span><span class="p">[</span><span class="s2">"operational_status"</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">"retired"</span><span class="p">),</span>
-            <span class="s2">"plant_id_eia"</span><span class="p">,</span>
-        <span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
-    <span class="p">)</span>
-    <span class="n">plants_with_only_retired_generators</span> <span class="o">=</span> <span class="n">plants_with_any_retired_generators</span><span class="p">[</span>
-        <span class="o">~</span><span class="n">plants_with_any_retired_generators</span><span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span>
-            <span class="n">plants_with_both_retired_and_and_existing_generators</span>
-        <span class="p">)</span>
-    <span class="p">]</span>
+<span class="sd">    Args:</span>
+<span class="sd">        gen_assoc: table of generators with stacked energy sources and broadcasted</span>
+<span class="sd">            net generation data. Output of :func:`associate_generator_tables`.</span>
 
-    <span class="c1"># only keep the plants where all retirement dates are before the current year</span>
-    <span class="n">plants_retiring_after_start_date</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
-        <span class="n">plants_with_only_retired_generators</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-            <span class="n">plants_with_only_retired_generators</span><span class="p">[</span><span class="s2">"generator_retirement_date"</span><span class="p">]</span>
-            <span class="o">&gt;=</span> <span class="nb">min</span><span class="p">(</span><span class="n">gen_assoc</span><span class="o">.</span><span class="n">report_date</span><span class="p">),</span>
-            <span class="s2">"plant_id_eia"</span><span class="p">,</span>
-        <span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
-    <span class="p">)</span>
-    <span class="n">entirely_retired_plants</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
-        <span class="n">plants_with_only_retired_generators</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-            <span class="o">~</span><span class="n">plants_with_only_retired_generators</span><span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span>
-                <span class="n">plants_retiring_after_start_date</span>
-            <span class="p">),</span>
-            <span class="s2">"plant_id_eia"</span><span class="p">,</span>
-        <span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
-    <span class="p">)</span>
-
-    <span class="n">retired_plants</span> <span class="o">=</span> <span class="n">gen_assoc</span><span class="p">[</span><span class="n">gen_assoc</span><span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">entirely_retired_plants</span><span class="p">)]</span>
-
-    <span class="k">return</span> <span class="n">retired_plants</span></div>
-
-
-
-<div class="viewcode-block" id="identify_generators_coming_online">
-<a class="viewcode-back" href="../../../autoapi/pudl/analysis/allocate_gen_fuel/index.html#pudl.analysis.allocate_gen_fuel.identify_generators_coming_online">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">identify_generators_coming_online</span><span class="p">(</span><span class="n">gen_assoc</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Identify generators that are coming online mid-year.</span>
-
-<span class="sd">    These are defined as "proposed" generators that either:</span>
-
-<span class="sd">    A) report generator-specific generation data in the g table, OR</span>
-<span class="sd">    B) Have non-zero generation or fuel reported in the gf table for a PM/ESC combo that</span>
-<span class="sd">       is unique to that generator at the plant.</span>
-
+<span class="sd">    Returns:</span>
+<span class="sd">        The subset of ``gen_assoc`` rows belonging to retiring generators.</span>
 <span class="sd">    """</span>
-    <span class="c1"># sometimes a plant will report generation data before its proposed operating date</span>
-    <span class="c1"># we want to keep any data that is reported for proposed generators</span>
-    <span class="n">proposed_generators</span> <span class="o">=</span> <span class="n">gen_assoc</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-        <span class="p">(</span><span class="n">gen_assoc</span><span class="o">.</span><span class="n">operational_status</span> <span class="o">==</span> <span class="s2">"proposed"</span><span class="p">)</span>
-        <span class="o">&amp;</span> <span class="p">(</span>
-            <span class="n">gen_assoc</span><span class="o">.</span><span class="n">net_generation_mwh_g_tbl</span><span class="o">.</span><span class="n">notnull</span><span class="p">()</span>
-            <span class="o">|</span> <span class="p">(</span>
-                <span class="n">gen_assoc</span><span class="p">[</span><span class="s2">"gf_unique_to_gen"</span><span class="p">]</span>
-                <span class="o">&amp;</span> <span class="p">(</span>
-                    <span class="p">(</span>
-                        <span class="n">gen_assoc</span><span class="o">.</span><span class="n">net_generation_mwh_gf_tbl</span><span class="o">.</span><span class="n">notnull</span><span class="p">()</span>
-                        <span class="o">&amp;</span> <span class="p">(</span><span class="n">gen_assoc</span><span class="o">.</span><span class="n">net_generation_mwh_gf_tbl</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
-                    <span class="p">)</span>
-                    <span class="o">|</span> <span class="p">((</span><span class="n">gen_assoc</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">like</span><span class="o">=</span><span class="s2">"fuel_consumed_"</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
-                <span class="p">)</span>
-            <span class="p">)</span>
+    <span class="k">return</span> <span class="n">_identify_transitioning_generators</span><span class="p">(</span><span class="n">gen_assoc</span><span class="p">,</span> <span class="n">operational_status</span><span class="o">=</span><span class="s2">"retired"</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="identify_newly_operating_generators">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/allocate_gen_fuel/index.html#pudl.analysis.allocate_gen_fuel.identify_newly_operating_generators">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">identify_newly_operating_generators</span><span class="p">(</span><span class="n">gen_assoc</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Identify any generators whose annual "proposed" label doesn't match other reporting.</span>
+
+<span class="sd">    Thin wrapper around :func:`_identify_transitioning_generators` for the</span>
+<span class="sd">    ``"proposed"`` direction (keyed on ``generator_operating_date``). See that</span>
+<span class="sd">    function for the qualifying conditions, the date comparison used, and the</span>
+<span class="sd">    month-retention behavior.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        gen_assoc: table of generators with stacked energy sources and broadcasted</span>
+<span class="sd">            net generation data. Output of :func:`associate_generator_tables`.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The subset of ``gen_assoc`` rows belonging to newly operating generators.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">_identify_transitioning_generators</span><span class="p">(</span><span class="n">gen_assoc</span><span class="p">,</span> <span class="n">operational_status</span><span class="o">=</span><span class="s2">"proposed"</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_transition_date_in_report_year">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/allocate_gen_fuel/index.html#pudl.analysis.allocate_gen_fuel._transition_date_in_report_year">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_transition_date_in_report_year</span><span class="p">(</span>
+    <span class="n">operational_status</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"retired"</span><span class="p">,</span> <span class="s2">"proposed"</span><span class="p">],</span>
+    <span class="n">transition_date</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
+    <span class="n">report_year</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Make a boolean series indicating if a generator's transition falls in ``report_year``.</span>
+
+<span class="sd">    For ``"retired"``, true if the retirement date falls on or after the start of</span>
+<span class="sd">    ``report_year``. For ``"proposed"``, true if the operating date falls on or</span>
+<span class="sd">    before the end of ``report_year``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        operational_status: the ``operational_status`` value identifying the kind of</span>
+<span class="sd">            transition (``"retired"`` or ``"proposed"``). Determines whether</span>
+<span class="sd">            ``transition_date`` is compared against the start or the end of</span>
+<span class="sd">            ``report_year``.</span>
+<span class="sd">        transition_date: the date the transition actually happened</span>
+<span class="sd">            (``generator_retirement_date`` for ``"retired"``, or</span>
+<span class="sd">            ``generator_operating_date`` for ``"proposed"``).</span>
+<span class="sd">        report_year: the calendar year each row's ``transition_date`` is being</span>
+<span class="sd">            checked against.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: if ``operational_status`` is not ``"retired"`` or ``"proposed"``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A boolean series, True for rows whose ``transition_date`` falls within</span>
+<span class="sd">        ``report_year``.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">operational_status</span> <span class="o">==</span> <span class="s2">"retired"</span><span class="p">:</span>
+        <span class="n">report_year_starts</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">report_year</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"-01-01"</span><span class="p">)</span>
+        <span class="n">is_transitioning</span> <span class="o">=</span> <span class="n">transition_date</span> <span class="o">&gt;=</span> <span class="n">report_year_starts</span>
+    <span class="k">elif</span> <span class="n">operational_status</span> <span class="o">==</span> <span class="s2">"proposed"</span><span class="p">:</span>
+        <span class="n">report_year_ends</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">((</span><span class="n">report_year</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"-01-01"</span><span class="p">)</span>
+        <span class="n">is_transitioning</span> <span class="o">=</span> <span class="n">transition_date</span> <span class="o">&lt;</span> <span class="n">report_year_ends</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"operational_status must be 'retired' or 'proposed', not </span><span class="si">{</span><span class="n">operational_status</span><span class="si">!r}</span><span class="s2">"</span>
         <span class="p">)</span>
-    <span class="p">]</span>
-    <span class="k">return</span> <span class="n">proposed_generators</span></div>
+    <span class="k">return</span> <span class="n">is_transitioning</span></div>
 
 
 
-<div class="viewcode-block" id="identify_proposed_plants">
-<a class="viewcode-back" href="../../../autoapi/pudl/analysis/allocate_gen_fuel/index.html#pudl.analysis.allocate_gen_fuel.identify_proposed_plants">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">identify_proposed_plants</span><span class="p">(</span><span class="n">gen_assoc</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Identify entirely new plants that are proposed but are already reporting data."""</span>
-    <span class="c1"># Get a list of all of the plants that have a proposed generator with non-null and non-zero gf generation</span>
-    <span class="n">proposed_generators_with_reported_bf</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
-        <span class="n">gen_assoc</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-            <span class="p">(</span><span class="n">gen_assoc</span><span class="o">.</span><span class="n">operational_status</span> <span class="o">==</span> <span class="s2">"proposed"</span><span class="p">)</span>
-            <span class="o">&amp;</span> <span class="p">(</span><span class="n">gen_assoc</span><span class="o">.</span><span class="n">net_generation_mwh_gf_tbl</span><span class="o">.</span><span class="n">notnull</span><span class="p">())</span>
-            <span class="o">&amp;</span> <span class="p">(</span><span class="n">gen_assoc</span><span class="o">.</span><span class="n">net_generation_mwh_gf_tbl</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">),</span>
-            <span class="s2">"plant_id_eia"</span><span class="p">,</span>
-        <span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
-    <span class="p">)</span>
+<div class="viewcode-block" id="_identify_entirely_transitioned_groups">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/allocate_gen_fuel/index.html#pudl.analysis.allocate_gen_fuel._identify_entirely_transitioned_groups">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_identify_entirely_transitioned_groups</span><span class="p">(</span>
+    <span class="n">gen_assoc</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">operational_status</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"retired"</span><span class="p">,</span> <span class="s2">"proposed"</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Identify anomalously reporting PM/ESC groups with uniform ``operational_status``.</span>
 
-    <span class="c1"># create a table for all of these plants that identifies all of the unique operational statuses</span>
-    <span class="n">plants_with_any_proposed_generators</span> <span class="o">=</span> <span class="n">gen_assoc</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-        <span class="n">gen_assoc</span><span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">proposed_generators_with_reported_bf</span><span class="p">),</span>
-        <span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"operational_status"</span><span class="p">],</span>
+<span class="sd">    Used by :func:`identify_retired_groups` and :func:`identify_proposed_groups` so the</span>
+<span class="sd">    two mirror-image cases are guaranteed to use the same process.</span>
+
+<span class="sd">    The "entirely `operational_status`" check is applied by ``(plant_id_eia,</span>
+<span class="sd">    prime_mover_code, energy_source_code, report_year)`` -- a PM/ESC *group*-year</span>
+<span class="sd">    because that's the granularity at which the generation fuel table is reported.</span>
+<span class="sd">    Scoping to the whole plant instead would let an unrelated PM/ESC group's transition</span>
+<span class="sd">    block a stable group's rescue, or a mixed-status generator in a different group</span>
+<span class="sd">    would block it via the "mixed status" check below (see</span>
+<span class="sd">    ``test_remove_inactive_generators_cross_group_transition_does_not_lose_data``).</span>
+
+<span class="sd">    A PM/ESC-group-year is included only if:</span>
+
+<span class="sd">    * it has at least one row whose ``operational_status`` column matches the given</span>
+<span class="sd">      ``operational_status`` argument, whose ``report_date`` is anomalous relative to</span>
+<span class="sd">      the transition-date column (i.e. a retired plant reporting *after* its retirement</span>
+<span class="sd">      date, or a proposed plant reporting *before* its operating date), whose generation</span>
+<span class="sd">      fuel table generation is reported (notnull, nonzero), and whose generation table</span>
+<span class="sd">      generation is *not* reported (since unambiguous generator-level reporting is</span>
+<span class="sd">      handled by :func:`_identify_transitioning_generators`);</span>
+<span class="sd">    * every generator reported for that PM/ESC-group-year shares ``operational_status``</span>
+<span class="sd">      (no mixed status);</span>
+<span class="sd">    * none of those generators' transition-date column falls within the report_year</span>
+<span class="sd">      (mid-year transitions are handled by :func:`_identify_transitioning_generators`).</span>
+
+<span class="sd">    The final output is filtered to months with non-null generation fuel table</span>
+<span class="sd">    generation, since there's nothing to allocate in months where nothing was reported.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        gen_assoc: table of generators with stacked energy sources and broadcasted net</span>
+<span class="sd">            generation data. Output of :func:`associate_generator_tables`.</span>
+<span class="sd">        operational_status: the ``operational_status`` value identifying candidate</span>
+<span class="sd">            PM/ESC-group-years (``"retired"`` or ``"proposed"``). Determines the name of</span>
+<span class="sd">            the transition-date column (:data:`_TRANSITION_DATE_COL`), the comparison</span>
+<span class="sd">            used to detect an anomalous report (:func:`operator.gt` for ``"retired"``,</span>
+<span class="sd">            :func:`operator.lt` for ``"proposed"``), and the within-report-year</span>
+<span class="sd">            transition check (:func:`_transition_date_in_report_year`).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The subset of ``gen_assoc`` rows belonging to entirely-``operational_status``</span>
+<span class="sd">        PM/ESC-group-years that reported anomalous gf-table generation, filtered to</span>
+<span class="sd">        months with non-null gf-table generation.</span>
+<span class="sd">    """</span>
+    <span class="n">group_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"prime_mover_code"</span><span class="p">,</span> <span class="s2">"energy_source_code"</span><span class="p">]</span>
+    <span class="n">transition_date_col</span> <span class="o">=</span> <span class="n">_TRANSITION_DATE_COL</span><span class="p">[</span><span class="n">operational_status</span><span class="p">]</span>
+    <span class="n">has_stale_status</span> <span class="o">=</span> <span class="n">operator</span><span class="o">.</span><span class="n">gt</span> <span class="k">if</span> <span class="n">operational_status</span> <span class="o">==</span> <span class="s2">"retired"</span> <span class="k">else</span> <span class="n">operator</span><span class="o">.</span><span class="n">lt</span>
+    <span class="n">gen_assoc</span> <span class="o">=</span> <span class="n">gen_assoc</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">report_year</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">report_date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="p">)</span>
+
+    <span class="c1"># Get a list of all of the PM/ESC-group-years with at least one generator reporting</span>
+    <span class="c1"># anomalous non-zero generation data in the gf table (rather than the more granular</span>
+    <span class="c1"># g table) relative to its transition date. An unknown transition date can't rule</span>
+    <span class="c1"># out an anomaly, so it's treated as anomalous too, rather than excluded by default.</span>
+    <span class="c1">#</span>
+    <span class="c1"># This matters much more for the proposed side than the retired side.</span>
+    <span class="c1"># generator_operating_date is a single, harvested-once value on the generator entity</span>
+    <span class="c1"># table (unlike generator_retirement_date, which is allowed to vary by year and</span>
+    <span class="c1"># treated as a slowly-changing-dimension and is populated for ~99.96% of retired</span>
+    <span class="c1"># generator-years) so it's null only for generators never yet observed as "existing"</span>
+    <span class="c1"># in any year of data. Most of those are cancelled or still-pending proposed</span>
+    <span class="c1"># projects that never report real generation/fuel, and so never reach this filter at</span>
+    <span class="c1"># all. Empirically, only a small minority (~5%) of the rows this function rescues on</span>
+    <span class="c1"># the proposed side actually depend on this null-date fallback; most come from</span>
+    <span class="c1"># generators that do eventually come online and already carry a known operating date</span>
+    <span class="c1"># by the time they're harvested. The fallback is still necessary, though: it's what</span>
+    <span class="c1"># rescues a permanently-proposed generator with no recorded operating date that</span>
+    <span class="c1"># nonetheless reports real generation -- see</span>
+    <span class="c1"># test_identify_plants_unknown_transition_date.</span>
+    <span class="n">candidate_group_years</span> <span class="o">=</span> <span class="n">gen_assoc</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="p">(</span><span class="n">gen_assoc</span><span class="o">.</span><span class="n">operational_status</span> <span class="o">==</span> <span class="n">operational_status</span><span class="p">)</span>
+        <span class="o">&amp;</span> <span class="p">(</span>
+            <span class="n">has_stale_status</span><span class="p">(</span><span class="n">gen_assoc</span><span class="o">.</span><span class="n">report_date</span><span class="p">,</span> <span class="n">gen_assoc</span><span class="p">[</span><span class="n">transition_date_col</span><span class="p">])</span>
+            <span class="o">|</span> <span class="n">gen_assoc</span><span class="p">[</span><span class="n">transition_date_col</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="n">gen_assoc</span><span class="o">.</span><span class="n">net_generation_mwh_gf_tbl</span><span class="o">.</span><span class="n">notnull</span><span class="p">())</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="n">gen_assoc</span><span class="o">.</span><span class="n">net_generation_mwh_g_tbl</span><span class="o">.</span><span class="n">isnull</span><span class="p">())</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="n">gen_assoc</span><span class="o">.</span><span class="n">net_generation_mwh_gf_tbl</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="p">[</span><span class="o">*</span><span class="n">group_cols</span><span class="p">,</span> <span class="s2">"report_year"</span><span class="p">],</span>
     <span class="p">]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
 
-    <span class="c1"># filter this list to those plant ids where the only operational status is "proposed"</span>
-    <span class="c1"># i.e. where the entire plant is new</span>
-    <span class="n">entirely_new_plants</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
-        <span class="n">plants_with_any_proposed_generators</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-            <span class="p">(</span>
-                <span class="o">~</span><span class="n">plants_with_any_proposed_generators</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span>
-                    <span class="n">subset</span><span class="o">=</span><span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="kc">False</span>
-                <span class="p">)</span>
-            <span class="p">)</span>
-            <span class="o">&amp;</span> <span class="p">(</span><span class="n">plants_with_any_proposed_generators</span><span class="p">[</span><span class="s2">"operational_status"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"proposed"</span><span class="p">),</span>
-            <span class="s2">"plant_id_eia"</span><span class="p">,</span>
-        <span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+    <span class="c1"># create a table for all of these PM/ESC-group-years that identifies all of the</span>
+    <span class="c1"># unique operational statuses and transition dates reported for that group in</span>
+    <span class="c1"># that year</span>
+    <span class="n">group_years_with_any_candidate</span> <span class="o">=</span> <span class="n">gen_assoc</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+        <span class="n">candidate_group_years</span><span class="p">,</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">"inner"</span><span class="p">,</span>
+        <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="o">*</span><span class="n">group_cols</span><span class="p">,</span> <span class="s2">"report_year"</span><span class="p">],</span>
+        <span class="n">validate</span><span class="o">=</span><span class="s2">"m:1"</span><span class="p">,</span>
+    <span class="p">)[</span>
+        <span class="p">[</span><span class="o">*</span><span class="n">group_cols</span><span class="p">,</span> <span class="s2">"report_year"</span><span class="p">,</span> <span class="s2">"operational_status"</span><span class="p">,</span> <span class="n">transition_date_col</span><span class="p">]</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+
+    <span class="c1"># a PM/ESC-group-year is only "entirely `operational_status`" if every generator</span>
+    <span class="c1"># reported that year has that same operational_status ...</span>
+    <span class="n">group_years_with_mixed_status</span> <span class="o">=</span> <span class="n">group_years_with_any_candidate</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">group_years_with_any_candidate</span><span class="p">[</span><span class="s2">"operational_status"</span><span class="p">]</span> <span class="o">!=</span> <span class="n">operational_status</span><span class="p">,</span>
+        <span class="p">[</span><span class="o">*</span><span class="n">group_cols</span><span class="p">,</span> <span class="s2">"report_year"</span><span class="p">],</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+
+    <span class="c1"># ... and none of those generators transitioned *during* the report_year.</span>
+    <span class="c1"># Mid-year transitions are _identify_transitioning_generators's responsibility,</span>
+    <span class="c1"># not this function's.</span>
+    <span class="n">group_years_transitioning_within_year</span> <span class="o">=</span> <span class="n">group_years_with_any_candidate</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">_transition_date_in_report_year</span><span class="p">(</span>
+            <span class="n">operational_status</span><span class="p">,</span>
+            <span class="n">group_years_with_any_candidate</span><span class="p">[</span><span class="n">transition_date_col</span><span class="p">],</span>
+            <span class="n">group_years_with_any_candidate</span><span class="p">[</span><span class="s2">"report_year"</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="p">[</span><span class="o">*</span><span class="n">group_cols</span><span class="p">,</span> <span class="s2">"report_year"</span><span class="p">],</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+
+    <span class="n">entirely_transitioned_group_years</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">group_years_with_any_candidate</span><span class="p">[[</span><span class="o">*</span><span class="n">group_cols</span><span class="p">,</span> <span class="s2">"report_year"</span><span class="p">]]</span>
+        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+            <span class="n">group_years_with_mixed_status</span><span class="p">,</span>
+            <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span>
+            <span class="n">indicator</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="o">*</span><span class="n">group_cols</span><span class="p">,</span> <span class="s2">"report_year"</span><span class="p">],</span>
+            <span class="n">validate</span><span class="o">=</span><span class="s2">"1:1"</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">"_merge == 'left_only'"</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">"_merge"</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+            <span class="n">group_years_transitioning_within_year</span><span class="p">,</span>
+            <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span>
+            <span class="n">indicator</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="o">*</span><span class="n">group_cols</span><span class="p">,</span> <span class="s2">"report_year"</span><span class="p">],</span>
+            <span class="n">validate</span><span class="o">=</span><span class="s2">"1:1"</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">"_merge == 'left_only'"</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">"_merge"</span><span class="p">)</span>
     <span class="p">)</span>
 
-    <span class="c1"># keep data for these proposed plants in months where there is reported data</span>
-    <span class="n">proposed_plants</span> <span class="o">=</span> <span class="n">gen_assoc</span><span class="p">[</span>
-        <span class="n">gen_assoc</span><span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">entirely_new_plants</span><span class="p">)</span>
-        <span class="o">&amp;</span> <span class="n">gen_assoc</span><span class="p">[</span><span class="s2">"net_generation_mwh_gf_tbl"</span><span class="p">]</span><span class="o">.</span><span class="n">notnull</span><span class="p">()</span>
-    <span class="p">]</span>
+    <span class="n">transitioned_groups</span> <span class="o">=</span> <span class="n">gen_assoc</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+        <span class="n">entirely_transitioned_group_years</span><span class="p">,</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">"inner"</span><span class="p">,</span>
+        <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="o">*</span><span class="n">group_cols</span><span class="p">,</span> <span class="s2">"report_year"</span><span class="p">],</span>
+        <span class="n">validate</span><span class="o">=</span><span class="s2">"m:1"</span><span class="p">,</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"report_year"</span><span class="p">])</span>
 
-    <span class="k">return</span> <span class="n">proposed_plants</span></div>
+    <span class="k">return</span> <span class="n">transitioned_groups</span><span class="p">[</span>
+        <span class="n">transitioned_groups</span><span class="p">[</span><span class="s2">"net_generation_mwh_gf_tbl"</span><span class="p">]</span><span class="o">.</span><span class="n">notnull</span><span class="p">()</span>
+    <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="identify_retired_groups">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/allocate_gen_fuel/index.html#pudl.analysis.allocate_gen_fuel.identify_retired_groups">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">identify_retired_groups</span><span class="p">(</span><span class="n">gen_assoc</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Identify entire PM/ESC groups that have previously retired but are reporting data.</span>
+
+<span class="sd">    See :func:`_identify_entirely_transitioned_groups` for the shared logic.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        gen_assoc: table of generators with stacked energy sources and broadcasted</span>
+<span class="sd">            net generation data. Output of :func:`associate_generator_tables`.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The subset of ``gen_assoc`` rows belonging to entirely-retired PM/ESC-</span>
+<span class="sd">        group-years that reported anomalous gf-table generation, filtered to</span>
+<span class="sd">        months with non-null gf-table generation.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">_identify_entirely_transitioned_groups</span><span class="p">(</span>
+        <span class="n">gen_assoc</span><span class="p">,</span> <span class="n">operational_status</span><span class="o">=</span><span class="s2">"retired"</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="identify_proposed_groups">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/allocate_gen_fuel/index.html#pudl.analysis.allocate_gen_fuel.identify_proposed_groups">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">identify_proposed_groups</span><span class="p">(</span><span class="n">gen_assoc</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Identify entirely new PM/ESC groups that are proposed but already reporting data.</span>
+
+<span class="sd">    See :func:`_identify_entirely_transitioned_groups` for the shared logic.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        gen_assoc: table of generators with stacked energy sources and broadcasted</span>
+<span class="sd">            net generation data. Output of :func:`associate_generator_tables`.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The subset of ``gen_assoc`` rows belonging to entirely-proposed PM/ESC-</span>
+<span class="sd">        group-years that reported anomalous gf-table generation, filtered to</span>
+<span class="sd">        months with non-null gf-table generation.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">_identify_entirely_transitioned_groups</span><span class="p">(</span>
+        <span class="n">gen_assoc</span><span class="p">,</span> <span class="n">operational_status</span><span class="o">=</span><span class="s2">"proposed"</span>
+    <span class="p">)</span></div>
 
 
 
@@ -1995,12 +2225,13 @@ window.runMermaid = runMermaid;</script>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Associate unassociated :ref:`core_eia923__monthly_boiler_fuel` table records on idx_cols.</span>
 
-<span class="sd">    There are a subset of :ref:`core_eia923__monthly_boiler_fuel` and :ref:`core_eia923__monthly_generation_fuel`</span>
-<span class="sd">    records which do not merge onto the stacked generator table on ``IDX_GENS_PM_ESC``</span>
-<span class="sd">    or ``ID_PM_ESC`` respectively. These records generally don't match with the set of</span>
-<span class="sd">    prime movers and energy sources in the stacked generator table. In this method, we</span>
-<span class="sd">    associate those straggler, unassociated records by merging these records with the</span>
-<span class="sd">    stacked generators witouth the un-matching data column.</span>
+<span class="sd">    There are a subset of :ref:`core_eia923__monthly_boiler_fuel` and</span>
+<span class="sd">    :ref:`core_eia923__monthly_generation_fuel` records which do not merge onto the</span>
+<span class="sd">    stacked generator table on ``IDX_GENS_PM_ESC`` or ``ID_PM_ESC`` respectively. These</span>
+<span class="sd">    records generally don't match with the set of prime movers and energy sources in the</span>
+<span class="sd">    stacked generator table. In this method, we associate those straggler, unassociated</span>
+<span class="sd">    records by merging these records with the stacked generators without the unmatched</span>
+<span class="sd">    data column.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        gen_assoc: generators associated with data.</span>
@@ -2008,6 +2239,12 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        col_w_unexpected_codes: name of the column which has codes in it that were not</span>
 <span class="sd">            found in the generators table.</span>
 <span class="sd">        data_columns: the data columns to associate and allocate.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ``gen_assoc`` with the unassociated records' ``data_columns`` merged onto and</span>
+<span class="sd">        allocated across the matching generators, weighted by each generator's share of</span>
+<span class="sd">        ``capacity_mw`` within ``idx_cols`` minus ``col_w_unexpected_codes``. If there</span>
+<span class="sd">        are no unassociated records, ``gen_assoc`` is returned unchanged.</span>
 <span class="sd">    """</span>
     <span class="c1"># we're going to only associate these unassociated fuel records w/</span>
     <span class="c1"># the primary fuel so we don't have to deal w/ double counting</span>
@@ -2049,6 +2286,16 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        there is no data from the gf table and sometimes there is no unassociated data.</span>
 <span class="sd">        The unassociated data column also needs to be allocated across the various</span>
 <span class="sd">        gen/PM code combos in the plant that it is being merged with.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            df: the merged table of connected generators and their matched</span>
+<span class="sd">                unassociated records, with both ``col`` and ``{col}_unassociated``</span>
+<span class="sd">                present, plus ``frac_cap_minus_one``.</span>
+<span class="sd">            col: name of the data column to allocate (e.g. ``"net_generation_mwh"``).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ``df[col]``, updated in place to add each generator's allocated share of</span>
+<span class="sd">            ``df[f"{col}_unassociated"]`` wherever either column is non-null.</span>
 <span class="sd">        """</span>
         <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">notnull</span><span class="p">()</span> <span class="o">|</span> <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">_unassociated"</span><span class="p">]</span><span class="o">.</span><span class="n">notnull</span><span class="p">(),</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span>
             <span class="n">col</span>
@@ -2124,6 +2371,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">gens_gb_pm_esc</span><span class="p">[[</span><span class="s2">"in_g_tbl"</span><span class="p">]]</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(),</span>
             <span class="n">on</span><span class="o">=</span><span class="n">IDX_PM_ESC</span><span class="p">,</span>
             <span class="n">suffixes</span><span class="o">=</span><span class="p">(</span><span class="s2">""</span><span class="p">,</span> <span class="s2">"_all"</span><span class="p">),</span>
+            <span class="n">validate</span><span class="o">=</span><span class="s2">"m:1"</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="o">.</span><span class="n">merge</span><span class="p">(</span>  <span class="c1"># flag if some generators exist in the core_eia860__scd_generators tbl</span>
             <span class="n">gens_gb_pm_esc</span><span class="p">[[</span><span class="s2">"in_g_tbl"</span><span class="p">,</span> <span class="s2">"more_mwh_in_g_than_gf_tbl"</span><span class="p">]]</span>
@@ -2131,16 +2379,19 @@ window.runMermaid = runMermaid;</script>
             <span class="o">.</span><span class="n">reset_index</span><span class="p">(),</span>
             <span class="n">on</span><span class="o">=</span><span class="n">IDX_PM_ESC</span><span class="p">,</span>
             <span class="n">suffixes</span><span class="o">=</span><span class="p">(</span><span class="s2">""</span><span class="p">,</span> <span class="s2">"_any"</span><span class="p">),</span>
+            <span class="n">validate</span><span class="o">=</span><span class="s2">"m:1"</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="o">.</span><span class="n">merge</span><span class="p">(</span>  <span class="c1"># flag if all generators exist in the boiler fuel tbl</span>
             <span class="n">gens_gb_pm_esc</span><span class="p">[[</span><span class="s2">"in_bf_tbl"</span><span class="p">]]</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(),</span>
             <span class="n">on</span><span class="o">=</span><span class="n">IDX_PM_ESC</span><span class="p">,</span>
             <span class="n">suffixes</span><span class="o">=</span><span class="p">(</span><span class="s2">""</span><span class="p">,</span> <span class="s2">"_all"</span><span class="p">),</span>
+            <span class="n">validate</span><span class="o">=</span><span class="s2">"m:1"</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="o">.</span><span class="n">merge</span><span class="p">(</span>  <span class="c1"># flag if some generators exist in the boiler fuel tbl</span>
             <span class="n">gens_gb_pm_esc</span><span class="p">[[</span><span class="s2">"in_bf_tbl"</span><span class="p">]]</span><span class="o">.</span><span class="n">any</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(),</span>
             <span class="n">on</span><span class="o">=</span><span class="n">IDX_PM_ESC</span><span class="p">,</span>
             <span class="n">suffixes</span><span class="o">=</span><span class="p">(</span><span class="s2">""</span><span class="p">,</span> <span class="s2">"_any"</span><span class="p">),</span>
+            <span class="n">validate</span><span class="o">=</span><span class="s2">"m:1"</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="c1"># Net generation and capacity are both proxies that can be used</span>
         <span class="c1"># to allocate the generation which only shows up in generation_fuel.</span>
@@ -2162,6 +2413,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
             <span class="p">),</span>
             <span class="n">on</span><span class="o">=</span><span class="n">IDX_PM_ESC</span><span class="p">,</span>
+            <span class="n">validate</span><span class="o">=</span><span class="s2">"m:1"</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="o">.</span><span class="n">merge</span><span class="p">(</span>
             <span class="p">(</span>
@@ -2176,6 +2428,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
             <span class="p">),</span>
             <span class="n">on</span><span class="o">=</span><span class="n">IDX_UNIT_ESC</span><span class="p">,</span>
+            <span class="n">validate</span><span class="o">=</span><span class="s2">"m:1"</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="o">.</span><span class="n">assign</span><span class="p">(</span>
             <span class="c1"># fill in the missing generation with small numbers (this will help ensure</span>
@@ -2206,6 +2459,7 @@ window.runMermaid = runMermaid;</script>
         <span class="o">.</span><span class="n">add_suffix</span><span class="p">(</span><span class="s2">"_in_g_tbl_group"</span><span class="p">)</span>
         <span class="o">.</span><span class="n">reset_index</span><span class="p">(),</span>
         <span class="n">on</span><span class="o">=</span><span class="n">IDX_PM_ESC</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"in_g_tbl"</span><span class="p">],</span>
+        <span class="n">validate</span><span class="o">=</span><span class="s2">"m:1"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">gen_pm_fuel</span><span class="p">[</span><span class="s2">"capacity_mw_fuel_in_bf_tbl_group"</span><span class="p">]</span> <span class="o">=</span> <span class="n">gen_pm_fuel</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
         <span class="n">IDX_PM_ESC</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"in_bf_tbl"</span><span class="p">],</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">False</span>
@@ -2472,7 +2726,7 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/allocate_gen_fuel/index.html#pudl.analysis.allocate_gen_fuel.remove_aggregated_sentinel_value">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">remove_aggregated_sentinel_value</span><span class="p">(</span><span class="n">col</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">scalar</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">20.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Replace the post-aggregation sentinel values in a column with zero."""</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">scalar</span> <span class="o">*</span> <span class="n">MISSING_SENTINEL</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">col</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">scalar</span> <span class="o">*</span> <span class="n">MISSING_SENTINEL</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span></div>
 
 
 
@@ -2517,7 +2771,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">key_columns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">data_column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">freq</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"YS"</span><span class="p">,</span> <span class="s2">"MS"</span><span class="p">],</span>
+    <span class="n">freq</span><span class="p">:</span> <span class="n">AllocationFrequency</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Allocates annually-reported data from the gen or bf table to each month.</span>
 
@@ -2823,6 +3077,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">how</span><span class="o">=</span><span class="s2">"outer"</span><span class="p">,</span>
         <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"prime_mover_code"</span><span class="p">,</span> <span class="s2">"energy_source_code"</span><span class="p">,</span> <span class="s2">"report_date"</span><span class="p">],</span>
         <span class="n">indicator</span><span class="o">=</span><span class="s2">"source"</span><span class="p">,</span>
+        <span class="n">validate</span><span class="o">=</span><span class="s2">"m:1"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">missing_gf_escs_from_gens</span> <span class="o">=</span> <span class="n">missing_gf_escs_from_gens</span><span class="p">[</span>
         <span class="n">missing_gf_escs_from_gens</span><span class="p">[</span><span class="s2">"source"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"right_only"</span>
@@ -2916,18 +3171,21 @@ window.runMermaid = runMermaid;</script>
 <span class="c1">########################################################################################</span>
 <span class="c1"># Tests of Outputs</span>
 <span class="c1">########################################################################################</span>
-<div class="viewcode-block" id="warn_if_missing_pms">
-<a class="viewcode-back" href="../../../autoapi/pudl/analysis/allocate_gen_fuel/index.html#pudl.analysis.allocate_gen_fuel.warn_if_missing_pms">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">warn_if_missing_pms</span><span class="p">(</span><span class="n">gens</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="_warn_if_missing_pms">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/allocate_gen_fuel/index.html#pudl.analysis.allocate_gen_fuel._warn_if_missing_pms">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_warn_if_missing_pms</span><span class="p">(</span><span class="n">gens</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Log warning if there are too many null ``prime_mover_code`` s.</span>
 
 <span class="sd">    Warn if prime mover codes in gens do not match the codes in the gf table this is</span>
 <span class="sd">    something that should probably be fixed in the input data see</span>
 <span class="sd">    https://github.com/catalyst-cooperative/pudl/issues/1585 set a threshold and ignore</span>
 <span class="sd">    2001 bc most errors are 2001 errors.</span>
+
+<span class="sd">    This is an input data quality check that can't be migrated to dbt.</span>
 <span class="sd">    """</span>
     <span class="n">missing_pm</span> <span class="o">=</span> <span class="n">gens</span><span class="p">[</span>
-        <span class="n">gens</span><span class="p">[</span><span class="s2">"prime_mover_code"</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">gens</span><span class="o">.</span><span class="n">report_date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span> <span class="o">!=</span> <span class="mi">2001</span><span class="p">)</span>
+        <span class="n">gens</span><span class="p">[</span><span class="s2">"prime_mover_code"</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">gens</span><span class="o">.</span><span class="n">report_date</span><span class="p">)</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span> <span class="o">!=</span> <span class="mi">2001</span><span class="p">)</span>
     <span class="p">]</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">missing_pm</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">35</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
@@ -2953,7 +3211,19 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_test_frac">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/allocate_gen_fuel/index.html#pudl.analysis.allocate_gen_fuel._test_frac">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_test_frac</span><span class="p">(</span><span class="n">gen_pm_fuel</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Check if each of the IDX_PM_ESC groups frac's add up to 1."""</span>
+<span class="w">    </span><span class="sd">"""Check if each of the IDX_PM_ESC groups frac's add up to 1.</span>
+
+<span class="sd">    This is used to test data expectations in an intermediate step of the allocation</span>
+<span class="sd">    process, and so can't be migrated to dbt.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        gen_pm_fuel: table of generators with an allocation ``frac`` column, grouped</span>
+<span class="sd">            by ``IDX_PM_ESC``. Output of :func:`allocate_gen_fuel_by_gen_esc`.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The subset of ``IDX_PM_ESC`` groups whose ``frac`` values don't sum to 1</span>
+<span class="sd">        (empty if none are bad). Any bad groups are also logged as a warning.</span>
+<span class="sd">    """</span>
     <span class="n">frac_test</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">gen_pm_fuel</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">IDX_PM_ESC</span><span class="p">)[[</span><span class="s2">"frac"</span><span class="p">,</span> <span class="s2">"net_generation_mwh_g_tbl"</span><span class="p">]]</span>
         <span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">min_count</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -2972,79 +3242,15 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<div class="viewcode-block" id="_test_gen_pm_fuel_output">
-<a class="viewcode-back" href="../../../autoapi/pudl/analysis/allocate_gen_fuel/index.html#pudl.analysis.allocate_gen_fuel._test_gen_pm_fuel_output">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">_test_gen_pm_fuel_output</span><span class="p">(</span>
-    <span class="n">gen_pm_fuel</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">gf</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">gen</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-    <span class="c1"># this is just for testing/debugging</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">calc_net_gen_diff</span><span class="p">(</span><span class="n">gen_pm_fuel</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
-        <span class="n">gen_pm_fuel_test</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
-            <span class="n">gen_pm_fuel</span><span class="p">,</span>
-            <span class="n">gen_pm_fuel</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="n">idx</span><span class="p">)[[</span><span class="s2">"net_generation_mwh"</span><span class="p">]]</span>
-            <span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">min_count</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">add_suffix</span><span class="p">(</span><span class="s2">"_test"</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">reset_index</span><span class="p">(),</span>
-            <span class="n">on</span><span class="o">=</span><span class="n">idx</span><span class="p">,</span>
-            <span class="n">how</span><span class="o">=</span><span class="s2">"outer"</span><span class="p">,</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-            <span class="n">net_generation_mwh_diff</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span>
-                <span class="n">x</span><span class="o">.</span><span class="n">net_generation_mwh_gf_tbl</span> <span class="o">-</span> <span class="n">x</span><span class="o">.</span><span class="n">net_generation_mwh_test</span>
-            <span class="p">)</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="n">gen_pm_fuel_test</span>
-
-    <span class="c1"># make different totals and calc differences for two different indexes</span>
-    <span class="n">gen_pm_fuel_test</span> <span class="o">=</span> <span class="n">calc_net_gen_diff</span><span class="p">(</span><span class="n">gen_pm_fuel</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="n">IDX_PM_ESC</span><span class="p">)</span>
-    <span class="n">gen_fuel_test</span> <span class="o">=</span> <span class="n">calc_net_gen_diff</span><span class="p">(</span><span class="n">gen_pm_fuel</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="n">IDX_ESC</span><span class="p">)</span>
-
-    <span class="n">gen_pm_fuel_test</span> <span class="o">=</span> <span class="n">gen_pm_fuel_test</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-        <span class="n">net_generation_mwh_test</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">net_generation_mwh_test</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span>
-            <span class="n">gen_fuel_test</span><span class="o">.</span><span class="n">net_generation_mwh_test</span>
-        <span class="p">),</span>
-        <span class="n">net_generation_mwh_diff</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">net_generation_mwh_diff</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span>
-            <span class="n">gen_fuel_test</span><span class="o">.</span><span class="n">net_generation_mwh_diff</span>
-        <span class="p">),</span>
-    <span class="p">)</span>
-
-    <span class="n">bad_diff</span> <span class="o">=</span> <span class="n">gen_pm_fuel_test</span><span class="p">[</span>
-        <span class="p">(</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">gen_pm_fuel_test</span><span class="o">.</span><span class="n">net_generation_mwh_diff</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
-        <span class="o">&amp;</span> <span class="p">(</span><span class="n">gen_pm_fuel_test</span><span class="o">.</span><span class="n">net_generation_mwh_diff</span><span class="o">.</span><span class="n">notnull</span><span class="p">())</span>
-    <span class="p">]</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">bad_diff</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">gen_pm_fuel</span><span class="p">)</span><span class="si">:</span><span class="s2">.03%</span><span class="si">}</span><span class="s2"> of records have are partially "</span>
-        <span class="s2">"off from their 'IDX_PM_ESC' group"</span>
-    <span class="p">)</span>
-    <span class="n">no_cap_gen</span> <span class="o">=</span> <span class="n">gen_pm_fuel_test</span><span class="p">[</span>
-        <span class="p">(</span><span class="n">gen_pm_fuel_test</span><span class="o">.</span><span class="n">capacity_mw</span><span class="o">.</span><span class="n">isnull</span><span class="p">())</span>
-        <span class="o">&amp;</span> <span class="p">(</span><span class="n">gen_pm_fuel_test</span><span class="o">.</span><span class="n">net_generation_mwh_g_tbl</span><span class="o">.</span><span class="n">isnull</span><span class="p">())</span>
-    <span class="p">]</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">no_cap_gen</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">15</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">no_cap_gen</span><span class="p">)</span><span class="si">}</span><span class="s2"> records have no capacity or net gen"</span><span class="p">)</span>
-    <span class="c1"># remove the junk/corrective plants</span>
-    <span class="n">fuel_net_gen</span> <span class="o">=</span> <span class="n">gf</span><span class="p">[</span><span class="n">gf</span><span class="o">.</span><span class="n">plant_id_eia</span> <span class="o">!=</span> <span class="s2">"99999"</span><span class="p">]</span><span class="o">.</span><span class="n">net_generation_mwh</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-        <span class="s2">"gen v fuel table net gen diff:      "</span>
-        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="p">(</span><span class="n">gen</span><span class="o">.</span><span class="n">net_generation_mwh</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">fuel_net_gen</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span>
-    <span class="p">)</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-        <span class="s2">"new v fuel table net gen diff:      "</span>
-        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="p">(</span><span class="n">gen_pm_fuel_test</span><span class="o">.</span><span class="n">net_generation_mwh</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">fuel_net_gen</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span>
-    <span class="p">)</span>
-
-    <span class="n">gen_pm_fuel_test</span> <span class="o">=</span> <span class="n">gen_pm_fuel_test</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
-        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"net_generation_mwh_test"</span><span class="p">,</span> <span class="s2">"net_generation_mwh_diff"</span><span class="p">]</span>
-    <span class="p">)</span>
-    <span class="k">return</span> <span class="n">gen_pm_fuel_test</span></div>
-
-
-
 <div class="viewcode-block" id="test_gen_fuel_allocation">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/allocate_gen_fuel/index.html#pudl.analysis.allocate_gen_fuel.test_gen_fuel_allocation">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">test_gen_fuel_allocation</span><span class="p">(</span>
     <span class="n">gen</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">net_gen_alloc</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ratio</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Does the allocated MWh differ from the granular :ref:`core_eia923__monthly_generation`?</span>
+
+<span class="sd">    This test should be migrated to dbt, since it compares data from two finished</span>
+<span class="sd">    outputs.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        gen: the ``core_eia923__monthly_generation`` table.</span>
@@ -3057,6 +3263,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">gen</span><span class="p">,</span>
         <span class="n">on</span><span class="o">=</span><span class="n">IDX_GENS</span><span class="p">,</span>
         <span class="n">suffixes</span><span class="o">=</span><span class="p">(</span><span class="s2">"_new"</span><span class="p">,</span> <span class="s2">"_og"</span><span class="p">),</span>
+        <span class="n">validate</span><span class="o">=</span><span class="s2">"1:1"</span><span class="p">,</span>
     <span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
         <span class="n">net_generation_new_v_og</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span>
             <span class="n">x</span><span class="o">.</span><span class="n">net_generation_mwh_new</span> <span class="o">/</span> <span class="n">x</span><span class="o">.</span><span class="n">net_generation_mwh_og</span>
@@ -3075,113 +3282,6 @@ window.runMermaid = runMermaid;</script>
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">"Many generator records that have allocated net gen more than </span><span class="si">{</span><span class="n">ratio</span><span class="si">:</span><span class="s2">.0%</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span></div>
-
-
-
-<div class="viewcode-block" id="test_original_gf_vs_the_allocated_by_gens_gf">
-<a class="viewcode-back" href="../../../autoapi/pudl/analysis/allocate_gen_fuel/index.html#pudl.analysis.allocate_gen_fuel.test_original_gf_vs_the_allocated_by_gens_gf">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">test_original_gf_vs_the_allocated_by_gens_gf</span><span class="p">(</span>
-    <span class="n">gf</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
-    <span class="n">gf_allocated</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
-    <span class="n">data_columns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">DATA_COLUMNS</span><span class="p">,</span>
-    <span class="n">by</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"year"</span><span class="p">,</span> <span class="s2">"plant_id_eia"</span><span class="p">],</span>
-    <span class="n">acceptance_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.07</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Test whether the allocated data and original data sum up to similar values.</span>
-
-<span class="sd">    Raises:</span>
-<span class="sd">        AssertionError: If the number of plant/years that are off by more than 5% is</span>
-<span class="sd">            not within acceptable level of tolerance.</span>
-<span class="sd">        AssertionError: If the difference between the allocated and original data for</span>
-<span class="sd">            any plant/year is off by more than x10 or x-5.</span>
-<span class="sd">    """</span>
-    <span class="n">original_gf</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">gf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">report_date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="p">)</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">by</span><span class="p">)[</span><span class="n">data_columns</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-    <span class="p">)</span>
-    <span class="n">allocated_gf</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">gf_allocated</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">report_date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">by</span><span class="p">)[</span><span class="n">data_columns</span><span class="p">]</span>
-        <span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-    <span class="p">)</span>
-    <span class="c1"># Check how well the allocation is working on the aggregate. Is the vast majority of</span>
-    <span class="c1"># original generation &amp; fuel from the gf table being allocated?</span>
-    <span class="n">total_allocation_test</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">allocated_gf</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"allocated_sum"</span><span class="p">]),</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">original_gf</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"original_sum"</span><span class="p">]),</span>
-        <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">left_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">allocated_pct</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">allocated_sum</span> <span class="o">/</span> <span class="n">x</span><span class="o">.</span><span class="n">original_sum</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)[</span>
-        <span class="p">[</span><span class="s2">"allocated_pct"</span><span class="p">]</span>
-    <span class="p">]</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-        <span class="s2">"The </span><span class="si">% o</span><span class="s2">f the original data that has been allocated from the generation fuel "</span>
-        <span class="sa">f</span><span class="s2">"table for each column is:</span><span class="se">\n</span><span class="si">{</span><span class="n">total_allocation_test</span><span class="si">}</span><span class="s2">"</span>
-    <span class="p">)</span>
-    <span class="n">expected_allocation_pct</span> <span class="o">=</span> <span class="mf">94.6</span>  <span class="c1"># based on allocation error from Q2 2026 release.</span>
-    <span class="c1"># we know that with the fast ETL this coverage is weird bad because the last year</span>
-    <span class="c1"># of data is often a ytd year that doesn't get allocated.</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">gf</span><span class="o">.</span><span class="n">report_date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="n">expected_allocation_pct</span> <span class="o">=</span> <span class="n">expected_allocation_pct</span> <span class="o">/</span> <span class="mi">2</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">total_allocation_test</span><span class="o">.</span><span class="n">allocated_pct</span> <span class="o">&gt;</span> <span class="n">expected_allocation_pct</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
-            <span class="s2">"The total portion of generation or fuel being allocated dipped below "</span>
-            <span class="sa">f</span><span class="s2">"the expected </span><span class="si">{</span><span class="n">expected_allocation_pct</span><span class="si">}</span><span class="s2">%."</span>
-        <span class="p">)</span>
-    <span class="n">gf_test</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
-        <span class="n">original_gf</span><span class="p">,</span>
-        <span class="n">allocated_gf</span><span class="p">,</span>
-        <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">left_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">suffixes</span><span class="o">=</span><span class="p">(</span><span class="s2">"_og"</span><span class="p">,</span> <span class="s2">"_allocated"</span><span class="p">),</span>
-        <span class="n">how</span><span class="o">=</span><span class="s2">"outer"</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="c1"># calculate the difference between the allocated and the original data</span>
-    <span class="n">gf_test</span> <span class="o">=</span> <span class="n">gf_test</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-        <span class="o">**</span><span class="p">{</span>
-            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">_diff"</span><span class="p">:</span> <span class="n">gf_test</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">_allocated"</span><span class="p">]</span> <span class="o">/</span> <span class="n">gf_test</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">_og"</span><span class="p">]</span>
-            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">data_columns</span>
-        <span class="p">}</span>
-    <span class="p">)</span>
-    <span class="c1"># remove the inf diffs for net gen if the allocated value if small. many seem to be</span>
-    <span class="c1"># a result of the MISSING_SENTINEL filling in.</span>
-    <span class="k">if</span> <span class="n">gf_test</span><span class="p">[</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">isinf</span><span class="p">(</span><span class="n">gf_test</span><span class="o">.</span><span class="n">net_generation_mwh_diff</span><span class="p">)</span>
-        <span class="o">&amp;</span> <span class="o">~</span><span class="p">(</span><span class="n">gf_test</span><span class="o">.</span><span class="n">net_generation_mwh_allocated</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="p">]</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
-        <span class="n">gf_test</span> <span class="o">=</span> <span class="n">gf_test</span><span class="p">[</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isinf</span><span class="p">(</span><span class="n">gf_test</span><span class="o">.</span><span class="n">net_generation_mwh_diff</span><span class="p">)]</span>
-
-    <span class="k">for</span> <span class="n">data_col</span> <span class="ow">in</span> <span class="n">data_columns</span><span class="p">:</span>
-        <span class="n">col_test</span> <span class="o">=</span> <span class="n">gf_test</span><span class="p">[</span>
-            <span class="p">(</span>
-                <span class="p">(</span><span class="n">gf_test</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">data_col</span><span class="si">}</span><span class="s2">_diff"</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">1.05</span><span class="p">)</span>
-                <span class="o">|</span> <span class="p">(</span><span class="n">gf_test</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">data_col</span><span class="si">}</span><span class="s2">_diff"</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.95</span><span class="p">)</span>
-            <span class="p">)</span>
-            <span class="o">&amp;</span> <span class="p">(</span><span class="n">gf_test</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">data_col</span><span class="si">}</span><span class="s2">_diff"</span><span class="p">]</span><span class="o">.</span><span class="n">notnull</span><span class="p">())</span>
-        <span class="p">]</span>
-        <span class="n">off_by_5_perc</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">col_test</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">gf_test</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">data_col</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">off_by_5_perc</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2"> of allocated plant/year's are off by more"</span>
-            <span class="s2">" than 5%"</span>
-        <span class="p">)</span>
-        <span class="k">if</span> <span class="n">off_by_5_perc</span> <span class="o">&gt;</span> <span class="n">acceptance_threshold</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">col_test</span><span class="p">)</span><span class="si">}</span><span class="s2"> of </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">gf_test</span><span class="p">)</span><span class="si">}</span><span class="s2"> plants' (</span><span class="si">{</span><span class="n">off_by_5_perc</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">) allocated </span><span class="si">{</span><span class="n">data_col</span><span class="si">}</span><span class="s2"> are off"</span>
-                <span class="s2">" the original data by more than 5%. Expected &lt; </span><span class="si">{acceptance_threshold:.1%}</span><span class="s2">."</span>
-            <span class="p">)</span>
-        <span class="n">max_diff</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">gf_test</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">data_col</span><span class="si">}</span><span class="s2">_diff"</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="mi">2</span><span class="p">)</span>
-        <span class="n">min_diff</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">gf_test</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">data_col</span><span class="si">}</span><span class="s2">_diff"</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="mi">2</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">data_col</span><span class="si">}</span><span class="s2">: Min and max difference are x</span><span class="si">{</span><span class="n">min_diff</span><span class="si">}</span><span class="s2"> and x</span><span class="si">{</span><span class="n">max_diff</span><span class="si">}</span><span class="s2">"</span>
-        <span class="p">)</span>
-        <span class="k">if</span> <span class="n">max_diff</span> <span class="o">&gt;</span> <span class="mi">10</span> <span class="ow">or</span> <span class="n">min_diff</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mi">5</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">"ahhhHHhh. </span><span class="si">{</span><span class="n">data_col</span><span class="si">}</span><span class="s2"> has some plant-year aggregations that that "</span>
-                <span class="s2">"allocated data that is off from the original core_eia923__monthly_generation_fuel "</span>
-                <span class="s2">"data by more than an accepted range of tolerance. </span><span class="se">\n</span><span class="s2">"</span>
-                <span class="sa">f</span><span class="s2">"  Min difference: </span><span class="si">{</span><span class="n">min_diff</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
-                <span class="sa">f</span><span class="s2">"  Max difference: </span><span class="si">{</span><span class="n">max_diff</span><span class="si">}</span><span class="s2">"</span>
-            <span class="p">)</span>
-    <span class="k">return</span> <span class="n">gf_test</span></div>
 
 </pre></div>
 
