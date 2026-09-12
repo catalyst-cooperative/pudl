@@ -657,26 +657,6 @@
     },
     {
       "path": "src/pudl/dagster/assets/raw/ferc_to_sqlite.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `unlink`"
-    },
-    {
-      "path": "src/pudl/dagster/assets/raw/ferc_to_sqlite.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `unlink`"
-    },
-    {
-      "path": "src/pudl/dagster/assets/raw/ferc_to_sqlite.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `exists`"
-    },
-    {
-      "path": "src/pudl/dagster/assets/raw/ferc_to_sqlite.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `iterdir`"
-    },
-    {
-      "path": "src/pudl/dagster/assets/raw/ferc_to_sqlite.py",
       "name": "bad-assignment",
       "concise_description": "`dict[str, Path]` is not assignable to variable `paths` with type `PudlPaths`"
     },
@@ -714,41 +694,6 @@
       "path": "src/pudl/dagster/assets/raw/ferc_to_sqlite.py",
       "name": "bad-unpacking",
       "concise_description": "Expected argument after ** to be a mapping, got: PudlPaths in function `FercPaths.__init__`"
-    },
-    {
-      "path": "src/pudl/dagster/assets/raw/ferc_to_sqlite.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `mkdir`"
-    },
-    {
-      "path": "src/pudl/dagster/assets/raw/ferc_to_sqlite.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `read_bytes`"
-    },
-    {
-      "path": "src/pudl/dagster/assets/raw/ferc_to_sqlite.py",
-      "name": "unsupported-operation",
-      "concise_description": "`/` is not supported between `None` and `str`"
-    },
-    {
-      "path": "src/pudl/dagster/assets/raw/ferc_to_sqlite.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `write_bytes`"
-    },
-    {
-      "path": "src/pudl/dagster/assets/raw/ferc_to_sqlite.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `read_bytes`"
-    },
-    {
-      "path": "src/pudl/dagster/assets/raw/ferc_to_sqlite.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `write_bytes`"
-    },
-    {
-      "path": "src/pudl/dagster/assets/raw/ferc_to_sqlite.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `read_bytes`"
     },
     {
       "path": "src/pudl/dagster/assets/raw/ferc_to_sqlite.py",
@@ -1439,36 +1384,6 @@
       "path": "src/pudl/metadata/descriptions.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `Unknown | None` is not assignable to parameter `iterable` with type `Iterable[Unknown]` in function `list.__init__`"
-    },
-    {
-      "path": "src/pudl/metadata/descriptions.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `group`"
-    },
-    {
-      "path": "src/pudl/metadata/descriptions.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `group`"
-    },
-    {
-      "path": "src/pudl/metadata/descriptions.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `group`"
-    },
-    {
-      "path": "src/pudl/metadata/descriptions.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `group`"
-    },
-    {
-      "path": "src/pudl/metadata/descriptions.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `group`"
-    },
-    {
-      "path": "src/pudl/metadata/descriptions.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `group`"
     },
     {
       "path": "src/pudl/metadata/enums.py",
@@ -3984,11 +3899,6 @@
       "path": "tests/unit/validate/dbt_schema_drift_test.py",
       "name": "not-iterable",
       "concise_description": "Type `None` is not iterable"
-    },
-    {
-      "path": "tests/unit/workspace/datastore_test.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `group`"
     }
   ]
 }
