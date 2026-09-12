@@ -13,3 +13,98 @@ sources:
                 multiplier: 12
                 date_column: report_date
                 model_has_data_maturity: false
+models:
+  - name: validate_eia923__generation_fuel_allocation
+    description: |-
+      Compares original out_eia923__generation_fuel_combined table against allocated
+      out_eia923__monthly_generation_fuel_by_generator_energy_source, for
+      net_generation_mwh, fuel_consumed_mmbtu, and fuel_consumed_for_electricity_mmbtu.
+      Excludes messy 2001-2002 data. Feeds into the other
+      validate_eia923__generation_fuel_allocation_* models.
+    data_tests:
+      - expect_column_fraction_with_condition:
+          arguments:
+            column_name: "1"
+            numerator_row_condition: net_generation_mwh_retained_fraction not between 0.99 and 1.01
+            min_fraction: 0.0
+            max_fraction: 0.0025
+          description: |-
+            No more than 0.25% of plant-years should have a
+            net_generation_mwh_retained_fraction outside [0.99, 1.01]. Note that
+            floating-point/summation noise dominates in the +/-0.1% band. Calibrated
+            2026-08-28 against a full ETL run (2003-2025). Observed rate at this band
+            was ~0.096%.
+      - expect_column_fraction_with_condition:
+          arguments:
+            column_name: allocated_net_generation_mwh
+            numerator_row_condition: net_generation_mwh_retained_fraction not between 0.99 and 1.01
+            min_fraction: 0.0
+            max_fraction: 0.0015
+          description: |-
+            No more than 0.15% of total allocated net_generation_mwh should come from
+            plant-years whose net_generation_mwh_retained_fraction falls outside [0.99,
+            1.01]. Calibrated 2026-08-28 against a full ETL run (2003-2025); observed
+            rate was ~0.072%. Note that over-allocation does occasionally occur,
+            exceeding 8x the originally reported value in one instance.
+      - expect_column_fraction_with_condition:
+          arguments:
+            column_name: "1"
+            numerator_row_condition: fuel_consumed_mmbtu_retained_fraction not between 0.99 and 1.01
+            min_fraction: 0.0
+            max_fraction: 0.0025
+          description: |-
+            No more than 0.25% of plant-years should have a
+            fuel_consumed_mmbtu_retained_fraction outside [0.99, 1.01]. Calibrated
+            2026-08-28 against a full ETL run (2003-2025); observed rate was ~0.093%.
+      - expect_column_fraction_with_condition:
+          arguments:
+            column_name: allocated_fuel_consumed_mmbtu
+            numerator_row_condition: fuel_consumed_mmbtu_retained_fraction not between 0.99 and 1.01
+            min_fraction: 0.0
+            max_fraction: 0.0015
+          description: |-
+            No more than 0.15% of total allocated fuel_consumed_mmbtu should come from
+            plant-years whose fuel_consumed_mmbtu_retained_fraction falls outside [0.99,
+            1.01]. Calibrated 2026-08-28 against a full ETL run (2003-2025); observed
+            rate was ~0.091%.
+      - expect_column_fraction_with_condition:
+          arguments:
+            column_name: "1"
+            numerator_row_condition: fuel_consumed_for_electricity_mmbtu_retained_fraction not between 0.99 and 1.01
+            min_fraction: 0.0
+            max_fraction: 0.0025
+          description: |-
+            No more than 0.25% of plant-years should have a
+            fuel_consumed_for_electricity_mmbtu_retained_fraction outside [0.99, 1.01].
+            Calibrated 2026-08-28 against a full ETL run (2003-2025); observed rate was
+            ~0.089%.
+      - expect_column_fraction_with_condition:
+          arguments:
+            column_name: allocated_fuel_consumed_for_electricity_mmbtu
+            numerator_row_condition: fuel_consumed_for_electricity_mmbtu_retained_fraction not between 0.99 and 1.01
+            min_fraction: 0.0
+            max_fraction: 0.0015
+          description: |-
+            No more than 0.15% of total allocated fuel_consumed_for_electricity_mmbtu
+            should come from plant-years whose
+            fuel_consumed_for_electricity_mmbtu_retained_fraction falls outside [0.99,
+            1.01]. Calibrated 2026-08-28 against a full ETL run (2003-2025); observed
+            rate was ~0.078%.
+
+  - name: validate_eia923__generation_fuel_allocation_by_year
+    description: |-
+      Overall retained fraction of original generation_fuel data, by report_year
+      and data_column. One row per report_year/data_column combination.
+    columns:
+      - name: retained_fraction
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 0.997
+                max_value: 1.0
+              description: |-
+                Every individual report_year's retained_fraction, for every data_column,
+                should be within [0.997, 1.0] -- checked independently per year so a
+                single bad year isn't hidden in an all-years average. Calibrated
+                2026-08-28 against a full ETL run (2003-2025); observed per-year minimum
+                was ~0.99784 (fuel_consumed_mmbtu, 2004).

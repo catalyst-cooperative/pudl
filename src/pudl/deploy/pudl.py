@@ -76,7 +76,7 @@ class DeploymentPlan(BaseModel):
         return get_deployment_type_from_tag(self.git_tag)
 
     @model_validator(mode="after")
-    def _validate_branch_only_targets_staging(self) -> "DeploymentPlan":
+    def _validate_branch_only_targets_staging(self) -> DeploymentPlan:
         if self.deploy_type == DeploymentType.BRANCH and self.environment != "staging":
             raise ValueError(
                 f"Branch deployments can only target staging, got "
@@ -85,7 +85,7 @@ class DeploymentPlan(BaseModel):
         return self
 
     @model_validator(mode="after")
-    def _validate_has_an_upload_target(self) -> "DeploymentPlan":
+    def _validate_has_an_upload_target(self) -> DeploymentPlan:
         if not self.upload_to_gcs and not self.upload_to_s3:
             raise ValueError(
                 f"Deployment for git_tag={self.git_tag!r} has neither GCS nor S3 "
