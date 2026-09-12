@@ -89,7 +89,7 @@ class FercPaths:
     @classmethod
     def from_dataset_format(
         cls, dataset: FercForm, data_format: Literal["dbf", "xbrl"], paths: PudlPaths
-    ) -> "FercPaths":
+    ) -> FercPaths:
         """Initialize class based on ``dataset`` and ``data_format``."""
         dataset_format = f"{dataset}_{data_format}"
 

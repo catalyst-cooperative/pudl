@@ -210,9 +210,7 @@ class FercEqrDeploymentResource(dg.ConfigurableResource):
     deployment_config_path: str | None = None
 
     @classmethod
-    def from_yaml(
-        cls, deployment_config_path: str | Path
-    ) -> "FercEqrDeploymentResource":
+    def from_yaml(cls, deployment_config_path: str | Path) -> FercEqrDeploymentResource:
         """Create a FERC EQR deployment resource from a YAML config file."""
         yaml_data = yaml.safe_load(Path(deployment_config_path).read_text()) or {}
         resource = cls.model_validate(yaml_data)
