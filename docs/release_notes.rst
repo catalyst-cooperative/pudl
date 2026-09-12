@@ -272,6 +272,13 @@ Performance Improvements
   using complex arithmetic in calculating eigenvalues due to floating point noise in the
   imaginary components of the matrix math we were doing in our timeseries imputations.
   See PR :pr:`5503`.
+* Sped up VCE RARE, EIA-930, and FERC EQR raw data extraction. VCE RARE's very wide CSVs
+  no longer make DuckDB sniff column types on every read, cutting extraction time from
+  about 5 to 1.5 minutes. EIA-930 and FERC EQR extraction switched back to DuckDB's
+  native multi-threaded Parquet writer for untyped/ENUM-free tables, undoing a
+  performance regression introduced in :pr:`5570` when we switched to the
+  single-threaded Arrow writer to preserve Categorical types. This change cuts
+  extraction time by ~25% on the largest tables. See PR :pr:`5575`.
 
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^

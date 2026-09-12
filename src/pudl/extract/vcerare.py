@@ -14,10 +14,10 @@ read in when the fips partition is set to True.
 """
 
 from collections import defaultdict
+from collections.abc import Callable
 from io import BytesIO
 from pathlib import Path
 
-import duckdb
 import pandas as pd
 from dagster import AssetOut, asset, multi_asset
 
@@ -36,21 +36,36 @@ VCERARE_PAGES = {
     "Fixed_SolarPV_Lat_UPV_county.csv": "raw_vcerare__fixed_solar_pv_lat_upv",
 }
 
+# VCE RARE switched the raw hour_of_year column from an integer hour index
+# (1-8760) to an ISO timestamp starting with this report year. Shared with
+# pudl.transform.vcerare so the two don't drift independently.
+DATETIME_HOUR_OF_YEAR_START_YEAR = 2024
 
-def _clean_column_names(
-    table_relation: duckdb.DuckDBPyRelation,
-) -> duckdb.DuckDBPyRelation:
-    """Apply basic cleaning to column names."""
-    columns = table_relation.columns
-    col_map = {col: col.lower().replace(".", "").replace("-", "_") for col in columns}
 
-    # The first column is never named, but is always the ``hour_of_year`` column
-    col_map[columns[0]] = "hour_of_year"
+def _clean_column_name(col: str) -> str:
+    """Match the raw VCE RARE column naming convention to PUDL's snake_case."""
+    return col.lower().replace(".", "").replace("-", "_")
 
-    # Rename all columns
-    return table_relation.select(
-        ", ".join([f'"{col}" AS "{clean_col}"' for col, clean_col in col_map.items()])
+
+def _vcerare_column_types(year: int) -> Callable[[list[str]], dict[str, str]]:
+    """Build a DuckDB ``columns`` schema from a raw VCE RARE CSV header row.
+
+    Every column is a per-county/subregion capacity factor (``DOUBLE``) except the
+    first, unnamed column, which is always ``hour_of_year`` and whose type depends
+    on the report year (see ``DATETIME_HOUR_OF_YEAR_START_YEAR``). The set of
+    county/subregion columns is not stable across vintages, so it's always derived
+    from the actual header row rather than hardcoded.
+    """
+    hour_of_year_type = (
+        "TIMESTAMP" if year >= DATETIME_HOUR_OF_YEAR_START_YEAR else "BIGINT"
     )
+
+    def _column_types(header_row: list[str]) -> dict[str, str]:
+        return {"hour_of_year": hour_of_year_type} | {
+            _clean_column_name(col): "DOUBLE" for col in header_row[1:]
+        }
+
+    return _column_types
 
 
 @multi_asset(
@@ -76,16 +91,16 @@ def extract_vcerare(
             pages=VCERARE_PAGES.keys(),
             datasore=context.resources.datastore,
             zip_path=Path(f"{year}/"),
+            column_types=_vcerare_column_types(year),
         ):
             # Collect ParquetData objects for each year/page combo
             extracted_tables[VCERARE_PAGES[page]].update(
                 {
                     year: persist_table_as_parquet(
-                        table_data=_clean_column_names(
-                            relation.select(f"*, {year} as report_year")
-                        ),
+                        table_data=relation.select(f"*, {year} as report_year"),
                         table_name=VCERARE_PAGES[page],
                         partitions=partitions,
+                        use_native_duckdb_writer=True,
                     )
                 }
             )
