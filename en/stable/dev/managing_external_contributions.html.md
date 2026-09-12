@@ -2,7 +2,7 @@
 
 #### NOTE
 Looking to contribute to PUDL? The guidelines for external contributors can be found at
-[Contributing to PUDL](../CONTRIBUTING.md).
+[Contributing to PUDL](../CONTRIBUTING.html.md).
 
 ## Overview
 
@@ -156,7 +156,6 @@ We would take over if:
   * Harvesting
   * Schema nitpicking
   * Writing dbt or other obscure tests
-  * Resolving alembic merges
   * Aligning code style to the rest of the repo, beyond what’s available to the
     contributor in the dev guide
 * The proposed change has gone 3-4 rounds of review and the remaining effort is small

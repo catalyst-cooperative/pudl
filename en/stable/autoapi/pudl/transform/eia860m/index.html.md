@@ -5,12 +5,12 @@ Module to perform data cleaning functions on EIA860m data tables.
 ## Attributes
 
 | [`logger`](#pudl.transform.eia860m.logger)   |    |
-|----------------------------------------------|----|
+|-----------------------------------------------------------|----|
 
 ## Functions
 
 | [`core_eia860m__changelog_generators`](#pudl.transform.eia860m.core_eia860m__changelog_generators)(→ pandas.DataFrame)   | Changelog of EIA-860M Generators based on operating status.   |
-|--------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------|
+|-----------------------------------------------------------------------------------------------------------|---------------------------------------------------------------|
 
 ## Module Contents
 
@@ -25,7 +25,7 @@ generators. This table combines all monthly reported data and preserves the firs
 reported record when any new information about the generator was reported.
 
 We are not putting this table through PUDL’s standard normalization process for EIA
-tables (see [`pudl.transform.eia.harvest_entity_tables()`](../eia/index.md#pudl.transform.eia.harvest_entity_tables)). EIA-860M includes
+tables (see [`pudl.transform.eia.harvest_entity_tables()`](../eia/index.html.md#pudl.transform.eia.harvest_entity_tables)). EIA-860M includes
 provisional data reported monthly so it changes frequently compared to the more
 stable annually reported EIA data. If we fed all of the EIA-860M data into the
 harvesting process, we would get failures because the records from EIA-80m are too

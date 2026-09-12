@@ -1,36 +1,36 @@
 # pudl.analysis.allocate_gen_fuel
 
-Allocate data from [core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-generation-fuel) table to generator level.
+Allocate data from [core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation-fuel) table to generator level.
 
 The algorithm we’re using assumes the following about the reported data:
 
-* The [core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-generation-fuel) table is the authoritative source of
+* The [core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation-fuel) table is the authoritative source of
   information about how much generation and fuel consumption is attributable to an
   entire plant. This table has the most complete data coverage, but it is not the most
   granular data reported. It’s primary keys are [`IDX_PM_ESC`](#pudl.analysis.allocate_gen_fuel.IDX_PM_ESC).
-* The [core_eia923_\_monthly_generation](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-generation) table contains the most granular net
+* The [core_eia923_\_monthly_generation](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation) table contains the most granular net
   generation data. It is reported at the generator level with primary keys
   [`IDX_GENS`](#pudl.analysis.allocate_gen_fuel.IDX_GENS). This table includes only ~39% of the total MWhs reported in the
-  [core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-generation-fuel) table.
-* The [core_eia923_\_monthly_boiler_fuel](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-boiler-fuel) table contains the most granular fuel
+  [core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation-fuel) table.
+* The [core_eia923_\_monthly_boiler_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-boiler-fuel) table contains the most granular fuel
   consumption data.  It is reported at the boiler/prime mover/energy source level with
   primary keys [`IDX_B_PM_ESC`](#pudl.analysis.allocate_gen_fuel.IDX_B_PM_ESC). This table includes only ~38% of the total
-  MMBTUs reported in the [core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-generation-fuel) table.
-* The [core_eia860_\_scd_generators](../../../../data_dictionaries/pudl_db.md#core-eia860-scd-generators) table provides an exhaustive list of all
+  MMBTUs reported in the [core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation-fuel) table.
+* The [core_eia860_\_scd_generators](../../../../data_dictionaries/pudl_db.html.md#core-eia860-scd-generators) table provides an exhaustive list of all
   generators whose generation is being reported in the
-  [core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-generation-fuel) table - with primary keys
+  [core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation-fuel) table - with primary keys
   [`IDX_GENS`](#pudl.analysis.allocate_gen_fuel.IDX_GENS).
 
 This module allocates the total net electricity generation and fuel consumption reported
-in the [core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-generation-fuel) table to individual generators, based
-on more granular data reported in the [core_eia923_\_monthly_generation](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-generation) and
-[core_eia923_\_monthly_boiler_fuel](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-boiler-fuel) tables, as well as capacity (MW) found in the
-[core_eia860_\_scd_generators](../../../../data_dictionaries/pudl_db.md#core-eia860-scd-generators) table. It uses other generator attributes from the
-[core_eia860_\_scd_generators](../../../../data_dictionaries/pudl_db.md#core-eia860-scd-generators) table to associate the data found in the
-[core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-generation-fuel) with generators. It also uses as the
+in the [core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation-fuel) table to individual generators, based
+on more granular data reported in the [core_eia923_\_monthly_generation](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation) and
+[core_eia923_\_monthly_boiler_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-boiler-fuel) tables, as well as capacity (MW) found in the
+[core_eia860_\_scd_generators](../../../../data_dictionaries/pudl_db.html.md#core-eia860-scd-generators) table. It uses other generator attributes from the
+[core_eia860_\_scd_generators](../../../../data_dictionaries/pudl_db.html.md#core-eia860-scd-generators) table to associate the data found in the
+[core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation-fuel) with generators. It also uses as the
 associations between boilers and generators found in the
-[core_eia860_\_assn_boiler_generator](../../../../data_dictionaries/pudl_db.md#core-eia860-assn-boiler-generator) table to aggregate data
-[core_eia923_\_monthly_boiler_fuel](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-boiler-fuel) tables. The main coordinating functions hereare
+[core_eia860_\_assn_boiler_generator](../../../../data_dictionaries/pudl_db.html.md#core-eia860-assn-boiler-generator) table to aggregate data
+[core_eia923_\_monthly_boiler_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-boiler-fuel) tables. The main coordinating functions hereare
 [`allocate_gen_fuel_by_generator_energy_source()`](#pudl.analysis.allocate_gen_fuel.allocate_gen_fuel_by_generator_energy_source) and
 `aggregate_gen_fuel_by_generator()`.
 
@@ -38,8 +38,8 @@ Some definitions:
 
 * **Data columns** refers to the net generation and fuel consumption - the specific
   columns are defined in [`DATA_COLUMNS`](#pudl.analysis.allocate_gen_fuel.DATA_COLUMNS).
-* **Granular tables** refers to [core_eia923_\_monthly_generation](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-generation) and
-  [core_eia923_\_monthly_boiler_fuel](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-boiler-fuel), which report granular data but do not have
+* **Granular tables** refers to [core_eia923_\_monthly_generation](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation) and
+  [core_eia923_\_monthly_boiler_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-boiler-fuel), which report granular data but do not have
   complete coverage.
 
 There are six main stages of the allocation process in this module:
@@ -56,10 +56,10 @@ There are six main stages of the allocation process in this module:
    record are directly reported in the granular tables. This lets us choose an
    appropriate data allocation method based on how complete the granular data coverage
    is for a given value of [`IDX_PM_ESC`](#pudl.analysis.allocate_gen_fuel.IDX_PM_ESC), which is the original primary key of
-   the [core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-generation-fuel) table. (See
+   the [core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation-fuel) table. (See
    [`prep_allocation_fraction()`](#pudl.analysis.allocate_gen_fuel.prep_allocation_fraction)).
 4. **Allocate**: Allocate the net generation and fuel consumption reported in the less
-   granular [core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-generation-fuel) table to the
+   granular [core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation-fuel) table to the
    [`IDX_GENS_PM_ESC`](#pudl.analysis.allocate_gen_fuel.IDX_GENS_PM_ESC) level. More details on the allocation process are below
    (see [`allocate_gen_fuel_by_gen_esc()`](#pudl.analysis.allocate_gen_fuel.allocate_gen_fuel_by_gen_esc) and [`allocate_fuel_by_gen_esc()`](#pudl.analysis.allocate_gen_fuel.allocate_fuel_by_gen_esc)).
 5. **Sanity check allocation**: Verify that the total allocated net generation and fuel
@@ -74,7 +74,7 @@ There are six main stages of the allocation process in this module:
 
 **High-level description about the allocation step**:
 
-We allocate the data columns reported in the [core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-generation-fuel)
+We allocate the data columns reported in the [core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation-fuel)
 table on the basis of plant, prime mover, and energy source among the generators in each
 plant that have matching energy sources.
 
@@ -94,19 +94,19 @@ In more detail, within each reporting period, we split the plants into three gro
   granular tables.
 
 In the **ALL** generators case, the data columns reported in the
-[core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-generation-fuel) table are allocated in proportion to data
+[core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation-fuel) table are allocated in proportion to data
 reported in the granular data tables. We do this instead of directly using the data
 columns from the granular tables because there are discrepancies between the
 core_eia923_\_monthly_generation_fuel table and the granular tables and we are assuming
 the totals reported in the core_eia923_\_monthly_generation_fuel table are authoritative.
 
 In the **NONE** generators case, the data columns reported in the
-[core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-generation-fuel) table are allocated in proportion to the
+[core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation-fuel) table are allocated in proportion to the
 each generator’s capacity.
 
 In the **SOME** generators case, we use a combination of the two allocation methods
 described above. First, the data columns reported in the
-[core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-generation-fuel) table are allocated between the two
+[core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation-fuel) table are allocated between the two
 categories of generators: those that report granular data, and those that don’t. The
 fraction allocated to each of those categories is based on how much of the total is
 reported in the granular tables. If T is the total reported, and X is the quantity
@@ -136,52 +136,52 @@ net generation (if it’s reported) or capacity (if generation is not reported).
 
 ## Attributes
 
-| [`logger`](#pudl.analysis.allocate_gen_fuel.logger)                                     |                                                                                                                                                                   |
-|-----------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [`IDX_GENS`](#pudl.analysis.allocate_gen_fuel.IDX_GENS)                                 | Primary key columns for generator records.                                                                                                                        |
-| [`IDX_GENS_PM_ESC`](#pudl.analysis.allocate_gen_fuel.IDX_GENS_PM_ESC)                   | Primary key columns for plant, generator, prime mover & energy source records.                                                                                    |
-| [`IDX_PM_ESC`](#pudl.analysis.allocate_gen_fuel.IDX_PM_ESC)                             | Primary key columns for plant, prime mover & energy source records.                                                                                               |
-| [`IDX_B_PM_ESC`](#pudl.analysis.allocate_gen_fuel.IDX_B_PM_ESC)                         | Primary key columns for plant, boiler, prime mover & energy source records.                                                                                       |
-| [`IDX_ESC`](#pudl.analysis.allocate_gen_fuel.IDX_ESC)                                   | Primary key columns for plant & energy source records.                                                                                                            |
-| [`IDX_UNIT_ESC`](#pudl.analysis.allocate_gen_fuel.IDX_UNIT_ESC)                         | Primary key columns for plant, energy source & unit records.                                                                                                      |
-| [`DATA_COLUMNS`](#pudl.analysis.allocate_gen_fuel.DATA_COLUMNS)                         | Data columns from [core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-generation-fuel) that are being allocated. |
-| [`MISSING_SENTINEL`](#pudl.analysis.allocate_gen_fuel.MISSING_SENTINEL)                 | A sentinel value for dealing with null or zero values.                                                                                                            |
-| [`allocate_gen_fuel_assets`](#pudl.analysis.allocate_gen_fuel.allocate_gen_fuel_assets) |                                                                                                                                                                   |
+| [`logger`](#pudl.analysis.allocate_gen_fuel.logger)                   |                                                                                                                                                                      |
+|---------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`IDX_GENS`](#pudl.analysis.allocate_gen_fuel.IDX_GENS)                 | Primary key columns for generator records.                                                                                                                           |
+| [`IDX_GENS_PM_ESC`](#pudl.analysis.allocate_gen_fuel.IDX_GENS_PM_ESC)          | Primary key columns for plant, generator, prime mover & energy source records.                                                                                       |
+| [`IDX_PM_ESC`](#pudl.analysis.allocate_gen_fuel.IDX_PM_ESC)               | Primary key columns for plant, prime mover & energy source records.                                                                                                  |
+| [`IDX_B_PM_ESC`](#pudl.analysis.allocate_gen_fuel.IDX_B_PM_ESC)             | Primary key columns for plant, boiler, prime mover & energy source records.                                                                                          |
+| [`IDX_ESC`](#pudl.analysis.allocate_gen_fuel.IDX_ESC)                  | Primary key columns for plant & energy source records.                                                                                                               |
+| [`IDX_UNIT_ESC`](#pudl.analysis.allocate_gen_fuel.IDX_UNIT_ESC)             | Primary key columns for plant, energy source & unit records.                                                                                                         |
+| [`DATA_COLUMNS`](#pudl.analysis.allocate_gen_fuel.DATA_COLUMNS)             | Data columns from [core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation-fuel) that are being allocated. |
+| [`MISSING_SENTINEL`](#pudl.analysis.allocate_gen_fuel.MISSING_SENTINEL)         | A sentinel value for dealing with null or zero values.                                                                                                               |
+| [`allocate_gen_fuel_assets`](#pudl.analysis.allocate_gen_fuel.allocate_gen_fuel_assets) |                                                                                                                                                                      |
 
 ## Functions
 
-| [`allocate_gen_fuel_asset_factory`](#pudl.analysis.allocate_gen_fuel.allocate_gen_fuel_asset_factory)(...)                                             | Build yearly and monthly net generation & fuel consumption allocation assets.                                                                                   |
-|--------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [`allocate_gen_fuel_by_generator_energy_source`](#pudl.analysis.allocate_gen_fuel.allocate_gen_fuel_by_generator_energy_source)(...)                   | Allocate net gen from gen_fuel table to the generator/energy_source_code level.                                                                                 |
-| [`select_input_data`](#pudl.analysis.allocate_gen_fuel.select_input_data)(→ tuple[pandas.DataFrame])                                                   | Select only the subset of input data needed for the allocation.                                                                                                 |
-| [`standardize_input_frequency`](#pudl.analysis.allocate_gen_fuel.standardize_input_frequency)(→ tuple)                                                 | Standardize the frequency of the input tables.                                                                                                                  |
-| [`scale_allocated_net_gen_fuel_by_ownership`](#pudl.analysis.allocate_gen_fuel.scale_allocated_net_gen_fuel_by_ownership)(...)                         | Scale allocated net gen at the generator/energy_source_code level by ownership.                                                                                 |
-| [`agg_by_generator`](#pudl.analysis.allocate_gen_fuel.agg_by_generator)(→ pandas.DataFrame)                                                            | Aggregate the allocated gen fuel data to the generator level.                                                                                                   |
-| [`stack_generators`](#pudl.analysis.allocate_gen_fuel.stack_generators)(→ pandas.DataFrame)                                                            | Stack the generator table with a set of columns.                                                                                                                |
-| [`associate_generator_tables`](#pudl.analysis.allocate_gen_fuel.associate_generator_tables)(→ pandas.DataFrame)                                        | Associate the three tables needed to assign net gen and fuel to generators.                                                                                     |
-| [`_label_gf_unique_to_gen`](#pudl.analysis.allocate_gen_fuel._label_gf_unique_to_gen)(gen_assoc)                                                       |                                                                                                                                                                 |
-| [`remove_inactive_generators`](#pudl.analysis.allocate_gen_fuel.remove_inactive_generators)(→ pandas.DataFrame)                                        | Remove the retired generators.                                                                                                                                  |
-| [`identify_retiring_generators`](#pudl.analysis.allocate_gen_fuel.identify_retiring_generators)(→ pandas.DataFrame)                                    | Identify any generators that retire mid-year.                                                                                                                   |
-| [`identify_retired_plants`](#pudl.analysis.allocate_gen_fuel.identify_retired_plants)(→ pandas.DataFrame)                                              | Identify entire plants that have previously retired but are reporting data.                                                                                     |
-| [`identify_generators_coming_online`](#pudl.analysis.allocate_gen_fuel.identify_generators_coming_online)(→ pandas.DataFrame)                          | Identify generators that are coming online mid-year.                                                                                                            |
-| [`identify_proposed_plants`](#pudl.analysis.allocate_gen_fuel.identify_proposed_plants)(→ pandas.DataFrame)                                            | Identify entirely new plants that are proposed but are already reporting data.                                                                                  |
-| [`_allocate_unassociated_pm_records`](#pudl.analysis.allocate_gen_fuel._allocate_unassociated_pm_records)(→ pandas.DataFrame)                          | Associate unassociated [core_eia923_\_monthly_boiler_fuel](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-boiler-fuel) table records on idx_cols. |
-| [`prep_allocation_fraction`](#pudl.analysis.allocate_gen_fuel.prep_allocation_fraction)(→ pandas.DataFrame)                                            | Prepare the associated generators for allocation.                                                                                                               |
-| [`allocate_gen_fuel_by_gen_esc`](#pudl.analysis.allocate_gen_fuel.allocate_gen_fuel_by_gen_esc)(→ pandas.DataFrame)                                    | Allocate net generation to generators/energy_source_code via three methods.                                                                                     |
-| [`allocate_fuel_by_gen_esc`](#pudl.analysis.allocate_gen_fuel.allocate_fuel_by_gen_esc)(→ pandas.DataFrame)                                            | Allocate fuel_consumption to generators/energy_source_code via three methods.                                                                                   |
-| [`remove_aggregated_sentinel_value`](#pudl.analysis.allocate_gen_fuel.remove_aggregated_sentinel_value)(→ pandas.Series)                               | Replace the post-aggregation sentinel values in a column with zero.                                                                                             |
-| [`group_duplicate_keys`](#pudl.analysis.allocate_gen_fuel.group_duplicate_keys)(→ pandas.DataFrame)                                                    | Catches duplicate keys in the allocated data and groups them together.                                                                                          |
-| [`distribute_annually_reported_data_to_months_if_annual`](#pudl.analysis.allocate_gen_fuel.distribute_annually_reported_data_to_months_if_annual)(...) | Allocates annually-reported data from the gen or bf table to each month.                                                                                        |
-| [`manually_fix_energy_source_codes`](#pudl.analysis.allocate_gen_fuel.manually_fix_energy_source_codes)(→ pandas.DataFrame)                            | Reassign fuel codes that differ between gen-fuel and gens tables.                                                                                               |
-| [`adjust_msw_energy_source_codes`](#pudl.analysis.allocate_gen_fuel.adjust_msw_energy_source_codes)(→ pandas.DataFrame)                                | Adjusts MSW codes.                                                                                                                                              |
-| [`add_missing_energy_source_codes_to_gens`](#pudl.analysis.allocate_gen_fuel.add_missing_energy_source_codes_to_gens)(gens_at_freq, ...)               | Add energy_source_codes to gens that were found only in the gf or bf tables.                                                                                    |
-| [`identify_missing_gf_escs_in_gens`](#pudl.analysis.allocate_gen_fuel.identify_missing_gf_escs_in_gens)(gens_at_freq, gf, bf)                          | Identify energy_source_codes that exist in gf or bf but not gens.                                                                                               |
-| [`allocate_bf_data_to_gens`](#pudl.analysis.allocate_gen_fuel.allocate_bf_data_to_gens)(→ pandas.DataFrame)                                            | Allocates boiler fuel data to the generator level.                                                                                                              |
-| [`warn_if_missing_pms`](#pudl.analysis.allocate_gen_fuel.warn_if_missing_pms)(→ None)                                                                  | Log warning if there are too many null `prime_mover_code` s.                                                                                                    |
-| [`_test_frac`](#pudl.analysis.allocate_gen_fuel._test_frac)(→ pandas.DataFrame)                                                                        | Check if each of the IDX_PM_ESC groups frac's add up to 1.                                                                                                      |
-| [`_test_gen_pm_fuel_output`](#pudl.analysis.allocate_gen_fuel._test_gen_pm_fuel_output)(→ pandas.DataFrame)                                            |                                                                                                                                                                 |
-| [`test_gen_fuel_allocation`](#pudl.analysis.allocate_gen_fuel.test_gen_fuel_allocation)(→ None)                                                        | Does the allocated MWh differ from the granular [core_eia923_\_monthly_generation](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-generation)?    |
-| [`test_original_gf_vs_the_allocated_by_gens_gf`](#pudl.analysis.allocate_gen_fuel.test_original_gf_vs_the_allocated_by_gens_gf)(...)                   | Test whether the allocated data and original data sum up to similar values.                                                                                     |
+| [`allocate_gen_fuel_asset_factory`](#pudl.analysis.allocate_gen_fuel.allocate_gen_fuel_asset_factory)(...)                       | Build yearly and monthly net generation & fuel consumption allocation assets.                                                                                      |
+|-------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`allocate_gen_fuel_by_generator_energy_source`](#pudl.analysis.allocate_gen_fuel.allocate_gen_fuel_by_generator_energy_source)(...)          | Allocate net gen from gen_fuel table to the generator/energy_source_code level.                                                                                    |
+| [`select_input_data`](#pudl.analysis.allocate_gen_fuel.select_input_data)(→ tuple[pandas.DataFrame])               | Select only the subset of input data needed for the allocation.                                                                                                    |
+| [`standardize_input_frequency`](#pudl.analysis.allocate_gen_fuel.standardize_input_frequency)(→ tuple)                       | Standardize the frequency of the input tables.                                                                                                                     |
+| [`scale_allocated_net_gen_fuel_by_ownership`](#pudl.analysis.allocate_gen_fuel.scale_allocated_net_gen_fuel_by_ownership)(...)             | Scale allocated net gen at the generator/energy_source_code level by ownership.                                                                                    |
+| [`agg_by_generator`](#pudl.analysis.allocate_gen_fuel.agg_by_generator)(→ pandas.DataFrame)                       | Aggregate the allocated gen fuel data to the generator level.                                                                                                      |
+| [`stack_generators`](#pudl.analysis.allocate_gen_fuel.stack_generators)(→ pandas.DataFrame)                       | Stack the generator table with a set of columns.                                                                                                                   |
+| [`associate_generator_tables`](#pudl.analysis.allocate_gen_fuel.associate_generator_tables)(→ pandas.DataFrame)             | Associate the three tables needed to assign net gen and fuel to generators.                                                                                        |
+| [`_label_gf_unique_to_gen`](#pudl.analysis.allocate_gen_fuel._label_gf_unique_to_gen)(gen_assoc)                         |                                                                                                                                                                    |
+| [`remove_inactive_generators`](#pudl.analysis.allocate_gen_fuel.remove_inactive_generators)(→ pandas.DataFrame)             | Remove the retired generators.                                                                                                                                     |
+| [`identify_retiring_generators`](#pudl.analysis.allocate_gen_fuel.identify_retiring_generators)(→ pandas.DataFrame)           | Identify any generators that retire mid-year.                                                                                                                      |
+| [`identify_retired_plants`](#pudl.analysis.allocate_gen_fuel.identify_retired_plants)(→ pandas.DataFrame)                | Identify entire plants that have previously retired but are reporting data.                                                                                        |
+| [`identify_generators_coming_online`](#pudl.analysis.allocate_gen_fuel.identify_generators_coming_online)(→ pandas.DataFrame)      | Identify generators that are coming online mid-year.                                                                                                               |
+| [`identify_proposed_plants`](#pudl.analysis.allocate_gen_fuel.identify_proposed_plants)(→ pandas.DataFrame)               | Identify entirely new plants that are proposed but are already reporting data.                                                                                     |
+| [`_allocate_unassociated_pm_records`](#pudl.analysis.allocate_gen_fuel._allocate_unassociated_pm_records)(→ pandas.DataFrame)      | Associate unassociated [core_eia923_\_monthly_boiler_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-boiler-fuel) table records on idx_cols. |
+| [`prep_allocation_fraction`](#pudl.analysis.allocate_gen_fuel.prep_allocation_fraction)(→ pandas.DataFrame)               | Prepare the associated generators for allocation.                                                                                                                  |
+| [`allocate_gen_fuel_by_gen_esc`](#pudl.analysis.allocate_gen_fuel.allocate_gen_fuel_by_gen_esc)(→ pandas.DataFrame)           | Allocate net generation to generators/energy_source_code via three methods.                                                                                        |
+| [`allocate_fuel_by_gen_esc`](#pudl.analysis.allocate_gen_fuel.allocate_fuel_by_gen_esc)(→ pandas.DataFrame)               | Allocate fuel_consumption to generators/energy_source_code via three methods.                                                                                      |
+| [`remove_aggregated_sentinel_value`](#pudl.analysis.allocate_gen_fuel.remove_aggregated_sentinel_value)(→ pandas.Series)          | Replace the post-aggregation sentinel values in a column with zero.                                                                                                |
+| [`group_duplicate_keys`](#pudl.analysis.allocate_gen_fuel.group_duplicate_keys)(→ pandas.DataFrame)                   | Catches duplicate keys in the allocated data and groups them together.                                                                                             |
+| [`distribute_annually_reported_data_to_months_if_annual`](#pudl.analysis.allocate_gen_fuel.distribute_annually_reported_data_to_months_if_annual)(...) | Allocates annually-reported data from the gen or bf table to each month.                                                                                           |
+| [`manually_fix_energy_source_codes`](#pudl.analysis.allocate_gen_fuel.manually_fix_energy_source_codes)(→ pandas.DataFrame)       | Reassign fuel codes that differ between gen-fuel and gens tables.                                                                                                  |
+| [`adjust_msw_energy_source_codes`](#pudl.analysis.allocate_gen_fuel.adjust_msw_energy_source_codes)(→ pandas.DataFrame)         | Adjusts MSW codes.                                                                                                                                                 |
+| [`add_missing_energy_source_codes_to_gens`](#pudl.analysis.allocate_gen_fuel.add_missing_energy_source_codes_to_gens)(gens_at_freq, ...) | Add energy_source_codes to gens that were found only in the gf or bf tables.                                                                                       |
+| [`identify_missing_gf_escs_in_gens`](#pudl.analysis.allocate_gen_fuel.identify_missing_gf_escs_in_gens)(gens_at_freq, gf, bf)     | Identify energy_source_codes that exist in gf or bf but not gens.                                                                                                  |
+| [`allocate_bf_data_to_gens`](#pudl.analysis.allocate_gen_fuel.allocate_bf_data_to_gens)(→ pandas.DataFrame)               | Allocates boiler fuel data to the generator level.                                                                                                                 |
+| [`warn_if_missing_pms`](#pudl.analysis.allocate_gen_fuel.warn_if_missing_pms)(→ None)                                | Log warning if there are too many null `prime_mover_code` s.                                                                                                       |
+| [`_test_frac`](#pudl.analysis.allocate_gen_fuel._test_frac)(→ pandas.DataFrame)                             | Check if each of the IDX_PM_ESC groups frac's add up to 1.                                                                                                         |
+| [`_test_gen_pm_fuel_output`](#pudl.analysis.allocate_gen_fuel._test_gen_pm_fuel_output)(→ pandas.DataFrame)               |                                                                                                                                                                    |
+| [`test_gen_fuel_allocation`](#pudl.analysis.allocate_gen_fuel.test_gen_fuel_allocation)(→ None)                           | Does the allocated MWh differ from the granular [core_eia923_\_monthly_generation](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation)?    |
+| [`test_original_gf_vs_the_allocated_by_gens_gf`](#pudl.analysis.allocate_gen_fuel.test_original_gf_vs_the_allocated_by_gens_gf)(...)          | Test whether the allocated data and original data sum up to similar values.                                                                                        |
 
 ## Module Contents
 
@@ -213,7 +213,7 @@ Primary key columns for plant, energy source & unit records.
 
 ### pudl.analysis.allocate_gen_fuel.DATA_COLUMNS *= ['net_generation_mwh', 'fuel_consumed_mmbtu', 'fuel_consumed_for_electricity_mmbtu']*
 
-Data columns from [core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-generation-fuel) that are being allocated.
+Data columns from [core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation-fuel) that are being allocated.
 
 ### pudl.analysis.allocate_gen_fuel.MISSING_SENTINEL *= 1e-05*
 
@@ -256,14 +256,14 @@ have two data points for generating this ratio: the net generation in the
 core_eia923_\_monthly_generation table and the capacity from the core_eia860_\_scd_generators table.
 The end result is a `frac` column which is unique for each combination of
 generator, prime_mover, and fuel and is used to allocate the associated
-net generation from the [core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-generation-fuel) table.
+net generation from the [core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation-fuel) table.
 
 * **Parameters:**
-  * **gf** – Temporally aggregated [out_eia923_\_generation_fuel_combined](../../../../data_dictionaries/pudl_db.md#out-eia923-generation-fuel-combined) dataframe.
-  * **bf** – Temporally aggregated [core_eia923_\_monthly_boiler_fuel](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-boiler-fuel) dataframe.
-  * **gen** – Temporally aggregated [core_eia923_\_monthly_generation](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-generation) dataframe.
-  * **bga** – [core_eia860_\_assn_boiler_generator](../../../../data_dictionaries/pudl_db.md#core-eia860-assn-boiler-generator) dataframe.
-  * **gens** – [core_eia860_\_scd_generators](../../../../data_dictionaries/pudl_db.md#core-eia860-scd-generators) dataframe.
+  * **gf** – Temporally aggregated [out_eia923_\_generation_fuel_combined](../../../../data_dictionaries/pudl_db.html.md#out-eia923-generation-fuel-combined) dataframe.
+  * **bf** – Temporally aggregated [core_eia923_\_monthly_boiler_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-boiler-fuel) dataframe.
+  * **gen** – Temporally aggregated [core_eia923_\_monthly_generation](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation) dataframe.
+  * **bga** – [core_eia860_\_assn_boiler_generator](../../../../data_dictionaries/pudl_db.html.md#core-eia860-assn-boiler-generator) dataframe.
+  * **gens** – [core_eia860_\_scd_generators](../../../../data_dictionaries/pudl_db.html.md#core-eia860-scd-generators) dataframe.
   * **freq** – Frequency at which the tables are aggregated temporally.
   * **debug** – If True, return additional debugging information.
 
@@ -281,14 +281,14 @@ recent data from the EIA-860M.
 Standardize the frequency of the input tables.
 
 Employ [`distribute_annually_reported_data_to_months_if_annual()`](#pudl.analysis.allocate_gen_fuel.distribute_annually_reported_data_to_months_if_annual) on the boiler
-fuel and generation table. Employ [`pudl.helpers.expand_timeseries()`](../../helpers/index.md#pudl.helpers.expand_timeseries) on the
+fuel and generation table. Employ [`pudl.helpers.expand_timeseries()`](../../helpers/index.html.md#pudl.helpers.expand_timeseries) on the
 generators table. Also use the expanded generators table to ensure the generation
 table has all of the generators present.
 
 * **Parameters:**
-  * **bf** – [core_eia923_\_monthly_boiler_fuel](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-boiler-fuel) table
-  * **gens** – [core_eia860_\_scd_generators](../../../../data_dictionaries/pudl_db.md#core-eia860-scd-generators) table
-  * **gen** – [core_eia923_\_monthly_generation](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-generation) table
+  * **bf** – [core_eia923_\_monthly_boiler_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-boiler-fuel) table
+  * **gens** – [core_eia860_\_scd_generators](../../../../data_dictionaries/pudl_db.html.md#core-eia860-scd-generators) table
+  * **gen** – [core_eia923_\_monthly_generation](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation) table
   * **freq** – the (time) frequency at which the tables will be aggregated.
 
 ### pudl.analysis.allocate_gen_fuel.scale_allocated_net_gen_fuel_by_ownership(net_gen_fuel_alloc: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), gens: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), own_eia860: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
@@ -345,8 +345,8 @@ Stack the generator table with a set of columns.
 
 Associate the three tables needed to assign net gen and fuel to generators.
 
-The [core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-generation-fuel) table’s data is reported at the
-[`IDX_PM_ESC`](#pudl.analysis.allocate_gen_fuel.IDX_PM_ESC) granularity. Each generator in the [core_eia860_\_scd_generators](../../../../data_dictionaries/pudl_db.md#core-eia860-scd-generators)
+The [core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation-fuel) table’s data is reported at the
+[`IDX_PM_ESC`](#pudl.analysis.allocate_gen_fuel.IDX_PM_ESC) granularity. Each generator in the [core_eia860_\_scd_generators](../../../../data_dictionaries/pudl_db.html.md#core-eia860-scd-generators)
 has one `prime_mover_code`, but potentially several `energy_source_code``s that
 are reported in several columns. We need to reshape the generators table such that
 each generator has a separate record corresponding to each of its reported
@@ -372,23 +372,23 @@ generation or fuel to those generators. See [`remove_inactive_generators()`](#pu
 more details.
 
 There are some records in the data tables that have either `prime_mover_code` s  or
-`energy_source_code` s that do no appear in the [core_eia860_\_scd_generators](../../../../data_dictionaries/pudl_db.md#core-eia860-scd-generators) table.
+`energy_source_code` s that do no appear in the [core_eia860_\_scd_generators](../../../../data_dictionaries/pudl_db.html.md#core-eia860-scd-generators) table.
 We employ `_allocate_unassociated_bf_records()` to make sure those records are
 associated.
 
 * **Parameters:**
-  * **gens** – [core_eia860_\_scd_generators](../../../../data_dictionaries/pudl_db.md#core-eia860-scd-generators) table with cols: [`IDX_GENS`](#pudl.analysis.allocate_gen_fuel.IDX_GENS) and all of
+  * **gens** – [core_eia860_\_scd_generators](../../../../data_dictionaries/pudl_db.html.md#core-eia860-scd-generators) table with cols: [`IDX_GENS`](#pudl.analysis.allocate_gen_fuel.IDX_GENS) and all of
     the `energy_source_code` columns and expanded to the same frequency.
-  * **gf** – [core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-generation-fuel) table with columns: [`IDX_PM_ESC`](#pudl.analysis.allocate_gen_fuel.IDX_PM_ESC) and
+  * **gf** – [core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation-fuel) table with columns: [`IDX_PM_ESC`](#pudl.analysis.allocate_gen_fuel.IDX_PM_ESC) and
     `net_generation_mwh` and `fuel_consumed_mmbtu`.
-  * **gen** – [core_eia923_\_monthly_generation](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-generation) table with columns: [`IDX_GENS`](#pudl.analysis.allocate_gen_fuel.IDX_GENS) and
+  * **gen** – [core_eia923_\_monthly_generation](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation) table with columns: [`IDX_GENS`](#pudl.analysis.allocate_gen_fuel.IDX_GENS) and
     `net_generation_mwh`.
-  * **bf** – [core_eia923_\_monthly_boiler_fuel](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-boiler-fuel) table with columns: [`IDX_B_PM_ESC`](#pudl.analysis.allocate_gen_fuel.IDX_B_PM_ESC) and
+  * **bf** – [core_eia923_\_monthly_boiler_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-boiler-fuel) table with columns: [`IDX_B_PM_ESC`](#pudl.analysis.allocate_gen_fuel.IDX_B_PM_ESC) and
     fuel consumption columns.
-  * **bga** – [core_eia860_\_assn_boiler_generator](../../../../data_dictionaries/pudl_db.md#core-eia860-assn-boiler-generator) table.
+  * **bga** – [core_eia860_\_assn_boiler_generator](../../../../data_dictionaries/pudl_db.html.md#core-eia860-assn-boiler-generator) table.
 * **Returns:**
   table of generators with stacked energy sources and broadcasted net generation
-  and fuel data from the [core_eia923_\_monthly_generation](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-generation) and [core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-generation-fuel)
+  and fuel data from the [core_eia923_\_monthly_generation](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation) and [core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation-fuel)
   tables. There are many duplicate values in this output which will later be used
   in the allocation process in [`allocate_gen_fuel_by_gen_esc()`](#pudl.analysis.allocate_gen_fuel.allocate_gen_fuel_by_gen_esc) and
   [`allocate_fuel_by_gen_esc()`](#pudl.analysis.allocate_gen_fuel.allocate_fuel_by_gen_esc).
@@ -467,9 +467,9 @@ Identify entirely new plants that are proposed but are already reporting data.
 
 ### pudl.analysis.allocate_gen_fuel.\_allocate_unassociated_pm_records(gen_assoc: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), idx_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], col_w_unexpected_codes: Literal['energy_source_code', 'prime_mover_code'], data_columns: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
-Associate unassociated [core_eia923_\_monthly_boiler_fuel](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-boiler-fuel) table records on idx_cols.
+Associate unassociated [core_eia923_\_monthly_boiler_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-boiler-fuel) table records on idx_cols.
 
-There are a subset of [core_eia923_\_monthly_boiler_fuel](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-boiler-fuel) and [core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-generation-fuel)
+There are a subset of [core_eia923_\_monthly_boiler_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-boiler-fuel) and [core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation-fuel)
 records which do not merge onto the stacked generator table on `IDX_GENS_PM_ESC`
 or `ID_PM_ESC` respectively. These records generally don’t match with the set of
 prime movers and energy sources in the stacked generator table. In this method, we
@@ -578,10 +578,10 @@ assumed this was a plant-level annual attribute (and is thus stored in the
 
 * **Parameters:**
   * **df** – A dataframe of either generation or boiler-fuel data, loaded from
-    [out_eia923_\_monthly_generation](../../../../data_dictionaries/pudl_db.md#out-eia923-monthly-generation) or
-    [out_eia923_\_yearly_generation](../../../../data_dictionaries/pudl_db.md#out-eia923-yearly-generation) and
-    [out_eia923_\_monthly_boiler_fuel](../../../../data_dictionaries/pudl_db.md#out-eia923-monthly-boiler-fuel) or
-    [out_eia923_\_yearly_boiler_fuel](../../../../data_dictionaries/pudl_db.md#out-eia923-yearly-boiler-fuel) or respectively.
+    [out_eia923_\_monthly_generation](../../../../data_dictionaries/pudl_db.html.md#out-eia923-monthly-generation) or
+    [out_eia923_\_yearly_generation](../../../../data_dictionaries/pudl_db.html.md#out-eia923-yearly-generation) and
+    [out_eia923_\_monthly_boiler_fuel](../../../../data_dictionaries/pudl_db.html.md#out-eia923-monthly-boiler-fuel) or
+    [out_eia923_\_yearly_boiler_fuel](../../../../data_dictionaries/pudl_db.html.md#out-eia923-yearly-boiler-fuel) or respectively.
   * **key_columns** – a list of the primary key column names, either
     `["plant_id_eia","boiler_id","energy_source_code"]` or
     `["plant_id_eia","generator_id"]`
@@ -658,7 +658,7 @@ Check if each of the IDX_PM_ESC groups frac’s add up to 1.
 
 ### pudl.analysis.allocate_gen_fuel.test_gen_fuel_allocation(gen: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), net_gen_alloc: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), ratio: [float](https://docs.python.org/3/library/functions.html#float) = 0.05) → [None](https://docs.python.org/3/library/constants.html#None)
 
-Does the allocated MWh differ from the granular [core_eia923_\_monthly_generation](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-generation)?
+Does the allocated MWh differ from the granular [core_eia923_\_monthly_generation](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation)?
 
 * **Parameters:**
   * **gen** – the `core_eia923__monthly_generation` table.

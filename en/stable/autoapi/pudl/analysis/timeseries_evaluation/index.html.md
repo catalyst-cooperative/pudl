@@ -19,17 +19,17 @@ Static reported vs. imputed values with color coded points for the imputations
 
 ## Functions
 
-| [`_filter_df`](#pudl.analysis.timeseries_evaluation._filter_df)(→ pandas.DataFrame)                                                 | Filter a dataframe based on index columns and date range.               |
-|-------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
-| [`extract_baseline_eia930_imputation`](#pudl.analysis.timeseries_evaluation.extract_baseline_eia930_imputation)(→ pandas.DataFrame) | Download and extract an existing imputation of the EIA-930 demand data. |
-| [`plot_correlation`](#pudl.analysis.timeseries_evaluation.plot_correlation)(df, timeseries_x, timeseries_y, idx_cols)               | Plot the correlation between two analogous time series.                 |
-| [`plot_imputation`](#pudl.analysis.timeseries_evaluation.plot_imputation)(df, idx_cols, idx_vals, start_date, ...)                  | Compare reported values with imputed values visually.                   |
-| [`plot_compare_imputation`](#pudl.analysis.timeseries_evaluation.plot_compare_imputation)(df, idx_cols, idx_vals, ...[, ...])       | Plot two timeseries of the same information like demand for comparison. |
-| [`encode_run_length`](#pudl.analysis.timeseries_evaluation.encode_run_length)(→ tuple[numpy.ndarray, numpy.ndarray])                | Encode vector with run-length encoding.                                 |
-| [`insert_run_length`](#pudl.analysis.timeseries_evaluation.insert_run_length)(→ numpy.ndarray)                                      | Insert run-length encoded values into a vector.                         |
-| [`summarize_flags`](#pudl.analysis.timeseries_evaluation.summarize_flags)(→ pandas.DataFrame)                                       | Summarize flagged values by flag, count and median.                     |
-| [`plot_flags`](#pudl.analysis.timeseries_evaluation.plot_flags)(→ None)                                                             | Plot cleaned series and anomalous values colored by flag.               |
-| [`simulate_nulls`](#pudl.analysis.timeseries_evaluation.simulate_nulls)(→ numpy.ndarray)                                            | Find non-null values to null to match a run-length distribution.        |
+| [`_filter_df`](#pudl.analysis.timeseries_evaluation._filter_df)(→ pandas.DataFrame)                              | Filter a dataframe based on index columns and date range.               |
+|--------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
+| [`extract_baseline_eia930_imputation`](#pudl.analysis.timeseries_evaluation.extract_baseline_eia930_imputation)(→ pandas.DataFrame)      | Download and extract an existing imputation of the EIA-930 demand data. |
+| [`plot_correlation`](#pudl.analysis.timeseries_evaluation.plot_correlation)(df, timeseries_x, timeseries_y, idx_cols)  | Plot the correlation between two analogous time series.                 |
+| [`plot_imputation`](#pudl.analysis.timeseries_evaluation.plot_imputation)(df, idx_cols, idx_vals, start_date, ...)    | Compare reported values with imputed values visually.                   |
+| [`plot_compare_imputation`](#pudl.analysis.timeseries_evaluation.plot_compare_imputation)(df, idx_cols, idx_vals, ...[, ...]) | Plot two timeseries of the same information like demand for comparison. |
+| [`encode_run_length`](#pudl.analysis.timeseries_evaluation.encode_run_length)(→ tuple[numpy.ndarray, numpy.ndarray])    | Encode vector with run-length encoding.                                 |
+| [`insert_run_length`](#pudl.analysis.timeseries_evaluation.insert_run_length)(→ numpy.ndarray)                          | Insert run-length encoded values into a vector.                         |
+| [`summarize_flags`](#pudl.analysis.timeseries_evaluation.summarize_flags)(→ pandas.DataFrame)                         | Summarize flagged values by flag, count and median.                     |
+| [`plot_flags`](#pudl.analysis.timeseries_evaluation.plot_flags)(→ None)                                          | Plot cleaned series and anomalous values colored by flag.               |
+| [`simulate_nulls`](#pudl.analysis.timeseries_evaluation.simulate_nulls)(→ numpy.ndarray)                             | Find non-null values to null to match a run-length distribution.        |
 
 ## Module Contents
 
@@ -85,7 +85,7 @@ Encode vector with run-length encoding.
 (array([nan,  1., nan,  1.]), array([1, 2, 1, 1]))
 ```
 
-### pudl.analysis.timeseries_evaluation.insert_run_length(x: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence) | [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), values: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence) | [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), lengths: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/library/functions.html#int)], mask: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[bool](https://docs.python.org/3/library/functions.html#bool)] = None, padding: [int](https://docs.python.org/3/library/functions.html#int) = 0, intersect: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
+### pudl.analysis.timeseries_evaluation.insert_run_length(x: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence) | [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), values: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence) | [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), lengths: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/library/functions.html#int)], mask: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[bool](https://docs.python.org/3/library/functions.html#bool)] | [None](https://docs.python.org/3/library/constants.html#None) = None, padding: [int](https://docs.python.org/3/library/functions.html#int) = 0, intersect: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
 
 Insert run-length encoded values into a vector.
 
@@ -170,7 +170,7 @@ Plot cleaned series and anomalous values colored by flag.
 * **Parameters:**
   **name** – Series to plot, as either an integer index or name in `columns`.
 
-### pudl.analysis.timeseries_evaluation.simulate_nulls(self, lengths: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/library/functions.html#int)] = None, padding: [int](https://docs.python.org/3/library/functions.html#int) = 1, intersect: [bool](https://docs.python.org/3/library/functions.html#bool) = False, overlap: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
+### pudl.analysis.timeseries_evaluation.simulate_nulls(self, lengths: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/library/functions.html#int)] | [None](https://docs.python.org/3/library/constants.html#None) = None, padding: [int](https://docs.python.org/3/library/functions.html#int) = 1, intersect: [bool](https://docs.python.org/3/library/functions.html#bool) = False, overlap: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
 
 Find non-null values to null to match a run-length distribution.
 

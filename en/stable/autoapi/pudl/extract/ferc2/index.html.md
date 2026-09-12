@@ -14,20 +14,20 @@ million dekatherms.
 ## Attributes
 
 | [`logger`](#pudl.extract.ferc2.logger)   |    |
-|------------------------------------------|----|
+|-----------------------------------------------------------|----|
 
 ## Classes
 
 | [`Ferc2DbfExtractor`](#pudl.extract.ferc2.Ferc2DbfExtractor)   | Wrapper for running the foxpro to sqlite conversion of FERC1 dataset.   |
-|----------------------------------------------------------------|-------------------------------------------------------------------------|
+|----------------------------------------------------------------------|-------------------------------------------------------------------------|
 
 ## Module Contents
 
 ### pudl.extract.ferc2.logger
 
-### *class* pudl.extract.ferc2.Ferc2DbfExtractor(datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.md#pudl.workspace.datastore.Datastore), data_config: [pudl.settings.FercDbfToSqliteDataConfig](../../settings/index.md#pudl.settings.FercDbfToSqliteDataConfig), output_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path))
+### *class* pudl.extract.ferc2.Ferc2DbfExtractor(datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore), data_config: [pudl.settings.FercDbfToSqliteDataConfig](../../settings/index.html.md#pudl.settings.FercDbfToSqliteDataConfig), output_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path))
 
-Bases: [`pudl.extract.dbf.FercDbfExtractor`](../dbf/index.md#pudl.extract.dbf.FercDbfExtractor)
+Bases: [`pudl.extract.dbf.FercDbfExtractor`](../dbf/index.html.md#pudl.extract.dbf.FercDbfExtractor)
 
 Wrapper for running the foxpro to sqlite conversion of FERC1 dataset.
 
@@ -43,7 +43,7 @@ Add primary and foreign keys for respondent_id.
 
 Drops partition with non-empty part fields.
 
-#### aggregate_table_frames(table_name: [str](https://docs.python.org/3/library/stdtypes.html#str), dfs: [list](https://docs.python.org/3/library/stdtypes.html#list)[[pudl.extract.dbf.PartitionedDataFrame](../dbf/index.md#pudl.extract.dbf.PartitionedDataFrame)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [None](https://docs.python.org/3/library/constants.html#None)
+#### aggregate_table_frames(table_name: [str](https://docs.python.org/3/library/stdtypes.html#str), dfs: [list](https://docs.python.org/3/library/stdtypes.html#list)[[pudl.extract.dbf.PartitionedDataFrame](../dbf/index.html.md#pudl.extract.dbf.PartitionedDataFrame)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [None](https://docs.python.org/3/library/constants.html#None)
 
 Runs the deduplication on f2_s0_respondent_id table.
 

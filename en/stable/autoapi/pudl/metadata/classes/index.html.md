@@ -4,48 +4,48 @@ Metadata data classes.
 
 ## Attributes
 
-| [`logger`](#pudl.metadata.classes.logger)                     |                                                                                                                       |
-|---------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|
-| [`String`](#pudl.metadata.classes.String)                     | Non-empty [`str`](https://docs.python.org/3/library/stdtypes.html#str) with no trailing or leading whitespace.        |
-| [`SnakeCase`](#pudl.metadata.classes.SnakeCase)               | Snake-case variable name [`str`](https://docs.python.org/3/library/stdtypes.html#str) (e.g. 'pudl', 'entity_eia860'). |
-| [`PositiveInt`](#pudl.metadata.classes.PositiveInt)           | Positive [`int`](https://docs.python.org/3/library/functions.html#int).                                               |
-| [`PositiveFloat`](#pudl.metadata.classes.PositiveFloat)       | Positive [`float`](https://docs.python.org/3/library/functions.html#float).                                           |
-| [`T`](#pudl.metadata.classes.T)                               |                                                                                                                       |
-| [`StrictList`](#pudl.metadata.classes.StrictList)             | Non-empty [`list`](https://docs.python.org/3/library/stdtypes.html#list).                                             |
-| [`FieldNamespace`](#pudl.metadata.classes.FieldNamespace)     | Canonical field namespace identifiers used by PUDL resources.                                                         |
+| [`logger`](#pudl.metadata.classes.logger)           |                                                                                                                       |
+|-------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|
+| [`String`](#pudl.metadata.classes.String)           | Non-empty [`str`](https://docs.python.org/3/library/stdtypes.html#str) with no trailing or leading whitespace.        |
+| [`SnakeCase`](#pudl.metadata.classes.SnakeCase)        | Snake-case variable name [`str`](https://docs.python.org/3/library/stdtypes.html#str) (e.g. 'pudl', 'entity_eia860'). |
+| [`PositiveInt`](#pudl.metadata.classes.PositiveInt)      | Positive [`int`](https://docs.python.org/3/library/functions.html#int).                                               |
+| [`PositiveFloat`](#pudl.metadata.classes.PositiveFloat)    | Positive [`float`](https://docs.python.org/3/library/functions.html#float).                                           |
+| [`T`](#pudl.metadata.classes.T)                |                                                                                                                       |
+| [`StrictList`](#pudl.metadata.classes.StrictList)       | Non-empty [`list`](https://docs.python.org/3/library/stdtypes.html#list).                                             |
+| [`FieldNamespace`](#pudl.metadata.classes.FieldNamespace)   | Canonical field namespace identifiers used by PUDL resources.                                                         |
 | [`FIELD_NAMESPACES`](#pudl.metadata.classes.FIELD_NAMESPACES) | All valid PUDL field namespace identifiers.                                                                           |
-| [`EtlGroup`](#pudl.metadata.classes.EtlGroup)                 | Canonical ETL group identifiers used by PUDL resources.                                                               |
-| [`ETL_GROUPS`](#pudl.metadata.classes.ETL_GROUPS)             | All valid PUDL ETL group identifiers.                                                                                 |
-| [`PUDL_PACKAGE`](#pudl.metadata.classes.PUDL_PACKAGE)         | Define a global PUDL package object for use across the entire codebase.                                               |
+| [`EtlGroup`](#pudl.metadata.classes.EtlGroup)         | Canonical ETL group identifiers used by PUDL resources.                                                               |
+| [`ETL_GROUPS`](#pudl.metadata.classes.ETL_GROUPS)       | All valid PUDL ETL group identifiers.                                                                                 |
+| [`PUDL_PACKAGE`](#pudl.metadata.classes.PUDL_PACKAGE)     | Define a global PUDL package object for use across the entire codebase.                                               |
 
 ## Classes
 
-| [`PudlMeta`](#pudl.metadata.classes.PudlMeta)                             | A base model that configures some options for PUDL metadata classes.    |
-|---------------------------------------------------------------------------|-------------------------------------------------------------------------|
-| [`FieldConstraints`](#pudl.metadata.classes.FieldConstraints)             | Field constraints (resource.schema.fields[...].constraints).            |
-| [`FieldHarvest`](#pudl.metadata.classes.FieldHarvest)                     | Field harvest parameters (resource.schema.fields[...].harvest).         |
-| [`Encoder`](#pudl.metadata.classes.Encoder)                               | A class that allows us to standardize reported categorical codes.       |
-| [`Field`](#pudl.metadata.classes.Field)                                   | Field (resource.schema.fields[...]).                                    |
-| [`ForeignKeyReference`](#pudl.metadata.classes.ForeignKeyReference)       | Foreign key reference (resource.schema.foreign_keys[...].reference).    |
-| [`ForeignKey`](#pudl.metadata.classes.ForeignKey)                         | Foreign key (resource.schema.foreign_keys[...]).                        |
-| [`Schema`](#pudl.metadata.classes.Schema)                                 | Table schema (resource.schema).                                         |
-| [`License`](#pudl.metadata.classes.License)                               | Data license (package|resource.licenses[...]).                          |
-| [`Contributor`](#pudl.metadata.classes.Contributor)                       | Data contributor (package.contributors[...]).                           |
-| [`DataSource`](#pudl.metadata.classes.DataSource)                         | A data source that has been integrated into PUDL.                       |
-| [`ResourceHarvest`](#pudl.metadata.classes.ResourceHarvest)               | Resource harvest parameters (resource.harvest).                         |
+| [`PudlMeta`](#pudl.metadata.classes.PudlMeta)               | A base model that configures some options for PUDL metadata classes.    |
+|-------------------------------------------------------------------------|-------------------------------------------------------------------------|
+| [`FieldConstraints`](#pudl.metadata.classes.FieldConstraints)       | Field constraints (resource.schema.fields[...].constraints).            |
+| [`FieldHarvest`](#pudl.metadata.classes.FieldHarvest)           | Field harvest parameters (resource.schema.fields[...].harvest).         |
+| [`Encoder`](#pudl.metadata.classes.Encoder)                | A class that allows us to standardize reported categorical codes.       |
+| [`Field`](#pudl.metadata.classes.Field)                  | Field (resource.schema.fields[...]).                                    |
+| [`ForeignKeyReference`](#pudl.metadata.classes.ForeignKeyReference)    | Foreign key reference (resource.schema.foreign_keys[...].reference).    |
+| [`ForeignKey`](#pudl.metadata.classes.ForeignKey)             | Foreign key (resource.schema.foreign_keys[...]).                        |
+| [`Schema`](#pudl.metadata.classes.Schema)                 | Table schema (resource.schema).                                         |
+| [`License`](#pudl.metadata.classes.License)                | Data license (package|resource.licenses[...]).                          |
+| [`Contributor`](#pudl.metadata.classes.Contributor)            | Data contributor (package.contributors[...]).                           |
+| [`DataSource`](#pudl.metadata.classes.DataSource)             | A data source that has been integrated into PUDL.                       |
+| [`ResourceHarvest`](#pudl.metadata.classes.ResourceHarvest)        | Resource harvest parameters (resource.harvest).                         |
 | [`PudlResourceDescriptor`](#pudl.metadata.classes.PudlResourceDescriptor) | The form we expect the RESOURCE_METADATA elements to take.              |
-| [`Resource`](#pudl.metadata.classes.Resource)                             | Tabular data resource (package.resources[...]).                         |
-| [`Package`](#pudl.metadata.classes.Package)                               | Tabular data package.                                                   |
-| [`CodeMetadata`](#pudl.metadata.classes.CodeMetadata)                     | A list of Encoders for standardizing and documenting categorical codes. |
+| [`Resource`](#pudl.metadata.classes.Resource)               | Tabular data resource (package.resources[...]).                         |
+| [`Package`](#pudl.metadata.classes.Package)                | Tabular data package.                                                   |
+| [`CodeMetadata`](#pudl.metadata.classes.CodeMetadata)           | A list of Encoders for standardizing and documenting categorical codes. |
 
 ## Functions
 
-| [`_unique`](#pudl.metadata.classes._unique)(→ list)                                       | Return a list of all unique values, in order of first appearance.   |
-|-------------------------------------------------------------------------------------------|---------------------------------------------------------------------|
-| [`_format_for_sql`](#pudl.metadata.classes._format_for_sql)(→ str)                        | Format value for use in raw SQL(ite).                               |
+| [`_unique`](#pudl.metadata.classes._unique)(→ list)                        | Return a list of all unique values, in order of first appearance.   |
+|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------|
+| [`_format_for_sql`](#pudl.metadata.classes._format_for_sql)(→ str)                 | Format value for use in raw SQL(ite).                               |
 | [`_get_jinja_environment`](#pudl.metadata.classes._get_jinja_environment)([template_dir]) |                                                                     |
-| [`_check_unique`](#pudl.metadata.classes._check_unique)(→ list | None)                    | Check that input list has unique values.                            |
-| [`_validator`](#pudl.metadata.classes._validator)(→ collections.abc.Callable)             | Construct reusable Pydantic validator.                              |
+| [`_check_unique`](#pudl.metadata.classes._check_unique)(→ list | None)           | Check that input list has unique values.                            |
+| [`_sort_deterministically`](#pudl.metadata.classes._sort_deterministically)(→ list | None) | Sort an enum constraint's values into a deterministic order.        |
 
 ## Module Contents
 
@@ -101,7 +101,7 @@ Format value for use in raw SQL(ite).
 "'2020-01-02 03:04:05'"
 ```
 
-### pudl.metadata.classes.\_get_jinja_environment(template_dir: pydantic.DirectoryPath = None)
+### pudl.metadata.classes.\_get_jinja_environment(template_dir: pydantic.DirectoryPath | [None](https://docs.python.org/3/library/constants.html#None) = None)
 
 ### pudl.metadata.classes.String
 
@@ -132,7 +132,7 @@ Allows [`list`](https://docs.python.org/3/library/stdtypes.html#list), [`tuple`]
 
 Canonical field namespace identifiers used by PUDL resources.
 
-### pudl.metadata.classes.FIELD_NAMESPACES *: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[FieldNamespace](#pudl.metadata.classes.FieldNamespace), Ellipsis]*
+### pudl.metadata.classes.FIELD_NAMESPACES *: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[FieldNamespace](#pudl.metadata.classes.FieldNamespace), ...]*
 
 All valid PUDL field namespace identifiers.
 
@@ -140,32 +140,17 @@ All valid PUDL field namespace identifiers.
 
 Canonical ETL group identifiers used by PUDL resources.
 
-### pudl.metadata.classes.ETL_GROUPS *: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[EtlGroup](#pudl.metadata.classes.EtlGroup), Ellipsis]*
+### pudl.metadata.classes.ETL_GROUPS *: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[EtlGroup](#pudl.metadata.classes.EtlGroup), ...]*
 
 All valid PUDL ETL group identifiers.
 
-### pudl.metadata.classes.\_check_unique(value: [list](https://docs.python.org/3/library/stdtypes.html#list) = None) → [list](https://docs.python.org/3/library/stdtypes.html#list) | [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.metadata.classes.\_check_unique(value: [list](https://docs.python.org/3/library/stdtypes.html#list) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [list](https://docs.python.org/3/library/stdtypes.html#list) | [None](https://docs.python.org/3/library/constants.html#None)
 
 Check that input list has unique values.
 
-### pudl.metadata.classes.\_validator(\*names, fn: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)) → [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)
+### pudl.metadata.classes.\_sort_deterministically(value: [list](https://docs.python.org/3/library/stdtypes.html#list) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [list](https://docs.python.org/3/library/stdtypes.html#list) | [None](https://docs.python.org/3/library/constants.html#None)
 
-Construct reusable Pydantic validator.
-
-* **Parameters:**
-  * **names** – Names of attributes to validate.
-  * **fn** – Validation function (see `pydantic.field_validator()`).
-
-### Examples
-
-```pycon
->>> class Class(BaseModel):
-...     x: list = None
-...     _check_unique = _validator("x", fn=_check_unique)
->>> Class(x=[0, 0])
-Traceback (most recent call last):
-ValidationError: ...
-```
+Sort an enum constraint’s values into a deterministic order.
 
 ### *class* pudl.metadata.classes.PudlMeta(/, \*\*data: Any)
 
@@ -199,9 +184,16 @@ See [https://specs.frictionlessdata.io/table-schema/#constraints](https://specs.
 
 #### pattern *: [re.Pattern](https://docs.python.org/3/library/re.html#re.Pattern) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
 
-#### enum *: [StrictList](#pudl.metadata.classes.StrictList)[[String](#pudl.metadata.classes.String) | pydantic.StrictInt | pydantic.StrictFloat | pydantic.StrictBool | [datetime.date](https://docs.python.org/3/library/datetime.html#datetime.date) | [datetime.datetime](https://docs.python.org/3/library/datetime.html#datetime.datetime)] | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### enum *: Annotated[[StrictList](#pudl.metadata.classes.StrictList)[[String](#pudl.metadata.classes.String)], AfterValidator([\_check_unique](#pudl.metadata.classes.Schema._check_unique)), AfterValidator(\_sort_deterministically)] | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
 
-#### \_check_unique
+#### requires_content_validation() → [bool](https://docs.python.org/3/library/functions.html#bool)
+
+Whether checking these constraints requires reading actual field values.
+
+Every constraint field is assumed to require a content read (true of all
+constraint types to date), so this checks all of `model_fields` rather
+than a hand-maintained list — a newly added constraint field is covered
+automatically instead of being silently skipped.
 
 #### *classmethod* \_check_max_length(value, info: [pydantic.ValidationInfo](https://pydantic.dev/docs/validation/latest/api/pydantic-core/pydantic_core_schema/#pydantic_core.core_schema.ValidationInfo))
 
@@ -239,7 +231,7 @@ data-entry errors. The codes have also evolved over the years.
 In order to allow easy comparison of records across all years and tables, we define
 a standard set of codes, a mapping from non-standard codes to standard codes (where
 possible), and a set of known but unfixable codes which will be ignored and replaced
-with NA values. These definitions can be found in [`pudl.metadata.codes`](../codes/index.md#module-pudl.metadata.codes) and we
+with NA values. These definitions can be found in [`pudl.metadata.codes`](../codes/index.html.md#module-pudl.metadata.codes) and we
 refer to these as coding tables.
 
 In our metadata structures, each coding table is defined just like any other DB
@@ -429,9 +421,23 @@ Return PyArrow data type.
 
 Return a PyArrow Field appropriate to the field.
 
-#### to_sql(dialect: Literal['sqlite'] = 'sqlite', check_types: [bool](https://docs.python.org/3/library/functions.html#bool) = True, check_values: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → sqlalchemy.Column
+#### to_sql(dialect: Literal['sqlite', 'duckdb'] = 'sqlite', check_types: [bool](https://docs.python.org/3/library/functions.html#bool) = True, check_values: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → sqlalchemy.Column
 
-Return equivalent SQL column.
+Return equivalent SQL column for the given dialect.
+
+#### \_to_sql_sqlite(check_types: [bool](https://docs.python.org/3/library/functions.html#bool) = True, check_values: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → sqlalchemy.Column
+
+Return equivalent SQL column for the SQLite dialect.
+
+#### \_to_sql_duckdb(check_values: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → sqlalchemy.Column
+
+Return equivalent SQL column for the DuckDB dialect.
+
+Unlike [`_to_sql_sqlite()`](#pudl.metadata.classes.Field._to_sql_sqlite), there is no `check_types` block here at
+all: DuckDB is statically typed, so a column declared e.g. `BIGINT`
+structurally can’t hold a string value. The `TYPEOF`/`DATETIME`/`GLOB`
+checks built for SQLite exist specifically to compensate for SQLite’s
+dynamic typing, and have no analog under DuckDB’s native column types.
 
 #### encode(col: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), dtype: [type](#pudl.metadata.classes.Field.type) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
 
@@ -446,7 +452,7 @@ Builds a typed frictionless Field via `Field.from_descriptor()` so that the
 PUDL’s `geometry` type has no frictionless equivalent and falls back to
 `"string"` with a custom `"geometry_format": "wkt"` annotation.
 
-#### to_pandera_column(use_pandas_backend: [bool](https://docs.python.org/3/library/functions.html#bool)) → pandera.polars.Column
+#### to_pandera_column(use_pandas_backend: [bool](https://docs.python.org/3/library/functions.html#bool)) → pandera.polars.Column | pandera.pandas.Column
 
 Encode this field def as a Pandera column.
 
@@ -460,9 +466,7 @@ See [https://specs.frictionlessdata.io/table-schema/#foreign-keys](https://specs
 
 #### resource *: [SnakeCase](#pudl.metadata.classes.SnakeCase)*
 
-#### fields *: [StrictList](#pudl.metadata.classes.StrictList)[[SnakeCase](#pudl.metadata.classes.SnakeCase)]*
-
-#### \_check_unique
+#### fields *: Annotated[[StrictList](#pudl.metadata.classes.StrictList)[[SnakeCase](#pudl.metadata.classes.SnakeCase)], AfterValidator([\_check_unique](#pudl.metadata.classes.Schema._check_unique))]*
 
 ### *class* pudl.metadata.classes.ForeignKey(/, \*\*data: Any)
 
@@ -472,11 +476,9 @@ Foreign key (resource.schema.foreign_keys[…]).
 
 See [https://specs.frictionlessdata.io/table-schema/#foreign-keys](https://specs.frictionlessdata.io/table-schema/#foreign-keys).
 
-#### fields *: [StrictList](#pudl.metadata.classes.StrictList)[[SnakeCase](#pudl.metadata.classes.SnakeCase)]*
+#### fields *: Annotated[[StrictList](#pudl.metadata.classes.StrictList)[[SnakeCase](#pudl.metadata.classes.SnakeCase)], AfterValidator([\_check_unique](#pudl.metadata.classes.Schema._check_unique))]*
 
 #### reference *: [ForeignKeyReference](#pudl.metadata.classes.ForeignKeyReference)*
-
-#### \_check_unique
 
 #### *classmethod* \_check_fields_equal_length(value, info: [pydantic.ValidationInfo](https://pydantic.dev/docs/validation/latest/api/pydantic-core/pydantic_core_schema/#pydantic_core.core_schema.ValidationInfo))
 
@@ -508,9 +510,20 @@ See [https://specs.frictionlessdata.io/table-schema](https://specs.frictionlessd
 
 #### foreign_keys *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[ForeignKey](#pudl.metadata.classes.ForeignKey)]* *= []*
 
+#### pk_check_chunk_field *: [SnakeCase](#pudl.metadata.classes.SnakeCase) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+
+Primary-key column to chunk primary-key uniqueness checks by, if any.
+
+A date/datetime column is always chunked by calendar year; any other column is
+chunked by exact distinct value. See `Resource._chunk_filters`.
+
 #### \_check_unique
 
 #### *classmethod* \_check_field_names_unique(fields: [list](https://docs.python.org/3/library/stdtypes.html#list)[[Field](#pudl.metadata.classes.Field)])
+
+#### *classmethod* \_check_pk_check_chunk_field_in_primary_key(pk_check_chunk_field, info: [pydantic.ValidationInfo](https://pydantic.dev/docs/validation/latest/api/pydantic-core/pydantic_core_schema/#pydantic_core.core_schema.ValidationInfo))
+
+Verify that pk_check_chunk_field, if set, is part of the primary key.
 
 #### *classmethod* \_check_primary_key_in_fields(pk, info: [pydantic.ValidationInfo](https://pydantic.dev/docs/validation/latest/api/pydantic-core/pydantic_core_schema/#pydantic_core.core_schema.ValidationInfo))
 
@@ -617,7 +630,7 @@ See [https://specs.frictionlessdata.io/data-package/#sources](https://specs.fric
 
 #### license_pudl *: [License](#pudl.metadata.classes.License)*
 
-#### concept_doi *: [pudl.workspace.datastore.ZenodoDoi](../../workspace/datastore/index.md#pudl.workspace.datastore.ZenodoDoi) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### concept_doi *: [pudl.workspace.datastore.ZenodoDoi](../../workspace/datastore/index.html.md#pudl.workspace.datastore.ZenodoDoi) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
 
 #### working_partitions *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[SnakeCase](#pudl.metadata.classes.SnakeCase), Any]*
 
@@ -633,15 +646,15 @@ Compile list of resource IDs associated with this data source.
 
 Return a list of temporal partitions encoding the time span covered by the data source.
 
-#### get_temporal_coverage(partitions: [dict](https://docs.python.org/3/library/stdtypes.html#dict) = None) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+#### get_temporal_coverage(partitions: [dict](https://docs.python.org/3/library/stdtypes.html#dict) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [str](https://docs.python.org/3/library/stdtypes.html#str)
 
 Return a string describing the time span covered by the data source.
 
-#### add_datastore_metadata(datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.md#pudl.workspace.datastore.Datastore) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [None](https://docs.python.org/3/library/constants.html#None)
+#### add_datastore_metadata(datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [None](https://docs.python.org/3/library/constants.html#None)
 
 Get source file metadata from the datastore.
 
-#### to_rst(docs_dir: pydantic.DirectoryPath, source_resources: [list](https://docs.python.org/3/library/stdtypes.html#list)[[Resource](#pudl.metadata.classes.Resource)], extra_resources: [list](https://docs.python.org/3/library/stdtypes.html#list)[[Resource](#pudl.metadata.classes.Resource)], output_path: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.md#pudl.workspace.datastore.Datastore) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [None](https://docs.python.org/3/library/constants.html#None)
+#### to_rst(docs_dir: pydantic.DirectoryPath, source_resources: [list](https://docs.python.org/3/library/stdtypes.html#list)[[Resource](#pudl.metadata.classes.Resource)], extra_resources: [list](https://docs.python.org/3/library/stdtypes.html#list)[[Resource](#pudl.metadata.classes.Resource)], output_path: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [None](https://docs.python.org/3/library/constants.html#None)
 
 Output a representation of the data source in RST for documentation.
 
@@ -720,6 +733,8 @@ Container to describe what foreign key rules look like.
 #### primary_key_ids *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= None*
 
 #### foreign_key_rules *: [PudlResourceDescriptor.PudlSchemaDescriptor.PudlForeignKeyRules](#pudl.metadata.classes.PudlResourceDescriptor.PudlSchemaDescriptor.PudlForeignKeyRules)*
+
+#### pk_check_chunk_field *: [SnakeCase](#pudl.metadata.classes.SnakeCase) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
 
 #### *class* PudlCodeMetadata(/, \*\*data: Any)
 
@@ -818,7 +833,7 @@ encounter, and list lighter or edge-case problems in
 The list can contain two kinds of entries:
 
 * a string, which should match one of the keys in
-  [`USAGE_WARNINGS`](../warnings/index.md#pudl.metadata.warnings.USAGE_WARNINGS)
+  [`USAGE_WARNINGS`](../warnings/index.html.md#pudl.metadata.warnings.USAGE_WARNINGS)
 * a dict, which should contain two keys:
   * “type” - a short code for the warning, which doesn’t need to be unique and
     will only appear in preview & debugging tooling, not to users
@@ -960,7 +975,7 @@ A simple example illustrates the conversion to SQLAlchemy objects.
 >>> resource = Resource(name='a', schema=schema, description='A')
 >>> table = resource.to_sql()
 >>> table.columns.x
-Column('x', Integer(), ForeignKey('b.x'), CheckConstraint(...), table=<a>, primary_key=True, nullable=False, comment='X')
+Column('x', BigInteger(), ForeignKey('b.x'), CheckConstraint(...), table=<a>, primary_key=True, nullable=False, comment='X')
 >>> table.columns.y
 Column('y', Text(), ForeignKey('b.y'), CheckConstraint(...), table=<a>, comment='Y')
 ```
@@ -1185,9 +1200,27 @@ Return field with the given name if it’s part of the Resources.
 
 Return a list of all the field names in the resource schema.
 
-#### to_sql(metadata: sqlalchemy.MetaData = None, check_types: [bool](https://docs.python.org/3/library/functions.html#bool) = True, check_values: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → sqlalchemy.Table
+#### to_sql(metadata: sqlalchemy.MetaData | [None](https://docs.python.org/3/library/constants.html#None) = None, dialect: Literal['sqlite', 'duckdb'] = 'sqlite', check_types: [bool](https://docs.python.org/3/library/functions.html#bool) = True, check_values: [bool](https://docs.python.org/3/library/functions.html#bool) = True, include_foreign_keys: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → sqlalchemy.Table
 
 Return equivalent SQL Table.
+
+* **Parameters:**
+  * **metadata** – SQLAlchemy metadata to attach the table to.
+  * **dialect** – passed through to each field’s [`Field.to_sql()`](#pudl.metadata.classes.Field.to_sql).
+  * **check_types** – passed through to each field’s [`Field.to_sql()`](#pudl.metadata.classes.Field.to_sql).
+    Ignored under the `duckdb` dialect (see [`Field._to_sql_duckdb()`](#pudl.metadata.classes.Field._to_sql_duckdb)).
+  * **check_values** – passed through to each field’s [`Field.to_sql()`](#pudl.metadata.classes.Field.to_sql).
+  * **include_foreign_keys** – if False, omit foreign key constraints entirely.
+    DuckDB enforces these at insert time by validating against the
+    referenced table while SQLite does not.
+
+The table itself gets a `comment` of [`description`](#pudl.metadata.classes.Resource.description), mirroring the
+per-column comments each field already gets from [`Field.to_sql()`](#pudl.metadata.classes.Field.to_sql).
+SQLite’s dialect has no table (or column) comment support at all
+(`supports_comments` is False), so `create_all()` silently drops it
+there – same as it already does for column comments. DuckDB does support
+table comments, so they’re written for real and visible via
+`duckdb_tables()`/`information_schema`.
 
 #### to_frictionless() → frictionless.Resource
 
@@ -1282,7 +1315,122 @@ Format a dataframe according to the resources’s table schema.
 
 Drop columns not in the DB schema and enforce specified types.
 
-#### aggregate_df(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), raised: [bool](https://docs.python.org/3/library/functions.html#bool) = False, error: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable) = None) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [dict](https://docs.python.org/3/library/stdtypes.html#dict)]
+#### check_primary_key(data: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame) | polars.LazyFrame) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[pandera.errors.SchemaError](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.errors.SchemaError.html#pandera.errors.SchemaError)]
+
+Validate this resource’s primary key for uniqueness and non-nullness.
+
+Primary keys are validated to be unique and non-null. Returns every violation
+found as a list of [`pandera.errors.SchemaError`](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.errors.SchemaError.html#pandera.errors.SchemaError) (empty list if none).
+Callers that want a hard failure (e.g. [`enforce_schema()`](#pudl.metadata.classes.Resource.enforce_schema) and
+[`pudl.helpers.get_parquet_table()`](../../helpers/index.html.md#pudl.helpers.get_parquet_table)) should check the returned list and raise
+themselves; a Dagster asset check instead combines it with other schema/content
+errors into one report rather than stopping at whichever is found first.
+
+For tables large enough that checking uniqueness in a single pass is
+impractical, the check is chunked by `self.schema.pk_check_chunk_field` when
+set – by calendar year if it’s a date/datetime column, by exact distinct value
+otherwise (see `_chunk_filters`). Only meaningful for a Polars `LazyFrame`;
+ignored for pandas/geopandas, which are already fully loaded into memory.
+
+* **Parameters:**
+  **data** – DataFrame, GeoDataFrame, or LazyFrame to check against the primary key
+  defined in this resource’s schema.
+* **Returns:**
+  List of [`pandera.errors.SchemaError`](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.errors.SchemaError.html#pandera.errors.SchemaError) for each primary key violation
+  found (empty if none).
+
+#### \_check_primary_key_pandas(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame)) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[pandera.errors.SchemaError](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.errors.SchemaError.html#pandera.errors.SchemaError)]
+
+Check a pandas DataFrame for primary key uniqueness and non-nullness.
+
+Does not do any chunking, since pandas DataFrames are already fully loaded into
+memory.
+
+* **Parameters:**
+  **df** – DataFrame to check.
+* **Returns:**
+  List of [`pandera.errors.SchemaError`](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.errors.SchemaError.html#pandera.errors.SchemaError) for each primary key violation
+  found (empty if none).
+
+#### \_check_primary_key_polars(lf: polars.LazyFrame) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[pandera.errors.SchemaError](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.errors.SchemaError.html#pandera.errors.SchemaError)]
+
+Validate LazyFrame primary-key is unique and non-null.
+
+Uses a single group-by/count/filter reduction, run with `engine="streaming"`,
+to minimize memory usage. For tables large enough that checking uniqueness in
+a single pass is impractical, the check is chunked by
+`self.schema.pk_check_chunk_field` when set – by calendar year if it’s a
+date/datetime column, by exact distinct value otherwise.
+
+* **Parameters:**
+  **lf** – LazyFrame to check.
+* **Returns:**
+  List of [`pandera.errors.SchemaError`](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.errors.SchemaError.html#pandera.errors.SchemaError) for each primary key violation
+  found (empty if none).
+
+#### *static* \_find_null_primary_keys(lf: polars.LazyFrame, primary_key: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → polars.DataFrame
+
+Return rows where any primary-key column is null.
+
+#### *static* \_find_duplicate_primary_keys(lf: polars.LazyFrame, primary_key: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → polars.DataFrame
+
+Return the primary-key combinations that appear more than once in `lf`.
+
+Uses a single group-by/count/filter reduction, run with `engine="streaming"`
+to minimize memory usage. For comparison, on the largest quarter of EQR
+transaction data (228M rows) this method uses ~33GB of memory and takes ~3.4s,
+versus ~109GB and 152s for pandera’s built-in check on the same data.
+
+* **Parameters:**
+  * **lf** – LazyFrame to check.
+  * **primary_key** – List of column names to check for uniqueness.
+* **Returns:**
+  DataFrame of primary-key combinations that appear more than once in `lf`.
+
+#### *static* \_chunk_filters(lf: polars.LazyFrame, pk_check_chunk_field: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [list](https://docs.python.org/3/library/stdtypes.html#list)[polars.Expr]
+
+Build filter expressions that partition `lf` by `pk_check_chunk_field`.
+
+Every filter is a literal comparison directly against `pk_check_chunk_field`’s
+own stored values – always a one-calendar-year range for date/datetime
+columns (chunking is annual only; no other granularity is supported), an
+equality comparison against each distinct value otherwise – never a derived
+expression. This matters for two reasons:
+
+1. Correctness: since `pk_check_chunk_field` is required to be part of the
+   primary key, two rows sharing a composite key necessarily share the
+   same value of it, so a boundary drawn directly on that column’s own
+   value can never split a duplicate pair across chunks. Deriving the
+   boundary from some other, only approximately-correlated column would
+   not have this guarantee – e.g. EPACEMS’ separately stored year
+   field reflects reporting period, not the UTC timestamp, and disagrees
+   with operating_datetime_utc.dt.year() for hundreds of rows a year
+   near timezone-shifted boundaries.
+2. Efficiency: a literal comparison against a stored column stays
+   eligible for Parquet row-group pruning, since Polars can compare it
+   directly to each row group’s min/max statistics without decoding any
+   data. A filter on a *derived* expression (e.g. .dt.year() == y)
+   cannot be pushed down the same way, so Polars must read and decode
+   every row group on every chunk iteration regardless of whether that
+   chunk’s rows are actually present. Measured on our billion-row table:
+   ~0.02s to select one year’s rows via a literal range filter, vs ~0.56s
+   via a .dt.year() filter for the same result.
+
+PUDL’s long time-series tables are written and physically stored in
+temporal (or, for core_ferceqr_\_transactions, filer) order, so this
+pruning is not theoretical: EPACEMS’ row groups are each confined to a
+single calendar year, and most of core_ferceqr_\_transactions’ row
+groups are confined to a single seller.
+
+#### \_duplicate_primary_key_error(duplicates: polars.DataFrame) → [pandera.errors.SchemaError](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.errors.SchemaError.html#pandera.errors.SchemaError)
+
+Build a SchemaError describing duplicate primary-key combinations.
+
+#### \_null_primary_key_error(nulls: polars.DataFrame) → [pandera.errors.SchemaError](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.errors.SchemaError.html#pandera.errors.SchemaError)
+
+Build a SchemaError describing null primary-key values.
+
+#### aggregate_df(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), raised: [bool](https://docs.python.org/3/library/functions.html#bool) = False, error: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [dict](https://docs.python.org/3/library/stdtypes.html#dict)]
 
 Aggregate dataframe by primary key.
 
@@ -1336,7 +1484,7 @@ Build report from aggregation errors.
 * **Returns:**
   Aggregation report, as described in [`aggregate_df()`](#pudl.metadata.classes.Resource.aggregate_df).
 
-#### harvest_dfs(dfs: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)], aggregate: [bool](https://docs.python.org/3/library/functions.html#bool) = None, aggregate_kwargs: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any] = {}, format_kwargs: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any] = {}) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [dict](https://docs.python.org/3/library/stdtypes.html#dict)]
+#### harvest_dfs(dfs: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)], aggregate: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, aggregate_kwargs: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any] = {}, format_kwargs: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any] = {}) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [dict](https://docs.python.org/3/library/stdtypes.html#dict)]
 
 Harvest from named dataframes.
 
@@ -1458,7 +1606,7 @@ any duplicates. We may also get values directly from the Package inputs.
 Construct a collection of Resources from PUDL identifiers (resource.name).
 
 Identify any fields that have foreign key relationships referencing the
-coding tables defined in [`pudl.metadata.codes`](../codes/index.md#module-pudl.metadata.codes) and if so, associate the
+coding tables defined in [`pudl.metadata.codes`](../codes/index.html.md#module-pudl.metadata.codes) and if so, associate the
 coding table’s encoder with those columns for later use cleaning them up.
 
 The result is cached, since we so often need to generate the metadata for
@@ -1493,20 +1641,26 @@ Return the resource with the given name if it is in the Package.
 
 Output to an RST file.
 
-#### to_sql(check_types: [bool](https://docs.python.org/3/library/functions.html#bool) = True, check_values: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → sqlalchemy.MetaData
+#### to_sql(dialect: Literal['sqlite', 'duckdb'] = 'sqlite', check_types: [bool](https://docs.python.org/3/library/functions.html#bool) = True, check_values: [bool](https://docs.python.org/3/library/functions.html#bool) = True, include_foreign_keys: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → sqlalchemy.MetaData
 
 Return equivalent SQL MetaData.
+
+* **Parameters:**
+  * **dialect** – passed through to each resource’s [`Resource.to_sql()`](#pudl.metadata.classes.Resource.to_sql).
+  * **check_types** – passed through to each resource’s [`Resource.to_sql()`](#pudl.metadata.classes.Resource.to_sql).
+  * **check_values** – passed through to each resource’s [`Resource.to_sql()`](#pudl.metadata.classes.Resource.to_sql).
+  * **include_foreign_keys** – passed through to each resource’s
+    [`Resource.to_sql()`](#pudl.metadata.classes.Resource.to_sql).
 
 #### get_sorted_resources() → [StrictList](#pudl.metadata.classes.StrictList)[[Resource](#pudl.metadata.classes.Resource)]
 
 Get a list of sorted Resources.
 
-Currently Resources are listed in reverse alphabetical order based
-on their name which results in the following order to promote output
-tables to users and push intermediate tables to the bottom of the
-docs: output, core, intermediate.
-In the future we might want to have more fine grain control over how
-Resources are sorted.
+Currently Resources are listed in reverse alphabetical order based on their name
+which results in the following order to promote output tables to users and push
+intermediate tables to the bottom of the docs: output, core, intermediate. In
+the future we might want to have more fine grain control over how Resources are
+sorted.
 
 * **Returns:**
   A sorted list of resources.

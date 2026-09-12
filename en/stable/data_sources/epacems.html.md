@@ -6,7 +6,7 @@
 | Respondents                     | Coal and high-sulfur fueled plants over 25MW                                                                                                                                     |
 | Records Liberated               | ~1 billion                                                                                                                                                                       |
 | Source Format                   | Comma Separated Value (.csv)                                                                                                                                                     |
-| Download Size                   | 10218 MB                                                                                                                                                                         |
+| Download Size                   | 10221 MB                                                                                                                                                                         |
 | Temporal Coverage               | 1995q1-2026q2                                                                                                                                                                    |
 | PUDL Code                       | `epacems`                                                                                                                                                                        |
 | Unprocessed Source Data Archive | [10.5281/zenodo.10233185](https://doi.org/10.5281/zenodo.10233185)                                                                                                               |
@@ -17,11 +17,12 @@
 Clicking on the links will show you a description of the table as well as the names and
 descriptions of each of its fields. Due to the size of the CEMS data we do not publish
 it as part of our SQLite database, but it is available through all of our other
-[data access methods](../data_access.md).
+[data access methods](../data_access.html.md).
 
-| Data Dictionary                                                                                  | Browse Online                                                                                                                                     |
-|--------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
-| [core_epacems_\_hourly_emissions](../data_dictionaries/pudl_db.md#core-epacems-hourly-emissions) | [https://data.catalyst.coop/preview/pudl/core_epacems_\_hourly_emissions](https://data.catalyst.coop/preview/pudl/core_epacems__hourly_emissions) |
+| Data Dictionary                                                                                                                                | Browse Online                                                                                                                                                                       |
+|------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [core_epacems_\_hourly_emissions](../data_dictionaries/pudl_db.html.md#core-epacems-hourly-emissions)                                   | [https://data.catalyst.coop/preview/pudl/core_epacems_\_hourly_emissions](https://data.catalyst.coop/preview/pudl/core_epacems__hourly_emissions)                                   |
+| [out_epacems_\_yearly_operational_characteristics](../data_dictionaries/pudl_db.html.md#out-epacems-yearly-operational-characteristics) | [https://data.catalyst.coop/preview/pudl/out_epacems_\_yearly_operational_characteristics](https://data.catalyst.coop/preview/pudl/out_epacems__yearly_operational_characteristics) |
 
 ## Background
 
@@ -35,8 +36,8 @@ units and EIA boilers isn’t perfect. See “Notable Irregularities” below.
 
 ### Download additional documentation
 
-* [`Camd Power Sector Emissions Guide (PDF)`](epacems/camd_power_sector_emissions_guide.pdf)
-* [`Plain English Guide To The Part 75 Rule (PDF)`](epacems/plain_english_guide_to_the_part_75_rule.pdf)
+* [`Camd Power Sector Emissions Guide (PDF)`](_downloads/7f77fdc7b4f9859c2c2f027a2dfc111c/camd_power_sector_emissions_guide.pdf)
+* [`Plain English Guide To The Part 75 Rule (PDF)`](_downloads/285eb2466521b5e2d7f0cdc5c6b6182c/plain_english_guide_to_the_part_75_rule.pdf)
 
 ### Data available through PUDL
 
@@ -63,7 +64,7 @@ backup monitoring for instances of CEMS failure (see §75.31-37).
 
 A plain English explanation of the requirements of Part 75 is available in section
 2.0 Overview of Part 75 Monitoring Requirements in the
-[`Plain English Guide to the Part 75 Rule`](epacems/plain_english_guide_to_the_part_75_rule.pdf).
+[`Plain English Guide to the Part 75 Rule`](_downloads/285eb2466521b5e2d7f0cdc5c6b6182c/plain_english_guide_to_the_part_75_rule.pdf).
 
 ### What does the original data look like?
 
@@ -108,5 +109,5 @@ Take a look at this helpful depiction of plant types from the EPA’s crosswalk 
 ## PUDL Data Transformations
 
 To see the transformations applied to the data in each table, you can read the
-docstrings for [`pudl.transform.epacems`](../autoapi/pudl/transform/epacems/index.md#module-pudl.transform.epacems) created for each table’s
+docstrings for [`pudl.transform.epacems`](../autoapi/pudl/transform/epacems/index.html.md#module-pudl.transform.epacems) created for each table’s
 respective transform function.

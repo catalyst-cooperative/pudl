@@ -5,7 +5,7 @@
 This page describes minor datasets that are included in PUDL, datasets from which we’ve
 only integrated a small portion of the available data, or datasets that are included
 with little to no processing, and thus don’t yet have their own dedicated page under
-[Data Sources](index.md). Or just data sources for which we haven’t yet compiled a complete
+[Data Sources](index.html.md). Or just data sources for which we haven’t yet compiled a complete
 description.
 
 ## FERC DBF & XBRL Data
@@ -14,7 +14,7 @@ FERC publishes Forms 1, 2, 6, and 60 data as VisualFoxPro DBF files (2020 and ea
 and XBRL documents (2021 and later). We distribute these data as standalone SQLite
 database files which contain all the data from the original FERC filings, but converted
 to a more easily accessible format. Only a few dozen of the highest priority FERC Form 1
-tables have been integrated into the main PUDL database. See the [Data Access](../data_access.md)
+tables have been integrated into the main PUDL database. See the [Data Access](../data_access.html.md)
 page for detailed instructions.
 
 <a id="data-ferc2"></a>

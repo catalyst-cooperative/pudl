@@ -14,13 +14,13 @@ slash-with-spaces convention for compound units, e.g. `MMBtu / MWh`,
 ## Attributes
 
 | [`PUDL_UNIT_DEFINITIONS`](#pudl.metadata.units.PUDL_UNIT_DEFINITIONS)   |    |
-|-------------------------------------------------------------------------|----|
-| [`PUDL_UNIT_REGISTRY`](#pudl.metadata.units.PUDL_UNIT_REGISTRY)         |    |
+|--------------------------------------------------------------------------|----|
+| [`PUDL_UNIT_REGISTRY`](#pudl.metadata.units.PUDL_UNIT_REGISTRY)      |    |
 
 ## Functions
 
 | [`unit_registry_to_frictionless`](#pudl.metadata.units.unit_registry_to_frictionless)(→ dict)   | Return a JSON-serializable dict describing PUDL's custom unit definitions.   |
-|-------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------|
+|------------------------------------------------------------------------------------------|------------------------------------------------------------------------------|
 
 ## Module Contents
 

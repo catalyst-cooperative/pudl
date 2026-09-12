@@ -22,7 +22,7 @@ can talk through next steps.
 There’s a huge variety and quantity of data about the US electric utility system
 available to the public. The data we have integrated is just the beginning! Other data
 we’ve heard demand for are listed below. If you’re interested in using one of them and
-would like to add it to PUDL check out [our contribution guidelines](../CONTRIBUTING.md). If there are other datasets you think we should be looking at
+would like to add it to PUDL check out [our contribution guidelines](../CONTRIBUTING.html.md). If there are other datasets you think we should be looking at
 integration, don’t hesitate to [open an issue on Github](https://github.com/catalyst-cooperative/pudl/issues) requesting the data and
 explaining why it would be useful.
 

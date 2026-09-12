@@ -22,21 +22,21 @@ Remove directories modified 1 month or more ago:
 
 ## Attributes
 
-| [`UUID_PATTERN`](#pudl.scripts.dghome.UUID_PATTERN)                 |    |
-|---------------------------------------------------------------------|----|
+| [`UUID_PATTERN`](#pudl.scripts.dghome.UUID_PATTERN)         |    |
+|-----------------------------------------------------------------------|----|
 | [`_DATE_FORMATS_EPILOG`](#pudl.scripts.dghome._DATE_FORMATS_EPILOG) |    |
 
 ## Functions
 
-| [`_parse_date`](#pudl.scripts.dghome._parse_date)(→ datetime.datetime)        | Parse a cutoff datetime from one of several formats.                         |
-|-------------------------------------------------------------------------------|------------------------------------------------------------------------------|
-| [`_human_readable`](#pudl.scripts.dghome._human_readable)(→ str)              | Format a kilobyte count as a human-readable string (e.g. 1.2M, 3.4G).        |
+| [`_parse_date`](#pudl.scripts.dghome._parse_date)(→ datetime.datetime)         | Parse a cutoff datetime from one of several formats.                         |
+|-------------------------------------------------------------------------------------------|------------------------------------------------------------------------------|
+| [`_human_readable`](#pudl.scripts.dghome._human_readable)(→ str)                   | Format a kilobyte count as a human-readable string (e.g. 1.2M, 3.4G).        |
 | [`_row_color`](#pudl.scripts.dghome._row_color)(→ str | tuple[int, int, int]) | Get the right color of output for the filesize.                              |
-| [`_collect`](#pudl.scripts.dghome._collect)(→ list[dict])                     | Return UUID dirs from $DAGSTER_HOME/storage, filtered to mtime <= cutoff_ts. |
-| [`dghome`](#pudl.scripts.dghome.dghome)(→ None)                               | Manage UUID-named directories in Dagster storage.                            |
-| [`ls`](#pudl.scripts.dghome.ls)(→ None)                                       | List UUID directories, optionally filtered by modification date.             |
-| [`rm`](#pudl.scripts.dghome.rm)(→ None)                                       | Remove UUID directories last modified on or before DATE.                     |
-| [`main`](#pudl.scripts.dghome.main)(→ None)                                   | Entry point for the dghome CLI.                                              |
+| [`_collect`](#pudl.scripts.dghome._collect)(→ list[dict])                   | Return UUID dirs from $DAGSTER_HOME/storage, filtered to mtime <= cutoff_ts. |
+| [`dghome`](#pudl.scripts.dghome.dghome)(→ None)                           | Manage UUID-named directories in Dagster storage.                            |
+| [`ls`](#pudl.scripts.dghome.ls)(→ None)                               | List UUID directories, optionally filtered by modification date.             |
+| [`rm`](#pudl.scripts.dghome.rm)(→ None)                               | Remove UUID directories last modified on or before DATE.                     |
+| [`main`](#pudl.scripts.dghome.main)(→ None)                             | Entry point for the dghome CLI.                                              |
 
 ## Module Contents
 

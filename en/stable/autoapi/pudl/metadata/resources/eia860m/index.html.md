@@ -5,7 +5,7 @@ Definitions of data tables primarily coming from EIA-860m.
 ## Attributes
 
 | [`RESOURCE_METADATA`](#pudl.metadata.resources.eia860m.RESOURCE_METADATA)   |    |
-|-----------------------------------------------------------------------------|----|
+|----------------------------------------------------------------------|----|
 
 ## Module Contents
 

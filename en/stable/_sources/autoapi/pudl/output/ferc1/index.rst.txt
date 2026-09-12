@@ -334,7 +334,7 @@ Module Contents
 
 .. py:data:: exploded_ferc1_assets
 
-.. py:class:: Exploder(table_names: list[str], root_table: str, metadata_xbrl_ferc1: pandas.DataFrame, calculation_components_xbrl_ferc1: pandas.DataFrame, seed_nodes: list[NodeId], tags: pandas.DataFrame = pd.DataFrame(), group_metric_checks: pudl.transform.ferc1.GroupMetricChecks = GroupMetricChecks(), off_by_facts: list[OffByFactoid] = None)
+.. py:class:: Exploder(table_names: list[str], root_table: str, metadata_xbrl_ferc1: pandas.DataFrame, calculation_components_xbrl_ferc1: pandas.DataFrame, seed_nodes: list[NodeId], tags: pandas.DataFrame = pd.DataFrame(), group_metric_checks: pudl.transform.ferc1.GroupMetricChecks = GroupMetricChecks(), off_by_facts: list[OffByFactoid] | None = None)
 
    Get unique, granular datapoints from a set of related, nested FERC1 tables.
 

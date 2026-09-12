@@ -8,7 +8,7 @@ subpackage provides tools for doing so, making all of the individual datasets
 more useful, and enabling richer analyses.
 
 This subpackage contains modules that connect pairs of datasets, like
-[`pudl.glue.ferc1_eia`](ferc1_eia/index.md#module-pudl.glue.ferc1_eia) which links together the plants and utilities that
+[`pudl.glue.ferc1_eia`](ferc1_eia/index.html.md#module-pudl.glue.ferc1_eia) which links together the plants and utilities that
 report to both FERC and EIA, but using different names and IDs.
 
 In general we try to enable each dataset to be processed independently, and
@@ -17,5 +17,5 @@ which glue exists are being processed together.
 
 ## Submodules
 
-* [pudl.glue.ferc1_eia](ferc1_eia/index.md)
-* [pudl.glue.ferc714](ferc714/index.md)
+* [pudl.glue.ferc1_eia](ferc1_eia/index.html.md)
+* [pudl.glue.ferc714](ferc714/index.html.md)

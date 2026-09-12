@@ -18,13 +18,13 @@ contents and connections to other datasets are probabilistic in nature.
 
 The following output tables are created from this process:
 
-* [out_sec10k_\_quarterly_filings](../data_dictionaries/pudl_db.md#out-sec10k-quarterly-filings): contains information about the filings
+* [out_sec10k_\_quarterly_filings](../data_dictionaries/pudl_db.html.md#out-sec10k-quarterly-filings): contains information about the filings
   themselves
-* [out_sec10k_\_quarterly_company_information](../data_dictionaries/pudl_db.md#out-sec10k-quarterly-company-information): contains attributes
+* [out_sec10k_\_quarterly_company_information](../data_dictionaries/pudl_db.html.md#out-sec10k-quarterly-company-information): contains attributes
   describing the companies which file 10-K’s
-* [out_sec10k_\_parents_and_subsidiaries](../data_dictionaries/pudl_db.md#out-sec10k-parents-and-subsidiaries): contains ownership information
+* [out_sec10k_\_parents_and_subsidiaries](../data_dictionaries/pudl_db.html.md#out-sec10k-parents-and-subsidiaries): contains ownership information
   about parent companies and their subsidiary companies
-* [out_sec10k_\_changelog_company_name](../data_dictionaries/pudl_db.md#out-sec10k-changelog-company-name): contains information about company
+* [out_sec10k_\_changelog_company_name](../data_dictionaries/pudl_db.html.md#out-sec10k-changelog-company-name): contains information about company
   name changes
 
 ## Extracting Ownership Data From Exhibit 21 Attachments
@@ -47,16 +47,16 @@ names are adjacent in the extracted tokens, then they are placed on different ro
 of the output table. We validated the final extracted tables against a
 validation set of 72 manually transcribed tables.
 The extracted data is structured into the
-[core_sec10k_\_quarterly_exhibit_21_company_ownership](../data_dictionaries/pudl_db.md#core-sec10k-quarterly-exhibit-21-company-ownership)
+[core_sec10k_\_quarterly_exhibit_21_company_ownership](../data_dictionaries/pudl_db.html.md#core-sec10k-quarterly-exhibit-21-company-ownership)
 table, and subsequently attributes about the subsidiary and parent companies are
-merged on in the [out_sec10k_\_parents_and_subsidiaries](../data_dictionaries/pudl_db.md#out-sec10k-parents-and-subsidiaries) table.
+merged on in the [out_sec10k_\_parents_and_subsidiaries](../data_dictionaries/pudl_db.html.md#out-sec10k-parents-and-subsidiaries) table.
 
 ## Assigning `subsidiary_company_id_sec10k` to Extracted Subsidiary Companies
 
 To track subsidiaries over time, we assign a unique identifier called
 `subsidiary_company_id_sec10k` to each subsidiary extracted from an
 Exhibit 21 filing and reported in the
-[core_sec10k_\_quarterly_exhibit_21_company_ownership](../data_dictionaries/pudl_db.md#core-sec10k-quarterly-exhibit-21-company-ownership) table. This identifier
+[core_sec10k_\_quarterly_exhibit_21_company_ownership](../data_dictionaries/pudl_db.html.md#core-sec10k-quarterly-exhibit-21-company-ownership) table. This identifier
 is constructed from three components: the filer company’s Central Index Key (CIK),
 the subsidiary company name, and the subsidiary’s location of incorporation.
 
@@ -74,8 +74,8 @@ subsidiary across different filers.
 Some subsidiary companies reported in Ex. 21 attachments also file
 their own 10-K filing and thus have an implicit central index key.
 This CIK is not reported in the Ex. 21 attachments, so we connected the
-subsidiary companies in [core_sec10k_\_quarterly_exhibit_21_company_ownership](../data_dictionaries/pudl_db.md#core-sec10k-quarterly-exhibit-21-company-ownership)
-to the filing companies in [core_sec10k_\_quarterly_company_information](../data_dictionaries/pudl_db.md#core-sec10k-quarterly-company-information).
+subsidiary companies in [core_sec10k_\_quarterly_exhibit_21_company_ownership](../data_dictionaries/pudl_db.html.md#core-sec10k-quarterly-exhibit-21-company-ownership)
+to the filing companies in [core_sec10k_\_quarterly_company_information](../data_dictionaries/pudl_db.html.md#core-sec10k-quarterly-company-information).
 
 To do this, we match the subsidiary companies to 10-K filers on company name.
 If there are multiple matches with the same company name we choose
@@ -83,7 +83,7 @@ the pair with the most overlap in location of incorporation and then nearest
 report years. This is a fairly conservative matching process, meaning that
 many subsidiaries are not matched to their CIK, but there are unlikely
 to be subsidiaries that are erroneously matched to a CIK. This process
-produces the [core_sec10k_\_assn_exhibit_21_subsidiaries_and_filers](../data_dictionaries/pudl_db.md#core-sec10k-assn-exhibit-21-subsidiaries-and-filers) table.
+produces the [core_sec10k_\_assn_exhibit_21_subsidiaries_and_filers](../data_dictionaries/pudl_db.html.md#core-sec10k-assn-exhibit-21-subsidiaries-and-filers) table.
 
 In this table, 2% of unique `subsidiary_company_id_sec10k` are matched to
 19% of the filers.
@@ -105,23 +105,23 @@ these percentages point to a couple interpretations:
 
 ## Matching SEC Filing Companies to EIA Utilities
 
-The [core_sec10k_\_quarterly_company_information](../data_dictionaries/pudl_db.md#core-sec10k-quarterly-company-information) table contains
+The [core_sec10k_\_quarterly_company_information](../data_dictionaries/pudl_db.html.md#core-sec10k-quarterly-company-information) table contains
 attributes about SEC 10-K filing companies, such as
 address information, that can be used to connect these companies
 to the companies that report to EIA using probabilistic record linkage
 We use a model built with the Python package
 [Splink](https://github.com/moj-analytical-services/splink)
-to connect the [core_sec10k_\_quarterly_company_information](../data_dictionaries/pudl_db.md#core-sec10k-quarterly-company-information) to the
+to connect the [core_sec10k_\_quarterly_company_information](../data_dictionaries/pudl_db.html.md#core-sec10k-quarterly-company-information) to the
 `out_eia__yearly_utilities` table. The match between
 `central_index_key` and `utility_id_eia` is one-to-one and is not
 allowed to change over time. In cases where there were multiple candidate
 matches, the match with the highest probability is selected. This result
 of this match can be found in the
-[core_sec10k_\_assn_sec10k_filers_and_eia_utilities](../data_dictionaries/pudl_db.md#core-sec10k-assn-sec10k-filers-and-eia-utilities) table.
+[core_sec10k_\_assn_sec10k_filers_and_eia_utilities](../data_dictionaries/pudl_db.html.md#core-sec10k-assn-sec10k-filers-and-eia-utilities) table.
 
 ## Matching SEC Subsidiary Companies to EIA Utilities
 
-After constructing the [core_sec10k_\_assn_sec10k_filers_and_eia_utilities](../data_dictionaries/pudl_db.md#core-sec10k-assn-sec10k-filers-and-eia-utilities)
+After constructing the [core_sec10k_\_assn_sec10k_filers_and_eia_utilities](../data_dictionaries/pudl_db.html.md#core-sec10k-assn-sec10k-filers-and-eia-utilities)
 table, we take the remaining EIA utilities which have not been matched
 to an SEC filer and match them to subsidiary companies reported in Ex. 21
 attachments. We don’t have all the additional attributes about these
@@ -143,7 +143,7 @@ Over the course of this process, we make several assumptions about the data:
   reported in the Ex. 21 are those of the filing company. Records
   across many tables can be traced back to a unique filename, so we can see the
   filing-level information that’s associated with it in the
-  [out_sec10k_\_quarterly_filings](../data_dictionaries/pudl_db.md#out-sec10k-quarterly-filings) table, including the CIK of the filer.
+  [out_sec10k_\_quarterly_filings](../data_dictionaries/pudl_db.html.md#out-sec10k-quarterly-filings) table, including the CIK of the filer.
 * When constructing `core_sec10k__quarterly_company_information` we assume
   that each block of company information in a 10-K header refers to a different
   company, and there should not be two different blocks of information about the

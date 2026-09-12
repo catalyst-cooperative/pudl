@@ -57,6 +57,9 @@ the names and descriptions of each of its fields.
    * - :ref:`i_core_eia923__yearly_fgd_operation_maintenance`
      - https://data.catalyst.coop/preview/pudl/_core_eia923__yearly_fgd_operation_maintenance
    
+   * - :ref:`i_core_eia923__yearly_fuel_stocks`
+     - https://data.catalyst.coop/preview/pudl/_core_eia923__yearly_fuel_stocks
+   
    * - :ref:`core_eia923__entity_coalmine`
      - https://data.catalyst.coop/preview/pudl/core_eia923__entity_coalmine
    

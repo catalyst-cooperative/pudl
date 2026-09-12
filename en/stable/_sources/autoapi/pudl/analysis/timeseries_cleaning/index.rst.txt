@@ -314,7 +314,7 @@ Module Contents
 
 
 
-.. py:function:: slice_axis(x: numpy.ndarray, start: int = None, end: int = None, step: int = None, axis: int = 0) -> tuple[slice, Ellipsis]
+.. py:function:: slice_axis(x: numpy.ndarray, start: int | None = None, end: int | None = None, step: int | None = None, axis: int = 0) -> tuple[slice, ...]
 
    Return an index that slices an array along an axis.
 
@@ -382,7 +382,7 @@ Module Contents
    (array([nan,  1., nan,  1.]), array([1, 2, 1, 1]))
 
 
-.. py:function:: insert_run_length(x: collections.abc.Sequence | numpy.ndarray, values: collections.abc.Sequence | numpy.ndarray, lengths: collections.abc.Sequence[int], mask: collections.abc.Sequence[bool] = None, padding: int = 0, intersect: bool = False) -> numpy.ndarray
+.. py:function:: insert_run_length(x: collections.abc.Sequence | numpy.ndarray, values: collections.abc.Sequence | numpy.ndarray, lengths: collections.abc.Sequence[int], mask: collections.abc.Sequence[bool] | None = None, padding: int = 0, intersect: bool = False) -> numpy.ndarray
 
    Insert run-length encoded values into a vector.
 
@@ -749,7 +749,7 @@ Module Contents
    :param imputed_df: DataFrame
 
 
-.. py:function:: simulate_nulls(x: numpy.ndarray, lengths: collections.abc.Sequence[int] = None, padding: int = 1, intersect: bool = False, overlap: bool = False) -> numpy.ndarray
+.. py:function:: simulate_nulls(x: numpy.ndarray, lengths: collections.abc.Sequence[int] | None = None, padding: int = 1, intersect: bool = False, overlap: bool = False) -> numpy.ndarray
 
    Find non-null values to null to match a run-length distribution.
 
@@ -804,7 +804,7 @@ Module Contents
    Performs the reverse of :meth:`fold_tensor`.
 
 
-.. py:function:: impute(df: pandera.typing.DataFrame[TimeseriesMatrix], mask: numpy.ndarray = None, periods: int = 24, blocks: int = 1, method: str = 'tubal', **kwargs: Any) -> pandera.typing.DataFrame[TimeseriesMatrix]
+.. py:function:: impute(df: pandera.typing.DataFrame[TimeseriesMatrix], mask: numpy.ndarray | None = None, periods: int = 24, blocks: int = 1, method: str = 'tubal', **kwargs: Any) -> pandera.typing.DataFrame[TimeseriesMatrix]
 
    Impute null values.
 

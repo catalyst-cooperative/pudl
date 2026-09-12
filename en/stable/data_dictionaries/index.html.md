@@ -11,7 +11,7 @@ field names, field descriptions, and field datatypes.
 **You can find this data at the** [beta PUDL Data Viewer](https://data.catalyst.coop) **if you want interactive search, filtering,
 and CSV export.**
 
-* [PUDL Data Dictionary](pudl_db.md)
+* [PUDL Data Dictionary](pudl_db.html.md)
 
 ## Raw, Unprocessed Data
 
@@ -22,7 +22,7 @@ these raw sources including table name, table
 description, links to corresponding database tables,
 raw file names, page numbers, and data reporting frequency.
 
-* [Raw FERC Form 1 Data Dictionary](ferc1_db.md)
+* [Raw FERC Form 1 Data Dictionary](ferc1_db.html.md)
 
 ## Code Descriptions
 
@@ -31,8 +31,8 @@ corresponding labels and descriptions in the processed PUDL database tables.
 For example, the code, NV, represents the full description “Never to exceed”
 in the core_eia_codes_averaging_periods table.
 
-* [PUDL Code Metadata](codes_and_labels.md)
+* [PUDL Code Metadata](codes_and_labels.html.md)
 
 ## Usage Warnings
 
-* [PUDL Usage Warnings](usage_warnings.md)
+* [PUDL Usage Warnings](usage_warnings.html.md)

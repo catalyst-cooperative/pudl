@@ -5,7 +5,7 @@ Definitions of data tables derived from the EIA-930.
 ## Attributes
 
 | [`RESOURCE_METADATA`](#pudl.metadata.resources.eia930.RESOURCE_METADATA)   |    |
-|----------------------------------------------------------------------------|----|
+|----------------------------------------------------------------------|----|
 
 ## Module Contents
 

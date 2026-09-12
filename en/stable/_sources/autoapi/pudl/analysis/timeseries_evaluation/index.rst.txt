@@ -100,7 +100,7 @@ Module Contents
    (array([nan,  1., nan,  1.]), array([1, 2, 1, 1]))
 
 
-.. py:function:: insert_run_length(x: collections.abc.Sequence | numpy.ndarray, values: collections.abc.Sequence | numpy.ndarray, lengths: collections.abc.Sequence[int], mask: collections.abc.Sequence[bool] = None, padding: int = 0, intersect: bool = False) -> numpy.ndarray
+.. py:function:: insert_run_length(x: collections.abc.Sequence | numpy.ndarray, values: collections.abc.Sequence | numpy.ndarray, lengths: collections.abc.Sequence[int], mask: collections.abc.Sequence[bool] | None = None, padding: int = 0, intersect: bool = False) -> numpy.ndarray
 
    Insert run-length encoded values into a vector.
 
@@ -178,7 +178,7 @@ Module Contents
    :param name: Series to plot, as either an integer index or name in :attr:`columns`.
 
 
-.. py:function:: simulate_nulls(self, lengths: collections.abc.Sequence[int] = None, padding: int = 1, intersect: bool = False, overlap: bool = False) -> numpy.ndarray
+.. py:function:: simulate_nulls(self, lengths: collections.abc.Sequence[int] | None = None, padding: int = 1, intersect: bool = False, overlap: bool = False) -> numpy.ndarray
 
    Find non-null values to null to match a run-length distribution.
 

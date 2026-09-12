@@ -37,6 +37,8 @@ Attributes
 
    pudl.scripts.zenodo_data_release.SANDBOX
    pudl.scripts.zenodo_data_release.PRODUCTION
+   pudl.scripts.zenodo_data_release.GITHUB_ARCHIVE_CONCEPT_ID
+   pudl.scripts.zenodo_data_release.DATA_RECORD_TITLE
    pudl.scripts.zenodo_data_release.RETRYABLE_STATUS_CODES
    pudl.scripts.zenodo_data_release.logger
 
@@ -64,6 +66,7 @@ Functions
 
 .. autoapisummary::
 
+   pudl.scripts.zenodo_data_release.get_github_archive_doi_url
    pudl.scripts.zenodo_data_release.build_zenodo_release_zulip_message
    pudl.scripts.zenodo_data_release.main
 
@@ -77,6 +80,14 @@ Module Contents
 
 .. py:data:: PRODUCTION
    :value: 'production'
+
+
+.. py:data:: GITHUB_ARCHIVE_CONCEPT_ID
+   :value: 3404014
+
+
+.. py:data:: DATA_RECORD_TITLE
+   :value: 'Public Utility Data Liberation Project (PUDL) Data Release'
 
 
 .. py:data:: RETRYABLE_STATUS_CODES
@@ -285,9 +296,27 @@ Module Contents
       :type:  list[dict]
 
 
+   .. py:attribute:: keywords
+      :type:  list[str]
+      :value: []
+
+
+
    .. py:attribute:: license
       :type:  str
       :value: 'cc-by-4.0'
+
+
+
+   .. py:attribute:: language
+      :type:  str
+      :value: 'eng'
+
+
+
+   .. py:attribute:: version
+      :type:  str
+      :value: ''
 
 
 
@@ -300,6 +329,12 @@ Module Contents
    .. py:attribute:: description
       :type:  str
       :value: ''
+
+
+
+   .. py:attribute:: related_identifiers
+      :type:  list[dict]
+      :value: []
 
 
 
@@ -603,8 +638,16 @@ Module Contents
 
 
 
+   .. py:attribute:: doi
+      :type:  str
+      :value: ''
+
+
+
    .. py:attribute:: files
       :type:  list[_NewFile]
+      :value: []
+
 
 
 .. py:class:: ZenodoClient(env: str)
@@ -619,6 +662,9 @@ Module Contents
 
 
    .. py:attribute:: auth_headers
+
+
+   .. py:attribute:: env
 
 
    .. py:method:: retry_request(*, method, url, max_tries: int = 6, request_timeout: float | None = None, data_factory: collections.abc.Callable[[], IO[bytes]] | None = None, **kwargs) -> requests.Response
@@ -716,6 +762,14 @@ Module Contents
 
 
 
+.. py:function:: get_github_archive_doi_url(zenodo_client: ZenodoClient) -> str | None
+
+   Look up the DOI of the latest GitHub-repo Zenodo software archive.
+
+   Returns ``None`` on the sandbox server, since GitHub's Zenodo integration only
+   ever publishes the software archive to production.
+
+
 .. py:class:: State
 
    Parent class for dataset states.
@@ -745,12 +799,33 @@ Module Contents
    we can do is try to get a fresh draft.
 
 
+   .. py:method:: _get_or_create_draft() -> _NewRecord
+
+      Get the existing draft for this dataset's concept, creating one if needed.
+
+      Uses the new API to get or create the draft; ``new_record_version`` is
+      idempotent, so if a draft already exists (e.g. an in-progress review) it's
+      returned as-is rather than creating another one.
+
+
+
    .. py:method:: get_empty_draft() -> EmptyDraft
 
       Get an empty draft for this dataset.
 
       Use new API to get any draft, then use legacy API to delete any files
       in the draft.
+
+
+
+   .. py:method:: get_existing_draft() -> ContentComplete
+
+      Get the existing draft for this dataset, without touching its files.
+
+      For updating just the metadata on a draft that already has its data files in
+      place (e.g. fixing up a production draft's metadata before it's reviewed and
+      published) -- skips ``get_empty_draft``'s file deletion and the
+      ``sync_directory`` upload step entirely.
 
 
 
@@ -808,22 +883,22 @@ Module Contents
    Now that we've uploaded all the data, we need to update metadata.
 
 
-   .. py:method:: update_metadata()
+   .. py:method:: update_metadata(version_tag: str, docs_html_dir: pathlib.Path, zenodo_json_path: pathlib.Path) -> CompleteDraft
 
-      Copy over old metadata and update publication date.
+      Build and set fresh deposition metadata for this release.
 
-      We need to make sure there is complete metadata, including a publication date.
+      * creators & keywords: ``.zenodo.json``
+      * description: the built release notes HTML for ``version_tag``, plus a
+        footer of release-specific resource links and a static contact-us section
+      * license: ``pudl.metadata.sources.SOURCES["pudl"]["license_pudl"]``, the
+        authoritative record of what license PUDL's own data outputs are released
+        under (via ``get_data_license_id()``)
 
-      To do this, we:
-
-      1. use the *legacy* API to get the concept record ID associated with the draft
-      2. use the *new* API to get the latest record associated with the concept
-      3. use the *legacy* API to get the metadata from the latest record
-      4. use the *legacy* API to update the draft's metadata
-
-      Since we are using the legacy API to publish, we need the legacy
-      metadata format. But the legacy concept DOI -> published record mapping
-      is broken, so we have to take a detour through the new API.
+      :param version_tag: The PUDL release version tag, e.g. ``"v2026.8.0"``.
+      :param docs_html_dir: Path to a built Sphinx HTML output directory (i.e.
+                            ``docs/_build/html``), used to extract this version's release notes.
+      :param zenodo_json_path: Path to the repo's ``.zenodo.json``, used for creators
+                               and keywords.
 
 
 
@@ -857,7 +932,7 @@ Module Contents
    was requested, otherwise the draft awaiting manual review.
 
 
-.. py:function:: main(env: str, source_dir: str, publish: bool, ignore: tuple[str]) -> int
+.. py:function:: main(env: str, source_dir: str | None, publish: bool, ignore: tuple[str], metadata_only: bool, pudl_version: str, docs_html_dir: pathlib.Path | None, skip_git_check: bool) -> int
 
    Publish a new PUDL data release to Zenodo.
 

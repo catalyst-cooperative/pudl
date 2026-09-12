@@ -14,7 +14,7 @@ PUDL’s data processing is divided into three layers of Dagster assets: Raw, Co
 and Output. Dagster assets are the core unit of computation in PUDL. The outputs
 of assets can be persisted to any type of storage though PUDL outputs are typically
 tables in a SQLite database, parquet files or pickle files (read more about this here:
-[The Public Utility Data Liberation Project](../index.md)). The asset name is used for the table or parquet file name. Asset
+[The Public Utility Data Liberation Project](../index.html.md)). The asset name is used for the table or parquet file name. Asset
 names should generally follow this naming convention:
 
 ```default
@@ -49,7 +49,7 @@ This layer contains assets that typically break denormalized raw assets into
 well-modeled tables that serve as building blocks for downstream wide tables
 and analyses. Well-modeled means tables in the database have logical
 primary keys, foreign keys, datatypes and generally follow
-[Tidy Data standards](data_guidelines.md#tidy-data). Assets in this layer create
+[Tidy Data standards](data_guidelines.html.md#tidy-data). Assets in this layer create
 consistent categorical variables, deduplicate and impute data.
 These assets are typically stored in parquet files or tables in a database.
 
@@ -133,7 +133,7 @@ asset but still contains duplicate plant entities. The computation intensive
 harvesting process deduplicates `_core_eia860__plants` and outputs the
 `core_eia860__entity_plants` and `core_eia860__scd_plants` assets which
 follow Tidy Data standards. For a conceptual description of this reconciliation process,
-see [Entity Resolution](../methodology/entity_resolution.md).
+see [Entity Resolution](../methodology/entity_resolution.html.md).
 
 Limit the number of intermediate assets to avoid an extremely
 cluttered DAG. It is appropriate to create an intermediate asset when:
@@ -151,8 +151,8 @@ If two columns in different tables record the same quantity in the same units,
 give them the same name. That way if they end up in the same dataframe for
 comparison it’s easy to automatically rename them with suffixes indicating
 where they came from. For example, net electricity generation is reported to
-both [FERC Form 1](../data_sources/ferc1.md) and
-[EIA 923](../data_sources/eia923.md), so we’ve named columns `net_generation_mwh`
+both [FERC Form 1](../data_sources/ferc1.html.md) and
+[EIA 923](../data_sources/eia923.html.md), so we’ve named columns `net_generation_mwh`
 in each of those data sources. Similarly, give non-comparable quantities reported in
 different data sources **different** column names. This helps make it clear that the
 quantities are actually different.
@@ -168,7 +168,7 @@ quantities are actually different.
   `net_generation_mwh`). This includes “per unit” signifiers (e.g. `_pct`
   for percent, `_ppm` for parts per million, or a generic `_per_unit` when
   the type of unit varies, as in columns containing a heterogeneous collection
-  of fuels). For more detail see [Machine-readable units with pint](metadata.md#pint-units).
+  of fuels). For more detail see [Machine-readable units with pint](metadata.html.md#pint-units).
 * If a column contains a percentage, denoted by the `_pct` suffix, then the
   values should in general lie between 0 and 100 **not** between 0.0 and 1.0.
   E.g. a value of 50 indicates 50% or a decimal value of 0.5. Often “percent”
@@ -262,14 +262,14 @@ as we come across them again in maintaining the code.
 
 ### Data Source Specific Abbreviations
 
-| Abbreviation   | Definition                                                                                          |
-|----------------|-----------------------------------------------------------------------------------------------------|
-| `frc_eia923`   | Fuel Receipts and Costs ([EIA Form 923 – Power Plant Operations Report](../data_sources/eia923.md)) |
-| `gen_eia923`   | Generation ([EIA Form 923 – Power Plant Operations Report](../data_sources/eia923.md))              |
-| `gf_eia923`    | Generation Fuel ([EIA Form 923 – Power Plant Operations Report](../data_sources/eia923.md))         |
-| `gens_eia923`  | Generators ([EIA Form 923 – Power Plant Operations Report](../data_sources/eia923.md))              |
-| `utils_eia860` | Utilities ([EIA Form 860 – Annual Electric Generator Report](../data_sources/eia860.md))            |
-| `own_eia860`   | Ownership ([EIA Form 860 – Annual Electric Generator Report](../data_sources/eia860.md))            |
+| Abbreviation   | Definition                                                                                                            |
+|----------------|-----------------------------------------------------------------------------------------------------------------------|
+| `frc_eia923`   | Fuel Receipts and Costs ([EIA Form 923 – Power Plant Operations Report](../data_sources/eia923.html.md)) |
+| `gen_eia923`   | Generation ([EIA Form 923 – Power Plant Operations Report](../data_sources/eia923.html.md))              |
+| `gf_eia923`    | Generation Fuel ([EIA Form 923 – Power Plant Operations Report](../data_sources/eia923.html.md))         |
+| `gens_eia923`  | Generators ([EIA Form 923 – Power Plant Operations Report](../data_sources/eia923.html.md))              |
+| `utils_eia860` | Utilities ([EIA Form 860 – Annual Electric Generator Report](../data_sources/eia860.html.md))            |
+| `own_eia860`   | Ownership ([EIA Form 860 – Annual Electric Generator Report](../data_sources/eia860.html.md))            |
 
 ### Data Extraction Functions
 

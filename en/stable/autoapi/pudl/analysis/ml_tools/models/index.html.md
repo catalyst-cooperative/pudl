@@ -26,7 +26,7 @@ three things:
    in the module-level `MODEL_CONFIGURATION` dict, which
    `get_ml_models_config()` later folds into the
    default job config so Dagster knows the defaults at launch time.
-2. **Injects an ExperimentTracker.** An [`ExperimentTracker`](../experiment_tracking/index.md#pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker)
+2. **Injects an ExperimentTracker.** An [`ExperimentTracker`](../experiment_tracking/index.html.md#pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker)
    op is synthesized and called first inside the `graph_asset`, then passed as
    the first argument to the wrapped graph. Ops that want to log metrics receive
    it as an input parameter named `experiment_tracker`. The tracker input is
@@ -44,15 +44,15 @@ Configuration precedence (lowest → highest):
 
 ## Attributes
 
-| [`logger`](#pudl.analysis.ml_tools.models.logger)                           |    |
-|-----------------------------------------------------------------------------|----|
+| [`logger`](#pudl.analysis.ml_tools.models.logger)              |    |
+|----------------------------------------------------------------------|----|
 | [`MODEL_CONFIGURATION`](#pudl.analysis.ml_tools.models.MODEL_CONFIGURATION) |    |
 
 ## Functions
 
-| [`get_yml_config`](#pudl.analysis.ml_tools.models.get_yml_config)(→ dict)             | Load model configuration from yaml file.                                       |
-|---------------------------------------------------------------------------------------|--------------------------------------------------------------------------------|
-| [`get_default_config`](#pudl.analysis.ml_tools.models.get_default_config)(→ dict)     | Get default config values for model.                                           |
+| [`get_yml_config`](#pudl.analysis.ml_tools.models.get_yml_config)(→ dict)                 | Load model configuration from yaml file.                                       |
+|-----------------------------------------------------------------------------------------|--------------------------------------------------------------------------------|
+| [`get_default_config`](#pudl.analysis.ml_tools.models.get_default_config)(→ dict)             | Get default config values for model.                                           |
 | [`pudl_model`](#pudl.analysis.ml_tools.models.pudl_model)(→ dagster.AssetsDefinition) | Decorator for an ML model that will handle providing configuration to dagster. |
 
 ## Module Contents

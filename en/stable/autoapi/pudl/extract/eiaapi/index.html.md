@@ -16,11 +16,11 @@ module.
 ## Functions
 
 | [`_filter_for_fuel_receipts_costs_series`](#pudl.extract.eiaapi._filter_for_fuel_receipts_costs_series)(→ pandas.DataFrame)   | Pick out the desired data series.                                          |
-|-------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
-| [`_filter_and_read_to_dataframe`](#pudl.extract.eiaapi._filter_and_read_to_dataframe)(→ pandas.DataFrame)                     | Decompress and filter the 1100 MB file down to the 16 MB we actually want. |
-| [`_parse_data_column`](#pudl.extract.eiaapi._parse_data_column)(→ pandas.DataFrame)                                           |                                                                            |
-| [`_extract`](#pudl.extract.eiaapi._extract)(→ dict[str, pandas.DataFrame])                                                    | Extract metadata and timeseries from raw EIA bulk electricity data.        |
-| [`extract`](#pudl.extract.eiaapi.extract)(→ dict[str, pandas.DataFrame])                                                      | Extract metadata and timeseries from raw EIA bulk electricity data.        |
+|---------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
+| [`_filter_and_read_to_dataframe`](#pudl.extract.eiaapi._filter_and_read_to_dataframe)(→ pandas.DataFrame)            | Decompress and filter the 1100 MB file down to the 16 MB we actually want. |
+| [`_parse_data_column`](#pudl.extract.eiaapi._parse_data_column)(→ pandas.DataFrame)                       |                                                                            |
+| [`_extract`](#pudl.extract.eiaapi._extract)(→ dict[str, pandas.DataFrame])                      | Extract metadata and timeseries from raw EIA bulk electricity data.        |
+| [`extract`](#pudl.extract.eiaapi.extract)(→ dict[str, pandas.DataFrame])                       | Extract metadata and timeseries from raw EIA bulk electricity data.        |
 
 ## Module Contents
 
@@ -54,7 +54,7 @@ Extract metadata and timeseries from raw EIA bulk electricity data.
 * **Returns:**
   Dictionary of dataframes with keys ‘metadata’ and ‘timeseries’
 
-### pudl.extract.eiaapi.extract(ds: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.md#pudl.workspace.datastore.Datastore), partition: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)] = {'data_set': 'electricity'}) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]
+### pudl.extract.eiaapi.extract(ds: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore), partition: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)] = {'data_set': 'electricity'}) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]
 
 Extract metadata and timeseries from raw EIA bulk electricity data.
 

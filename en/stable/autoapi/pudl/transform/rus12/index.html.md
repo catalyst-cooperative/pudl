@@ -4,40 +4,40 @@ Transform the RUS12 tables.
 
 ## Attributes
 
-| [`logger`](#pudl.transform.rus12.logger)                           |    |
-|--------------------------------------------------------------------|----|
-| [`_CORE_RUS12_TABLES`](#pudl.transform.rus12._CORE_RUS12_TABLES)   |    |
+| [`logger`](#pudl.transform.rus12.logger)              |    |
+|----------------------------------------------------------------------|----|
+| [`_CORE_RUS12_TABLES`](#pudl.transform.rus12._CORE_RUS12_TABLES)  |    |
 | [`finished_rus_assets`](#pudl.transform.rus12.finished_rus_assets) |    |
 
 ## Functions
 
-| [`_core_rus12__yearly_meeting_and_board`](#pudl.transform.rus12._core_rus12__yearly_meeting_and_board)(...)                                           | Transform the core_rus12_\_yearly_meeting_and_board table.              |
-|-------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
-| [`_core_rus12__yearly_balance_sheet_assets`](#pudl.transform.rus12._core_rus12__yearly_balance_sheet_assets)(...)                                     | Transform the core_rus12_\_yearly_balance_sheet_assets table.           |
-| [`_core_rus12__yearly_balance_sheet_liabilities`](#pudl.transform.rus12._core_rus12__yearly_balance_sheet_liabilities)(...)                           | Transform the core_rus12_\_yearly_balance_sheet_liabilities table.      |
-| [`_core_rus12__scd_borrowers`](#pudl.transform.rus12._core_rus12__scd_borrowers)(raw_rus12_\_borrowers)                                               | Transform the core_rus12_\_scd_borrowers table.                         |
-| [`_core_rus12__yearly_external_financial_risk_ratio`](#pudl.transform.rus12._core_rus12__yearly_external_financial_risk_ratio)(...)                   | Transform the raw_rus12_\_external_financial_risk_ratio table.          |
-| [`_core_rus12__yearly_investments`](#pudl.transform.rus12._core_rus12__yearly_investments)(→ pandas.DataFrame)                                        | Transform the investments table.                                        |
-| [`_core_rus12__yearly_renewable_plants`](#pudl.transform.rus12._core_rus12__yearly_renewable_plants)(...)                                             | Transform the core_rus12_\_yearly_renewable_plants table.               |
-| [`_core_rus12__yearly_long_term_debt`](#pudl.transform.rus12._core_rus12__yearly_long_term_debt)(...)                                                 | Transform the core_rus12_\_yearly_long_term_debt table.                 |
-| [`_core_rus12__yearly_lines_stations_labor_materials_cost`](#pudl.transform.rus12._core_rus12__yearly_lines_stations_labor_materials_cost)(...)       | Transform the raw_rus12_\_lines_and_stations_labor_materials table.     |
-| [`_core_rus12__yearly_loans`](#pudl.transform.rus12._core_rus12__yearly_loans)(raw_rus12_\_loans, ...)                                                | Transform the raw_rus12_\_loans and raw_rus12_\_loan_guarantees tables. |
-| [`_core_rus12__yearly_plant_labor`](#pudl.transform.rus12._core_rus12__yearly_plant_labor)(raw_rus12_\_plant_labor)                                   | Transform the raw_rus12_\_plant_labor table.                            |
+| [`_core_rus12__yearly_meeting_and_board`](#pudl.transform.rus12._core_rus12__yearly_meeting_and_board)(...)                      | Transform the core_rus12_\_yearly_meeting_and_board table.              |
+|------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
+| [`_core_rus12__yearly_balance_sheet_assets`](#pudl.transform.rus12._core_rus12__yearly_balance_sheet_assets)(...)                   | Transform the core_rus12_\_yearly_balance_sheet_assets table.           |
+| [`_core_rus12__yearly_balance_sheet_liabilities`](#pudl.transform.rus12._core_rus12__yearly_balance_sheet_liabilities)(...)              | Transform the core_rus12_\_yearly_balance_sheet_liabilities table.      |
+| [`_core_rus12__scd_borrowers`](#pudl.transform.rus12._core_rus12__scd_borrowers)(raw_rus12_\_borrowers)               | Transform the core_rus12_\_scd_borrowers table.                         |
+| [`_core_rus12__yearly_external_financial_risk_ratio`](#pudl.transform.rus12._core_rus12__yearly_external_financial_risk_ratio)(...)          | Transform the raw_rus12_\_external_financial_risk_ratio table.          |
+| [`_core_rus12__yearly_investments`](#pudl.transform.rus12._core_rus12__yearly_investments)(→ pandas.DataFrame)             | Transform the investments table.                                        |
+| [`_core_rus12__yearly_renewable_plants`](#pudl.transform.rus12._core_rus12__yearly_renewable_plants)(...)                       | Transform the core_rus12_\_yearly_renewable_plants table.               |
+| [`_core_rus12__yearly_long_term_debt`](#pudl.transform.rus12._core_rus12__yearly_long_term_debt)(...)                         | Transform the core_rus12_\_yearly_long_term_debt table.                 |
+| [`_core_rus12__yearly_lines_stations_labor_materials_cost`](#pudl.transform.rus12._core_rus12__yearly_lines_stations_labor_materials_cost)(...)    | Transform the raw_rus12_\_lines_and_stations_labor_materials table.     |
+| [`_core_rus12__yearly_loans`](#pudl.transform.rus12._core_rus12__yearly_loans)(raw_rus12_\_loans, ...)               | Transform the raw_rus12_\_loans and raw_rus12_\_loan_guarantees tables. |
+| [`_core_rus12__yearly_plant_labor`](#pudl.transform.rus12._core_rus12__yearly_plant_labor)(raw_rus12_\_plant_labor)        | Transform the raw_rus12_\_plant_labor table.                            |
 | [`_core_rus12__yearly_sources_and_distribution_by_plant_type`](#pudl.transform.rus12._core_rus12__yearly_sources_and_distribution_by_plant_type)(...) | Transform the raw_rus12_\_sources_and_distribution table.               |
-| [`_core_rus12__yearly_sources_and_distribution`](#pudl.transform.rus12._core_rus12__yearly_sources_and_distribution)(...)                             | Transform the raw_rus12_\_sources_and_distribution table.               |
-| [`_core_rus12__yearly_statement_of_operations`](#pudl.transform.rus12._core_rus12__yearly_statement_of_operations)(...)                               | Transform the raw_rus12_\_statement_of_operations table.                |
-| [`_core_rus12__yearly_plant_costs`](#pudl.transform.rus12._core_rus12__yearly_plant_costs)(...)                                                       | Transform the plant cost tables.                                        |
-| [`drop_bad_ownership_plant`](#pudl.transform.rus12.drop_bad_ownership_plant)(df)                                                                      | Drop 1 plant record with unexpected ownership label and duplicate data. |
-| [`fix_string_unit_id_rus`](#pudl.transform.rus12.fix_string_unit_id_rus)(df)                                                                          | Fix unit_id_rus's bad string IDs.                                       |
-| [`_core_rus12__yearly_plant_operations`](#pudl.transform.rus12._core_rus12__yearly_plant_operations)(...)                                             | Transform the plant operations tables.                                  |
-| [`_core_rus12__monthly_demand_and_energy_at_delivery_points`](#pudl.transform.rus12._core_rus12__monthly_demand_and_energy_at_delivery_points)(...)   | Transform the raw_rus12_\_demand_and_energy_at_delivery_points table.   |
-| [`_core_rus12__monthly_demand_and_energy_at_power_sources`](#pudl.transform.rus12._core_rus12__monthly_demand_and_energy_at_power_sources)(...)       | Transform the raw_rus12_\_demand_and_energy_at_power_sources table.     |
-| [`_core_rus12__yearly_plant_factors_and_maximum_demand`](#pudl.transform.rus12._core_rus12__yearly_plant_factors_and_maximum_demand)(...)             | Transform the raw_rus12_\_plant_factors_and_maximum_demand table.       |
-| [`_core_rus12__yearly_utility_plant_changes`](#pudl.transform.rus12._core_rus12__yearly_utility_plant_changes)(...)                                   | Transform the utility plant changes table.                              |
-| [`_core_rus12__yearly_non_utility_plant_changes`](#pudl.transform.rus12._core_rus12__yearly_non_utility_plant_changes)(...)                           | Transform the non-utility plant changes table.                          |
-| [`_core_rus12__yearly_depreciation_changes`](#pudl.transform.rus12._core_rus12__yearly_depreciation_changes)(...)                                     | Transform the accumulated depreciation changes table.                   |
-| [`_core_rus12__yearly_depreciation_misc`](#pudl.transform.rus12._core_rus12__yearly_depreciation_misc)(→ pandas.DataFrame)                            | Transform the miscellaneous depreciation ending balance table.          |
-| [`core_rus12__entity_borrowers`](#pudl.transform.rus12.core_rus12__entity_borrowers)(context, \*\*clean_dfs)                                          | Harvesting IDs & consistent static attributes for RUS12 entity.         |
+| [`_core_rus12__yearly_sources_and_distribution`](#pudl.transform.rus12._core_rus12__yearly_sources_and_distribution)(...)               | Transform the raw_rus12_\_sources_and_distribution table.               |
+| [`_core_rus12__yearly_statement_of_operations`](#pudl.transform.rus12._core_rus12__yearly_statement_of_operations)(...)                | Transform the raw_rus12_\_statement_of_operations table.                |
+| [`_core_rus12__yearly_plant_costs`](#pudl.transform.rus12._core_rus12__yearly_plant_costs)(...)                            | Transform the plant cost tables.                                        |
+| [`drop_bad_ownership_plant`](#pudl.transform.rus12.drop_bad_ownership_plant)(df)                                    | Drop 1 plant record with unexpected ownership label and duplicate data. |
+| [`fix_string_unit_id_rus`](#pudl.transform.rus12.fix_string_unit_id_rus)(df)                                      | Fix unit_id_rus's bad string IDs.                                       |
+| [`_core_rus12__yearly_plant_operations`](#pudl.transform.rus12._core_rus12__yearly_plant_operations)(...)                       | Transform the plant operations tables.                                  |
+| [`_core_rus12__monthly_demand_and_energy_at_delivery_points`](#pudl.transform.rus12._core_rus12__monthly_demand_and_energy_at_delivery_points)(...)  | Transform the raw_rus12_\_demand_and_energy_at_delivery_points table.   |
+| [`_core_rus12__monthly_demand_and_energy_at_power_sources`](#pudl.transform.rus12._core_rus12__monthly_demand_and_energy_at_power_sources)(...)    | Transform the raw_rus12_\_demand_and_energy_at_power_sources table.     |
+| [`_core_rus12__yearly_plant_factors_and_maximum_demand`](#pudl.transform.rus12._core_rus12__yearly_plant_factors_and_maximum_demand)(...)       | Transform the raw_rus12_\_plant_factors_and_maximum_demand table.       |
+| [`_core_rus12__yearly_utility_plant_changes`](#pudl.transform.rus12._core_rus12__yearly_utility_plant_changes)(...)                  | Transform the utility plant changes table.                              |
+| [`_core_rus12__yearly_non_utility_plant_changes`](#pudl.transform.rus12._core_rus12__yearly_non_utility_plant_changes)(...)              | Transform the non-utility plant changes table.                          |
+| [`_core_rus12__yearly_depreciation_changes`](#pudl.transform.rus12._core_rus12__yearly_depreciation_changes)(...)                   | Transform the accumulated depreciation changes table.                   |
+| [`_core_rus12__yearly_depreciation_misc`](#pudl.transform.rus12._core_rus12__yearly_depreciation_misc)(→ pandas.DataFrame)       | Transform the miscellaneous depreciation ending balance table.          |
+| [`core_rus12__entity_borrowers`](#pudl.transform.rus12.core_rus12__entity_borrowers)(context, \*\*clean_dfs)            | Harvesting IDs & consistent static attributes for RUS12 entity.         |
 
 ## Module Contents
 

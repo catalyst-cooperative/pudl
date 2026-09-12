@@ -13,18 +13,18 @@ this is a configurable value, which can be found in the dagster UI.
 ## Attributes
 
 | [`logger`](#pudl.analysis.ml_tools.experiment_tracking.logger)   |    |
-|------------------------------------------------------------------|----|
+|-----------------------------------------------------------|----|
 
 ## Classes
 
 | [`ExperimentTrackerConfig`](#pudl.analysis.ml_tools.experiment_tracking.ExperimentTrackerConfig)   | Dagster config to setup experiment tracking with mlflow.        |
-|----------------------------------------------------------------------------------------------------|-----------------------------------------------------------------|
-| [`ExperimentTracker`](#pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker)               | Class to manage tracking a machine learning model using MLflow. |
+|----------------------------------------------------------------------------|-----------------------------------------------------------------|
+| [`ExperimentTracker`](#pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker)         | Class to manage tracking a machine learning model using MLflow. |
 
 ## Functions
 
-| [`_flatten_model_config`](#pudl.analysis.ml_tools.experiment_tracking._flatten_model_config)(→ dict)                        | Take nested dictionary defining model config and flatten for logging purposes.   |
-|-----------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
+| [`_flatten_model_config`](#pudl.analysis.ml_tools.experiment_tracking._flatten_model_config)(→ dict)                   | Take nested dictionary defining model config and flatten for logging purposes.   |
+|--------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
 | [`experiment_tracker_factory`](#pudl.analysis.ml_tools.experiment_tracking.experiment_tracker_factory)(→ ExperimentTracker) | Use config to create an experiment tracker.                                      |
 
 ## Module Contents

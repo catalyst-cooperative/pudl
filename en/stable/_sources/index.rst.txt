@@ -101,7 +101,8 @@ The ETL Process
 
 PUDL's ETL produces a data warehouse that can be used for analytics.
 The processing happens within Dagster assets that are persisted to storage,
-typically pickle, parquet or SQLite files. The raw data moves through three
+typically pickle or Parquet files. The fully processed data is also packaged into
+``pudl.duckdb`` and ``pudl.sqlite`` databases. The raw data moves through three
 layers of processing.
 
 Raw Layer
@@ -112,8 +113,7 @@ a collection of :class:`pandas.DataFrame` with uniform column names across all y
 that it can be easily processed in bulk. Data distributed as binary database files, such
 as the DBF files from FERC Form 1, may be converted into a unified SQLite database
 before individual dataframes are created. Raw data assets are not written to
-``pudl.sqlite``. Instead they are persisted to pickle files and not distributed
-to users.
+Parquet. They are persisted to pickle files locally and are not distributed to users.
 
 .. seealso::
 
@@ -125,8 +125,9 @@ Core Layer
 The Core layer contains well-modeled assets that serve as building blocks for
 downstream wide tables and analyses. Well-modeled means tables in the database
 have logical primary keys, foreign keys, datatypes and generally follow
-:ref:`Tidy Data standards <tidy-data>`. The assets are loaded into a SQLite
-database or Parquet file.
+:ref:`Tidy Data standards <tidy-data>`. The assets are written to Parquet files.
+Many are also packaged into the ``pudl.duckdb`` and ``pudl.sqlite`` databases,
+with the largest (typically hourly) tables only distributed as Parquet files.
 
 These outputs can be accessed via Python, R, and many other tools. See the
 :doc:`data_dictionaries/pudl_db` page for a list of the normalized database tables and
@@ -209,25 +210,23 @@ generator, or hourly electricity demand with missing and outlying values imputed
 ---------------------------------------------------------------------------------------
 Data Validation
 ---------------------------------------------------------------------------------------
-We have a growing collection of data validation test cases that we run before
-publishing a data release to try and avoid publishing data with known issues. Most of
-these validations are described in the :mod:`pudl.validate` module. They check things
-like:
+We have a growing collection of data validation test cases that we run after every
+nightly build to avoid publishing data with known issues. Most of these validations are
+run using `dbt <https://www.getdbt.com/>`__ and `DuckDB <https://duckdb.org/docs/>`__
+and are defined in the per-table schema files under ``dbt/models/`` in the PUDL GitHub
+repository. They check things like:
 
+* Foreign key relationships between tables are valid.
+* The expected number of records are found within each table.
+* There are no entirely NULL columns.
+* Totals reported in tables are consistent with the sum of their parts.
 * The heat content of various fuel types is within expected bounds.
 * Coal ash, moisture, mercury, sulfur, etc. content are within expected bounds
 * Generator heat rates and capacity factors are realistic for the type of prime mover
   being reported.
 
-Some data validations are currently only specified within our test suite, including:
-
-* The expected number of records within each table
-* The fact that there are no entirely N/A columns
-
-A variety of database integrity checks are also run either during the data processing
-or when the data is loaded into SQLite.
-
-See our :doc:`dev/testing` documentation for more information.
+See our :doc:`dev/data_validation_quickstart` and :doc:`dev/data_validation_reference`
+pages for more information.
 
 ---------------------------------------------------------------------------------------
 Organizations using PUDL

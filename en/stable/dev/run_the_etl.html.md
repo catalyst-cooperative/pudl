@@ -4,60 +4,10 @@
 
 So you want to run the PUDL data processing pipeline? This is the most involved way
 to get access to PUDL data. It’s only recommended if you want to edit the ETL process
-or contribute to the codebase. Check out the [Data Access](../data_access.md) documentation if you
+or contribute to the codebase. Check out the [Data Access](../data_access.html.md) documentation if you
 just want to use the data we process and distribute.
 
-These instructions assume you have already gone through the [Development Setup](dev_setup.md#dev-setup).
-
-## Alembic
-
-PUDL uses [Alembic](https://alembic.sqlalchemy.org) to manage the creation our
-database and migrations of the schema as it changes over time. However, we only use
-file-based databases (SQLite, DuckDB) and these migrations are mostly a way to allow
-us to change the schema without needing to repopulate the entire database from scratch.
-They are not used in production.
-
-### Database initialization
-
-Before we run anything, we’ll need to make sure that the schema in the database
-actually matches the schema defined by the code. Run `pixi run alembic upgrade head`
-to create the database with the right schema. If you already have a `pudl.sqlite`
-you’ll probably need to delete it first.
-
-### Database schema migration
-
-If you’ve changed the database schema locally (by renaming a column, adding a table,
-defining a new primary key, changing a datatype, etc.), you’ll need to make a migration
-reflecting that change and apply the migration to the database to keep the database
-schema synchronized with the code:
-
-```bash
-$ pixi run alembic revision --autogenerate -m "Add my cool table"
-$ pixi run alembic upgrade head
-$ git add migrations
-$ git commit -m "Migration: added my cool table"
-```
-
-When switching branches, Alembic may refer to a migration version that is not
-on your current branch. This will manifest as an error like this when running an
-Alembic command:
-
-```default
-FAILED: Can't locate revision identified by '29d443aadf25'
-```
-
-If you encounter that, you will want to check out the git branch that *does*
-include that migration in the `migrations` directory. Then you should run
-`alembic downgrade head-1` to revert the database to the prior version. Then
-you can go back to the branch that doesn’t have your migration, and use Alembic
-in peace.
-
-If the migrations have diverged for more than one revision, you can specify the
-specific version you would like to downgrade to with its hash. You may also
-want to keep a copy of the old SQLite database around, so you can easily switch
-between branches without having to regenerate data.
-
-More information can be found in the [Alembic docs](https://alembic.sqlalchemy.org/en/latest/tutorial.html).
+These instructions assume you have already gone through the [Development Setup](dev_setup.html.md#dev-setup).
 
 ## Dagster
 
@@ -76,7 +26,6 @@ Dagster’s excellent documentation:
 If you use coding agents, you may also want to check out [the Dagster agent skills](https://github.com/dagster-io/skills):
 
 * [dagster-expert](https://github.com/dagster-io/skills/blob/master/skills/dagster-expert/skills/dagster-expert/SKILL.md)
-* [dignified-python](https://github.com/dagster-io/skills/blob/master/skills/dignified-python/skills/dignified-python/SKILL.md)
 * [AI Driven Data Engineering](https://courses.dagster.io/courses/ai-driven-data-engineering) (Dagster Course)
 
 These skills are also configured in the PUDL repo and can be installed with this pixi
@@ -96,42 +45,42 @@ Dagster docs for more info.
   are the top-level collection of Dagster objects that get loaded into a code location.
   They bundle together the assets, asset checks, resources, jobs, schedules, and
   sensors that Dagster can see and execute. In PUDL, the canonical Dagster assembly
-  lives in [`pudl.dagster`](../autoapi/pudl/dagster/index.md#module-pudl.dagster), while [`pudl.definitions`](../autoapi/pudl/definitions/index.md#module-pudl.definitions) remains the stable
+  lives in [`pudl.dagster`](../autoapi/pudl/dagster/index.html.md#module-pudl.dagster), while [`pudl.definitions`](../autoapi/pudl/definitions/index.html.md#module-pudl.definitions) remains the stable
   top-level code location used by `dg`. The package is split by Dagster abstraction so
   contributors can edit the relevant layer directly:
-  - [`pudl.dagster.assets`](../autoapi/pudl/dagster/assets/index.md#module-pudl.dagster.assets) loads and groups assets.
-  - [`pudl.dagster.asset_checks`](../autoapi/pudl/dagster/asset_checks/index.md#module-pudl.dagster.asset_checks) defines Dagster asset checks.
-  - [`pudl.dagster.resources`](../autoapi/pudl/dagster/resources/index.md#module-pudl.dagster.resources) defines the default resource set.
-  - [`pudl.dagster.jobs`](../autoapi/pudl/dagster/jobs/index.md#module-pudl.dagster.jobs) defines the standard PUDL jobs.
-  - [`pudl.dagster.sensors`](../autoapi/pudl/dagster/sensors/index.md#module-pudl.dagster.sensors) defines Dagster sensors.
-  - [`pudl.dagster.config`](../autoapi/pudl/dagster/config/index.md#module-pudl.dagster.config) contains reusable run-configuration helpers.
-  - [`pudl.dagster.build`](../autoapi/pudl/dagster/build/index.md#module-pudl.dagster.build) assembles [`dagster.Definitions`](https://docs.dagster.io/api/dagster/definitions/#dagster.Definitions) via
+  - [`pudl.dagster.assets`](../autoapi/pudl/dagster/assets/index.html.md#module-pudl.dagster.assets) loads and groups assets.
+  - [`pudl.dagster.asset_checks`](../autoapi/pudl/dagster/asset_checks/index.html.md#module-pudl.dagster.asset_checks) defines Dagster asset checks.
+  - [`pudl.dagster.resources`](../autoapi/pudl/dagster/resources/index.html.md#module-pudl.dagster.resources) defines the default resource set.
+  - [`pudl.dagster.jobs`](../autoapi/pudl/dagster/jobs/index.html.md#module-pudl.dagster.jobs) defines the standard PUDL jobs.
+  - [`pudl.dagster.sensors`](../autoapi/pudl/dagster/sensors/index.html.md#module-pudl.dagster.sensors) defines Dagster sensors.
+  - [`pudl.dagster.config`](../autoapi/pudl/dagster/config/index.html.md#module-pudl.dagster.config) contains reusable run-configuration helpers.
+  - [`pudl.dagster.build`](../autoapi/pudl/dagster/build/index.html.md#module-pudl.dagster.build) assembles [`dagster.Definitions`](https://docs.dagster.io/api/dagster/definitions/#dagster.Definitions) via
     `pudl.dagster.build_defs()`.
 * **Assets** [[Dagster ref](https://docs.dagster.io/guides/build/assets)] are the
   primary building blocks in Dagster. They represent the underlying entities in our
   pipelines, such as database tables or machine learning models. In PUDL, most assets
   represent a [`pandas.DataFrame`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) that is written to Parquet
-  and SQLite files on disk. Depending on which part of the PUDL DAG you are looking at,
+  files on disk. Depending on which part of the PUDL DAG you are looking at,
   assets might represent messy raw dataframes extracted from spreadsheets, partially
   cleaned intermediary dataframes, or fully normalized tables ready for distribution.
 * **Resources** [[Dagster ref](https://docs.dagster.io/guides/build/external-resources)] are
   objects used by Dagster assets to provide access to external systems, databases, or
-  services. In PUDL, we’ve defined a [`pudl.workspace.datastore.Datastore`](../autoapi/pudl/workspace/datastore/index.md#pudl.workspace.datastore.Datastore)
+  services. In PUDL, we’ve defined a [`pudl.workspace.datastore.Datastore`](../autoapi/pudl/workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore)
   Resource that pulls our raw input data from [archives on Zenodo](https://zenodo.org/communities/catalyst-cooperative/) identified by DOI. The
-  [`pudl.workspace.datastore.ZenodoDoiSettings`](../autoapi/pudl/workspace/datastore/index.md#pudl.workspace.datastore.ZenodoDoiSettings) Resource defines the current
+  [`pudl.workspace.datastore.ZenodoDoiSettings`](../autoapi/pudl/workspace/datastore/index.html.md#pudl.workspace.datastore.ZenodoDoiSettings) Resource defines the current
   Zenodo DOI for each dataset. We also store our dataset-specific data config (like
   what years of EIA-861 data to process) in a Resource
-  [`pudl.dagster.resources.GlobalDataConfigResource`](../autoapi/pudl/dagster/resources/index.md#pudl.dagster.resources.GlobalDataConfigResource).
+  [`pudl.dagster.resources.GlobalDataConfigResource`](../autoapi/pudl/dagster/resources/index.html.md#pudl.dagster.resources.GlobalDataConfigResource).
 * **IO Managers** [[Dagster ref](https://docs.dagster.io/guides/build/io-managers)] in Dagster let
   us keep the code for data processing separate from the code for reading and writing
   data. PUDL defines I/O Managers for reading data out of the FERC SQLite databases we
-  curate, for reading and writing Parquet files, and for writing out to SQLite. For
-  example [`pudl.dagster.io_managers.PudlMixedFormatIOManager`](../autoapi/pudl/dagster/io_managers/index.md#pudl.dagster.io_managers.PudlMixedFormatIOManager) allows assets to
-  read and write dataframes to SQLite and Parquet-backed outputs using a single logical
-  interface.
+  curate, and for reading and writing the Parquet files that hold the processed PUDL
+  tables. The fully processed data is packaged into the `pudl.duckdb` and
+  `pudl.sqlite` databases by a separate Dagster asset that runs after the ETL,
+  reading from those Parquet outputs.
 * **Jobs** [[Dagster ref](https://docs.dagster.io/guides/build/jobs)] are preconfigured collections
   of assets, resources and IO Managers.  Jobs are the main unit of execution in Dagster.
-  The main jobs assembled in [`pudl.dagster`](../autoapi/pudl/dagster/index.md#module-pudl.dagster) are:
+  The main jobs assembled in [`pudl.dagster`](../autoapi/pudl/dagster/index.html.md#module-pudl.dagster) are:
   - `ferc_to_sqlite` to rebuild the raw FERC prerequisite databases only.
   - `pudl` to run the main PUDL ETL assuming those raw FERC databases already exist.
   - `pudl_with_ferc_to_sqlite` to run the full end-to-end build in one Dagster job.
@@ -142,7 +91,7 @@ Dagster docs for more info.
   like `dg_fast.yml`, `dg_full.yml`, `dg_pytest.yml`, and `dg_nightly.yml`,
   which configure execution options and shared resources like `global_data_config`.
   The reusable helpers that assemble these run configs live in
-  [`pudl.dagster.config`](../autoapi/pudl/dagster/config/index.md#module-pudl.dagster.config).
+  [`pudl.dagster.config`](../autoapi/pudl/dagster/config/index.html.md#module-pudl.dagster.config).
 
 ### The Dagster Web UI
 
@@ -172,7 +121,7 @@ $ pixi run dg list defs
 ### Interactive asset loading
 
 If you want to inspect asset values interactively from a notebook, REPL, or local
-script, use [`pudl.dagster.build.build_interactive_defs()`](../autoapi/pudl/dagster/build/index.md#pudl.dagster.build.build_interactive_defs) rather than the default
+script, use [`pudl.dagster.build.build_interactive_defs()`](../autoapi/pudl/dagster/build/index.html.md#pudl.dagster.build.build_interactive_defs) rather than the default
 `build_defs()` assembly. This helper constructs concrete FERC SQLite IO managers for
 interactive use, which allows [`dagster.Definitions.load_asset_value()`](https://docs.dagster.io/api/dagster/definitions/#dagster.Definitions.load_asset_value) to work
 outside a `dg`-spawned environment.
@@ -238,7 +187,7 @@ you only need those outputs, select the `ferc_to_sqlite` job and hit “Material
 All”, or you can select the specific FERC Form you actually need. If you want to run
 the whole ETL from scratch, use the `pudl_with_ferc_to_sqlite` job. The `pudl` job
 is intended for day-to-day development once compatible raw FERC outputs have been
-materialized locally. See [Converting raw FERC data to SQLite](clone_ferc1.md) for more background on this process.
+materialized locally. See [Converting raw FERC data to SQLite](clone_ferc1.html.md) for more background on this process.
 
 PUDL checks that your existing FERC SQLite databases are compatible with the current run
 configuration before downstream assets read them. Incompatible databases usually mean
@@ -270,7 +219,7 @@ Pro with 32GB of RAM and 10 CPUs it takes about 90 minutes. To run the full ETL 
 need at least 16GB of RAM.
 
 Read the
-[Configuring resources](troubleshooting_dagster.md#resource-config) section to learn more.  To view the status of the run, click the
+[Configuring resources](troubleshooting_dagster.html.md#resource-config) section to learn more.  To view the status of the run, click the
 date next to “Latest run:”.
 
 You can also re-execute specific assets by selecting one or multiple assets in the
@@ -282,7 +231,7 @@ To process a subset of years for a specific asset group, select the asset group,
 shift+click “Materialize all” and configure the `global_data_config` resource with the
 desired years.
 
-See [Troubleshooting Dagster](troubleshooting_dagster.md#troubleshooting-dagster) for tips on how to fix common issues we run into.
+See [Troubleshooting Dagster](troubleshooting_dagster.html.md#troubleshooting-dagster) for tips on how to fix common issues we run into.
 
 ### Running the FERC EQR ETL
 
@@ -405,7 +354,7 @@ pudl:
 
 #### SEE ALSO
 For an exhaustive listing of the available parameters, see the data config models in
-[`pudl.settings`](../autoapi/pudl/settings/index.md#module-pudl.settings) and the packaged settings files under
+[`pudl.settings`](../autoapi/pudl/settings/index.html.md#module-pudl.settings) and the packaged settings files under
 `src/pudl/package_data/settings/`.
 
 In general, you should not fiddle with these settings unless you are actually adding a
@@ -416,7 +365,7 @@ obviously possible, but most of them probably don’t work!
 ### The Fast ETL
 
 Running the Fast ETL processes a limited subset of data for each dataset. This is
-similar to what we do in our [software integration tests](testing.md). Depending on
+similar to what we do in our [software integration tests](testing.html.md). Depending on
 your computer, it may take up to an hour to run.
 
 ```console
@@ -452,7 +401,7 @@ $ pixi run dg launch --job pudl --config the/path/to/your/custom_dg_config.yml
 The commands above should result in a bunch of Python [`logging`](https://docs.python.org/3/library/logging.html#module-logging) output describing
 what Dagster is doing, and file outputs in the directory you specified via the
 `$PUDL_OUTPUT` environment variable. When the ETL is complete, you should see new
-files at e.g. `$PUDL_OUTPUT/ferc1_dbf.sqlite`, `$PUDL_OUTPUT/pudl.sqlite` and
+files at e.g. `$PUDL_OUTPUT/ferc1_dbf.sqlite` or
 `$PUDL_OUTPUT/core_epacems__hourly_emissions.parquet`.
 
 The Dagster CLI also has built-in help if you want additional information:
@@ -463,13 +412,6 @@ $ pixi run dg launch --help
 
 ### Foreign Key Constraints
 
-The order assets are loaded into `pudl.sqlite` is non-deterministic because the
-assets are executed in parallel so foreign key constraint violations can’t be identified
-in real time. However, foreign key constraints can be checked after all of the data
-has been loaded into the database successfully. To check the constraints, run:
-
-```console
-$ pixi run pudl_check_fks
-```
-
-The foreign key check is also run as part of the PUDL integration tests.
+Foreign key constraints are checked against the Parquet outputs using a custom `dbt`
+data test. See [Data validation quickstart](data_validation_quickstart.html.md) for how to run the `dbt` data
+validations using `dbt_helper`.

@@ -45,7 +45,7 @@ PUDL imports three vintages: 2009, 2013, and 2023.
 
 * Raw data on U.S. territories other than Puerto Rico is not included in Census PEP.
   PUDL uses other U.S. Census sources to fill in the geographic identifiers for the remaining territories.
-  See [`pudl.transform.censuspep._core_censuspep__yearly_geocodes`](../autoapi/pudl/transform/censuspep/index.md#pudl.transform.censuspep._core_censuspep__yearly_geocodes) for details.
+  See [`pudl.transform.censuspep._core_censuspep__yearly_geocodes`](../autoapi/pudl/transform/censuspep/index.html.md#pudl.transform.censuspep._core_censuspep__yearly_geocodes) for details.
 * We use the most recent name from Census PEP when denormalizing tables, and this may not always match the name used in the original filing.
   From time to time, counties change names, split, or merge.
   A geographic region which is valid in 2009 may not be valid in 2024.
@@ -55,5 +55,5 @@ PUDL imports three vintages: 2009, 2013, and 2023.
 ## PUDL Data Transformations
 
 To see the transformations applied to the data in each table, you can read the
-docstrings for [`pudl.transform.censuspep`](../autoapi/pudl/transform/censuspep/index.md#module-pudl.transform.censuspep) created for each table’s
+docstrings for [`pudl.transform.censuspep`](../autoapi/pudl/transform/censuspep/index.html.md#module-pudl.transform.censuspep) created for each table’s
 respective transform function.

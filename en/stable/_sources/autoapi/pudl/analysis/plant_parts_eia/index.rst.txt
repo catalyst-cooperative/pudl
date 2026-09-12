@@ -387,7 +387,7 @@ Module Contents
    .. py:attribute:: id_cols_list
 
 
-   .. py:method:: execute(mcoe: pandas.DataFrame, own_eia860: pandas.DataFrame, slice_cols: list[str] = SUM_COLS, validate_own_merge: str = 'one_to_many') -> pandas.DataFrame
+   .. py:method:: execute(mcoe: pandas.DataFrame, own_eia860: pandas.DataFrame, slice_cols: list[str] = SUM_COLS, validate_own_merge: pudl.helpers.MergeValidate = 'one_to_many') -> pandas.DataFrame
 
       Make the mega generators table with ownership integrated.
 

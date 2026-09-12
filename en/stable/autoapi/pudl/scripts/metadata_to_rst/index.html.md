@@ -5,7 +5,7 @@ Export PUDL table and field metadata to RST for use in documentation.
 ## Functions
 
 | [`main`](#pudl.scripts.metadata_to_rst.main)(→ int)   | Export PUDL table and field metadata to RST for use in documentation.   |
-|-------------------------------------------------------|-------------------------------------------------------------------------|
+|----------------------------------------------------------------|-------------------------------------------------------------------------|
 
 ## Module Contents
 

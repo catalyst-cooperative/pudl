@@ -5,27 +5,27 @@ Define a record linkage model interface and implement common functionality.
 ## Attributes
 
 | [`logger`](#pudl.analysis.record_linkage.link_cross_year.logger)   |    |
-|--------------------------------------------------------------------|----|
+|-----------------------------------------------------------|----|
 
 ## Classes
 
-| [`PenalizeReportYearDistanceConfig`](#pudl.analysis.record_linkage.link_cross_year.PenalizeReportYearDistanceConfig)   | Compute distance between records and add penalty to records from same year.                                              |
-|------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|
-| [`DistanceMatrix`](#pudl.analysis.record_linkage.link_cross_year.DistanceMatrix)                                       | Class to wrap a distance matrix saved in a np.memmap.                                                                    |
-| [`DBSCANConfig`](#pudl.analysis.record_linkage.link_cross_year.DBSCANConfig)                                           | Configuration for DBSCAN step.                                                                                           |
-| [`SplitClustersConfig`](#pudl.analysis.record_linkage.link_cross_year.SplitClustersConfig)                             | Configuration for AgglomerativeClustering used to split overmerged clusters.                                             |
-| [`MatchOrphanedRecordsConfig`](#pudl.analysis.record_linkage.link_cross_year.MatchOrphanedRecordsConfig)               | Configuration for [`match_orphaned_records()`](#pudl.analysis.record_linkage.link_cross_year.match_orphaned_records) op. |
+| [`PenalizeReportYearDistanceConfig`](#pudl.analysis.record_linkage.link_cross_year.PenalizeReportYearDistanceConfig)   | Compute distance between records and add penalty to records from same year.                     |
+|-------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------|
+| [`DistanceMatrix`](#pudl.analysis.record_linkage.link_cross_year.DistanceMatrix)                     | Class to wrap a distance matrix saved in a np.memmap.                                           |
+| [`DBSCANConfig`](#pudl.analysis.record_linkage.link_cross_year.DBSCANConfig)                       | Configuration for DBSCAN step.                                                                  |
+| [`SplitClustersConfig`](#pudl.analysis.record_linkage.link_cross_year.SplitClustersConfig)                | Configuration for AgglomerativeClustering used to split overmerged clusters.                    |
+| [`MatchOrphanedRecordsConfig`](#pudl.analysis.record_linkage.link_cross_year.MatchOrphanedRecordsConfig)         | Configuration for [`match_orphaned_records()`](#pudl.analysis.record_linkage.link_cross_year.match_orphaned_records) op. |
 
 ## Functions
 
 | [`get_cluster_distance_matrix`](#pudl.analysis.record_linkage.link_cross_year.get_cluster_distance_matrix)(→ numpy.ndarray)                | Return a distance matrix with only distances within a cluster.                          |
-|--------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
+|--------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
 | [`get_average_distance_matrix`](#pudl.analysis.record_linkage.link_cross_year.get_average_distance_matrix)(→ numpy.ndarray)                | Compute average distance between two clusters of records given indices of each cluster. |
-| [`compute_distance_with_year_penalty`](#pudl.analysis.record_linkage.link_cross_year.compute_distance_with_year_penalty)(→ DistanceMatrix) | Compute a distance matrix and penalize records from the same year.                      |
-| [`cluster_records_dbscan`](#pudl.analysis.record_linkage.link_cross_year.cluster_records_dbscan)(→ pandas.DataFrame)                       | Generate initial IDs using DBSCAN algorithm.                                            |
-| [`split_clusters`](#pudl.analysis.record_linkage.link_cross_year.split_clusters)(→ pandas.DataFrame)                                       | Split clusters with multiple records from same report_year.                             |
-| [`match_orphaned_records`](#pudl.analysis.record_linkage.link_cross_year.match_orphaned_records)(→ pandas.DataFrame)                       | DBSCAN assigns 'noisy' records a label of '-1', which will be labeled by this step.     |
-| [`link_ids_cross_year`](#pudl.analysis.record_linkage.link_cross_year.link_ids_cross_year)(df, feature_matrix, experiment_tracker)         | Apply model and return column of estimated record labels.                               |
+| [`compute_distance_with_year_penalty`](#pudl.analysis.record_linkage.link_cross_year.compute_distance_with_year_penalty)(→ DistanceMatrix)        | Compute a distance matrix and penalize records from the same year.                      |
+| [`cluster_records_dbscan`](#pudl.analysis.record_linkage.link_cross_year.cluster_records_dbscan)(→ pandas.DataFrame)                  | Generate initial IDs using DBSCAN algorithm.                                            |
+| [`split_clusters`](#pudl.analysis.record_linkage.link_cross_year.split_clusters)(→ pandas.DataFrame)                          | Split clusters with multiple records from same report_year.                             |
+| [`match_orphaned_records`](#pudl.analysis.record_linkage.link_cross_year.match_orphaned_records)(→ pandas.DataFrame)                  | DBSCAN assigns 'noisy' records a label of '-1', which will be labeled by this step.     |
+| [`link_ids_cross_year`](#pudl.analysis.record_linkage.link_cross_year.link_ids_cross_year)(df, feature_matrix, experiment_tracker) | Apply model and return column of estimated record labels.                               |
 
 ## Module Contents
 
@@ -60,7 +60,7 @@ Return a distance matrix with only distances within a cluster.
 
 Compute average distance between two clusters of records given indices of each cluster.
 
-### pudl.analysis.record_linkage.link_cross_year.compute_distance_with_year_penalty(config: [PenalizeReportYearDistanceConfig](#pudl.analysis.record_linkage.link_cross_year.PenalizeReportYearDistanceConfig), feature_matrix: [pudl.analysis.record_linkage.embed_dataframe.FeatureMatrix](../embed_dataframe/index.md#pudl.analysis.record_linkage.embed_dataframe.FeatureMatrix), original_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [DistanceMatrix](#pudl.analysis.record_linkage.link_cross_year.DistanceMatrix)
+### pudl.analysis.record_linkage.link_cross_year.compute_distance_with_year_penalty(config: [PenalizeReportYearDistanceConfig](#pudl.analysis.record_linkage.link_cross_year.PenalizeReportYearDistanceConfig), feature_matrix: [pudl.analysis.record_linkage.embed_dataframe.FeatureMatrix](../embed_dataframe/index.html.md#pudl.analysis.record_linkage.embed_dataframe.FeatureMatrix), original_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [DistanceMatrix](#pudl.analysis.record_linkage.link_cross_year.DistanceMatrix)
 
 Compute a distance matrix and penalize records from the same year.
 
@@ -74,7 +74,7 @@ Configuration for DBSCAN step.
 
 #### min_samples *: [int](https://docs.python.org/3/library/functions.html#int)* *= 1*
 
-### pudl.analysis.record_linkage.link_cross_year.cluster_records_dbscan(config: [DBSCANConfig](#pudl.analysis.record_linkage.link_cross_year.DBSCANConfig), distance_matrix: [DistanceMatrix](#pudl.analysis.record_linkage.link_cross_year.DistanceMatrix), original_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), experiment_tracker: [pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker](../../ml_tools/experiment_tracking/index.md#pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.analysis.record_linkage.link_cross_year.cluster_records_dbscan(config: [DBSCANConfig](#pudl.analysis.record_linkage.link_cross_year.DBSCANConfig), distance_matrix: [DistanceMatrix](#pudl.analysis.record_linkage.link_cross_year.DistanceMatrix), original_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), experiment_tracker: [pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker](../../ml_tools/experiment_tracking/index.html.md#pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Generate initial IDs using DBSCAN algorithm.
 
@@ -86,7 +86,7 @@ Configuration for AgglomerativeClustering used to split overmerged clusters.
 
 #### distance_threshold *: [float](https://docs.python.org/3/library/functions.html#float)* *= 0.5*
 
-### pudl.analysis.record_linkage.link_cross_year.split_clusters(config: [SplitClustersConfig](#pudl.analysis.record_linkage.link_cross_year.SplitClustersConfig), distance_matrix: [DistanceMatrix](#pudl.analysis.record_linkage.link_cross_year.DistanceMatrix), id_year_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), experiment_tracker: [pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker](../../ml_tools/experiment_tracking/index.md#pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.analysis.record_linkage.link_cross_year.split_clusters(config: [SplitClustersConfig](#pudl.analysis.record_linkage.link_cross_year.SplitClustersConfig), distance_matrix: [DistanceMatrix](#pudl.analysis.record_linkage.link_cross_year.DistanceMatrix), id_year_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), experiment_tracker: [pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker](../../ml_tools/experiment_tracking/index.html.md#pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Split clusters with multiple records from same report_year.
 
@@ -106,7 +106,7 @@ Configuration for [`match_orphaned_records()`](#pudl.analysis.record_linkage.lin
 
 #### distance_threshold *: [float](https://docs.python.org/3/library/functions.html#float)* *= 0.5*
 
-### pudl.analysis.record_linkage.link_cross_year.match_orphaned_records(config: [MatchOrphanedRecordsConfig](#pudl.analysis.record_linkage.link_cross_year.MatchOrphanedRecordsConfig), distance_matrix: [DistanceMatrix](#pudl.analysis.record_linkage.link_cross_year.DistanceMatrix), id_year_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), experiment_tracker: [pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker](../../ml_tools/experiment_tracking/index.md#pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.analysis.record_linkage.link_cross_year.match_orphaned_records(config: [MatchOrphanedRecordsConfig](#pudl.analysis.record_linkage.link_cross_year.MatchOrphanedRecordsConfig), distance_matrix: [DistanceMatrix](#pudl.analysis.record_linkage.link_cross_year.DistanceMatrix), id_year_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), experiment_tracker: [pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker](../../ml_tools/experiment_tracking/index.html.md#pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 DBSCAN assigns ‘noisy’ records a label of ‘-1’, which will be labeled by this step.
 
@@ -116,6 +116,6 @@ distance between each cluster, and is used in a round of agglomerative clusterin
 This will match orphaned records to existing clusters, or assign them unique ID’s if
 they don’t appear close enough to any existing clusters.
 
-### pudl.analysis.record_linkage.link_cross_year.link_ids_cross_year(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), feature_matrix: [pudl.analysis.record_linkage.embed_dataframe.FeatureMatrix](../embed_dataframe/index.md#pudl.analysis.record_linkage.embed_dataframe.FeatureMatrix), experiment_tracker: [pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker](../../ml_tools/experiment_tracking/index.md#pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker))
+### pudl.analysis.record_linkage.link_cross_year.link_ids_cross_year(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), feature_matrix: [pudl.analysis.record_linkage.embed_dataframe.FeatureMatrix](../embed_dataframe/index.html.md#pudl.analysis.record_linkage.embed_dataframe.FeatureMatrix), experiment_tracker: [pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker](../../ml_tools/experiment_tracking/index.html.md#pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker))
 
 Apply model and return column of estimated record labels.

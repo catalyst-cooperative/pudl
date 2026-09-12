@@ -4,19 +4,19 @@ Routines used for extracting the raw FERC 714 data.
 
 ## Attributes
 
-| [`logger`](#pudl.extract.ferc714.logger)                                               |                                                                                   |
-|----------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
+| [`logger`](#pudl.extract.ferc714.logger)                        |                                                                                   |
+|--------------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
 | [`FERC714_XBRL_SQLITE_ASSET_KEY`](#pudl.extract.ferc714.FERC714_XBRL_SQLITE_ASSET_KEY) |                                                                                   |
-| [`FERC714_CSV_ENCODING`](#pudl.extract.ferc714.FERC714_CSV_ENCODING)                   | Dictionary mapping PUDL tables to FERC-714 CSV filenames and character encodings. |
-| [`TABLE_NAME_MAP_FERC714`](#pudl.extract.ferc714.TABLE_NAME_MAP_FERC714)               | A mapping of PUDL DB table names to their XBRL and CSV source table names.        |
-| [`raw_ferc714_csv_assets`](#pudl.extract.ferc714.raw_ferc714_csv_assets)               |                                                                                   |
-| [`raw_ferc714_xbrl_assets`](#pudl.extract.ferc714.raw_ferc714_xbrl_assets)             |                                                                                   |
+| [`FERC714_CSV_ENCODING`](#pudl.extract.ferc714.FERC714_CSV_ENCODING)          | Dictionary mapping PUDL tables to FERC-714 CSV filenames and character encodings. |
+| [`TABLE_NAME_MAP_FERC714`](#pudl.extract.ferc714.TABLE_NAME_MAP_FERC714)        | A mapping of PUDL DB table names to their XBRL and CSV source table names.        |
+| [`raw_ferc714_csv_assets`](#pudl.extract.ferc714.raw_ferc714_csv_assets)        |                                                                                   |
+| [`raw_ferc714_xbrl_assets`](#pudl.extract.ferc714.raw_ferc714_xbrl_assets)       |                                                                                   |
 
 ## Functions
 
-| [`raw_ferc714_csv_asset_factory`](#pudl.extract.ferc714.raw_ferc714_csv_asset_factory)(→ dagster.AssetsDefinition)    | Generates an asset for building the raw CSV-based FERC 714 dataframe.   |
-|-----------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
-| [`raw_ferc714_xbrl__metadata_json`](#pudl.extract.ferc714.raw_ferc714_xbrl__metadata_json)(→ dict[str, dict[str, ...) | Extract the FERC 714 XBRL Taxonomy metadata we've stored as JSON.       |
+| [`raw_ferc714_csv_asset_factory`](#pudl.extract.ferc714.raw_ferc714_csv_asset_factory)(→ dagster.AssetsDefinition)   | Generates an asset for building the raw CSV-based FERC 714 dataframe.   |
+|--------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
+| [`raw_ferc714_xbrl__metadata_json`](#pudl.extract.ferc714.raw_ferc714_xbrl__metadata_json)(→ dict[str, dict[str, ...)  | Extract the FERC 714 XBRL Taxonomy metadata we've stored as JSON.       |
 | [`create_raw_ferc714_xbrl_assets`](#pudl.extract.ferc714.create_raw_ferc714_xbrl_assets)(→ list[dagster.AssetSpec])   | Create AssetSpecs for raw FERC 714 XBRL tables.                         |
 
 ## Module Contents

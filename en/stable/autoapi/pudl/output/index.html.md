@@ -13,13 +13,13 @@ so that they can accessed in a uniform way rather than being reconstructed on th
 
 ## Submodules
 
-* [pudl.output.censusdp1tract](censusdp1tract/index.md)
-* [pudl.output.eia](eia/index.md)
-* [pudl.output.eia860](eia860/index.md)
-* [pudl.output.eia923](eia923/index.md)
-* [pudl.output.eia930](eia930/index.md)
-* [pudl.output.eiaapi](eiaapi/index.md)
-* [pudl.output.ferc1](ferc1/index.md)
-* [pudl.output.ferc714](ferc714/index.md)
-* [pudl.output.rus](rus/index.md)
-* [pudl.output.sec10k](sec10k/index.md)
+* [pudl.output.censusdp1tract](censusdp1tract/index.html.md)
+* [pudl.output.eia](eia/index.html.md)
+* [pudl.output.eia860](eia860/index.html.md)
+* [pudl.output.eia923](eia923/index.html.md)
+* [pudl.output.eia930](eia930/index.html.md)
+* [pudl.output.eiaapi](eiaapi/index.html.md)
+* [pudl.output.ferc1](ferc1/index.html.md)
+* [pudl.output.ferc714](ferc714/index.html.md)
+* [pudl.output.rus](rus/index.html.md)
+* [pudl.output.sec10k](sec10k/index.html.md)

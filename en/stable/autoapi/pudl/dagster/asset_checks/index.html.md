@@ -24,16 +24,16 @@ should go in dbt.
 ## Attributes
 
 | [`default_asset_checks`](#pudl.dagster.asset_checks.default_asset_checks)   |    |
-|-----------------------------------------------------------------------------|----|
-| [`duckdb_assets`](#pudl.dagster.asset_checks.duckdb_assets)                 |    |
+|-------------------------------------------------------------------------|----|
+| [`duckdb_assets`](#pudl.dagster.asset_checks.duckdb_assets)          |    |
 
 ## Functions
 
 | [`group_mean_continuity_check`](#pudl.dagster.asset_checks.group_mean_continuity_check)(→ dagster.AssetCheckResult)   | Check that certain variables don't vary too much on average between groups.           |
-|-----------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
-| [`asset_check_from_schema`](#pudl.dagster.asset_checks.asset_check_from_schema)(...)                                  | Create a Dagster asset check based on the resource schema, if defined.                |
-| [`valid_datapackage_check`](#pudl.dagster.asset_checks.valid_datapackage_check)(→ dagster.AssetChecksDefinition)      | Return a Dagster asset check that validates a frictionless datapackage descriptor.    |
-| [`valid_datapackage_unit_strings_check`](#pudl.dagster.asset_checks.valid_datapackage_unit_strings_check)(...)        | Return a Dagster asset check that validates unit strings in a datapackage descriptor. |
+|------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
+| [`asset_check_from_schema`](#pudl.dagster.asset_checks.asset_check_from_schema)(...)                              | Create a Dagster asset check based on the resource schema, if defined.                |
+| [`valid_datapackage_check`](#pudl.dagster.asset_checks.valid_datapackage_check)(→ dagster.AssetChecksDefinition)  | Return a Dagster asset check that validates a frictionless datapackage descriptor.    |
+| [`valid_datapackage_unit_strings_check`](#pudl.dagster.asset_checks.valid_datapackage_unit_strings_check)(...)                 | Return a Dagster asset check that validates unit strings in a datapackage descriptor. |
 
 ## Module Contents
 
@@ -53,7 +53,7 @@ cooling systems didn’t jump by 10x from 2012-2013.”
   * **n_outliers_allowed** – how many data points are allowed to be above the
     threshold.
 
-### pudl.dagster.asset_checks.asset_check_from_schema(asset_key: [dagster.AssetKey](https://docs.dagster.io/api/dagster/assets/#dagster.AssetKey), package: [pudl.metadata.classes.Package](../../metadata/classes/index.md#pudl.metadata.classes.Package), duckdb_asset: [bool](https://docs.python.org/3/library/functions.html#bool)) → [dagster.AssetChecksDefinition](https://docs.dagster.io/api/dagster/asset-checks/#dagster.AssetChecksDefinition) | [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.dagster.asset_checks.asset_check_from_schema(asset_key: [dagster.AssetKey](https://docs.dagster.io/api/dagster/assets/#dagster.AssetKey), package: [pudl.metadata.classes.Package](../../metadata/classes/index.html.md#pudl.metadata.classes.Package), duckdb_asset: [bool](https://docs.python.org/3/library/functions.html#bool)) → [dagster.AssetChecksDefinition](https://docs.dagster.io/api/dagster/asset-checks/#dagster.AssetChecksDefinition) | [None](https://docs.python.org/3/library/constants.html#None)
 
 Create a Dagster asset check based on the resource schema, if defined.
 

@@ -13,9 +13,9 @@ For the underlying Dagster concept, see
 ## Attributes
 
 | [`default_tag_concurrency_limits`](#pudl.dagster.config.default_tag_concurrency_limits)   |    |
-|-------------------------------------------------------------------------------------------|----|
-| [`default_execution_config`](#pudl.dagster.config.default_execution_config)               |    |
-| [`default_pudl_job_config`](#pudl.dagster.config.default_pudl_job_config)                 |    |
+|-----------------------------------------------------------------------------------|----|
+| [`default_execution_config`](#pudl.dagster.config.default_execution_config)         |    |
+| [`default_pudl_job_config`](#pudl.dagster.config.default_pudl_job_config)          |    |
 
 ## Module Contents
 

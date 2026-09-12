@@ -4,21 +4,21 @@ A CLI tool for matching FERC and EIA utilities.
 
 ## Attributes
 
-| [`logger`](#pudl.scripts.auto_match_utilities.logger)                             |    |
-|-----------------------------------------------------------------------------------|----|
+| [`logger`](#pudl.scripts.auto_match_utilities.logger)               |    |
+|-----------------------------------------------------------------------|----|
 | [`UTILITY_NAME_CLEANER`](#pudl.scripts.auto_match_utilities.UTILITY_NAME_CLEANER) |    |
 
 ## Functions
 
-| [`clean_utility_name`](#pudl.scripts.auto_match_utilities.clean_utility_name)(col)                                               | Apply standard cleaning steps to the utility name column.             |
-|----------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------|
-| [`match_utility_names`](#pudl.scripts.auto_match_utilities.match_utility_names)(eia_df, ferc_df, false_matches)                  | Match FERC and EIA utilities based on their utility names.            |
-| [`get_existing_glue_df`](#pudl.scripts.auto_match_utilities.get_existing_glue_df)()                                              | Read in the existing handmade glue spreadsheet.                       |
-| [`get_false_matches`](#pudl.scripts.auto_match_utilities.get_false_matches)()                                                    | Read in the existing handmade false matches spreadsheet.              |
-| [`drop_records_with_matches`](#pudl.scripts.auto_match_utilities.drop_records_with_matches)(entity, matches_new, ...)            | Drop records in the original dataframe where matches have been found. |
+| [`clean_utility_name`](#pudl.scripts.auto_match_utilities.clean_utility_name)(col)                                     | Apply standard cleaning steps to the utility name column.             |
+|--------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------|
+| [`match_utility_names`](#pudl.scripts.auto_match_utilities.match_utility_names)(eia_df, ferc_df, false_matches)         | Match FERC and EIA utilities based on their utility names.            |
+| [`get_existing_glue_df`](#pudl.scripts.auto_match_utilities.get_existing_glue_df)()                                      | Read in the existing handmade glue spreadsheet.                       |
+| [`get_false_matches`](#pudl.scripts.auto_match_utilities.get_false_matches)()                                         | Read in the existing handmade false matches spreadsheet.              |
+| [`drop_records_with_matches`](#pudl.scripts.auto_match_utilities.drop_records_with_matches)(entity, matches_new, ...)         | Drop records in the original dataframe where matches have been found. |
 | [`add_new_matches_to_dataframe`](#pudl.scripts.auto_match_utilities.add_new_matches_to_dataframe)(matches_new, existing_glue_df) | Add new matches to existing hand-mapped dataframe.                    |
-| [`write_updated_matches`](#pudl.scripts.auto_match_utilities.write_updated_matches)(test_run, dataframe)                         | Write the updated matching spreadsheet to disk.                       |
-| [`main`](#pudl.scripts.auto_match_utilities.main)(→ int)                                                                         | Match EIA and FERC utilities based on utility name alone.             |
+| [`write_updated_matches`](#pudl.scripts.auto_match_utilities.write_updated_matches)(test_run, dataframe)                  | Write the updated matching spreadsheet to disk.                       |
+| [`main`](#pudl.scripts.auto_match_utilities.main)(→ int)                                                 | Match EIA and FERC utilities based on utility name alone.             |
 
 ## Module Contents
 

@@ -5,18 +5,18 @@ Prepare the inputs to the FERC1 to EIA record linkage model.
 ## Attributes
 
 | [`logger`](#pudl.analysis.record_linkage.eia_ferc1_inputs.logger)   |    |
-|---------------------------------------------------------------------|----|
+|-----------------------------------------------------------|----|
 
 ## Classes
 
 | [`InputManager`](#pudl.analysis.record_linkage.eia_ferc1_inputs.InputManager)   | Class to prepare inputs for linking FERC1 and EIA.   |
-|---------------------------------------------------------------------------------|------------------------------------------------------|
+|-----------------------------------------------------------------|------------------------------------------------------|
 
 ## Functions
 
 | [`restrict_train_connections_on_date_range`](#pudl.analysis.record_linkage.eia_ferc1_inputs.restrict_train_connections_on_date_range)(...)   | Restrict the training data based on the date ranges of the input tables.   |
-|----------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
-| [`prep_train_connections`](#pudl.analysis.record_linkage.eia_ferc1_inputs.prep_train_connections)(→ pandas.DataFrame)                        | Get and prepare the training connections for the model.                    |
+|--------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
+| [`prep_train_connections`](#pudl.analysis.record_linkage.eia_ferc1_inputs.prep_train_connections)(→ pandas.DataFrame)      | Get and prepare the training connections for the model.                    |
 
 ## Module Contents
 
@@ -56,8 +56,8 @@ Prepare FERC1 plants data for record linkage with EIA plant-parts.
 
 This method merges two internally cached dataframes (`self.plants_all_ferc1`
 and `self.fuel_by_plant_ferc1` (originally obtained from
-[out_ferc1_\_yearly_all_plants](../../../../../data_dictionaries/pudl_db.md#out-ferc1-yearly-all-plants) and
-[out_ferc1_\_yearly_steam_plants_fuel_by_plant_sched402](../../../../../data_dictionaries/pudl_db.md#out-ferc1-yearly-steam-plants-fuel-by-plant-sched402)) respectively) and
+[out_ferc1_\_yearly_all_plants](../../../../../data_dictionaries/pudl_db.html.md#out-ferc1-yearly-all-plants) and
+[out_ferc1_\_yearly_steam_plants_fuel_by_plant_sched402](../../../../../data_dictionaries/pudl_db.html.md#out-ferc1-yearly-steam-plants-fuel-by-plant-sched402)) respectively) and
 ensures that key columns are have the same names and dtypes as the analogous
 EIA columns so that they can be used in the FERC-EIA record linkage model
 easily.

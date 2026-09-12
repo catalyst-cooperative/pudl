@@ -19,7 +19,7 @@ priorities in our quarterly planning process.
 
 ## Code of Conduct
 
-Please make sure you review our [code of conduct](code_of_conduct.md), which is
+Please make sure you review our [code of conduct](code_of_conduct.html.md), which is
 based on the [Contributor Covenant](https://www.contributor-covenant.org/). We
 want to make the PUDL project welcoming to contributors with different levels of
 experience and diverse personal backgrounds.

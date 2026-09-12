@@ -4,33 +4,35 @@ Classes & functions to process PHMSA natural gas data before loading into the PU
 
 ## Attributes
 
-| [`logger`](#pudl.transform.phmsagas.logger)                                                               |    |
-|-----------------------------------------------------------------------------------------------------------|----|
-| [`YEARLY_DISTRIBUTION_FILING_COLUMNS`](#pudl.transform.phmsagas.YEARLY_DISTRIBUTION_FILING_COLUMNS)       |    |
+| [`logger`](#pudl.transform.phmsagas.logger)                                |    |
+|----------------------------------------------------------------------------------------|----|
+| [`YEARLY_DISTRIBUTION_FILING_COLUMNS`](#pudl.transform.phmsagas.YEARLY_DISTRIBUTION_FILING_COLUMNS)    |    |
 | [`YEARLY_DISTRIBUTION_OPERATORS_COLUMNS`](#pudl.transform.phmsagas.YEARLY_DISTRIBUTION_OPERATORS_COLUMNS) |    |
-| [`YEARLY_DISTRIBUTION_MISC_COLUMNS`](#pudl.transform.phmsagas.YEARLY_DISTRIBUTION_MISC_COLUMNS)           |    |
-| [`YEARLY_DISTRIBUTION_IDX_ISH`](#pudl.transform.phmsagas.YEARLY_DISTRIBUTION_IDX_ISH)                     |    |
-| [`MELT_PATTERNS`](#pudl.transform.phmsagas.MELT_PATTERNS)                                                 |    |
+| [`YEARLY_DISTRIBUTION_MISC_COLUMNS`](#pudl.transform.phmsagas.YEARLY_DISTRIBUTION_MISC_COLUMNS)      |    |
+| [`YEARLY_DISTRIBUTION_IDX_ISH`](#pudl.transform.phmsagas.YEARLY_DISTRIBUTION_IDX_ISH)           |    |
+| [`INSTALL_DECADE_TOTAL_MISMATCHES`](#pudl.transform.phmsagas.INSTALL_DECADE_TOTAL_MISMATCHES)       |    |
+| [`MELT_PATTERNS`](#pudl.transform.phmsagas.MELT_PATTERNS)                         |    |
 
 ## Functions
 
-| [`_check_all_raw_columns_being_transformed`](#pudl.transform.phmsagas._check_all_raw_columns_being_transformed)(raw_df)                              | Check to ensure that we are transforming all of the raw columns.                        |
-|------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
-| [`_dedupe_year_distribution_idx`](#pudl.transform.phmsagas._dedupe_year_distribution_idx)(→ pandas.DataFrame)                                        | Remove the rare duplicates in the expected primary key.                                 |
-| [`_assign_cols_from_patterns`](#pudl.transform.phmsagas._assign_cols_from_patterns)(→ pandas.DataFrame)                                              | Add new columns based on regex patterns within an existing column.                      |
-| [`backfill_zero_operator_id_phmsa`](#pudl.transform.phmsagas.backfill_zero_operator_id_phmsa)(→ pandas.DataFrame)                                    | Backfill some of the 0's in the operator_id_phmsa.                                      |
-| [`_core_phmsagas__yearly_distribution`](#pudl.transform.phmsagas._core_phmsagas__yearly_distribution)(→ pandas.DataFrame)                            | Clean up the raw yearly distribution table for future transforms.                       |
-| [`_melt_col_pattern`](#pudl.transform.phmsagas._melt_col_pattern)(df, filter_pattern, value_name, ...)                                               | Melt a dataframe based on a filter regex pattern and assign pattern columns.            |
-| [`_melt_merge_main_services`](#pudl.transform.phmsagas._melt_merge_main_services)(→ pandas.DataFrame)                                                | Filter, melt, add columns then merge miles of main and service.                         |
-| [`_check_and_drop_log_if_always_in_report_id`](#pudl.transform.phmsagas._check_and_drop_log_if_always_in_report_id)(df)                              | Check to ensure we can drop the log column w/o losing information.                      |
-| [`_core_phmsagas__yearly_distribution_filings`](#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_filings)(...)                           | Transform information about filings (with PK report_id).                                |
-| [`core_phmsagas__yearly_distribution_operators`](#pudl.transform.phmsagas.core_phmsagas__yearly_distribution_operators)(...)                         | Pull and transform the yearly distribution PHMSA data into operator-level data.         |
-| [`_core_phmsagas__yearly_distribution_by_material`](#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_by_material)(...)                   | Transform the \_core table of the miles of main and services by material.               |
-| [`_core_phmsagas__yearly_distribution_by_install_decade`](#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_by_install_decade)(...)       | Transform the \_core table of the miles of main and services by decade.                 |
+| [`_check_all_raw_columns_being_transformed`](#pudl.transform.phmsagas._check_all_raw_columns_being_transformed)(raw_df)              | Check to ensure that we are transforming all of the raw columns.                        |
+|----------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
+| [`_dedupe_year_distribution_idx`](#pudl.transform.phmsagas._dedupe_year_distribution_idx)(→ pandas.DataFrame)             | Remove the rare duplicates in the expected primary key.                                 |
+| [`_assign_cols_from_patterns`](#pudl.transform.phmsagas._assign_cols_from_patterns)(→ pandas.DataFrame)                | Add new columns based on regex patterns within an existing column.                      |
+| [`backfill_zero_operator_id_phmsa`](#pudl.transform.phmsagas.backfill_zero_operator_id_phmsa)(→ pandas.DataFrame)           | Backfill some of the 0's in the operator_id_phmsa.                                      |
+| [`_core_phmsagas__yearly_distribution`](#pudl.transform.phmsagas._core_phmsagas__yearly_distribution)(→ pandas.DataFrame)       | Clean up the raw yearly distribution table for future transforms.                       |
+| [`_melt_col_pattern`](#pudl.transform.phmsagas._melt_col_pattern)(df, filter_pattern, value_name, ...)        | Melt a dataframe based on a filter regex pattern and assign pattern columns.            |
+| [`_melt_merge_main_services`](#pudl.transform.phmsagas._melt_merge_main_services)(→ pandas.DataFrame)                 | Filter, melt, add columns then merge miles of main and service.                         |
+| [`_check_and_drop_log_if_always_in_report_id`](#pudl.transform.phmsagas._check_and_drop_log_if_always_in_report_id)(df)                | Check to ensure we can drop the log column w/o losing information.                      |
+| [`_core_phmsagas__yearly_distribution_filings`](#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_filings)(...)              | Transform information about filings (with PK report_id).                                |
+| [`core_phmsagas__yearly_distribution_operators`](#pudl.transform.phmsagas.core_phmsagas__yearly_distribution_operators)(...)             | Pull and transform the yearly distribution PHMSA data into operator-level data.         |
+| [`_core_phmsagas__yearly_distribution_by_material`](#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_by_material)(...)          | Transform the \_core table of the miles of main and services by material.               |
 | [`_core_phmsagas__yearly_distribution_by_material_and_size`](#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_by_material_and_size)(...) | Transform the \_core table of the miles of main and services by material type and size. |
-| [`_core_phmsagas__yearly_distribution_leaks`](#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_leaks)(...)                               | Transform table of leaks - broken out by source and leak severity.                      |
-| [`_core_phmsagas__yearly_distribution_excavation_damages`](#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_excavation_damages)(...)     | Transform table of damages - broken out by type and sub-type.                           |
-| [`_core_phmsagas__yearly_distribution_misc`](#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_misc)(...)                                 | Transform this distribution table of miscellaneous numeric values.                      |
+| [`_core_phmsagas__yearly_distribution_leaks`](#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_leaks)(...)                | Transform table of leaks - broken out by source and leak severity.                      |
+| [`_core_phmsagas__yearly_distribution_excavation_damages`](#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_excavation_damages)(...)   | Transform table of damages - broken out by type and sub-type.                           |
+| [`_core_phmsagas__yearly_distribution_misc`](#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_misc)(...)                 | Transform this distribution table of miscellaneous numeric values.                      |
+| [`_assert_install_decade_totals_match_expected`](#pudl.transform.phmsagas._assert_install_decade_totals_match_expected)(→ None)          | Assert known mismatch counts between reported and summed install decades.               |
+| [`core_phmsagas__yearly_distribution_by_install_decade`](#pudl.transform.phmsagas.core_phmsagas__yearly_distribution_by_install_decade)(...)     | Create core_phmsagas_\_yearly_distribution_by_install_decade.                           |
 
 ## Module Contents
 
@@ -43,6 +45,8 @@ Classes & functions to process PHMSA natural gas data before loading into the PU
 ### pudl.transform.phmsagas.YEARLY_DISTRIBUTION_MISC_COLUMNS *= ['all_known_leaks_scheduled_for_repair_main', 'all_known_leaks_scheduled_for_repair',...*
 
 ### pudl.transform.phmsagas.YEARLY_DISTRIBUTION_IDX_ISH *= ['report_date', 'report_id', 'operator_id_phmsa', 'commodity', 'operating_state']*
+
+### pudl.transform.phmsagas.INSTALL_DECADE_TOTAL_MISMATCHES
 
 ### pudl.transform.phmsagas.MELT_PATTERNS
 
@@ -139,10 +143,6 @@ Transformations include:
 
 Transform the \_core table of the miles of main and services by material.
 
-### pudl.transform.phmsagas.\_core_phmsagas_\_yearly_distribution_by_install_decade(\_core_phmsagas_\_yearly_distribution: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
-
-Transform the \_core table of the miles of main and services by decade.
-
 ### pudl.transform.phmsagas.\_core_phmsagas_\_yearly_distribution_by_material_and_size(\_core_phmsagas_\_yearly_distribution: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Transform the \_core table of the miles of main and services by material type and size.
@@ -165,3 +165,11 @@ Transform table of damages - broken out by type and sub-type.
 ### pudl.transform.phmsagas.\_core_phmsagas_\_yearly_distribution_misc(\_core_phmsagas_\_yearly_distribution: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Transform this distribution table of miscellaneous numeric values.
+
+### pudl.transform.phmsagas.\_assert_install_decade_totals_match_expected(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [None](https://docs.python.org/3/library/constants.html#None)
+
+Assert known mismatch counts between reported and summed install decades.
+
+### pudl.transform.phmsagas.core_phmsagas_\_yearly_distribution_by_install_decade(\_core_phmsagas_\_yearly_distribution: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Create core_phmsagas_\_yearly_distribution_by_install_decade.

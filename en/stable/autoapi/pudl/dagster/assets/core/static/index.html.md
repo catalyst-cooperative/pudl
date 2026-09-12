@@ -10,16 +10,16 @@ than an external extract step, and keep source-specific extract logic elsewhere.
 ## Attributes
 
 | [`logger`](#pudl.dagster.assets.core.static.logger)   |    |
-|-------------------------------------------------------|----|
+|-----------------------------------------------------------|----|
 
 ## Functions
 
 | [`_read_static_encoding_tables`](#pudl.dagster.assets.core.static._read_static_encoding_tables)(→ dict[str, pandas.DataFrame])   | Build dataframes of static tables from a data source for use as foreign keys.   |
-|----------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
-| [`static_pudl_tables`](#pudl.dagster.assets.core.static.static_pudl_tables)(context)                                             | Read static tables compiled as part of PUDL and not from any agency dataset.    |
-| [`static_eia_tables`](#pudl.dagster.assets.core.static.static_eia_tables)(context)                                               | Create static EIA tables.                                                       |
-| [`static_ferc1_tables`](#pudl.dagster.assets.core.static.static_ferc1_tables)(context)                                           | Compile static tables for FERC1 for foreign key constraints.                    |
-| [`static_rus_tables`](#pudl.dagster.assets.core.static.static_rus_tables)(context)                                               | Create static RUS tables.                                                       |
+|----------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
+| [`static_pudl_tables`](#pudl.dagster.assets.core.static.static_pudl_tables)(context)                                   | Read static tables compiled as part of PUDL and not from any agency dataset.    |
+| [`static_eia_tables`](#pudl.dagster.assets.core.static.static_eia_tables)(context)                                    | Create static EIA tables.                                                       |
+| [`static_ferc1_tables`](#pudl.dagster.assets.core.static.static_ferc1_tables)(context)                                  | Compile static tables for FERC1 for foreign key constraints.                    |
+| [`static_rus_tables`](#pudl.dagster.assets.core.static.static_rus_tables)(context)                                    | Create static RUS tables.                                                       |
 
 ## Module Contents
 
@@ -34,7 +34,7 @@ which we need to store for data validation purposes, for use as foreign keys.  E
 the list of valid EIA fuel type codes, or the possible state and country codes
 indicating a coal delivery’s location of origin. For now these values are primarily
 stored in a large collection of lists, dictionaries, and dataframes which are
-specified in the [`pudl.metadata`](../../../../metadata/index.md#module-pudl.metadata) subpackage.  This function uses those data
+specified in the [`pudl.metadata`](../../../../metadata/index.html.md#module-pudl.metadata) subpackage.  This function uses those data
 structures to populate a bunch of small infrastructural tables within the PUDL DB.
 
 * **Parameters:**

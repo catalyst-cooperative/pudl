@@ -18,7 +18,7 @@ The table-specific dictionaries contain the following keys:
 
 ## Attributes
 
-| [`CODE_METADATA`](#pudl.metadata.codes.CODE_METADATA)                   |    |
+| [`CODE_METADATA`](#pudl.metadata.codes.CODE_METADATA)          |    |
 |-------------------------------------------------------------------------|----|
 | [`DISABLED_CODE_METADATA`](#pudl.metadata.codes.DISABLED_CODE_METADATA) |    |
 

@@ -15,11 +15,11 @@ We’ve segmented the processed data into the following normalized data tables.
 Clicking on the links will show you a description of the table as well as
 the names and descriptions of each of its fields.
 
-| Data Dictionary                                                                              | Browse Online                                                                                                                                 |
-|----------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
-| [out_censusdp1tract_\_counties](../data_dictionaries/pudl_db.md#out-censusdp1tract-counties) | [https://data.catalyst.coop/preview/pudl/out_censusdp1tract_\_counties](https://data.catalyst.coop/preview/pudl/out_censusdp1tract__counties) |
-| [out_censusdp1tract_\_states](../data_dictionaries/pudl_db.md#out-censusdp1tract-states)     | [https://data.catalyst.coop/preview/pudl/out_censusdp1tract_\_states](https://data.catalyst.coop/preview/pudl/out_censusdp1tract__states)     |
-| [out_censusdp1tract_\_tracts](../data_dictionaries/pudl_db.md#out-censusdp1tract-tracts)     | [https://data.catalyst.coop/preview/pudl/out_censusdp1tract_\_tracts](https://data.catalyst.coop/preview/pudl/out_censusdp1tract__tracts)     |
+| Data Dictionary                                                                                          | Browse Online                                                                                                                                 |
+|----------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| [out_censusdp1tract_\_counties](../data_dictionaries/pudl_db.html.md#out-censusdp1tract-counties) | [https://data.catalyst.coop/preview/pudl/out_censusdp1tract_\_counties](https://data.catalyst.coop/preview/pudl/out_censusdp1tract__counties) |
+| [out_censusdp1tract_\_states](../data_dictionaries/pudl_db.html.md#out-censusdp1tract-states)     | [https://data.catalyst.coop/preview/pudl/out_censusdp1tract_\_states](https://data.catalyst.coop/preview/pudl/out_censusdp1tract__states)     |
+| [out_censusdp1tract_\_tracts](../data_dictionaries/pudl_db.html.md#out-censusdp1tract-tracts)     | [https://data.catalyst.coop/preview/pudl/out_censusdp1tract_\_tracts](https://data.catalyst.coop/preview/pudl/out_censusdp1tract__tracts)     |
 
 ## Background
 

@@ -4,21 +4,21 @@ Static database tables.
 
 ## Attributes
 
-| [`IMPUTATION_REASON_CODES`](#pudl.metadata.dfs.IMPUTATION_REASON_CODES)                       |                                                                                       |
-|-----------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
-| [`FERC_ACCOUNTS`](#pudl.metadata.dfs.FERC_ACCOUNTS)                                           | FERC electric plant account IDs with associated row numbers and descriptions.         |
+| [`IMPUTATION_REASON_CODES`](#pudl.metadata.dfs.IMPUTATION_REASON_CODES)            |                                                                                       |
+|-------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
+| [`FERC_ACCOUNTS`](#pudl.metadata.dfs.FERC_ACCOUNTS)                      | FERC electric plant account IDs with associated row numbers and descriptions.         |
 | [`BALANCING_AUTHORITY_SUBREGIONS_EIA`](#pudl.metadata.dfs.BALANCING_AUTHORITY_SUBREGIONS_EIA) |                                                                                       |
-| [`EIA_SECTOR_AGGREGATE_ASSN`](#pudl.metadata.dfs.EIA_SECTOR_AGGREGATE_ASSN)                   | Association table describing the many-to-many relationships between plant sectors and |
-| [`EIA_FUEL_AGGREGATE_ASSN`](#pudl.metadata.dfs.EIA_FUEL_AGGREGATE_ASSN)                       | Association table describing the many-to-many relationships between fuel types and    |
-| [`POLITICAL_SUBDIVISIONS`](#pudl.metadata.dfs.POLITICAL_SUBDIVISIONS)                         | Static attributes of sub-national political jurisdictions.                            |
-| [`SEC_EDGAR_STATE_AND_COUNTRY_CODES`](#pudl.metadata.dfs.SEC_EDGAR_STATE_AND_COUNTRY_CODES)   | State and country codes and their names as are reported to SEC's EDGAR database.      |
-| [`ALPHA_2_COUNTRY_CODES`](#pudl.metadata.dfs.ALPHA_2_COUNTRY_CODES)                           | Alpha 2 country codes and the country's name.                                         |
+| [`EIA_SECTOR_AGGREGATE_ASSN`](#pudl.metadata.dfs.EIA_SECTOR_AGGREGATE_ASSN)          | Association table describing the many-to-many relationships between plant sectors and |
+| [`EIA_FUEL_AGGREGATE_ASSN`](#pudl.metadata.dfs.EIA_FUEL_AGGREGATE_ASSN)            | Association table describing the many-to-many relationships between fuel types and    |
+| [`POLITICAL_SUBDIVISIONS`](#pudl.metadata.dfs.POLITICAL_SUBDIVISIONS)             | Static attributes of sub-national political jurisdictions.                            |
+| [`SEC_EDGAR_STATE_AND_COUNTRY_CODES`](#pudl.metadata.dfs.SEC_EDGAR_STATE_AND_COUNTRY_CODES)  | State and country codes and their names as are reported to SEC's EDGAR database.      |
+| [`ALPHA_2_COUNTRY_CODES`](#pudl.metadata.dfs.ALPHA_2_COUNTRY_CODES)              | Alpha 2 country codes and the country's name.                                         |
 | [`STANDARD_INDUSTRIAL_CLASSIFICATION`](#pudl.metadata.dfs.STANDARD_INDUSTRIAL_CLASSIFICATION) | A table of Standard Industrial Classification codes and descriptions used by SEC.     |
 
 ## Classes
 
 | [`ImputationReasonCodes`](#pudl.metadata.dfs.ImputationReasonCodes)   | Defines all reasons a value might be flagged for imputation.   |
-|-----------------------------------------------------------------------|----------------------------------------------------------------|
+|--------------------------------------------------------------------------|----------------------------------------------------------------|
 
 ## Module Contents
 

@@ -9,7 +9,7 @@ configured for `dg`.
 ## Attributes
 
 | [`defs`](#pudl.definitions.defs)   |    |
-|------------------------------------|----|
+|---------------------------------------------------------|----|
 
 ## Module Contents
 

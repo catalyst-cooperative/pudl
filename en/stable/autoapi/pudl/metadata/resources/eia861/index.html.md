@@ -5,9 +5,9 @@ Definitions of data tables primarily coming from EIA-861.
 ## Attributes
 
 | [`DISTRIBUTED_GENERATION_NON_NET_METERING_TRANSITION`](#pudl.metadata.resources.eia861.DISTRIBUTED_GENERATION_NON_NET_METERING_TRANSITION)   |    |
-|----------------------------------------------------------------------------------------------------------------------------------------------|----|
-| [`EIA861_88888`](#pudl.metadata.resources.eia861.EIA861_88888)                                                                               |    |
-| [`RESOURCE_METADATA`](#pudl.metadata.resources.eia861.RESOURCE_METADATA)                                                                     |    |
+|-------------------------------------------------------------------------------------------------------|----|
+| [`EIA861_88888`](#pudl.metadata.resources.eia861.EIA861_88888)                                         |    |
+| [`RESOURCE_METADATA`](#pudl.metadata.resources.eia861.RESOURCE_METADATA)                                    |    |
 
 ## Module Contents
 

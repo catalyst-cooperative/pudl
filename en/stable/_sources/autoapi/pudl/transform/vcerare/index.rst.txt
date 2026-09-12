@@ -18,6 +18,7 @@ Attributes
 .. autoapisummary::
 
    pudl.transform.vcerare.logger
+   pudl.transform.vcerare.HOURLY_ID_COLS
 
 
 Functions
@@ -26,15 +27,15 @@ Functions
 .. autoapisummary::
 
    pudl.transform.vcerare._prep_lat_long_fips_df
+   pudl.transform.vcerare._stack_cap_fac_df
    pudl.transform.vcerare._add_time_cols
    pudl.transform.vcerare._drop_city_cols
-   pudl.transform.vcerare._stack_cap_fac_df
    pudl.transform.vcerare._make_cap_fac_frac
    pudl.transform.vcerare._check_for_valid_counties
    pudl.transform.vcerare._standardize_census_names
    pudl.transform.vcerare._clip_unexpected_2016_pv_capacity
-   pudl.transform.vcerare._spot_fix_great_lakes_values
-   pudl.transform.vcerare._spot_fix_great_lakes_columns
+   pudl.transform.vcerare._spot_fix_great_lakes_fips
+   pudl.transform.vcerare._spot_fix_great_lakes_capacity_factor
    pudl.transform.vcerare.one_year_hourly_available_capacity_factor
    pudl.transform.vcerare.merge_all_vce_tables
    pudl.transform.vcerare.out_vcerare__hourly_available_capacity_factor
@@ -44,6 +45,10 @@ Module Contents
 ---------------
 
 .. py:data:: logger
+
+.. py:data:: HOURLY_ID_COLS
+   :value: ['hour_of_year', 'report_year']
+
 
 .. py:function:: _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips: pandas.DataFrame) -> pandas.DataFrame
 
@@ -61,56 +66,105 @@ Module Contents
    part of the primary key. There are several instances of multiple subregions that
    map to a single county_id_fips value.
 
+   :param raw_vcerare__lat_lon_fips: The raw VCE RARE lat/lon/FIPS mapping table.
+
+   :returns: The prepped table with ``county_state_names``, ``county_id_fips`` (nulled
+             for lakes), ``place_name``, ``latitude``, ``longitude``, and ``state``
+             columns.
 
 
-.. py:function:: _add_time_cols(df: pandas.DataFrame, df_name: str) -> pandas.DataFrame
+.. py:function:: _stack_cap_fac_df(lf: polars.LazyFrame, lf_name: str) -> polars.LazyFrame
 
-   Add datetime and hour_of_year columns.
+   Reshape one wide capacity factor table from county columns to county rows.
 
-   This function adds a datetime column and a hour_of_year column.
-   The datetime column is important for merging the data with other
-   data, and the hour_of_year 1-8760 column is important for modeling
-   purposes. The report_year column is also helpful for filtering,
-   so we keep all three!
+   Each raw capacity factor table has one column per county/subregion. This
+   unpivots those into a single ``county_state_names`` column (cast to
+   Categorical) plus a ``capacity_factor_<lf_name>`` value column, keeping
+   ``hour_of_year`` and ``report_year`` as identifiers. Applying this per table
+   rather than to the concatenated table keeps peak memory down.
 
-   For leap years (2020), December 31st is excluded.
+   :param lf: One raw capacity factor table, wide, with ``hour_of_year`` and
+              ``report_year`` columns plus one column per county/subregion.
+   :param lf_name: Short table label (e.g. ``"solar_pv"``); names the value column
+                   and is used for logging.
 
-
-.. py:function:: _drop_city_cols(df: pandas.DataFrame, df_name: str) -> pandas.DataFrame
-
-   Drop city columns from the capacity factor tables before stacking.
-
-   We do this early since the columns can be dropped by name here, and we don't have to
-   search through all of the stacked rows to find matching records.
+   :returns: The table in long form with columns ``hour_of_year``, ``report_year``,
+             ``county_state_names``, and ``capacity_factor_<lf_name>``.
 
 
-.. py:function:: _stack_cap_fac_df(df: pandas.DataFrame, df_name: str) -> pandas.DataFrame
+.. py:function:: _add_time_cols(lf: polars.LazyFrame, lf_name: str, year: int) -> polars.LazyFrame
 
-   Function to transform each capacity factor table individually to save memory.
+   Add aligned ``datetime_utc`` and integer ``hour_of_year`` columns.
 
-   The main transforms are turning county/subregion columns into county/subregion rows
-   and renaming columns to be more human-readable and compatible with the FIPS df
-   that will get merged in.
+   The ``datetime_utc`` column matters for merging with other data; the integer
+   ``hour_of_year`` (1-8760) matters for modeling; ``report_year`` is handy for
+   filtering, so all three are kept.
 
-   This function is intended to save memory by being applied to each individual
-   capacity factor table rather than the giant combined one.
+   Older vintages publish an integer ``hour_of_year`` and we reconstruct
+   ``datetime_utc`` from it. Vintages from 2024 on publish an hourly datetime column
+   (arriving as ``hour_of_year``) and we derive the integer ``hour_of_year`` from that
+   instead.
+
+   On leap years December 31st is excluded so that every year has exactly 8760 hours.
+   Older vintages already omit it; newer ones may include it, so it is clipped here
+   based on whether ``year`` is a leap year.
+
+   :param lf: One capacity factor table, already stacked, with ``report_year`` and
+              ``hour_of_year`` columns.
+   :param lf_name: Short table label, used for logging.
+   :param year: The report year of this table.
+
+   :returns: The table with ``datetime_utc`` (datetime) and ``hour_of_year`` (Int32,
+             1-8760) columns, clipped to 8760 hours on leap years.
+
+   :raises AssertionError: For ``year >= 2024``, if the incoming ``hour_of_year`` column
+       is not a datetime column as expected.
 
 
-.. py:function:: _make_cap_fac_frac(df: pandas.DataFrame, df_name: str) -> pandas.DataFrame
+.. py:function:: _drop_city_cols(lf: polars.LazyFrame, lf_name: str) -> polars.LazyFrame
 
-   Make the capacity factor column a fraction instead of a percentage.
+   Drop the two Virginia independent-city rows from a capacity factor table.
 
-   This step happens before the table gets stacked to save memory.
+   ``bedford_city_virginia`` and ``clifton_forge_city_virginia`` are reported by VCE
+   RARE but are not counties, and are excluded from the output.
+
+   :param lf: A stacked capacity factor table with a ``county_state_names`` column.
+   :param lf_name: Short table label, used for logging.
+
+   :returns: The table with the two independent-city rows removed.
 
 
-.. py:function:: _check_for_valid_counties(df: pandas.DataFrame, clean_fips_df: pandas.DataFrame, df_name: str) -> pandas.DataFrame
+.. py:function:: _make_cap_fac_frac(lf: polars.LazyFrame, lf_name: str) -> polars.LazyFrame
 
-   Make sure the state_county values show up in the FIPS table.
+   Convert the capacity factor column from a percentage to a fraction.
 
-   This step happens before the table gets stacked to save memory.
+   :param lf: A stacked capacity factor table with a ``capacity_factor_<lf_name>``
+              column expressed as a percentage (0-100).
+   :param lf_name: Short table label; selects the value column and is used for logging.
+
+   :returns: The table with ``capacity_factor_<lf_name>`` divided by 100.
 
 
-.. py:function:: _standardize_census_names(vce_fips_df: pandas.DataFrame, census_pep_data: pandas.DataFrame)
+.. py:function:: _check_for_valid_counties(lf: polars.LazyFrame, clean_fips_df: pandas.DataFrame, lf_name: str) -> polars.LazyFrame
+
+   Check that every place name in the data appears in the FIPS mapping table.
+
+   Runs on the wide raw table so the place names can be read straight from the
+   schema (they are the non-identifier column names), avoiding a data scan.
+
+   :param lf: A wide raw capacity factor table with one column per place name plus
+              the ``HOURLY_ID_COLS`` identifier columns.
+   :param clean_fips_df: The cleaned lat/lon/FIPS table, whose ``county_state_names``
+                         column is the set of expected place names.
+   :param lf_name: Short table label, used for logging and the error message.
+
+   :returns: ``lf`` unchanged; this is a validation pass-through.
+
+   :raises AssertionError: If the data contains any place name that is not present in
+       ``clean_fips_df``.
+
+
+.. py:function:: _standardize_census_names(vce_fips_df: pandas.DataFrame, census_pep_data: pandas.DataFrame) -> pandas.DataFrame
 
    Make sure that the VCE place names correspond to the latest census vintage.
 
@@ -129,39 +183,115 @@ Module Contents
    as compared to the original VCE RARE values. Lakes and city names are not updated,
    as lakes don't have comparable values in the Census PEP data and we drop the city values.
 
+   :param vce_fips_df: The prepped VCE RARE lat/lon/FIPS table from
+                       ``_prep_lat_long_fips_df``.
+   :param census_pep_data: The latest-vintage state-county-level rows of
+                           ``_core_censuspep__yearly_geocodes``.
 
-.. py:function:: _clip_unexpected_2016_pv_capacity(df: pandas.DataFrame, df_name: str, year: int)
+   :returns: ``vce_fips_df`` with ``place_name`` replaced by the Census PEP county name
+             wherever the two differ, and the original VCE ``place_name`` column dropped.
 
-   Handle unexpectedly large PV capacity values in 2016.
-
-   In 2016, there are a few values for PV capacity factors that exceed the maximum
-   allowed values noted in the read-me (110%).
-   should be zeroed out, according to correspondence with the data provider.
-   This function narrowly zeroes out these nulls, expecting that the rest of the
-   data should conform to the expectation of no-null values.
-
-
-.. py:function:: _spot_fix_great_lakes_values(sr: pandas.Series) -> pandas.Series
-
-   Normalize spelling of great lakes in cell values.
+   :raises AssertionError: If more than 74 place names would be replaced, suggesting
+       the Census data or VCE names have shifted and need manual review.
 
 
-.. py:function:: _spot_fix_great_lakes_columns(df: pandas.DataFrame) -> pandas.DataFrame
+.. py:function:: _clip_unexpected_2016_pv_capacity(lf: polars.LazyFrame, lf_name: str, year: int) -> polars.LazyFrame
 
-   Normalize spelling of great lakes in column names.
+   Clip a known set of out-of-bounds 2016 solar PV capacity factors.
+
+   The 2016 solar PV data contains exactly 365 hourly capacity factor values that
+   exceed the 110% maximum documented in the data's read-me. Per correspondence with
+   the data provider these should be capped at 110%. This only touches the
+   ``solar_pv`` table for ``year == 2016``; every other table/year combination passes
+   through unchanged.
+
+   :param lf: A stacked capacity factor table.
+   :param lf_name: Short table label; the clip only applies when this is ``"solar_pv"``.
+   :param year: Report year; the clip only applies when this is 2016.
+
+   :returns: The table with ``capacity_factor_solar_pv`` values above 1.10 clipped to 1.10
+             for 2016 solar PV; otherwise ``lf`` unchanged.
+
+   :raises AssertionError: If the number of 2016 solar PV values exceeding 1.10 is not
+       exactly 365, which would mean the data has changed and needs review.
 
 
-.. py:function:: one_year_hourly_available_capacity_factor(year: int, fips_df_census: pandas.DataFrame, raw_vcerare__fixed_solar_pv_lat_upv: pandas.DataFrame, raw_vcerare__offshore_wind_power_140m: pandas.DataFrame, raw_vcerare__onshore_wind_power_100m: pandas.DataFrame) -> dict[str, pudl.helpers.ParquetData]
+.. py:function:: _spot_fix_great_lakes_fips(sr: pandas.Series) -> pandas.Series
 
-   Transform raw Vibrant Clean Energy renewable generation profiles.
+   Normalize the misspelled Lake Huron place name in the lat/lon/FIPS table.
 
-   Concatenates the solar and wind capacity factors into a single table and turns
-   the columns for each county or subregion into a single place_name column.
+   VCE RARE spells Lake Huron as ``lake_hurron_michigan`` in the raw
+   ``county_state_names`` values of the lat/lon/FIPS mapping table. This must be
+   fixed so those values line up with the (separately fixed) capacity factor
+   tables when they are joined on ``county_state_names`` in
+   ``merge_all_vce_tables``. See ``_spot_fix_great_lakes_capacity_factor`` for
+   the equivalent fix applied to the capacity factor data.
+
+   :param sr: The ``county_state_names`` Series from the raw lat/lon/FIPS table.
+
+   :returns: The Series with ``lake_hurron_michigan`` replaced by ``lake_huron_michigan``.
+
+
+.. py:function:: _spot_fix_great_lakes_capacity_factor(lf: polars.LazyFrame, lf_name: str) -> polars.LazyFrame
+
+   Normalize the misspelled Lake Huron place name in a capacity factor table.
+
+   VCE RARE spells Lake Huron as ``lake_hurron_michigan`` in the raw capacity
+   factor data, where each place name is a column. This is the same fix
+   ``_spot_fix_great_lakes_fips`` applies to the lat/lon/FIPS table; both are
+   needed because the misspelling appears in both raw sources and the two tables
+   are joined on ``county_state_names`` in ``merge_all_vce_tables``. It runs
+   before ``_check_for_valid_counties`` so the corrected name matches the FIPS
+   table.
+
+   :param lf: A wide raw capacity factor table with one column per place name.
+   :param lf_name: Label for the table, used only for logging by the caller.
+
+   :returns: The LazyFrame with any ``lake_hurron_michigan`` column renamed to
+             ``lake_huron_michigan``.
+
+
+.. py:function:: one_year_hourly_available_capacity_factor(year: int, fips_df_census: pandas.DataFrame, raw_vcerare__fixed_solar_pv_lat_upv: polars.LazyFrame, raw_vcerare__offshore_wind_power_140m: polars.LazyFrame, raw_vcerare__onshore_wind_power_100m: polars.LazyFrame) -> dict[str, pudl.helpers.ParquetData]
+
+   Transform one year of raw VCE RARE capacity factor tables to parquet.
+
+   Runs the same stack-and-clean pipeline over each of the three raw capacity
+   factor tables (solar PV, offshore wind, onshore wind) separately rather than
+   on a single concatenated table, to keep peak memory down, and writes each
+   result to a partitioned ``_core_vcerare__*`` parquet file.
+
+   :param year: The report year being processed.
+   :param fips_df_census: The cleaned lat/lon/FIPS table, used to validate place
+                          names.
+   :param raw_vcerare__fixed_solar_pv_lat_upv: Raw solar PV capacity factors for
+                                               ``year``.
+   :param raw_vcerare__offshore_wind_power_140m: Raw offshore wind capacity factors
+                                                 for ``year``.
+   :param raw_vcerare__onshore_wind_power_100m: Raw onshore wind capacity factors
+                                                for ``year``.
+
+   :returns: A dict mapping each ``_core_vcerare__<table>`` name to the ``ParquetData``
+             describing its written partition for ``year``.
 
 
 .. py:function:: merge_all_vce_tables(transformed_tables: dict[str, pudl.helpers.ParquetData], vce_fips_table: pudl.helpers.ParquetData, table_name: str, year: int) -> pudl.helpers.ParquetData
 
-   Merge cleaned VCE tables to create final ``out`` table and write as partitioned parquet file.
+   Merge the cleaned VCE capacity factor tables into the final ``out`` table.
+
+   Full-joins the three ``_core_vcerare__*`` tables on the hourly key, fills the
+   solar PV capacity factor with 0 where wind-only rows introduced nulls, joins the
+   lat/lon/FIPS metadata on ``county_state_names``, sorts, and writes the result to a
+   partitioned parquet file for ``year``.
+
+   :param transformed_tables: The ``_core_vcerare__*`` -> ``ParquetData`` mapping
+                              returned by ``one_year_hourly_available_capacity_factor``.
+   :param vce_fips_table: ``ParquetData`` for the cleaned lat/lon/FIPS table. Must
+                          carry an ``index`` column (see the note at the ``.drop`` call below).
+   :param table_name: Name of the partitioned output table to write.
+   :param year: The report year being merged.
+
+   :returns: The ``ParquetData`` describing the written ``table_name`` partition for
+             ``year``.
 
 
 .. py:function:: out_vcerare__hourly_available_capacity_factor(context, raw_vcerare__fixed_solar_pv_lat_upv: dict[int, pudl.helpers.ParquetData], raw_vcerare__offshore_wind_power_140m: dict[int, pudl.helpers.ParquetData], raw_vcerare__onshore_wind_power_100m: dict[int, pudl.helpers.ParquetData], raw_vcerare__lat_lon_fips: pandas.DataFrame, _core_censuspep__yearly_geocodes: pandas.DataFrame) -> polars.LazyFrame
@@ -169,7 +299,25 @@ Module Contents
    Transform raw Vibrant Clean Energy renewable generation profiles.
 
    Concatenates the solar and wind capacity factors into a single table and turns
-   the columns for each county or subregion into a single place_name column.
-   Asset will process 1 year of data at a time to limit peak memory usage.
+   the columns for each county or subregion into a single place_name column. One
+   year of data is processed at a time to limit peak memory usage, with each year
+   written to its own partition of the output parquet file.
+
+   :param context: The Dagster asset execution context.
+   :param raw_vcerare__fixed_solar_pv_lat_upv: Year -> ``ParquetData`` mapping of raw
+                                               solar PV capacity factors.
+   :param raw_vcerare__offshore_wind_power_140m: Year -> ``ParquetData`` mapping of raw
+                                                 offshore wind capacity factors.
+   :param raw_vcerare__onshore_wind_power_100m: Year -> ``ParquetData`` mapping of raw
+                                                onshore wind capacity factors.
+   :param raw_vcerare__lat_lon_fips: The raw VCE RARE lat/lon/FIPS mapping table.
+   :param _core_censuspep__yearly_geocodes: Census PEP geocodes, used to standardize
+                                            county place names to the latest vintage.
+
+   :returns: A LazyFrame scanning every written year partition of the merged
+             ``out_vcerare__hourly_available_capacity_factor`` table.
+
+   :raises AssertionError: If the latest available Census PEP vintage predates the
+       most recent VCE RARE report year.
 
 

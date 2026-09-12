@@ -11,6 +11,6 @@ interface installed as an entrypoint script called `pudl_datastore`.
 
 ## Submodules
 
-* [pudl.workspace.datastore](datastore/index.md)
-* [pudl.workspace.resource_cache](resource_cache/index.md)
-* [pudl.workspace.setup](setup/index.md)
+* [pudl.workspace.datastore](datastore/index.html.md)
+* [pudl.workspace.resource_cache](resource_cache/index.html.md)
+* [pudl.workspace.setup](setup/index.html.md)

@@ -50,7 +50,6 @@ Submodules
    /autoapi/pudl/extract/ferceqr/index
    /autoapi/pudl/extract/gridpathratoolkit/index
    /autoapi/pudl/extract/nrelatb/index
-   /autoapi/pudl/extract/parquet/index
    /autoapi/pudl/extract/phmsagas/index
    /autoapi/pudl/extract/rus12/index
    /autoapi/pudl/extract/rus7/index

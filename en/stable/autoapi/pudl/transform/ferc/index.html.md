@@ -5,16 +5,16 @@ Module for shared helpers for FERC Form transforms.
 ## Attributes
 
 | [`logger`](#pudl.transform.ferc.logger)   |    |
-|-------------------------------------------|----|
+|-----------------------------------------------------------|----|
 
 ## Functions
 
-| [`__apply_diffs`](#pudl.transform.ferc.__apply_diffs)(→ pandas.DataFrame)                                   | Take the latest reported non-null value for each group.             |
-|-------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------|
-| [`__best_snapshot`](#pudl.transform.ferc.__best_snapshot)(→ pandas.DataFrame)                               | Take the row that has most non-null values out of each group.       |
+| [`__apply_diffs`](#pudl.transform.ferc.__apply_diffs)(→ pandas.DataFrame)                  | Take the latest reported non-null value for each group.             |
+|-----------------------------------------------------------------------------------------------------|---------------------------------------------------------------------|
+| [`__best_snapshot`](#pudl.transform.ferc.__best_snapshot)(→ pandas.DataFrame)                | Take the row that has most non-null values out of each group.       |
 | [`__compare_dedupe_methodologies`](#pudl.transform.ferc.__compare_dedupe_methodologies)(applied_diffs, ...) | Compare deduplication methodologies.                                |
-| [`filter_for_freshest_data_xbrl`](#pudl.transform.ferc.filter_for_freshest_data_xbrl)(→ pandas.DataFrame)   | Get most updated values for each XBRL context.                      |
-| [`get_primary_key_raw_xbrl`](#pudl.transform.ferc.get_primary_key_raw_xbrl)(→ list[str])                    | Get the primary key for a raw XBRL table from the XBRL datapackage. |
+| [`filter_for_freshest_data_xbrl`](#pudl.transform.ferc.filter_for_freshest_data_xbrl)(→ pandas.DataFrame)  | Get most updated values for each XBRL context.                      |
+| [`get_primary_key_raw_xbrl`](#pudl.transform.ferc.get_primary_key_raw_xbrl)(→ list[str])              | Get the primary key for a raw XBRL table from the XBRL datapackage. |
 
 ## Module Contents
 
@@ -59,7 +59,7 @@ either reports a null value for it or simply omits it from the report,
 we keep the old non-null value, which may be erroneous. This appears to
 be fairly rare, affecting < 0.005% of reported values.
 
-### pudl.transform.ferc.get_primary_key_raw_xbrl(sched_table_name: [str](https://docs.python.org/3/library/stdtypes.html#str), ferc_form: Literal['ferc1', 'ferc714'], pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.md#pudl.workspace.setup.PudlPaths)) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]
+### pudl.transform.ferc.get_primary_key_raw_xbrl(sched_table_name: [str](https://docs.python.org/3/library/stdtypes.html#str), ferc_form: Literal['ferc1', 'ferc714'], pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths)) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]
 
 Get the primary key for a raw XBRL table from the XBRL datapackage.
 

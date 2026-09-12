@@ -84,10 +84,22 @@ stable-tag-push builds deploy to ``production``, while manually dispatched branc
 builds deploy to ``staging``. This is passed into the Batch container as the
 ``DEPLOYMENT_ENVIRONMENT`` environment variable.
 
-Upon a successful build (or if a successful build for the tagged commit already
-exists -- see :doc:`run_a_release`), ``pudl_batch.sh`` uses the ``gh`` CLI to trigger
-the ``deploy-pudl`` action via ``workflow_dispatch``, passing the git tag and
-deployment environment as inputs.
+``build-pudl`` also decides which cloud storage targets the build's outputs will be
+published to. Nightly and stable builds always deploy to both GCS and S3. Manually
+dispatched branch builds deploy to GCS by default and skip S3 to avoid egress
+charges. The ``build-pudl`` workflow-dispatch form exposes ``deploy_to_gcs`` /
+``deploy_to_s3`` checkboxes to override the default behaviors.
+
+Upon a successful build (or if a successful build for the tagged commit already exists
+-- see :doc:`run_a_release`), ``pudl_batch.sh`` uses the ``gh`` CLI to trigger the
+``deploy-pudl`` action via ``workflow_dispatch``, passing the git tag, deployment
+environment, and the two ``deploy_to_*`` flags as inputs. If neither storage target is
+enabled there is nothing for ``deploy-pudl`` to do (since branch builds don't update git
+branches, redeploy the data viewer, or trigger a Zenodo release), so ``pudl_batch.sh``
+skips triggering it entirely. No deployment is the right choice when a build is run only
+skips triggering it entirely. This gives us the option to trigger builds
+**whose only job is to regenerate row counts,** and not have to eat
+the cost of an unused deployment action.
 
 The ``gcloud`` command in ``build-pudl`` requires certain Google Cloud
 Platform (GCP) permissions to start and update the Google Batch VM. We use Workflow
@@ -103,15 +115,18 @@ or dispatched manually (e.g. to redeploy an existing build, or to test deploymen
 changes on a branch -- see :doc:`run_a_release`).
 
 The action takes a git tag, which should already have an associated successful build,
-and a ``deployment_environment`` (``staging`` or ``production``). It validates the tag
-format and, for nightly/stable tags (not branch tags), confirms the tagged commit is
-actually an ancestor of ``main`` before proceeding -- this stops a manually mistagged
-commit from being pushed to production via ``workflow_dispatch``, while still allowing
-a legitimate retry of an already-``main`` tag. It then runs ``pudl_deploy``
-(``src/pudl/scripts/pudl_deploy.py``), which:
+a ``deployment_environment`` (``staging`` or ``production``), and ``deploy_to_gcs`` /
+``deploy_to_s3`` checkboxes (both default on when dispatched manually) that map to the
+``pudl_deploy`` ``--deploy-gcs/--no-deploy-gcs`` and ``--deploy-s3/--no-deploy-s3``
+options. It validates the tag format and, for nightly/stable tags (not branch tags),
+confirms the tagged commit is actually an ancestor of ``main`` before proceeding -- this
+stops a manually mistagged commit from being pushed to production via
+``workflow_dispatch``, while still allowing a legitimate retry of an already-``main``
+tag. It then runs ``pudl_deploy`` (``src/pudl/scripts/pudl_deploy.py``), which:
 
-* Finds the outputs associated with the tag's build and uploads them to GCS and S3,
-  clearing any stale objects at the destination first.
+* Finds the outputs associated with the tag's build and uploads them to GCS and/or S3,
+  clearing any stale objects at the destination first. Nightly and stable deploys
+  upload to both; branch deploys upload to GCS only unless S3 was explicitly requested.
 * Redeploys the PUDL Data Viewer ("Eel Hole") -- nightly deployments only.
 * Updates the ``nightly``/``stable`` git branch and triggers a Zenodo release
   (unless it's a branch deployment).
@@ -141,10 +156,15 @@ Google Compute Engine
 ---------------------
 We use ephemeral VMs created with `Google Batch <https://cloud.google.com/batch/docs>`__
 to run the nightly builds. Once the build has finished -- successfully or not -- the VM
-shuts itself down. The build VMs use the ``e2-highmem-8`` machine type (8 CPUs and 64GB
-of RAM) to accommodate the PUDL ETL's memory-intensive steps. Currently, these VMs do
-not have swap space enabled, so if they run out of memory, the build will immediately
-terminate.
+shuts itself down. Each workflow generates its Batch job configuration with the
+``batch_config`` script (:mod:`pudl.scripts.batch_config`), which selects the VM
+machine type and boot disk and tags the VM and its logs with the name of the pipeline
+that launched it, so a shared `Cloud Monitoring dashboard
+<https://console.cloud.google.com/monitoring/dashboards/builder/992bbe3f-17e6-49c4-a9e8-8f1925d4ec24>`__
+can filter resource-usage metrics by pipeline. VM sizes are chosen to fit the memory-
+and CPU-intensive steps of each pipeline and are tuned over time against that
+dashboard. These VMs do not have swap space enabled, so if they run out of memory, the
+build will immediately terminate.
 
 The ``deploy-pudl-vm-service-account`` service account has permissions to:
 
@@ -172,7 +192,9 @@ are configured to run the ``builds/pudl_batch.sh`` script. This script:
    Note: if the container is manually stopped, Zulip will not be notified.
 2. Runs ``pixi run pudl-with-ferc-to-sqlite-nightly``.
 3. Runs ``pixi run pytest-unit-nightly``, ``pixi run pytest-integration-nightly``,
-   and ``pixi run pytest-validate-nightly`` as separate stages.
+   ``pixi run pytest-pipeline-nightly``, ``pixi run pytest-validate-nightly``, and
+   ``pixi run pytest-validate-row-counts-nightly`` as separate stages. See
+   :doc:`testing` for what each of these test tiers covers.
 4. Copies the outputs and logs to a directory in the ``gs://builds.catalyst.coop``
    bucket, named ``<YYYY-MM-DD-HHMM>-<short git SHA>-<git ref>``, and writes a
    ``success`` marker file there if every stage passed.

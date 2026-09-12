@@ -5,24 +5,24 @@ Wrap DBT invocations so we can get custom behavior.
 ## Attributes
 
 | [`logger`](#pudl.validate.dbt.logger)   |    |
-|-----------------------------------------|----|
+|-----------------------------------------------------------|----|
 
 ## Classes
 
 | [`NodeContext`](#pudl.validate.dbt.NodeContext)   | Associate a node's *name* with information describing what went wrong.   |
-|---------------------------------------------------|--------------------------------------------------------------------------|
+|----------------------------------------------------------------|--------------------------------------------------------------------------|
 | [`BuildResult`](#pudl.validate.dbt.BuildResult)   | Combine overall result with any useful failure context.                  |
 
 ## Functions
 
-| [`_preserve_logging_propagation`](#pudl.validate.dbt._preserve_logging_propagation)()                | Restore logging propagation settings after a dbt invocation.            |
-|------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
-| [`install_dbt_deps`](#pudl.validate.dbt.install_dbt_deps)(→ dbt.cli.main.dbtRunner)                  | Ensure dbt package dependencies are installed in the project directory. |
-| [`__get_failed_nodes`](#pudl.validate.dbt.__get_failed_nodes)(...)                                   | Get test node output from tests that failed.                            |
-| [`__get_quantile_contexts`](#pudl.validate.dbt.__get_quantile_contexts)(→ list[NodeContext])         | Run debug_quantile_constraints macro for failed quantile constraints.   |
+| [`_preserve_logging_propagation`](#pudl.validate.dbt._preserve_logging_propagation)()                  | Restore logging propagation settings after a dbt invocation.            |
+|---------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
+| [`install_dbt_deps`](#pudl.validate.dbt.install_dbt_deps)(→ dbt.cli.main.dbtRunner)       | Ensure dbt package dependencies are installed in the project directory. |
+| [`__get_failed_nodes`](#pudl.validate.dbt.__get_failed_nodes)(...)                          | Get test node output from tests that failed.                            |
+| [`__get_quantile_contexts`](#pudl.validate.dbt.__get_quantile_contexts)(→ list[NodeContext])     | Run debug_quantile_constraints macro for failed quantile constraints.   |
 | [`__get_compiled_sql_contexts`](#pudl.validate.dbt.__get_compiled_sql_contexts)(→ list[NodeContext]) | Run the compiled SQL against duckdb to get failure contexts.            |
-| [`build_with_context`](#pudl.validate.dbt.build_with_context)(→ BuildResult)                         | Run the DBT build and get failure information back.                     |
-| [`dagster_to_dbt_selection`](#pudl.validate.dbt.dagster_to_dbt_selection)(→ str)                     | Translate dagster asset selection to db node selection.                 |
+| [`build_with_context`](#pudl.validate.dbt.build_with_context)(→ BuildResult)                | Run the DBT build and get failure information back.                     |
+| [`dagster_to_dbt_selection`](#pudl.validate.dbt.dagster_to_dbt_selection)(→ str)                  | Translate dagster asset selection to db node selection.                 |
 
 ## Module Contents
 

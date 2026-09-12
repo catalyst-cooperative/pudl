@@ -14,9 +14,9 @@ NREL Annual Technology Baseline (ATB) for Electricity
    * - Source Format
      - Parquet
    * - Download Size
-     - 13 MB
+     - 478 MB
    * - Temporal Coverage
-     - 2021-2024
+     - 2021-2025
    * - PUDL Code
      - ``nrelatb``
    * - Unprocessed Source Data Archive
@@ -55,9 +55,9 @@ the names and descriptions of each of its fields.
 Background
 ^^^^^^^^^^
 
-NREL publishes `Annual Technology Baseline (ATB) <https://atb.nrel.gov>`__ data for the
-`Electricity <https://atb.nrel.gov/electricity>`__ and
-`Transportation <https://atb.nrel.gov/transportation>`__ sectors.
+NREL publishes `Annual Technology Baseline (ATB) <https://atb.nlr.gov/>`__
+data for the `Electricity <https://atb.nlr.gov/electricity/2025/data>`__ and
+`Transportation <https://atb.nlr.gov/transportation/2024/data>`__ sectors.
 
 The NREL Annual Technology Baseline (ATB) provides a consistent set of technology cost
 and performance data for energy analysis.

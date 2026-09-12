@@ -14,21 +14,21 @@ crosswalk.
 
 ## Attributes
 
-| [`logger`](#pudl.extract.epamats.logger)           |                                                              |
-|----------------------------------------------------|--------------------------------------------------------------|
+| [`logger`](#pudl.extract.epamats.logger)      |                                                              |
+|--------------------------------------------------------------|--------------------------------------------------------------|
 | [`RENAME_DICT`](#pudl.extract.epamats.RENAME_DICT) | Mapping from raw EPA MATS column names to PUDL column names. |
-| [`DTYPE_DICT`](#pudl.extract.epamats.DTYPE_DICT)   | Data types for EPA MATS columns.                             |
+| [`DTYPE_DICT`](#pudl.extract.epamats.DTYPE_DICT)  | Data types for EPA MATS columns.                             |
 
 ## Classes
 
 | [`EpaMatsPartition`](#pudl.extract.epamats.EpaMatsPartition)   | Represents a MATS partition identifying a unique quarterly resource file.   |
-|----------------------------------------------------------------|-----------------------------------------------------------------------------|
+|---------------------------------------------------------------------|-----------------------------------------------------------------------------|
 | [`EpaMatsDatastore`](#pudl.extract.epamats.EpaMatsDatastore)   | Helper class to extract MATS resources from datastore.                      |
 
 ## Functions
 
 | [`raw_epamats__hourly_emissions`](#pudl.extract.epamats.raw_epamats__hourly_emissions)(→ pandas.DataFrame)   | Extract raw EPA MATS hourly emissions data and return as a pandas DataFrame.   |
-|--------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------|
+|------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------|
 
 ## Module Contents
 
@@ -72,7 +72,7 @@ Returns filters for retrieving given partition resource from Datastore.
 
 Return the name of the CSV file within the zip that holds quarterly data.
 
-### *class* pudl.extract.epamats.EpaMatsDatastore(datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.md#pudl.workspace.datastore.Datastore))
+### *class* pudl.extract.epamats.EpaMatsDatastore(datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore))
 
 Helper class to extract MATS resources from datastore.
 

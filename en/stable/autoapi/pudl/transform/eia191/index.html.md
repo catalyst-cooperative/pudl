@@ -5,12 +5,12 @@ Transform EIA Form 191 monthly underground natural gas storage data.
 ## Attributes
 
 | [`logger`](#pudl.transform.eia191.logger)   |    |
-|---------------------------------------------|----|
+|-----------------------------------------------------------|----|
 
 ## Functions
 
 | [`core_eia191__monthly_gas_storage`](#pudl.transform.eia191.core_eia191__monthly_gas_storage)(→ pandas.DataFrame)   | Transform raw EIA-191 monthly underground natural gas storage data.   |
-|---------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------|
+|---------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------|
 
 ## Module Contents
 
@@ -27,7 +27,7 @@ Transformations include:
 
 * Combine `year` and `month` into a single `report_date` column.
 * Normalize free-text string columns with
-  [`pudl.helpers.simplify_strings()`](../../helpers/index.md#pudl.helpers.simplify_strings) (lower-case, strip whitespace,
+  [`pudl.helpers.simplify_strings()`](../../helpers/index.html.md#pudl.helpers.simplify_strings) (lower-case, strip whitespace,
   remove non-standard characters).
 * Pass `base_gas_mcf`, `working_gas_capacity_mcf`, and
   `total_field_capacity_mcf` through as reported. These are operator

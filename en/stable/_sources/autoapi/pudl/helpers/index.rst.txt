@@ -22,6 +22,7 @@ Attributes
 
    pudl.helpers.sum_na
    pudl.helpers.logger
+   pudl.helpers.MergeValidate
 
 
 Classes
@@ -38,6 +39,7 @@ Functions
 
 .. autoapisummary::
 
+   pudl.helpers.run_git
    pudl.helpers.label_map
    pudl.helpers.multi_index_stack
    pudl.helpers.find_new_ferc1_strings
@@ -96,6 +98,7 @@ Functions
    pudl.helpers.diff_wide_tables
    pudl.helpers.retry
    pudl.helpers.get_parquet_table_polars
+   pudl.helpers._fix_residual_dtypes
    pudl.helpers.get_parquet_table
    pudl.helpers.standardize_phone_column
    pudl.helpers.persist_table_as_parquet
@@ -124,6 +127,22 @@ Module Contents
    otherwise we'll get unrealistic heat rates.
 
 .. py:data:: logger
+
+.. py:function:: run_git(args: list[str], cwd: pathlib.Path | None = None) -> str
+
+   Run a git subcommand and return its stdout, logging stderr on failure.
+
+   Shared by every git-shelling-out call in PUDL, so there's one place that knows
+   how to invoke git and report failures consistently.
+
+   :param args: The git subcommand and arguments to run, e.g. ``["rev-parse", "HEAD"]``.
+   :param cwd: Working directory to run the command in. Defaults to the current
+               process's working directory.
+
+   :returns: The command's stdout, unstripped.
+
+   :raises subprocess.CalledProcessError: If the command exits non-zero.
+
 
 .. py:function:: label_map(df: pandas.DataFrame, from_col: str = 'code', to_col: str = 'label', null_value: str | pandas._libs.missing.NAType = pd.NA) -> collections.defaultdict[str, str | pandas._libs.missing.NAType]
 
@@ -345,7 +364,7 @@ Module Contents
    Check date_on list is valid and add _temp_for_merge suffix.
 
 
-.. py:function:: date_merge(left: pandas.DataFrame, right: pandas.DataFrame, on: list[str], left_date_col: str = 'report_date', right_date_col: str = 'report_date', new_date_col: str = 'report_date', date_on: list[str] = None, how: Literal['inner', 'outer', 'left', 'right', 'cross'] = 'inner', report_at_start: bool = True, **kwargs) -> pandas.DataFrame
+.. py:function:: date_merge(left: pandas.DataFrame, right: pandas.DataFrame, on: list[str], left_date_col: str = 'report_date', right_date_col: str = 'report_date', new_date_col: str = 'report_date', date_on: list[str] | None = None, how: Literal['inner', 'outer', 'left', 'right', 'cross'] = 'inner', report_at_start: bool = True, **kwargs) -> pandas.DataFrame
 
    Merge two dataframes that have different report date frequencies.
 
@@ -1019,7 +1038,11 @@ Module Contents
    retaining a reference to the data will see the changes made here.
 
 
-.. py:function:: scale_by_ownership(gens: pandas.DataFrame, own_eia860: pandas.DataFrame, scale_cols: list, validate: str = '1:m') -> pandas.DataFrame
+.. py:data:: MergeValidate
+
+   Mirrors the ``validate`` literal accepted by :meth:`pandas.DataFrame.merge`.
+
+.. py:function:: scale_by_ownership(gens: pandas.DataFrame, own_eia860: pandas.DataFrame, scale_cols: list, validate: MergeValidate = '1:m') -> pandas.DataFrame
 
    Generate proportional data by ownership %s.
 
@@ -1050,7 +1073,12 @@ Module Contents
    :param gens: table with records at the generator level and generator attributes
                 to be scaled by ownership, must have columns ``plant_id_eia``,
                 ``generator_id``, and ``report_date``
-   :param own_eia860: the ``core_eia860__scd_ownership`` table
+   :param own_eia860: the ``core_eia860__scd_ownership`` table or the denormalized
+                      :ref:`out_eia860__yearly_ownership` table. If the denormalized table
+                      is given and ``gens`` contains ``utility_id_pudl`` or
+                      ``utility_name_eia`` columns, the owner's PUDL utility ID and EIA
+                      utility name are swapped in alongside the owner's
+                      ``utility_id_eia``.
    :param scale_cols: a list of columns in the generator table to slice by ownership
                       fraction
    :param validate: how to validate merging the ownership table onto the
@@ -1113,7 +1141,7 @@ Module Contents
    the old and new values.
 
 
-.. py:function:: retry(func: collections.abc.Callable, retry_on: tuple[type[BaseException], Ellipsis], max_retries=5, base_delay_sec=1, **kwargs)
+.. py:function:: retry(func: collections.abc.Callable, retry_on: tuple[type[BaseException], ...], max_retries=5, base_delay_sec=1, **kwargs)
 
    Retry a function with a short sleep between each try.
 
@@ -1140,13 +1168,31 @@ Module Contents
    :returns: A polars LazyFrame representing the table.
 
 
+.. py:function:: _fix_residual_dtypes(df: pandas.DataFrame, resource: pudl.metadata.classes.Resource) -> pandas.DataFrame
+
+   Fix the two dtype gaps ``dtype_backend="numpy_nullable"`` can't get right.
+
+   Integer and datetime columns already come back from a
+   ``dtype_backend="numpy_nullable"`` read matching their pandas targets (see
+   ``FIELD_DTYPES_PANDAS``) directly. Two gaps remain, neither fixable by
+   ``dtype_backend`` alone:
+
+   * "number" columns come back as pandas' nullable ``Float64``, but PUDL's target
+     is plain (non-nullable) ``float64`` -- unlike integers, floats can already
+     represent missing values natively via ``NaN``, so PUDL doesn't use the
+     nullable dtype for them.
+   * "date" columns (Arrow ``date32``) always come back as plain ``object`` holding
+     Python ``datetime.date`` scalars, since pandas has no native nullable
+     date-only dtype.
+
+
 .. py:function:: get_parquet_table(table_name: str, columns: list[str] | None = None, filters: list[tuple[str, str, Any]] | list[list[tuple[str, str, Any]]] | None = None, paths: pudl.workspace.setup.PudlPaths | None = None) -> pandas.DataFrame | geopandas.GeoDataFrame
 
    Read a table from Parquet files with optional column selection and filtering.
 
    This function provides a general-purpose interface for reading PUDL tables from
-   Parquet files. It supports selective column reading for performance, optional
-   filters for data subsetting, and automatic schema validation.
+   Parquet files. It supports selective column reading for performance and optional
+   filters for data subsetting.
 
    :param table_name: Name of the table to read.
    :param columns: List of columns to read. If None, all columns are read.

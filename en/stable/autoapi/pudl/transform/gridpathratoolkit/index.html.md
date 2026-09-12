@@ -8,10 +8,10 @@ association tables for various technology types are also concatenated together.
 
 ## Functions
 
-| [`_transform_capacity_factors`](#pudl.transform.gridpathratoolkit._transform_capacity_factors)(→ pandas.DataFrame)                                            | Basic transformations that can be applied to many profiles.           |
-|---------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------|
-| [`out_gridpathratoolkit__hourly_available_capacity_factor`](#pudl.transform.gridpathratoolkit.out_gridpathratoolkit__hourly_available_capacity_factor)(...)   | Transform raw GridPath RA Toolkit renewable generation profiles.      |
-| [`_transform_aggs`](#pudl.transform.gridpathratoolkit._transform_aggs)(→ pandas.DataFrame)                                                                    | Transform raw GridPath RA Toolkit generator aggregations.             |
+| [`_transform_capacity_factors`](#pudl.transform.gridpathratoolkit._transform_capacity_factors)(→ pandas.DataFrame)               | Basic transformations that can be applied to many profiles.           |
+|----------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------|
+| [`out_gridpathratoolkit__hourly_available_capacity_factor`](#pudl.transform.gridpathratoolkit.out_gridpathratoolkit__hourly_available_capacity_factor)(...)  | Transform raw GridPath RA Toolkit renewable generation profiles.      |
+| [`_transform_aggs`](#pudl.transform.gridpathratoolkit._transform_aggs)(→ pandas.DataFrame)                           | Transform raw GridPath RA Toolkit generator aggregations.             |
 | [`core_gridpathratoolkit__assn_generator_aggregation_group`](#pudl.transform.gridpathratoolkit.core_gridpathratoolkit__assn_generator_aggregation_group)(...) | Transform and combine raw GridPath RA Toolkit generator aggregations. |
 
 ## Module Contents

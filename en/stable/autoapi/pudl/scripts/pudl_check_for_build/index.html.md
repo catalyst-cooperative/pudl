@@ -5,12 +5,12 @@ Check if there are build outputs associated with a git tag.
 ## Attributes
 
 | [`logger`](#pudl.scripts.pudl_check_for_build.logger)   |    |
-|---------------------------------------------------------|----|
+|-----------------------------------------------------------|----|
 
 ## Functions
 
 | [`main`](#pudl.scripts.pudl_check_for_build.main)(→ None)   | Check if there are build outputs on GCS associated with a git-tag.   |
-|-------------------------------------------------------------|----------------------------------------------------------------------|
+|-----------------------------------------------------------------|----------------------------------------------------------------------|
 
 ## Module Contents
 

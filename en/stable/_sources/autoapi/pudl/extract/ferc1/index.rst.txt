@@ -125,7 +125,9 @@ Module Contents
 
 
    .. py:attribute:: dbf
-      :type:  RawFercTableName
+      :type:  NotRequired[RawFercTableName]
+
+      Absent for tables introduced after DBF reporting ended in 2020.
 
 
    .. py:attribute:: xbrl

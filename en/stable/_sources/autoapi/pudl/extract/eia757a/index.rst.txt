@@ -49,7 +49,7 @@ Module Contents
       Instance of metadata object to use with this extractor.
 
 
-   .. py:method:: get_page_cols(page: str, partition_key: str) -> list[str]
+   .. py:method:: get_page_cols(page: str, partition_selection: str) -> pandas.RangeIndex
 
       Get the columns for a particular page and partition key.
 

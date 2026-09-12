@@ -42,7 +42,7 @@ Functions
 Module Contents
 ---------------
 
-.. py:function:: format_errors(*errors: str, title: str = None, pydantic: bool = False) -> str
+.. py:function:: format_errors(*errors: str, title: str | None = None, pydantic: bool = False) -> str
 
    Format multiple errors into a single error.
 
@@ -95,7 +95,7 @@ Module Contents
    :rtype: Parsed foreign key rules
 
 
-.. py:function:: _build_foreign_key_tree(resources: dict[str, dict]) -> dict[str, dict[tuple[str, Ellipsis], dict]]
+.. py:function:: _build_foreign_key_tree(resources: dict[str, dict]) -> dict[str, dict[tuple[str, ...], dict]]
 
    Build foreign key tree.
 
@@ -109,7 +109,7 @@ Module Contents
              * `reference['fields']` (List[str]): Reference field names.
 
 
-.. py:function:: _traverse_foreign_key_tree(tree: dict[str, dict[tuple[str, Ellipsis], dict]], name: str, fields: tuple[str, Ellipsis]) -> list[dict[str, Any]]
+.. py:function:: _traverse_foreign_key_tree(tree: dict[str, dict[tuple[str, ...], dict]], name: str, fields: tuple[str, ...]) -> list[dict[str, Any]]
 
    Traverse foreign key tree.
 
@@ -219,7 +219,7 @@ Module Contents
    Return most frequent value (or error if none exists).
 
 
-.. py:function:: most_and_more_frequent(x: pandas.Series, min_frequency: float = None) -> Any
+.. py:function:: most_and_more_frequent(x: pandas.Series, min_frequency: float | None = None) -> Any
 
    Return the most frequent value if more frequent than ``min_frequency``.
 
@@ -239,7 +239,7 @@ Module Contents
    Return dictionary of values, listed by index.
 
 
-.. py:function:: try_aggfunc(func: collections.abc.Callable, raised: bool = True, error: str | collections.abc.Callable = None) -> collections.abc.Callable
+.. py:function:: try_aggfunc(func: collections.abc.Callable, raised: bool = True, error: str | collections.abc.Callable | None = None) -> collections.abc.Callable
 
    Wrap aggregate function in a try-except for error handling.
 
@@ -274,7 +274,7 @@ Module Contents
    AggregationError({'a': [0, 0, 1], 'b': [1]})
 
 
-.. py:function:: groupby_apply(df: pandas.DataFrame, by: collections.abc.Iterable, aggfuncs: dict[Any, collections.abc.Callable], raised: bool = True, error: collections.abc.Callable = None) -> tuple[pandas.DataFrame, dict[Any, pandas.Series]]
+.. py:function:: groupby_apply(df: pandas.DataFrame, by: collections.abc.Iterable, aggfuncs: dict[Any, collections.abc.Callable], raised: bool = True, error: collections.abc.Callable | None = None) -> tuple[pandas.DataFrame, dict[Any, pandas.Series]]
 
    Aggregate dataframe and capture errors (using apply).
 
@@ -318,7 +318,7 @@ Module Contents
    dtype: object
 
 
-.. py:function:: groupby_aggregate(df: pandas.DataFrame, by: collections.abc.Iterable, aggfuncs: dict[Any, collections.abc.Callable], raised: bool = True, error: collections.abc.Callable = None) -> tuple[pandas.DataFrame, dict[Any, pandas.Series]]
+.. py:function:: groupby_aggregate(df: pandas.DataFrame, by: collections.abc.Iterable, aggfuncs: dict[Any, collections.abc.Callable], raised: bool = True, error: collections.abc.Callable | None = None) -> tuple[pandas.DataFrame, dict[Any, pandas.Series]]
 
    Aggregate dataframe and capture errors (using aggregate).
 

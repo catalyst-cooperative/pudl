@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.dbt_schema &#8212; PUDL 2026.8.0 documentation</title>
+    <title>pudl.dbt_schema &#8212; PUDL 2026.9.0 documentation</title>
   
   
   
@@ -35,8 +35,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
@@ -44,16 +44,18 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../_static/documentation_options.js?v=949254a9"></script>
+    <script src="../../_static/documentation_options.js?v=f05d84ed"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
 
 
 
@@ -411,7 +413,7 @@ window.addEventListener("load", load);
 window.runMermaid = runMermaid;</script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/dbt_schema';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'stable';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -494,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.0 documentation - Home"/>
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.0 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.0 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.0 documentation - Home"/>
   
   
 </a></div>
@@ -868,29 +870,165 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.dbt_schema</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Define dbt schema types and merging logic.</span>
+<span></span><span class="sd">"""Define dbt schema types and merging logic.</span>
 
 <span class="sd">We generate dbt schema.yml files by translating our metadata into schema.yml</span>
 <span class="sd">format, then applying human-sourced patches to the auto-generated schemas.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">textwrap</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotated</span><span class="p">,</span> <span class="n">Any</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">BeforeValidator</span><span class="p">,</span> <span class="n">ConfigDict</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">PUDL_PACKAGE</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">PUDL_PACKAGE</span><span class="p">,</span> <span class="n">Resource</span>
+
+<div class="viewcode-block" id="_DESCRIPTION_WRAP_WIDTH">
+<a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema._DESCRIPTION_WRAP_WIDTH">[docs]</a>
+<span class="n">_DESCRIPTION_WRAP_WIDTH</span> <span class="o">=</span> <span class="mi">88</span></div>
+
+
+
+<div class="viewcode-block" id="_normalize_whitespace">
+<a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema._normalize_whitespace">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_normalize_whitespace</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Collapse all whitespace (including blank lines) to single spaces."""</span>
+    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\s+"</span><span class="p">,</span> <span class="s2">" "</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="_normalize_descriptions">
+<a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema._normalize_descriptions">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_normalize_descriptions</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Recursively collapse whitespace in every ``description`` field.</span>
+
+<span class="sd">    Normalizing whitespace at parse time reduces spurious diffs and round trip errors,</span>
+<span class="sd">    treating all whitespace as semantically identical.</span>
+
+<span class="sd">    The ``description`` fields show up in two places: the typed ``description`` field on</span>
+<span class="sd">    ``DbtColumn``/``DbtTable``/``DbtSource``, and nested inside arbitrary ``data_tests``</span>
+<span class="sd">    entries which are untyped ``list`` content that pydantic doesn't otherwise inspect.</span>
+<span class="sd">    This function is used as a validator for both.</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="n">key</span><span class="p">:</span> <span class="p">(</span>
+                <span class="n">_normalize_whitespace</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">"description"</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+                <span class="k">else</span> <span class="n">_normalize_descriptions</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">_normalize_descriptions</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">obj</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">obj</span></div>
+
+
+
+<div class="viewcode-block" id="_normalize_description_field">
+<a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema._normalize_description_field">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_normalize_description_field</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">value</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">_normalize_whitespace</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_normalize_data_tests_field">
+<a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema._normalize_data_tests_field">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_normalize_data_tests_field</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">list</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">value</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">_normalize_descriptions</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_NormalizedDescription">
+<a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema._NormalizedDescription">[docs]</a>
+<span class="n">_NormalizedDescription</span> <span class="o">=</span> <span class="n">Annotated</span><span class="p">[</span>
+    <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">BeforeValidator</span><span class="p">(</span><span class="n">_normalize_description_field</span><span class="p">)</span>
+<span class="p">]</span></div>
+
+<div class="viewcode-block" id="_NormalizedDataTests">
+<a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema._NormalizedDataTests">[docs]</a>
+<span class="n">_NormalizedDataTests</span> <span class="o">=</span> <span class="n">Annotated</span><span class="p">[</span>
+    <span class="nb">list</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">BeforeValidator</span><span class="p">(</span><span class="n">_normalize_data_tests_field</span><span class="p">)</span>
+<span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="_LiteralStr">
+<a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema._LiteralStr">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">_LiteralStr</span><span class="p">(</span><span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Marker subclass telling the dumper to use YAML literal block style (``|``).</span>
+
+<span class="sd">    Only used for ``description`` fields that we've re-wrapped ourselves, so</span>
+<span class="sd">    they read as human-friendly paragraphs on disk instead of one giant line.</span>
+<span class="sd">    Everything else (regexes, SQL snippets, argument lists) is left completely</span>
+<span class="sd">    alone, since forcing a global line width in the dumper risks reflowing</span>
+<span class="sd">    content where whitespace is significant.</span>
+<span class="sd">    """</span></div>
+
+
+
+<div class="viewcode-block" id="_wrap_description">
+<a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema._wrap_description">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_wrap_description</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">_LiteralStr</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Re-wrap a description string to short lines, for readability on disk.</span>
+
+<span class="sd">    A description may already contain embedded newlines (e.g. from a blank</span>
+<span class="sd">    line in a folded YAML block scalar, or from a previous pass of this same</span>
+<span class="sd">    function). We preserve that line structure and only wrap the text</span>
+<span class="sd">    *within* each line, so we don't invent new paragraph breaks the human</span>
+<span class="sd">    didn't write. We use block style whenever the result spans multiple</span>
+<span class="sd">    lines -- including when wrapping made no change to an already-wrapped</span>
+<span class="sd">    multi-line value -- since a bare multi-line ``str`` would otherwise fall</span>
+<span class="sd">    back to an ugly quoted flow scalar. Single-line results are left as a</span>
+<span class="sd">    plain string so short descriptions keep their current compact</span>
+<span class="sd">    ``description: ...`` formatting.</span>
+<span class="sd">    """</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="n">wrapped</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">textwrap</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span>
+            <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">width</span><span class="o">=</span><span class="n">_DESCRIPTION_WRAP_WIDTH</span><span class="p">,</span> <span class="n">break_on_hyphens</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">else</span> <span class="s2">""</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">wrapped</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">wrapped</span>
+    <span class="k">return</span> <span class="n">_LiteralStr</span><span class="p">(</span><span class="n">wrapped</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_wrap_descriptions">
+<a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema._wrap_descriptions">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_wrap_descriptions</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Recursively re-wrap every ``description`` field in a dumped schema dict."""</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="n">key</span><span class="p">:</span> <span class="p">(</span>
+                <span class="n">_wrap_description</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">"description"</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+                <span class="k">else</span> <span class="n">_wrap_descriptions</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">_wrap_descriptions</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">obj</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">obj</span></div>
+
 
 
 <div class="viewcode-block" id="_prettier_yaml_dumps">
 <a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema._prettier_yaml_dumps">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_prettier_yaml_dumps</span><span class="p">(</span><span class="n">yaml_contents</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Dump YAML to string that Prettier likes.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Dump YAML to string that Prettier likes."""</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">PrettierCompatibleDumper</span><span class="p">(</span><span class="n">yaml</span><span class="o">.</span><span class="n">Dumper</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Custom Dumper that indents lists like prettier does.</span>
+<span class="w">        </span><span class="sd">"""Custom Dumper that indents lists like prettier does.</span>
 
 <span class="sd">        Default dumper behavior::</span>
 
@@ -909,26 +1047,80 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        always be ``False``. If at any point this stops working we should convert</span>
 <span class="sd">        to using ``ruamel`` which has much more customizable formatting with actual</span>
 <span class="sd">        documentation.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">increase_indent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">indentless</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
             <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">increase_indent</span><span class="p">(</span><span class="n">flow</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
 
+        <span class="k">def</span><span class="w"> </span><span class="nf">choose_scalar_style</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">"""Prefer double quotes over single quotes when quoting is required.</span>
+
+<span class="sd">            PyYAML's default emitter picks single-quoted style (with ``''`` escaping for</span>
+<span class="sd">            embedded apostrophes) whenever a scalar can't be written plain. Prettier</span>
+<span class="sd">            always uses double-quoted style in that case, so without this override every</span>
+<span class="sd">            such string gets rewritten by ``prek run prettier`` right after we generate</span>
+<span class="sd">            it. This only changes which *quote character* gets used -- it doesn't affect</span>
+<span class="sd">            whether a scalar is quoted at all, so plain-safe strings are still emitted</span>
+<span class="sd">            unquoted exactly as before.</span>
+<span class="sd">            """</span>
+            <span class="n">style</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">choose_scalar_style</span><span class="p">()</span>
+            <span class="k">return</span> <span class="s1">'"'</span> <span class="k">if</span> <span class="n">style</span> <span class="o">==</span> <span class="s2">"'"</span> <span class="k">else</span> <span class="n">style</span>
+
+    <span class="n">PrettierCompatibleDumper</span><span class="o">.</span><span class="n">add_representer</span><span class="p">(</span>
+        <span class="n">_LiteralStr</span><span class="p">,</span>
+        <span class="k">lambda</span> <span class="n">dumper</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">dumper</span><span class="o">.</span><span class="n">represent_scalar</span><span class="p">(</span>
+            <span class="s2">"tag:yaml.org,2002:str"</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">"|"</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
     <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span>
-        <span class="n">yaml_contents</span><span class="p">,</span>
+        <span class="n">_wrap_descriptions</span><span class="p">(</span><span class="n">yaml_contents</span><span class="p">),</span>
         <span class="n">default_flow_style</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">Dumper</span><span class="o">=</span><span class="n">PrettierCompatibleDumper</span><span class="p">,</span>
         <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
         <span class="n">sort_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">width</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">),</span>
+        <span class="n">width</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s2">"inf"</span><span class="p">),</span>
     <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_foreign_key_data_tests">
+<a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema._foreign_key_data_tests">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_foreign_key_data_tests</span><span class="p">(</span><span class="n">resource</span><span class="p">:</span> <span class="n">Resource</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Build ``foreign_key`` data test entries for a resource's outgoing FKs.</span>
+
+<span class="sd">    One entry per foreign key relationship declared on the resource, in declaration</span>
+<span class="sd">    order, so regenerating a table's schema.yml produces a stable diff.</span>
+<span class="sd">    """</span>
+    <span class="n">data_tests</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">"foreign_key"</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">"arguments"</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">"fk_column_names"</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">fk</span><span class="o">.</span><span class="n">fields</span><span class="p">),</span>
+                    <span class="s2">"pk_table_name"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"source('pudl', '</span><span class="si">{</span><span class="n">fk</span><span class="o">.</span><span class="n">reference</span><span class="o">.</span><span class="n">resource</span><span class="si">}</span><span class="s2">')"</span><span class="p">,</span>
+                    <span class="s2">"pk_column_names"</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">fk</span><span class="o">.</span><span class="n">reference</span><span class="o">.</span><span class="n">fields</span><span class="p">),</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">fk</span> <span class="ow">in</span> <span class="n">resource</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">foreign_keys</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="n">data_tests</span> <span class="ow">or</span> <span class="kc">None</span></div>
 
 
 
 <div class="viewcode-block" id="DbtColumn">
 <a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema.DbtColumn">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DbtColumn</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Define yaml structure of a dbt column.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Define yaml structure of a dbt column."""</span>
+
+    <span class="c1"># Reject unrecognized keys (e.g. a stray `tests:` instead of</span>
+    <span class="c1"># `data_tests:`) at parse time instead of silently dropping them --</span>
+    <span class="c1"># pydantic's default `extra="ignore"` would otherwise make such content</span>
+    <span class="c1"># vanish from schema.human.yml overrides with no error at all.</span>
+<div class="viewcode-block" id="DbtColumn.model_config">
+<a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema.DbtColumn.model_config">[docs]</a>
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">"forbid"</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="DbtColumn.name">
 <a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema.DbtColumn.name">[docs]</a>
@@ -936,11 +1128,11 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="DbtColumn.description">
 <a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema.DbtColumn.description">[docs]</a>
-    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
+    <span class="n">description</span><span class="p">:</span> <span class="n">_NormalizedDescription</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="DbtColumn.data_tests">
 <a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema.DbtColumn.data_tests">[docs]</a>
-    <span class="n">data_tests</span><span class="p">:</span> <span class="nb">list</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
+    <span class="n">data_tests</span><span class="p">:</span> <span class="n">_NormalizedDataTests</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="DbtColumn.meta">
 <a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema.DbtColumn.meta">[docs]</a>
@@ -956,7 +1148,12 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="DbtTable">
 <a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema.DbtTable">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DbtTable</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Define yaml structure of a dbt table.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Define yaml structure of a dbt table."""</span>
+
+<div class="viewcode-block" id="DbtTable.model_config">
+<a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema.DbtTable.model_config">[docs]</a>
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">"forbid"</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="DbtTable.name">
 <a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema.DbtTable.name">[docs]</a>
@@ -964,11 +1161,11 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="DbtTable.description">
 <a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema.DbtTable.description">[docs]</a>
-    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
+    <span class="n">description</span><span class="p">:</span> <span class="n">_NormalizedDescription</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="DbtTable.data_tests">
 <a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema.DbtTable.data_tests">[docs]</a>
-    <span class="n">data_tests</span><span class="p">:</span> <span class="nb">list</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
+    <span class="n">data_tests</span><span class="p">:</span> <span class="n">_NormalizedDataTests</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="DbtTable.columns">
 <a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema.DbtTable.columns">[docs]</a>
@@ -990,14 +1187,13 @@ window.runMermaid = runMermaid;</script>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="DbtTable.from_table_name">
 <a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema.DbtTable.from_table_name">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_table_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DbtTable&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct configuration defining table from PUDL metadata.&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_table_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"DbtTable"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Construct configuration defining table from PUDL metadata."""</span>
+        <span class="n">resource</span> <span class="o">=</span> <span class="n">PUDL_PACKAGE</span><span class="o">.</span><span class="n">get_resource</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">name</span><span class="o">=</span><span class="n">table_name</span><span class="p">,</span>
-            <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
-                <span class="n">DbtColumn</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">PUDL_PACKAGE</span><span class="o">.</span><span class="n">get_resource</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">fields</span>
-            <span class="p">],</span>
+            <span class="n">data_tests</span><span class="o">=</span><span class="n">_foreign_key_data_tests</span><span class="p">(</span><span class="n">resource</span><span class="p">),</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">DbtColumn</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">resource</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">fields</span><span class="p">],</span>
         <span class="p">)</span></div>
 </div>
 
@@ -1006,11 +1202,16 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="DbtSource">
 <a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema.DbtSource">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DbtSource</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Define basic dbt yml structure to add a pudl table as a dbt source.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Define basic dbt yml structure to add a pudl table as a dbt source."""</span>
+
+<div class="viewcode-block" id="DbtSource.model_config">
+<a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema.DbtSource.model_config">[docs]</a>
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">"forbid"</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="DbtSource.name">
 <a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema.DbtSource.name">[docs]</a>
-    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pudl&quot;</span></div>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"pudl"</span></div>
 
 <div class="viewcode-block" id="DbtSource.tables">
 <a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema.DbtSource.tables">[docs]</a>
@@ -1018,7 +1219,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="DbtSource.description">
 <a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema.DbtSource.description">[docs]</a>
-    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
+    <span class="n">description</span><span class="p">:</span> <span class="n">_NormalizedDescription</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="DbtSource.meta">
 <a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema.DbtSource.meta">[docs]</a>
@@ -1030,7 +1231,12 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="DbtSchema">
 <a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema.DbtSchema">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DbtSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Define basic structure of a dbt models yaml file.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Define basic structure of a dbt models yaml file."""</span>
+
+<div class="viewcode-block" id="DbtSchema.model_config">
+<a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema.DbtSchema.model_config">[docs]</a>
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">"forbid"</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="DbtSchema.version">
 <a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema.DbtSchema.version">[docs]</a>
@@ -1048,8 +1254,8 @@ window.runMermaid = runMermaid;</script>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="DbtSchema.from_table_name">
 <a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema.DbtSchema.from_table_name">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_table_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DbtSchema&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct configuration defining table from PUDL metadata.&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_table_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"DbtSchema"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Construct configuration defining table from PUDL metadata."""</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">sources</span><span class="o">=</span><span class="p">[</span>
                 <span class="n">DbtSource</span><span class="p">(</span>
@@ -1062,17 +1268,17 @@ window.runMermaid = runMermaid;</script>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="DbtSchema.from_yaml">
 <a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema.DbtSchema.from_yaml">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_yaml</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">schema_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DbtSchema&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load a DbtSchema object from a YAML file.&quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="n">schema_path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">schema_yaml</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_yaml</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">schema_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"DbtSchema"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Load a DbtSchema object from a YAML file."""</span>
+        <span class="k">with</span> <span class="n">schema_path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">schema_yaml</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">schema_yaml</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="DbtSchema.to_yaml">
 <a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema.DbtSchema.to_yaml">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_yaml</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">schema_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write DbtSchema object to YAML file.&quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="n">schema_path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">schema_file</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Write DbtSchema object to YAML file."""</span>
+        <span class="k">with</span> <span class="n">schema_path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">schema_file</span><span class="p">:</span>
             <span class="n">yaml_output</span> <span class="o">=</span> <span class="n">_prettier_yaml_dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">exclude_none</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
             <span class="n">schema_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">yaml_output</span><span class="p">)</span></div>
 
@@ -1080,41 +1286,41 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="DbtSchema.validate_humanity">
 <a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema.DbtSchema.validate_humanity">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">validate_humanity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Make sure the human schema matches expectations.</span>
+<span class="w">        </span><span class="sd">"""Make sure the human schema matches expectations.</span>
 
 <span class="sd">        We expect that all human overrides on source tables are data tests or column-level data tests.</span>
-<span class="sd">        We allow the &#39;name&#39; field so we can match human tables/columns with machine ones.</span>
+<span class="sd">        We allow the 'name' field so we can match human tables/columns with machine ones.</span>
 
 <span class="sd">        We do not have any expectations about model definitions since those are human-only.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">enforce_allowlist</span><span class="p">(</span>
             <span class="n">model</span><span class="p">:</span> <span class="n">DbtSource</span> <span class="o">|</span> <span class="n">DbtTable</span> <span class="o">|</span> <span class="n">DbtColumn</span><span class="p">,</span>
             <span class="n">allowlist</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
             <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Assert that all keys defined on this model are expressly allowed.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Assert that all keys defined on this model are expressly allowed."""</span>
             <span class="n">existing_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">exclude_defaults</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
             <span class="n">invalid_keys</span> <span class="o">=</span> <span class="n">existing_keys</span> <span class="o">-</span> <span class="n">allowlist</span>
             <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">invalid_keys</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="n">invalid_keys</span><span class="si">=}</span><span class="s2"> in human </span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"Found </span><span class="si">{</span><span class="n">invalid_keys</span><span class="si">=}</span><span class="s2"> in human </span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
 
         <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span> <span class="ow">or</span> <span class="p">[]:</span>
             <span class="n">enforce_allowlist</span><span class="p">(</span>
-                <span class="n">source</span><span class="p">,</span> <span class="n">allowlist</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;tables&quot;</span><span class="p">},</span> <span class="n">model_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;source:</span><span class="si">{</span><span class="n">source</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">source</span><span class="p">,</span> <span class="n">allowlist</span><span class="o">=</span><span class="p">{</span><span class="s2">"name"</span><span class="p">,</span> <span class="s2">"tables"</span><span class="p">},</span> <span class="n">model_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"source:</span><span class="si">{</span><span class="n">source</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
             <span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="n">source</span><span class="o">.</span><span class="n">tables</span> <span class="ow">or</span> <span class="p">[]:</span>
                 <span class="n">enforce_allowlist</span><span class="p">(</span>
                     <span class="n">table</span><span class="p">,</span>
-                    <span class="n">allowlist</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;data_tests&quot;</span><span class="p">,</span> <span class="s2">&quot;columns&quot;</span><span class="p">},</span>
-                    <span class="n">model_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;source:</span><span class="si">{</span><span class="n">source</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">table</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">allowlist</span><span class="o">=</span><span class="p">{</span><span class="s2">"name"</span><span class="p">,</span> <span class="s2">"data_tests"</span><span class="p">,</span> <span class="s2">"columns"</span><span class="p">},</span>
+                    <span class="n">model_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"source:</span><span class="si">{</span><span class="n">source</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">table</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">columns</span> <span class="ow">or</span> <span class="p">[]:</span>
                     <span class="n">enforce_allowlist</span><span class="p">(</span>
                         <span class="n">column</span><span class="p">,</span>
-                        <span class="n">allowlist</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;data_tests&quot;</span><span class="p">},</span>
-                        <span class="n">model_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;source:</span><span class="si">{</span><span class="n">source</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">table</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">column</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="n">allowlist</span><span class="o">=</span><span class="p">{</span><span class="s2">"name"</span><span class="p">,</span> <span class="s2">"data_tests"</span><span class="p">},</span>
+                        <span class="n">model_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"source:</span><span class="si">{</span><span class="n">source</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">table</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">column</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
                     <span class="p">)</span></div>
 </div>
 
@@ -1123,10 +1329,10 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="merge_schema">
 <a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema.merge_schema">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">merge_schema</span><span class="p">(</span><span class="n">machine_schema</span><span class="p">:</span> <span class="n">DbtSchema</span><span class="p">,</span> <span class="n">human_schema</span><span class="p">:</span> <span class="n">DbtSchema</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DbtSchema</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Merge two DbtSchemas by applying human-schema as a patch on top of machine-schema.</span>
+<span class="w">    </span><span class="sd">"""Merge two DbtSchemas by applying human-schema as a patch on top of machine-schema.</span>
 
 <span class="sd">    Empty merged sources will be stored in the DbtSchema model as None to avoid serializing them.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">human_schema</span><span class="o">.</span><span class="n">validate_humanity</span><span class="p">()</span>
     <span class="n">merged_sources</span> <span class="o">=</span> <span class="n">merge_sources_by_name</span><span class="p">(</span>
         <span class="n">machine_schema</span><span class="o">.</span><span class="n">sources</span> <span class="ow">or</span> <span class="p">[],</span> <span class="n">human_schema</span><span class="o">.</span><span class="n">sources</span> <span class="ow">or</span> <span class="p">[]</span>
@@ -1144,20 +1350,20 @@ window.runMermaid = runMermaid;</script>
     <span class="n">merger</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
     <span class="n">element_factory</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Perform a generic merge of two lists of dbt elements, matching by name.</span>
+<span class="w">    </span><span class="sd">"""Perform a generic merge of two lists of dbt elements, matching by name.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        machine_elements: can be empty list.</span>
 <span class="sd">        human_elements: can be empty list.</span>
 <span class="sd">        merger: callable that takes two elements of the same dbt type (source, table,</span>
 <span class="sd">            column) and returns a new element that is the merged version.</span>
-<span class="sd">        element_factory: callable that takes the element name and returns an empty instance - used if e.g. the human element doesn&#39;t exist.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        element_factory: callable that takes the element name and returns an empty instance - used if e.g. the human element doesn't exist.</span>
+<span class="sd">    """</span>
     <span class="n">human_elements_by_name</span> <span class="o">=</span> <span class="p">{</span><span class="n">element</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">element</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">human_elements</span><span class="p">}</span>
     <span class="n">machine_names</span> <span class="o">=</span> <span class="p">{</span><span class="n">element</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">machine_elements</span><span class="p">}</span>
     <span class="k">if</span> <span class="n">extras</span> <span class="o">:=</span> <span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">human_elements_by_name</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">-</span> <span class="n">machine_names</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Unmatched </span><span class="si">{</span><span class="n">element_factory</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> keys not found in machine schema: </span><span class="si">{</span><span class="n">extras</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"Unmatched </span><span class="si">{</span><span class="n">element_factory</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> keys not found in machine schema: </span><span class="si">{</span><span class="n">extras</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="p">[</span>
@@ -1177,7 +1383,7 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">merge_sources_by_name</span><span class="p">(</span>
     <span class="n">machine_sources</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">DbtSource</span><span class="p">],</span> <span class="n">human_sources</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">DbtSource</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">DbtSource</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Match machine/human sources by name, then merge them.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Match machine/human sources by name, then merge them."""</span>
     <span class="k">return</span> <span class="n">merge_by_name</span><span class="p">(</span><span class="n">machine_sources</span><span class="p">,</span> <span class="n">human_sources</span><span class="p">,</span> <span class="n">merge_source</span><span class="p">,</span> <span class="n">DbtSource</span><span class="p">)</span></div>
 
 
@@ -1185,15 +1391,15 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="merge_source">
 <a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema.merge_source">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">merge_source</span><span class="p">(</span><span class="n">machine_source</span><span class="p">:</span> <span class="n">DbtSource</span><span class="p">,</span> <span class="n">human_source</span><span class="p">:</span> <span class="n">DbtSource</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DbtSource</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Merge two DbtSources by applying human-source as a patch on top of machine-source.</span>
+<span class="w">    </span><span class="sd">"""Merge two DbtSources by applying human-source as a patch on top of machine-source.</span>
 
 <span class="sd">    Returns a deep copy of the machine source to avoid aliasing,</span>
 <span class="sd">    updating with tables as the merge of the tables of the machine and human sources.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">machine_source</span><span class="o">.</span><span class="n">model_copy</span><span class="p">(</span>
         <span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">update</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;tables&quot;</span><span class="p">:</span> <span class="n">merge_tables_by_name</span><span class="p">(</span>
+            <span class="s2">"tables"</span><span class="p">:</span> <span class="n">merge_tables_by_name</span><span class="p">(</span>
                 <span class="n">machine_source</span><span class="o">.</span><span class="n">tables</span> <span class="ow">or</span> <span class="p">[],</span> <span class="n">human_source</span><span class="o">.</span><span class="n">tables</span> <span class="ow">or</span> <span class="p">[]</span>
             <span class="p">)</span>
         <span class="p">},</span>
@@ -1206,7 +1412,7 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">merge_tables_by_name</span><span class="p">(</span>
     <span class="n">machine_tables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">DbtTable</span><span class="p">],</span> <span class="n">human_tables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">DbtTable</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">DbtTable</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Match machine/human tables by name, then merge them.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Match machine/human tables by name, then merge them."""</span>
     <span class="k">return</span> <span class="n">merge_by_name</span><span class="p">(</span><span class="n">machine_tables</span><span class="p">,</span> <span class="n">human_tables</span><span class="p">,</span> <span class="n">merge_table</span><span class="p">,</span> <span class="n">DbtTable</span><span class="p">)</span></div>
 
 
@@ -1214,19 +1420,19 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="merge_table">
 <a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema.merge_table">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">merge_table</span><span class="p">(</span><span class="n">machine_table</span><span class="p">:</span> <span class="n">DbtTable</span><span class="p">,</span> <span class="n">human_table</span><span class="p">:</span> <span class="n">DbtTable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DbtTable</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Merge two DbtTables by applying human-table as a patch on top of machine-table.</span>
+<span class="w">    </span><span class="sd">"""Merge two DbtTables by applying human-table as a patch on top of machine-table.</span>
 
 <span class="sd">    Returns a deep copy of the machine table to avoid aliasing,</span>
 <span class="sd">    updating with columns and table-level data tests as the merge of the respective machine and human data.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">merged_data_tests</span> <span class="o">=</span> <span class="p">(</span><span class="n">machine_table</span><span class="o">.</span><span class="n">data_tests</span> <span class="ow">or</span> <span class="p">[])</span> <span class="o">+</span> <span class="p">(</span>
         <span class="n">human_table</span><span class="o">.</span><span class="n">data_tests</span> <span class="ow">or</span> <span class="p">[]</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">machine_table</span><span class="o">.</span><span class="n">model_copy</span><span class="p">(</span>
         <span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">update</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;data_tests&quot;</span><span class="p">:</span> <span class="n">merged_data_tests</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s2">&quot;columns&quot;</span><span class="p">:</span> <span class="n">merge_columns_by_name</span><span class="p">(</span>
+            <span class="s2">"data_tests"</span><span class="p">:</span> <span class="n">merged_data_tests</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">"columns"</span><span class="p">:</span> <span class="n">merge_columns_by_name</span><span class="p">(</span>
                 <span class="n">machine_table</span><span class="o">.</span><span class="n">columns</span> <span class="ow">or</span> <span class="p">[],</span> <span class="n">human_table</span><span class="o">.</span><span class="n">columns</span> <span class="ow">or</span> <span class="p">[]</span>
             <span class="p">),</span>
         <span class="p">},</span>
@@ -1239,7 +1445,7 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">merge_columns_by_name</span><span class="p">(</span>
     <span class="n">machine_columns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">DbtColumn</span><span class="p">],</span> <span class="n">human_columns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">DbtColumn</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">DbtColumn</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Match machine/human columns by name, then merge them.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Match machine/human columns by name, then merge them."""</span>
     <span class="k">return</span> <span class="n">merge_by_name</span><span class="p">(</span><span class="n">machine_columns</span><span class="p">,</span> <span class="n">human_columns</span><span class="p">,</span> <span class="n">merge_column</span><span class="p">,</span> <span class="n">DbtColumn</span><span class="p">)</span></div>
 
 
@@ -1247,19 +1453,19 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="merge_column">
 <a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema.merge_column">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">merge_column</span><span class="p">(</span><span class="n">machine_column</span><span class="p">:</span> <span class="n">DbtColumn</span><span class="p">,</span> <span class="n">human_column</span><span class="p">:</span> <span class="n">DbtColumn</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DbtColumn</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Merge two DbtColumns by applying human-column as a patch on top of machine-column.</span>
+<span class="w">    </span><span class="sd">"""Merge two DbtColumns by applying human-column as a patch on top of machine-column.</span>
 
 <span class="sd">    Returns a deep copy of the machine column to avoid aliasing,</span>
 <span class="sd">    updating with data tests as the merge of the data tests of the machine and human columns.</span>
 
 <span class="sd">    Does **not** update any other attributes (descriptions, etc.).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">merged_data_tests</span> <span class="o">=</span> <span class="p">(</span><span class="n">machine_column</span><span class="o">.</span><span class="n">data_tests</span> <span class="ow">or</span> <span class="p">[])</span> <span class="o">+</span> <span class="p">(</span>
         <span class="n">human_column</span><span class="o">.</span><span class="n">data_tests</span> <span class="ow">or</span> <span class="p">[]</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">machine_column</span><span class="o">.</span><span class="n">model_copy</span><span class="p">(</span>
         <span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">update</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;data_tests&quot;</span><span class="p">:</span> <span class="n">merged_data_tests</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">},</span>
+        <span class="n">update</span><span class="o">=</span><span class="p">{</span><span class="s2">"data_tests"</span><span class="p">:</span> <span class="n">merged_data_tests</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">},</span>
     <span class="p">)</span></div>
 
 </pre></div>
@@ -1291,8 +1497,8 @@ window.runMermaid = runMermaid;</script>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1326,7 +1532,7 @@ window.runMermaid = runMermaid;</script>
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
 </p></div>
       
         <div class="footer-item">

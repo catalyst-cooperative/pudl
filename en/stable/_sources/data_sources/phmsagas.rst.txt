@@ -14,7 +14,7 @@ Pipelines and Hazardous Materials Safety Administration (PHMSA) Annual Natural G
    * - Download Size
      - 236 MB
    * - Temporal Coverage
-     - 1970-2024
+     - 1970-2025
    * - PUDL Code
      - ``phmsagas``
    * - Unprocessed Source Data Archive
@@ -36,9 +36,6 @@ the names and descriptions of each of its fields.
 
    * - Data Dictionary
      - Browse Online
-   * - :ref:`i_core_phmsagas__yearly_distribution_by_install_decade`
-     - https://data.catalyst.coop/preview/pudl/_core_phmsagas__yearly_distribution_by_install_decade
-   
    * - :ref:`i_core_phmsagas__yearly_distribution_by_material`
      - https://data.catalyst.coop/preview/pudl/_core_phmsagas__yearly_distribution_by_material
    
@@ -56,6 +53,9 @@ the names and descriptions of each of its fields.
    
    * - :ref:`i_core_phmsagas__yearly_distribution_misc`
      - https://data.catalyst.coop/preview/pudl/_core_phmsagas__yearly_distribution_misc
+   
+   * - :ref:`core_phmsagas__yearly_distribution_by_install_decade`
+     - https://data.catalyst.coop/preview/pudl/core_phmsagas__yearly_distribution_by_install_decade
    
    * - :ref:`core_phmsagas__yearly_distribution_operators`
      - https://data.catalyst.coop/preview/pudl/core_phmsagas__yearly_distribution_operators

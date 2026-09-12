@@ -5,7 +5,7 @@ Table definitions for data coming from the GridPath Resource Adequacy Toolkit.
 ## Attributes
 
 | [`RESOURCE_METADATA`](#pudl.metadata.resources.gridpathratoolkit.RESOURCE_METADATA)   |    |
-|---------------------------------------------------------------------------------------|----|
+|----------------------------------------------------------------------|----|
 
 ## Module Contents
 

@@ -31,6 +31,7 @@ Functions
    pudl.output.eia923.drop_ytd_for_annual_tables
    pudl.output.eia923.out_eia923__generation
    pudl.output.eia923.out_eia923__generation_fuel_combined
+   pudl.output.eia923.out_eia923__energy_storage
    pudl.output.eia923.out_eia923__boiler_fuel
    pudl.output.eia923.out_eia923__fuel_receipts_costs
    pudl.output.eia923.time_aggregated_eia923_asset_factory
@@ -99,6 +100,11 @@ Module Contents
 
    This table contains the records at their originally reported temporal resolution,
    so it's outside of :func:`time_aggregated_eia923_asset_factory`.
+
+
+.. py:function:: out_eia923__energy_storage(core_eia923__monthly_energy_storage: pandas.DataFrame, _out_eia__plants_utilities: pandas.DataFrame) -> pandas.DataFrame
+
+   Denormalize the :ref:`core_eia923__monthly_energy_storage` table.
 
 
 .. py:function:: out_eia923__boiler_fuel(core_eia923__monthly_boiler_fuel: pandas.DataFrame, _out_eia__plants_utilities: pandas.DataFrame, core_eia860__assn_boiler_generator: pandas.DataFrame) -> pandas.DataFrame

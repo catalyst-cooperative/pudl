@@ -49,7 +49,7 @@ No more than one person should ever update the PUDL ID mapping spreadsheet at a
 time. Two people updating PUDL IDs simultaneously will lead to discrepancies in the
 PUDL ID values.
 
-The [`pudl.glue.ferc1_eia`](../autoapi/pudl/glue/ferc1_eia/index.md#module-pudl.glue.ferc1_eia) module is where most of the ID coordination happens
+The [`pudl.glue.ferc1_eia`](../autoapi/pudl/glue/ferc1_eia/index.html.md#module-pudl.glue.ferc1_eia) module is where most of the ID coordination happens
 after the records are manually mapped. It also contains the functions that determine
 whether plants/utilities have or haven’t been mapped.
 
@@ -77,7 +77,7 @@ described above.
 ## Checking for Unmapped Records
 
 With every new year of data comes the possibility of new plants and utilities. Once
-you’ve integrated the new data into PUDL [(see instructions)](existing_data_updates.md), you’ll need to check for unmapped utility and plants.
+you’ve integrated the new data into PUDL [(see instructions)](existing_data_updates.html.md), you’ll need to check for unmapped utility and plants.
 There are a few options for how to do this.
 
 The quickest way is to download and unzip the most recent nightly build version of
@@ -105,7 +105,7 @@ a script that identifies plants and utilities which exist in the updated FERC 1 
 EIA datasets that do not yet appear in the stored ID maps.
 
 ```console
-$ pixi run pytest tests/integration/glue/glue_test.py --live-pudl-output --save-unmapped-ids
+$ pixi run pytest tests/pipeline/glue/glue_test.py --live-pudl-output --save-unmapped-ids
 ```
 
 The `--save-unmapped-ids` flag saves unmapped plants and utilities in the
@@ -257,7 +257,7 @@ entities. This command assumes that you have all of the new EIA data loaded into
 live PUDL DB, and all of the new FERC 1 data loaded into your cloned FERC 1 DB:
 
 ```console
-$ pixi run pytest --live-pudl-output tests/integration/glue/glue_test.py
+$ pixi run pytest --live-pudl-output tests/pipeline/glue/glue_test.py
 ```
 
 ## Integrating Newly Mapped Records into PUDL
@@ -266,4 +266,4 @@ Once you’ve successfully mapped all unmapped PUDL IDs, you’ll want to rerun 
 This ensures that the newly mapped IDs get integrated into the PUDL database and output
 tables that folks are using. Make sure to tell everyone else to do so as well so that
 you can all use the newly mapped PUDL IDs. But first, make sure to head back to the
-[Existing Data Updates](existing_data_updates.md) page to wrap up the validation tests!
+[Existing Data Updates](existing_data_updates.html.md) page to wrap up the validation tests!

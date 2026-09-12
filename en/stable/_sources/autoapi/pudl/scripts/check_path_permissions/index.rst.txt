@@ -239,7 +239,7 @@ Module Contents
    Run the requested checks for one path and return a structured summary.
 
 
-.. py:function:: main(ctx: click.Context, paths: tuple[str, Ellipsis], read_requested: bool, write_requested: bool, json_output: bool, anon: bool, check_ferceqr_deployment_paths: bool) -> int
+.. py:function:: main(ctx: click.Context, paths: tuple[str, ...], read_requested: bool, write_requested: bool, json_output: bool, anon: bool, check_ferceqr_deployment_paths: bool) -> int
 
    Check path permissions using UPath for local filesystems and cloud buckets.
 

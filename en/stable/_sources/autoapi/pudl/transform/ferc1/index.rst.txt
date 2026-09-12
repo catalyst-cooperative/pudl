@@ -2252,7 +2252,7 @@ Module Contents
 
 
 
-   .. py:method:: drop_invalid_rows(df: pandas.DataFrame, params: pudl.transform.classes.InvalidRows | None = None) -> pandas.DataFrame
+   .. py:method:: drop_invalid_rows(df: pandas.DataFrame, params: list[pudl.transform.classes.InvalidRows] | None = None) -> pandas.DataFrame
 
       Drop invalid rows from the fuel table.
 

@@ -5,9 +5,9 @@ Table definitions for the RUS12 tables.
 ## Attributes
 
 | [`PLANT_OPERATIONS_DETAIL`](#pudl.metadata.resources.rus12.PLANT_OPERATIONS_DETAIL)   |    |
-|---------------------------------------------------------------------------------------|----|
-| [`RESOURCE_METADATA_BASE`](#pudl.metadata.resources.rus12.RESOURCE_METADATA_BASE)     |    |
-| [`RESOURCE_METADATA`](#pudl.metadata.resources.rus12.RESOURCE_METADATA)               |    |
+|----------------------------------------------------------------------------|----|
+| [`RESOURCE_METADATA_BASE`](#pudl.metadata.resources.rus12.RESOURCE_METADATA_BASE)    |    |
+| [`RESOURCE_METADATA`](#pudl.metadata.resources.rus12.RESOURCE_METADATA)         |    |
 
 ## Module Contents
 

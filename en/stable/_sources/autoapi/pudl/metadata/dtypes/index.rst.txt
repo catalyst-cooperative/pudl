@@ -40,6 +40,7 @@ Attributes
    pudl.metadata.dtypes.FIELD_DTYPES_DUCKDB
    pudl.metadata.dtypes.FIELD_DTYPES_PANDAS
    pudl.metadata.dtypes.FIELD_DTYPES_PYARROW
+   pudl.metadata.dtypes.FIELD_DTYPES_SQLALCHEMY
    pudl.metadata.dtypes.FIELD_DTYPES_SQLITE
    pudl.metadata.dtypes.CONSTRAINT_DTYPES
    pudl.metadata.dtypes.PERIODS
@@ -83,10 +84,33 @@ Module Contents
 
    Pyarrow data type by simplified PUDL field type.
 
+.. py:data:: FIELD_DTYPES_SQLALCHEMY
+   :type:  dict[str, type[sqlalchemy.types.TypeEngine] | sqlalchemy.types.TypeEngine]
+
+   Generic SQLAlchemy column types by simplified PUDL field type.
+
+   For use with any dialect where SQLAlchemy itself compiles the DDL from these generic
+   types via ``metadata.create_all()`` -- currently DuckDB, via
+   :meth:`pudl.metadata.classes.Field._to_sql_duckdb`. Not used for SQLite; see
+   :data:`FIELD_DTYPES_SQLITE` for that.
+
+   ``BigInteger``/``Double`` are used here (rather than ``Integer``/``Float``) so that a
+   dialect enforcing the declared column width -- unlike SQLite, which stores every
+   "INTEGER" affinity value as a dynamically-sized up-to-8-byte integer and every "REAL"
+   affinity value as an 8-byte IEEE double regardless of the declared type name -- still
+   gets the right physical size.
+
 .. py:data:: FIELD_DTYPES_SQLITE
    :type:  dict[str, type[sqlalchemy.types.TypeEngine] | sqlalchemy.types.TypeEngine]
 
-   SQLAlchemy column types by simplified PUDL field type.
+   SQLAlchemy column types for the SQLite dialect specifically.
+
+   Identical to :data:`FIELD_DTYPES_SQLALCHEMY` except for ``datetime``: SQLite has no
+   native timestamp storage type, so datetimes are stored as text, and
+   :class:`SQLITE_DATETIME` is a custom decorator (see ``to_sqlite_dtype()``) needed to
+   get microsecond precision out of that text column. DuckDB has a native ``TIMESTAMP``
+   type that already stores microseconds, so ``FIELD_DTYPES_SQLALCHEMY``'s plain
+   ``sa.DateTime`` is correct for it as-is.
 
 .. py:data:: CONSTRAINT_DTYPES
    :type:  dict[str, type]

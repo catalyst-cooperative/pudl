@@ -4,29 +4,29 @@ Datastore manages file retrieval for PUDL datasets.
 
 ## Attributes
 
-| [`logger`](#pudl.workspace.datastore.logger)       |    |
-|----------------------------------------------------|----|
+| [`logger`](#pudl.workspace.datastore.logger)    |    |
+|------------------------------------------------------------|----|
 | [`ZenodoDoi`](#pudl.workspace.datastore.ZenodoDoi) |    |
 
 ## Exceptions
 
 | [`ChecksumMismatchError`](#pudl.workspace.datastore.ChecksumMismatchError)   | Resource checksum (md5) does not match.   |
-|------------------------------------------------------------------------------|-------------------------------------------|
+|--------------------------------------------------------------------------|-------------------------------------------|
 
 ## Classes
 
 | [`DatapackageDescriptor`](#pudl.workspace.datastore.DatapackageDescriptor)   | A simple wrapper providing access to datapackage.json contents.             |
-|------------------------------------------------------------------------------|-----------------------------------------------------------------------------|
-| [`ZenodoDoiSettings`](#pudl.workspace.datastore.ZenodoDoiSettings)           | Digital Object Identifiers pointing to currently used Zenodo archives.      |
-| [`ZenodoFetcher`](#pudl.workspace.datastore.ZenodoFetcher)                   | API for fetching datapackage descriptors and resource contents from zenodo. |
-| [`Datastore`](#pudl.workspace.datastore.Datastore)                           | Handle connections and downloading of Zenodo Source archives.               |
+|--------------------------------------------------------------------------|-----------------------------------------------------------------------------|
+| [`ZenodoDoiSettings`](#pudl.workspace.datastore.ZenodoDoiSettings)       | Digital Object Identifiers pointing to currently used Zenodo archives.      |
+| [`ZenodoFetcher`](#pudl.workspace.datastore.ZenodoFetcher)           | API for fetching datapackage descriptors and resource contents from zenodo. |
+| [`Datastore`](#pudl.workspace.datastore.Datastore)               | Handle connections and downloading of Zenodo Source archives.               |
 
 ## Functions
 
 | [`get_zenodo_dois_path`](#pudl.workspace.datastore.get_zenodo_dois_path)(→ importlib.resources.abc.Traversable)   | Return the canonical packaged Zenodo DOI settings path.      |
-|-------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------|
-| [`validate_cache`](#pudl.workspace.datastore.validate_cache)(→ None)                                              | Validate elements in the datastore cache.                    |
-| [`fetch_resources`](#pudl.workspace.datastore.fetch_resources)(→ None)                                            | Retrieve all matching resources and store them in the cache. |
+|----------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------|
+| [`validate_cache`](#pudl.workspace.datastore.validate_cache)(→ None)                                        | Validate elements in the datastore cache.                    |
+| [`fetch_resources`](#pudl.workspace.datastore.fetch_resources)(→ None)                                       | Retrieve all matching resources and store them in the cache. |
 
 ## Module Contents
 
@@ -70,9 +70,9 @@ Returns True if content matches checksum for given named resource.
 
 #### \_matches(res: [dict](https://docs.python.org/3/library/stdtypes.html#dict), \*\*filters: Any)
 
-#### \_match_from_partition(parts: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)], k: [str](https://docs.python.org/3/library/stdtypes.html#str), v: [str](https://docs.python.org/3/library/stdtypes.html#str) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)])
+#### \_match_from_partition(parts: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)], k: [str](https://docs.python.org/3/library/stdtypes.html#str), v: [str](https://docs.python.org/3/library/stdtypes.html#str) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)])
 
-#### get_resources(name: [str](https://docs.python.org/3/library/stdtypes.html#str) = None, \*\*filters: Any) → [collections.abc.Iterator](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterator)[[pudl.workspace.resource_cache.PudlResourceKey](../resource_cache/index.md#pudl.workspace.resource_cache.PudlResourceKey)]
+#### get_resources(name: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \*\*filters: Any) → [collections.abc.Iterator](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterator)[[pudl.workspace.resource_cache.PudlResourceKey](../resource_cache/index.html.md#pudl.workspace.resource_cache.PudlResourceKey)]
 
 Returns series of PudlResourceKey identifiers for matching resources.
 
@@ -82,7 +82,7 @@ Returns series of PudlResourceKey identifiers for matching resources.
     constraints. The constraints are matched against the ‘parts’ field of
     the resource entry in the datapackage.json.
 
-#### get_partitions(name: [str](https://docs.python.org/3/library/stdtypes.html#str) = None) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [set](https://docs.python.org/3/library/stdtypes.html#set)[[str](https://docs.python.org/3/library/stdtypes.html#str)]]
+#### get_partitions(name: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [set](https://docs.python.org/3/library/stdtypes.html#set)[[str](https://docs.python.org/3/library/stdtypes.html#str)]]
 
 Return mapping of known partition keys to their allowed known values.
 
@@ -219,7 +219,7 @@ Construct a Zenodo depsition URL based on its Zenodo DOI.
 
 Returns class:DatapackageDescriptor for given dataset.
 
-#### get_resource(res: [pudl.workspace.resource_cache.PudlResourceKey](../resource_cache/index.md#pudl.workspace.resource_cache.PudlResourceKey)) → [bytes](https://docs.python.org/3/library/stdtypes.html#bytes)
+#### get_resource(res: [pudl.workspace.resource_cache.PudlResourceKey](../resource_cache/index.html.md#pudl.workspace.resource_cache.PudlResourceKey)) → [bytes](https://docs.python.org/3/library/stdtypes.html#bytes)
 
 Given resource key, retrieve contents of the file from zenodo.
 
@@ -251,7 +251,7 @@ Returns list of supported datasets.
 
 Fetch datapackage descriptor for dataset either from cache or Zenodo.
 
-#### get_resources(dataset: [str](https://docs.python.org/3/library/stdtypes.html#str), cached_only: [bool](https://docs.python.org/3/library/functions.html#bool) = False, skip_optimally_cached: [bool](https://docs.python.org/3/library/functions.html#bool) = False, \*\*filters: Any) → [collections.abc.Iterator](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterator)[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pudl.workspace.resource_cache.PudlResourceKey](../resource_cache/index.md#pudl.workspace.resource_cache.PudlResourceKey), [bytes](https://docs.python.org/3/library/stdtypes.html#bytes)]]
+#### get_resources(dataset: [str](https://docs.python.org/3/library/stdtypes.html#str), cached_only: [bool](https://docs.python.org/3/library/functions.html#bool) = False, skip_optimally_cached: [bool](https://docs.python.org/3/library/functions.html#bool) = False, \*\*filters: Any) → [collections.abc.Iterator](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterator)[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pudl.workspace.resource_cache.PudlResourceKey](../resource_cache/index.html.md#pudl.workspace.resource_cache.PudlResourceKey), [bytes](https://docs.python.org/3/library/stdtypes.html#bytes)]]
 
 Return content of the matching resources.
 
@@ -265,7 +265,7 @@ Return content of the matching resources.
 * **Yields:**
   (PudlResourceKey, io.BytesIO) holding content for each matching resource
 
-#### remove_from_cache(res: [pudl.workspace.resource_cache.PudlResourceKey](../resource_cache/index.md#pudl.workspace.resource_cache.PudlResourceKey)) → [None](https://docs.python.org/3/library/constants.html#None)
+#### remove_from_cache(res: [pudl.workspace.resource_cache.PudlResourceKey](../resource_cache/index.html.md#pudl.workspace.resource_cache.PudlResourceKey)) → [None](https://docs.python.org/3/library/constants.html#None)
 
 Remove given resource from the associated cache.
 
@@ -276,10 +276,6 @@ Returns content of a resource assuming there is exactly one that matches.
 #### get_zipfile_resource(dataset: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*filters: Any) → [zipfile.ZipFile](https://docs.python.org/3/library/zipfile.html#zipfile.ZipFile)
 
 Retrieves unique resource and opens it as a ZipFile.
-
-#### get_zipfile_resources(dataset: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*filters: Any) → [collections.abc.Iterator](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterator)[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pudl.workspace.resource_cache.PudlResourceKey](../resource_cache/index.md#pudl.workspace.resource_cache.PudlResourceKey), [zipfile.ZipFile](https://docs.python.org/3/library/zipfile.html#zipfile.ZipFile)]]
-
-Iterates over resources that match filters and opens each as ZipFile.
 
 #### get_zipfile_file_names(zip_file: [zipfile.ZipFile](https://docs.python.org/3/library/zipfile.html#zipfile.ZipFile))
 

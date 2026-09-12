@@ -3,8 +3,8 @@
 | Source URL                      | [https://www.ferc.gov/industries-data/electric/power-sales-and-markets/electric-quarterly-reports-eqr](https://www.ferc.gov/industries-data/electric/power-sales-and-markets/electric-quarterly-reports-eqr)                                                                                                                                                                                                                          |
 |---------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Source Description              | The Electric Quarterly Report (EQR) is submitted by sellers participating in bilateral electricity market transactions. The reports summarize the contractual terms and conditions in agreements for all jurisdictional services, including cost-based sales, market-based rate sales, and transmission service, as well as transaction information for short-term and long-term market-based power sales and cost-based power sales. |
-| Download Size                   | 109416 MB                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| Temporal Coverage               | 2013q3-2026q1                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| Download Size                   | 120570 MB                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| Temporal Coverage               | 2013q3-2026q2                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | PUDL Code                       | `ferceqr`                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | Unprocessed Source Data Archive | [10.5281/zenodo.18251901](https://doi.org/10.5281/zenodo.18251901)                                                                                                                                                                                                                                                                                                                                                                    |
 | Issues                          | [Open FERC Form 920 – Electric Quarterly Report (EQR) issues](https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Aferceqr)                                                                                                                                                                                                                                                              |
@@ -15,12 +15,12 @@ We’ve segmented the processed data into the following normalized data tables.
 Clicking on the links will show you a description of the table as well as
 the names and descriptions of each of its fields.
 
-| Data Dictionary                                                                                        | Browse Online                                                                                                                                           |
-|--------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [core_ferceqr_\_contracts](../data_dictionaries/pudl_db.md#core-ferceqr-contracts)                     | [https://data.catalyst.coop/preview/pudl/core_ferceqr_\_contracts](https://data.catalyst.coop/preview/pudl/core_ferceqr__contracts)                     |
-| [core_ferceqr_\_quarterly_identity](../data_dictionaries/pudl_db.md#core-ferceqr-quarterly-identity)   | [https://data.catalyst.coop/preview/pudl/core_ferceqr_\_quarterly_identity](https://data.catalyst.coop/preview/pudl/core_ferceqr__quarterly_identity)   |
-| [core_ferceqr_\_quarterly_index_pub](../data_dictionaries/pudl_db.md#core-ferceqr-quarterly-index-pub) | [https://data.catalyst.coop/preview/pudl/core_ferceqr_\_quarterly_index_pub](https://data.catalyst.coop/preview/pudl/core_ferceqr__quarterly_index_pub) |
-| [core_ferceqr_\_transactions](../data_dictionaries/pudl_db.md#core-ferceqr-transactions)               | [https://data.catalyst.coop/preview/pudl/core_ferceqr_\_transactions](https://data.catalyst.coop/preview/pudl/core_ferceqr__transactions)               |
+| Data Dictionary                                                                                                    | Browse Online                                                                                                                                           |
+|--------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [core_ferceqr_\_contracts](../data_dictionaries/pudl_db.html.md#core-ferceqr-contracts)                     | [https://data.catalyst.coop/preview/pudl/core_ferceqr_\_contracts](https://data.catalyst.coop/preview/pudl/core_ferceqr__contracts)                     |
+| [core_ferceqr_\_quarterly_identity](../data_dictionaries/pudl_db.html.md#core-ferceqr-quarterly-identity)   | [https://data.catalyst.coop/preview/pudl/core_ferceqr_\_quarterly_identity](https://data.catalyst.coop/preview/pudl/core_ferceqr__quarterly_identity)   |
+| [core_ferceqr_\_quarterly_index_pub](../data_dictionaries/pudl_db.html.md#core-ferceqr-quarterly-index-pub) | [https://data.catalyst.coop/preview/pudl/core_ferceqr_\_quarterly_index_pub](https://data.catalyst.coop/preview/pudl/core_ferceqr__quarterly_index_pub) |
+| [core_ferceqr_\_transactions](../data_dictionaries/pudl_db.html.md#core-ferceqr-transactions)               | [https://data.catalyst.coop/preview/pudl/core_ferceqr_\_transactions](https://data.catalyst.coop/preview/pudl/core_ferceqr__transactions)               |
 
 ## Background
 
@@ -40,10 +40,10 @@ organized wholesale markets.
 
 ### Download additional documentation
 
-> * [`Ferceqr Data Dictionary V30 2014-03-10`](ferceqr/ferceqr_data_dictionary_v30_2014-03-10.pdf)
-> * [`Ferceqr Data Dictionary V34 2017-01-12`](ferceqr/ferceqr_data_dictionary_v34_2017-01-12.pdf)
-> * [`Ferceqr Data Dictionary V35 2020-11-23`](ferceqr/ferceqr_data_dictionary_v35_2020-11-23.pdf)
-> * [`Ferceqr Filing Requirements 2023-11-08`](ferceqr/ferceqr_filing_requirements_2023-11-08.pdf)
+> * [`Ferceqr Data Dictionary V30 2014-03-10`](_downloads/db13fc3953f677cac1995f2d3674014f/ferceqr_data_dictionary_v30_2014-03-10.pdf)
+> * [`Ferceqr Data Dictionary V34 2017-01-12`](_downloads/c903304c9702fbd58a807b22e8b8748f/ferceqr_data_dictionary_v34_2017-01-12.pdf)
+> * [`Ferceqr Data Dictionary V35 2020-11-23`](_downloads/9aeea8d4e53377dae719d40559c31490/ferceqr_data_dictionary_v35_2020-11-23.pdf)
+> * [`Ferceqr Filing Requirements 2023-11-08`](_downloads/23d48956b7b5ab74ad7ebeb26eb5422c/ferceqr_filing_requirements_2023-11-08.pdf)
 
 ### Data available through PUDL
 
@@ -63,7 +63,7 @@ organized wholesale markets.
 * To handle the large scale of the data all of the FERC EQR tables are partitioned into
   files that each contain a single quarter of data. This is unlike any of the other data
   in PUDL.
-* The [core_ferceqr_\_transactions](../data_dictionaries/pudl_db.md#core-ferceqr-transactions) table is by far the largest of the FERC EQR
+* The [core_ferceqr_\_transactions](../data_dictionaries/pudl_db.html.md#core-ferceqr-transactions) table is by far the largest of the FERC EQR
   tables, with the compressed Parquet outputs taking up ~80 GB on disk. Take care when
   querying it or you can easily run out of memory. The other tables are small enough
   that they can be loaded into memory in their entirety.
@@ -126,7 +126,7 @@ jurisdiction. See [18 CFR 35.10b Electric Quarterly Reports](https://www.ecfr.go
   [#4928](https://github.com/catalyst-cooperative/pudl/issues/4928).
 * Roughly 0.02% of all EQR records suffer from character encoding errors, and cannot
   currently be extracted. These 922,000 rows are currently dropped. See [#4927](https://github.com/catalyst-cooperative/pudl/issues/4927).
-* The [core_ferceqr_\_quarterly_identity](../data_dictionaries/pudl_db.md#core-ferceqr-quarterly-identity) table contains a few hundred records that
+* The [core_ferceqr_\_quarterly_identity](../data_dictionaries/pudl_db.html.md#core-ferceqr-quarterly-identity) table contains a few hundred records that
   are either perfect duplicates, or that differ only in the formatting of values like
   addresses or phone numbers. For now, this prevents the table from having a natural
   primary key. See [#4863](https://github.com/catalyst-cooperative/pudl/issues/4863).
@@ -141,7 +141,7 @@ jurisdiction. See [18 CFR 35.10b Electric Quarterly Reports](https://www.ecfr.go
 ## PUDL Data Transformations
 
 To see the transformations applied to the data in each table, you can read the
-docstrings for [`pudl.transform.ferceqr`](../autoapi/pudl/transform/ferceqr/index.md#module-pudl.transform.ferceqr) created for each table’s
+docstrings for [`pudl.transform.ferceqr`](../autoapi/pudl/transform/ferceqr/index.html.md#module-pudl.transform.ferceqr) created for each table’s
 respective transform function.
 
 Our initial version of the FERC EQR dataset applies minimal transformations required

@@ -4,14 +4,14 @@ Spatial operations for demand allocation.
 
 ## Functions
 
-| [`check_gdf`](#pudl.analysis.spatial.check_gdf)(→ None)                     | Check that GeoDataFrame contains (Multi)Polygon geometries with non-zero area.   |
-|-----------------------------------------------------------------------------|----------------------------------------------------------------------------------|
+| [`check_gdf`](#pudl.analysis.spatial.check_gdf)(→ None)                    | Check that GeoDataFrame contains (Multi)Polygon geometries with non-zero area.   |
+|---------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
 | [`polygonize`](#pudl.analysis.spatial.polygonize)(...)                      | Convert geometry to (Multi)Polygon.                                              |
-| [`explode`](#pudl.analysis.spatial.explode)(→ geopandas.GeoDataFrame)       | Explode MultiPolygon to multiple Polygon geometries.                             |
+| [`explode`](#pudl.analysis.spatial.explode)(→ geopandas.GeoDataFrame)    | Explode MultiPolygon to multiple Polygon geometries.                             |
 | [`self_union`](#pudl.analysis.spatial.self_union)(→ geopandas.GeoDataFrame) | Calculate the geometric union of a feature layer with itself.                    |
-| [`dissolve`](#pudl.analysis.spatial.dissolve)(→ geopandas.GeoDataFrame)     | Dissolve layer by aggregating features based on common attributes.               |
-| [`overlay`](#pudl.analysis.spatial.overlay)(→ geopandas.GeoDataFrame)       | Overlay multiple layers incrementally.                                           |
-| [`get_data_columns`](#pudl.analysis.spatial.get_data_columns)(→ list)       | Return list of columns, ignoring geometry.                                       |
+| [`dissolve`](#pudl.analysis.spatial.dissolve)(→ geopandas.GeoDataFrame)   | Dissolve layer by aggregating features based on common attributes.               |
+| [`overlay`](#pudl.analysis.spatial.overlay)(→ geopandas.GeoDataFrame)    | Overlay multiple layers incrementally.                                           |
+| [`get_data_columns`](#pudl.analysis.spatial.get_data_columns)(→ list)             | Return list of columns, ignoring geometry.                                       |
 
 ## Module Contents
 
@@ -41,7 +41,7 @@ Convert geometry to (Multi)Polygon.
 * **Raises:**
   [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – Geometry has zero area.
 
-### pudl.analysis.spatial.explode(gdf: [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame), ratios: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[[str](https://docs.python.org/3/library/stdtypes.html#str)] = None) → [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame)
+### pudl.analysis.spatial.explode(gdf: [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame), ratios: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [None](https://docs.python.org/3/library/constants.html#None) = None) → [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame)
 
 Explode MultiPolygon to multiple Polygon geometries.
 
@@ -57,7 +57,7 @@ Explode MultiPolygon to multiple Polygon geometries.
   GeoDataFrame with each Polygon as a separate row in the GeoDataFrame.
   The index is the number of the source row in the input GeoDataFrame.
 
-### pudl.analysis.spatial.self_union(gdf: [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame), ratios: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[[str](https://docs.python.org/3/library/stdtypes.html#str)] = None) → [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame)
+### pudl.analysis.spatial.self_union(gdf: [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame), ratios: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [None](https://docs.python.org/3/library/constants.html#None) = None) → [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame)
 
 Calculate the geometric union of a feature layer with itself.
 
@@ -91,7 +91,7 @@ Dissolve layer by aggregating features based on common attributes.
   GeoDataFrame with dissolved geometry and data columns,
   and grouping columns set as the index.
 
-### pudl.analysis.spatial.overlay(\*gdfs: [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame), how: Literal['intersection', 'union', 'identity', 'symmetric_difference', 'difference'] = 'intersection', ratios: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[[str](https://docs.python.org/3/library/stdtypes.html#str)] = None) → [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame)
+### pudl.analysis.spatial.overlay(\*gdfs: [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame), how: Literal['intersection', 'union', 'identity', 'symmetric_difference', 'difference'] = 'intersection', ratios: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [None](https://docs.python.org/3/library/constants.html#None) = None) → [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame)
 
 Overlay multiple layers incrementally.
 

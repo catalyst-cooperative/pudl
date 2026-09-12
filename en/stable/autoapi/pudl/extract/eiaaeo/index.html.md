@@ -5,20 +5,20 @@ Extract EIA AEO data from the bulk JSON.
 ## Attributes
 
 | [`logger`](#pudl.extract.eiaaeo.logger)   |    |
-|-------------------------------------------|----|
+|-----------------------------------------------------------|----|
 
 ## Classes
 
 | [`AEOCategory`](#pudl.extract.eiaaeo.AEOCategory)   | Describe how the AEO data is categorized.              |
-|-----------------------------------------------------|--------------------------------------------------------|
-| [`AEOSeries`](#pudl.extract.eiaaeo.AEOSeries)       | Describe actual AEO timeseries data.                   |
-| [`AEOTable`](#pudl.extract.eiaaeo.AEOTable)         | Data schema for a raw AEO table.                       |
+|----------------------------------------------------------------|--------------------------------------------------------|
+| [`AEOSeries`](#pudl.extract.eiaaeo.AEOSeries)     | Describe actual AEO timeseries data.                   |
+| [`AEOTable`](#pudl.extract.eiaaeo.AEOTable)      | Data schema for a raw AEO table.                       |
 | [`AEOTaxonomy`](#pudl.extract.eiaaeo.AEOTaxonomy)   | Container for *all* the information in one AEO report. |
 
 ## Functions
 
-| [`raw_eiaaeo`](#pudl.extract.eiaaeo.raw_eiaaeo)(context)                                              | Extract tables from EIA's Annual Energy Outlook.                     |
-|-------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------|
+| [`raw_eiaaeo`](#pudl.extract.eiaaeo.raw_eiaaeo)(context)                                 | Extract tables from EIA's Annual Energy Outlook.                     |
+|------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------|
 | [`raw_table_54_invariants`](#pudl.extract.eiaaeo.raw_table_54_invariants)(→ dagster.AssetCheckResult) | Check that the AEO Table 54 raw data conforms to *some* assumptions. |
 
 ## Module Contents

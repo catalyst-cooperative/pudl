@@ -5,24 +5,24 @@ Extract USDA RUS Form 7 data from CSVs.
 ## Attributes
 
 | [`raw_rus7__all_dfs`](#pudl.extract.rus7.raw_rus7__all_dfs)   |    |
-|---------------------------------------------------------------|----|
-| [`raw_rus7_assets`](#pudl.extract.rus7.raw_rus7_assets)       |    |
+|----------------------------------------------------------------------|----|
+| [`raw_rus7_assets`](#pudl.extract.rus7.raw_rus7_assets)     |    |
 
 ## Classes
 
 | [`Extractor`](#pudl.extract.rus7.Extractor)   | Extractor for USDA RUS Form 7.   |
-|-----------------------------------------------|----------------------------------|
+|--------------------------------------------------------------|----------------------------------|
 
 ## Functions
 
 | [`raw_rus7_asset_factory`](#pudl.extract.rus7.raw_rus7_asset_factory)(table_name)   | Create raw RUS Form 7 asset for a specific page.   |
-|-------------------------------------------------------------------------------------|----------------------------------------------------|
+|---------------------------------------------------------------------------------------|----------------------------------------------------|
 
 ## Module Contents
 
 ### *class* pudl.extract.rus7.Extractor(\*args, \*\*kwargs)
 
-Bases: [`pudl.extract.csv.CsvExtractor`](../csv/index.md#pudl.extract.csv.CsvExtractor)
+Bases: [`pudl.extract.csv.CsvExtractor`](../csv/index.html.md#pudl.extract.csv.CsvExtractor)
 
 Extractor for USDA RUS Form 7.
 
@@ -45,7 +45,7 @@ arguments will be applied to all pages. This still allows some flexibility becau
 some `pandas.read_csv()` arguments like `dtype` don’t raise errors if the
 columns they apply to aren’t present.
 
-#### source_filename(page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](../extractor/index.md#pudl.extract.extractor.PartitionSelection)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+#### source_filename(page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](../extractor/index.html.md#pudl.extract.extractor.PartitionSelection)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
 
 Get the file name for the right page and part.
 

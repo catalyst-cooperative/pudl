@@ -35,6 +35,7 @@ Functions
    pudl.transform.eia861._filter_non_class_cols
    pudl.transform.eia861.add_backfilled_ba_code_column
    pudl.transform.eia861.backfill_ba_codes_by_ba_id
+   pudl.transform.eia861._dedupe_cols_agg
    pudl.transform.eia861._tidy_class_dfs
    pudl.transform.eia861._drop_dupes
    pudl.transform.eia861._check_for_dupes
@@ -136,6 +137,11 @@ Module Contents
    :returns: The core_eia861__yearly_balancing_authority dataframe, but with many fewer
              NA values in the balancing_authority_code_eia column.
    :rtype: pandas.DataFrame
+
+
+.. py:function:: _dedupe_cols_agg(data_dupes: pandas.DataFrame, df_name: str, idx_cols: list[str], class_type: str) -> dict
+
+   Sum numeric duplicates and keep non-null value for non-numeric columns.
 
 
 .. py:function:: _tidy_class_dfs(df: pandas.DataFrame, df_name: str, idx_cols: list[str], class_list: list[str], class_type: str, keep_totals: bool = False) -> pandas.DataFrame

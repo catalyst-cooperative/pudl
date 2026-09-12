@@ -7,16 +7,17 @@ can [create a GitHub discussion](https://github.com/orgs/catalyst-cooperative/di
 
 We recommend working with tables with the `out_` prefix, as these tables contain the
 most complete and easiest to work with data. For more information about the different
-types of tables, read through [PUDL’s naming conventions](dev/naming_conventions.md#asset-naming).
+types of tables, read through [PUDL’s naming conventions](dev/naming_conventions.html.md#asset-naming).
 
 ## Quick Reference
 
-| [Platform](#access-platform)       | [Format](#access-format)   | [Version](#access-version)   | User Types                                                         | Use Cases                                                                                                                                                                                                                                                                                                                                         |
-|------------------------------------|----------------------------|------------------------------|--------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [PUDL Data Viewer](#access-viewer) | Parquet, CSV               | `nightly`                    | Data Explorer, Spreadsheet Analyst, Jupyter Notebook User          | Explore PUDL data interactively in a web browser, including hourly<br/>timeseries data. Select data to download as CSVs for local analysis in<br/>spreadsheets. Download full tables as Parquet files to play with<br/>programmatically.                                                                                                          |
-| [Kaggle](#access-kaggle)           | SQLite, Parquet            | `nightly`                    | Data Scientist, Data Analyst, Jupyter Notebook User                | Work with PUDL data products in Jupyter Notebooks via the web with minimal setup.<br/>Explore curated and contributed analyses and visualizations using PUDL data.<br/>notebooks.<br/>Create and share your own interactive notebooks using PUDL data.                                                                                            |
-| [Cloud Storage](#access-cloud)     | SQLite, Parquet            | `nightly`, `stable`          | Data Scientist, Analytics Engineer, Data Engineer, Cloud Developer | Performant remote queries of clearly versioned PUDL Parquet outputs from cloud<br/>computing platforms or GitHub Actions.<br/>Fast bulk download of SQLite or Parquet outputs for local use.<br/>Parquet based data warehouse for large-scale data analysis in the cloud.<br/>Integrates well with Pandas, DuckDB, and other dataframe libraries. |
-| [Zenodo Archives](#access-zenodo)  | SQLite, Parquet            | `stable`                     | Researcher, Publisher, Archivist                                   | Access a specific, immutable version of the PUDL data by DOI for citation in<br/>academic publications or other applications where long-term reproducibility is<br/>needed. Web-based bulk download of data for local analysis.                                                                                                                   |
+| [Platform](#access-platform)                         | [Format](#access-format)   | [Version](#access-version)   | User Types                                                         | Use Cases                                                                                                                                                                                                                                                                                                                               |
+|---------------------------------------------------------------------------------|---------------------------------------------------------|----------------------------------------------------------|--------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [PUDL Data Viewer](#access-viewer)                 | Parquet, CSV                                            | `nightly`                                                | Data Explorer, Spreadsheet Analyst, Jupyter Notebook User          | Explore PUDL data interactively in a web browser, including hourly<br/>timeseries data. Select data to download as CSVs for local analysis in<br/>spreadsheets. Download full tables as Parquet files to play with<br/>programmatically.                                                                                                |
+| [Kaggle](#access-kaggle)                           | Parquet, DuckDB, SQLite                                 | `nightly`                                                | Data Scientist, Data Analyst, Jupyter Notebook User                | Work with PUDL data products in Jupyter Notebooks via the web with minimal setup.<br/>Explore curated and contributed analyses and visualizations using PUDL data.<br/>notebooks.<br/>Create and share your own interactive notebooks using PUDL data.                                                                                  |
+| [Cloud Storage](#access-cloud)                    | Parquet, DuckDB, SQLite                                 | `nightly`, `stable`                                      | Data Scientist, Analytics Engineer, Data Engineer, Cloud Developer | Performant remote queries of clearly versioned PUDL Parquet outputs from cloud<br/>computing platforms or GitHub Actions.<br/>Fast bulk download of outputs for local use.<br/>Parquet based data warehouse for large-scale data analysis in the cloud.<br/>Integrates well with Pandas, Polars, DuckDB, and other dataframe libraries. |
+| [Zenodo Archives](#access-zenodo)                  | Parquet, DuckDB, SQLite                                 | `stable`                                                 | Researcher, Publisher, Archivist                                   | Access a specific, immutable version of the PUDL data by DOI for citation in<br/>academic publications or other applications where long-term reproducibility is<br/>needed. Web-based bulk download of data for local analysis.                                                                                                         |
+| [Coding Agents (PUDL Agent Skill)](#access-agent-skill) | Parquet                                                 | `nightly`, `stable`                                      | Coding Agent User                                                  | Let an AI coding agent (Claude Code, OpenCode, Pi, etc.) discover PUDL tables,<br/>look up column meanings and data-quality caveats, and load the Parquet outputs<br/>into a notebook or script.                                                                                                                                        |
 
 <a id="access-modes"></a>
 
@@ -35,36 +36,52 @@ When choosing an access method you’ll want to consider:
 
 PUDL data is distributed on a number of different platforms to accommodate a variety of
 different use cases. These include [PUDL Data Viewer](#access-viewer), [Kaggle](#access-kaggle),
-[Cloud Storage](#access-cloud), and [Zenodo Archives](#access-zenodo).
+[Cloud Storage](#access-cloud), [Zenodo Archives](#access-zenodo), and the [PUDL agent skill](#access-agent-skill) for use with AI coding agents.
 
 <a id="access-format"></a>
 
 ### Data Format
 
-PUDL data is distributed in two main file formats
+PUDL data is distributed in several file formats:
 
+- [Apache Parquet](https://parquet.apache.org/docs/): a compressed, columnar storage
+  format in which each file stores a single table. Parquet supports rich data types and
+  metadata, and is highly performant. **Parquet is PUDL’s primary output format**, and
+  the format we recommend for all new work.
+- [DuckDB](https://duckdb.org): a fast, self-contained analytical database that holds
+  many tables in a single file. We publish the fully processed PUDL data as a single
+  `pudl.duckdb` database, assembled from the Parquet outputs. It preserves the full
+  set of column types and primary key constraints, but omits foreign key constraints to
+  keep the file size down.
 - [SQLite](https://www.sqlite.org): a self-contained relational database that holds
   many tables in a single file, supported by many programming languages and tools.
-- [Apache Parquet](https://parquet.apache.org/docs/): a compressed,
-  columnar storage format in which each file stores a single table. Parquet supports
-  rich data types and metadata, and is highly performant.
 
-All data is distributed with both formats, except:
+#### WARNING
+**The \`\`pudl.sqlite\`\` database is being deprecated.** It is currently provided
+purely for backwards compatibility, and **we will stop producing SQLite versions of
+the fully processed PUDL data in 2027**. Please migrate to the Parquet outputs
+or the new `pudl.duckdb` database. This deprecation does **not** affect the
+[minimally processed raw FERC data](#access-raw-ferc), which will continue to be
+distributed as SQLite for the time being.
 
-- **Parquet Only**: The hourly data tables are distributed only as Parquet files.
-  These tables have `hourly` in their names.
-- **SQLite Only**: The [minimally processed FERC data](#access-raw-ferc) which we
-  have converted from XBRL and DBF into SQLite are only available in SQLite.
+Not every table is available in every format:
+
+- **Parquet only**: The hourly data tables are distributed only as Parquet files. These
+  tables have `hourly` in their names, and are excluded from the `pudl.duckdb` and
+  `pudl.sqlite` databases.
+- **SQLite only**: The [minimally processed FERC data](#access-raw-ferc) which we
+  have converted from XBRL and DBF into SQLite are only available in SQLite (and,
+  experimentally, DuckDB — see [Raw FERC XBRL data converted to DuckDB](#access-raw-ferc-duckdb)).
 
 All Parquet data is available through [PUDL Data Viewer](#access-viewer) for previewing. It can be
 downloaded as a CSV through that platform if you need to work with it in spreadsheets.
 For programmatic use we **strongly recommend** that you access the Parquet files in
 S3 directly. See [Cloud Storage](#access-cloud).
 
-All SQLite data can be downloaded from S3 (see [Cloud Storage](#access-cloud)) or our regular
-versionsed releases (see [Zenodo Archives](#access-zenodo)). We are [working on integrating all
-converted FERC databases](https://github.com/catalyst-cooperative/eel-hole/issues/4).
-into [PUDL Data Viewer](#access-viewer).
+The `pudl.duckdb` and `pudl.sqlite` databases and the raw FERC SQLite databases can
+be downloaded from S3 (see [Cloud Storage](#access-cloud)) or our regular versioned releases (see
+[Zenodo Archives](#access-zenodo)). All the converted FERC databases can also be accessed through
+[PUDL Data Viewer](#access-viewer).
 
 <a id="access-version"></a>
 
@@ -84,13 +101,13 @@ ephemeral and may not be as well validated as the `stable` releases.
 
 ## PUDL Data Viewer
 
-We recently released the [PUDL Data Viewer](https://data.catalyst.coop/) in beta.
+The [PUDL Data Viewer](https://data.catalyst.coop/) provides flexible search of table
+metadata, live data preview with filtering and sorting, and CSV export of up to 5
+million rows. It provides access to all of the PUDL Parquet outputs, the minimally
+processed FERC Form 1, 2, 6, 60, and 714 data, and the FERC EQR.
 
-It provides flexible search of table metadata, live data preview with filtering
-and sorting, and CSV export of up to 5 million rows.
-
-Finally, it also has links to the Parquet downloads for each table, which you
-can view directly with tools like [Tad](https://www.tadviewer.com/).
+It also provides links to download Parquet files for each table, which you can view
+locally with tools like [Tad](https://www.tadviewer.com/).
 
 <a id="access-kaggle"></a>
 
@@ -115,7 +132,8 @@ be fast.
 All PUDL data products are freely available in the
 [AWS Open Data Registry](https://registry.opendata.aws/catalyst-cooperative-pudl/)
 including both `stable` and `nightly` outputs and multiple years of past stable
-releases. These include data in both SQLite and Parquet formats. The AWS S3 bucket is:
+releases. These include data in Parquet, DuckDB, and SQLite formats. The AWS S3 bucket
+is:
 
 ```bash
 s3://pudl.catalyst.coop
@@ -129,8 +147,8 @@ bucket is:
 gs://pudl.catalyst.coop
 ```
 
-SQLite databases must be downloaded for local use, but Parquet files can be queried
-remotely using a number of different tools. Some examples below:
+The SQLite databases must be downloaded for local use, but Parquet and DuckDB files
+can be queried remotely using a number of different tools. Some examples below:
 
 ### Pandas
 
@@ -153,20 +171,104 @@ versioned_df = pd.read_parquet("s3://pudl.catalyst.coop/v2024.11.0/core_eia__cod
 
 ### DuckDB
 
-Using [DuckDB](https://duckdb.org/2021/06/25/querying-parquet.html)
-and the [httpfs extension](https://duckdb.org/docs/guides/network_cloud_storage/s3_import.html)
+[DuckDB](https://duckdb.org/2021/06/25/querying-parquet.html) with the [httpfs
+extension](https://duckdb.org/docs/guides/network_cloud_storage/s3_import.html) can
+query the PUDL outputs in place on S3 — you don’t need to download anything first.
+
+#### NOTE
+Our bucket name contains dots (`pudl.catalyst.coop`), which breaks DuckDB’s
+default virtual-host S3 addressing: the request goes to
+`pudl.catalyst.coop.s3.us-west-2.amazonaws.com`, and AWS’s wildcard TLS
+certificate (`*.s3.us-west-2.amazonaws.com`) only covers a single label, so the
+handshake fails. Create an anonymous S3 secret that uses path-style addressing to
+avoid this. It applies to both `read_parquet()` and `ATTACH`:
 
 ```sql
 -- Install the httpfs extension once and it will be available in subsequent sessions
 INSTALL httpfs;
+LOAD httpfs;
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
+```
+
+To query an individual Parquet file:
+
+```sql
 SELECT * FROM read_parquet('s3://pudl.catalyst.coop/nightly/core_eia__codes_energy_sources.parquet');
 ```
 
-### Other Dataframe Libraries
+To query the full `pudl.duckdb` database, attach it read-only and refer to its tables
+by name:
 
-Similar functionality exists for the [dplyr library in R](https://www.pmassicotte.com/posts/2024-05-01-query-s3-duckplyr/), the [polars
-library in Rust](https://docs.pola.rs/user-guide/io/cloud-storage/), and many other
-programmatic data analysis tools.
+```sql
+ATTACH 's3://pudl.catalyst.coop/nightly/pudl.duckdb' AS pudl (READ_ONLY);
+SELECT
+    report_date,
+    plant_id_eia,
+    generator_id,
+    capacity_mw
+FROM pudl.out_eia__yearly_generators
+WHERE technology_description = 'Nuclear';
+```
+
+The same works from the [DuckDB Python API](https://duckdb.org/docs/stable/clients/python/overview):
+
+```python
+import duckdb
+
+con = duckdb.connect()
+con.execute("INSTALL httpfs; LOAD httpfs;")
+con.execute("CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path')")
+con.execute("ATTACH 's3://pudl.catalyst.coop/nightly/pudl.duckdb' AS pudl (READ_ONLY)")
+df = con.execute(
+    "SELECT * FROM pudl.out_eia__yearly_generators WHERE technology_description = 'Nuclear'"
+).df()
+```
+
+Downloading `pudl.duckdb` for local use works too, and will be faster if you plan to
+run many queries — see [Direct Links for Bulk Download](#direct-download).
+
+### Polars
+
+[Polars](https://docs.pola.rs/) can scan the [Parquet outputs directly from S3](https://docs.pola.rs/user-guide/io/cloud-storage/), using lazy evaluation so that
+filters and column selection are pushed down and only the data you actually need is
+downloaded:
+
+```python
+import polars as pl
+
+lf = pl.scan_parquet(
+    "s3://pudl.catalyst.coop/nightly/out_eia__yearly_generators.parquet",
+    storage_options={"aws_region": "us-west-2", "aws_skip_signature": "true"},
+)
+df = (
+    lf.filter(pl.col("technology_description") == "Nuclear")
+    .select("report_date", "plant_id_eia", "generator_id", "capacity_mw")
+    .collect()
+)
+```
+
+### R (dplyr)
+
+The [arrow](https://arrow.apache.org/docs/r/) package lets you [open a Parquet file
+directly from S3](https://www.pmassicotte.com/posts/2024-05-01-query-s3-duckplyr/)
+with [dplyr](https://dplyr.tidyverse.org/) verbs. Column selection and row filters
+are pushed down to Arrow, so only the data you ask for is read; call `collect()` to
+pull the result into a regular data frame:
+
+```r
+library(arrow)
+library(dplyr)
+
+generators <- open_dataset(
+  "s3://pudl.catalyst.coop/nightly/out_eia__yearly_generators.parquet",
+  format = "parquet"
+)
+
+df <- generators |>
+  filter(technology_description == "Nuclear") |>
+  select(report_date, plant_id_eia, generator_id, capacity_mw) |>
+  collect()
+```
 
 ### The AWS CLI
 
@@ -181,19 +283,21 @@ aws s3 ls --no-sign-request s3://pudl.catalyst.coop/
 To list the contents of a particular version:
 
 ```bash
-aws s3 ls --no-sign-request s3://pudl.catalyst.coop/v2024.8.0/
+aws s3 ls --no-sign-request s3://pudl.catalyst.coop/v2026.8.0/
 ```
 
-And then download the full PUDL SQLite database from the nightly build outputs:
+To download the full PUDL DuckDB database (9 GB) from the nightly build outputs:
 
 ```bash
-aws s3 cp --no-sign-request s3://pudl.catalyst.coop/nightly/pudl.sqlite.zip .
+aws s3 cp --no-sign-request s3://pudl.catalyst.coop/nightly/pudl.duckdb .
 ```
+
+<a id="direct-download"></a>
 
 ### Direct Links for Bulk Download
 
 The links below allow bulk download the most recent `nightly` builds of the PUDL
-parquet and SQLite outputs, as well as their associated metadata in JSON.
+Parquet, DuckDB, and SQLite outputs, as well as their associated metadata in JSON.
 
 #### Fully Processed Parquet Data
 
@@ -205,7 +309,16 @@ parquet and SQLite outputs, as well as their associated metadata in JSON.
   all PUDL Parquet files bundled together with the `datapackage.json` descriptor
   inside. Suitable for bulk download to a local machine.
 
+#### Fully Processed DuckDB Database
+
+* [Main PUDL Database](https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/pudl.duckdb)
+
 #### Fully Processed SQLite Databases
+
+#### WARNING
+The fully processed `pudl.sqlite` database is deprecated and will no longer be
+produced starting in 2027. See [Data Format](#access-format). Use the Parquet outputs or the
+`pudl.duckdb` database instead.
 
 * [Main PUDL Database](https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/pudl.sqlite.zip) (~3GB)
 * [US Census DP1 Database (2010)](https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/censusdp1tract.sqlite.zip)
@@ -241,14 +354,18 @@ parquet and SQLite outputs, as well as their associated metadata in JSON.
 
 <a id="access-raw-ferc-duckdb"></a>
 
-#### Raw FERC XBRL data converted to DuckDB (EXPERIMENTAL)
+#### Raw FERC XBRL data converted to DuckDB
 
-To enable remote querying of the converted FERC databases, we are experimenting with
-DuckDB as an output format. Currently it only includes the more recent XBRL data. Within
-DuckDB you can now do queries like this:
+To enable remote querying of the converted FERC databases, we have started using DuckDB
+as an output format. Currently it only includes the more recent XBRL data. Within DuckDB
+you can now do queries like this:
 
 ```sql
-INSTALL httpfs; LOAD httpfs;
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+-- See the DuckDB notes under Cloud Storage above.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 ATTACH 's3://pudl.catalyst.coop/nightly/ferc1_xbrl.duckdb' AS ferc1_xbrl (READ_ONLY);
 SELECT * FROM ferc1_xbrl.transmission_lines_added_during_year_424_duration;
 ```
@@ -265,10 +382,10 @@ with `pandas.read_sql()` and other libraries that understand DBAPI connections.
 
 <a id="access-ferceqr"></a>
 
-### FERC EQR (EXPERIMENTAL)
+### FERC EQR (Form 920)
 
 In early 2026 we started processing and distributing the
-[FERC Electric Quarterly Reports (EQR)](data_sources/ferceqr.md) dataset as a
+[FERC Electric Quarterly Reports (EQR)](data_sources/ferceqr.html.md) dataset as a
 partitioned Apache Parquet dataset. Even as Parquet the EQR is close to 100 GB, so
 unlike the other PUDL data products, we can’t archive it on Zenodo or provide access to
 multiple historical versions through S3. Instead, we update a single set of outputs in
@@ -279,18 +396,18 @@ aws s3 ls --no-sign-request s3://pudl.catalyst.coop/ferceqr/
 ```
 
 Each of the subdirectories corresponds to a table. Like the main PUDL database, these
-tables are documented in the [PUDL Data Dictionary](data_dictionaries/pudl_db.md):
+tables are documented in the [PUDL Data Dictionary](data_dictionaries/pudl_db.html.md):
 
-> * [core_ferceqr_\_contracts](data_dictionaries/pudl_db.md#core-ferceqr-contracts)
-> * [core_ferceqr_\_quarterly_identity](data_dictionaries/pudl_db.md#core-ferceqr-quarterly-identity)
-> * [core_ferceqr_\_quarterly_index_pub](data_dictionaries/pudl_db.md#core-ferceqr-quarterly-index-pub)
-> * [core_ferceqr_\_transactions](data_dictionaries/pudl_db.md#core-ferceqr-transactions)
+> * [core_ferceqr_\_contracts](data_dictionaries/pudl_db.html.md#core-ferceqr-contracts)
+> * [core_ferceqr_\_quarterly_identity](data_dictionaries/pudl_db.html.md#core-ferceqr-quarterly-identity)
+> * [core_ferceqr_\_quarterly_index_pub](data_dictionaries/pudl_db.html.md#core-ferceqr-quarterly-index-pub)
+> * [core_ferceqr_\_transactions](data_dictionaries/pudl_db.html.md#core-ferceqr-transactions)
 
 The subdirectories contain a number of Parquet files (`2025q3.parquet`,
 `2025q2.parquet`, etc.), each containing one quarter of data for that table. Most
 tools for reading Parquet files out of cloud storage are able to query and read from
 many files sharing the same schema at the same time, typically with file globbing
-wildcards. Note that the EQR tables (particularly [core_ferceqr_\_transactions](data_dictionaries/pudl_db.md#core-ferceqr-transactions)) can
+wildcards. Note that the EQR tables (particularly [core_ferceqr_\_transactions](data_dictionaries/pudl_db.html.md#core-ferceqr-transactions)) can
 be much larger than memory, so you will need to select only a subset of the data and/or
 use tools that are designed to work with large data efficiently like [DuckDB](https://duckdb.org/docs/stable/) or [Polars](https://docs.pola.rs/). Some brief
 examples:
@@ -298,6 +415,10 @@ examples:
 ### SQL (DuckDB)
 
 ```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
 SELECT * FROM 's3://pudl.catalyst.coop/ferceqr/core_ferceqr__contracts/*.parquet'
 WHERE seller_company_name LIKE '%Bonneville%'
 LIMIT 10;
@@ -307,9 +428,12 @@ LIMIT 10;
 
 ```python
 import duckdb
-import pandas as pd
+# Path-style S3 addressing is required because our bucket name contains dots.
+con = duckdb.connect()
+con.execute("INSTALL httpfs; LOAD httpfs;")
+con.execute("CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path')")
 # Query S3 with DuckDB and convert the result to pandas
-df = duckdb.query("""
+df = con.execute("""
    SELECT *
    FROM 's3://pudl.catalyst.coop/ferceqr/core_ferceqr__contracts/*.parquet'
    WHERE seller_company_name LIKE '%Bonneville%'
@@ -333,6 +457,27 @@ df = (
 )
 ```
 
+<a id="access-agent-skill"></a>
+
+## Coding Agents (PUDL Agent Skill)
+
+If you already work with an AI coding agent (Claude Code, OpenCode, Pi, and similar
+tools), you can install the **PUDL agent skill** from the
+[catalyst-cooperative/agent-skills](https://github.com/catalyst-cooperative/agent-skills) repository on GitHub. The
+skill teaches your agent how to:
+
+- discover which PUDL tables exist and what each table and column means,
+- surface data-quality caveats and usage warnings recorded in the table metadata, and
+- load the Parquet outputs directly from S3 or a local directory into a notebook or
+  script.
+
+It reads the same published Parquet outputs and Frictionless metadata described
+elsewhere on this page, and does not require the `pudl` Python package to be
+installed. See the [skill’s README](https://github.com/catalyst-cooperative/agent-skills/tree/main/skills/pudl) for
+installation and usage instructions. It builds on a companion `datapackage` skill
+defined in the same repository which provides similar help for any dataset described by
+a `datapackage.json` descriptor.
+
 <a id="access-zenodo"></a>
 
 ## Zenodo Archives
@@ -343,9 +488,9 @@ long-lived DOIs to each archive, suitable for citation in academic journals and 
 publications. The most recent versioned PUDL data release can always be found using this
 Concept DOI: [https://doi.org/10.5281/zenodo.3653158](https://doi.org/10.5281/zenodo.3653158)
 
-From Zenodo you can download individual SQLite databases, a zipfile containing all the
-Parquet files bundled together (`pudl_parquet.zip`, which includes a
-`datapackage.json` descriptor), and the standalone
+From Zenodo you can download the `pudl.duckdb` database, individual SQLite databases,
+a zipfile containing all the Parquet files bundled together (`pudl_parquet.zip`, which
+includes a `datapackage.json` descriptor), and the standalone
 `pudl_parquet_datapackage.json` descriptor for browsing the schema without
 downloading any data.
 
@@ -376,8 +521,8 @@ that, these datasets are unmodified.
 If you want to run the PUDL data processing pipeline yourself from scratch, run the
 software tests, or make changes to the source code, you’ll need to set up our
 development environment. This is a bit involved, so it has its
-[own separate documentation](dev/dev_setup.md).
+[own separate documentation](dev/dev_setup.html.md).
 
 Most users shouldn’t need to do this, and will probably find working with the
 pre-processed data via one of the other access modes easier. But if you want to
-[contribute to the project](CONTRIBUTING.md), please give it a shot!
+[contribute to the project](CONTRIBUTING.html.md), please give it a shot!

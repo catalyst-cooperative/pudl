@@ -14,9 +14,9 @@ Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset
    * - Source Format
      - Comma Separated Value (.csv)
    * - Download Size
-     - 3744 MB
+     - 4556 MB
    * - Temporal Coverage
-     - 2014-2023
+     - 2014-2024
    * - PUDL Code
      - ``vcerare``
    * - Unprocessed Source Data Archive

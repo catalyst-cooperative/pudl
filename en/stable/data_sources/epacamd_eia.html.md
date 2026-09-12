@@ -15,10 +15,10 @@ We’ve segmented the data into the following normalized data tables.
 Clicking on the links will show you a description of the table as well as
 the names and descriptions of each of its fields.
 
-| Data Dictionary                                                                                                    | Browse Online                                                                                                                                                       |
-|--------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [core_epa_\_assn_eia_epacamd](../data_dictionaries/pudl_db.md#core-epa-assn-eia-epacamd)                           | [https://data.catalyst.coop/preview/pudl/core_epa_\_assn_eia_epacamd](https://data.catalyst.coop/preview/pudl/core_epa__assn_eia_epacamd)                           |
-| [core_epa_\_assn_eia_epacamd_subplant_ids](../data_dictionaries/pudl_db.md#core-epa-assn-eia-epacamd-subplant-ids) | [https://data.catalyst.coop/preview/pudl/core_epa_\_assn_eia_epacamd_subplant_ids](https://data.catalyst.coop/preview/pudl/core_epa__assn_eia_epacamd_subplant_ids) |
+| Data Dictionary                                                                                                                | Browse Online                                                                                                                                                       |
+|--------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [core_epa_\_assn_eia_epacamd](../data_dictionaries/pudl_db.html.md#core-epa-assn-eia-epacamd)                           | [https://data.catalyst.coop/preview/pudl/core_epa_\_assn_eia_epacamd](https://data.catalyst.coop/preview/pudl/core_epa__assn_eia_epacamd)                           |
+| [core_epa_\_assn_eia_epacamd_subplant_ids](../data_dictionaries/pudl_db.html.md#core-epa-assn-eia-epacamd-subplant-ids) | [https://data.catalyst.coop/preview/pudl/core_epa_\_assn_eia_epacamd_subplant_ids](https://data.catalyst.coop/preview/pudl/core_epa__assn_eia_epacamd_subplant_ids) |
 
 ## Background
 
@@ -32,7 +32,7 @@ was published by the US Environmental Protection Agency on GitHub and links ids 
 * Facility Registry Service (FRS)
 * National Electric Energy Data System (NEEDS)
 
-It connects EPA CAMD emissions units (smokestacks) which appear in [EPA Hourly Continuous Emission Monitoring System (CEMS)](epacems.md)
+It connects EPA CAMD emissions units (smokestacks) which appear in [EPA Hourly Continuous Emission Monitoring System (CEMS)](epacems.html.md)
 with corresponding EIA plant components reported in EIA Forms 860 and 923
 (`plant_id_eia`, `boiler_id`, `generator_id`). This many-to-many connection is
 necessary because pollutants from various plant parts are collecitvely emitted and
@@ -48,7 +48,7 @@ which results in some changes to the generator and unit IDs reported on the EPA 
 the crosswalk. The changes only result in the addition of new units and generators in
 the EPA data, with no changes to matches at the plant level (other than identification
 of new plant-plant matches). We derive sub-plant IDs (`subplant_id`) from the
-crosswalk in the table [core_epa_\_assn_eia_epacamd_subplant_ids](../data_dictionaries/pudl_db.md#core-epa-assn-eia-epacamd-subplant-ids). Note that these
+crosswalk in the table [core_epa_\_assn_eia_epacamd_subplant_ids](../data_dictionaries/pudl_db.html.md#core-epa-assn-eia-epacamd-subplant-ids). Note that these
 IDs are not necessarily stable across multiple releases of this data, and should not be
 hard-coded into analyses.
 

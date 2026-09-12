@@ -105,10 +105,10 @@ Module Contents
    .. py:method:: _matches(res: dict, **filters: Any)
 
 
-   .. py:method:: _match_from_partition(parts: dict[str, str], k: str, v: str | list[str, str])
+   .. py:method:: _match_from_partition(parts: dict[str, str], k: str, v: str | list[str])
 
 
-   .. py:method:: get_resources(name: str = None, **filters: Any) -> collections.abc.Iterator[pudl.workspace.resource_cache.PudlResourceKey]
+   .. py:method:: get_resources(name: str | None = None, **filters: Any) -> collections.abc.Iterator[pudl.workspace.resource_cache.PudlResourceKey]
 
       Returns series of PudlResourceKey identifiers for matching resources.
 
@@ -120,7 +120,7 @@ Module Contents
 
 
 
-   .. py:method:: get_partitions(name: str = None) -> dict[str, set[str]]
+   .. py:method:: get_partitions(name: str | None = None) -> dict[str, set[str]]
 
       Return mapping of known partition keys to their allowed known values.
 
@@ -427,12 +427,6 @@ Module Contents
    .. py:method:: get_zipfile_resource(dataset: str, **filters: Any) -> zipfile.ZipFile
 
       Retrieves unique resource and opens it as a ZipFile.
-
-
-
-   .. py:method:: get_zipfile_resources(dataset: str, **filters: Any) -> collections.abc.Iterator[tuple[pudl.workspace.resource_cache.PudlResourceKey, zipfile.ZipFile]]
-
-      Iterates over resources that match filters and opens each as ZipFile.
 
 
 

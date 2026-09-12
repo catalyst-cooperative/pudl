@@ -19,36 +19,36 @@ found in `pudl.transform.eia._boiler_generator_assn()`.
 
 ## Attributes
 
-| [`logger`](#pudl.transform.eia.logger)                           |    |
-|------------------------------------------------------------------|----|
-| [`HARVESTABLE_ASSETS`](#pudl.transform.eia.HARVESTABLE_ASSETS)   |    |
-| [`harvested_entities`](#pudl.transform.eia.harvested_entities)   |    |
+| [`logger`](#pudl.transform.eia.logger)              |    |
+|----------------------------------------------------------------------|----|
+| [`HARVESTABLE_ASSETS`](#pudl.transform.eia.HARVESTABLE_ASSETS)  |    |
+| [`harvested_entities`](#pudl.transform.eia.harvested_entities)  |    |
 | [`finished_eia_assets`](#pudl.transform.eia.finished_eia_assets) |    |
 
 ## Classes
 
 | [`EiaEntity`](#pudl.transform.eia.EiaEntity)   | Enum for the different types of EIA entities.   |
-|------------------------------------------------|-------------------------------------------------|
+|--------------------------------------------------------------|-------------------------------------------------|
 
 ## Functions
 
-| [`find_timezone`](#pudl.transform.eia.find_timezone)(\*[, lng, lat, state, strict, tz_finder])                             | Find the timezone associated with the a specified input location.                |
-|----------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
-| [`occurrence_consistency`](#pudl.transform.eia.occurrence_consistency)(→ pandas.DataFrame)                                 | Find the occurrence of entities & the consistency of records.                    |
-| [`_lat_long`](#pudl.transform.eia._lat_long)(→ pandas.DataFrame)                                                           | Harvests more complete lat/long in special cases.                                |
-| [`_last_operating_date`](#pudl.transform.eia._last_operating_date)(→ pandas.DataFrame)                                     | When there's no consistent generator operating date, take the last reported one. |
-| [`_add_timezone`](#pudl.transform.eia._add_timezone)(→ pandas.DataFrame)                                                   | Add plant IANA timezone based on lat/lon or state if lat/lon is unavailable.     |
-| [`_add_additional_epacems_plants`](#pudl.transform.eia._add_additional_epacems_plants)(→ pandas.DataFrame)                 | Adds the info for plants that have IDs in the CEMS data but not EIA data.        |
-| [`_compile_all_entity_records`](#pudl.transform.eia._compile_all_entity_records)(→ pandas.DataFrame)                       | Compile all of the entity records from each table they appear in.                |
-| [`_manage_strictness`](#pudl.transform.eia._manage_strictness)(→ float)                                                    | Manage the strictness level for each column.                                     |
-| [`harvest_entity_tables`](#pudl.transform.eia.harvest_entity_tables)(→ tuple)                                              | Compile consistent records for various entities.                                 |
-| [`core_eia860__assn_boiler_generator`](#pudl.transform.eia.core_eia860__assn_boiler_generator)(→ pandas.DataFrame)         | Creates a set of more complete boiler generator associations.                    |
-| [`_restrict_years`](#pudl.transform.eia._restrict_years)(→ pandas.DataFrame)                                               | Restricts eia years for boiler generator association.                            |
+| [`find_timezone`](#pudl.transform.eia.find_timezone)(\*[, lng, lat, state, strict, tz_finder])    | Find the timezone associated with the a specified input location.                |
+|-------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
+| [`occurrence_consistency`](#pudl.transform.eia.occurrence_consistency)(→ pandas.DataFrame)                 | Find the occurrence of entities & the consistency of records.                    |
+| [`_lat_long`](#pudl.transform.eia._lat_long)(→ pandas.DataFrame)                              | Harvests more complete lat/long in special cases.                                |
+| [`_last_operating_date`](#pudl.transform.eia._last_operating_date)(→ pandas.DataFrame)                   | When there's no consistent generator operating date, take the last reported one. |
+| [`_add_timezone`](#pudl.transform.eia._add_timezone)(→ pandas.DataFrame)                          | Add plant IANA timezone based on lat/lon or state if lat/lon is unavailable.     |
+| [`_add_additional_epacems_plants`](#pudl.transform.eia._add_additional_epacems_plants)(→ pandas.DataFrame)         | Adds the info for plants that have IDs in the CEMS data but not EIA data.        |
+| [`_compile_all_entity_records`](#pudl.transform.eia._compile_all_entity_records)(→ pandas.DataFrame)            | Compile all of the entity records from each table they appear in.                |
+| [`_manage_strictness`](#pudl.transform.eia._manage_strictness)(→ float)                                | Manage the strictness level for each column.                                     |
+| [`harvest_entity_tables`](#pudl.transform.eia.harvest_entity_tables)(→ tuple)                             | Compile consistent records for various entities.                                 |
+| [`core_eia860__assn_boiler_generator`](#pudl.transform.eia.core_eia860__assn_boiler_generator)(→ pandas.DataFrame)     | Creates a set of more complete boiler generator associations.                    |
+| [`_restrict_years`](#pudl.transform.eia._restrict_years)(→ pandas.DataFrame)                        | Restricts eia years for boiler generator association.                            |
 | [`map_balancing_authority_names_to_codes`](#pudl.transform.eia.map_balancing_authority_names_to_codes)(→ pandas.DataFrame) | Build a map of the BA names to their most frequently associated BA codes.        |
-| [`fillna_balancing_authority_codes_via_names`](#pudl.transform.eia.fillna_balancing_authority_codes_via_names)(...)        | Fill null balancing authority (BA) codes via a map of the BA names to codes.     |
-| [`fix_balancing_authority_codes_with_state`](#pudl.transform.eia.fix_balancing_authority_codes_with_state)(...)            | Fix selective balancing_authority_code_eia's based on states.                    |
-| [`harvested_entity_asset_factory`](#pudl.transform.eia.harvested_entity_asset_factory)(→ dagster.AssetsDefinition)         | Create an asset definition for the harvested entity tables.                      |
-| [`finished_eia_asset_factory`](#pudl.transform.eia.finished_eia_asset_factory)(→ dagster.AssetsDefinition)                 | An asset factory for finished EIA tables.                                        |
+| [`fillna_balancing_authority_codes_via_names`](#pudl.transform.eia.fillna_balancing_authority_codes_via_names)(...)            | Fill null balancing authority (BA) codes via a map of the BA names to codes.     |
+| [`fix_balancing_authority_codes_with_state`](#pudl.transform.eia.fix_balancing_authority_codes_with_state)(...)              | Fix selective balancing_authority_code_eia's based on states.                    |
+| [`harvested_entity_asset_factory`](#pudl.transform.eia.harvested_entity_asset_factory)(→ dagster.AssetsDefinition) | Create an asset definition for the harvested entity tables.                      |
+| [`finished_eia_asset_factory`](#pudl.transform.eia.finished_eia_asset_factory)(→ dagster.AssetsDefinition)     | An asset factory for finished EIA tables.                                        |
 
 ## Module Contents
 
@@ -299,7 +299,7 @@ generation units, at least for 2014 and later.
   * [**AssertionError**](https://docs.python.org/3/library/exceptions.html#AssertionError) – If all boilers do not end up with the same unit_id each year.
   * [**AssertionError**](https://docs.python.org/3/library/exceptions.html#AssertionError) – If all generators do not end up with the same unit_id each year.
 
-### pudl.transform.eia.\_restrict_years(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), eia_data_config: [pudl.settings.EiaDataConfig](../../settings/index.md#pudl.settings.EiaDataConfig) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.transform.eia.\_restrict_years(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), eia_data_config: [pudl.settings.EiaDataConfig](../../settings/index.html.md#pudl.settings.EiaDataConfig) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Restricts eia years for boiler generator association.
 

@@ -52,7 +52,7 @@ Module Contents
    :raises ValueError: Geometry has zero area.
 
 
-.. py:function:: explode(gdf: geopandas.GeoDataFrame, ratios: collections.abc.Iterable[str] = None) -> geopandas.GeoDataFrame
+.. py:function:: explode(gdf: geopandas.GeoDataFrame, ratios: collections.abc.Iterable[str] | None = None) -> geopandas.GeoDataFrame
 
    Explode MultiPolygon to multiple Polygon geometries.
 
@@ -68,7 +68,7 @@ Module Contents
              The index is the number of the source row in the input GeoDataFrame.
 
 
-.. py:function:: self_union(gdf: geopandas.GeoDataFrame, ratios: collections.abc.Iterable[str] = None) -> geopandas.GeoDataFrame
+.. py:function:: self_union(gdf: geopandas.GeoDataFrame, ratios: collections.abc.Iterable[str] | None = None) -> geopandas.GeoDataFrame
 
    Calculate the geometric union of a feature layer with itself.
 
@@ -102,7 +102,7 @@ Module Contents
              and grouping columns set as the index.
 
 
-.. py:function:: overlay(*gdfs: geopandas.GeoDataFrame, how: Literal['intersection', 'union', 'identity', 'symmetric_difference', 'difference'] = 'intersection', ratios: collections.abc.Iterable[str] = None) -> geopandas.GeoDataFrame
+.. py:function:: overlay(*gdfs: geopandas.GeoDataFrame, how: Literal['intersection', 'union', 'identity', 'symmetric_difference', 'difference'] = 'intersection', ratios: collections.abc.Iterable[str] | None = None) -> geopandas.GeoDataFrame
 
    Overlay multiple layers incrementally.
 

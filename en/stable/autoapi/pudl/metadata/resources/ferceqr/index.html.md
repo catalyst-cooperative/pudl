@@ -5,9 +5,9 @@ Table definitions for the FERC EQR data group.
 ## Attributes
 
 | [`TABLE_DESCRIPTIONS`](#pudl.metadata.resources.ferceqr.TABLE_DESCRIPTIONS)   |    |
-|-------------------------------------------------------------------------------|----|
-| [`PARTITIONS`](#pudl.metadata.resources.ferceqr.PARTITIONS)                   |    |
-| [`RESOURCE_METADATA`](#pudl.metadata.resources.ferceqr.RESOURCE_METADATA)     |    |
+|-----------------------------------------------------------------------|----|
+| [`PARTITIONS`](#pudl.metadata.resources.ferceqr.PARTITIONS)           |    |
+| [`RESOURCE_METADATA`](#pudl.metadata.resources.ferceqr.RESOURCE_METADATA)    |    |
 
 ## Module Contents
 

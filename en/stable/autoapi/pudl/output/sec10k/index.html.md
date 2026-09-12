@@ -9,16 +9,16 @@ more user-friendly and easier to work with than the normalized core tables.
 ## Attributes
 
 | [`logger`](#pudl.output.sec10k.logger)   |    |
-|------------------------------------------|----|
+|-----------------------------------------------------------|----|
 
 ## Functions
 
-| [`_filename_sec10k_to_source_url`](#pudl.output.sec10k._filename_sec10k_to_source_url)(→ pandas.Series)                | Construct the source URL for SEC 10-K filings.                                  |
-|------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
-| [`_fill_sics`](#pudl.output.sec10k._fill_sics)(→ pandas.DataFrame)                                                     | Fill missing SIC IDs and names where possible.                                  |
-| [`out_sec10k__quarterly_filings`](#pudl.output.sec10k.out_sec10k__quarterly_filings)(→ pandas.DataFrame)               | Denormalized table for SEC 10-K quarterly filings.                              |
-| [`out_sec10k__quarterly_company_information`](#pudl.output.sec10k.out_sec10k__quarterly_company_information)(...)      | Company information extracted from SEC10k filings and matched to EIA utilities. |
-| [`out_sec10k__changelog_company_name`](#pudl.output.sec10k.out_sec10k__changelog_company_name)(→ pandas.DataFrame)     | Denormalized table for company name changes from SEC 10-K filings.              |
+| [`_filename_sec10k_to_source_url`](#pudl.output.sec10k._filename_sec10k_to_source_url)(→ pandas.Series)          | Construct the source URL for SEC 10-K filings.                                  |
+|-----------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
+| [`_fill_sics`](#pudl.output.sec10k._fill_sics)(→ pandas.DataFrame)                           | Fill missing SIC IDs and names where possible.                                  |
+| [`out_sec10k__quarterly_filings`](#pudl.output.sec10k.out_sec10k__quarterly_filings)(→ pandas.DataFrame)        | Denormalized table for SEC 10-K quarterly filings.                              |
+| [`out_sec10k__quarterly_company_information`](#pudl.output.sec10k.out_sec10k__quarterly_company_information)(...)           | Company information extracted from SEC10k filings and matched to EIA utilities. |
+| [`out_sec10k__changelog_company_name`](#pudl.output.sec10k.out_sec10k__changelog_company_name)(→ pandas.DataFrame)   | Denormalized table for company name changes from SEC 10-K filings.              |
 | [`out_sec10k__parents_and_subsidiaries`](#pudl.output.sec10k.out_sec10k__parents_and_subsidiaries)(→ pandas.DataFrame) | Denormalized output table linking SEC 10-K company ownership to EIA Utilities.  |
 
 ## Module Contents

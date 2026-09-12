@@ -9,31 +9,31 @@ databases, rather than the downstream transforms that consume them.
 
 ## Attributes
 
-| [`NETWORK_ERRORS`](#pudl.dagster.assets.raw.ferc_to_sqlite.NETWORK_ERRORS)                     |    |
-|------------------------------------------------------------------------------------------------|----|
-| [`logger`](#pudl.dagster.assets.raw.ferc_to_sqlite.logger)                                     |    |
-| [`raw_ferc1_dbf__sqlite`](#pudl.dagster.assets.raw.ferc_to_sqlite.raw_ferc1_dbf__sqlite)       |    |
-| [`raw_ferc2_dbf__sqlite`](#pudl.dagster.assets.raw.ferc_to_sqlite.raw_ferc2_dbf__sqlite)       |    |
-| [`raw_ferc6_dbf__sqlite`](#pudl.dagster.assets.raw.ferc_to_sqlite.raw_ferc6_dbf__sqlite)       |    |
-| [`raw_ferc60_dbf__sqlite`](#pudl.dagster.assets.raw.ferc_to_sqlite.raw_ferc60_dbf__sqlite)     |    |
-| [`raw_ferc1_xbrl__sqlite`](#pudl.dagster.assets.raw.ferc_to_sqlite.raw_ferc1_xbrl__sqlite)     |    |
-| [`raw_ferc2_xbrl__sqlite`](#pudl.dagster.assets.raw.ferc_to_sqlite.raw_ferc2_xbrl__sqlite)     |    |
-| [`raw_ferc6_xbrl__sqlite`](#pudl.dagster.assets.raw.ferc_to_sqlite.raw_ferc6_xbrl__sqlite)     |    |
-| [`raw_ferc60_xbrl__sqlite`](#pudl.dagster.assets.raw.ferc_to_sqlite.raw_ferc60_xbrl__sqlite)   |    |
+| [`NETWORK_ERRORS`](#pudl.dagster.assets.raw.ferc_to_sqlite.NETWORK_ERRORS)           |    |
+|---------------------------------------------------------------------------|----|
+| [`logger`](#pudl.dagster.assets.raw.ferc_to_sqlite.logger)                   |    |
+| [`raw_ferc1_dbf__sqlite`](#pudl.dagster.assets.raw.ferc_to_sqlite.raw_ferc1_dbf__sqlite)    |    |
+| [`raw_ferc2_dbf__sqlite`](#pudl.dagster.assets.raw.ferc_to_sqlite.raw_ferc2_dbf__sqlite)    |    |
+| [`raw_ferc6_dbf__sqlite`](#pudl.dagster.assets.raw.ferc_to_sqlite.raw_ferc6_dbf__sqlite)    |    |
+| [`raw_ferc60_dbf__sqlite`](#pudl.dagster.assets.raw.ferc_to_sqlite.raw_ferc60_dbf__sqlite)   |    |
+| [`raw_ferc1_xbrl__sqlite`](#pudl.dagster.assets.raw.ferc_to_sqlite.raw_ferc1_xbrl__sqlite)   |    |
+| [`raw_ferc2_xbrl__sqlite`](#pudl.dagster.assets.raw.ferc_to_sqlite.raw_ferc2_xbrl__sqlite)   |    |
+| [`raw_ferc6_xbrl__sqlite`](#pudl.dagster.assets.raw.ferc_to_sqlite.raw_ferc6_xbrl__sqlite)   |    |
+| [`raw_ferc60_xbrl__sqlite`](#pudl.dagster.assets.raw.ferc_to_sqlite.raw_ferc60_xbrl__sqlite)  |    |
 | [`raw_ferc714_xbrl__sqlite`](#pudl.dagster.assets.raw.ferc_to_sqlite.raw_ferc714_xbrl__sqlite) |    |
 
 ## Classes
 
 | [`FercPaths`](#pudl.dagster.assets.raw.ferc_to_sqlite.FercPaths)   | Helper class to get paths to various FERC paths both local and remote.   |
-|--------------------------------------------------------------------|--------------------------------------------------------------------------|
+|--------------------------------------------------------------|--------------------------------------------------------------------------|
 
 ## Functions
 
-| [`_download_zipped_outputs`](#pudl.dagster.assets.raw.ferc_to_sqlite._download_zipped_outputs)(paths, output_format)                        | Download nightly zipfile containing sqlite or parquet outputs and extract to local cache.   |
-|---------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------|
-| [`_download_nightly_outputs`](#pudl.dagster.assets.raw.ferc_to_sqlite._download_nightly_outputs)(→ None)                                    | Download `ferc_to_sqlite` outputs from s3.                                                  |
-| [`_check_for_cached_db_w_compatible_provenance`](#pudl.dagster.assets.raw.ferc_to_sqlite._check_for_cached_db_w_compatible_provenance)(...) | Check to see if there is a compatible outputs either locally, or in nightly builds.         |
-| [`ferc_to_sqlite_asset_factory`](#pudl.dagster.assets.raw.ferc_to_sqlite.ferc_to_sqlite_asset_factory)(→ dagster.AssetsDefinition)          | Create a FERC-to-SQLite prerequisite asset for a specific FERC dataset.                     |
+| [`_download_zipped_outputs`](#pudl.dagster.assets.raw.ferc_to_sqlite._download_zipped_outputs)(paths, output_format)           | Download nightly zipfile containing sqlite or parquet outputs and extract to local cache.   |
+|-----------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------|
+| [`_download_nightly_outputs`](#pudl.dagster.assets.raw.ferc_to_sqlite._download_nightly_outputs)(→ None)                        | Download `ferc_to_sqlite` outputs from s3.                                                  |
+| [`_check_for_cached_db_w_compatible_provenance`](#pudl.dagster.assets.raw.ferc_to_sqlite._check_for_cached_db_w_compatible_provenance)(...)        | Check to see if there is a compatible outputs either locally, or in nightly builds.         |
+| [`ferc_to_sqlite_asset_factory`](#pudl.dagster.assets.raw.ferc_to_sqlite.ferc_to_sqlite_asset_factory)(→ dagster.AssetsDefinition) | Create a FERC-to-SQLite prerequisite asset for a specific FERC dataset.                     |
 
 ## Module Contents
 
@@ -71,7 +71,7 @@ Helper class to get paths to various FERC paths both local and remote.
 
 Helper function to delete local outputs before starting extraction.
 
-#### *classmethod* from_dataset_format(dataset: [pudl.settings.FercForm](../../../../settings/index.md#pudl.settings.FercForm), data_format: Literal['dbf', 'xbrl'], paths: [pudl.workspace.setup.PudlPaths](../../../../workspace/setup/index.md#pudl.workspace.setup.PudlPaths)) → [FercPaths](#pudl.dagster.assets.raw.ferc_to_sqlite.FercPaths)
+#### *classmethod* from_dataset_format(dataset: [pudl.settings.FercForm](../../../../settings/index.html.md#pudl.settings.FercForm), data_format: Literal['dbf', 'xbrl'], paths: [pudl.workspace.setup.PudlPaths](../../../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths)) → [FercPaths](#pudl.dagster.assets.raw.ferc_to_sqlite.FercPaths)
 
 Initialize class based on `dataset` and `data_format`.
 
@@ -88,7 +88,7 @@ provided `dataset` and `data_format`. For the ‘DBF’ format, this includes th
 SQLite db and a datapackage JSON file, while ‘XBRL’ will include both of these
 plus a DuckDB file, parquet files, and the taxonomy JSON file.
 
-### pudl.dagster.assets.raw.ferc_to_sqlite.\_check_for_cached_db_w_compatible_provenance(dataset: [pudl.settings.FercForm](../../../../settings/index.md#pudl.settings.FercForm), data_format: Literal['dbf', 'xbrl'], zenodo_doi: [str](https://docs.python.org/3/library/stdtypes.html#str), paths: [FercPaths](#pudl.dagster.assets.raw.ferc_to_sqlite.FercPaths), ferc_to_sqlite: [pudl.settings.FercToSqliteDataConfig](../../../../settings/index.md#pudl.settings.FercToSqliteDataConfig)) → [pudl.dagster.provenance.FercSqliteProvenanceRecord](../../../provenance/index.md#pudl.dagster.provenance.FercSqliteProvenanceRecord) | [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.dagster.assets.raw.ferc_to_sqlite.\_check_for_cached_db_w_compatible_provenance(dataset: [pudl.settings.FercForm](../../../../settings/index.html.md#pudl.settings.FercForm), data_format: Literal['dbf', 'xbrl'], zenodo_doi: [str](https://docs.python.org/3/library/stdtypes.html#str), paths: [FercPaths](#pudl.dagster.assets.raw.ferc_to_sqlite.FercPaths), ferc_to_sqlite: [pudl.settings.FercToSqliteDataConfig](../../../../settings/index.html.md#pudl.settings.FercToSqliteDataConfig)) → [pudl.dagster.provenance.FercSqliteProvenanceRecord](../../../provenance/index.html.md#pudl.dagster.provenance.FercSqliteProvenanceRecord) | [None](https://docs.python.org/3/library/constants.html#None)
 
 Check to see if there is a compatible outputs either locally, or in nightly builds.
 
@@ -108,7 +108,7 @@ this function will immediately return `None`, triggering the normal extraction.
 * **Returns:**
   Compatible `FercSqliteProvenanceRecord` if one is found, otherwise `None`.
 
-### pudl.dagster.assets.raw.ferc_to_sqlite.ferc_to_sqlite_asset_factory(, dataset: [pudl.settings.FercForm](../../../../settings/index.md#pudl.settings.FercForm), data_format: Literal['dbf', 'xbrl'], extract_function: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[dagster.AssetExecutionContext](https://docs.dagster.io/api/dagster/execution/#dagster.AssetExecutionContext)], [None](https://docs.python.org/3/library/constants.html#None)], op_tags: [dict](https://docs.python.org/3/library/stdtypes.html#dict) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
+### pudl.dagster.assets.raw.ferc_to_sqlite.ferc_to_sqlite_asset_factory(, dataset: [pudl.settings.FercForm](../../../../settings/index.html.md#pudl.settings.FercForm), data_format: Literal['dbf', 'xbrl'], extract_function: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[dagster.AssetExecutionContext](https://docs.dagster.io/api/dagster/execution/#dagster.AssetExecutionContext)], [None](https://docs.python.org/3/library/constants.html#None)], op_tags: [dict](https://docs.python.org/3/library/stdtypes.html#dict) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
 
 Create a FERC-to-SQLite prerequisite asset for a specific FERC dataset.
 

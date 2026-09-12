@@ -26,3 +26,4 @@ fleshing it out, in response to our 2025 PUDL User Survey.
   entity_resolution
   timeseries_imputation
   sec10k_modeling
+  operational_characteristics

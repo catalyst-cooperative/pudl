@@ -51,6 +51,7 @@ Functions
    pudl.transform.eia923._core_eia923__yearly_fgd_operation_maintenance
    pudl.transform.eia923.fgd_continuity_check
    pudl.transform.eia923._core_eia923__energy_storage
+   pudl.transform.eia923._core_eia923__yearly_fuel_stocks
    pudl.transform.eia923._core_eia923__yearly_byproduct_disposition
    pudl.transform.eia923.disposition_continuity_check
    pudl.transform.eia923._core_eia923__yearly_byproduct_expenses_and_revenues
@@ -541,6 +542,37 @@ Module Contents
    * Come up with an encoder for ``fuel_unit`` (tricky because different between FERC
      and EIA).
 
+
+
+.. py:function:: _core_eia923__yearly_fuel_stocks(raw_eia923__stocks: pandas.DataFrame) -> pandas.DataFrame
+
+   Transform the EIA-923 fossil-fuel stocks table.
+
+   The raw table reports end-of-month coal, petroleum liquids and petroleum coke
+   stocks by census division / state, with one wide record per region and year
+   (twelve columns per fuel). This transform:
+
+   * standardizes null values,
+   * drops the ``early_release`` flag (dropped from all EIA-923 tables),
+   * reshapes the wide monthly stock columns into tall monthly records via
+     :func:`_yearly_to_monthly_records`, keeping one column per fuel type,
+   * builds a ``report_date`` from ``report_year`` and the reshaped month,
+   * strips the ``census_division_and_state`` labels (the raw values contain
+     trailing whitespace), and
+   * converts the reported thousand-unit stock quantities to base units (short
+     tons of coal, barrels of petroleum liquids and petroleum coke) following the
+     same thousand-to-base convention used elsewhere in EIA-923.
+
+   The ``census_division_and_state`` column is intentionally left as-is and
+   unconstrained: its raw values mix census divisions, individual states,
+   multi-state groupings and a national total, and standardizing them against
+   PUDL's state / census-region conventions is being handled separately (see
+   `issue #5081 <https://github.com/catalyst-cooperative/pudl/issues/5081>`__).
+
+   :param raw_eia923__stocks: The raw ``raw_eia923__stocks`` dataframe.
+
+   :returns: A tall monthly fuel-stocks dataframe keyed on ``report_date`` and
+             ``census_division_and_state`` with one column per fuel stock type.
 
 
 .. py:function:: _core_eia923__yearly_byproduct_disposition(raw_eia923__byproduct_disposition: pandas.DataFrame) -> pandas.DataFrame

@@ -4,12 +4,12 @@ Resource metadata for the allocate_gen_fuel tables.
 
 ## Attributes
 
-| [`AGG_FREQS`](#pudl.metadata.resources.allocate_gen_fuel.AGG_FREQS)                                     |    |
-|---------------------------------------------------------------------------------------------------------|----|
-| [`USAGE_WARNING_DRAWBACK`](#pudl.metadata.resources.allocate_gen_fuel.USAGE_WARNING_DRAWBACK)           |    |
+| [`AGG_FREQS`](#pudl.metadata.resources.allocate_gen_fuel.AGG_FREQS)                   |    |
+|------------------------------------------------------------------------------|----|
+| [`USAGE_WARNING_DRAWBACK`](#pudl.metadata.resources.allocate_gen_fuel.USAGE_WARNING_DRAWBACK)      |    |
 | [`UPSTREAM_ALLOCATION_CONTEXT`](#pudl.metadata.resources.allocate_gen_fuel.UPSTREAM_ALLOCATION_CONTEXT) |    |
 | [`KNOWN_DRAWBACKS_DESCRIPTION`](#pudl.metadata.resources.allocate_gen_fuel.KNOWN_DRAWBACKS_DESCRIPTION) |    |
-| [`RESOURCE_METADATA`](#pudl.metadata.resources.allocate_gen_fuel.RESOURCE_METADATA)                     |    |
+| [`RESOURCE_METADATA`](#pudl.metadata.resources.allocate_gen_fuel.RESOURCE_METADATA)           |    |
 
 ## Module Contents
 

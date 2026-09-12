@@ -12,12 +12,12 @@ The data validation tests run on the Parquet outputs that are in your
 testing are actually the result of the code on your current branch, otherwise you may
 be surprised when the data test passes locally but fails in CI or the nightly builds.
 
-We have a script, [`pudl.scripts.dbt_helper`](../autoapi/pudl/scripts/dbt_helper/index.md#module-pudl.scripts.dbt_helper), to help with some common workflows.
+We have a script, [`pudl.scripts.dbt_helper`](../autoapi/pudl/scripts/dbt_helper/index.html.md#module-pudl.scripts.dbt_helper), to help with some common workflows.
 
 ## Running the data validation tests
 
 `dbt_helper validate` runs the data validation tests.
-It’s a wrapper around the official dbt tool, `dbt build` - see [Running dbt directly](data_validation_reference.md#dbt-build).
+It’s a wrapper around the official dbt tool, `dbt build` - see [Running dbt directly](data_validation_reference.html.md#dbt-build).
 
 `dbt_helper validate` provides rich output when a test fails,
 and allows us to use the [Dagster asset selection syntax](https://docs.dagster.io/guides/build/assets/asset-selection-syntax/reference).
@@ -37,6 +37,29 @@ dbt_helper validate --asset-select "+key:out_eia__yearly_generators" --exclude "
 
 See `dbt_helper validate --help` for usage details.
 
+#### TIP
+You may want to run the validation tests against multiple sets of Parquet files.
+
+To do this:
+
+1. Download the Parquet files to `<any_directory_you_want>/parquet/`.
+2. Set the `PUDL_OUTPUT` environment variable to `<any_directory_you_want>`.
+   (*note* use an absolute path!)
+3. Run any of the `dbt_helper` commands you need.
+
+Some examples of useful Parquet outputs and where to find them:
+
+* [the most recent nightly builds](https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/pudl_parquet.zip)
+* the fast ETL outputs from your integration tests:
+  these are in a temporary directory created by `pytest`.
+  Since these are already on your computer you don’t need to download them.
+  The path is printed out at the beginning of the `pytest` run and will look like:
+  `2025-07-25 16:05:49 [    INFO] test.conftest:386 Using temporary PUDL_OUTPUT:
+  /path/to/your/temp/dir`
+* Any [Branch builds](data_validation_reference.html.md#branch-builds) outputs: if you have access to the internal build bucket,
+  [builds.catalyst.coop](https://console.cloud.google.com/storage/browser/builds.catalyst.coop),
+  you can also use the Parquet files you find there.
+
 <a id="update-dbt-schema"></a>
 
 ## Updating table schemas
@@ -54,7 +77,7 @@ The final generated file lives in
 When you change a table’s schema or update the data tests, you need to
 regenerate the dbt schema:
 
-For more details on adding data tests, see [Adding new tables](data_validation_reference.md#adding-new-tables).
+For more details on adding data tests, see [Adding new tables](data_validation_reference.html.md#adding-new-tables).
 
 ```bash
 dbt_helper update-tables --schema table_to_update
@@ -109,3 +132,21 @@ overwrite existing row counts:
 ```bash
 dbt_helper update-tables --row-counts --clobber new_table_name
 ```
+
+#### TIP
+If you want to update a larger subset of tables (e.g.: all EIA 860 tables),
+you can use this dagster hack to avoid manually copy and pasting tons of table
+names. (For the time being, you cannot use the same `--asset-select` feature
+as the `validate` command.)
+
+- Launch dagster and go to `http://localhost:3000/assets`.
+- Use the search bar to find the group of assets you’d like to update. Use the select
+  all checkbox at the top to grab all assets.
+- Shift+click the “Materialize Selected” button.
+- In the search bar at the top left of the Launchpad, triple click to select all
+  table names.
+- Copy and paste the list of tables into a text editor of your choice and replace
+  remove commas so that table names are separated by a single space (as shown
+  in the codeblock above).
+- Put that list at the end of the `dbt_helper update-tables --row-counts`
+  command to update the row counts for all desired tables at once.

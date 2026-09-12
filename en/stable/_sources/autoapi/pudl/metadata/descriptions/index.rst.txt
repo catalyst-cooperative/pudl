@@ -232,7 +232,7 @@ Module Contents
 
 
 
-.. py:function:: component(fn: collections.abc.Callable[Ellipsis, ResourceTrait | list[ResourceTrait]]) -> collections.abc.Callable[Ellipsis, ResourceTrait | list[ResourceTrait]]
+.. py:function:: component(fn: collections.abc.Callable[..., ResourceTrait | list[ResourceTrait]]) -> collections.abc.Callable[..., ResourceTrait | list[ResourceTrait]]
 
    Decorator for functions which resolve a description component.
 

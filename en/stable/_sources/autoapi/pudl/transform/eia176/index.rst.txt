@@ -21,6 +21,8 @@ Attributes
    pudl.transform.eia176.UNKNOWN_TYPES
    pudl.transform.eia176.SUPPLEMENTAL_GASEOUS_FUEL_TYPE_MAP
    pudl.transform.eia176.OTHER_DISPOSITION_TYPE_MAP
+   pudl.transform.eia176.NATIONAL_ADJUSTMENT_STATE_CODES
+   pudl.transform.eia176.MAX_NATIONAL_ADJUSTMENT_RECORDS
 
 
 Functions
@@ -44,6 +46,7 @@ Functions
    pudl.transform.eia176._compare_eia176_continuation_line_total
    pudl.transform.eia176.core_eia176__yearly_gas_disposition
    pudl.transform.eia176.core_eia176__yearly_liquefied_natural_gas_inventory
+   pudl.transform.eia176.core_eia176__yearly_company_characteristics
    pudl.transform.eia176._normalize_operating_states
 
 
@@ -67,6 +70,12 @@ Module Contents
 .. py:data:: SUPPLEMENTAL_GASEOUS_FUEL_TYPE_MAP
 
 .. py:data:: OTHER_DISPOSITION_TYPE_MAP
+
+.. py:data:: NATIONAL_ADJUSTMENT_STATE_CODES
+
+.. py:data:: MAX_NATIONAL_ADJUSTMENT_RECORDS
+   :value: 28
+
 
 .. py:function:: _core_eia176__numeric_data(raw_eia176__numeric_data: pandas.DataFrame) -> tuple[dagster.Output, dagster.Output]
 
@@ -192,6 +201,38 @@ Module Contents
 .. py:function:: core_eia176__yearly_liquefied_natural_gas_inventory(_core_eia176__yearly_company_data: pandas.DataFrame, core_pudl__codes_subdivisions: pandas.DataFrame)
 
    Operator's LNG storage volume and capacity (EIA176, lines 8.0-8.2).
+
+
+.. py:function:: core_eia176__yearly_company_characteristics(raw_eia176__operation_types_and_sector_items: pandas.DataFrame, _core_eia176__yearly_company_data: pandas.DataFrame) -> pandas.DataFrame
+
+   Produce annual company-level operational and ownership characteristics (EIA-176).
+
+   Combines boolean operation-type and ownership-type columns from
+   ``raw_eia176__operation_types_and_sector_items`` with numeric and boolean fields
+   from ``_core_eia176__yearly_company_data``.
+
+   One row per ``(report_year, operator_id_eia)``.
+
+   Processing:
+
+   * Select all ``is_*`` boolean columns and ``other_ownership_description`` from the
+     raw operation types table. The ``operating_state`` column in that table already
+     contains two-letter postal codes.
+   * Left-join company-level numeric and boolean fields from the company data table.
+   * Drop national-level adjustment records (operating_state in
+     ``NATIONAL_ADJUSTMENT_STATE_CODES``): these represent cross-border totals, not
+     state-level operator data.
+   * Convert ``"X"``-encoded columns to boolean (``True`` where marked, ``False``
+     otherwise).
+   * Replace the ``1.0`` float artifact in ``other_ownership_description`` (present
+     in 2012-2015 LNG terminal records) with ``pd.NA``, then apply
+     ``simplify_strings()``.
+
+   :param raw_eia176__operation_types_and_sector_items: Raw EIA-176 operation types
+                                                        and sector items table; primary source for all ``is_*`` columns and
+                                                        ``operating_state``.
+   :param _core_eia176__yearly_company_data: Wide company-level EIA-176 data; provides
+                                             numeric and boolean company fields.
 
 
 .. py:function:: _normalize_operating_states(core_pudl__codes_subdivisions, df, column: str = 'operating_state')

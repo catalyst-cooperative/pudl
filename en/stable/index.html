@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
-    <title>The Public Utility Data Liberation Project &#8212; PUDL 2026.8.0 documentation</title>
+    <title>The Public Utility Data Liberation Project &#8212; PUDL 2026.9.0 documentation</title>
   
   
   
@@ -37,8 +37,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
@@ -46,18 +46,18 @@
     <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="_static/documentation_options.js?v=949254a9"></script>
+    <script src="_static/documentation_options.js?v=f05d84ed"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'index';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'stable';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -141,8 +141,8 @@
       
     
     
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.0 documentation - Home"/>
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.0 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.0 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.0 documentation - Home"/>
   
   
 </a></div>
@@ -572,7 +572,8 @@ repository on GitHub.</p>
 <span id="etl-process"></span><h2>The ETL Process<a class="headerlink" href="#the-etl-process" title="Link to this heading">#</a></h2>
 <p>PUDL’s ETL produces a data warehouse that can be used for analytics.
 The processing happens within Dagster assets that are persisted to storage,
-typically pickle, parquet or SQLite files. The raw data moves through three
+typically pickle or Parquet files. The fully processed data is also packaged into
+<code class="docutils literal notranslate"><span class="pre">pudl.duckdb</span></code> and <code class="docutils literal notranslate"><span class="pre">pudl.sqlite</span></code> databases. The raw data moves through three
 layers of processing.</p>
 <section id="raw-layer">
 <h3>Raw Layer<a class="headerlink" href="#raw-layer" title="Link to this heading">#</a></h3>
@@ -581,8 +582,7 @@ a collection of <a class="reference external" href="https://pandas.pydata.org/pa
 that it can be easily processed in bulk. Data distributed as binary database files, such
 as the DBF files from FERC Form 1, may be converted into a unified SQLite database
 before individual dataframes are created. Raw data assets are not written to
-<code class="docutils literal notranslate"><span class="pre">pudl.sqlite</span></code>. Instead they are persisted to pickle files and not distributed
-to users.</p>
+Parquet. They are persisted to pickle files locally and are not distributed to users.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <p>Module documentation within the <a class="reference internal" href="autoapi/pudl/extract/index.html#module-pudl.extract" title="pudl.extract"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.extract</span></code></a> subpackage.</p>
@@ -593,8 +593,9 @@ to users.</p>
 <p>The Core layer contains well-modeled assets that serve as building blocks for
 downstream wide tables and analyses. Well-modeled means tables in the database
 have logical primary keys, foreign keys, datatypes and generally follow
-<a class="reference internal" href="dev/data_guidelines.html#tidy-data"><span class="std std-ref">Tidy Data standards</span></a>. The assets are loaded into a SQLite
-database or Parquet file.</p>
+<a class="reference internal" href="dev/data_guidelines.html#tidy-data"><span class="std std-ref">Tidy Data standards</span></a>. The assets are written to Parquet files.
+Many are also packaged into the <code class="docutils literal notranslate"><span class="pre">pudl.duckdb</span></code> and <code class="docutils literal notranslate"><span class="pre">pudl.sqlite</span></code> databases,
+with the largest (typically hourly) tables only distributed as Parquet files.</p>
 <p>These outputs can be accessed via Python, R, and many other tools. See the
 <a class="reference internal" href="data_dictionaries/pudl_db.html"><span class="doc">PUDL Data Dictionary</span></a> page for a list of the normalized database tables and
 their contents.</p>
@@ -671,24 +672,23 @@ tools designed for data that’s larger than your computer’s available memory.
 </section>
 <section id="data-validation">
 <span id="test-and-validate"></span><h2>Data Validation<a class="headerlink" href="#data-validation" title="Link to this heading">#</a></h2>
-<p>We have a growing collection of data validation test cases that we run before
-publishing a data release to try and avoid publishing data with known issues. Most of
-these validations are described in the <a class="reference internal" href="autoapi/pudl/validate/index.html#module-pudl.validate" title="pudl.validate"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.validate</span></code></a> module. They check things
-like:</p>
+<p>We have a growing collection of data validation test cases that we run after every
+nightly build to avoid publishing data with known issues. Most of these validations are
+run using <a class="reference external" href="https://www.getdbt.com/">dbt</a> and <a class="reference external" href="https://duckdb.org/docs/">DuckDB</a>
+and are defined in the per-table schema files under <code class="docutils literal notranslate"><span class="pre">dbt/models/</span></code> in the PUDL GitHub
+repository. They check things like:</p>
 <ul class="simple">
+<li><p>Foreign key relationships between tables are valid.</p></li>
+<li><p>The expected number of records are found within each table.</p></li>
+<li><p>There are no entirely NULL columns.</p></li>
+<li><p>Totals reported in tables are consistent with the sum of their parts.</p></li>
 <li><p>The heat content of various fuel types is within expected bounds.</p></li>
 <li><p>Coal ash, moisture, mercury, sulfur, etc. content are within expected bounds</p></li>
 <li><p>Generator heat rates and capacity factors are realistic for the type of prime mover
 being reported.</p></li>
 </ul>
-<p>Some data validations are currently only specified within our test suite, including:</p>
-<ul class="simple">
-<li><p>The expected number of records within each table</p></li>
-<li><p>The fact that there are no entirely N/A columns</p></li>
-</ul>
-<p>A variety of database integrity checks are also run either during the data processing
-or when the data is loaded into SQLite.</p>
-<p>See our <a class="reference internal" href="dev/testing.html"><span class="doc">Testing PUDL</span></a> documentation for more information.</p>
+<p>See our <a class="reference internal" href="dev/data_validation_quickstart.html"><span class="doc">Data validation quickstart</span></a> and <a class="reference internal" href="dev/data_validation_reference.html"><span class="doc">Data validation reference</span></a>
+pages for more information.</p>
 </section>
 <section id="organizations-using-pudl">
 <h2>Organizations using PUDL<a class="headerlink" href="#organizations-using-pudl" title="Link to this heading">#</a></h2>
@@ -696,7 +696,8 @@ or when the data is loaded into SQLite.</p>
 If your organization uses PUDL we’d love to list you here! Please open a
 pull request or email us at <a class="reference external" href="mailto:hello&#37;&#52;&#48;catalyst&#46;coop">hello<span>&#64;</span>catalyst<span>&#46;</span>coop</a>!</p>
 <ul class="simple">
-<li><p><a class="reference external" href="https://rmi.org">RMI</a> via both their <a class="reference external" href="https://utilitytransitionhub.rmi.org/">Utility Transition Hub</a> and <a class="reference external" href="https://utilitytransitionhub.rmi.org/optimus/">Optimus financial modeling tool</a></p></li>
+<li><p><a class="reference external" href="https://rmi.org">RMI</a> via both their <a class="reference external" href="https://utilitytransitionhub.rmi.org/">Utility Transition Hub</a>
+and <a class="reference external" href="https://utilitytransitionhub.rmi.org/optimus/">Optimus financial modeling tool</a></p></li>
 <li><p><a class="reference external" href="https://zero.lab.princeton.edu">The ZERO Lab at Princeton University</a></p></li>
 <li><p><a class="reference external" href="https://github.com/PyPSA/pypsa-usa">PyPSA-USA</a> an open source power systems model.</p></li>
 <li><p><a class="reference external" href="https://energyinnovation.org">Energy Innovation</a></p></li>
@@ -854,8 +855,8 @@ to Enable Open Source Ecosystems (POSE) program</a>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
-<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -889,7 +890,7 @@ to Enable Open Source Ecosystems (POSE) program</a>
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
 </p></div>
       
         <div class="footer-item">

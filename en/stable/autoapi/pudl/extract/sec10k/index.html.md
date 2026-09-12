@@ -12,17 +12,17 @@ to extract, and those are used to filter the extracted data before returning it.
 ## Attributes
 
 | [`raw_sec10k_assets`](#pudl.extract.sec10k.raw_sec10k_assets)   |    |
-|-----------------------------------------------------------------|----|
+|----------------------------------------------------------------------|----|
 
 ## Functions
 
-| [`extract`](#pudl.extract.sec10k.extract)(→ pandas.DataFrame)                                           | Extract SEC 10-K data from the datastore.               |
-|---------------------------------------------------------------------------------------------------------|---------------------------------------------------------|
+| [`extract`](#pudl.extract.sec10k.extract)(→ pandas.DataFrame)                          | Extract SEC 10-K data from the datastore.               |
+|-------------------------------------------------------------------------------------------------------|---------------------------------------------------------|
 | [`raw_sec10k_asset_factory`](#pudl.extract.sec10k.raw_sec10k_asset_factory)(→ dagster.AssetsDefinition) | An asset factory for extracting SEC 10-K data by table. |
 
 ## Module Contents
 
-### pudl.extract.sec10k.extract(ds: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.md#pudl.workspace.datastore.Datastore), table: [str](https://docs.python.org/3/library/stdtypes.html#str), years: [list](https://docs.python.org/3/library/stdtypes.html#list)[[int](https://docs.python.org/3/library/functions.html#int)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.extract.sec10k.extract(ds: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore), table: [str](https://docs.python.org/3/library/stdtypes.html#str), years: [list](https://docs.python.org/3/library/stdtypes.html#list)[[int](https://docs.python.org/3/library/functions.html#int)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Extract SEC 10-K data from the datastore.
 

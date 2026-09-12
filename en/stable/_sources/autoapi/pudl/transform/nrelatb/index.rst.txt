@@ -252,12 +252,15 @@ Module Contents
 
    Most of the records in this unstacked table have values in the
    ``cost_recovery_period_years`` column, but before broadcasting, about 15% of the
-   table has an ``*`` in this column. This is a part of the tables primary key and
-   because we know ``*`` in a primary key effectively means wildcard, we want to
-   broadcast the records with an asterisk across the rest of the data. Unfortunately,
-   there are still ~5% of records w/ ``*`` that don't have associated records in the
-   rest of the data (the are left_only records in :func:`_broadcast_core_metric_parameters`)
-   so they end up with nulls in the ``cost_recovery_period_years`` column.
+   table has a null in this column, standing in for the ``*`` wildcard NREL uses in
+   the raw data (already converted to null upstream, in
+   :func:`_core_nrelatb__transform_start`). This is a part of the tables primary key
+   and because we know a wildcard in a primary key effectively means "applies to
+   everything", we want to broadcast these records across the rest of the data.
+   Unfortunately, there are still ~5% of records w/ a wildcard that don't have
+   associated records in the rest of the data (the are left_only records in
+   :func:`_broadcast_core_metric_parameters`) so they end up with nulls in the
+   ``cost_recovery_period_years`` column.
 
    Probably we could treat ``cost_recovery_period_years`` as a categorical column and/or
    figure out ways to fill in these nulls with the right set of merge keys.

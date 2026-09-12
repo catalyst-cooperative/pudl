@@ -1,0 +1,1411 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    
+    <title>pudl.dagster.assets.output.databases &#8212; PUDL 2026.9.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../../../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/custom.css?v=7e24c9f5" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../../../../../_static/documentation_options.js?v=f05d84ed"></script>
+    <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = "pre.mermaid {\n    /* Same as .mermaid-container > pre */\n    display: block;\n    width: 100%;\n}\n\npre.mermaid > svg {\n    /* Same as .mermaid-container > pre > svg */\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}";
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = ".mermaid-container {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    width: 100%;\n}\n\n.mermaid-container > pre {\n    display: block;\n    width: 100%;\n}\n\n.mermaid-container > pre > svg {\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}\n\n.mermaid-fullscreen-btn {\n    position: absolute;\n    width: 28px;\n    height: 28px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.3);\n    border-radius: 4px;\n    cursor: pointer;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transition: all 0.2s;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);\n    font-size: 14px;\n    line-height: 1;\n    padding: 0;\n    color: #333;\n}\n\n.mermaid-fullscreen-btn:hover {\n    opacity: 100% !important;\n    background: rgba(255, 255, 255, 1);\n    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-btn.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.3);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-btn.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal {\n    display: none;\n    position: fixed !important;\n    top: 0 !important;\n    left: 0 !important;\n    width: 95vw;\n    height: 100vh;\n    background: rgba(255, 255, 255, 0.98);\n    z-index: 9999;\n    padding: 20px;\n    overflow: auto;\n}\n\n.mermaid-fullscreen-modal.dark-theme {\n    background: rgba(0, 0, 0, 0.98);\n}\n\n.mermaid-fullscreen-modal.active {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen {\n    position: relative;\n    width: 95vw;\n    height: 90vh;\n    max-width: 95vw;\n    max-height: 90vh;\n    background: white;\n    border-radius: 8px;\n    padding: 20px;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);\n    overflow: auto;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen.dark-theme {\n    background: #1a1a1a;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);\n}\n\n.mermaid-container-fullscreen pre.mermaid {\n    width: 100%;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen .mermaid svg {\n    height: 100% !important;\n    width: 100% !important;\n    cursor: grab;\n}\n\n.mermaid-fullscreen-close {\n    position: fixed !important;\n    top: 20px !important;\n    right: 20px !important;\n    width: 40px;\n    height: 40px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.2);\n    border-radius: 50%;\n    cursor: pointer;\n    z-index: 10000;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);\n    transition: all 0.2s;\n    font-size: 24px;\n    line-height: 1;\n    color: #333;\n}\n\n.mermaid-fullscreen-close:hover {\n    background: white;\n    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-close.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.2);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-close.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal .mermaid-fullscreen-btn {\n    display: none !important;\n}";
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+let _lazyObserver = null;
+let _renderQueue = Promise.resolve();
+let closeModal = () => {};
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal?.classList.contains('active')) {
+        closeModal();
+    }
+});
+
+// Apply d3 zoom to each SVG. Idempotent: an SVG already wrapped is skipped,
+// so this is safe to call both for the initial batch and for diagrams that
+// render lazily once they become visible.
+const addZoomToSvgs = (svgs) => {
+    svgs.each(function() {
+        if (this.getAttribute('data-zoom-applied') === 'true') return;
+        var svg = d3.select(this);
+        svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+        var inner = svg.select("g");
+        var zoom = d3.zoom().on("zoom", function(event) {
+            inner.attr("transform", event.transform);
+        });
+        svg.call(zoom);
+        this.setAttribute('data-zoom-applied', 'true');
+    });
+};
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        // Disconnect any previous lazy rendering observer
+        if (_lazyObserver) {
+            _lazyObserver.disconnect();
+            _lazyObserver = null;
+        }
+
+        all_mermaids.forEach((el) => {
+            el.removeAttribute('data-mermaid-deferred');
+            el.removeAttribute('data-mermaid-render-failed');
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+
+        // Separate visible and hidden elements. Mermaid's layout engine measures
+        // text dimensions via the DOM, which fails for elements hidden by a parent
+        // (e.g., Reveal.js non-active slides, sphinx-design unopened tabs),
+        // producing broken SVGs. Render visible elements now, defer hidden ones.
+        const visible = [];
+        const hidden = [];
+        all_mermaids.forEach((el) => {
+            // offsetParent is null for display:none ancestors.
+            // getClientRects().length > 0 catches position:fixed elements
+            // (which also have null offsetParent but are still visible).
+            if (el.offsetParent !== null || el.getClientRects().length > 0) {
+                visible.push(el);
+            } else {
+                hidden.push(el);
+                el.setAttribute('data-mermaid-deferred', 'true');
+            }
+        });
+
+        if (visible.length > 0) {
+            try {
+                await mermaid.run({ nodes: visible });
+            } catch (e) {
+                console.error("Mermaid rendering failed:", e);
+            }
+        }
+
+        // Lazily render hidden elements when they become visible.
+        // Uses a promise chain (_renderQueue) to serialize rendering,
+        // since IntersectionObserver may report multiple entries at once
+        // and mermaid.run() is not safe to call concurrently.
+        if (hidden.length > 0) {
+            if (typeof IntersectionObserver === 'undefined') {
+                console.warn("IntersectionObserver not available; hidden mermaid diagrams will not render.");
+            } else {
+                _renderQueue = Promise.resolve();
+                _lazyObserver = new IntersectionObserver((entries) => {
+                    for (const entry of entries) {
+                        if (entry.isIntersecting && entry.target.getAttribute("data-processed") !== "true") {
+                            _lazyObserver.unobserve(entry.target);
+                            const el = entry.target;
+                            _renderQueue = _renderQueue.then(async () => {
+                                try {
+                                    await mermaid.run({ nodes: [el] });
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    // Apply zoom to the now-rendered diagram, matching
+                                    // the decoration visible diagrams receive.
+                                    if (false) {
+                                        addZoomToSvgs(d3.selectAll("").select(function() {
+                                            return this.querySelector("svg");
+                                        }));
+                                    }
+                                } catch (e) {
+                                    console.error("Mermaid deferred rendering failed:", e);
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    el.setAttribute('data-mermaid-render-failed', 'true');
+                                }
+                            });
+                        }
+                    }
+                });
+                hidden.forEach((el) => _lazyObserver.observe(el));
+            }
+        }
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    // Exclude deferred (hidden) and render-failed elements from completion checks
+    const mermaids_active = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])");
+    const mermaids_processed = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])[data-processed='true']");
+
+    if (false) {
+        const mermaids_to_add_zoom = 0 === -1 ? mermaids_active.length : 0;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("").select(function() {
+                return this.querySelector("svg");
+            });
+            // Wait until every active (visible) diagram has rendered. Deferred
+            // diagrams are excluded, so a fixed d3_node_count that counts a
+            // hidden diagram no longer loops forever waiting for its SVG.
+            if(mermaids_active.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            }
+            addZoomToSvgs(svgs);
+        }
+    } else if(mermaids_active.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if (!true) return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = "\u26f6";
+        fullscreenBtn.style.opacity = "50%";
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scrollX, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.display = 'block';
+
+                if (false) {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+
+
+const load = async () => {
+    initStyles();
+
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...{"startOnLoad": false},
+                ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...{"startOnLoad": false},
+    ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/dagster/assets/output/databases';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'stable';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../../../../../_static/searchtools.js"></script>
+    <script src="../../../../../_static/language_data.js"></script>
+    <script src="../../../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.0 documentation - Home"/>
+    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.0 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../data.html">
+    Data Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../code.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://mastodon.energy/@catalystcoop" title="Mastodon" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-mastodon fa-lg" aria-hidden="true"></i><span class="visually-hidden">Mastodon</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://bsky.app/profile/catalyst.coop" title="Bluesky" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-bluesky fa-lg" aria-hidden="true"></i><span class="visually-hidden">Bluesky</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.linkedin.com/company/catalyst-cooperative/" title="LinkedIn" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-linkedin fa-lg" aria-hidden="true"></i><span class="visually-hidden">LinkedIn</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://opencollective.com/pudl" title="Support PUDL" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-donate fa-lg" aria-hidden="true"></i><span class="visually-hidden">Support PUDL</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../data.html">
+    Data Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../code.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://mastodon.energy/@catalystcoop" title="Mastodon" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-mastodon fa-lg" aria-hidden="true"></i><span class="visually-hidden">Mastodon</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://bsky.app/profile/catalyst.coop" title="Bluesky" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-bluesky fa-lg" aria-hidden="true"></i><span class="visually-hidden">Bluesky</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.linkedin.com/company/catalyst-cooperative/" title="LinkedIn" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-linkedin fa-lg" aria-hidden="true"></i><span class="visually-hidden">LinkedIn</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://opencollective.com/pudl" title="Support PUDL" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-donate fa-lg" aria-hidden="true"></i><span class="visually-hidden">Support PUDL</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../../../index.html" class="nav-link">Module code</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../../../../pudl.html" class="nav-link">pudl</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../../assets.html" class="nav-link">pudl.dagster.assets</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">pudl.dagster.assets.output.databases</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for pudl.dagster.assets.output.databases</h1><div class="highlight"><pre>
+<span></span><span class="sa">r</span><span class="sd">"""Dagster assets that assemble pudl.sqlite and pudl.duckdb from the Parquet outputs.</span>
+
+<span class="sd">Once the ETL has written every table to Parquet, :func:`build_pudl_sqlite_asset` and</span>
+<span class="sd">:func:`build_pudl_duckdb_asset` each define a Dagster asset that rebuilds one all-in-one</span>
+<span class="sd">relational database from those files. :func:`_write_pudl_sqlite` and</span>
+<span class="sd">:func:`_write_pudl_duckdb` do the actual work. They are deliberately two separate</span>
+<span class="sd">functions rather than one parametrized one: the formats differ in schema, connection</span>
+<span class="sd">handling, and which constraints get enforced on write, and the ``pudl.sqlite`` path is</span>
+<span class="sd">expected to be deleted wholesale once its deprecation period ends.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dg</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">duckdb</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sa</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pudl.logging_helpers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_parquet_table_polars</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">PUDL_PACKAGE</span><span class="p">,</span> <span class="n">Resource</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.workspace.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">PudlPaths</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">logging_helpers</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">_WRITE_EXCEPTIONS</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="ne">Exception</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">Error</span><span class="p">)</span>
+<span class="sd">"""Exceptions treated as data-quality problems with an individual table.</span>
+
+<span class="sd">These are caught per table in the writers below so one bad table doesn't abort hundreds</span>
+<span class="sd">of others. ValueError comes from _validate_primary_key(); duckdb.Error covers both</span>
+<span class="sd">problems reading a table's Parquet file (e.g. a column that doesn't match the declared</span>
+<span class="sd">schema) and the NOT NULL / UNIQUE / PRIMARY KEY / CHECK violations the destination</span>
+<span class="sd">raises back through DuckDB as the rows are streamed in.</span>
+<span class="sd">"""</span>
+
+
+<span class="nd">@dataclass</span>
+<div class="viewcode-block" id="TableWriteErrorInfo">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/output/databases/index.html#pudl.dagster.assets.output.databases.TableWriteErrorInfo">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TableWriteErrorInfo</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A single table's failed write: which table, and the exception that stopped it."""</span>
+
+<div class="viewcode-block" id="TableWriteErrorInfo.table_name">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/output/databases/index.html#pudl.dagster.assets.output.databases.TableWriteErrorInfo.table_name">[docs]</a>
+    <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span></div>
+
+<span class="w">    </span><span class="sd">"""Name of the table whose write failed."""</span>
+<div class="viewcode-block" id="TableWriteErrorInfo.exception">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/output/databases/index.html#pudl.dagster.assets.output.databases.TableWriteErrorInfo.exception">[docs]</a>
+    <span class="n">exception</span><span class="p">:</span> <span class="ne">Exception</span></div>
+
+<span class="w">    </span><span class="sd">"""The exception raised while validating or writing the table."""</span>
+
+<div class="viewcode-block" id="TableWriteErrorInfo.__str__">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/output/databases/index.html#pudl.dagster.assets.output.databases.TableWriteErrorInfo.__str__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Render as ``table_name: ExceptionType: message`` for logs and reports."""</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">table_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exception</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">exception</span><span class="si">}</span><span class="s2">"</span></div>
+</div>
+
+
+
+<span class="nd">@dataclass</span>
+<div class="viewcode-block" id="TableWriteReport">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/output/databases/index.html#pudl.dagster.assets.output.databases.TableWriteReport">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TableWriteReport</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Outcome of building a database: where it landed, and any error reports."""</span>
+
+<div class="viewcode-block" id="TableWriteReport.db_path">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/output/databases/index.html#pudl.dagster.assets.output.databases.TableWriteReport.db_path">[docs]</a>
+    <span class="n">db_path</span><span class="p">:</span> <span class="n">Path</span></div>
+
+<span class="w">    </span><span class="sd">"""Path of the database file that was built."""</span>
+<div class="viewcode-block" id="TableWriteReport.row_counts">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/output/databases/index.html#pudl.dagster.assets.output.databases.TableWriteReport.row_counts">[docs]</a>
+    <span class="n">row_counts</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span></div>
+
+<span class="w">    </span><span class="sd">"""Mapping of table name to number of rows written, per successfully written table."""</span>
+<div class="viewcode-block" id="TableWriteReport.errors">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/output/databases/index.html#pudl.dagster.assets.output.databases.TableWriteReport.errors">[docs]</a>
+    <span class="n">errors</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">TableWriteErrorInfo</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span></div>
+
+<span class="w">    </span><span class="sd">"""One :class:`TableWriteErrorInfo` per failed table, in the order they failed."""</span>
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="TableWriteReport.failed_tables">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/output/databases/index.html#pudl.dagster.assets.output.databases.TableWriteReport.failed_tables">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">failed_tables</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Names of the tables that failed to write.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The ``table_name`` of every recorded error, in failure order.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">error</span><span class="o">.</span><span class="n">table_name</span> <span class="k">for</span> <span class="n">error</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="TableWriteReport.summary">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/output/databases/index.html#pudl.dagster.assets.output.databases.TableWriteReport.summary">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">summary</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Human-readable report of every table that failed to write, and why.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A multi-line string: a single ``"Wrote all N table(s)."`` line when</span>
+<span class="sd">            nothing failed, otherwise a header line plus one indented line per</span>
+<span class="sd">            failed table.</span>
+<span class="sd">        """</span>
+        <span class="n">total</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">row_counts</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">"Wrote all </span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2"> table(s)."</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"Wrote </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">row_counts</span><span class="p">)</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2"> table(s)."</span><span class="p">]</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="p">)</span><span class="si">}</span><span class="s2"> table(s) failed:"</span><span class="p">)</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  - </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">error</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_copy_table</span><span class="p">(</span>
+    <span class="n">conn</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">DuckDBPyConnection</span><span class="p">,</span>
+    <span class="n">resource</span><span class="p">:</span> <span class="n">Resource</span><span class="p">,</span>
+    <span class="n">parquet_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">table_ref</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Stream one table's Parquet data into ``table_ref`` via DuckDB.</span>
+
+<span class="sd">    DuckDB reads the Parquet file with its columnar engine and writes the rows straight</span>
+<span class="sd">    into ``table_ref`` -- either a table in the DuckDB file itself, or a table in an</span>
+<span class="sd">    attached SQLite database. Column order comes from the resource metadata so the</span>
+<span class="sd">    ``SELECT`` lines up with the destination schema regardless of the Parquet file's</span>
+<span class="sd">    column order.</span>
+
+<span class="sd">    ``PRIMARY KEY`` / ``NOT NULL`` / ``UNIQUE`` (and, for DuckDB, ``CHECK``) are</span>
+<span class="sd">    enforced by the destination as the rows land. SQLite foreign keys are declared</span>
+<span class="sd">    but, per SQLite's default (``PRAGMA foreign_keys = OFF``), not checked on write;</span>
+<span class="sd">    the DuckDB schema has no foreign keys at all.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        conn: An open DuckDB connection. For the SQLite destination the target</span>
+<span class="sd">            database must already be attached.</span>
+<span class="sd">        resource: Metadata Resource for the table being written; supplies the</span>
+<span class="sd">            ordered column list.</span>
+<span class="sd">        parquet_path: Path to the source Parquet file for this table.</span>
+<span class="sd">        table_ref: Quoted SQL reference to the destination table.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The number of rows in the destination table after the insert (which, for a</span>
+<span class="sd">        freshly created table, is the number of rows written).</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        duckdb.Error: If the Parquet file doesn't match the declared schema, or the</span>
+<span class="sd">            destination rejects a row for a ``NOT NULL`` / ``UNIQUE`` / ``PRIMARY</span>
+<span class="sd">            KEY`` / ``CHECK`` violation as it lands.</span>
+<span class="sd">    """</span>
+    <span class="n">columns_sql</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s1">'"</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s1">"'</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">resource</span><span class="o">.</span><span class="n">get_field_names</span><span class="p">())</span>
+    <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"INSERT INTO </span><span class="si">{</span><span class="n">table_ref</span><span class="si">}</span><span class="s2"> "</span>  <span class="c1"># noqa: S608</span>
+        <span class="sa">f</span><span class="s2">"SELECT </span><span class="si">{</span><span class="n">columns_sql</span><span class="si">}</span><span class="s2"> FROM read_parquet(?)"</span><span class="p">,</span>
+        <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">parquet_path</span><span class="p">)],</span>
+    <span class="p">)</span>
+    <span class="n">row</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="sa">f</span><span class="s2">"SELECT count(*) FROM </span><span class="si">{</span><span class="n">table_ref</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>  <span class="c1"># noqa: S608</span>
+    <span class="k">assert</span> <span class="n">row</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>  <span class="c1"># SELECT count(*) always returns exactly one row</span>
+    <span class="k">return</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+
+<span class="c1">################################################################################</span>
+<span class="c1"># pudl.sqlite</span>
+<span class="c1">#</span>
+<span class="c1"># This whole section -- _has_integer_rowid_alias_pk, _validate_primary_key,</span>
+<span class="c1"># _write_pudl_sqlite -- is expected to be deleted once the pudl.sqlite deprecation</span>
+<span class="c1"># period ends. It has no callers outside build_pudl_sqlite_asset().</span>
+<span class="c1">################################################################################</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_has_integer_rowid_alias_pk</span><span class="p">(</span><span class="n">resource</span><span class="p">:</span> <span class="n">Resource</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return whether SQLite will silently fail NOT NULL constraints on this PK.</span>
+
+<span class="sd">    When a table's primary key is a *single* column of ``integer`` (or ``year``) type,</span>
+<span class="sd">    SQLite treats that column as an alias for its internal ``rowid`` rather than as an</span>
+<span class="sd">    ordinary constrained column. This has a surprising consequence: inserting ``NULL``</span>
+<span class="sd">    into that column does not raise an error, even though the column also has an</span>
+<span class="sd">    explicit ``NOT NULL`` constraint (every PUDL primary key column does -- see</span>
+<span class="sd">    ``Resource._check_primary_key_in_fields``). Instead, SQLite silently substitutes the</span>
+<span class="sd">    next available rowid and the insert succeeds -- a bad row (``NULL`` where a primary</span>
+<span class="sd">    key value was expected) is quietly laundered into a plausible-looking row instead of</span>
+<span class="sd">    failing loudly.</span>
+
+<span class="sd">    Composite (multi-column) primary keys and non-integer single-column primary keys are</span>
+<span class="sd">    not ROWID aliases, so SQLite's own ``NOT NULL``/``UNIQUE`` enforcement on those</span>
+<span class="sd">    columns works as expected.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        resource: Metadata Resource for the table, whose ``schema.primary_key`` and</span>
+<span class="sd">            field types are inspected.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        True if the resource has a single-column ``integer`` (or ``year``) primary key.</span>
+<span class="sd">        False for composite or non-integer primary keys.</span>
+<span class="sd">    """</span>
+    <span class="n">pk</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">primary_key</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pk</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="n">pk_field</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">resource</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">fields</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">pk</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">pk_field</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"integer"</span><span class="p">,</span> <span class="s2">"year"</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_primary_key</span><span class="p">(</span><span class="n">resource</span><span class="p">:</span> <span class="n">Resource</span><span class="p">,</span> <span class="n">paths</span><span class="p">:</span> <span class="n">PudlPaths</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Check a table's Parquet data against its own primary key before writing.</span>
+
+<span class="sd">    Only active when :func:`_has_integer_rowid_alias_pk` is True, since that is the only</span>
+<span class="sd">    kind of primary key SQLite doesn't already enforce ``NOT NULL`` / ``UNIQUE`` on</span>
+<span class="sd">    correctly. For all other cases SQLite's own constraint enforcement at insert time is</span>
+<span class="sd">    sufficient, and this returns immediately without reading the Parquet file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        resource: Metadata Resource for the table to check.</span>
+<span class="sd">        paths: PUDL workspace paths, used to locate the table's Parquet file.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If the Parquet data contains a null or duplicate primary key</span>
+<span class="sd">            value. The message names the resource and lists each violation.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_has_integer_rowid_alias_pk</span><span class="p">(</span><span class="n">resource</span><span class="p">):</span>
+        <span class="k">return</span>
+    <span class="n">lazy_df</span> <span class="o">=</span> <span class="n">get_parquet_table_polars</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">paths</span><span class="o">=</span><span class="n">paths</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">errors</span> <span class="o">:=</span> <span class="n">resource</span><span class="o">.</span><span class="n">check_primary_key</span><span class="p">(</span><span class="n">lazy_df</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">resource</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: "</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="k">for</span> <span class="n">error</span> <span class="ow">in</span> <span class="n">errors</span><span class="p">)</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_write_pudl_sqlite</span><span class="p">(</span>
+    <span class="n">table_names</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">paths</span><span class="p">:</span> <span class="n">PudlPaths</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TableWriteReport</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Assemble ``$PUDL_OUTPUT/pudl.sqlite`` from the Parquet outputs.</span>
+
+<span class="sd">    Lays down an empty schema through a throwaway SQLAlchemy engine, attaches to the</span>
+<span class="sd">    empty database with DuckDB, reads each table's Parquet file, and streams it into the</span>
+<span class="sd">    SQLite database through DuckDB's interface. This is ~20x faster than writing through</span>
+<span class="sd">    Python's ``sqlite3``.</span>
+
+<span class="sd">    The SQLite schema drops the CHECK and type constraints our metadata defines because</span>
+<span class="sd">    they would be enforced by SQLite here, and it is slow. The data is already validated</span>
+<span class="sd">    elsewhere by pandera and dbt. Foreign key constraints are declared but not enforced,</span>
+<span class="sd">    per SQLite's ``PRAGMA foreign_keys = OFF`` default.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        table_names: Tables to load, in the order they should be inserted.</span>
+<span class="sd">        paths: Workspace paths, used to locate both the destination file and each</span>
+<span class="sd">            table's Parquet file. Any existing destination file is deleted first;</span>
+<span class="sd">            parent directories are created as needed.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A :class:`TableWriteReport` with a row count per table written and a</span>
+<span class="sd">        :class:`TableWriteErrorInfo` per table that failed.</span>
+<span class="sd">    """</span>
+    <span class="n">attach_alias</span> <span class="o">=</span> <span class="s2">"pudl_sqlite"</span>
+    <span class="n">db_path</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">sqlite_path</span><span class="p">(</span><span class="s2">"pudl"</span><span class="p">)</span>
+    <span class="n">db_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">db_path</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">missing_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">engine</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">create_engine</span><span class="p">(</span><span class="sa">f</span><span class="s2">"sqlite:///</span><span class="si">{</span><span class="n">db_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">PUDL_PACKAGE</span><span class="o">.</span><span class="n">to_sql</span><span class="p">(</span>
+        <span class="n">dialect</span><span class="o">=</span><span class="s2">"sqlite"</span><span class="p">,</span> <span class="n">check_types</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">check_values</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">create_all</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+    <span class="n">engine</span><span class="o">.</span><span class="n">dispose</span><span class="p">()</span>
+
+    <span class="n">report</span> <span class="o">=</span> <span class="n">TableWriteReport</span><span class="p">(</span><span class="n">db_path</span><span class="o">=</span><span class="n">db_path</span><span class="p">)</span>
+    <span class="n">n_tables</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">table_names</span><span class="p">)</span>
+    <span class="c1"># Closing the connection detaches the SQLite database automatically.</span>
+    <span class="k">with</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">"PRAGMA disable_progress_bar"</span><span class="p">)</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">"LOAD sqlite"</span><span class="p">)</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ATTACH '</span><span class="si">{</span><span class="n">db_path</span><span class="si">}</span><span class="s2">' AS </span><span class="si">{</span><span class="n">attach_alias</span><span class="si">}</span><span class="s2"> (TYPE sqlite)"</span><span class="p">)</span>  <span class="c1"># noqa: S608</span>
+        <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">table_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">table_names</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Writing SQLite </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">n_tables</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="c1"># Fetched outside the try/except: a missing Resource is a schema bug,</span>
+            <span class="c1"># not a per-table data problem.</span>
+            <span class="n">resource</span> <span class="o">=</span> <span class="n">PUDL_PACKAGE</span><span class="o">.</span><span class="n">get_resource</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">_validate_primary_key</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">paths</span><span class="p">)</span>
+                <span class="n">report</span><span class="o">.</span><span class="n">row_counts</span><span class="p">[</span><span class="n">table_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">_copy_table</span><span class="p">(</span>
+                    <span class="n">conn</span><span class="p">,</span>
+                    <span class="n">resource</span><span class="p">,</span>
+                    <span class="n">paths</span><span class="o">.</span><span class="n">parquet_path</span><span class="p">(</span><span class="n">table_name</span><span class="p">),</span>
+                    <span class="n">table_ref</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">attach_alias</span><span class="si">}</span><span class="s1">."</span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s1">"'</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">except</span> <span class="n">_WRITE_EXCEPTIONS</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to write </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> to sqlite: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="n">report</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">TableWriteErrorInfo</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">exc</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">report</span>
+
+
+<span class="c1">################################################################################</span>
+<span class="c1"># pudl.duckdb</span>
+<span class="c1">################################################################################</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_write_pudl_duckdb</span><span class="p">(</span>
+    <span class="n">table_names</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">paths</span><span class="p">:</span> <span class="n">PudlPaths</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TableWriteReport</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Assemble ``$PUDL_OUTPUT/pudl.duckdb`` from the Parquet outputs.</span>
+
+<span class="sd">    Lays down an empty schema through a throwaway SQLAlchemy engine, then reads each</span>
+<span class="sd">    table's Parquet file straight into the DuckDB file with DuckDB's own engine.</span>
+
+<span class="sd">    Unlike the SQLite schema, keep every CHECK and type constraint our metadata defines</span>
+<span class="sd">    (DuckDB enforces them cheaply on write). It omits foreign keys entirely: a handful</span>
+<span class="sd">    of our FK column pairs have mismatched types that DuckDB rejects (issue #5552).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        table_names: Tables to load, in the order they should be inserted.</span>
+<span class="sd">        paths: Workspace paths, used to locate both the destination file and each</span>
+<span class="sd">            table's Parquet file. Any existing destination file is deleted first;</span>
+<span class="sd">            parent directories are created as needed.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A :class:`TableWriteReport` with a row count per table written and a</span>
+<span class="sd">        :class:`TableWriteErrorInfo` per table that failed.</span>
+<span class="sd">    """</span>
+    <span class="n">db_path</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">duckdb_path</span><span class="p">(</span><span class="s2">"pudl"</span><span class="p">)</span>
+    <span class="n">db_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">db_path</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">missing_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">engine</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">create_engine</span><span class="p">(</span><span class="sa">f</span><span class="s2">"duckdb:///</span><span class="si">{</span><span class="n">db_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="c1"># NOTE (2026-09-09): duckdb-engine's SQLAlchemy dialect inherits postgresql's</span>
+    <span class="c1"># 63-char limit; duckdb can support longer identifiers and we need them, so increase</span>
+    <span class="c1"># this limit.</span>
+    <span class="n">engine</span><span class="o">.</span><span class="n">dialect</span><span class="o">.</span><span class="n">max_identifier_length</span> <span class="o">=</span> <span class="mi">255</span>
+    <span class="n">PUDL_PACKAGE</span><span class="o">.</span><span class="n">to_sql</span><span class="p">(</span><span class="n">dialect</span><span class="o">=</span><span class="s2">"duckdb"</span><span class="p">,</span> <span class="n">include_foreign_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">create_all</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+    <span class="n">engine</span><span class="o">.</span><span class="n">dispose</span><span class="p">()</span>
+
+    <span class="n">report</span> <span class="o">=</span> <span class="n">TableWriteReport</span><span class="p">(</span><span class="n">db_path</span><span class="o">=</span><span class="n">db_path</span><span class="p">)</span>
+    <span class="n">n_tables</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">table_names</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">db_path</span><span class="p">))</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">"PRAGMA disable_progress_bar"</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">table_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">table_names</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Writing DuckDB </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">n_tables</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="c1"># Fetched outside the try/except: a missing Resource is a schema bug,</span>
+            <span class="c1"># not a per-table data problem.</span>
+            <span class="n">resource</span> <span class="o">=</span> <span class="n">PUDL_PACKAGE</span><span class="o">.</span><span class="n">get_resource</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">report</span><span class="o">.</span><span class="n">row_counts</span><span class="p">[</span><span class="n">table_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">_copy_table</span><span class="p">(</span>
+                    <span class="n">conn</span><span class="p">,</span>
+                    <span class="n">resource</span><span class="p">,</span>
+                    <span class="n">paths</span><span class="o">.</span><span class="n">parquet_path</span><span class="p">(</span><span class="n">table_name</span><span class="p">),</span>
+                    <span class="n">table_ref</span><span class="o">=</span><span class="sa">f</span><span class="s1">'"</span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s1">"'</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">except</span> <span class="n">_WRITE_EXCEPTIONS</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to write </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> to duckdb: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="n">report</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">TableWriteErrorInfo</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">exc</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">report</span>
+
+
+<span class="c1">################################################################################</span>
+<span class="c1"># Dagster asset factory</span>
+<span class="c1">################################################################################</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">build_pudl_db_asset</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">write_db</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">PudlPaths</span><span class="p">],</span> <span class="n">TableWriteReport</span><span class="p">],</span>
+    <span class="n">asset_keys</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">dg</span><span class="o">.</span><span class="n">AssetKey</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetsDefinition</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Handles the shared logic that feeds error reports into Dagster metadata.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name: Asset name (``"pudl_sqlite"`` / ``"pudl_duckdb"``).</span>
+<span class="sd">        description: Dagster asset description.</span>
+<span class="sd">        write_db: The per-format writer (:func:`_write_pudl_sqlite` /</span>
+<span class="sd">            :func:`_write_pudl_duckdb`). It resolves its own destination path from the</span>
+<span class="sd">            workspace paths and reports it back on the :class:`TableWriteReport`.</span>
+<span class="sd">        asset_keys: Keys of the Parquet-writing assets whose tables to include; used</span>
+<span class="sd">            both as the asset's deps and as the ordered list of tables to insert.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A Dagster :class:`~dagster.AssetsDefinition` for the database asset.</span>
+<span class="sd">    """</span>
+
+    <span class="nd">@dg</span><span class="o">.</span><span class="n">asset</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+        <span class="n">group_name</span><span class="o">=</span><span class="s2">"out_pudl"</span><span class="p">,</span>
+        <span class="n">deps</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">asset_keys</span><span class="p">),</span>
+        <span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">"pudl_paths"</span><span class="p">},</span>
+        <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_pudl_db</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetExecutionContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dg</span><span class="o">.</span><span class="n">MaterializeResult</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Materialize the database and record its size and table count."""</span>
+        <span class="n">pudl_paths</span><span class="p">:</span> <span class="n">PudlPaths</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">pudl_paths</span>
+        <span class="n">table_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span><span class="o">.</span><span class="n">path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">asset_keys</span><span class="p">]</span>
+        <span class="n">report</span> <span class="o">=</span> <span class="n">write_db</span><span class="p">(</span><span class="n">table_names</span><span class="p">,</span> <span class="n">pudl_paths</span><span class="p">)</span>
+
+        <span class="n">metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">dg</span><span class="o">.</span><span class="n">MetadataValue</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">"path"</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">MetadataValue</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">db_path</span><span class="p">),</span>
+            <span class="s2">"table_count"</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">MetadataValue</span><span class="o">.</span><span class="n">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">row_counts</span><span class="p">)),</span>
+            <span class="s2">"bytes"</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">MetadataValue</span><span class="o">.</span><span class="n">int</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">db_path</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">report</span><span class="o">.</span><span class="n">errors</span><span class="p">:</span>
+            <span class="n">metadata</span><span class="p">[</span><span class="s2">"failed_tables"</span><span class="p">]</span> <span class="o">=</span> <span class="n">dg</span><span class="o">.</span><span class="n">MetadataValue</span><span class="o">.</span><span class="n">md</span><span class="p">(</span>
+                <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">"- </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">error</span> <span class="ow">in</span> <span class="n">report</span><span class="o">.</span><span class="n">errors</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="n">dg</span><span class="o">.</span><span class="n">Failure</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="n">report</span><span class="o">.</span><span class="n">summary</span><span class="p">(),</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">dg</span><span class="o">.</span><span class="n">MaterializeResult</span><span class="p">(</span><span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_pudl_db</span>
+
+
+<div class="viewcode-block" id="build_pudl_sqlite_asset">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/output/databases/index.html#pudl.dagster.assets.output.databases.build_pudl_sqlite_asset">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_pudl_sqlite_asset</span><span class="p">(</span><span class="n">asset_keys</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">dg</span><span class="o">.</span><span class="n">AssetKey</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetsDefinition</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Build the ``pudl_sqlite`` asset. Delete this once ``pudl.sqlite`` is retired."""</span>
+    <span class="k">return</span> <span class="n">build_pudl_db_asset</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">"pudl_sqlite"</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">"SQLite database assembled from PUDL's Parquet outputs after the ETL "</span>
+            <span class="s2">"completes. Written to $PUDL_OUTPUT/pudl.sqlite. Includes only tables "</span>
+            <span class="s2">"whose Resource has create_database_schema=True. CHECK constraints "</span>
+            <span class="s2">"are omitted for performance (data is already validated against the "</span>
+            <span class="s2">"full schema upstream); foreign keys are declared but, per SQLite's "</span>
+            <span class="s2">"default, not enforced on write."</span>
+        <span class="p">),</span>
+        <span class="n">write_db</span><span class="o">=</span><span class="n">_write_pudl_sqlite</span><span class="p">,</span>
+        <span class="n">asset_keys</span><span class="o">=</span><span class="n">asset_keys</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="build_pudl_duckdb_asset">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/output/databases/index.html#pudl.dagster.assets.output.databases.build_pudl_duckdb_asset">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_pudl_duckdb_asset</span><span class="p">(</span><span class="n">asset_keys</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">dg</span><span class="o">.</span><span class="n">AssetKey</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetsDefinition</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Build the ``pudl_duckdb`` asset."""</span>
+    <span class="k">return</span> <span class="n">build_pudl_db_asset</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">"pudl_duckdb"</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">"DuckDB database assembled from PUDL's Parquet outputs after the ETL "</span>
+            <span class="s2">"completes. Written to $PUDL_OUTPUT/pudl.duckdb. Includes only tables "</span>
+            <span class="s2">"whose Resource has create_database_schema=True. Foreign key "</span>
+            <span class="s2">"constraints are excluded due to a handful of type conflicts."</span>
+        <span class="p">),</span>
+        <span class="n">write_db</span><span class="o">=</span><span class="n">_write_pudl_duckdb</span><span class="p">,</span>
+        <span class="n">asset_keys</span><span class="o">=</span><span class="n">asset_keys</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"TableWriteErrorInfo"</span><span class="p">,</span>
+    <span class="s2">"TableWriteReport"</span><span class="p">,</span>
+    <span class="s2">"build_pudl_duckdb_asset"</span><span class="p">,</span>
+    <span class="s2">"build_pudl_sqlite_asset"</span><span class="p">,</span>
+<span class="p">]</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2016-2026, Catalyst Cooperative, CC-BY-4.0.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+        <div class="footer-item">
+<p class="llms-txt-link">
+  <a href="../../../../../llms.txt"><span class="fa-solid fa-robot"></span> llms.txt</a>
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

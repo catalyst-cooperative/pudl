@@ -8,33 +8,33 @@ job when deployment handling is complete.
 
 ## Attributes
 
-| [`logger`](#pudl.dagster.assets.deploy.ferceqr.logger)                                               |    |
-|------------------------------------------------------------------------------------------------------|----|
-| [`FERCEQR_SOURCE_RUN_ID_TAG`](#pudl.dagster.assets.deploy.ferceqr.FERCEQR_SOURCE_RUN_ID_TAG)         |    |
+| [`logger`](#pudl.dagster.assets.deploy.ferceqr.logger)                        |    |
+|--------------------------------------------------------------------------------|----|
+| [`FERCEQR_SOURCE_RUN_ID_TAG`](#pudl.dagster.assets.deploy.ferceqr.FERCEQR_SOURCE_RUN_ID_TAG)     |    |
 | [`FERCEQR_SOURCE_PARTITIONS_TAG`](#pudl.dagster.assets.deploy.ferceqr.FERCEQR_SOURCE_PARTITIONS_TAG) |    |
-| [`DAGSTER_BACKFILL_TAG`](#pudl.dagster.assets.deploy.ferceqr.DAGSTER_BACKFILL_TAG)                   |    |
-| [`FERCEQR_TRANSFORM_ASSETS`](#pudl.dagster.assets.deploy.ferceqr.FERCEQR_TRANSFORM_ASSETS)           |    |
-| [`StepStatusTable`](#pudl.dagster.assets.deploy.ferceqr.StepStatusTable)                             |    |
+| [`DAGSTER_BACKFILL_TAG`](#pudl.dagster.assets.deploy.ferceqr.DAGSTER_BACKFILL_TAG)          |    |
+| [`FERCEQR_TRANSFORM_ASSETS`](#pudl.dagster.assets.deploy.ferceqr.FERCEQR_TRANSFORM_ASSETS)      |    |
+| [`StepStatusTable`](#pudl.dagster.assets.deploy.ferceqr.StepStatusTable)               |    |
 
 ## Functions
 
-| [`_write_status_file`](#pudl.dagster.assets.deploy.ferceqr._write_status_file)(status, pudl_paths)                         | Notify build script that job is complete by creating a status file.             |
-|----------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
-| [`_clear_status_files`](#pudl.dagster.assets.deploy.ferceqr._clear_status_files)(→ None)                                   | Remove any stale FERC EQR status files from the output directory.               |
-| [`_staging_path`](#pudl.dagster.assets.deploy.ferceqr._staging_path)(→ upath.UPath)                                        | Return the staging path *alongside* *dist_path* for an atomic deploy.           |
-| [`_deploy_to_staging`](#pudl.dagster.assets.deploy.ferceqr._deploy_to_staging)(→ list[upath.UPath])                        | Copy EQR outputs to a staging location under each target, return staging paths. |
-| [`_promote_staging`](#pudl.dagster.assets.deploy.ferceqr._promote_staging)(→ None)                                         | Atomically promote staging directories to their final destination paths.        |
-| [`_remove_staging`](#pudl.dagster.assets.deploy.ferceqr._remove_staging)(→ None)                                           | Remove a staging directory and all its contents.                                |
-| [`_parse_step_key`](#pudl.dagster.assets.deploy.ferceqr._parse_step_key)(→ tuple[str, str])                                | Extract asset and partition from a step key like `asset_name[partition]`.       |
-| [`_validate_partitions`](#pudl.dagster.assets.deploy.ferceqr._validate_partitions)(→ list[str])                            | Validate and parse the source partitions JSON from run tags.                    |
-| [`_markdown_step_status_table`](#pudl.dagster.assets.deploy.ferceqr._markdown_step_status_table)(→ str)                    | Format terminal step statuses as an asset-by-partition Markdown table.          |
+| [`_write_status_file`](#pudl.dagster.assets.deploy.ferceqr._write_status_file)(status, pudl_paths)                      | Notify build script that job is complete by creating a status file.             |
+|--------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
+| [`_clear_status_files`](#pudl.dagster.assets.deploy.ferceqr._clear_status_files)(→ None)                                 | Remove any stale FERC EQR status files from the output directory.               |
+| [`_staging_path`](#pudl.dagster.assets.deploy.ferceqr._staging_path)(→ upath.UPath)                                | Return the staging path *alongside* *dist_path* for an atomic deploy.           |
+| [`_deploy_to_staging`](#pudl.dagster.assets.deploy.ferceqr._deploy_to_staging)(→ list[upath.UPath])                     | Copy EQR outputs to a staging location under each target, return staging paths. |
+| [`_promote_staging`](#pudl.dagster.assets.deploy.ferceqr._promote_staging)(→ None)                                    | Atomically promote staging directories to their final destination paths.        |
+| [`_remove_staging`](#pudl.dagster.assets.deploy.ferceqr._remove_staging)(→ None)                                     | Remove a staging directory and all its contents.                                |
+| [`_parse_step_key`](#pudl.dagster.assets.deploy.ferceqr._parse_step_key)(→ tuple[str, str])                          | Extract asset and partition from a step key like `asset_name[partition]`.       |
+| [`_validate_partitions`](#pudl.dagster.assets.deploy.ferceqr._validate_partitions)(→ list[str])                           | Validate and parse the source partitions JSON from run tags.                    |
+| [`_markdown_step_status_table`](#pudl.dagster.assets.deploy.ferceqr._markdown_step_status_table)(→ str)                          | Format terminal step statuses as an asset-by-partition Markdown table.          |
 | [`_gather_step_statuses`](#pudl.dagster.assets.deploy.ferceqr._gather_step_statuses)(→ tuple[StepStatusTable, str | None]) | Collect step statuses and total elapsed time across all source runs.            |
-| [`_markdown_logfile_list`](#pudl.dagster.assets.deploy.ferceqr._markdown_logfile_list)(→ str)                              | Return pointer to logs to send in Zulip message.                                |
-| [`_compute_deploy_duration`](#pudl.dagster.assets.deploy.ferceqr._compute_deploy_duration)(→ str | None)                   | Return elapsed time since the current run started, or None on failure.          |
-| [`build_ferceqr_notification`](#pudl.dagster.assets.deploy.ferceqr.build_ferceqr_notification)(→ str)                      | Build a Markdown notification string for FERC EQR deployment outcomes.          |
-| [`deployment_status_asset`](#pudl.dagster.assets.deploy.ferceqr.deployment_status_asset)(→ dagster.AssetsDefinition)       | Create a custom decorator for deployment handler assets.                        |
-| [`deploy_ferceqr`](#pudl.dagster.assets.deploy.ferceqr.deploy_ferceqr)(context)                                            | Publish EQR outputs to configured deployment targets.                           |
-| [`handle_ferceqr_failure`](#pudl.dagster.assets.deploy.ferceqr.handle_ferceqr_failure)(context)                            | Send notification if the FERC EQR build failed.                                 |
+| [`_markdown_logfile_list`](#pudl.dagster.assets.deploy.ferceqr._markdown_logfile_list)(→ str)                               | Return pointer to logs to send in Zulip message.                                |
+| [`_compute_deploy_duration`](#pudl.dagster.assets.deploy.ferceqr._compute_deploy_duration)(→ str | None)                      | Return elapsed time since the current run started, or None on failure.          |
+| [`build_ferceqr_notification`](#pudl.dagster.assets.deploy.ferceqr.build_ferceqr_notification)(→ str)                           | Build a Markdown notification string for FERC EQR deployment outcomes.          |
+| [`deployment_status_asset`](#pudl.dagster.assets.deploy.ferceqr.deployment_status_asset)(→ dagster.AssetsDefinition)         | Create a custom decorator for deployment handler assets.                        |
+| [`deploy_ferceqr`](#pudl.dagster.assets.deploy.ferceqr.deploy_ferceqr)(context)                                     | Publish EQR outputs to configured deployment targets.                           |
+| [`handle_ferceqr_failure`](#pudl.dagster.assets.deploy.ferceqr.handle_ferceqr_failure)(context)                             | Send notification if the FERC EQR build failed.                                 |
 
 ## Module Contents
 
@@ -50,7 +50,7 @@ job when deployment handling is complete.
 
 ### pudl.dagster.assets.deploy.ferceqr.StepStatusTable
 
-### pudl.dagster.assets.deploy.ferceqr.\_write_status_file(status: Literal['FERCEQR_SUCCESS', 'FERCEQR_FAILURE'], pudl_paths: [pudl.workspace.setup.PudlPaths](../../../../workspace/setup/index.md#pudl.workspace.setup.PudlPaths))
+### pudl.dagster.assets.deploy.ferceqr.\_write_status_file(status: Literal['FERCEQR_SUCCESS', 'FERCEQR_FAILURE'], pudl_paths: [pudl.workspace.setup.PudlPaths](../../../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths))
 
 Notify build script that job is complete by creating a status file.
 
@@ -60,7 +60,7 @@ and runs `killall dagster-daemon` as soon as it appears. Any buffered log
 output written before the sentinel but not yet flushed will be lost when the
 daemon process is killed, making errors invisible in the log.
 
-### pudl.dagster.assets.deploy.ferceqr.\_clear_status_files(pudl_paths: [pudl.workspace.setup.PudlPaths](../../../../workspace/setup/index.md#pudl.workspace.setup.PudlPaths)) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.dagster.assets.deploy.ferceqr.\_clear_status_files(pudl_paths: [pudl.workspace.setup.PudlPaths](../../../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths)) → [None](https://docs.python.org/3/library/constants.html#None)
 
 Remove any stale FERC EQR status files from the output directory.
 
@@ -83,7 +83,7 @@ random component to avoid collisions during concurrent development runs.
 
 If `BUILD_ID` is not set (local/testing), a random short suffix is used alone.
 
-### pudl.dagster.assets.deploy.ferceqr.\_deploy_to_staging(ferceqr_deployment: [pudl.dagster.resources.FercEqrDeploymentResource](../../../resources/index.md#pudl.dagster.resources.FercEqrDeploymentResource), source_partitions: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], datapackage_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [list](https://docs.python.org/3/library/stdtypes.html#list)[upath.UPath]
+### pudl.dagster.assets.deploy.ferceqr.\_deploy_to_staging(ferceqr_deployment: [pudl.dagster.resources.FercEqrDeploymentResource](../../../resources/index.html.md#pudl.dagster.resources.FercEqrDeploymentResource), source_partitions: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], datapackage_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [list](https://docs.python.org/3/library/stdtypes.html#list)[upath.UPath]
 
 Copy EQR outputs to a staging location under each target, return staging paths.
 

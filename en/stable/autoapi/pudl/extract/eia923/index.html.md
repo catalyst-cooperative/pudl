@@ -6,19 +6,19 @@ This module pulls data from archived copies of EIA’s published Excel spreadshe
 
 ## Attributes
 
-| [`logger`](#pudl.extract.eia923.logger)                           |    |
-|-------------------------------------------------------------------|----|
+| [`logger`](#pudl.extract.eia923.logger)              |    |
+|----------------------------------------------------------------------|----|
 | [`raw_eia923__all_dfs`](#pudl.extract.eia923.raw_eia923__all_dfs) |    |
 
 ## Classes
 
 | [`Extractor`](#pudl.extract.eia923.Extractor)   | Extractor for EIA form 923.   |
-|-------------------------------------------------|-------------------------------|
+|--------------------------------------------------------------|-------------------------------|
 
 ## Functions
 
 | [`extract_eia923`](#pudl.extract.eia923.extract_eia923)(context, raw_eia923_\_all_dfs)   | Extract raw EIA-923 data from excel sheets into dataframes.   |
-|------------------------------------------------------------------------------------------|---------------------------------------------------------------|
+|--------------------------------------------------------------------------------------------------|---------------------------------------------------------------|
 
 ## Module Contents
 
@@ -26,7 +26,7 @@ This module pulls data from archived copies of EIA’s published Excel spreadshe
 
 ### *class* pudl.extract.eia923.Extractor(\*args, \*\*kwargs)
 
-Bases: [`pudl.extract.excel.ExcelExtractor`](../excel/index.md#pudl.extract.excel.ExcelExtractor)
+Bases: [`pudl.extract.excel.ExcelExtractor`](../excel/index.html.md#pudl.extract.excel.ExcelExtractor)
 
 Extractor for EIA form 923.
 

@@ -8,20 +8,20 @@ each module there to actually store resource metadata.
 
 ## Attributes
 
-| [`HARVESTED_CORE_TABLES_RUS12`](#pudl.metadata.resource_helpers.HARVESTED_CORE_TABLES_RUS12)         |    |
-|------------------------------------------------------------------------------------------------------|----|
-| [`HARVESTED_CORE_TABLES_RUS7`](#pudl.metadata.resource_helpers.HARVESTED_CORE_TABLES_RUS7)           |    |
-| [`HARVESTING_DETAIL_TEXT_EIA`](#pudl.metadata.resource_helpers.HARVESTING_DETAIL_TEXT_EIA)           |    |
-| [`HARVESTING_DETAIL_TEXT_RUS`](#pudl.metadata.resource_helpers.HARVESTING_DETAIL_TEXT_RUS)           |    |
+| [`HARVESTED_CORE_TABLES_RUS12`](#pudl.metadata.resource_helpers.HARVESTED_CORE_TABLES_RUS12)     |    |
+|----------------------------------------------------------------------------------|----|
+| [`HARVESTED_CORE_TABLES_RUS7`](#pudl.metadata.resource_helpers.HARVESTED_CORE_TABLES_RUS7)      |    |
+| [`HARVESTING_DETAIL_TEXT_EIA`](#pudl.metadata.resource_helpers.HARVESTING_DETAIL_TEXT_EIA)      |    |
+| [`HARVESTING_DETAIL_TEXT_RUS`](#pudl.metadata.resource_helpers.HARVESTING_DETAIL_TEXT_RUS)      |    |
 | [`HARVESTING_FORENSIC_DETAIL_TEXT`](#pudl.metadata.resource_helpers.HARVESTING_FORENSIC_DETAIL_TEXT) |    |
 
 ## Functions
 
-| [`canonical_harvested_details`](#pudl.metadata.resource_helpers.canonical_harvested_details)(→ str)             | Generate additional details text for one of the eight core harvested tables.                                              |
-|-----------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------|
+| [`canonical_harvested_details`](#pudl.metadata.resource_helpers.canonical_harvested_details)(→ str)       | Generate additional details text for one of the eight core harvested tables.                                              |
+|-------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------|
 | [`inherits_harvested_values_details`](#pudl.metadata.resource_helpers.inherits_harvested_values_details)(→ str) | Generate additional details text for a table which inherits harvested values from one of the eight core harvested tables. |
-| [`merge_descriptions`](#pudl.metadata.resource_helpers.merge_descriptions)(→ dict[str, Any])                    | Merge two description dictionaries.                                                                                       |
-| [`core_to_out_harvested_resources`](#pudl.metadata.resource_helpers.core_to_out_harvested_resources)(→ dict)    | Make out tables from core resource metadata when extra columns are standard.                                              |
+| [`merge_descriptions`](#pudl.metadata.resource_helpers.merge_descriptions)(→ dict[str, Any])     | Merge two description dictionaries.                                                                                       |
+| [`core_to_out_harvested_resources`](#pudl.metadata.resource_helpers.core_to_out_harvested_resources)(→ dict)  | Make out tables from core resource metadata when extra columns are standard.                                              |
 
 ## Module Contents
 
@@ -105,7 +105,7 @@ Generate additional details text for a table which inherits harvested values fro
 A table inherits harvested values from one of the eight core harvested tables
 if it is downstream of one or more tables `core_eia__entity_{plants|utilities|boilers|generators}`
 or `core_eia860__scd_{plants|utilities|boilers|generators}` and includes one or
-more columns from the static or annual column lists in [`pudl.metadata.resources.ENTITIES`](../resources/index.md#pudl.metadata.resources.ENTITIES).
+more columns from the static or annual column lists in [`pudl.metadata.resources.ENTITIES`](../resources/index.html.md#pudl.metadata.resources.ENTITIES).
 
 We have chosen to only add this warning to tables that inherit 3 or more columns from harvested
 tables.

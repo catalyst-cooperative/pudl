@@ -4,8 +4,8 @@
 |---------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Source Description              | The NREL Annual Technology Baseline (ATB) for Electricity publishes annual projections of operational and capital expenditures (by technology and vintage), as well as operating characteristics (by technology). |
 | Source Format                   | Parquet                                                                                                                                                                                                           |
-| Download Size                   | 13 MB                                                                                                                                                                                                             |
-| Temporal Coverage               | 2021-2024                                                                                                                                                                                                         |
+| Download Size                   | 478 MB                                                                                                                                                                                                            |
+| Temporal Coverage               | 2021-2025                                                                                                                                                                                                         |
 | PUDL Code                       | `nrelatb`                                                                                                                                                                                                         |
 | Unprocessed Source Data Archive | [10.5281/zenodo.10839267](https://doi.org/10.5281/zenodo.10839267)                                                                                                                                                |
 | Issues                          | [Open NREL Annual Technology Baseline (ATB) for Electricity issues](https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Anrelatb)                                    |
@@ -16,18 +16,18 @@ We’ve segmented the processed data into the following normalized data tables.
 Clicking on the links will show you a description of the table as well as
 the names and descriptions of each of its fields.
 
-| Data Dictionary                                                                                                                                          | Browse Online                                                                                                                                                                                             |
-|----------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [core_nrelatb_\_yearly_projected_cost_performance](../data_dictionaries/pudl_db.md#core-nrelatb-yearly-projected-cost-performance)                       | [https://data.catalyst.coop/preview/pudl/core_nrelatb_\_yearly_projected_cost_performance](https://data.catalyst.coop/preview/pudl/core_nrelatb__yearly_projected_cost_performance)                       |
-| [core_nrelatb_\_yearly_projected_financial_cases](../data_dictionaries/pudl_db.md#core-nrelatb-yearly-projected-financial-cases)                         | [https://data.catalyst.coop/preview/pudl/core_nrelatb_\_yearly_projected_financial_cases](https://data.catalyst.coop/preview/pudl/core_nrelatb__yearly_projected_financial_cases)                         |
-| [core_nrelatb_\_yearly_projected_financial_cases_by_scenario](../data_dictionaries/pudl_db.md#core-nrelatb-yearly-projected-financial-cases-by-scenario) | [https://data.catalyst.coop/preview/pudl/core_nrelatb_\_yearly_projected_financial_cases_by_scenario](https://data.catalyst.coop/preview/pudl/core_nrelatb__yearly_projected_financial_cases_by_scenario) |
-| [core_nrelatb_\_yearly_technology_status](../data_dictionaries/pudl_db.md#core-nrelatb-yearly-technology-status)                                         | [https://data.catalyst.coop/preview/pudl/core_nrelatb_\_yearly_technology_status](https://data.catalyst.coop/preview/pudl/core_nrelatb__yearly_technology_status)                                         |
+| Data Dictionary                                                                                                                                                      | Browse Online                                                                                                                                                                                             |
+|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [core_nrelatb_\_yearly_projected_cost_performance](../data_dictionaries/pudl_db.html.md#core-nrelatb-yearly-projected-cost-performance)                       | [https://data.catalyst.coop/preview/pudl/core_nrelatb_\_yearly_projected_cost_performance](https://data.catalyst.coop/preview/pudl/core_nrelatb__yearly_projected_cost_performance)                       |
+| [core_nrelatb_\_yearly_projected_financial_cases](../data_dictionaries/pudl_db.html.md#core-nrelatb-yearly-projected-financial-cases)                         | [https://data.catalyst.coop/preview/pudl/core_nrelatb_\_yearly_projected_financial_cases](https://data.catalyst.coop/preview/pudl/core_nrelatb__yearly_projected_financial_cases)                         |
+| [core_nrelatb_\_yearly_projected_financial_cases_by_scenario](../data_dictionaries/pudl_db.html.md#core-nrelatb-yearly-projected-financial-cases-by-scenario) | [https://data.catalyst.coop/preview/pudl/core_nrelatb_\_yearly_projected_financial_cases_by_scenario](https://data.catalyst.coop/preview/pudl/core_nrelatb__yearly_projected_financial_cases_by_scenario) |
+| [core_nrelatb_\_yearly_technology_status](../data_dictionaries/pudl_db.html.md#core-nrelatb-yearly-technology-status)                                         | [https://data.catalyst.coop/preview/pudl/core_nrelatb_\_yearly_technology_status](https://data.catalyst.coop/preview/pudl/core_nrelatb__yearly_technology_status)                                         |
 
 ## Background
 
-NREL publishes [Annual Technology Baseline (ATB)](https://atb.nrel.gov) data for the
-[Electricity](https://atb.nrel.gov/electricity) and
-[Transportation](https://atb.nrel.gov/transportation) sectors.
+NREL publishes [Annual Technology Baseline (ATB)](https://atb.nlr.gov/)
+data for the [Electricity](https://atb.nlr.gov/electricity/2025/data) and
+[Transportation](https://atb.nlr.gov/transportation/2024/data) sectors.
 
 The NREL Annual Technology Baseline (ATB) provides a consistent set of technology cost
 and performance data for energy analysis.
@@ -43,11 +43,11 @@ with projections through 2050.
 
 ### Download additional documentation
 
-* [`Nrelatb Definitions 2020 (HTML)`](nrelatb/nrelatb_definitions_2020.html)
-* [`Nrelatb Definitions 2021 (HTML)`](nrelatb/nrelatb_definitions_2021.html)
-* [`Nrelatb Definitions 2022 (HTML)`](nrelatb/nrelatb_definitions_2022.html)
-* [`Nrelatb Definitions 2023 (HTML)`](nrelatb/nrelatb_definitions_2023.html)
-* [`Nrelatb Definitions 2024 (HTML)`](nrelatb/nrelatb_definitions_2024.html)
+* [`Nrelatb Definitions 2020 (HTML)`](_downloads/d7595350dfe362c3d2e1a5bc53383601/nrelatb_definitions_2020.html)
+* [`Nrelatb Definitions 2021 (HTML)`](_downloads/899cce231a7cff5c097e14b663d5beb6/nrelatb_definitions_2021.html)
+* [`Nrelatb Definitions 2022 (HTML)`](_downloads/bab04d7c8a3f284f3c1016be1e2ea45d/nrelatb_definitions_2022.html)
+* [`Nrelatb Definitions 2023 (HTML)`](_downloads/ef1008b992db8aceecc639b540f6fcbf/nrelatb_definitions_2023.html)
+* [`Nrelatb Definitions 2024 (HTML)`](_downloads/ef1bb0966ad08ac9e8f100881564103c/nrelatb_definitions_2024.html)
 
 ### Data available through PUDL
 
@@ -98,5 +98,5 @@ documentation is a great place to start.
 ## PUDL Data Transformations
 
 To see the transformations applied to the data in each table, you can read the
-docstrings for [`pudl.transform.nrelatb`](../autoapi/pudl/transform/nrelatb/index.md#module-pudl.transform.nrelatb) created for each table’s
+docstrings for [`pudl.transform.nrelatb`](../autoapi/pudl/transform/nrelatb/index.html.md#module-pudl.transform.nrelatb) created for each table’s
 respective transform function.
