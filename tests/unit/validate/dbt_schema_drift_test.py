@@ -74,9 +74,9 @@ def test_dbt_schema_drift():
         schema = DbtSchema.from_yaml(schema_path)
         schema_fields = {
             column.name
-            for source in schema.sources
-            for table in source.tables
-            for column in table.columns
+            for source in schema.sources or []
+            for table in source.tables or []
+            for column in table.columns or []
         }
         for field_name in [
             f.name for f in PUDL_PACKAGE.get_resource(table_name).schema.fields
@@ -92,7 +92,9 @@ def test_dbt_schema_drift():
     for schema_path in all_dbt_schema_paths:  # pragma: no cover
         schema = DbtSchema.from_yaml(schema_path)
         dbt_tables_not_in_pudl.update(
-            table.name for source in schema.sources for table in source.tables
+            table.name
+            for source in schema.sources or []
+            for table in source.tables or []
         )
     assert (
         len(pudl_tables_not_in_dbt) == 0
