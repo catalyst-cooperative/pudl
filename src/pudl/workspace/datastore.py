@@ -240,7 +240,7 @@ class ZenodoDoiSettings(BaseSettings):
         return dict(self)[dataset]
 
     @classmethod
-    def from_yaml(cls, path: str | Path) -> "ZenodoDoiSettings":
+    def from_yaml(cls, path: str | Path) -> ZenodoDoiSettings:
         """Create a ZenodoDoiSettings instance from a YAML file path.
 
         Args:

@@ -571,7 +571,7 @@ class UnitConversion(TransformParams):
             )
         return self
 
-    def inverse(self) -> "UnitConversion":
+    def inverse(self) -> UnitConversion:
         """Construct a :class:`UnitConversion` that is the inverse of self.
 
         Allows a unit conversion to be undone. This is currently used in the context of
@@ -1026,7 +1026,7 @@ class TableTransformParams(TransformParams):
     spot_fix_values: list[SpotFixes] = []
 
     @classmethod
-    def from_dict(cls, params: dict[str, Any]) -> "TableTransformParams":
+    def from_dict(cls, params: dict[str, Any]) -> TableTransformParams:
         """Construct ``TableTransformParams`` from a dictionary of keyword arguments.
 
         Typically these will be the table-level dictionaries defined in the dataset-
@@ -1036,7 +1036,7 @@ class TableTransformParams(TransformParams):
         return cls(**params)
 
     @classmethod
-    def from_id(cls, table_id: enum.Enum) -> "TableTransformParams":
+    def from_id(cls, table_id: enum.Enum) -> TableTransformParams:
         """A factory method that looks up transform parameters based on table_id.
 
         This is a shortcut, which allows us to constitute the parameter models based on
