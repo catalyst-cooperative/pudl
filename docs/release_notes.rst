@@ -1,6 +1,53 @@
 =======================================================================================
 PUDL Release Notes
 =======================================================================================
+.. _release-v2026.10.0:
+
+---------------------------------------------------------------------------------------
+v2026.10.0 (2026-10-XX)
+---------------------------------------------------------------------------------------
+
+This is the upcoming PUDL data release, scheduled for early October, 2026.
+
+Enhancements
+^^^^^^^^^^^^
+
+New Data
+^^^^^^^^
+
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+Documentation
+^^^^^^^^^^^^^
+
+New Data Tests & Validations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Bug Fixes & Data Cleaning
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Fixed ``allocate_gen_fuel.py`` silently dropping legitimate generation and fuel
+  data for generators transitioning between ``proposed``/``existing`` or
+  ``existing``/``retired`` status across a multi-year ETL run. Unified the slightly
+  different logics of these transitions into a single, shared, symmetric process. This
+  simplification exposed a bug in which one generator's status transition could silently
+  prevent data from another group of generators at the same plant from being allocated.
+  Added extensive unit tests and new dbt data quality tests validating that >=99.7% of
+  all reported generation and fuel survives allocation. Thanks to :user:`grgmiller` for
+  surfacing the issue and initiating the fix. See :issue:`5440` and PRs :pr:`5419,5511`.
+* Fixed a bug where a skipped nightly/release build (i.e. one that found good build
+  outputs for its commit and kicked off the ``deploy-pudl.yml`` workflow) uploaded its
+  own small logfile to the build outputs bucket. This created newer object path with the
+  same commit confusing ``deploy-pudl`` causing deployment to fail. See :issue:`5579`
+  and :pr:`5580`.
+
+Performance Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Developer Experience
+^^^^^^^^^^^^^^^^^^^^
+
 .. _release-v2026.9.0:
 
 ---------------------------------------------------------------------------------------
@@ -210,15 +257,6 @@ Bug Fixes & Data Cleaning
   key instead of ``data_tests:``, meaning ``dbt_helper`` silently discarded the tests
   they contained instead of merging them into the generated ``schema.yml``. See PR
   :pr:`5458`.
-* Fixed ``allocate_gen_fuel.py`` silently dropping legitimate generation and fuel
-  data for generators transitioning between ``proposed``/``existing`` or
-  ``existing``/``retired`` status across a multi-year ETL run. Unified the slightly
-  different logics of these transitions into a single, shared, symmetric process. This
-  simplification exposed a bug in which one generator's status transition could silently
-  prevent data from another group of generators at the same plant from being allocated.
-  Added extensive unit tests an new dbt data quality tests validating that >=99.7% of
-  all reported generation and fuel survives allocation. Thanks to :user:`grgmiller` for
-  surfacing and starting this fix. See :issue:`5440` and PRs :pr:`5419,5511`.
 * Fixed several sources of non-deterministic row counts, where identical code and data
   produced different results on different machines (e.g. local macOS vs. nightly Linux
   builds) because several functions resolved ties among candidate values using

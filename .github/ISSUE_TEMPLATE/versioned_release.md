@@ -40,8 +40,8 @@ Bug Fixes & Data Cleaning
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-Quality of Life Improvements
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Developer Experience
+^^^^^^^^^^^^^^^^^^^^
 
 ```
 
@@ -55,16 +55,18 @@ Quality of Life Improvements
 - [ ] Close out the [PUDL Release Notes](https://docs.catalyst.coop/pudl/en/nightly/release_notes.html) with an overview of the changes in this release. Check [PRs merged since the last release](https://github.com/catalyst-cooperative/pudl/pulls?q=is%3Apr+is%3Amerged+merged%3A%3EYYYY-MM-DD) to make sure all changes since the last release are listed somewhere in the notes.
 - [ ] Merge those changes into `main`
 - [ ] Verify that all `stable` commits are on `main` with `git fetch && git log origin/main..origin/stable`
-- [ ] Tag the release `git tag -as -m "PUDL vYYYY.M.x" vYYYY.M.x`
-- [ ] Push the release tag to `main`: `git push origin vYYYY.M.x`
+- [ ] Kick off a `workflow_dispatch` build on `main` and verify that it has succeeds ([monitor here](https://console.cloud.google.com/monitoring/dashboards/builder/992bbe3f-17e6-49c4-a9e8-8f1925d4ec24)).
+- [ ] If that build fails, make a new PR fixing the issues and goto "Merge those changes into `main`" above.
+- [ ] Tag the release commit: `git tag -as -m "PUDL vYYYY.M.x" vYYYY.M.x`
+- [ ] Push the release tag to `main`: `git push origin vYYYY.M.x` (this will kick off `release.yml` and `deploy-pudl.yml`)
 - [ ] Verify that the new [GitHub (software) release](https://github.com/catalyst-cooperative/pudl/releases) has been published
 - [ ] Verify that [PUDL repo archive on Zenodo](https://zenodo.org/doi/10.5281/zenodo.3404014) has been updated w/ new version
-- [ ] Wait for a successful build to complete. If the nightly builds ran off of the tagged commit, then the build will be skipped and a deployment will be triggered immediately ([monitor here](https://console.cloud.google.com/monitoring/dashboards/builder/992bbe3f-17e6-49c4-a9e8-8f1925d4ec24))
-- [ ] Wait for the corresponding `deploy-pudl` GHA to complete. This will automatically be triggered by the build action
+- [ ] Wait for the `deploy-pudl` GHA kicked off by the tag push to complete.
 - [ ] Verify that the corresponding `zenodo-data-release` GHA completed successfully. If it times out less than halfway through, re-run manually (production, vYYYY.M.x, default regex, no-publish). If Zenodo is extra cranky, ignore the GHA and upload the remaining files manually.
 - [ ] Use GitHub to [edit `available_versions.json`](https://github.com/catalyst-cooperative/pudl/blob/gh-pages/available_versions.json) and add an entry for the new version (automate!)
 - [ ] Verify that `stable` and the version tag point at same git ref
 - [ ] Verify that [`stable` docs](https://docs.catalyst.coop/pudl/en/stable/) have been updated
+- [ ] Verify that [`vYYYY.M.x` docs](https://docs.catalyst.coop/pudl/en/vYYYY.M.x/) have been updated
 - [ ] Verify `gs://pudl.catalyst.coop/vYYYY.M.x` has the new expected data.
 - [ ] Verify `gs://pudl.catalyst.coop/stable` has the new expected data.
 - [ ] Verify `s3://pudl.catalyst.coop/vYYYY.M.x` has the new expected data.

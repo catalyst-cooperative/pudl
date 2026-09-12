@@ -6,7 +6,7 @@ Resources:
 
 # Overview
 
-Closes #XXXX.
+Closes #XXXX
 
 ## What problem does this address?
 
@@ -21,7 +21,7 @@ Make sure to update relevant aspects of the documentation:
 - [ ] Update relevant table or source description metadata (see `src/metadata`).
 - [ ] Review and update any other aspects of the documentation that might be affected by this PR.
 
-# Testing
+## Testing
 
 How did you make sure this worked? How can a reviewer verify this?
 
