@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.classes &#8212; PUDL 2026.9.1.dev1 documentation</title>
+    <title>pudl.metadata.classes &#8212; PUDL 2026.9.1.dev2 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../_static/documentation_options.js?v=06b47d86"></script>
+    <script src="../../../_static/documentation_options.js?v=2605e76d"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev1 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev1 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev2 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev2 documentation - Home"/>
   
   
 </a></div>
@@ -1603,7 +1603,7 @@ window.runMermaid = runMermaid;</script>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="Encoder.from_id">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Encoder.from_id">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_id</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Encoder"</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_id</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Encoder</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Construct an Encoder based on ``Resource.name`` of a coding table."""</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="bp">cls</span><span class="o">.</span><span class="n">dict_from_id</span><span class="p">(</span><span class="n">x</span><span class="p">))</span></div>
 
@@ -1611,7 +1611,7 @@ window.runMermaid = runMermaid;</script>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="Encoder.from_code_id">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Encoder.from_code_id">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_code_id</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Encoder"</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_code_id</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Encoder</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Construct an Encoder by looking up name of coding table in codes metadata."""</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">CODE_METADATA</span><span class="p">[</span><span class="n">x</span><span class="p">]),</span> <span class="n">name</span><span class="o">=</span><span class="n">x</span><span class="p">)</span></div>
 
@@ -1778,7 +1778,7 @@ window.runMermaid = runMermaid;</script>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="Field.from_id">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Field.from_id">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_id</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Field"</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_id</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Field</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Construct from PUDL identifier (`Field.name`)."""</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="bp">cls</span><span class="o">.</span><span class="n">dict_from_id</span><span class="p">(</span><span class="n">x</span><span class="p">))</span></div>
 
@@ -2369,7 +2369,7 @@ window.runMermaid = runMermaid;</script>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="License.from_id">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.License.from_id">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_id</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"License"</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_id</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">License</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Construct from PUDL identifier."""</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="bp">cls</span><span class="o">.</span><span class="n">dict_from_id</span><span class="p">(</span><span class="n">x</span><span class="p">))</span></div>
 </div>
@@ -2450,7 +2450,7 @@ window.runMermaid = runMermaid;</script>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="Contributor.from_id">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Contributor.from_id">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_id</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Contributor"</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_id</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Contributor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Construct from PUDL identifier."""</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="bp">cls</span><span class="o">.</span><span class="n">dict_from_id</span><span class="p">(</span><span class="n">x</span><span class="p">))</span></div>
 
@@ -2601,8 +2601,8 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_rst</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">docs_dir</span><span class="p">:</span> <span class="n">DirectoryPath</span><span class="p">,</span>
-        <span class="n">source_resources</span><span class="p">:</span> <span class="s2">"list[Resource]"</span><span class="p">,</span>
-        <span class="n">extra_resources</span><span class="p">:</span> <span class="s2">"list[Resource]"</span><span class="p">,</span>
+        <span class="n">source_resources</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Resource</span><span class="p">],</span>
+        <span class="n">extra_resources</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Resource</span><span class="p">],</span>
         <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">datastore</span><span class="p">:</span> <span class="n">Datastore</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -2688,7 +2688,7 @@ window.runMermaid = runMermaid;</script>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="DataSource.from_id">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.DataSource.from_id">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_id</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">sources</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">SOURCES</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"DataSource"</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_id</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">sources</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">SOURCES</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataSource</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Construct Source by source name in the metadata."""</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="bp">cls</span><span class="o">.</span><span class="n">dict_from_id</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">sources</span><span class="o">=</span><span class="n">sources</span><span class="p">))</span></div>
 </div>
@@ -3473,7 +3473,7 @@ window.runMermaid = runMermaid;</script>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="Resource.from_id">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Resource.from_id">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_id</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Resource"</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_id</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Resource</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Construct from PUDL identifier (`resource.name`)."""</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="bp">cls</span><span class="o">.</span><span class="n">dict_from_id</span><span class="p">(</span><span class="n">x</span><span class="p">))</span></div>
 
@@ -4384,7 +4384,7 @@ window.runMermaid = runMermaid;</script>
     <span class="nd">@staticmethod</span>
 <div class="viewcode-block" id="Package._compile_from_resources">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Package._compile_from_resources">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_compile_from_resources</span><span class="p">(</span><span class="n">resources</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="s2">"Resource"</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_compile_from_resources</span><span class="p">(</span><span class="n">resources</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Resource</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">"""Compile deduplicated contributors, licenses, keywords, and sources from resources.</span>
 
 <span class="sd">        Returns a dict with keys ``contributors``, ``licenses``, ``keywords``, and</span>
@@ -4424,7 +4424,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Package"</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Package</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Construct a collection of Resources from PUDL identifiers (`resource.name`).</span>
 
 <span class="sd">        Identify any fields that have foreign key relationships referencing the</span>
@@ -4749,7 +4749,7 @@ window.runMermaid = runMermaid;</script>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="CodeMetadata.from_code_ids">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.CodeMetadata.from_code_ids">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_code_ids</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">code_ids</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">"CodeMetadata"</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_code_ids</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">code_ids</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">CodeMetadata</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Construct a list of encoders from code dictionaries.</span>
 
 <span class="sd">        Args:</span>

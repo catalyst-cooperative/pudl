@@ -1752,7 +1752,7 @@ Bases: [`dagster.Config`](https://docs.dagster.io/api/dagster/config/#dagster.Co
 
 Dagster config to setup experiment tracking with mlflow.
 
-#### tracking_uri *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= 'sqlite:///Instance of pathlib._local.Path/experiments.sqlite'*
+#### tracking_uri *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= 'sqlite:///Instance of pathlib.Path/experiments.sqlite'*
 
 #### tracking_enabled *: [bool](https://docs.python.org/3/library/functions.html#bool)* *= False*
 
@@ -4238,7 +4238,7 @@ This module contains the implementation of CompanyNameCleaner class from OS-Clim
 
 ### pudl.analysis.record_linkage.name_cleaner.NAME_JSON_ENTRY_LEGAL_TERMS *= 'legal_forms'*
 
-### *class* pudl.analysis.record_linkage.name_cleaner.LegalTermLocation(\*args, \*\*kwds)
+### *class* pudl.analysis.record_linkage.name_cleaner.LegalTermLocation
 
 Bases: [`enum.Enum`](https://docs.python.org/3/library/enum.html#enum.Enum)
 
@@ -4248,7 +4248,7 @@ The location of the legal terms within the name string.
 
 #### ANYWHERE *= 2*
 
-### *class* pudl.analysis.record_linkage.name_cleaner.Lettercase(\*args, \*\*kwds)
+### *class* pudl.analysis.record_linkage.name_cleaner.Lettercase
 
 Bases: [`enum.Enum`](https://docs.python.org/3/library/enum.html#enum.Enum)
 
@@ -4260,7 +4260,7 @@ Allowed cases for output strings.
 
 #### UPPER *= 3*
 
-### *class* pudl.analysis.record_linkage.name_cleaner.HandleLegalTerms(\*args, \*\*kwds)
+### *class* pudl.analysis.record_linkage.name_cleaner.HandleLegalTerms
 
 Bases: [`enum.Enum`](https://docs.python.org/3/library/enum.html#enum.Enum)
 
@@ -8230,7 +8230,7 @@ This module handles distribution of completed ETL builds to public cloud storage
 
 ### pudl.deploy.pudl.logger
 
-### *class* pudl.deploy.pudl.DeploymentType(\*args, \*\*kwds)
+### *class* pudl.deploy.pudl.DeploymentType
 
 Bases: [`enum.Enum`](https://docs.python.org/3/library/enum.html#enum.Enum)
 
@@ -8549,7 +8549,7 @@ Raises if `git_tag` doesn’t look like a nightly/stable/branch tag, if a
 branch tag is being deployed to production, if no successful build exists
 for the tag yet, or if both cloud storage upload targets are disabled.
 
-### *class* pudl.deploy.pudl.StageStatus(\*args, \*\*kwds)
+### *class* pudl.deploy.pudl.StageStatus
 
 Bases: [`enum.Enum`](https://docs.python.org/3/library/enum.html#enum.Enum)
 
@@ -8561,7 +8561,7 @@ Possible outcomes of a single deployment stage.
 
 #### FAILURE *= 'failure'*
 
-### *class* pudl.deploy.pudl.DeployStage(\*args, \*\*kwds)
+### *class* pudl.deploy.pudl.DeployStage
 
 Bases: [`enum.Enum`](https://docs.python.org/3/library/enum.html#enum.Enum)
 
@@ -10119,7 +10119,7 @@ Note, also, that there is no structural notion of a “Table” in the AEO
 data. That information is carried purely by the names of the leaf
 categories.
 
-#### *class* EntityType(\*args, \*\*kwds)
+#### *class* EntityType
 
 Bases: [`enum.Enum`](https://docs.python.org/3/library/enum.html#enum.Enum)
 
@@ -16088,7 +16088,7 @@ Static database tables.
 
 ## Module Contents
 
-### *class* pudl.metadata.dfs.ImputationReasonCodes(\*args, \*\*kwds)
+### *class* pudl.metadata.dfs.ImputationReasonCodes
 
 Bases: [`enum.Enum`](https://docs.python.org/3/library/enum.html#enum.Enum)
 
@@ -22489,7 +22489,7 @@ Module for validating pudl ETL data configurations.
 
 ### pudl.settings.logger
 
-### *class* pudl.settings.FercForm(\*args, \*\*kwds)
+### *class* pudl.settings.FercForm
 
 Bases: [`enum.Enum`](https://docs.python.org/3/library/enum.html#enum.Enum)
 
@@ -27135,7 +27135,7 @@ Add a `source_tables` field into metadata calculation components.
 When a particular component of a calculation does not originate from the table in
 which the calculated field is being reported, label the source table.
 
-### *class* pudl.transform.ferc1.SourceFerc1(\*args, \*\*kwds)
+### *class* pudl.transform.ferc1.SourceFerc1
 
 Bases: [`enum.Enum`](https://docs.python.org/3/library/enum.html#enum.Enum)
 
@@ -27145,7 +27145,7 @@ Enumeration of allowed FERC 1 raw data sources.
 
 #### DBF *= 'dbf'*
 
-### *class* pudl.transform.ferc1.TableIdFerc1(\*args, \*\*kwds)
+### *class* pudl.transform.ferc1.TableIdFerc1
 
 Bases: [`enum.Enum`](https://docs.python.org/3/library/enum.html#enum.Enum)
 
@@ -28363,7 +28363,7 @@ Transfer quarterly filed data to annual columns.
 
 Turn start year end year rows into columns for each value type.
 
-#### wide_to_tidy(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), source_ferc1: [SourceFerc1](autoapi/pudl/transform/ferc1/index.html.md#pudl.transform.ferc1.SourceFerc1), params: [WideToTidy](autoapi/pudl/transform/ferc1/index.html.md#pudl.transform.ferc1.WideToTidy) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### wide_to_tidy(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), source_ferc1: [SourceFerc1](autoapi/pudl/transform/ferc1/index.html.md#pudl.transform.ferc1.SourceFerc1), params: [WideToTidy](autoapi/pudl/transform/ferc1/index.html.md#pudl.transform.ferc1.WideToTidy) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[WideToTidy](autoapi/pudl/transform/ferc1/index.html.md#pudl.transform.ferc1.WideToTidy)] | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Reshape wide tables with FERC account columns to tidy format.
 

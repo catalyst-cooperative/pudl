@@ -22,7 +22,7 @@ Static database tables.
 
 ## Module Contents
 
-### *class* pudl.metadata.dfs.ImputationReasonCodes(\*args, \*\*kwds)
+### *class* pudl.metadata.dfs.ImputationReasonCodes
 
 Bases: [`enum.Enum`](https://docs.python.org/3/library/enum.html#enum.Enum)
 

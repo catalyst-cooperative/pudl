@@ -171,7 +171,7 @@ Module Contents
    which the calculated field is being reported, label the source table.
 
 
-.. py:class:: SourceFerc1(*args, **kwds)
+.. py:class:: SourceFerc1
 
    Bases: :py:obj:`enum.Enum`
 
@@ -189,7 +189,7 @@ Module Contents
 
 
 
-.. py:class:: TableIdFerc1(*args, **kwds)
+.. py:class:: TableIdFerc1
 
    Bases: :py:obj:`enum.Enum`
 
@@ -1886,7 +1886,7 @@ Module Contents
 
 
 
-   .. py:method:: wide_to_tidy(df: pandas.DataFrame, source_ferc1: SourceFerc1, params: WideToTidy | None = None) -> pandas.DataFrame
+   .. py:method:: wide_to_tidy(df: pandas.DataFrame, source_ferc1: SourceFerc1, params: WideToTidy | list[WideToTidy] | None = None) -> pandas.DataFrame
 
       Reshape wide tables with FERC account columns to tidy format.
 

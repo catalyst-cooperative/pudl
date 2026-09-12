@@ -56,7 +56,7 @@ This module handles distribution of completed ETL builds to public cloud storage
 
 ### pudl.deploy.pudl.logger
 
-### *class* pudl.deploy.pudl.DeploymentType(\*args, \*\*kwds)
+### *class* pudl.deploy.pudl.DeploymentType
 
 Bases: [`enum.Enum`](https://docs.python.org/3/library/enum.html#enum.Enum)
 
@@ -375,7 +375,7 @@ Raises if `git_tag` doesn’t look like a nightly/stable/branch tag, if a
 branch tag is being deployed to production, if no successful build exists
 for the tag yet, or if both cloud storage upload targets are disabled.
 
-### *class* pudl.deploy.pudl.StageStatus(\*args, \*\*kwds)
+### *class* pudl.deploy.pudl.StageStatus
 
 Bases: [`enum.Enum`](https://docs.python.org/3/library/enum.html#enum.Enum)
 
@@ -387,7 +387,7 @@ Possible outcomes of a single deployment stage.
 
 #### FAILURE *= 'failure'*
 
-### *class* pudl.deploy.pudl.DeployStage(\*args, \*\*kwds)
+### *class* pudl.deploy.pudl.DeployStage
 
 Bases: [`enum.Enum`](https://docs.python.org/3/library/enum.html#enum.Enum)
 

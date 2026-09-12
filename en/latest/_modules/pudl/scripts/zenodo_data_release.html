@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.scripts.zenodo_data_release &#8212; PUDL 2026.9.1.dev1 documentation</title>
+    <title>pudl.scripts.zenodo_data_release &#8212; PUDL 2026.9.1.dev2 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../_static/documentation_options.js?v=06b47d86"></script>
+    <script src="../../../_static/documentation_options.js?v=2605e76d"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev1 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev1 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev2 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev2 documentation - Home"/>
   
   
 </a></div>
@@ -1690,7 +1690,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="InitialDataset._get_or_create_draft">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.InitialDataset._get_or_create_draft">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_get_or_create_draft</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"_NewRecord"</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_or_create_draft</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_NewRecord</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Get the existing draft for this dataset's concept, creating one if needed.</span>
 
 <span class="sd">        Uses the new API to get or create the draft; ``new_record_version`` is</span>
@@ -1704,7 +1704,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="InitialDataset.get_empty_draft">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.InitialDataset.get_empty_draft">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_empty_draft</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"EmptyDraft"</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_empty_draft</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EmptyDraft</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Get an empty draft for this dataset.</span>
 
 <span class="sd">        Use new API to get any draft, then use legacy API to delete any files</span>
@@ -1723,7 +1723,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="InitialDataset.get_existing_draft">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.InitialDataset.get_existing_draft">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_existing_draft</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"ContentComplete"</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_existing_draft</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ContentComplete</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Get the existing draft for this dataset, without touching its files.</span>
 
 <span class="sd">        For updating just the metadata on a draft that already has its data files in</span>
@@ -1785,7 +1785,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="EmptyDraft.sync_directory">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.EmptyDraft.sync_directory">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">sync_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ignore</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">"ContentComplete"</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sync_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ignore</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ContentComplete</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Upload every file in ``source_dir`` to the draft bucket.</span>
 
 <span class="sd">        The method enumerates files (not subdirectories) via ``fsspec`` so the source</span>
@@ -1866,7 +1866,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">version_tag</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">docs_html_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
         <span class="n">zenodo_json_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"CompleteDraft"</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CompleteDraft</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Build and set fresh deposition metadata for this release.</span>
 
 <span class="sd">        * creators &amp; keywords: ``.zenodo.json``</span>

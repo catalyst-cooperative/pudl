@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.output.ferc1 &#8212; PUDL 2026.9.1.dev1 documentation</title>
+    <title>pudl.output.ferc1 &#8212; PUDL 2026.9.1.dev2 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../_static/documentation_options.js?v=06b47d86"></script>
+    <script src="../../../_static/documentation_options.js?v=2605e76d"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev1 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev1 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev2 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev2 documentation - Home"/>
   
   
 </a></div>
@@ -2483,7 +2483,7 @@ window.runMermaid = runMermaid;</script>
     <span class="nd">@cached_property</span>
 <div class="viewcode-block" id="Exploder.calculation_forest">
 <a class="viewcode-back" href="../../../autoapi/pudl/output/ferc1/index.html#pudl.output.ferc1.Exploder.calculation_forest">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">calculation_forest</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"XbrlCalculationForestFerc1"</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculation_forest</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">XbrlCalculationForestFerc1</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Construct a calculation forest based on class attributes."""</span>
         <span class="k">return</span> <span class="n">XbrlCalculationForestFerc1</span><span class="p">(</span>
             <span class="n">exploded_calcs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">exploded_calcs</span><span class="p">,</span>
@@ -3556,7 +3556,7 @@ window.runMermaid = runMermaid;</script>
         <span class="c1"># Construct a dataframe that links the leaf node IDs to their root nodes:</span>
         <span class="n">leaves</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forest_leaves</span>
         <span class="n">roots</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forest_roots</span>
-        <span class="n">leaf_to_root_map</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">leaf_to_root_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">NodeId</span><span class="p">,</span> <span class="n">NodeId</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">leaf</span><span class="p">:</span> <span class="n">root</span>
             <span class="k">for</span> <span class="n">leaf</span> <span class="ow">in</span> <span class="n">leaves</span>
             <span class="k">for</span> <span class="n">root</span> <span class="ow">in</span> <span class="n">roots</span>

@@ -136,7 +136,7 @@ Note, also, that there is no structural notion of a “Table” in the AEO
 data. That information is carried purely by the names of the leaf
 categories.
 
-#### *class* EntityType(\*args, \*\*kwds)
+#### *class* EntityType
 
 Bases: [`enum.Enum`](https://docs.python.org/3/library/enum.html#enum.Enum)
 

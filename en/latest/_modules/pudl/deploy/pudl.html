@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.deploy.pudl &#8212; PUDL 2026.9.1.dev1 documentation</title>
+    <title>pudl.deploy.pudl &#8212; PUDL 2026.9.1.dev2 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../_static/documentation_options.js?v=06b47d86"></script>
+    <script src="../../../_static/documentation_options.js?v=2605e76d"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev1 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev1 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev2 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev2 documentation - Home"/>
   
   
 </a></div>
@@ -985,7 +985,7 @@ window.runMermaid = runMermaid;</script>
     <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"after"</span><span class="p">)</span>
 <div class="viewcode-block" id="DeploymentPlan._validate_branch_only_targets_staging">
 <a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.DeploymentPlan._validate_branch_only_targets_staging">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_branch_only_targets_staging</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"DeploymentPlan"</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_branch_only_targets_staging</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DeploymentPlan</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">deploy_type</span> <span class="o">==</span> <span class="n">DeploymentType</span><span class="o">.</span><span class="n">BRANCH</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span> <span class="o">!=</span> <span class="s2">"staging"</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">"Branch deployments can only target staging, got "</span>
@@ -997,7 +997,7 @@ window.runMermaid = runMermaid;</script>
     <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"after"</span><span class="p">)</span>
 <div class="viewcode-block" id="DeploymentPlan._validate_has_an_upload_target">
 <a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.DeploymentPlan._validate_has_an_upload_target">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_has_an_upload_target</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"DeploymentPlan"</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_has_an_upload_target</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DeploymentPlan</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">upload_to_gcs</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">upload_to_s3</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">"Deployment for git_tag=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">git_tag</span><span class="si">!r}</span><span class="s2"> has neither GCS nor S3 "</span>

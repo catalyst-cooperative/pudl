@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.dbt_schema &#8212; PUDL 2026.9.1.dev1 documentation</title>
+    <title>pudl.dbt_schema &#8212; PUDL 2026.9.1.dev2 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../_static/documentation_options.js?v=06b47d86"></script>
+    <script src="../../_static/documentation_options.js?v=2605e76d"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev1 documentation - Home"/>
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev1 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev2 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev2 documentation - Home"/>
   
   
 </a></div>
@@ -1187,7 +1187,7 @@ window.runMermaid = runMermaid;</script>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="DbtTable.from_table_name">
 <a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema.DbtTable.from_table_name">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_table_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"DbtTable"</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_table_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DbtTable</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Construct configuration defining table from PUDL metadata."""</span>
         <span class="n">resource</span> <span class="o">=</span> <span class="n">PUDL_PACKAGE</span><span class="o">.</span><span class="n">get_resource</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
@@ -1254,7 +1254,7 @@ window.runMermaid = runMermaid;</script>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="DbtSchema.from_table_name">
 <a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema.DbtSchema.from_table_name">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_table_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"DbtSchema"</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_table_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DbtSchema</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Construct configuration defining table from PUDL metadata."""</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">sources</span><span class="o">=</span><span class="p">[</span>
@@ -1268,7 +1268,7 @@ window.runMermaid = runMermaid;</script>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="DbtSchema.from_yaml">
 <a class="viewcode-back" href="../../autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema.DbtSchema.from_yaml">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_yaml</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">schema_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"DbtSchema"</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_yaml</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">schema_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DbtSchema</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Load a DbtSchema object from a YAML file."""</span>
         <span class="k">with</span> <span class="n">schema_path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">schema_yaml</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">schema_yaml</span><span class="p">))</span></div>

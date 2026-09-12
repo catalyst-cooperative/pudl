@@ -36,7 +36,7 @@ This module contains the implementation of CompanyNameCleaner class from OS-Clim
 
 ### pudl.analysis.record_linkage.name_cleaner.NAME_JSON_ENTRY_LEGAL_TERMS *= 'legal_forms'*
 
-### *class* pudl.analysis.record_linkage.name_cleaner.LegalTermLocation(\*args, \*\*kwds)
+### *class* pudl.analysis.record_linkage.name_cleaner.LegalTermLocation
 
 Bases: [`enum.Enum`](https://docs.python.org/3/library/enum.html#enum.Enum)
 
@@ -46,7 +46,7 @@ The location of the legal terms within the name string.
 
 #### ANYWHERE *= 2*
 
-### *class* pudl.analysis.record_linkage.name_cleaner.Lettercase(\*args, \*\*kwds)
+### *class* pudl.analysis.record_linkage.name_cleaner.Lettercase
 
 Bases: [`enum.Enum`](https://docs.python.org/3/library/enum.html#enum.Enum)
 
@@ -58,7 +58,7 @@ Allowed cases for output strings.
 
 #### UPPER *= 3*
 
-### *class* pudl.analysis.record_linkage.name_cleaner.HandleLegalTerms(\*args, \*\*kwds)
+### *class* pudl.analysis.record_linkage.name_cleaner.HandleLegalTerms
 
 Bases: [`enum.Enum`](https://docs.python.org/3/library/enum.html#enum.Enum)
 

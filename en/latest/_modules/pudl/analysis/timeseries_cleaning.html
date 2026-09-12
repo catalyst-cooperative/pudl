@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.analysis.timeseries_cleaning &#8212; PUDL 2026.9.1.dev1 documentation</title>
+    <title>pudl.analysis.timeseries_cleaning &#8212; PUDL 2026.9.1.dev2 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../_static/documentation_options.js?v=06b47d86"></script>
+    <script src="../../../_static/documentation_options.js?v=2605e76d"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev1 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev1 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev2 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev2 documentation - Home"/>
   
   
 </a></div>
@@ -1172,7 +1172,7 @@ window.runMermaid = runMermaid;</script>
         <span class="bp">cls</span><span class="p">,</span>
         <span class="n">matrix</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
         <span class="n">flags</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"FlaggedTimeseries"</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FlaggedTimeseries</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Create a timeseries object from a dataframe."""</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
         <span class="n">flags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span> <span class="k">if</span> <span class="n">flags</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">flags</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
@@ -1198,9 +1198,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="FlaggedTimeseries.flag">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/timeseries_cleaning/index.html#pudl.analysis.timeseries_cleaning.FlaggedTimeseries.flag">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">flag</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">flag</span><span class="p">:</span> <span class="n">ImputationReasonCodes</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"FlaggedTimeseries"</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">flag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">flag</span><span class="p">:</span> <span class="n">ImputationReasonCodes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FlaggedTimeseries</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Flag values.</span>
 
 <span class="sd">        Flags values (if not already flagged) and nulls flagged values.</span>

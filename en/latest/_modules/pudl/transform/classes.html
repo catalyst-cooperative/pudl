@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.classes &#8212; PUDL 2026.9.1.dev1 documentation</title>
+    <title>pudl.transform.classes &#8212; PUDL 2026.9.1.dev2 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../_static/documentation_options.js?v=06b47d86"></script>
+    <script src="../../../_static/documentation_options.js?v=2605e76d"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev1 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev1 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev2 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev2 documentation - Home"/>
   
   
 </a></div>
@@ -1573,7 +1573,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="UnitConversion.inverse">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/classes/index.html#pudl.transform.classes.UnitConversion.inverse">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"UnitConversion"</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UnitConversion</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Construct a :class:`UnitConversion` that is the inverse of self.</span>
 
 <span class="sd">        Allows a unit conversion to be undone. This is currently used in the context of</span>
@@ -2175,7 +2175,7 @@ window.runMermaid = runMermaid;</script>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="TableTransformParams.from_dict">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/classes/index.html#pudl.transform.classes.TableTransformParams.from_dict">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">"TableTransformParams"</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">TableTransformParams</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Construct ``TableTransformParams`` from a dictionary of keyword arguments.</span>
 
 <span class="sd">        Typically these will be the table-level dictionaries defined in the dataset-</span>
@@ -2188,7 +2188,7 @@ window.runMermaid = runMermaid;</script>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="TableTransformParams.from_id">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/classes/index.html#pudl.transform.classes.TableTransformParams.from_id">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_id</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">table_id</span><span class="p">:</span> <span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"TableTransformParams"</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_id</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">table_id</span><span class="p">:</span> <span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TableTransformParams</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""A factory method that looks up transform parameters based on table_id.</span>
 
 <span class="sd">        This is a shortcut, which allows us to constitute the parameter models based on</span>
