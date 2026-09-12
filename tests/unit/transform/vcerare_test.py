@@ -1,6 +1,10 @@
 """Unit tests for the pudl.transform.vcerare module."""
 
+import datetime
+
 import pandas as pd
+import polars as pl
+import pytest
 
 import pudl.transform.vcerare as vcerare
 
@@ -78,3 +82,100 @@ def test_standardize_census_names():
     pd.testing.assert_frame_equal(
         expected_df, actual_df, check_dtype=False, check_categorical=False
     )
+
+
+def _integer_hour_lf(report_year: int, n_hours: int) -> pl.LazyFrame:
+    """Build a minimal capacity factor table with an integer hour_of_year column."""
+    return pl.LazyFrame(
+        {
+            "hour_of_year": list(range(1, n_hours + 1)),
+            "report_year": [report_year] * n_hours,
+            "capacity_factor_solar_pv": [0.0] * n_hours,
+        }
+    )
+
+
+def _datetime_hour_lf(report_year: int, n_hours: int) -> pl.LazyFrame:
+    """Build a minimal capacity factor table with a datetime hour_of_year column."""
+    start = datetime.datetime(report_year, 1, 1)
+    return pl.LazyFrame(
+        {
+            "hour_of_year": [
+                start + datetime.timedelta(hours=i) for i in range(n_hours)
+            ],
+            "report_year": [report_year] * n_hours,
+            "capacity_factor_solar_pv": [0.0] * n_hours,
+        }
+    )
+
+
+def test_check_for_valid_counties_passes():
+    """A wide table whose place-name columns are all in the FIPS table passes."""
+    clean_fips_df = pd.DataFrame(
+        {"county_state_names": ["adams_washington", "asotin_washington"]}
+    )
+    lf = pl.LazyFrame(
+        {
+            "hour_of_year": [1],
+            "report_year": [2024],
+            "adams_washington": [0.0],
+            "asotin_washington": [0.0],
+        }
+    )
+    result = vcerare._check_for_valid_counties(lf, clean_fips_df, "solar_pv")
+    assert result.collect_schema().names() == lf.collect_schema().names()
+
+
+def test_check_for_valid_counties_raises_on_unexpected_place_name():
+    """A place-name column missing from the FIPS table raises AssertionError."""
+    clean_fips_df = pd.DataFrame({"county_state_names": ["adams_washington"]})
+    lf = pl.LazyFrame(
+        {
+            "hour_of_year": [1],
+            "report_year": [2024],
+            "adams_washington": [0.0],
+            "not_a_real_county": [0.0],
+        }
+    )
+    with pytest.raises(AssertionError, match="not_a_real_county"):
+        vcerare._check_for_valid_counties(lf, clean_fips_df, "solar_pv")
+
+
+@pytest.mark.parametrize(
+    ("lf", "year", "last_datetime"),
+    [
+        # Non-leap year, integer hours: Dec 31 is kept, nothing clipped.
+        (
+            _integer_hour_lf(2023, 8760),
+            2023,
+            datetime.datetime(2023, 12, 31, 23),
+        ),
+        # Leap year, integer hours already omitting Dec 31: nothing to clip.
+        (
+            _integer_hour_lf(2020, 8760),
+            2020,
+            datetime.datetime(2020, 12, 30, 23),
+        ),
+        # Leap year, datetime hours including Dec 31 (8784): Dec 31 is clipped.
+        (
+            _datetime_hour_lf(2024, 8784),
+            2024,
+            datetime.datetime(2024, 12, 30, 23),
+        ),
+        # Non-leap year, datetime hours (8760): nothing to clip.
+        (
+            _datetime_hour_lf(2025, 8760),
+            2025,
+            datetime.datetime(2025, 12, 31, 23),
+        ),
+    ],
+)
+def test_add_time_cols(lf, year, last_datetime):
+    """_add_time_cols yields exactly 8760 hours per year across input formats."""
+    result = vcerare._add_time_cols(lf, "solar_pv", year).collect()
+
+    assert result.height == 8760
+    assert result["hour_of_year"].min() == 1
+    assert result["hour_of_year"].max() == 8760
+    assert result["hour_of_year"].dtype == pl.Int32
+    assert result["datetime_utc"].max() == last_datetime

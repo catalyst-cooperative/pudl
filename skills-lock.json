@@ -11,13 +11,13 @@
       "source": "catalyst-cooperative/agent-skills",
       "sourceType": "github",
       "skillPath": "skills/datapackage/SKILL.md",
-      "computedHash": "ee9b9e47d0fb9fc00c8dfd4086262a42dc4039fc5ed137a12dc3aceebc0dfd79"
+      "computedHash": "228ee0cdc518a88e1f67500c0a97aab91b81a2f56ee85c9d9fbd087761b62d54"
     },
     "pudl": {
       "source": "catalyst-cooperative/agent-skills",
       "sourceType": "github",
       "skillPath": "skills/pudl/SKILL.md",
-      "computedHash": "0f7b2540b842c9ad1cda8a0d77a1e6003f86e58a5a6ff8110377426e741d7fe4"
+      "computedHash": "bf72dcce70d7670db0f70e8e8717016152189bc5e79b5f1701c59ea10ed76590"
     }
   }
 }
