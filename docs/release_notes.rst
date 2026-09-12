@@ -4,10 +4,21 @@ PUDL Release Notes
 .. _release-v2026.9.0:
 
 ---------------------------------------------------------------------------------------
-v2026.9.0 (2026-09-xx)
+v2026.9.0 (2026-09-11)
 ---------------------------------------------------------------------------------------
 
-This is the upcoming PUDL release.
+This is a regular monthly PUDL data release, primarily motivated by updating the
+EIA-860M monthly data through August 2026. The biggest change this month is that we've
+started publishing a `DuckDB <https://duckdb.org>`__ version of the PUDL database! We
+will be deprecating the old ``pudl.sqlite`` database in **January, 2027**.
+
+We also closed a gap where Pandera's Polars backend was silently skipping some of the
+schema validation checks declared in our metadata (thankfully they were being enforced
+independently elsewhere!). We've added several new tables (EIA-176 company
+characteristics, EIA-923 fuel stocks and energy storage, PHMSA distribution mains by
+install decade), and extended the new CEMS-derived operational characteristics analysis
+back to 2000. See below for all the details, and the linked PRs and issues for the full
+story.
 
 Output Formats & Distribution
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -25,7 +36,8 @@ Output Formats & Distribution
   the ETL purely for backwards compatibility. **We will stop producing SQLite versions
   of the fully processed PUDL data in 2027.** Please migrate to the Parquet outputs
   or the new ``pudl.duckdb`` database. This deprecation does not affect the minimally
-  processed raw FERC data, which will continue to be distributed as SQLite. See PR
+  processed raw FERC data, which will continue to be distributed as SQLite for the time
+  being, but will likely transition at some point in the near future as well. See PR
   :pr:`5538`.
 
 New Data
@@ -131,6 +143,7 @@ NREL ATB
 ~~~~~~~~
 * Updated the NREL ATB extractor and transformer to accommodate changes to the 2024
   data and format. See issue :issue:`5467` and PR :pr:`5513`.
+* Added NREL ATB 2025 data. See PR :pr:`5569`.
 
 PHMSA
 ~~~~~
@@ -167,6 +180,11 @@ New Data Tests & Validations
   which silently match no records at all (e.g. a misspelled ``total_label`` or
   a category renamed in a future data update), enabled for all of the plant
   costs checks. See issues :issue:`5378,5154` and PR :pr:`5510`.
+* Calibrated per-year error thresholds for the heat-rate outlier checks on
+  :ref:`out_epacems__yearly_operational_characteristics`, since the multi-year
+  extension in PR :pr:`5474` introduced report years whose data quality, and thus
+  expected outlier rate, varies considerably over the 2000-2025 span. See PR
+  :pr:`5571`.
 
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -184,7 +202,7 @@ Bug Fixes & Data Cleaning
   ``google-cloud-storage`` API to recursively hold every object under the prefix and
   verify after the fact that none were missed. Manually re-applied the hold to 4,000+
   previously published versioned release objects that had been missed by the original
-  bug. See PR pr:`5477`.
+  bug. See PR :pr:`5477`.
 * Fixed EIA-176 extraction bug where ``raw_eia176__operation_types_and_sector_items``
   was always empty due to a mismatched page key. See :issue:`4697` and :pr:`5412`.
 * Recovered dbt data validation tests that were being silently dropped from several
@@ -244,6 +262,17 @@ Bug Fixes & Data Cleaning
   present in both databases, neither database has extra tables, and every table has the
   same columns and the same row count in SQLite, DuckDB, and its source Parquet file.
   See PR :pr:`5538`.
+* Closed a long-standing gap in which Pandera's Polars backend only checked column
+  presence and dtype for ``pl.LazyFrame`` assets, silently skipping every range, enum,
+  nullability, regex, and uniqueness check declared in our metadata for the vast
+  majority of PUDL tables. Content validation is now explicitly enabled for these
+  assets, checked one column at a time to keep memory bounded even on PUDL's largest
+  tables. Thankfully these schema checks were also being enforced through independent
+  mechanisms, so no data quality issues resulted from this gap. See PR :pr:`5432`.
+* Corrected the ``last_annual_meeting_date`` field in
+  :ref:`core_rus7__yearly_meeting_and_board` and
+  :ref:`core_rus12__yearly_meeting_and_board` from a ``datetime`` to a ``date`` type.
+  See PR :pr:`5518`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
