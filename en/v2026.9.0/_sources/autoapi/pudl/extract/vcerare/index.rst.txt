@@ -1,0 +1,67 @@
+pudl.extract.vcerare
+====================
+
+.. py:module:: pudl.extract.vcerare
+
+.. autoapi-nested-parse::
+
+   Extract VCE Resource Adequacy Renewable Energy (RARE) Power Dataset.
+
+   This dataset has 1,000s of columns, so we don't want to manually specify a rename on
+   import because we'll pivot these to a column in the transform step. We adapt the
+   standard extraction infrastructure to simply read in the data.
+
+   Each annual zip folder contains a folder with three files:
+   Wind_Power_140m_Offshore_county.csv
+   Wind_Power_100m_Onshore_county.csv
+   Fixed_SolarPV_Lat_UPV_county.csv
+
+   The drive also contains one more CSV file: vce_county_lat_long_fips_table.csv. This gets
+   read in when the fips partition is set to True.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.extract.vcerare.logger
+   pudl.extract.vcerare.VCERARE_PAGES
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.extract.vcerare._clean_column_names
+   pudl.extract.vcerare.extract_vcerare
+   pudl.extract.vcerare.raw_vcerare__lat_lon_fips
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: VCERARE_PAGES
+
+.. py:function:: _clean_column_names(table_relation: duckdb.DuckDBPyRelation) -> duckdb.DuckDBPyRelation
+
+   Apply basic cleaning to column names.
+
+
+.. py:function:: extract_vcerare(context) -> tuple[dict[int, pudl.helpers.ParquetData], dict[int, pudl.helpers.ParquetData], dict[int, pudl.helpers.ParquetData]]
+
+   Extract data from all vcerare pages and write to parquet files.
+
+
+.. py:function:: raw_vcerare__lat_lon_fips(context) -> pandas.DataFrame
+
+   Extract lat/lon to FIPS and county mapping CSV.
+
+   This dataframe is static, so it has a distinct partition from the other datasets and
+   its extraction is controlled by a boolean in the ETL run.
+
+

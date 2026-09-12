@@ -1,0 +1,25 @@
+pudl.metadata.resources.sec10k
+==============================
+
+.. py:module:: pudl.metadata.resources.sec10k
+
+.. autoapi-nested-parse::
+
+   Table definitions for the SEC10k tables.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.metadata.resources.sec10k.RESOURCE_METADATA
+
+
+Module Contents
+---------------
+
+.. py:data:: RESOURCE_METADATA
+   :type:  dict[str, dict[str, Any]]
+

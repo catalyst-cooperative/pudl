@@ -1,0 +1,122 @@
+pudl.extract.epamats
+====================
+
+.. py:module:: pudl.extract.epamats
+
+.. autoapi-nested-parse::
+
+   Retrieve data from EPA MATS hourly zipped CSVs.
+
+   The MATS data structure is similar to EPA CEMS but with different pollutants.
+   Each year's data is stored in a zip file (e.g., epamats-2015.zip) containing
+   quarterly CSV files (e.g., epamats-2015q1.csv). The data tracks hourly
+   Hg (mercury), HCl (hydrochloric acid), and HF (hydrogen fluoride) emissions
+   from coal-fired power plants.
+
+   Similar to CEMS, the `plant_id_epa` field (Facility ID in raw data) needs to be
+   mapped to `plant_id_eia` during transformation using the core_epa__assn_eia_epacamd
+   crosswalk.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.extract.epamats.logger
+   pudl.extract.epamats.RENAME_DICT
+   pudl.extract.epamats.DTYPE_DICT
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.extract.epamats.EpaMatsPartition
+   pudl.extract.epamats.EpaMatsDatastore
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.extract.epamats.raw_epamats__hourly_emissions
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: RENAME_DICT
+
+   Mapping from raw EPA MATS column names to PUDL column names.
+
+   :type: Dict
+
+.. py:data:: DTYPE_DICT
+
+   Data types for EPA MATS columns.
+
+   :type: Dict
+
+.. py:class:: EpaMatsPartition(/, **data: Any)
+
+   Bases: :py:obj:`pydantic.BaseModel`
+
+
+   Represents a MATS partition identifying a unique quarterly resource file.
+
+
+   .. py:attribute:: year_quarter
+      :type:  Annotated[str, StringConstraints(strict=True, pattern='^(19|20)\\d{2}[q][1-4]$')]
+
+
+   .. py:property:: year
+
+      Return the year associated with the year_quarter.
+
+
+   .. py:property:: quarter
+
+      Return the quarter associated with the year_quarter.
+
+
+   .. py:method:: get_filters()
+
+      Returns filters for retrieving given partition resource from Datastore.
+
+
+
+   .. py:method:: get_quarterly_file() -> pathlib.Path
+
+      Return the name of the CSV file within the zip that holds quarterly data.
+
+
+
+.. py:class:: EpaMatsDatastore(datastore: pudl.workspace.datastore.Datastore)
+
+   Helper class to extract MATS resources from datastore.
+
+   MATS resources are identified by a year and a quarter. Each year's data is in
+   a zip file containing 4 quarterly CSV files. This class implements get_data_frame
+   method that will rename columns for a quarterly CSV file.
+
+
+   .. py:attribute:: datastore
+
+
+   .. py:method:: get_data_frame(partition: EpaMatsPartition) -> polars.LazyFrame
+
+      Constructs dataframe from a zipfile for a given (year_quarter) partition.
+
+
+
+.. py:function:: raw_epamats__hourly_emissions(context) -> pandas.DataFrame
+
+   Extract raw EPA MATS hourly emissions data and return as a pandas DataFrame.
+
+

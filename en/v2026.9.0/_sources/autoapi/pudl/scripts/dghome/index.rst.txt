@@ -1,0 +1,134 @@
+pudl.scripts.dghome
+===================
+
+.. py:module:: pudl.scripts.dghome
+
+.. autoapi-nested-parse::
+
+   Manage UUID-named directories in a Dagster storage directory.
+
+   This CLI helps manage the Dagster storage directory to reclaim disk space by
+   listing and removing run artifacts (represented as UUID-named directories)
+   based on modification date.
+
+   .. rubric:: Examples
+
+   List all UUID-named directories:
+       dghome ls
+
+   List directories modified on or before 2026-01-15:
+       dghome ls 2026-01-15
+
+   List directories modified 10 days or more ago:
+       dghome ls 10d
+
+   Remove directories modified 1 month or more ago:
+       dghome rm 1m
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.scripts.dghome.UUID_PATTERN
+   pudl.scripts.dghome._DATE_FORMATS_EPILOG
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.scripts.dghome._parse_date
+   pudl.scripts.dghome._human_readable
+   pudl.scripts.dghome._row_color
+   pudl.scripts.dghome._collect
+   pudl.scripts.dghome.dghome
+   pudl.scripts.dghome.ls
+   pudl.scripts.dghome.rm
+   pudl.scripts.dghome.main
+
+
+Module Contents
+---------------
+
+.. py:data:: UUID_PATTERN
+
+.. py:function:: _parse_date(date_str: str, now: datetime.datetime | None = None) -> datetime.datetime
+
+   Parse a cutoff datetime from one of several formats.
+
+   Accepts any absolute time string that dateutil can handle, plus relative
+   time strings like "<N>d/w/m" (for days/weeks/months).
+
+
+.. py:function:: _human_readable(kb: int) -> str
+
+   Format a kilobyte count as a human-readable string (e.g. 1.2M, 3.4G).
+
+
+.. py:function:: _row_color(size_kb: int) -> str | tuple[int, int, int]
+
+   Get the right color of output for the filesize.
+
+   < 100 MB: green
+   <   1 GB: yellow
+   <   5 GB: orange
+   else: red
+
+
+.. py:function:: _collect(cutoff_ts: float | None) -> list[dict]
+
+   Return UUID dirs from $DAGSTER_HOME/storage, filtered to mtime <= cutoff_ts.
+
+   Raises click.ClickException if DAGSTER_HOME is unset or the storage dir is missing.
+   Results are sorted by modification time (oldest first).
+
+
+.. py:function:: dghome() -> None
+
+   Manage UUID-named directories in Dagster storage.
+
+
+.. py:data:: _DATE_FORMATS_EPILOG
+   :value: Multiline-String
+
+   .. raw:: html
+
+      <details><summary>Show Value</summary>
+
+   .. code-block:: python
+
+      """
+      Accepts any absolute time string that dateutil can handle, plus relative time strings like '<N>d/w/m' (for days/weeks/months)."""
+
+   .. raw:: html
+
+      </details>
+
+
+
+.. py:function:: ls(date: str | None) -> None
+
+   List UUID directories, optionally filtered by modification date.
+
+   Without DATE, lists all directories. With DATE, lists only those
+   last modified on or before DATE.
+
+
+.. py:function:: rm(date: str | None) -> None
+
+   Remove UUID directories last modified on or before DATE.
+
+   Without DATE, reports what would be removed but does nothing.
+
+   Confirms before deletion.
+
+
+.. py:function:: main() -> None
+
+   Entry point for the dghome CLI.
+
+

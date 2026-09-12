@@ -1,0 +1,113 @@
+pudl.analysis.record_linkage.eia_ferc1_model_config
+===================================================
+
+.. py:module:: pudl.analysis.record_linkage.eia_ferc1_model_config
+
+.. autoapi-nested-parse::
+
+   The model parameters for the FERC1 to EIA splink record linkage model.
+
+   This module enumerates the blocking rules as well as the comparison levels
+   for the matching columns that are used in the FERC1 to EIA record linkage
+   model.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.analysis.record_linkage.eia_ferc1_model_config.blocking_rule_1
+   pudl.analysis.record_linkage.eia_ferc1_model_config.blocking_rule_2
+   pudl.analysis.record_linkage.eia_ferc1_model_config.blocking_rule_3
+   pudl.analysis.record_linkage.eia_ferc1_model_config.blocking_rule_4
+   pudl.analysis.record_linkage.eia_ferc1_model_config.blocking_rule_5
+   pudl.analysis.record_linkage.eia_ferc1_model_config.blocking_rule_6
+   pudl.analysis.record_linkage.eia_ferc1_model_config.blocking_rule_7
+   pudl.analysis.record_linkage.eia_ferc1_model_config.blocking_rule_8
+   pudl.analysis.record_linkage.eia_ferc1_model_config.blocking_rule_9
+   pudl.analysis.record_linkage.eia_ferc1_model_config.blocking_rule_10
+   pudl.analysis.record_linkage.eia_ferc1_model_config.BLOCKING_RULES
+   pudl.analysis.record_linkage.eia_ferc1_model_config.plant_name_comparison
+   pudl.analysis.record_linkage.eia_ferc1_model_config.utility_name_comparison
+   pudl.analysis.record_linkage.eia_ferc1_model_config.fuel_type_code_pudl_comparison
+   pudl.analysis.record_linkage.eia_ferc1_model_config.capacity_comparison
+   pudl.analysis.record_linkage.eia_ferc1_model_config.net_gen_comparison
+   pudl.analysis.record_linkage.eia_ferc1_model_config.installation_year_comparison
+   pudl.analysis.record_linkage.eia_ferc1_model_config.construction_year_comparison
+   pudl.analysis.record_linkage.eia_ferc1_model_config.COMPARISONS
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.analysis.record_linkage.eia_ferc1_model_config.get_date_comparison
+
+
+Module Contents
+---------------
+
+.. py:data:: blocking_rule_1
+   :value: 'l.report_year = r.report_year and substr(l.plant_name_mphone,1,3) = substr(r.plant_name_mphone,1,3)'
+
+
+.. py:data:: blocking_rule_2
+   :value: 'l.report_year = r.report_year and substr(l.utility_name_mphone,1,2) =...
+
+
+.. py:data:: blocking_rule_3
+   :value: 'l.report_year = r.report_year and l.installation_year = r.installation_year and...
+
+
+.. py:data:: blocking_rule_4
+   :value: 'l.report_year = r.report_year and l.fuel_type_code_pudl = r.fuel_type_code_pudl and...
+
+
+.. py:data:: blocking_rule_5
+   :value: 'l.report_year = r.report_year and l.fuel_type_code_pudl = r.fuel_type_code_pudl and...
+
+
+.. py:data:: blocking_rule_6
+   :value: 'l.report_year = r.report_year and l.construction_year = r.construction_year and...
+
+
+.. py:data:: blocking_rule_7
+   :value: 'l.report_year = r.report_year and l.capacity_mw = r.capacity_mw and...
+
+
+.. py:data:: blocking_rule_8
+   :value: 'l.report_year = r.report_year and l.installation_year = r.installation_year and...
+
+
+.. py:data:: blocking_rule_9
+   :value: 'l.report_year = r.report_year and l.construction_year = r.construction_year and...
+
+
+.. py:data:: blocking_rule_10
+
+.. py:data:: BLOCKING_RULES
+
+.. py:data:: plant_name_comparison
+
+.. py:data:: utility_name_comparison
+
+.. py:data:: fuel_type_code_pudl_comparison
+
+.. py:data:: capacity_comparison
+
+.. py:data:: net_gen_comparison
+
+.. py:function:: get_date_comparison(column_name)
+
+   Get date comparison template for column.
+
+
+.. py:data:: installation_year_comparison
+
+.. py:data:: construction_year_comparison
+
+.. py:data:: COMPARISONS
+

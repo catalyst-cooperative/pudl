@@ -1,0 +1,11 @@
+pudl.package_data.rus7
+======================
+
+.. py:module:: pudl.package_data.rus7
+
+.. autoapi-nested-parse::
+
+   CSV extraction maps for RUS 7 data.
+
+
+

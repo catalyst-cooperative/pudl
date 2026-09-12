@@ -1,0 +1,20 @@
+pudl.dagster.assets.deploy
+==========================
+
+.. py:module:: pudl.dagster.assets.deploy
+
+.. autoapi-nested-parse::
+
+   Dagster assets dedicated to deploying data build products.
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/pudl/dagster/assets/deploy/ferceqr/index
+
+

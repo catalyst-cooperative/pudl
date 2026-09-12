@@ -1,0 +1,27 @@
+pudl.extract.ferc
+=================
+
+.. py:module:: pudl.extract.ferc
+
+.. autoapi-nested-parse::
+
+   Hooks to integrate ferc to sqlite functionality into dagster graph.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.extract.ferc.logger
+   pudl.extract.ferc.ALL_DBF_EXTRACTORS
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: ALL_DBF_EXTRACTORS
+

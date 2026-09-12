@@ -1,0 +1,11 @@
+pudl.package_data.test.column_maps
+==================================
+
+.. py:module:: pudl.package_data.test.column_maps
+
+.. autoapi-nested-parse::
+
+   Metadata linking semantic meaning of Testing spreadsheet columns across years.
+
+
+

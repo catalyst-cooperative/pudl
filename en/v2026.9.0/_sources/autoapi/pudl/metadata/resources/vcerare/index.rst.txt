@@ -1,0 +1,25 @@
+pudl.metadata.resources.vcerare
+===============================
+
+.. py:module:: pudl.metadata.resources.vcerare
+
+.. autoapi-nested-parse::
+
+   Table definitions for data coming from the Vibrant Clean Energy Renewable Generation Profiles.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.metadata.resources.vcerare.RESOURCE_METADATA
+
+
+Module Contents
+---------------
+
+.. py:data:: RESOURCE_METADATA
+   :type:  dict[str, dict[str, Any]]
+

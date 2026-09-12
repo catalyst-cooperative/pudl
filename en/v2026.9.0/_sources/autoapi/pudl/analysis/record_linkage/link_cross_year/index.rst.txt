@@ -1,0 +1,181 @@
+pudl.analysis.record_linkage.link_cross_year
+============================================
+
+.. py:module:: pudl.analysis.record_linkage.link_cross_year
+
+.. autoapi-nested-parse::
+
+   Define a record linkage model interface and implement common functionality.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.analysis.record_linkage.link_cross_year.logger
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.analysis.record_linkage.link_cross_year.PenalizeReportYearDistanceConfig
+   pudl.analysis.record_linkage.link_cross_year.DistanceMatrix
+   pudl.analysis.record_linkage.link_cross_year.DBSCANConfig
+   pudl.analysis.record_linkage.link_cross_year.SplitClustersConfig
+   pudl.analysis.record_linkage.link_cross_year.MatchOrphanedRecordsConfig
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.analysis.record_linkage.link_cross_year.get_cluster_distance_matrix
+   pudl.analysis.record_linkage.link_cross_year.get_average_distance_matrix
+   pudl.analysis.record_linkage.link_cross_year.compute_distance_with_year_penalty
+   pudl.analysis.record_linkage.link_cross_year.cluster_records_dbscan
+   pudl.analysis.record_linkage.link_cross_year.split_clusters
+   pudl.analysis.record_linkage.link_cross_year.match_orphaned_records
+   pudl.analysis.record_linkage.link_cross_year.link_ids_cross_year
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:class:: PenalizeReportYearDistanceConfig(**config_dict)
+
+   Bases: :py:obj:`dagster.Config`
+
+
+   Compute distance between records and add penalty to records from same year.
+
+   The metric can be any string accepted by :func:`scipy.spatial.distance.pdist`, e.g.
+   ``cosine`` or ``euclidean``.
+
+
+   .. py:attribute:: distance_penalty
+      :type:  float
+      :value: 10000.0
+
+
+
+   .. py:attribute:: metric
+      :type:  str
+      :value: 'euclidean'
+
+
+
+.. py:class:: DistanceMatrix(feature_matrix: numpy.ndarray, original_df: pandas.DataFrame, config: PenalizeReportYearDistanceConfig)
+
+   Class to wrap a distance matrix saved in a np.memmap.
+
+
+   .. py:attribute:: file_buffer
+
+
+   .. py:attribute:: distance_matrix
+
+
+.. py:function:: get_cluster_distance_matrix(distance_matrix: numpy.ndarray, cluster_inds: numpy.ndarray) -> numpy.ndarray
+
+   Return a distance matrix with only distances within a cluster.
+
+
+.. py:function:: get_average_distance_matrix(distance_matrix: numpy.ndarray, cluster_groups: list[list[int]]) -> numpy.ndarray
+
+   Compute average distance between two clusters of records given indices of each cluster.
+
+
+.. py:function:: compute_distance_with_year_penalty(config: PenalizeReportYearDistanceConfig, feature_matrix: pudl.analysis.record_linkage.embed_dataframe.FeatureMatrix, original_df: pandas.DataFrame) -> DistanceMatrix
+
+   Compute a distance matrix and penalize records from the same year.
+
+
+.. py:class:: DBSCANConfig(**config_dict)
+
+   Bases: :py:obj:`dagster.Config`
+
+
+   Configuration for DBSCAN step.
+
+
+   .. py:attribute:: eps
+      :type:  float
+      :value: 0.5
+
+
+
+   .. py:attribute:: min_samples
+      :type:  int
+      :value: 1
+
+
+
+.. py:function:: cluster_records_dbscan(config: DBSCANConfig, distance_matrix: DistanceMatrix, original_df: pandas.DataFrame, experiment_tracker: pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker) -> pandas.DataFrame
+
+   Generate initial IDs using DBSCAN algorithm.
+
+
+.. py:class:: SplitClustersConfig(**config_dict)
+
+   Bases: :py:obj:`dagster.Config`
+
+
+   Configuration for AgglomerativeClustering used to split overmerged clusters.
+
+
+   .. py:attribute:: distance_threshold
+      :type:  float
+      :value: 0.5
+
+
+
+.. py:function:: split_clusters(config: SplitClustersConfig, distance_matrix: DistanceMatrix, id_year_df: pandas.DataFrame, experiment_tracker: pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker) -> pandas.DataFrame
+
+   Split clusters with multiple records from same report_year.
+
+   DBSCAN will sometimes match records from the same report year, which breaks the
+   assumption that there should only be one record for each entity from a single
+   report year. To fix this, agglomerative clustering will be applied to each
+   such cluster. Agglomerative clustering could replace DBSCAN in the initial linkage
+   step to avoid these matches in the first place, however, it is very inneficient on
+   a large number of records, so applying to smaller sets of overmerged records is
+   much faster and uses much less memory.
+
+
+.. py:class:: MatchOrphanedRecordsConfig(**config_dict)
+
+   Bases: :py:obj:`dagster.Config`
+
+
+   Configuration for :func:`match_orphaned_records` op.
+
+
+   .. py:attribute:: distance_threshold
+      :type:  float
+      :value: 0.5
+
+
+
+.. py:function:: match_orphaned_records(config: MatchOrphanedRecordsConfig, distance_matrix: DistanceMatrix, id_year_df: pandas.DataFrame, experiment_tracker: pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker) -> pandas.DataFrame
+
+   DBSCAN assigns 'noisy' records a label of '-1', which will be labeled by this step.
+
+   To label orphaned records, points are separated into clusters where each orphaned record
+   is a cluster of a single point. Then, a distance matrix is computed with the average
+   distance between each cluster, and is used in a round of agglomerative clustering.
+   This will match orphaned records to existing clusters, or assign them unique ID's if
+   they don't appear close enough to any existing clusters.
+
+
+.. py:function:: link_ids_cross_year(df: pandas.DataFrame, feature_matrix: pudl.analysis.record_linkage.embed_dataframe.FeatureMatrix, experiment_tracker: pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker)
+
+   Apply model and return column of estimated record labels.
+
+

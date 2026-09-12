@@ -1,0 +1,2095 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    
+    <title>pudl.metadata.sources &#8212; PUDL 2026.9.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=7e24c9f5" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../../../_static/documentation_options.js?v=f05d84ed"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = "pre.mermaid {\n    /* Same as .mermaid-container > pre */\n    display: block;\n    width: 100%;\n}\n\npre.mermaid > svg {\n    /* Same as .mermaid-container > pre > svg */\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}";
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = ".mermaid-container {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    width: 100%;\n}\n\n.mermaid-container > pre {\n    display: block;\n    width: 100%;\n}\n\n.mermaid-container > pre > svg {\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}\n\n.mermaid-fullscreen-btn {\n    position: absolute;\n    width: 28px;\n    height: 28px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.3);\n    border-radius: 4px;\n    cursor: pointer;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transition: all 0.2s;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);\n    font-size: 14px;\n    line-height: 1;\n    padding: 0;\n    color: #333;\n}\n\n.mermaid-fullscreen-btn:hover {\n    opacity: 100% !important;\n    background: rgba(255, 255, 255, 1);\n    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-btn.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.3);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-btn.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal {\n    display: none;\n    position: fixed !important;\n    top: 0 !important;\n    left: 0 !important;\n    width: 95vw;\n    height: 100vh;\n    background: rgba(255, 255, 255, 0.98);\n    z-index: 9999;\n    padding: 20px;\n    overflow: auto;\n}\n\n.mermaid-fullscreen-modal.dark-theme {\n    background: rgba(0, 0, 0, 0.98);\n}\n\n.mermaid-fullscreen-modal.active {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen {\n    position: relative;\n    width: 95vw;\n    height: 90vh;\n    max-width: 95vw;\n    max-height: 90vh;\n    background: white;\n    border-radius: 8px;\n    padding: 20px;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);\n    overflow: auto;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen.dark-theme {\n    background: #1a1a1a;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);\n}\n\n.mermaid-container-fullscreen pre.mermaid {\n    width: 100%;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen .mermaid svg {\n    height: 100% !important;\n    width: 100% !important;\n    cursor: grab;\n}\n\n.mermaid-fullscreen-close {\n    position: fixed !important;\n    top: 20px !important;\n    right: 20px !important;\n    width: 40px;\n    height: 40px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.2);\n    border-radius: 50%;\n    cursor: pointer;\n    z-index: 10000;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);\n    transition: all 0.2s;\n    font-size: 24px;\n    line-height: 1;\n    color: #333;\n}\n\n.mermaid-fullscreen-close:hover {\n    background: white;\n    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-close.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.2);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-close.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal .mermaid-fullscreen-btn {\n    display: none !important;\n}";
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+let _lazyObserver = null;
+let _renderQueue = Promise.resolve();
+let closeModal = () => {};
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal?.classList.contains('active')) {
+        closeModal();
+    }
+});
+
+// Apply d3 zoom to each SVG. Idempotent: an SVG already wrapped is skipped,
+// so this is safe to call both for the initial batch and for diagrams that
+// render lazily once they become visible.
+const addZoomToSvgs = (svgs) => {
+    svgs.each(function() {
+        if (this.getAttribute('data-zoom-applied') === 'true') return;
+        var svg = d3.select(this);
+        svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+        var inner = svg.select("g");
+        var zoom = d3.zoom().on("zoom", function(event) {
+            inner.attr("transform", event.transform);
+        });
+        svg.call(zoom);
+        this.setAttribute('data-zoom-applied', 'true');
+    });
+};
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        // Disconnect any previous lazy rendering observer
+        if (_lazyObserver) {
+            _lazyObserver.disconnect();
+            _lazyObserver = null;
+        }
+
+        all_mermaids.forEach((el) => {
+            el.removeAttribute('data-mermaid-deferred');
+            el.removeAttribute('data-mermaid-render-failed');
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+
+        // Separate visible and hidden elements. Mermaid's layout engine measures
+        // text dimensions via the DOM, which fails for elements hidden by a parent
+        // (e.g., Reveal.js non-active slides, sphinx-design unopened tabs),
+        // producing broken SVGs. Render visible elements now, defer hidden ones.
+        const visible = [];
+        const hidden = [];
+        all_mermaids.forEach((el) => {
+            // offsetParent is null for display:none ancestors.
+            // getClientRects().length > 0 catches position:fixed elements
+            // (which also have null offsetParent but are still visible).
+            if (el.offsetParent !== null || el.getClientRects().length > 0) {
+                visible.push(el);
+            } else {
+                hidden.push(el);
+                el.setAttribute('data-mermaid-deferred', 'true');
+            }
+        });
+
+        if (visible.length > 0) {
+            try {
+                await mermaid.run({ nodes: visible });
+            } catch (e) {
+                console.error("Mermaid rendering failed:", e);
+            }
+        }
+
+        // Lazily render hidden elements when they become visible.
+        // Uses a promise chain (_renderQueue) to serialize rendering,
+        // since IntersectionObserver may report multiple entries at once
+        // and mermaid.run() is not safe to call concurrently.
+        if (hidden.length > 0) {
+            if (typeof IntersectionObserver === 'undefined') {
+                console.warn("IntersectionObserver not available; hidden mermaid diagrams will not render.");
+            } else {
+                _renderQueue = Promise.resolve();
+                _lazyObserver = new IntersectionObserver((entries) => {
+                    for (const entry of entries) {
+                        if (entry.isIntersecting && entry.target.getAttribute("data-processed") !== "true") {
+                            _lazyObserver.unobserve(entry.target);
+                            const el = entry.target;
+                            _renderQueue = _renderQueue.then(async () => {
+                                try {
+                                    await mermaid.run({ nodes: [el] });
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    // Apply zoom to the now-rendered diagram, matching
+                                    // the decoration visible diagrams receive.
+                                    if (false) {
+                                        addZoomToSvgs(d3.selectAll("").select(function() {
+                                            return this.querySelector("svg");
+                                        }));
+                                    }
+                                } catch (e) {
+                                    console.error("Mermaid deferred rendering failed:", e);
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    el.setAttribute('data-mermaid-render-failed', 'true');
+                                }
+                            });
+                        }
+                    }
+                });
+                hidden.forEach((el) => _lazyObserver.observe(el));
+            }
+        }
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    // Exclude deferred (hidden) and render-failed elements from completion checks
+    const mermaids_active = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])");
+    const mermaids_processed = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])[data-processed='true']");
+
+    if (false) {
+        const mermaids_to_add_zoom = 0 === -1 ? mermaids_active.length : 0;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("").select(function() {
+                return this.querySelector("svg");
+            });
+            // Wait until every active (visible) diagram has rendered. Deferred
+            // diagrams are excluded, so a fixed d3_node_count that counts a
+            // hidden diagram no longer loops forever waiting for its SVG.
+            if(mermaids_active.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            }
+            addZoomToSvgs(svgs);
+        }
+    } else if(mermaids_active.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if (!true) return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = "\u26f6";
+        fullscreenBtn.style.opacity = "50%";
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scrollX, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.display = 'block';
+
+                if (false) {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+
+
+const load = async () => {
+    initStyles();
+
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...{"startOnLoad": false},
+                ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...{"startOnLoad": false},
+    ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/metadata/sources';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v2026.9.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.0 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.0 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../data.html">
+    Data Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../code.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://mastodon.energy/@catalystcoop" title="Mastodon" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-mastodon fa-lg" aria-hidden="true"></i><span class="visually-hidden">Mastodon</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://bsky.app/profile/catalyst.coop" title="Bluesky" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-bluesky fa-lg" aria-hidden="true"></i><span class="visually-hidden">Bluesky</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.linkedin.com/company/catalyst-cooperative/" title="LinkedIn" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-linkedin fa-lg" aria-hidden="true"></i><span class="visually-hidden">LinkedIn</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://opencollective.com/pudl" title="Support PUDL" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-donate fa-lg" aria-hidden="true"></i><span class="visually-hidden">Support PUDL</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../data.html">
+    Data Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../code.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://mastodon.energy/@catalystcoop" title="Mastodon" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-mastodon fa-lg" aria-hidden="true"></i><span class="visually-hidden">Mastodon</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://bsky.app/profile/catalyst.coop" title="Bluesky" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-bluesky fa-lg" aria-hidden="true"></i><span class="visually-hidden">Bluesky</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.linkedin.com/company/catalyst-cooperative/" title="LinkedIn" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-linkedin fa-lg" aria-hidden="true"></i><span class="visually-hidden">LinkedIn</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://opencollective.com/pudl" title="Support PUDL" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-donate fa-lg" aria-hidden="true"></i><span class="visually-hidden">Support PUDL</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../../pudl.html" class="nav-link">pudl</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">pudl.metadata.sources</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for pudl.metadata.sources</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Metadata and operational constants."""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">CONTRIBUTORS</span><span class="p">,</span> <span class="n">KEYWORDS</span><span class="p">,</span> <span class="n">LICENSES</span>
+
+
+<div class="viewcode-block" id="_year_quarter_range">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/sources/index.html#pudl.metadata.sources._year_quarter_range">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_year_quarter_range</span><span class="p">(</span><span class="n">start_quarter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">end_quarter</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return a range of year-quarters formatted as ``YYYYqQ``."""</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">q</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">pd</span><span class="o">.</span><span class="n">period_range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">start_quarter</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">end_quarter</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s2">"Q"</span><span class="p">)</span>
+    <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="SOURCES">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/sources/index.html#pudl.metadata.sources.SOURCES">[docs]</a>
+<span class="n">SOURCES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"censusdp1tract"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"Census DP1 -- Profile of General Demographic Characteristics"</span><span class="p">,</span>
+        <span class="s2">"path"</span><span class="p">:</span> <span class="s2">"https://www.census.gov/geographies/mapping-files/2010/geo/tiger-data.html"</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"US Census Demographic Profile 1 (DP1) County and Tract GeoDatabase."</span>
+        <span class="p">),</span>
+        <span class="s2">"concept_doi"</span><span class="p">:</span> <span class="s2">"10.5281/zenodo.4127048"</span><span class="p">,</span>
+        <span class="s2">"working_partitions"</span><span class="p">:</span> <span class="p">{},</span>  <span class="c1"># Census DP1 is monolithic.</span>
+        <span class="s2">"keywords"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">"censusdp1tract"</span><span class="p">,</span>
+                <span class="s2">"census"</span><span class="p">,</span>
+                <span class="s2">"demographics"</span><span class="p">,</span>
+                <span class="s2">"geospatial"</span><span class="p">,</span>
+                <span class="s2">"gis"</span><span class="p">,</span>
+                <span class="s2">"population"</span><span class="p">,</span>
+                <span class="s2">"gender"</span><span class="p">,</span>
+                <span class="s2">"age"</span><span class="p">,</span>
+                <span class="s2">"race"</span><span class="p">,</span>
+                <span class="s2">"household"</span><span class="p">,</span>
+                <span class="s2">"spatial"</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">),</span>
+        <span class="s2">"license_raw"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"us-govt"</span><span class="p">],</span>
+        <span class="s2">"license_pudl"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"cc-by-4.0"</span><span class="p">],</span>
+        <span class="s2">"contributors"</span><span class="p">:</span> <span class="p">[</span><span class="n">CONTRIBUTORS</span><span class="p">[</span><span class="s2">"catalyst-cooperative"</span><span class="p">]],</span>
+    <span class="p">},</span>
+    <span class="s2">"censuspep"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"Population Estimates Program's (PEP) Federal Information Processing Series (FIPS) Codes"</span><span class="p">,</span>
+        <span class="s2">"path"</span><span class="p">:</span> <span class="s2">"https://www.census.gov/geographies/reference-files/2023/demo/popest/2023-fips.html"</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"Reference files for Federal Information Processing Series (FIPS) Geographic Codes. "</span>
+            <span class="s2">"These FIPS Codes are a subset of a broader Population Estimates dataset."</span>
+        <span class="p">),</span>
+        <span class="s2">"concept_doi"</span><span class="p">:</span> <span class="s2">"10.5281/zenodo.14624611"</span><span class="p">,</span>
+        <span class="s2">"working_partitions"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"years"</span><span class="p">:</span> <span class="p">[</span><span class="mi">2009</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">2011</span><span class="p">,</span> <span class="mi">2026</span><span class="p">))},</span>
+        <span class="s2">"keywords"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">"fips"</span><span class="p">,</span> <span class="s2">"census"</span><span class="p">,</span> <span class="s2">"county"</span><span class="p">,</span> <span class="s2">"state"</span><span class="p">,</span> <span class="s2">"geography"</span><span class="p">,</span> <span class="s2">"geocodes"</span><span class="p">}</span>
+        <span class="p">),</span>
+        <span class="s2">"license_raw"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"us-govt"</span><span class="p">],</span>
+        <span class="s2">"license_pudl"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"cc-by-4.0"</span><span class="p">],</span>
+        <span class="s2">"contributors"</span><span class="p">:</span> <span class="p">[</span><span class="n">CONTRIBUTORS</span><span class="p">[</span><span class="s2">"catalyst-cooperative"</span><span class="p">]],</span>
+    <span class="p">},</span>
+    <span class="s2">"eia176"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"EIA Form 176 -- Annual Report of Natural and Supplemental Gas Supply and Disposition"</span><span class="p">,</span>
+        <span class="s2">"path"</span><span class="p">:</span> <span class="s2">"https://www.eia.gov/naturalgas/ngqs/"</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"The EIA Form 176, also known as the Annual Report of Natural and "</span>
+            <span class="s2">"Supplemental Gas Supply and Disposition, describes the origins, suppliers, "</span>
+            <span class="s2">"and disposition of natural gas on a yearly and state by state basis."</span>
+        <span class="p">),</span>
+        <span class="s2">"concept_doi"</span><span class="p">:</span> <span class="s2">"10.5281/zenodo.7682357"</span><span class="p">,</span>
+        <span class="s2">"source_file_dict"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"respondents"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"Interstate natural gas pipeline companies; intrastate natural gas "</span>
+                <span class="s2">"pipeline companies; natural gas distribution companies; underground "</span>
+                <span class="s2">"natural gas storage (UNG) operators; synthetic natural gas plant "</span>
+                <span class="s2">"operators; field, well, or processing plant operators that deliver "</span>
+                <span class="s2">"natural gas directly to consumers (including their own industrial "</span>
+                <span class="s2">"facilities) other than for lease or plant use or processing; "</span>
+                <span class="s2">"field, well, or processing plant operators that transport gas to, "</span>
+                <span class="s2">"across, or from a State border through field or gathering facilities; "</span>
+                <span class="s2">"liquefied natural gas (LNG) storage operators."</span>
+            <span class="p">),</span>
+            <span class="s2">"source_format"</span><span class="p">:</span> <span class="s2">"Comma Separated Value (.csv)"</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">"working_partitions"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"years"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1997</span><span class="p">,</span> <span class="mi">2025</span><span class="p">)))},</span>
+        <span class="s2">"contributors"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CONTRIBUTORS</span><span class="p">[</span><span class="s2">"catalyst-cooperative"</span><span class="p">],</span>
+            <span class="n">CONTRIBUTORS</span><span class="p">[</span><span class="s2">"switchbox"</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="s2">"keywords"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="nb">set</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">"eia176"</span><span class="p">,</span>
+                    <span class="s2">"form 176"</span><span class="p">,</span>
+                    <span class="s2">"natural gas"</span><span class="p">,</span>
+                <span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"eia"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"us_govt"</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">),</span>
+        <span class="s2">"license_raw"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"us-govt"</span><span class="p">],</span>
+        <span class="s2">"license_pudl"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"cc-by-4.0"</span><span class="p">],</span>
+    <span class="p">},</span>
+    <span class="s2">"eia191"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"EIA Form 191 -- Monthly Underground Natural Gas Storage Report"</span><span class="p">,</span>
+        <span class="s2">"path"</span><span class="p">:</span> <span class="s2">"https://www.eia.gov/naturalgas/ngqs/"</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"The EIA Form 191, also known as the Monthly Underground Natural Gas "</span>
+            <span class="s2">"Storage Report, describes the working and base gas in reservoirs, "</span>
+            <span class="s2">"injections, withdrawals, and location of reservoirs by field monthly."</span>
+        <span class="p">),</span>
+        <span class="s2">"concept_doi"</span><span class="p">:</span> <span class="s2">"10.5281/zenodo.10607836"</span><span class="p">,</span>
+        <span class="s2">"source_file_dict"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"respondents"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"All companies that operate underground natural gas storage fields in "</span>
+                <span class="s2">"the United States."</span>
+            <span class="p">),</span>
+            <span class="s2">"source_format"</span><span class="p">:</span> <span class="s2">"Comma Separated Value (.csv)"</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">"working_partitions"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"years"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">2014</span><span class="p">,</span> <span class="mi">2027</span><span class="p">)))},</span>
+        <span class="s2">"contributors"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CONTRIBUTORS</span><span class="p">[</span><span class="s2">"catalyst-cooperative"</span><span class="p">],</span>
+            <span class="n">CONTRIBUTORS</span><span class="p">[</span><span class="s2">"switchbox"</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="s2">"keywords"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="nb">set</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">"eia191"</span><span class="p">,</span>
+                    <span class="s2">"form 191"</span><span class="p">,</span>
+                    <span class="s2">"natural gas"</span><span class="p">,</span>
+                <span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"eia"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"us_govt"</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">),</span>
+        <span class="s2">"license_raw"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"us-govt"</span><span class="p">],</span>
+        <span class="s2">"license_pudl"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"cc-by-4.0"</span><span class="p">],</span>
+    <span class="p">},</span>
+    <span class="s2">"eia757a"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"EIA Form 757A -- Natural Gas Processing Plant Survey"</span><span class="p">,</span>
+        <span class="s2">"path"</span><span class="p">:</span> <span class="s2">"https://www.eia.gov/naturalgas/ngqs/"</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"The EIA Form 757A, also known as the Natural Gas Processing Plant Survey "</span>
+            <span class="s2">"Schedule A provides detailed plant-level information on the capacity, "</span>
+            <span class="s2">"status, operations and connecting infrastructure of natural gas processing "</span>
+            <span class="s2">"plants. The form is completed tri-annually."</span>
+        <span class="p">),</span>
+        <span class="s2">"concept_doi"</span><span class="p">:</span> <span class="s2">"10.5281/zenodo.10607838"</span><span class="p">,</span>
+        <span class="s2">"source_file_dict"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"respondents"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"Natural gas processing plants."</span><span class="p">),</span>
+            <span class="s2">"source_format"</span><span class="p">:</span> <span class="s2">"JSON"</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">"working_partitions"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"years"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">({</span><span class="mi">2012</span><span class="p">,</span> <span class="mi">2014</span><span class="p">,</span> <span class="mi">2017</span><span class="p">})},</span>
+        <span class="s2">"contributors"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CONTRIBUTORS</span><span class="p">[</span><span class="s2">"catalyst-cooperative"</span><span class="p">],</span>
+            <span class="n">CONTRIBUTORS</span><span class="p">[</span><span class="s2">"switchbox"</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="s2">"keywords"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="nb">set</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">"eia757"</span><span class="p">,</span>
+                    <span class="s2">"eia757a"</span><span class="p">,</span>
+                    <span class="s2">"form 757"</span><span class="p">,</span>
+                    <span class="s2">"form 757 schedule a"</span><span class="p">,</span>
+                    <span class="s2">"natural gas"</span><span class="p">,</span>
+                <span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"eia"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"us_govt"</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">),</span>
+        <span class="s2">"license_raw"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"us-govt"</span><span class="p">],</span>
+        <span class="s2">"license_pudl"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"cc-by-4.0"</span><span class="p">],</span>
+    <span class="p">},</span>
+    <span class="s2">"eia860"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"EIA Form 860 -- Annual Electric Generator Report"</span><span class="p">,</span>
+        <span class="s2">"path"</span><span class="p">:</span> <span class="s2">"https://www.eia.gov/electricity/data/eia860"</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"US Energy Information Administration (EIA) Form 860 data for "</span>
+            <span class="s2">"electric power plants with 1 megawatt or greater combined nameplate "</span>
+            <span class="s2">"capacity."</span>
+        <span class="p">),</span>
+        <span class="s2">"concept_doi"</span><span class="p">:</span> <span class="s2">"10.5281/zenodo.4127026"</span><span class="p">,</span>
+        <span class="s2">"source_file_dict"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"respondents"</span><span class="p">:</span> <span class="s2">"Utilities"</span><span class="p">,</span>
+            <span class="s2">"records_liberated"</span><span class="p">:</span> <span class="s2">"~1 million"</span><span class="p">,</span>
+            <span class="s2">"source_format"</span><span class="p">:</span> <span class="s2">"Microsoft Excel (.xls/.xlsx)"</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">"contributors"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CONTRIBUTORS</span><span class="p">[</span><span class="s2">"catalyst-cooperative"</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="s2">"working_partitions"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"years"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">2001</span><span class="p">,</span> <span class="mi">2026</span><span class="p">))),</span>
+        <span class="p">},</span>
+        <span class="s2">"keywords"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="nb">set</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">"eia860"</span><span class="p">,</span>
+                    <span class="s2">"form 860"</span><span class="p">,</span>
+                    <span class="s2">"ownership"</span><span class="p">,</span>
+                    <span class="s2">"annual"</span><span class="p">,</span>
+                    <span class="s2">"yearly"</span><span class="p">,</span>
+                <span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"eia"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"us_govt"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"electricity"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"fuels"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"plants"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"environment"</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">),</span>
+        <span class="s2">"license_raw"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"us-govt"</span><span class="p">],</span>
+        <span class="s2">"license_pudl"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"cc-by-4.0"</span><span class="p">],</span>
+        <span class="s2">"email"</span><span class="p">:</span> <span class="s2">"infoelectric@eia.gov"</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"eia860m"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"EIA Form 860M -- Monthly Update to the Annual Electric Generator Report"</span><span class="p">,</span>
+        <span class="s2">"path"</span><span class="p">:</span> <span class="s2">"https://www.eia.gov/electricity/data/eia860m"</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"US Energy Information Administration (EIA) Form 860 M data for "</span>
+            <span class="s2">"electric power plants with 1 megawatt or greater combined nameplate "</span>
+            <span class="s2">"capacity. Preliminary Monthly Electric Generator Inventory (based on "</span>
+            <span class="s2">"Form EIA-860M as a supplement to Form EIA-860)"</span>
+        <span class="p">),</span>
+        <span class="s2">"concept_doi"</span><span class="p">:</span> <span class="s2">"10.5281/zenodo.4281336"</span><span class="p">,</span>
+        <span class="s2">"contributors"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CONTRIBUTORS</span><span class="p">[</span><span class="s2">"catalyst-cooperative"</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="s2">"working_partitions"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"year_months"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">q</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">pd</span><span class="o">.</span><span class="n">period_range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="s2">"2015-07"</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">"2026-07"</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s2">"M"</span><span class="p">)</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">"keywords"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="nb">set</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">"eia860m"</span><span class="p">,</span>
+                    <span class="s2">"form 860m"</span><span class="p">,</span>
+                    <span class="s2">"monthly"</span><span class="p">,</span>
+                <span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"eia"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"us_govt"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"electricity"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"fuels"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"plants"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"environment"</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">),</span>
+        <span class="s2">"license_raw"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"us-govt"</span><span class="p">],</span>
+        <span class="s2">"license_pudl"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"cc-by-4.0"</span><span class="p">],</span>
+        <span class="s2">"email"</span><span class="p">:</span> <span class="s2">"infoelectric@eia.gov"</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"eia861"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"EIA Form 861 -- Annual Electric Power Industry Report"</span><span class="p">,</span>
+        <span class="s2">"path"</span><span class="p">:</span> <span class="s2">"https://www.eia.gov/electricity/data/eia861"</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"EIA Form 861 Annual Electric Power Industry Report, detailed data files."</span>
+        <span class="p">),</span>
+        <span class="s2">"concept_doi"</span><span class="p">:</span> <span class="s2">"10.5281/zenodo.4127028"</span><span class="p">,</span>
+        <span class="s2">"working_partitions"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"years"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">2001</span><span class="p">,</span> <span class="mi">2026</span><span class="p">))),</span>
+        <span class="p">},</span>
+        <span class="s2">"contributors"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CONTRIBUTORS</span><span class="p">[</span><span class="s2">"catalyst-cooperative"</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="s2">"keywords"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="nb">set</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">"eia861"</span><span class="p">,</span>
+                    <span class="s2">"form 861"</span><span class="p">,</span>
+                    <span class="s2">"balancing authority"</span><span class="p">,</span>
+                    <span class="s2">"advanced metering infrastructure"</span><span class="p">,</span>
+                    <span class="s2">"customer class"</span><span class="p">,</span>
+                    <span class="s2">"green pricing"</span><span class="p">,</span>
+                    <span class="s2">"energy efficiency"</span><span class="p">,</span>
+                    <span class="s2">"demand side management"</span><span class="p">,</span>
+                    <span class="s2">"demand response"</span><span class="p">,</span>
+                    <span class="s2">"net metering"</span><span class="p">,</span>
+                    <span class="s2">"business model"</span><span class="p">,</span>
+                    <span class="s2">"service territory"</span><span class="p">,</span>
+                    <span class="s2">"annual"</span><span class="p">,</span>
+                    <span class="s2">"yearly"</span><span class="p">,</span>
+                <span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"eia"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"us_govt"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"electricity"</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">),</span>
+        <span class="s2">"license_raw"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"us-govt"</span><span class="p">],</span>
+        <span class="s2">"license_pudl"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"cc-by-4.0"</span><span class="p">],</span>
+        <span class="s2">"email"</span><span class="p">:</span> <span class="s2">"infoelectric@eia.gov"</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"eia923"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"EIA Form 923 -- Power Plant Operations Report"</span><span class="p">,</span>
+        <span class="s2">"path"</span><span class="p">:</span> <span class="s2">"https://www.eia.gov/electricity/data/eia923"</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"The EIA Form 923 collects detailed monthly and annual electric "</span>
+            <span class="s2">"power data on electricity generation, fuel consumption, fossil fuel "</span>
+            <span class="s2">"stocks, and receipts at the power plant and prime mover level."</span>
+        <span class="p">),</span>
+        <span class="s2">"concept_doi"</span><span class="p">:</span> <span class="s2">"10.5281/zenodo.4127039"</span><span class="p">,</span>
+        <span class="s2">"source_file_dict"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"respondents"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"Electric, CHP plants, and sometimes fuel transfer terminals with "</span>
+                <span class="s2">"either 1MW+ or the ability to receive and deliver power to the grid."</span>
+            <span class="p">),</span>
+            <span class="s2">"records_liberated"</span><span class="p">:</span> <span class="s2">"~5 million"</span><span class="p">,</span>
+            <span class="s2">"source_format"</span><span class="p">:</span> <span class="s2">"Microsoft Excel (.xls/.xlsx)"</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">"working_partitions"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"years"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">2001</span><span class="p">,</span> <span class="mi">2027</span><span class="p">))),</span>
+        <span class="p">},</span>
+        <span class="s2">"contributors"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CONTRIBUTORS</span><span class="p">[</span><span class="s2">"catalyst-cooperative"</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="s2">"keywords"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="nb">set</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">"eia923"</span><span class="p">,</span>
+                    <span class="s2">"form 923"</span><span class="p">,</span>
+                    <span class="s2">"monthly"</span><span class="p">,</span>
+                <span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"eia"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"us_govt"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"electricity"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"fuels"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"plants"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"environment"</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">),</span>
+        <span class="s2">"license_raw"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"us-govt"</span><span class="p">],</span>
+        <span class="s2">"license_pudl"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"cc-by-4.0"</span><span class="p">],</span>
+        <span class="s2">"email"</span><span class="p">:</span> <span class="s2">"infoelectric@eia.gov"</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"eia930"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"EIA Form 930 -- Hourly and Daily Balancing Authority Operations Report"</span><span class="p">,</span>
+        <span class="s2">"path"</span><span class="p">:</span> <span class="s2">"https://www.eia.gov/electricity/gridmonitor/"</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"The EIA Form 930 provides hourly demand and generation statistics by "</span>
+            <span class="s2">"balancing area (or sub-balancing area in the case of some larger areas). "</span>
+            <span class="s2">"These statistics include a breakdown by energy source (coal, gas, hydro, "</span>
+            <span class="s2">"wind, solar, etc.) as well as interchange between the balancing areas, "</span>
+            <span class="s2">"including international exchanges with Canada and Mexico."</span>
+        <span class="p">),</span>
+        <span class="s2">"concept_doi"</span><span class="p">:</span> <span class="s2">"10.5281/zenodo.10840077"</span><span class="p">,</span>
+        <span class="s2">"source_file_dict"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"respondents"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"All entities in the contiguous United States that are listed in the "</span>
+                <span class="s2">"North American Electric Reliability Corporation’s (NERC) Compliance "</span>
+                <span class="s2">"Registry as a balancing authority."</span>
+            <span class="p">),</span>
+            <span class="s2">"source_format"</span><span class="p">:</span> <span class="s2">"Comma separated values (CSV)"</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">"working_partitions"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"half_years"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">half</span><span class="si">{</span><span class="n">half</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2015</span><span class="p">,</span> <span class="mi">2027</span><span class="p">)</span> <span class="k">for</span> <span class="n">half</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+            <span class="p">][</span><span class="mi">1</span><span class="p">:]</span>  <span class="c1"># Begins in H2 of 2015 and currently ends in H2 of 2026</span>
+        <span class="p">},</span>
+        <span class="s2">"contributors"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CONTRIBUTORS</span><span class="p">[</span><span class="s2">"catalyst-cooperative"</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="s2">"keywords"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="nb">set</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">"eia930"</span><span class="p">,</span>
+                    <span class="s2">"form 930"</span><span class="p">,</span>
+                    <span class="s2">"hourly"</span><span class="p">,</span>
+                    <span class="s2">"interchange"</span><span class="p">,</span>
+                    <span class="s2">"grid operations"</span><span class="p">,</span>
+                    <span class="s2">"balancing authorities"</span><span class="p">,</span>
+                    <span class="s2">"net generation"</span><span class="p">,</span>
+                <span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"eia"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"us_govt"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"electricity"</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">),</span>
+        <span class="s2">"license_raw"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"us-govt"</span><span class="p">],</span>
+        <span class="s2">"license_pudl"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"cc-by-4.0"</span><span class="p">],</span>
+    <span class="p">},</span>
+    <span class="s2">"eiaaeo"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"EIA Annual Energy Outlook (AEO)"</span><span class="p">,</span>
+        <span class="s2">"path"</span><span class="p">:</span> <span class="s2">"https://www.eia.gov/outlooks/aeo/"</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"The EIA Annual Energy Outlook provides projections of future fuel prices, "</span>
+            <span class="s2">"energy supply and consumption, and carbon dioxide emissions by sector and "</span>
+            <span class="s2">"region."</span>
+        <span class="p">),</span>
+        <span class="s2">"concept_doi"</span><span class="p">:</span> <span class="s2">"10.5281/zenodo.10838487"</span><span class="p">,</span>
+        <span class="s2">"source_file_dict"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"source_format"</span><span class="p">:</span> <span class="s2">"JSON"</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">"working_partitions"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"years"</span><span class="p">:</span> <span class="p">[</span><span class="mi">2023</span><span class="p">,</span> <span class="mi">2025</span><span class="p">,</span> <span class="mi">2026</span><span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">"contributors"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CONTRIBUTORS</span><span class="p">[</span><span class="s2">"catalyst-cooperative"</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="s2">"keywords"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="nb">set</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">"eia aeo"</span><span class="p">,</span>
+                    <span class="s2">"annual energy outlook"</span><span class="p">,</span>
+                    <span class="s2">"nems"</span><span class="p">,</span>
+                    <span class="s2">"fuel projections"</span><span class="p">,</span>
+                    <span class="s2">"energy supply"</span><span class="p">,</span>
+                    <span class="s2">"energy consumption"</span><span class="p">,</span>
+                <span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"eia"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"us_govt"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"electricity"</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">),</span>
+        <span class="s2">"license_raw"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"us-govt"</span><span class="p">],</span>
+        <span class="s2">"license_pudl"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"cc-by-4.0"</span><span class="p">],</span>
+    <span class="p">},</span>
+    <span class="s2">"eiaapi"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"EIA Bulk API Data"</span><span class="p">,</span>
+        <span class="s2">"path"</span><span class="p">:</span> <span class="s2">"https://www.eia.gov/opendata/bulkfiles.php"</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"All data made available in bulk through the EIA Open Data API. "</span>
+            <span class="s2">"At present, PUDL integrates only a few specific data series related to "</span>
+            <span class="s2">"fuel receipts and costs figures from the Bulk Electricity API."</span>
+        <span class="p">),</span>
+        <span class="s2">"concept_doi"</span><span class="p">:</span> <span class="s2">"10.5281/zenodo.7067366"</span><span class="p">,</span>
+        <span class="s2">"source_file_dict"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"source_format"</span><span class="p">:</span> <span class="s2">"JSON"</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">"working_partitions"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"data_set"</span><span class="p">:</span> <span class="s2">"electricity"</span><span class="p">},</span>
+        <span class="s2">"contributors"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CONTRIBUTORS</span><span class="p">[</span><span class="s2">"catalyst-cooperative"</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="s2">"keywords"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="nb">set</span><span class="p">(</span>
+                <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"eia"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"us_govt"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"electricity"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"environment"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="p">[</span>
+                    <span class="s2">"eia aeo"</span><span class="p">,</span>
+                    <span class="s2">"annual energy outlook"</span><span class="p">,</span>
+                    <span class="s2">"eia seo"</span><span class="p">,</span>
+                    <span class="s2">"short-term energy outlook"</span><span class="p">,</span>
+                    <span class="s2">"eia seds"</span><span class="p">,</span>
+                    <span class="s2">"state energy data system"</span><span class="p">,</span>
+                    <span class="s2">"eia ieo"</span><span class="p">,</span>
+                    <span class="s2">"international energy outlook"</span><span class="p">,</span>
+                    <span class="s2">"nems"</span><span class="p">,</span>
+                    <span class="s2">"fuel projections"</span><span class="p">,</span>
+                    <span class="s2">"energy supply"</span><span class="p">,</span>
+                    <span class="s2">"energy consumption"</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">),</span>
+        <span class="s2">"license_raw"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"us-govt"</span><span class="p">],</span>
+        <span class="s2">"license_pudl"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"cc-by-4.0"</span><span class="p">],</span>
+    <span class="p">},</span>
+    <span class="s2">"eiawater"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"EIA Thermoelectric Cooling Water"</span><span class="p">,</span>
+        <span class="s2">"path"</span><span class="p">:</span> <span class="s2">"https://www.eia.gov/electricity/data/water"</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"Monthly cooling water usage by generator and boiler. Data "</span>
+            <span class="s2">"collected in conjunction with the EIA-860 and EIA-923."</span>
+        <span class="p">),</span>
+        <span class="s2">"concept_doi"</span><span class="p">:</span> <span class="s2">"10.5281/zenodo.7683135"</span><span class="p">,</span>
+        <span class="s2">"keywords"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="nb">set</span><span class="p">(</span><span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"eia"</span><span class="p">]</span> <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"us_govt"</span><span class="p">]</span> <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"eia_water"</span><span class="p">])</span>
+        <span class="p">),</span>
+        <span class="s2">"license_raw"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"us-govt"</span><span class="p">],</span>
+        <span class="s2">"license_pudl"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"cc-by-4.0"</span><span class="p">],</span>
+        <span class="s2">"email"</span><span class="p">:</span> <span class="s2">"infoelectric@eia.gov"</span><span class="p">,</span>
+        <span class="s2">"contributors"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CONTRIBUTORS</span><span class="p">[</span><span class="s2">"catalyst-cooperative"</span><span class="p">],</span>
+        <span class="p">],</span>
+    <span class="p">},</span>
+    <span class="s2">"epacems"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"EPA Hourly Continuous Emission Monitoring System (CEMS)"</span><span class="p">,</span>
+        <span class="s2">"path"</span><span class="p">:</span> <span class="s2">"https://campd.epa.gov/"</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"US EPA hourly Continuous Emissions Monitoring System (CEMS) data."</span>
+            <span class="s2">"Hourly CO2, SO2, NOx emissions and gross load."</span>
+        <span class="p">),</span>
+        <span class="s2">"concept_doi"</span><span class="p">:</span> <span class="s2">"10.5281/zenodo.10233185"</span><span class="p">,</span>
+        <span class="s2">"source_file_dict"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"respondents"</span><span class="p">:</span> <span class="s2">"Coal and high-sulfur fueled plants over 25MW"</span><span class="p">,</span>
+            <span class="s2">"records_liberated"</span><span class="p">:</span> <span class="s2">"~1 billion"</span><span class="p">,</span>
+            <span class="s2">"source_format"</span><span class="p">:</span> <span class="s2">"Comma Separated Value (.csv)"</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">"working_partitions"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"year_quarters"</span><span class="p">:</span> <span class="n">_year_quarter_range</span><span class="p">(</span>
+                <span class="n">start_quarter</span><span class="o">=</span><span class="s2">"1995q1"</span><span class="p">,</span> <span class="n">end_quarter</span><span class="o">=</span><span class="s2">"2026q2"</span>
+            <span class="p">)</span>
+        <span class="p">},</span>
+        <span class="s2">"contributors"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CONTRIBUTORS</span><span class="p">[</span><span class="s2">"catalyst-cooperative"</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="s2">"keywords"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="nb">set</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">"continuous emissions monitoring system"</span><span class="p">,</span>
+                    <span class="s2">"cems"</span><span class="p">,</span>
+                    <span class="s2">"air markets program data"</span><span class="p">,</span>
+                    <span class="s2">"ampd"</span><span class="p">,</span>
+                    <span class="s2">"hourly"</span><span class="p">,</span>
+                <span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"epa"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"us_govt"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"electricity"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"environment"</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">),</span>
+        <span class="s2">"license_raw"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"us-govt"</span><span class="p">],</span>
+        <span class="s2">"license_pudl"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"cc-by-4.0"</span><span class="p">],</span>
+    <span class="p">},</span>
+    <span class="s2">"epamats"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"EPA MATS -- Mercury and Air Toxics Standards"</span><span class="p">,</span>
+        <span class="s2">"path"</span><span class="p">:</span> <span class="s2">"https://www.epa.gov/stationary-sources-air-pollution/mercury-and-air-toxics-standards"</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"The EPA Mercury and Air Toxics Standards (MATS) dataset provides "</span>
+            <span class="s2">"detailed information on emissions of hazardous air pollutants, "</span>
+            <span class="s2">"specifically mercury and other toxic substances, from power plants in "</span>
+            <span class="s2">"the United States. Established by the U.S. Environmental Protection "</span>
+            <span class="s2">"Agency (EPA) under the Clean Air Act, MATS aims to reduce air "</span>
+            <span class="s2">"pollution and its associated health risks by setting limits on the "</span>
+            <span class="s2">"emissions of mercury, arsenic, acid gases, and other pollutants from "</span>
+            <span class="s2">"coal- and oil-fired power plants. The dataset typically includes "</span>
+            <span class="s2">"metrics such as emission levels, compliance testing results, facility "</span>
+            <span class="s2">"locations, and operational data. It serves as a critical resource for "</span>
+            <span class="s2">"policymakers, researchers, and environmental organizations to assess "</span>
+            <span class="s2">"the effectiveness of pollution control measures, monitor compliance, "</span>
+            <span class="s2">"and evaluate the environmental and public health impacts of power "</span>
+            <span class="s2">"plant emissions."</span>
+        <span class="p">),</span>
+        <span class="s2">"concept_doi"</span><span class="p">:</span> <span class="s2">"10.5281/zenodo.14783043"</span><span class="p">,</span>
+        <span class="s2">"source_file_dict"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"respondents"</span><span class="p">:</span> <span class="s2">"Power plants over 25MW"</span><span class="p">,</span>
+            <span class="s2">"source_format"</span><span class="p">:</span> <span class="s2">"Comma Separated Value (.csv)"</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">"working_partitions"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"year_quarters"</span><span class="p">:</span> <span class="n">_year_quarter_range</span><span class="p">(</span>
+                <span class="n">start_quarter</span><span class="o">=</span><span class="s2">"2015q1"</span><span class="p">,</span> <span class="n">end_quarter</span><span class="o">=</span><span class="s2">"2026q2"</span>
+            <span class="p">)</span>
+        <span class="p">},</span>
+        <span class="s2">"contributors"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CONTRIBUTORS</span><span class="p">[</span><span class="s2">"catalyst-cooperative"</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="s2">"keywords"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="nb">set</span><span class="p">(</span>
+                <span class="p">[</span><span class="s2">"mercury"</span><span class="p">,</span> <span class="s2">"toxics"</span><span class="p">,</span> <span class="s2">"standards"</span><span class="p">,</span> <span class="s2">"air"</span><span class="p">,</span> <span class="s2">"environment"</span><span class="p">,</span> <span class="s2">"epa"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"epa"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"us_govt"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"electricity"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"environment"</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">),</span>
+        <span class="s2">"license_raw"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"us-govt"</span><span class="p">],</span>
+        <span class="s2">"license_pudl"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"cc-by-4.0"</span><span class="p">],</span>
+    <span class="p">},</span>
+    <span class="s2">"epacamd_eia"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"EPA CAMD to EIA Power Sector Data Crosswalk"</span><span class="p">,</span>
+        <span class="s2">"path"</span><span class="p">:</span> <span class="s2">"https://github.com/USEPA/camd-eia-crosswalk"</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"A file created collaboratively by EPA and EIA that connects EPA CAMD "</span>
+            <span class="s2">"smokestacks (units) with corresponding EIA plant part ids reported in "</span>
+            <span class="s2">"EIA Forms 860 and 923 (plant_id_eia, boiler_id, generator_id). This "</span>
+            <span class="s2">"one-to-many connection is necessary because pollutants from various plant "</span>
+            <span class="s2">"parts are collecitvely emitted and measured from one point-source."</span>
+        <span class="p">),</span>
+        <span class="s2">"concept_doi"</span><span class="p">:</span> <span class="s2">"10.5281/zenodo.6633769"</span><span class="p">,</span>
+        <span class="s2">"source_file_dict"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"records_liberated"</span><span class="p">:</span> <span class="s2">"~7000"</span><span class="p">,</span>
+            <span class="s2">"source_format"</span><span class="p">:</span> <span class="s2">"Comma Separated Value (.csv)"</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">"working_partitions"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"years"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">2018</span><span class="p">,</span> <span class="mi">2025</span><span class="p">)))},</span>
+        <span class="s2">"contributors"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CONTRIBUTORS</span><span class="p">[</span><span class="s2">"catalyst-cooperative"</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="s2">"keywords"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="nb">set</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">"continuous emissions monitoring system"</span><span class="p">,</span>
+                    <span class="s2">"cems"</span><span class="p">,</span>
+                    <span class="s2">"air markets program data"</span><span class="p">,</span>
+                    <span class="s2">"ampd"</span><span class="p">,</span>
+                    <span class="s2">"hourly"</span><span class="p">,</span>
+                    <span class="s2">"eia"</span><span class="p">,</span>
+                    <span class="s2">"crosswalk"</span><span class="p">,</span>
+                <span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"epa"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"us_govt"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"electricity"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"environment"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"eia"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"plants"</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">),</span>
+        <span class="s2">"license_raw"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"us-govt"</span><span class="p">],</span>
+        <span class="s2">"license_pudl"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"cc-by-4.0"</span><span class="p">],</span>
+    <span class="p">},</span>
+    <span class="s2">"ferc1"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"FERC Form 1 -- Annual Report of Major Electric Utilities"</span><span class="p">,</span>
+        <span class="s2">"path"</span><span class="p">:</span> <span class="s2">"https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-1-electric-utility-annual"</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"The Federal Energy Regulatory Commission (FERC) Form 1 is a "</span>
+            <span class="s2">"comprehensive financial and operating report submitted annually for "</span>
+            <span class="s2">"electric rate regulation, market oversight analysis, and financial audits "</span>
+            <span class="s2">"by Major electric utilities, licensees and others."</span>
+        <span class="p">),</span>
+        <span class="s2">"concept_doi"</span><span class="p">:</span> <span class="s2">"10.5281/zenodo.4127043"</span><span class="p">,</span>
+        <span class="s2">"source_file_dict"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"respondents"</span><span class="p">:</span> <span class="s2">"Major electric utilities and licenses."</span><span class="p">,</span>
+            <span class="s2">"records_liberated"</span><span class="p">:</span> <span class="s2">"~13.2 million (116 raw tables), ~4.7 million (23 clean tables)"</span><span class="p">,</span>
+            <span class="s2">"source_format"</span><span class="p">:</span> <span class="s2">"XBRL (.XBRL) and Visual FoxPro Database (.DBC/.DBF)"</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">"working_partitions"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"years"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1994</span><span class="p">,</span> <span class="mi">2026</span><span class="p">))),</span>
+        <span class="p">},</span>
+        <span class="s2">"contributors"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CONTRIBUTORS</span><span class="p">[</span><span class="s2">"catalyst-cooperative"</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="s2">"keywords"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="nb">set</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">"form 1"</span><span class="p">,</span>
+                    <span class="s2">"ferc1"</span><span class="p">,</span>
+                <span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"ferc"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"us_govt"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"finance"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"electricity"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"plants"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"fuels"</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">),</span>
+        <span class="s2">"license_raw"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"us-govt"</span><span class="p">],</span>
+        <span class="s2">"license_pudl"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"cc-by-4.0"</span><span class="p">],</span>
+        <span class="s2">"email"</span><span class="p">:</span> <span class="s2">"Form1@ferc.gov"</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"ferc2"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"FERC Form 2 -- Annual Report of Major Natural Gas Companies"</span><span class="p">,</span>
+        <span class="s2">"path"</span><span class="p">:</span> <span class="s2">"https://www.ferc.gov/industries-data/natural-gas/industry-forms/form-2-2a-3-q-gas-historical-vfp-data"</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"The Federal Energy Regulatory Commission (FERC) Form 2 is a "</span>
+            <span class="s2">"comprehensive financial and operating report submitted for natural gas "</span>
+            <span class="s2">"pipelines rate regulation and financial audits."</span>
+        <span class="p">),</span>
+        <span class="s2">"concept_doi"</span><span class="p">:</span> <span class="s2">"10.5281/zenodo.5879542"</span><span class="p">,</span>
+        <span class="s2">"working_partitions"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="c1"># Years 1991-1995 use strange formats that need to be investigated further.</span>
+            <span class="c1"># Years 1996-1999 come in split archives and full archives and we are going</span>
+            <span class="c1"># to be using the aggregated archives (part=None).</span>
+            <span class="s2">"years"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1996</span><span class="p">,</span> <span class="mi">2026</span><span class="p">))),</span>
+        <span class="p">},</span>
+        <span class="s2">"contributors"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CONTRIBUTORS</span><span class="p">[</span><span class="s2">"catalyst-cooperative"</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="s2">"keywords"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="nb">set</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">"form 2"</span><span class="p">,</span>
+                    <span class="s2">"ferc2"</span><span class="p">,</span>
+                <span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"ferc"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"finance"</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">),</span>
+        <span class="s2">"license_raw"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"us-govt"</span><span class="p">],</span>
+        <span class="s2">"license_pudl"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"cc-by-4.0"</span><span class="p">],</span>
+        <span class="s2">"email"</span><span class="p">:</span> <span class="s2">"Form2@ferc.gov"</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"ferc6"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"FERC Form 6 -- Annual Report of Oil Pipeline Companies"</span><span class="p">,</span>
+        <span class="s2">"path"</span><span class="p">:</span> <span class="s2">"https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-66-q-overview-orders"</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"The Federal Energy Regulatory Commission (FERC) Form 6 is a "</span>
+            <span class="s2">"comprehensive financial and operating report submitted for oil "</span>
+            <span class="s2">"pipelines rate regulation and financial audits."</span>
+        <span class="p">),</span>
+        <span class="s2">"concept_doi"</span><span class="p">:</span> <span class="s2">"10.5281/zenodo.7126395"</span><span class="p">,</span>
+        <span class="s2">"working_partitions"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="c1"># Years 2000-2020 are backed by DBF format.</span>
+            <span class="c1"># Years 2021-present are backed by XBRL.</span>
+            <span class="s2">"years"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">2000</span><span class="p">,</span> <span class="mi">2026</span><span class="p">))),</span>
+        <span class="p">},</span>
+        <span class="s2">"contributors"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CONTRIBUTORS</span><span class="p">[</span><span class="s2">"catalyst-cooperative"</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="s2">"keywords"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="nb">set</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">"form 6"</span><span class="p">,</span>
+                    <span class="s2">"ferc6"</span><span class="p">,</span>
+                <span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"ferc"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"finance"</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">),</span>
+        <span class="s2">"license_raw"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"us-govt"</span><span class="p">],</span>
+        <span class="s2">"license_pudl"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"cc-by-4.0"</span><span class="p">],</span>
+        <span class="s2">"email"</span><span class="p">:</span> <span class="s2">"Form6@ferc.gov"</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"ferc60"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"FERC Form 60 -- Annual Report of Centralized Service Companies"</span><span class="p">,</span>
+        <span class="s2">"path"</span><span class="p">:</span> <span class="s2">"https://www.ferc.gov/ferc-online/ferc-online/filing-forms/service-companies-filing-forms/form-60-annual-report"</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"The Federal Energy Regulatory Commission (FERC) Form 60 is a "</span>
+            <span class="s2">"comprehensive financial and operating report submitted for centralized "</span>
+            <span class="s2">"service companies."</span>
+        <span class="p">),</span>
+        <span class="s2">"concept_doi"</span><span class="p">:</span> <span class="s2">"10.5281/zenodo.7126434"</span><span class="p">,</span>
+        <span class="s2">"working_partitions"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"years"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">2006</span><span class="p">,</span> <span class="mi">2026</span><span class="p">))),</span>
+        <span class="p">},</span>
+        <span class="s2">"contributors"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CONTRIBUTORS</span><span class="p">[</span><span class="s2">"catalyst-cooperative"</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="s2">"keywords"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="nb">set</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">"form 60"</span><span class="p">,</span>
+                    <span class="s2">"ferc60"</span><span class="p">,</span>
+                <span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"ferc"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"finance"</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">),</span>
+        <span class="s2">"license_raw"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"us-govt"</span><span class="p">],</span>
+        <span class="s2">"license_pudl"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"cc-by-4.0"</span><span class="p">],</span>
+        <span class="s2">"email"</span><span class="p">:</span> <span class="s2">"Form60@ferc.gov"</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"ferc714"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"FERC Form 714 -- Annual Electric Balancing Authority Area and Planning Area Report"</span><span class="p">,</span>
+        <span class="s2">"path"</span><span class="p">:</span> <span class="s2">"https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-no-714-annual-electric"</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"Electric transmitting utilities operating balancing authority "</span>
+            <span class="s2">"areas and planning areas with annual peak demand over 200MW are required "</span>
+            <span class="s2">"to file Form 714 with the Federal Energy Regulatory Commission (FERC), "</span>
+            <span class="s2">"reporting balancing authority area generation, actual and scheduled "</span>
+            <span class="s2">"inter-balancing authority area power transfers, and net energy for load, "</span>
+            <span class="s2">"summer-winter generation peaks and system lambda."</span>
+        <span class="p">),</span>
+        <span class="s2">"concept_doi"</span><span class="p">:</span> <span class="s2">"10.5281/zenodo.4127100"</span><span class="p">,</span>
+        <span class="s2">"working_partitions"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="c1"># 2021 and later data is in XBRL.</span>
+            <span class="c1"># 2006-2020 data is in monolithic CSV files, so any year means all years.</span>
+            <span class="s2">"years"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">2006</span><span class="p">,</span> <span class="mi">2026</span><span class="p">))),</span>
+        <span class="p">},</span>
+        <span class="s2">"contributors"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CONTRIBUTORS</span><span class="p">[</span><span class="s2">"catalyst-cooperative"</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="s2">"keywords"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="nb">set</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">"form 714"</span><span class="p">,</span>
+                    <span class="s2">"ferc714"</span><span class="p">,</span>
+                <span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"ferc"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"us_govt"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"electricity"</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">),</span>
+        <span class="s2">"license_raw"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"us-govt"</span><span class="p">],</span>
+        <span class="s2">"license_pudl"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"cc-by-4.0"</span><span class="p">],</span>
+        <span class="s2">"email"</span><span class="p">:</span> <span class="s2">"form714@ferc.gov"</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"ferccid"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"FERC CID - Company Identifier Listing"</span><span class="p">,</span>
+        <span class="s2">"path"</span><span class="p">:</span> <span class="s2">"https://data.ferc.gov/company-registration/ferc-company-identifier-listing/"</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"FERC's regulations require regulated or jurisdictional entities and some "</span>
+            <span class="s2">"non-regulated or non-jurisdictional entities to obtain Company Identifier (CID) numbers "</span>
+            <span class="s2">"in order to make required filings with the Commission including tariff filings and "</span>
+            <span class="s2">"various required forms. Each regulatory program requires a unique CID number. These "</span>
+            <span class="s2">"CID numbers show up in various FERC filings, such as Forms 1, 2, 6, 60, 714, and EQR."</span>
+        <span class="p">),</span>
+        <span class="c1"># we only want the data table, not the data dictionary table</span>
+        <span class="s2">"working_partitions"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"data_set"</span><span class="p">:</span> <span class="s2">"data_table"</span><span class="p">},</span>
+        <span class="s2">"keywords"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="nb">set</span><span class="p">(</span>
+                <span class="p">[</span><span class="s2">"ferc"</span><span class="p">,</span> <span class="s2">"cid"</span><span class="p">,</span> <span class="s2">"company identifier"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"ferc"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"us_govt"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"electricity"</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">),</span>
+        <span class="s2">"license_raw"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"us-govt"</span><span class="p">],</span>
+        <span class="s2">"license_pudl"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"cc-by-4.0"</span><span class="p">],</span>
+        <span class="s2">"contributors"</span><span class="p">:</span> <span class="p">[</span><span class="n">CONTRIBUTORS</span><span class="p">[</span><span class="s2">"catalyst-cooperative"</span><span class="p">]],</span>
+        <span class="s2">"concept_doi"</span><span class="p">:</span> <span class="s2">"10.5281/zenodo.18176680"</span><span class="p">,</span>
+        <span class="s2">"email"</span><span class="p">:</span> <span class="s2">"CID@ferc.gov"</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"ferceqr"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"FERC Form 920 -- Electric Quarterly Report (EQR)"</span><span class="p">,</span>
+        <span class="s2">"path"</span><span class="p">:</span> <span class="s2">"https://www.ferc.gov/industries-data/electric/power-sales-and-markets/electric-quarterly-reports-eqr"</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"The Electric Quarterly Report (EQR) is submitted by sellers participating "</span>
+            <span class="s2">"in bilateral electricity market transactions. The reports summarize the "</span>
+            <span class="s2">"contractual terms and conditions in agreements for all jurisdictional "</span>
+            <span class="s2">"services, including cost-based sales, market-based rate sales, and "</span>
+            <span class="s2">"transmission service, as well as transaction information for short-term "</span>
+            <span class="s2">"and long-term market-based power sales and cost-based power sales."</span>
+        <span class="p">),</span>
+        <span class="s2">"concept_doi"</span><span class="p">:</span> <span class="s2">"10.5281/zenodo.18251901"</span><span class="p">,</span>
+        <span class="s2">"keywords"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="nb">set</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">"ferceqr"</span><span class="p">,</span>
+                    <span class="s2">"EQR"</span><span class="p">,</span>
+                    <span class="s2">"electric quarterly report"</span><span class="p">,</span>
+                    <span class="s2">"form 920"</span><span class="p">,</span>
+                    <span class="s2">"transactions"</span><span class="p">,</span>
+                    <span class="s2">"contracts"</span><span class="p">,</span>
+                    <span class="s2">"power sales"</span><span class="p">,</span>
+                    <span class="s2">"power purchase agreements"</span><span class="p">,</span>
+                    <span class="s2">"PPA"</span><span class="p">,</span>
+                    <span class="s2">"ancillary services"</span><span class="p">,</span>
+                    <span class="s2">"capacity"</span><span class="p">,</span>
+                <span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"ferc"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"us_govt"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"electricity"</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">),</span>
+        <span class="s2">"contributors"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CONTRIBUTORS</span><span class="p">[</span><span class="s2">"catalyst-cooperative"</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="s2">"working_partitions"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"year_quarters"</span><span class="p">:</span> <span class="n">_year_quarter_range</span><span class="p">(</span>
+                <span class="n">start_quarter</span><span class="o">=</span><span class="s2">"2013q3"</span><span class="p">,</span> <span class="n">end_quarter</span><span class="o">=</span><span class="s2">"2026q2"</span>
+            <span class="p">),</span>
+        <span class="p">},</span>
+        <span class="s2">"license_raw"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"us-govt"</span><span class="p">],</span>
+        <span class="s2">"license_pudl"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"cc-by-4.0"</span><span class="p">],</span>
+        <span class="s2">"email"</span><span class="p">:</span> <span class="s2">"eqr@ferc.gov"</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"gridpathratoolkit"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"GridPath Resource Adequacy Toolkit Data"</span><span class="p">,</span>
+        <span class="s2">"path"</span><span class="p">:</span> <span class="s2">"https://gridlab.org/gridpathratoolkit/"</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"Hourly renewable generation profiles compiled for the Western United "</span>
+            <span class="s2">"States as part of the GridPath Resource Adequacy Toolkit. Profiles are "</span>
+            <span class="s2">"stated as a capacity factor (a fraction of nameplate capacity). There are "</span>
+            <span class="s2">"3 different levels of processing or aggregation provided, all at hourly "</span>
+            <span class="s2">"resolution: Individual plant (wind) or generator (solar) output, "</span>
+            <span class="s2">"capacity-weighted averages of wind and solar output aggregated to the "</span>
+            <span class="s2">"level of balancing authority territories (or transmission zones for "</span>
+            <span class="s2">"larger balancing authorities), and that same aggregated output but with "</span>
+            <span class="s2">"some problematic individual generator profiles modified such that they "</span>
+            <span class="s2">"match the overall production curve of the balancing authority they are "</span>
+            <span class="s2">"within. This data also contains some daily weather data from several "</span>
+            <span class="s2">"sites across the western US and tables describing the way in which "</span>
+            <span class="s2">"individual wind and solar projects were aggregated up to the level of "</span>
+            <span class="s2">"balancing authority or transmission zone."</span>
+        <span class="p">),</span>
+        <span class="s2">"concept_doi"</span><span class="p">:</span> <span class="s2">"10.5281/zenodo.10844661"</span><span class="p">,</span>
+        <span class="s2">"keywords"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">"solar"</span><span class="p">,</span>
+                <span class="s2">"wind"</span><span class="p">,</span>
+                <span class="s2">"time series"</span><span class="p">,</span>
+                <span class="s2">"energy"</span><span class="p">,</span>
+                <span class="s2">"electricity"</span><span class="p">,</span>
+                <span class="s2">"generation"</span><span class="p">,</span>
+                <span class="s2">"weather"</span><span class="p">,</span>
+                <span class="s2">"capacity factor"</span><span class="p">,</span>
+                <span class="s2">"hourly"</span><span class="p">,</span>
+                <span class="s2">"united states"</span><span class="p">,</span>
+                <span class="s2">"usa"</span><span class="p">,</span>
+                <span class="s2">"resource adequacy"</span><span class="p">,</span>
+                <span class="s2">"gridpath"</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">),</span>
+        <span class="s2">"license_raw"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"cc-by-4.0"</span><span class="p">],</span>
+        <span class="s2">"license_pudl"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"cc-by-4.0"</span><span class="p">],</span>
+        <span class="s2">"working_partitions"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"parts"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"aggregated_extended_solar_capacity"</span><span class="p">,</span>
+                <span class="s2">"aggregated_extended_wind_capacity"</span><span class="p">,</span>
+                <span class="c1"># "aggregated_solar_capacity",</span>
+                <span class="c1"># "aggregated_wind_capacity",</span>
+                <span class="s2">"daily_weather"</span><span class="p">,</span>
+                <span class="c1"># "original_solar_capacity",</span>
+                <span class="c1"># "original_wind_capacity",</span>
+                <span class="s2">"solar_capacity_aggregations"</span><span class="p">,</span>
+                <span class="s2">"wind_capacity_aggregations"</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">},</span>
+        <span class="s2">"contributors"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CONTRIBUTORS</span><span class="p">[</span><span class="s2">"elaine-hart"</span><span class="p">],</span>
+            <span class="n">CONTRIBUTORS</span><span class="p">[</span><span class="s2">"catalyst-cooperative"</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="s2">"email"</span><span class="p">:</span> <span class="s2">"elaine@sylvan.energy"</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"mshamines"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"Mine Safety and Health Administration (MSHA) Mines"</span><span class="p">,</span>
+        <span class="s2">"path"</span><span class="p">:</span> <span class="s2">"https://arlweb.msha.gov/OpenGovernmentData/OGIMSHA.asp"</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"The Mine dataset lists all Coal and Metal/Non-Metal mines under MSHA's "</span>
+            <span class="s2">"jurisdiction. It includes such information as the current status of each "</span>
+            <span class="s2">"mine (Active, Abandoned, NonProducing, etc.), the current owner and "</span>
+            <span class="s2">"operating company, commodity codes and physical attributes of the mine."</span>
+        <span class="p">),</span>
+        <span class="s2">"concept_doi"</span><span class="p">:</span> <span class="s2">"10.5281/zenodo.7683517"</span><span class="p">,</span>
+        <span class="s2">"keywords"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"msha"</span><span class="p">]</span> <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"us_govt"</span><span class="p">])),</span>
+        <span class="s2">"license_raw"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"us-govt"</span><span class="p">],</span>
+        <span class="s2">"license_pudl"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"cc-by-4.0"</span><span class="p">],</span>
+        <span class="s2">"contributors"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CONTRIBUTORS</span><span class="p">[</span><span class="s2">"catalyst-cooperative"</span><span class="p">],</span>
+        <span class="p">],</span>
+    <span class="p">},</span>
+    <span class="s2">"nrelatb"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"NREL Annual Technology Baseline (ATB) for Electricity"</span><span class="p">,</span>
+        <span class="s2">"path"</span><span class="p">:</span> <span class="s2">"https://atb.nrel.gov/"</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"The NREL Annual Technology Baseline (ATB) for Electricity publishes "</span>
+            <span class="s2">"annual projections of operational and capital expenditures (by technology "</span>
+            <span class="s2">"and vintage), as well as operating characteristics (by technology)."</span>
+        <span class="p">),</span>
+        <span class="s2">"concept_doi"</span><span class="p">:</span> <span class="s2">"10.5281/zenodo.10839267"</span><span class="p">,</span>
+        <span class="s2">"source_file_dict"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"source_format"</span><span class="p">:</span> <span class="s2">"Parquet"</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">"working_partitions"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"years"</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span>
+                <span class="nb">range</span><span class="p">(</span><span class="mi">2021</span><span class="p">,</span> <span class="mi">2026</span><span class="p">)</span>
+            <span class="p">),</span>  <span class="c1"># see issue #3576 for why 2019 and 2020 are not working</span>
+        <span class="p">},</span>
+        <span class="s2">"contributors"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CONTRIBUTORS</span><span class="p">[</span><span class="s2">"catalyst-cooperative"</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="s2">"keywords"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="nb">set</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">"nrel atb"</span><span class="p">,</span>
+                    <span class="s2">"annual technology baseline"</span><span class="p">,</span>
+                    <span class="s2">"opex"</span><span class="p">,</span>
+                    <span class="s2">"capex"</span><span class="p">,</span>
+                    <span class="s2">"technology"</span><span class="p">,</span>
+                <span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"eia"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"us_govt"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"electricity"</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">),</span>
+        <span class="s2">"license_raw"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"cc-by-4.0"</span><span class="p">],</span>
+        <span class="s2">"license_pudl"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"cc-by-4.0"</span><span class="p">],</span>
+    <span class="p">},</span>
+    <span class="s2">"phmsagas"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"Pipelines and Hazardous Materials Safety Administration (PHMSA) Annual Natural Gas Report"</span><span class="p">,</span>
+        <span class="s2">"path"</span><span class="p">:</span> <span class="s2">"https://www.phmsa.dot.gov/data-and-statistics/pipeline/gas-distribution-gas-gathering-gas-transmission-hazardous-liquids"</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"Annual reports submitted to PHMSA from gas distribution, gas gathering, "</span>
+            <span class="s2">"gas transmission, liquefied natural gas, and underground gas storage "</span>
+            <span class="s2">"system operators. Annual reports include information such as total "</span>
+            <span class="s2">"pipeline mileage, facilities, commodities transported, miles by material, "</span>
+            <span class="s2">"and installation dates."</span>
+        <span class="p">),</span>
+        <span class="s2">"concept_doi"</span><span class="p">:</span> <span class="s2">"10.5281/zenodo.7683351"</span><span class="p">,</span>
+        <span class="s2">"working_partitions"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"years"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1970</span><span class="p">,</span> <span class="mi">2026</span><span class="p">)))},</span>
+        <span class="s2">"keywords"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"phmsa"</span><span class="p">]</span> <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"us_govt"</span><span class="p">])),</span>
+        <span class="s2">"license_raw"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"us-govt"</span><span class="p">],</span>
+        <span class="s2">"license_pudl"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"cc-by-4.0"</span><span class="p">],</span>
+        <span class="s2">"contributors"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CONTRIBUTORS</span><span class="p">[</span><span class="s2">"catalyst-cooperative"</span><span class="p">],</span>
+            <span class="n">CONTRIBUTORS</span><span class="p">[</span><span class="s2">"switchbox"</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="s2">"email"</span><span class="p">:</span> <span class="s2">"phmsa.pipelinesafety@dot.gov"</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"pudl"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"The Public Utility Data Liberation (PUDL) Project"</span><span class="p">,</span>
+        <span class="s2">"path"</span><span class="p">:</span> <span class="s2">"https://catalyst.coop/pudl"</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"PUDL is a data processing pipeline created by Catalyst Cooperative that "</span>
+            <span class="s2">"cleans, integrates, and standardizes some of the most widely used public "</span>
+            <span class="s2">"energy datasets in the US. The data serve researchers, activists, "</span>
+            <span class="s2">"journalists, and policy makers that might not have the technical expertise "</span>
+            <span class="s2">"to access it in its raw form, the time to clean and prepare the data for "</span>
+            <span class="s2">"bulk analysis, or the means to purchase it from existing commercial "</span>
+            <span class="s2">"providers."</span>
+        <span class="p">),</span>
+        <span class="s2">"concept_doi"</span><span class="p">:</span> <span class="s2">"10.5281/zenodo.3404014"</span><span class="p">,</span>
+        <span class="s2">"contributors"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CONTRIBUTORS</span><span class="p">[</span><span class="s2">"catalyst-cooperative"</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="s2">"keywords"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"us"</span><span class="p">,</span> <span class="s2">"electricity"</span><span class="p">,</span> <span class="s2">"open data"</span><span class="p">,</span> <span class="s2">"open source"</span><span class="p">],</span>
+        <span class="s2">"license_raw"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"cc-by-4.0"</span><span class="p">],</span>
+        <span class="s2">"license_pudl"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"cc-by-4.0"</span><span class="p">],</span>
+        <span class="s2">"email"</span><span class="p">:</span> <span class="s2">"pudl@catalyst.coop"</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">"sec10k"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"U.S. Securities and Exchange Commission (SEC) Form 10-K"</span><span class="p">,</span>
+        <span class="s2">"path"</span><span class="p">:</span> <span class="s2">"https://www.sec.gov/search-filings/edgar-application-programming-interfaces"</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"The SEC Form 10-K is an annual report required by the U.S. Securities and "</span>
+            <span class="s2">"Exchange Commission (SEC), that gives a comprehensive summary of a "</span>
+            <span class="s2">"company's financial performance."</span>
+        <span class="p">),</span>
+        <span class="s2">"concept_doi"</span><span class="p">:</span> <span class="s2">"10.5281/zenodo.15161693"</span><span class="p">,</span>
+        <span class="s2">"working_partitions"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"tables"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"raw_sec10k__quarterly_filings"</span><span class="p">,</span>
+                <span class="s2">"raw_sec10k__quarterly_company_information"</span><span class="p">,</span>
+                <span class="s2">"raw_sec10k__parents_and_subsidiaries"</span><span class="p">,</span>
+                <span class="s2">"raw_sec10k__exhibit_21_company_ownership"</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="s2">"years"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1993</span><span class="p">,</span> <span class="mi">2024</span><span class="p">)),</span>
+        <span class="p">},</span>
+        <span class="s2">"keywords"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="nb">set</span><span class="p">(</span><span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"sec"</span><span class="p">]</span> <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"us_govt"</span><span class="p">]</span> <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"finance"</span><span class="p">])</span>
+        <span class="p">),</span>
+        <span class="s2">"license_raw"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"us-govt"</span><span class="p">],</span>
+        <span class="s2">"license_pudl"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"cc-by-4.0"</span><span class="p">],</span>
+        <span class="s2">"contributors"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CONTRIBUTORS</span><span class="p">[</span><span class="s2">"catalyst-cooperative"</span><span class="p">],</span>
+        <span class="p">],</span>
+    <span class="p">},</span>
+    <span class="s2">"rus7"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"USDA RUS Form 7 -- Financial and Operating Report: Electric Distribution"</span><span class="p">,</span>
+        <span class="s2">"path"</span><span class="p">:</span> <span class="s2">"https://www.rd.usda.gov/resources/forms/rus-forms"</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"The United States Department of Agriculture (USDA) Financial and "</span>
+            <span class="s2">"Operating Report for Electric Distribution (formerly known as Form 7) "</span>
+            <span class="s2">"is an annual report submitted by rural electric utilities "</span>
+            <span class="s2">"that receive funding from the USDA Rural Utilities Service (RUS) for "</span>
+            <span class="s2">"distribution services. This data was obtained through multiple Freedom "</span>
+            <span class="s2">"of Information Access (FOIA) requests."</span>
+        <span class="p">),</span>
+        <span class="s2">"concept_doi"</span><span class="p">:</span> <span class="s2">"10.5281/zenodo.18248545"</span><span class="p">,</span>
+        <span class="s2">"source_file_dict"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"respondents"</span><span class="p">:</span> <span class="s2">"Rural electric utilities borrowing from USDA RUS."</span><span class="p">,</span>
+            <span class="s2">"source_format"</span><span class="p">:</span> <span class="s2">"Comma Separated Value (.csv)"</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">"working_partitions"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"years"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">2006</span><span class="p">,</span> <span class="mi">2022</span><span class="p">))),</span>
+        <span class="p">},</span>
+        <span class="s2">"contributors"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CONTRIBUTORS</span><span class="p">[</span><span class="s2">"catalyst-cooperative"</span><span class="p">],</span>
+            <span class="n">CONTRIBUTORS</span><span class="p">[</span><span class="s2">"matthew-grimley"</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="s2">"keywords"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="nb">set</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">"form 7"</span><span class="p">,</span>
+                    <span class="s2">"distribution"</span><span class="p">,</span>
+                <span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"rus"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"us_govt"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"finance"</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">),</span>
+        <span class="s2">"license_raw"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"us-govt"</span><span class="p">],</span>
+        <span class="s2">"license_pudl"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"cc-by-4.0"</span><span class="p">],</span>
+    <span class="p">},</span>
+    <span class="s2">"rus12"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"USDA RUS Form 12 -- Financial and Operating Report: Electric Power Supply"</span><span class="p">,</span>
+        <span class="s2">"path"</span><span class="p">:</span> <span class="s2">"https://www.rd.usda.gov/resources/forms/rus-forms"</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"The United States Department of Agriculture (USDA) Financial and "</span>
+            <span class="s2">"Operating Report for Electric Power Supply (formerly known as Form 12) "</span>
+            <span class="s2">"is an annual report submitted by rural electric utilities "</span>
+            <span class="s2">"that receive funding from the USDA Rural Utilities Service (RUS) for "</span>
+            <span class="s2">"power supply (generation). This data was obtained through multiple Freedom "</span>
+            <span class="s2">"of Information Access (FOIA) requests."</span>
+        <span class="p">),</span>
+        <span class="s2">"concept_doi"</span><span class="p">:</span> <span class="s2">"10.5281/zenodo.18315222"</span><span class="p">,</span>
+        <span class="s2">"source_file_dict"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"respondents"</span><span class="p">:</span> <span class="s2">"Rural electric utilities borrowing from USDA RUS."</span><span class="p">,</span>
+            <span class="s2">"source_format"</span><span class="p">:</span> <span class="s2">"Comma Separated Value (.csv)"</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">"working_partitions"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"years"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">2006</span><span class="p">,</span> <span class="mi">2022</span><span class="p">))),</span>
+        <span class="p">},</span>
+        <span class="s2">"contributors"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CONTRIBUTORS</span><span class="p">[</span><span class="s2">"catalyst-cooperative"</span><span class="p">],</span>
+            <span class="n">CONTRIBUTORS</span><span class="p">[</span><span class="s2">"matthew-grimley"</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="s2">"keywords"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="nb">set</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">"form 12"</span><span class="p">,</span>
+                    <span class="s2">"power supply"</span><span class="p">,</span>
+                <span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"rus"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"us_govt"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"finance"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"electricity"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"plants"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">KEYWORDS</span><span class="p">[</span><span class="s2">"fuels"</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">),</span>
+        <span class="s2">"license_raw"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"us-govt"</span><span class="p">],</span>
+        <span class="s2">"license_pudl"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"cc-by-4.0"</span><span class="p">],</span>
+    <span class="p">},</span>
+    <span class="s2">"vcerare"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset"</span><span class="p">,</span>
+        <span class="s2">"path"</span><span class="p">:</span> <span class="s2">"https://vibrantcleanenergy.com/products/datasets/"</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"This dataset was produced by Vibrant Clean Energy and is licensed to "</span>
+            <span class="s2">"the public under the Creative Commons Attribution 4.0 International "</span>
+            <span class="s2">"license (CC-BY-4.0). The data consists of hourly, county-level renewable "</span>
+            <span class="s2">"generation profiles in the continental United States and was compiled "</span>
+            <span class="s2">"based on outputs from the NOAA HRRR weather model. Profiles are stated "</span>
+            <span class="s2">"as a capacity factor (a percentage of nameplate capacity) and exist for "</span>
+            <span class="s2">"onshore wind, offshore wind, and fixed-tilt solar generation types."</span>
+        <span class="p">),</span>
+        <span class="s2">"concept_doi"</span><span class="p">:</span> <span class="s2">"10.5281/zenodo.13937522"</span><span class="p">,</span>
+        <span class="s2">"source_file_dict"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"source_format"</span><span class="p">:</span> <span class="s2">"Comma Separated Value (.csv)"</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">"keywords"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">"solar"</span><span class="p">,</span>
+                <span class="s2">"wind"</span><span class="p">,</span>
+                <span class="s2">"time series"</span><span class="p">,</span>
+                <span class="s2">"energy"</span><span class="p">,</span>
+                <span class="s2">"electricity"</span><span class="p">,</span>
+                <span class="s2">"generation"</span><span class="p">,</span>
+                <span class="s2">"weather"</span><span class="p">,</span>
+                <span class="s2">"capacity factor"</span><span class="p">,</span>
+                <span class="s2">"hourly"</span><span class="p">,</span>
+                <span class="s2">"united states"</span><span class="p">,</span>
+                <span class="s2">"usa"</span><span class="p">,</span>
+                <span class="s2">"resource adequacy"</span><span class="p">,</span>
+                <span class="s2">"gridpath"</span><span class="p">,</span>
+                <span class="s2">"vibrant clean energy"</span><span class="p">,</span>
+                <span class="s2">"county"</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">),</span>
+        <span class="s2">"license_raw"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"cc-by-4.0"</span><span class="p">],</span>
+        <span class="s2">"license_pudl"</span><span class="p">:</span> <span class="n">LICENSES</span><span class="p">[</span><span class="s2">"cc-by-4.0"</span><span class="p">],</span>
+        <span class="s2">"working_partitions"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"years"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">2014</span><span class="p">,</span> <span class="mi">2025</span><span class="p">)))},</span>
+        <span class="s2">"contributors"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CONTRIBUTORS</span><span class="p">[</span><span class="s2">"vibrant-clean-energy"</span><span class="p">],</span>
+            <span class="n">CONTRIBUTORS</span><span class="p">[</span><span class="s2">"catalyst-cooperative"</span><span class="p">],</span>
+        <span class="p">],</span>
+    <span class="p">},</span>
+<span class="p">}</span></div>
+
+<span class="sd">"""Data source attributes by PUDL identifier."""</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2016-2026, Catalyst Cooperative, CC-BY-4.0.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+        <div class="footer-item">
+<p class="llms-txt-link">
+  <a href="../../../llms.txt"><span class="fa-solid fa-robot"></span> llms.txt</a>
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

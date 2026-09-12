@@ -1,0 +1,20 @@
+pudl.package_data.censuspep
+===========================
+
+.. py:module:: pudl.package_data.censuspep
+
+.. autoapi-nested-parse::
+
+   Excel spreadsheet extraction maps for Census PEP FIPS codes, plus territories to add.
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/pudl/package_data/censuspep/column_maps/index
+
+

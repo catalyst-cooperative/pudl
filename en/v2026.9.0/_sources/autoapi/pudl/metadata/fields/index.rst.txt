@@ -1,0 +1,41 @@
+pudl.metadata.fields
+====================
+
+.. py:module:: pudl.metadata.fields
+
+.. autoapi-nested-parse::
+
+   Field metadata.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.metadata.fields.FIELD_METADATA
+   pudl.metadata.fields.FIELD_METADATA_BY_NAMESPACE
+   pudl.metadata.fields.FIELD_METADATA_BY_RESOURCE
+
+
+Module Contents
+---------------
+
+.. py:data:: FIELD_METADATA
+   :type:  dict[str, dict[str, Any]]
+
+   Field attributes by PUDL identifier (`field.name`).
+
+.. py:data:: FIELD_METADATA_BY_NAMESPACE
+   :type:  dict[str, dict[str, Any]]
+
+   Field attributes by resource group (`resource.group`) and PUDL identifier.
+
+   If a field exists in more than one data group (e.g. both ``eia`` and ``ferc1``) and has
+   distinct metadata in those groups, this is the place to specify the override. Only those
+   elements which should be overridden need to be specified.
+
+.. py:data:: FIELD_METADATA_BY_RESOURCE
+   :type:  dict[str, dict[str, Any]]
+
