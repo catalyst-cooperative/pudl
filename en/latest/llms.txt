@@ -1,6 +1,6 @@
 # PUDL
 
-> PUDL 2026.8.1.dev49 documentation
+> PUDL 2026.8.1.dev50 documentation
 
 
 2016-2026, Catalyst Cooperative, CC-BY-4.0
@@ -307,7 +307,7 @@
 - [Managing External Contributions](dev/managing_external_contributions.html.md): Looking to contribute to PUDL? The guidelines for external contributors can be found at
 - [Contributing to PUDL](CONTRIBUTING.html.md): Welcome! We’re excited that you’re interested in contributing to the Public Utility
 - [Catalyst Cooperative Code of Conduct](code_of_conduct.html.md): In the interest of fostering an open and welcoming environment, we as
-- [PUDL Release Notes](release_notes.html.md): This is the upcoming PUDL release.
+- [PUDL Release Notes](release_notes.html.md): This is a regular monthly PUDL data release, primarily motivated by updating the
 
 ---
 
