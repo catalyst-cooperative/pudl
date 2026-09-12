@@ -36,6 +36,11 @@ Bug Fixes & Data Cleaning
   Added extensive unit tests and new dbt data quality tests validating that >=99.7% of
   all reported generation and fuel survives allocation. Thanks to :user:`grgmiller` for
   surfacing the issue and initiating the fix. See :issue:`5440` and PRs :pr:`5419,5511`.
+* Fixed a bug where a skipped nightly/release build (i.e. one that found good build
+  outputs for its commit and kicked off the ``deploy-pudl.yml`` workflow) uploaded its
+  own small logfile to the build outputs bucket. This created newer object path with the
+  same commit confusing ``deploy-pudl`` causing deployment to fail. See :issue:`5579`
+  and :pr:`5580`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^

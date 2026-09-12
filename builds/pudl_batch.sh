@@ -218,7 +218,10 @@ function notify_zulip() {
 function cleanup_on_exit() {
     local exit_code=$?
 
-    if [[ -n "${LOGFILE:-}" && -f "$LOGFILE" && -n "${PUDL_GCS_OUTPUT:-}" ]]; then
+    # Skipped builds must not write anything to PUDL_GCS_OUTPUT: doing so creates
+    # a near-empty object path for this build_id that deploy-pudl can mistake for
+    # the actual (older) successful build's outputs, breaking deployment. See #5579.
+    if [[ "${BUILD_SKIPPED:-false}" != "true" && -n "${LOGFILE:-}" && -f "$LOGFILE" && -n "${PUDL_GCS_OUTPUT:-}" ]]; then
         gcloud storage --quiet cp "$LOGFILE" "${PUDL_GCS_OUTPUT}/${BUILD_ID}.log" || true
     fi
 
@@ -257,6 +260,9 @@ ROW_COUNT_VALIDATION_STATUS="$STAGE_SKIPPED"
 SAVE_OUTPUTS_STATUS="$STAGE_SKIPPED"
 TRIGGER_DEPLOYMENT_STATUS="$STAGE_SKIPPED"
 
+# Set to true when we find an existing successful build for this commit and skip the ETL.
+BUILD_SKIPPED=false
+
 DAGSTER_DURATION=""
 UNIT_TEST_DURATION=""
 INTEGRATION_TEST_DURATION=""
@@ -283,6 +289,7 @@ trap cleanup_on_exit EXIT
 
 # Check if there are any existing builds associated with the current commit
 if pixi run pudl_check_for_build "$GIT_TAG"; then
+    BUILD_SKIPPED=true
     if any_deployment_target_enabled; then
         run_stage TRIGGER_DEPLOYMENT_STATUS TRIGGER_DEPLOYMENT_DURATION trigger_deployment
         if any_stage_failed "$TRIGGER_DEPLOYMENT_STATUS"; then
