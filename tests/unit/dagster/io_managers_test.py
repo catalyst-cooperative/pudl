@@ -367,7 +367,7 @@ def test_report_year_fixing_bad_values(df, match):
 
 
 @pytest.fixture
-def minimal_geo_resource() -> "Resource":
+def minimal_geo_resource() -> Resource:
     """Minimal PUDL Resource with a geometry column for IO manager tests."""
     return Resource(
         name="test_geo",
@@ -384,7 +384,7 @@ def minimal_geo_resource() -> "Resource":
 
 @pytest.fixture
 def geo_parquet_output_path(
-    tmp_path: Path, minimal_geo_resource: "Resource", mocker
+    tmp_path: Path, minimal_geo_resource: Resource, mocker
 ) -> Path:
     """Write a small GeoDataFrame through PudlParquetIOManager; return the file path."""
     mocker.patch(
@@ -501,7 +501,7 @@ def test_geoparquet_duckdb_recognizes_geometry_column(
 
 
 def test_parquet_io_manager_rejects_unsupported_output_type(
-    tmp_path: Path, minimal_geo_resource: "Resource", mocker
+    tmp_path: Path, minimal_geo_resource: Resource, mocker
 ) -> None:
     """handle_output must raise TypeError for objects that are not DataFrame/GDF/LazyFrame."""
     mocker.patch(

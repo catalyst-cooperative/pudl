@@ -51,7 +51,7 @@ class BaFixMap(RootModel[dict[int, list[BaFix]]]):
     """
 
     @model_validator(mode="after")
-    def _check_structure(self) -> "BaFixMap":
+    def _check_structure(self) -> BaFixMap:
         for target_year, fixes in self.root.items():
             ba_ids = [f.id for f in fixes]
             if len(ba_ids) != len(set(ba_ids)):

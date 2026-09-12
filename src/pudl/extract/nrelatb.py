@@ -29,9 +29,9 @@ class Extractor(GenericExtractor):
         In this instance we are using the same methodology from the excel metadata extractor.
         """
         _file_name = self.METADATA._load_csv(self.METADATA._pkg, "file_map.csv")
-        return _file_name.loc[
-            str(self.METADATA._get_partition_selection(partition)), page
-        ]
+        return str(
+            _file_name.loc[str(self.METADATA._get_partition_selection(partition)), page]
+        )
 
     def load_source(self, page: str, **partition):
         """Fetch the electricity parquet file from the NREL ATB zip archive.
