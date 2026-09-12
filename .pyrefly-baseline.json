@@ -1362,16 +1362,6 @@
     },
     {
       "path": "src/pudl/metadata/classes.py",
-      "name": "bad-function-definition",
-      "concise_description": "Default `tuple[str, ...]` is not assignable to parameter `resource_ids` with type `tuple[str]`"
-    },
-    {
-      "path": "src/pudl/metadata/classes.py",
-      "name": "bad-function-definition",
-      "concise_description": "Default `tuple[()]` is not assignable to parameter `excluded_etl_groups` with type `tuple[str]`"
-    },
-    {
-      "path": "src/pudl/metadata/classes.py",
       "name": "bad-return",
       "concise_description": "Returned type `tuple[str, ...]` is not assignable to declared return type `tuple[str]`"
     },
@@ -2484,26 +2474,6 @@
       "path": "src/pudl/transform/ferc1.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `Index` has no attribute `to_flat_index`"
-    },
-    {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `endswith`"
-    },
-    {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `bool` has no attribute `any`"
-    },
-    {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "unexpected-keyword",
-      "concise_description": "Unexpected keyword argument `axis` in function `pandas.core.series.Series.count`"
-    },
-    {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "not-iterable",
-      "concise_description": "Type `None` is not iterable"
     },
     {
       "path": "src/pudl/transform/ferc1.py",

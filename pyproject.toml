@@ -209,8 +209,17 @@ marimo = ">=0.23"
 cmd = "pyrefly check --baseline .pyrefly-baseline.json"
 description = "Type-check with pyrefly against the tracked baseline"
 
+# pyrefly doesn't write a trailing newline, which otherwise trips the
+# end-of-file-fixer pre-commit hook on every regeneration, so we append one.
 [tool.pixi.feature.dev.tasks.pyrefly-update-baseline]
-cmd = "pyrefly check --baseline .pyrefly-baseline.json --update-baseline"
+cmd = """
+bash -c '
+    pyrefly check --baseline .pyrefly-baseline.json --update-baseline
+    status=$?
+    prek run --quiet --no-progress --hide-status failed end-of-file-fixer --files .pyrefly-baseline.json
+    exit "$status"
+'
+"""
 
 [tool.pixi.feature.dev.tasks.pyrefly-prune-baseline]
 cmd = "pyrefly check --baseline .pyrefly-baseline.json --prune-baseline"
