@@ -78,31 +78,10 @@
       "severity": "error"
     },
     {
-      "column": 9,
-      "path": "src/pudl/analysis/fuel_by_plant.py",
-      "name": "unsupported-operation",
-      "concise_description": "Cannot set item in `_LocIndexerFrame[DataFrame]`",
-      "severity": "error"
-    },
-    {
-      "column": 40,
-      "path": "src/pudl/analysis/fuel_by_plant.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `pandas.core.series.Series.truediv` called with arguments: (Any, axis=Literal['rows'])",
-      "severity": "error"
-    },
-    {
       "column": 50,
       "path": "src/pudl/analysis/fuel_by_plant.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `Literal[1]` is not assignable to parameter `axis` with type `Literal['index', 0] | None` in function `pandas.core.series.Series.sum`",
-      "severity": "error"
-    },
-    {
-      "column": 39,
-      "path": "src/pudl/analysis/fuel_by_plant.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `pandas.core.series.Series.truediv` called with arguments: (Any, axis=Literal['rows'])",
       "severity": "error"
     },
     {
@@ -204,20 +183,6 @@
       "severity": "error"
     },
     {
-      "column": 17,
-      "path": "src/pudl/analysis/plant_parts_eia.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `Series` and `Literal[' ']`",
-      "severity": "error"
-    },
-    {
-      "column": 17,
-      "path": "src/pudl/analysis/plant_parts_eia.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `Series` and `Literal['_']`",
-      "severity": "error"
-    },
-    {
       "column": 46,
       "path": "src/pudl/analysis/plant_parts_eia.py",
       "name": "missing-attribute",
@@ -225,38 +190,10 @@
       "severity": "error"
     },
     {
-      "column": 13,
-      "path": "src/pudl/analysis/plant_parts_eia.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `Series` and `Literal['_']`",
-      "severity": "error"
-    },
-    {
-      "column": 9,
-      "path": "src/pudl/analysis/plant_parts_eia.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `Series` and `Literal['_']`",
-      "severity": "error"
-    },
-    {
       "column": 9,
       "path": "src/pudl/analysis/plant_parts_eia.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `Properties` has no attribute `year`",
-      "severity": "error"
-    },
-    {
-      "column": 13,
-      "path": "src/pudl/analysis/plant_parts_eia.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `Series` and `Literal['_']`",
-      "severity": "error"
-    },
-    {
-      "column": 25,
-      "path": "src/pudl/analysis/record_linkage/eia_ferc1_inputs.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `Series` and `Literal['_']`",
       "severity": "error"
     },
     {
@@ -330,13 +267,6 @@
       "severity": "error"
     },
     {
-      "column": 34,
-      "path": "src/pudl/analysis/record_linkage/eia_ferc1_train.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `str` and `Path`",
-      "severity": "error"
-    },
-    {
       "column": 13,
       "path": "src/pudl/analysis/record_linkage/eia_ferc1_train.py",
       "name": "unbound-name",
@@ -355,13 +285,6 @@
       "path": "src/pudl/analysis/record_linkage/eia_ferc1_train.py",
       "name": "unbound-name",
       "concise_description": "`path_to_one_to_many` may be uninitialized",
-      "severity": "error"
-    },
-    {
-      "column": 45,
-      "path": "src/pudl/analysis/record_linkage/embed_dataframe.py",
-      "name": "unsupported-operation",
-      "concise_description": "Cannot set item in `dict[str, float | list[str]]`",
       "severity": "error"
     },
     {
@@ -404,13 +327,6 @@
       "path": "src/pudl/analysis/record_linkage/link_cross_year.py",
       "name": "bad-index",
       "concise_description": "Cannot index into `tuple[ndarray, ndarray]`",
-      "severity": "error"
-    },
-    {
-      "column": 75,
-      "path": "src/pudl/analysis/record_linkage/link_cross_year.py",
-      "name": "unsupported-operation",
-      "concise_description": "`None` is not subscriptable",
       "severity": "error"
     },
     {
@@ -533,52 +449,10 @@
       "severity": "error"
     },
     {
-      "column": 50,
-      "path": "src/pudl/analysis/spatial.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `pandas.core.series.Series.apply` called with arguments: ((geoms: OptGeoArrayLike) -> BaseGeometry)",
-      "severity": "error"
-    },
-    {
-      "column": 9,
-      "path": "src/pudl/analysis/spatial.py",
-      "name": "unsupported-operation",
-      "concise_description": "Cannot set item in `GeoDataFrame`",
-      "severity": "error"
-    },
-    {
       "column": 30,
       "path": "src/pudl/analysis/spatial.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `GeometrySequence[GeometryCollection[Polygon]]` is not assignable to parameter `data` with type `Buffer | Geometry | IndexOpsMixin | Mapping[int, Geometry] | Mapping[str, Geometry] | Sequence[Geometry] | _NestedSequence[bytes | complex | str] | _NestedSequence[_SupportsArray[dtype]] | _SupportsArray[dtype] | bytes | complex | str | None` in function `geopandas.geoseries.GeoSeries.__new__`",
-      "severity": "error"
-    },
-    {
-      "column": 9,
-      "path": "src/pudl/analysis/spatial.py",
-      "name": "unsupported-operation",
-      "concise_description": "Cannot set item in `GeoDataFrame`",
-      "severity": "error"
-    },
-    {
-      "column": 55,
-      "path": "src/pudl/analysis/spatial.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `pandas.core.frame.DataFrame.groupby` called with arguments: (by=Iterable[str])",
-      "severity": "error"
-    },
-    {
-      "column": 27,
-      "path": "src/pudl/analysis/spatial.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `pandas.core.frame.DataFrame.groupby` called with arguments: (by=Iterable[str], group_keys=Literal[False])",
-      "severity": "error"
-    },
-    {
-      "column": 19,
-      "path": "src/pudl/analysis/spatial.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `dict.get` called with arguments: (Literal['first', 'union'] | ((GeoSeries) -> BaseGeometry), Literal['first', 'union'] | ((GeoSeries) -> BaseGeometry))",
       "severity": "error"
     },
     {
@@ -605,13 +479,6 @@
     {
       "column": 13,
       "path": "src/pudl/analysis/spatial.py",
-      "name": "unsupported-operation",
-      "concise_description": "`None` is not subscriptable",
-      "severity": "error"
-    },
-    {
-      "column": 13,
-      "path": "src/pudl/analysis/spatial.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `DataFrame | GeoDataFrame | Unknown` is not assignable to parameter `df1` with type `GeoDataFrame` in function `geopandas.tools.overlay.overlay`",
       "severity": "error"
@@ -628,13 +495,6 @@
       "path": "src/pudl/analysis/spatial.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `NoneType` has no attribute `geometry`",
-      "severity": "error"
-    },
-    {
-      "column": 21,
-      "path": "src/pudl/analysis/spatial.py",
-      "name": "unsupported-operation",
-      "concise_description": "`None` is not subscriptable",
       "severity": "error"
     },
     {
@@ -813,31 +673,10 @@
       "severity": "error"
     },
     {
-      "column": 32,
-      "path": "src/pudl/analysis/timeseries_cleaning.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `numpy.linalg._linalg.svd` called with arguments: (Any, full_matrices=Literal[0])",
-      "severity": "error"
-    },
-    {
-      "column": 28,
-      "path": "src/pudl/analysis/timeseries_cleaning.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `numpy.linalg._linalg.svd` called with arguments: (ndarray, full_matrices=Literal[0])",
-      "severity": "error"
-    },
-    {
       "column": 37,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "name": "unbound-name",
       "concise_description": "`sample_rate` may be uninitialized",
-      "severity": "error"
-    },
-    {
-      "column": 20,
-      "path": "src/pudl/analysis/timeseries_cleaning.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `numpy._typing._ufunc._UFunc_Nin2_Nout1.__call__` called with arguments: (ndarray, None)",
       "severity": "error"
     },
     {
@@ -2388,13 +2227,6 @@
       "severity": "error"
     },
     {
-      "column": 20,
-      "path": "src/pudl/output/eia930.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `pandas.core.series.Series.rename` called with arguments: (columns=dict[str, str])",
-      "severity": "error"
-    },
-    {
       "column": 13,
       "path": "src/pudl/output/ferc1.py",
       "name": "missing-attribute",
@@ -2427,13 +2259,6 @@
       "path": "src/pudl/output/ferc1.py",
       "name": "bad-argument-type",
       "concise_description": "Unpacked keyword argument `NAType` is not assignable to parameter `**kwargs` with type `((DataFrame) -> ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None) | ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None` in function `pandas.core.frame.DataFrame.assign`",
-      "severity": "error"
-    },
-    {
-      "column": 5,
-      "path": "src/pudl/output/ferc1.py",
-      "name": "unsupported-operation",
-      "concise_description": "`|=` is not supported between `Mapping[str, AssetIn]` and `dict[str, AssetIn]`",
       "severity": "error"
     },
     {
@@ -2535,20 +2360,6 @@
       "severity": "error"
     },
     {
-      "column": 45,
-      "path": "src/pudl/output/ferc1.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `pandas.core.generic.NDFrame.drop` called with arguments: (index=DataFrame)",
-      "severity": "error"
-    },
-    {
-      "column": 25,
-      "path": "src/pudl/output/ferc1.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `Series` and `Literal['_off_by_']`",
-      "severity": "error"
-    },
-    {
       "column": 16,
       "path": "src/pudl/output/ferc1.py",
       "name": "bad-return",
@@ -2560,13 +2371,6 @@
       "path": "src/pudl/output/ferc1.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `dict_keys[Hashable, dict[Hashable, Any]]` is not assignable to parameter `tuples` with type `Iterable[tuple[Hashable, ...]]` in function `pandas.core.indexes.multi.MultiIndex.from_tuples`",
-      "severity": "error"
-    },
-    {
-      "column": 44,
-      "path": "src/pudl/output/ferc1.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `numpy._core.multiarray.where` called with arguments: (Series[bool], dict[@_, @_], Series)",
       "severity": "error"
     },
     {
@@ -2598,13 +2402,6 @@
       "severity": "error"
     },
     {
-      "column": 37,
-      "path": "src/pudl/output/ferc1.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `dict.__init__` called with arguments: (int)",
-      "severity": "error"
-    },
-    {
       "column": 39,
       "path": "src/pudl/output/ferc1.py",
       "name": "bad-argument-type",
@@ -2619,31 +2416,10 @@
       "severity": "error"
     },
     {
-      "column": 20,
-      "path": "src/pudl/output/ferc1.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `pandas.core.frame.DataFrame.dropna` called with arguments: (how=Literal['all'], axis=Literal['rows'])",
-      "severity": "error"
-    },
-    {
-      "column": 53,
-      "path": "src/pudl/output/ferc1.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `str` and `Literal[1]`",
-      "severity": "error"
-    },
-    {
       "column": 34,
       "path": "src/pudl/output/ferc1.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `Series` is not assignable to parameter `data` with type `dict[Unknown, Unknown] | list[dict[Unknown, Unknown]]` in function `pandas.io.json._normalize.json_normalize`",
-      "severity": "error"
-    },
-    {
-      "column": 44,
-      "path": "src/pudl/output/ferc1.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `dict.get` called with arguments: (_Node, dict[@_, @_])",
       "severity": "error"
     },
     {
@@ -2721,13 +2497,6 @@
       "path": "src/pudl/output/ferc714.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `Series` is not assignable to parameter `util_ids` with type `list[int]` in function `categorize_eia_code`",
-      "severity": "error"
-    },
-    {
-      "column": 12,
-      "path": "src/pudl/output/sec10k.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `Series[LiteralString]` and `Literal['.txt']`",
       "severity": "error"
     },
     {
@@ -2850,13 +2619,6 @@
       "severity": "error"
     },
     {
-      "column": 40,
-      "path": "src/pudl/transform/censuspep.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `pandas.io.parsers.readers.read_csv` called with arguments: (Traversable, dtype=StringDtype)",
-      "severity": "error"
-    },
-    {
       "column": 9,
       "path": "src/pudl/transform/classes.py",
       "name": "invalid-inheritance",
@@ -2906,13 +2668,6 @@
       "severity": "error"
     },
     {
-      "column": 21,
-      "path": "src/pudl/transform/classes.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `pandas.core.frame.DataFrame.rename` called with arguments: (columns=dict[str, str] | object)",
-      "severity": "error"
-    },
-    {
       "column": 57,
       "path": "src/pudl/transform/classes.py",
       "name": "bad-argument-type",
@@ -2934,31 +2689,10 @@
       "severity": "error"
     },
     {
-      "column": 5,
-      "path": "src/pudl/transform/classes.py",
-      "name": "unsupported-operation",
-      "concise_description": "Cannot set item in `_LocIndexerSeries[str]`",
-      "severity": "error"
-    },
-    {
       "column": 58,
       "path": "src/pudl/transform/classes.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `(col: Series, params: StringCategories) -> Series` is not assignable to parameter `col_func` with type `ColumnTransformFunc` in function `multicol_transform_factory`",
-      "severity": "error"
-    },
-    {
-      "column": 26,
-      "path": "src/pudl/transform/classes.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `re.sub` called with arguments: (pattern=str, repl=str, string=Hashable | None)",
-      "severity": "error"
-    },
-    {
-      "column": 24,
-      "path": "src/pudl/transform/classes.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `re.match` called with arguments: (pattern=str, string=Hashable | None)",
       "severity": "error"
     },
     {
@@ -2973,13 +2707,6 @@
       "path": "src/pudl/transform/classes.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `(col: Series, params: ValidRange) -> Series` is not assignable to parameter `col_func` with type `ColumnTransformFunc` in function `multicol_transform_factory`",
-      "severity": "error"
-    },
-    {
-      "column": 43,
-      "path": "src/pudl/transform/classes.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `list[str]` and `None`",
       "severity": "error"
     },
     {
@@ -3001,13 +2728,6 @@
       "path": "src/pudl/transform/classes.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `(col: Series, params: ReplaceWithNa) -> Series` is not assignable to parameter `col_func` with type `ColumnTransformFunc` in function `multicol_transform_factory`",
-      "severity": "error"
-    },
-    {
-      "column": 55,
-      "path": "src/pudl/transform/classes.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `pandas.core.series.Series.astype` called with arguments: (str)",
       "severity": "error"
     },
     {
@@ -3116,55 +2836,6 @@
       "severity": "error"
     },
     {
-      "column": 39,
-      "path": "src/pudl/transform/eia.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `dict.get` called with arguments: (Unknown | None, None)",
-      "severity": "error"
-    },
-    {
-      "column": 26,
-      "path": "src/pudl/transform/eia.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `pandas.io.parsers.readers.read_csv` called with arguments: (Traversable, index_col=list[str], usecols=list[str])",
-      "severity": "error"
-    },
-    {
-      "column": 17,
-      "path": "src/pudl/transform/eia.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `dict[str, str]` and `list[str]`",
-      "severity": "error"
-    },
-    {
-      "column": 27,
-      "path": "src/pudl/transform/eia.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `dict[str, str]` and `dict[str, str]`",
-      "severity": "error"
-    },
-    {
-      "column": 27,
-      "path": "src/pudl/transform/eia.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `dict[str, str]` and `list[str]`",
-      "severity": "error"
-    },
-    {
-      "column": 27,
-      "path": "src/pudl/transform/eia.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `list[str]` and `dict[str, str]`",
-      "severity": "error"
-    },
-    {
-      "column": 27,
-      "path": "src/pudl/transform/eia.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `pandas.core.frame.DataFrame.dropna` called with arguments: (subset=dict[str, str] | list[str])",
-      "severity": "error"
-    },
-    {
       "column": 57,
       "path": "src/pudl/transform/eia.py",
       "name": "missing-attribute",
@@ -3183,55 +2854,6 @@
       "path": "src/pudl/transform/eia.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `str` has no attribute `keys`",
-      "severity": "error"
-    },
-    {
-      "column": 49,
-      "path": "src/pudl/transform/eia.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `pandas.core.frame.DataFrame.rename` called with arguments: (columns=str)",
-      "severity": "error"
-    },
-    {
-      "column": 32,
-      "path": "src/pudl/transform/eia.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `list[str]` and `dict[str, str]`",
-      "severity": "error"
-    },
-    {
-      "column": 45,
-      "path": "src/pudl/transform/eia.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `list[str]` and `dict[str, str]`",
-      "severity": "error"
-    },
-    {
-      "column": 16,
-      "path": "src/pudl/transform/eia.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `dict[str, str]` and `dict[str, str]`",
-      "severity": "error"
-    },
-    {
-      "column": 16,
-      "path": "src/pudl/transform/eia.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `dict[str, str]` and `list[str]`",
-      "severity": "error"
-    },
-    {
-      "column": 16,
-      "path": "src/pudl/transform/eia.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `list[str]` and `dict[str, str]`",
-      "severity": "error"
-    },
-    {
-      "column": 30,
-      "path": "src/pudl/transform/eia.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `dict[str, str]` and `list[str]`",
       "severity": "error"
     },
     {
@@ -3256,13 +2878,6 @@
       "severity": "error"
     },
     {
-      "column": 21,
-      "path": "src/pudl/transform/eia.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `dict[str, str]` and `list[str]`",
-      "severity": "error"
-    },
-    {
       "column": 62,
       "path": "src/pudl/transform/eia.py",
       "name": "bad-argument-type",
@@ -3270,38 +2885,10 @@
       "severity": "error"
     },
     {
-      "column": 33,
-      "path": "src/pudl/transform/eia.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `dict[str, str]` and `list[str | Unknown]`",
-      "severity": "error"
-    },
-    {
       "column": 54,
       "path": "src/pudl/transform/eia.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `dict[str, str] | list[str]` is not assignable to parameter `on` with type `ExtensionArray | Hashable | Index | Sequence[Hashable] | Series | ndarray | None` in function `pandas.core.frame.DataFrame.merge`",
-      "severity": "error"
-    },
-    {
-      "column": 37,
-      "path": "src/pudl/transform/eia.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `dict[str, str]` and `list[str]`",
-      "severity": "error"
-    },
-    {
-      "column": 33,
-      "path": "src/pudl/transform/eia.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `dict[str, str]` and `list[str | Unknown]`",
-      "severity": "error"
-    },
-    {
-      "column": 55,
-      "path": "src/pudl/transform/eia.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `dict[str, str]` and `list[str]`",
       "severity": "error"
     },
     {
@@ -3354,13 +2941,6 @@
       "severity": "error"
     },
     {
-      "column": 37,
-      "path": "src/pudl/transform/eia.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `dict[str, str]` and `list[str]`",
-      "severity": "error"
-    },
-    {
       "column": 78,
       "path": "src/pudl/transform/eia.py",
       "name": "bad-argument-type",
@@ -3379,27 +2959,6 @@
       "path": "src/pudl/transform/eia.py",
       "name": "unbound-name",
       "concise_description": "`wrongos` may be uninitialized",
-      "severity": "error"
-    },
-    {
-      "column": 40,
-      "path": "src/pudl/transform/eia.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `numpy._core.multiarray.where` called with arguments: (Series[bool], Literal['string_assn'], NAType)",
-      "severity": "error"
-    },
-    {
-      "column": 44,
-      "path": "src/pudl/transform/eia.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `networkx.convert_matrix.from_pandas_edgelist` called with arguments: (Unknown, source=Literal['generators'], target=Literal['boilers'], edge_attr=Literal[True], create_using=MultiGraph[@_])",
-      "severity": "error"
-    },
-    {
-      "column": 35,
-      "path": "src/pudl/transform/eia.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `networkx.classes.function.set_edge_attributes` called with arguments: (Unknown, name=Literal['unit_id_pudl'], values=int)",
       "severity": "error"
     },
     {
@@ -3517,41 +3076,6 @@
     {
       "column": 14,
       "path": "src/pudl/transform/eia860.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `pandas.core.generic.NDFrame.pipe` called with arguments: ((df: DataFrame, boolean_columns_to_fix: list[str], inplace: bool = False) -> DataFrame, list[Hashable])",
-      "severity": "error"
-    },
-    {
-      "column": 14,
-      "path": "src/pudl/transform/eia860.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `pandas.core.generic.NDFrame.pipe` called with arguments: ((df: DataFrame, boolean_columns_to_fix: list[str], inplace: bool = False) -> DataFrame, boolean_columns_to_fix=list[Hashable])",
-      "severity": "error"
-    },
-    {
-      "column": 21,
-      "path": "src/pudl/transform/eia860.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `pandas.core.series.Series.replace` called with arguments: (to_replace=list[str], value=list[NAType | bool])",
-      "severity": "error"
-    },
-    {
-      "column": 21,
-      "path": "src/pudl/transform/eia860.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `pandas.core.series.Series.replace` called with arguments: (to_replace=list[str], value=list[NAType | bool])",
-      "severity": "error"
-    },
-    {
-      "column": 21,
-      "path": "src/pudl/transform/eia860.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `pandas.core.series.Series.replace` called with arguments: (to_replace=list[str], value=list[NAType | bool])",
-      "severity": "error"
-    },
-    {
-      "column": 14,
-      "path": "src/pudl/transform/eia860.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `Properties` has no attribute `year`",
       "severity": "error"
@@ -3634,24 +3158,10 @@
       "severity": "error"
     },
     {
-      "column": 30,
-      "path": "src/pudl/transform/eia861.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `Hashable` and `list[str]`",
-      "severity": "error"
-    },
-    {
       "column": 21,
       "path": "src/pudl/transform/eia861.py",
       "name": "bad-index",
       "concise_description": "Cannot index into `Hashable`",
-      "severity": "error"
-    },
-    {
-      "column": 30,
-      "path": "src/pudl/transform/eia861.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `Hashable` and `list[str]`",
       "severity": "error"
     },
     {
@@ -3673,13 +3183,6 @@
       "path": "src/pudl/transform/eia861.py",
       "name": "not-iterable",
       "concise_description": "`in` is not supported between `Literal['load_management']` and `Hashable`",
-      "severity": "error"
-    },
-    {
-      "column": 9,
-      "path": "src/pudl/transform/eia861.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `Hashable` and `list[Hashable]`",
       "severity": "error"
     },
     {
@@ -3708,13 +3211,6 @@
       "path": "src/pudl/transform/eia861.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `Hashable` is not assignable to parameter `subset` with type `list[str]` in function `_check_for_dupes`",
-      "severity": "error"
-    },
-    {
-      "column": 9,
-      "path": "src/pudl/transform/eia861.py",
-      "name": "unsupported-operation",
-      "concise_description": "Cannot set item in `Hashable`",
       "severity": "error"
     },
     {
@@ -4026,20 +3522,6 @@
       "severity": "error"
     },
     {
-      "column": 31,
-      "path": "src/pudl/transform/eiaaeo.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `Series` and `Literal['_']`",
-      "severity": "error"
-    },
-    {
-      "column": 24,
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `str.join` called with arguments: (list[str] | None)",
-      "severity": "error"
-    },
-    {
       "column": 9,
       "path": "src/pudl/transform/ferc1.py",
       "name": "bad-index",
@@ -4082,24 +3564,10 @@
       "severity": "error"
     },
     {
-      "column": 5,
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "unsupported-operation",
-      "concise_description": "Cannot set item in `DataFrame`",
-      "severity": "error"
-    },
-    {
       "column": 16,
       "path": "src/pudl/transform/ferc1.py",
       "name": "not-iterable",
       "concise_description": "Type `None` is not iterable",
-      "severity": "error"
-    },
-    {
-      "column": 9,
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "unsupported-operation",
-      "concise_description": "Cannot set item in `DataFrame`",
       "severity": "error"
     },
     {
@@ -4117,13 +3585,6 @@
       "severity": "error"
     },
     {
-      "column": 71,
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `pandas.core.groupby.generic.DataFrameGroupBy.apply` called with arguments: ((gb: DataFrameGroupBy[Unknown, Unknown]) -> Series, include_groups=Literal[False])",
-      "severity": "error"
-    },
-    {
       "column": 16,
       "path": "src/pudl/transform/ferc1.py",
       "name": "bad-return",
@@ -4135,13 +3596,6 @@
       "path": "src/pudl/transform/ferc1.py",
       "name": "bad-return",
       "concise_description": "Returned type `float | Unknown` is not assignable to declared return type `Series`",
-      "severity": "error"
-    },
-    {
-      "column": 19,
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `pandas.core.groupby.generic.DataFrameGroupBy.apply` called with arguments: ((gb: DataFrameGroupBy[Unknown, Unknown]) -> Series, include_groups=Literal[False])",
       "severity": "error"
     },
     {
@@ -4149,13 +3603,6 @@
       "path": "src/pudl/transform/ferc1.py",
       "name": "bad-return",
       "concise_description": "Returned type `float` is not assignable to declared return type `Series`",
-      "severity": "error"
-    },
-    {
-      "column": 32,
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `Series` and `Literal['_']`",
       "severity": "error"
     },
     {
@@ -4229,13 +3676,6 @@
       "severity": "error"
     },
     {
-      "column": 26,
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `pandas.io.parsers.readers.read_csv` called with arguments: (Traversable, usecols=list[str])",
-      "severity": "error"
-    },
-    {
       "column": 9,
       "path": "src/pudl/transform/ferc1.py",
       "name": "bad-argument-type",
@@ -4292,38 +3732,10 @@
       "severity": "error"
     },
     {
-      "column": 18,
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `pandas.core.generic.NDFrame.pipe` called with arguments: (DataFrame)",
-      "severity": "error"
-    },
-    {
       "column": 9,
       "path": "src/pudl/transform/ferc1.py",
       "name": "bad-override-mutable-attribute",
       "concise_description": "Class member `Ferc1AbstractTableTransformer.transform_end` overrides parent class `AbstractTableTransformer` in an inconsistent manner",
-      "severity": "error"
-    },
-    {
-      "column": 36,
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `Series` and `Literal['_correction']`",
-      "severity": "error"
-    },
-    {
-      "column": 40,
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `Series` and `Literal['_correction']`",
-      "severity": "error"
-    },
-    {
-      "column": 25,
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `Series` and `Literal['_subdimension_correction']`",
       "severity": "error"
     },
     {
@@ -4362,13 +3774,6 @@
       "severity": "error"
     },
     {
-      "column": 18,
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `pandas.core.generic.NDFrame.pipe` called with arguments: (DataFrame)",
-      "severity": "error"
-    },
-    {
       "column": 13,
       "path": "src/pudl/transform/ferc1.py",
       "name": "not-callable",
@@ -4387,20 +3792,6 @@
       "path": "src/pudl/transform/ferc1.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `Literal['dbf', 'xbrl', 'xbrl_duration', 'xbrl_instant'] | None` is not assignable to parameter `name` with type `str` in function `object.__getattribute__`",
-      "severity": "error"
-    },
-    {
-      "column": 81,
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `pandas.core.generic.NDFrame.pipe` called with arguments: (DataFrame)",
-      "severity": "error"
-    },
-    {
-      "column": 83,
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `pandas.core.generic.NDFrame.pipe` called with arguments: (DataFrame)",
       "severity": "error"
     },
     {
@@ -4509,13 +3900,6 @@
       "severity": "error"
     },
     {
-      "column": 33,
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `pandas.core.groupby.generic.DataFrameGroupBy.apply` called with arguments: ((x: Unknown) -> DataFrameGroupBy[Unknown, Unknown])",
-      "severity": "error"
-    },
-    {
       "column": 9,
       "path": "src/pudl/transform/ferc1.py",
       "name": "bad-override-mutable-attribute",
@@ -4548,13 +3932,6 @@
       "path": "src/pudl/transform/ferc1.py",
       "name": "bad-override-mutable-attribute",
       "concise_description": "Class member `UtilityPlantSummaryTableTransformer.transform_main` overrides parent class `Ferc1AbstractTableTransformer` in an inconsistent manner",
-      "severity": "error"
-    },
-    {
-      "column": 18,
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `pandas.core.generic.NDFrame.pipe` called with arguments: (DataFrame)",
       "severity": "error"
     },
     {
@@ -4642,13 +4019,6 @@
       "severity": "error"
     },
     {
-      "column": 35,
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `Series` and `Literal['_previous_year']`",
-      "severity": "error"
-    },
-    {
       "column": 16,
       "path": "src/pudl/transform/ferc1.py",
       "name": "not-callable",
@@ -4677,31 +4047,10 @@
       "severity": "error"
     },
     {
-      "column": 72,
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `pandas.core.generic.NDFrame.pipe` called with arguments: ((df: DataFrame, rename_stage: Literal['dbf', 'xbrl', 'xbrl_duration', 'xbrl_instant'] | None = None, params: RenameColumns | None = None) -> DataFrame, rename_stage=Literal['instant_xbrl'])",
-      "severity": "error"
-    },
-    {
       "column": 16,
       "path": "src/pudl/transform/ferc1.py",
       "name": "not-callable",
       "concise_description": "Expected a callable, got `DataFrame`",
-      "severity": "error"
-    },
-    {
-      "column": 72,
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `pandas.core.generic.NDFrame.pipe` called with arguments: ((df: DataFrame, rename_stage: Literal['dbf', 'xbrl', 'xbrl_duration', 'xbrl_instant'] | None = None, params: RenameColumns | None = None) -> DataFrame, rename_stage=Literal['instant_xbrl'])",
-      "severity": "error"
-    },
-    {
-      "column": 74,
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `pandas.core.generic.NDFrame.pipe` called with arguments: (DataFrame)",
       "severity": "error"
     },
     {
@@ -4730,13 +4079,6 @@
       "path": "src/pudl/transform/ferc1.py",
       "name": "not-callable",
       "concise_description": "Expected a callable, got `DataFrame`",
-      "severity": "error"
-    },
-    {
-      "column": 72,
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `pandas.core.generic.NDFrame.pipe` called with arguments: ((df: DataFrame, rename_stage: Literal['dbf', 'xbrl', 'xbrl_duration', 'xbrl_instant'] | None = None, params: RenameColumns | None = None) -> DataFrame, rename_stage=Literal['instant_xbrl'])",
       "severity": "error"
     },
     {
@@ -4957,24 +4299,10 @@
       "severity": "error"
     },
     {
-      "column": 9,
-      "path": "src/pudl/transform/rus12.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `Series` and `Literal[' ']`",
-      "severity": "error"
-    },
-    {
       "column": 33,
       "path": "src/pudl/transform/rus12.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `Properties` has no attribute `year`",
-      "severity": "error"
-    },
-    {
-      "column": 9,
-      "path": "src/pudl/transform/rus12.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `Series` and `Literal[' ']`",
       "severity": "error"
     },
     {
@@ -5062,13 +4390,6 @@
       "severity": "error"
     },
     {
-      "column": 5,
-      "path": "src/pudl/transform/sec10k.py",
-      "name": "unsupported-operation",
-      "concise_description": "Cannot set item in `_LocIndexerSeries[str]`",
-      "severity": "error"
-    },
-    {
       "column": 46,
       "path": "src/pudl/transform/sec10k.py",
       "name": "bad-argument-type",
@@ -5101,13 +4422,6 @@
       "path": "src/pudl/transform/sec10k.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `Properties` has no attribute `days`",
-      "severity": "error"
-    },
-    {
-      "column": 9,
-      "path": "src/pudl/transform/sec10k.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `Series` and `Literal['_']`",
       "severity": "error"
     },
     {
