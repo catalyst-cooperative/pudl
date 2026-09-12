@@ -727,12 +727,13 @@ python-version = "3.14"
 python-platform = "linux"
 python-interpreter-path = ".pixi/envs/dev/bin/python3"
 
-# pandas/polars dataframe methods have enormous overload sets that vary with pyrefly
-# and pandas-stubs versions, routinely reclassifying correct, idiomatic dataframe code
-# (e.g. `series + "_"`, `df.loc[:, cols] = ...`, `.assign(col=lambda x: x.str.extract(...))`)
-# under a different overload-matching outcome from one bump to the next. `bad-argument-type`
-# and `missing-attribute` are deliberately left enabled everywhere, including these
-# directories, since they catch real bugs far more often than dataframe-overload noise.
+# pandas/polars dataframe methods have enormous overload sets that vary with pyrefly and
+# pandas-stubs versions, routinely flagging correct, idiomatic dataframe code (e.g.
+# `series + "_"`, `df.loc[:, cols] = ...`, `.assign(col=lambda x: x.str.extract(...))`)
+# as typing errors, so we disable them in the dataframe-heavy directories.
+# `bad-argument-type` and `missing-attribute` are deliberately left enabled everywhere,
+# including these directories, since they catch real bugs far more often than they
+# create dataframe-overload noise.
 sub-config = [
     { matches = "src/pudl/transform/**", errors = { no-matching-overload = false, unsupported-operation = false } },
     { matches = "src/pudl/analysis/**", errors = { no-matching-overload = false, unsupported-operation = false } },
