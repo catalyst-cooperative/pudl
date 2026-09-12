@@ -1454,7 +1454,7 @@ class Exploder:
         return exploded_metadata
 
     @cached_property
-    def calculation_forest(self: Self) -> "XbrlCalculationForestFerc1":
+    def calculation_forest(self: Self) -> XbrlCalculationForestFerc1:
         """Construct a calculation forest based on class attributes."""
         return XbrlCalculationForestFerc1(
             exploded_calcs=self.exploded_calcs,
@@ -2377,7 +2377,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         # Construct a dataframe that links the leaf node IDs to their root nodes:
         leaves = self.forest_leaves
         roots = self.forest_roots
-        leaf_to_root_map = {
+        leaf_to_root_map: dict[NodeId, NodeId] = {
             leaf: root
             for leaf in leaves
             for root in roots

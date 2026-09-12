@@ -2837,7 +2837,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         self,
         df: pd.DataFrame,
         source_ferc1: SourceFerc1,
-        params: WideToTidy | None = None,
+        params: WideToTidy | list[WideToTidy] | None = None,
     ) -> pd.DataFrame:
         """Reshape wide tables with FERC account columns to tidy format.
 
@@ -2856,7 +2856,11 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         later.
         """
         if not params:
-            params = self.params.wide_to_tidy.__getattribute__(source_ferc1.value)
+            params = (
+                self.params.wide_to_tidy.xbrl
+                if source_ferc1 == SourceFerc1.XBRL
+                else self.params.wide_to_tidy.dbf
+            )
 
         multiple_params = [params] if isinstance(params, WideToTidy) else params
         for single_params in multiple_params:

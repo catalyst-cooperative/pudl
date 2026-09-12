@@ -586,12 +586,12 @@ class Encoder(PudlMeta):
         return copy.deepcopy(RESOURCE_METADATA[x]).get("encoder", None)
 
     @classmethod
-    def from_id(cls, x: str) -> "Encoder":
+    def from_id(cls, x: str) -> Encoder:
         """Construct an Encoder based on ``Resource.name`` of a coding table."""
         return cls(**cls.dict_from_id(x))
 
     @classmethod
-    def from_code_id(cls, x: str) -> "Encoder":
+    def from_code_id(cls, x: str) -> Encoder:
         """Construct an Encoder by looking up name of coding table in codes metadata."""
         return cls(**copy.deepcopy(CODE_METADATA[x]), name=x)
 
@@ -710,7 +710,7 @@ class Field(PudlMeta):
         return {"name": x, **copy.deepcopy(FIELD_METADATA[x])}
 
     @classmethod
-    def from_id(cls, x: str) -> "Field":
+    def from_id(cls, x: str) -> Field:
         """Construct from PUDL identifier (`Field.name`)."""
         return cls(**cls.dict_from_id(x))
 
@@ -1181,7 +1181,7 @@ class License(PudlMeta):
         return copy.deepcopy(LICENSES[x])
 
     @classmethod
-    def from_id(cls, x: str) -> "License":
+    def from_id(cls, x: str) -> License:
         """Construct from PUDL identifier."""
         return cls(**cls.dict_from_id(x))
 
@@ -1229,7 +1229,7 @@ class Contributor(PudlMeta):
         return copy.deepcopy(CONTRIBUTORS[x])
 
     @classmethod
-    def from_id(cls, x: str) -> "Contributor":
+    def from_id(cls, x: str) -> Contributor:
         """Construct from PUDL identifier."""
         return cls(**cls.dict_from_id(x))
 
@@ -1323,8 +1323,8 @@ class DataSource(PudlMeta):
     def to_rst(
         self,
         docs_dir: DirectoryPath,
-        source_resources: "list[Resource]",
-        extra_resources: "list[Resource]",
+        source_resources: list[Resource],
+        extra_resources: list[Resource],
         output_path: str | None = None,
         datastore: Datastore | None = None,
     ) -> None:
@@ -1401,7 +1401,7 @@ class DataSource(PudlMeta):
         return {"name": x, **copy.deepcopy(sources[x])}
 
     @classmethod
-    def from_id(cls, x: str, sources: dict[str, Any] = SOURCES) -> "DataSource":
+    def from_id(cls, x: str, sources: dict[str, Any] = SOURCES) -> DataSource:
         """Construct Source by source name in the metadata."""
         return cls(**cls.dict_from_id(x, sources=sources))
 
@@ -1970,7 +1970,7 @@ class Resource(PudlMeta):
         return obj
 
     @classmethod
-    def from_id(cls, x: str) -> "Resource":
+    def from_id(cls, x: str) -> Resource:
         """Construct from PUDL identifier (`resource.name`)."""
         return cls(**cls.dict_from_id(x))
 
@@ -2764,7 +2764,7 @@ class Package(PudlMeta):
         return resources
 
     @staticmethod
-    def _compile_from_resources(resources: list["Resource"]) -> dict[str, list[Any]]:
+    def _compile_from_resources(resources: list[Resource]) -> dict[str, list[Any]]:
         """Compile deduplicated contributors, licenses, keywords, and sources from resources.
 
         Returns a dict with keys ``contributors``, ``licenses``, ``keywords``, and
@@ -2798,7 +2798,7 @@ class Package(PudlMeta):
         title: str | None = None,
         description: str | None = None,
         version: str | None = None,
-    ) -> "Package":
+    ) -> Package:
         """Construct a collection of Resources from PUDL identifiers (`resource.name`).
 
         Identify any fields that have foreign key relationships referencing the
@@ -3087,7 +3087,7 @@ class CodeMetadata(PudlMeta):
     encoder_list: list[Encoder] = []
 
     @classmethod
-    def from_code_ids(cls, code_ids: Iterable[str]) -> "CodeMetadata":
+    def from_code_ids(cls, code_ids: Iterable[str]) -> CodeMetadata:
         """Construct a list of encoders from code dictionaries.
 
         Args:
