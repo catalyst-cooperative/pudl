@@ -351,6 +351,10 @@ Developer Experience
   DuckDB connections. One dedicated to reading ``pudl.sqlite`` via DuckDB's ``sqlite``
   extension, so tests query both build outputs through one API as PUDL moves toward
   DuckDB. See PR :pr:`5538`.
+* Switched to using quieter, more compact ``pytest`` output instead of logging 1000s of
+  tests to the terminal. Fast ETL in pipeline tests still log. Make ``pixi.lock``
+  drift checking in pre-commit hooks more robust. Fix open SQLite database warnings
+  coming from FERC SQLite IO Manager. See PR :pr:`5573`.
 
 .. _release-v2026.8.0:
 

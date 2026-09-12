@@ -199,6 +199,13 @@ class FercSqliteIOManagerBase(dg.ConfigurableIOManager):
             self._engine = sa.create_engine(f"sqlite:///{self.db_path}")
         return self._engine
 
+    def teardown_after_execution(self, context: dg.InitResourceContext) -> None:
+        """Dispose the cached engine when the resource's lifecycle ends."""
+        if self._engine is not None:
+            self._engine.dispose()
+            self._engine = None
+            self._metadata = None
+
     @property
     def metadata(self) -> sa.MetaData:
         """Return cached reflected metadata for this database.

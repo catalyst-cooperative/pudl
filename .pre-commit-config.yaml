@@ -161,14 +161,32 @@ repos:
         always_run: false
         entry: pixi run jupyter nbconvert --clear-output
 
+      # Keep pixi.lock in sync with pyproject.toml.
       - id: pixi-lock-update
         name: pixi-lock-update
-        stages: [pre-commit]
+        stages: [pre-commit, post-merge, post-rewrite]
         language: system
         verbose: false
         pass_filenames: false
         always_run: true
         entry: bash -c 'pixi install --quiet && git add pixi.lock'
+
+      # Refuse to push a branch whose pixi.lock is out of sync with pyproject.toml.
+      - id: pixi-lock-check
+        name: pixi-lock-check
+        stages: [pre-push]
+        language: system
+        verbose: false
+        pass_filenames: false
+        always_run: true
+        entry: |
+          bash -ceu '
+            if ! pixi lock --check; then
+              echo "ERROR: pixi.lock is out of sync with pyproject.toml."
+              echo "Run: pixi lock && git add pixi.lock && git commit"
+              exit 1
+            fi
+          ' --
 
       - id: pixi-lockfile-minimum-version
         name: pixi-lockfile-minimum-version
@@ -205,5 +223,12 @@ ci:
   autoupdate_commit_msg: "[pre-commit.ci] pre-commit autoupdate"
   autoupdate_schedule: weekly
   skip:
-    [detect-secrets, nb-output-clear, pixi-lock-update, shellcheck, trufflehog]
+    [
+      detect-secrets,
+      nb-output-clear,
+      pixi-lock-update,
+      pixi-lock-check,
+      shellcheck,
+      trufflehog,
+    ]
   submodules: false
