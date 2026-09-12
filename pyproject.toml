@@ -581,7 +581,6 @@ filterwarnings = [
     "ignore:pkg_resources is deprecated as an API.:DeprecationWarning",
     "ignore:Subclassing validator classes is not intended to be part of their public API.:DeprecationWarning",
     "ignore:datetime.datetime.utcnow() is deprecated:DeprecationWarning",
-    "ignore:Python 3.14 will, by default, filter extracted tar archives:DeprecationWarning:dbt_common[.*]",
     "ignore:The Shapely GEOS version:UserWarning:geopandas[.*]",
     "ignore:The `__fields__` attribute is deprecated:pydantic.PydanticDeprecatedSince20:unittest.mock",
     "ignore:The `__fields_set__` attribute is deprecated:pydantic.PydanticDeprecatedSince20:unittest.mock",
