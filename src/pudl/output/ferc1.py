@@ -1454,7 +1454,7 @@ class Exploder:
         return exploded_metadata
 
     @cached_property
-    def calculation_forest(self: Self) -> "XbrlCalculationForestFerc1":
+    def calculation_forest(self: Self) -> XbrlCalculationForestFerc1:
         """Construct a calculation forest based on class attributes."""
         return XbrlCalculationForestFerc1(
             exploded_calcs=self.exploded_calcs,

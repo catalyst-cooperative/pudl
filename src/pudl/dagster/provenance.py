@@ -72,7 +72,7 @@ class FercSqliteProvenanceRecord(BaseModel):
         instance: dg.DagsterInstance,
         dataset: str,
         data_format: str,
-    ) -> "FercSqliteProvenanceRecord":
+    ) -> FercSqliteProvenanceRecord:
         """Return FercSqliteProvenanceRecord from dagster metadata if available.
 
         Raises:
@@ -106,7 +106,7 @@ class FercSqliteProvenanceRecord(BaseModel):
         cls,
         datapackage_path: UPath,
         source: Literal["nightly", "local_cache", "local_new"],
-    ) -> "FercSqliteProvenanceRecord":
+    ) -> FercSqliteProvenanceRecord:
         """Read SQLite provenance metadata from datapackage JSON file.
 
         Note that this method accepts ``datapackage_path`` as a ``UPath`` as we read
