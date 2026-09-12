@@ -10,7 +10,7 @@ from upath import UPath
 
 from pudl.dagster import sensors
 from pudl.dagster.assets.deploy import ferceqr as deploy_ferceqr
-from pudl.dagster.resources import FercEqrDeploymentTargetConfig
+from pudl.deploy.object_store import LocalObjectStore, ObjectStore
 
 
 def _build_deploy_context(tmp_path, mocker, targets=None):
@@ -244,44 +244,155 @@ def test_ferceqr_success_sensor_backfill_success_uses_backfill_run_key(mocker):
 
 
 def test_deploy_ferceqr_success_path_writes_success_and_notifies(mocker, tmp_path):
-    """Successful deployment should write outputs to target, notify Zulip, and mark FERCEQR_SUCCESS."""
+    """A successful deploy lands outputs in the final layout, snapshots the previous
+    deployment, notifies Zulip, and writes FERCEQR_SUCCESS."""
     source_root = tmp_path / "source"
     deploy_root = tmp_path / "deploy"
     deploy_context = _build_deploy_context(
         tmp_path, mocker, targets=[UPath(deploy_root)]
     )
     (tmp_path / "FERCEQR_FAILURE").write_text("stale failure")
-    source_partitions = ["2013q3", "2013q4"]
 
     zulip_mock = _mock_deploy_dependencies(
-        mocker, deploy_context, source_root, source_partitions
+        mocker, deploy_context, source_root, ["2013q3", "2013q4"]
     )
 
-    # Add an extra partition that should NOT be deployed.
+    # An extra built partition that is NOT in the run tags must not be deployed.
     for table_name in deploy_ferceqr.FERCEQR_TRANSFORM_ASSETS:
         (source_root / table_name / "2014q1.parquet").write_bytes(b"q1")
+
+    # A previous deployment already occupies the final prefix.
+    old_file = deploy_root / "core_ferceqr__contracts" / "2012q4.parquet"
+    old_file.parent.mkdir(parents=True)
+    old_file.write_bytes(b"previous build")
 
     deploy_ferceqr.deploy_ferceqr(deploy_context)
 
     assert (tmp_path / "FERCEQR_SUCCESS").exists()
     assert not (tmp_path / "FERCEQR_FAILURE").exists()
 
+    # The built partitions land in the final layout; promotion merges into the
+    # existing prefix rather than replacing it, so 2012q4 is still there and the
+    # unrequested 2014q1 was never deployed.
     for table_name in deploy_ferceqr.FERCEQR_TRANSFORM_ASSETS:
-        assert sorted(
-            path.name for path in (deploy_root / table_name).glob("*.parquet")
-        ) == [
-            "2013q3.parquet",
-            "2013q4.parquet",
-        ]
+        names = {p.name for p in (deploy_root / table_name).glob("*.parquet")}
+        assert {"2013q3.parquet", "2013q4.parquet"} <= names
+        assert "2014q1.parquet" not in names
+    assert (deploy_root / "core_ferceqr__contracts" / "2012q4.parquet").exists()
+    assert (deploy_root / deploy_ferceqr.DATAPACKAGE_FILENAME).exists()
+
+    # The previous deployment was snapshotted for rollback, and staging is gone.
+    assert (
+        deploy_root.parent
+        / deploy_ferceqr.PREVIOUS_DIRNAME
+        / "core_ferceqr__contracts"
+        / "2012q4.parquet"
+    ).exists()
+    assert not any(
+        d.name.startswith("._staging_") for d in deploy_root.parent.iterdir()
+    )
 
     zulip_mock.send_stream_message.assert_called_once()
-    sent_content = zulip_mock.send_stream_message.call_args.kwargs["content"]
-    assert "core_ferceqr__contracts" in sent_content
+    assert (
+        "core_ferceqr__contracts"
+        in zulip_mock.send_stream_message.call_args.kwargs["content"]
+    )
+
+
+def test_deploy_ferceqr_no_targets_writes_datapackage_and_skips_publish(
+    mocker, tmp_path
+):
+    """With no deployment targets configured (deployment_mode "none"), the build
+    is a success and the datapackage is still written for review, but nothing is
+    published -- and it is not an error."""
+    source_root = tmp_path / "source"
+    deploy_context = _build_deploy_context(tmp_path, mocker, targets=None)
+    (tmp_path / "FERCEQR_FAILURE").write_text("stale failure")
+    _mock_deploy_dependencies(mocker, deploy_context, source_root, ["2013q3", "2013q4"])
+    notification = mocker.patch.object(
+        deploy_ferceqr,
+        "build_ferceqr_notification",
+        return_value="build succeeded, deployment skipped",
+    )
+
+    deploy_ferceqr.deploy_ferceqr(deploy_context)
+
+    assert (tmp_path / "FERCEQR_SUCCESS").exists()
+    assert not (tmp_path / "FERCEQR_FAILURE").exists()
+    # Datapackage is written even though nothing is published.
+    assert (tmp_path / deploy_ferceqr.DATAPACKAGE_FILENAME).exists()
+    # No staging directories were created -- nothing was uploaded.
+    assert not any(p.name.startswith("._staging_") for p in tmp_path.iterdir())
+    notification.assert_called_once_with(deploy_context, outcome="SKIPPED")
+    deploy_context.resources.zulip_notification.send_stream_message.assert_called_once()
+
+
+def test_deploy_ferceqr_missing_partition_fails_closed(mocker, tmp_path):
+    """A missing Parquet partition aborts the deploy before anything is uploaded."""
+    source_root = tmp_path / "source"
+    deploy_root = tmp_path / "deploy"
+    deploy_root.mkdir()
+    deploy_context = _build_deploy_context(
+        tmp_path, mocker, targets=[UPath(deploy_root)]
+    )
+    _mock_deploy_dependencies(mocker, deploy_context, source_root, ["2013q3"])
+    mocker.patch.object(deploy_ferceqr, "logger", mocker.Mock())
+
+    # Delete one of the built partition files after the fact.
+    (source_root / "core_ferceqr__transactions" / "2013q3.parquet").unlink()
+
+    with pytest.raises(FileNotFoundError, match="2013q3"):
+        deploy_ferceqr.deploy_ferceqr(deploy_context)
+
+    assert (tmp_path / "FERCEQR_FAILURE").exists()
+    assert list(deploy_root.iterdir()) == []
+
+
+def test_deploy_ferceqr_staging_mismatch_aborts_before_promote(mocker, tmp_path):
+    """If the staged objects do not match the local outputs, the target is left
+    untouched, staging is cleaned up, and a failure is reported."""
+    source_root = tmp_path / "source"
+    deploy_root = tmp_path / "deploy"
+    deploy_root.mkdir()
+    deploy_context = _build_deploy_context(
+        tmp_path, mocker, targets=[UPath(deploy_root)]
+    )
+    zulip_mock = _mock_deploy_dependencies(
+        mocker, deploy_context, source_root, ["2013q3"]
+    )
+    mocker.patch.object(deploy_ferceqr, "logger", mocker.Mock())
+
+    class _DropsFirstFileStore(LocalObjectStore):
+        """A store that silently loses the first file it is asked to upload."""
+
+        def __init__(self):
+            self._dropped = False
+
+        def upload_files(self, sources, dest_prefix):
+            sources = list(sources)
+            if not self._dropped and sources:
+                self._dropped = True
+                sources = sources[1:]
+            super().upload_files(sources, dest_prefix)
+
+    mocker.patch.object(
+        deploy_ferceqr.ObjectStore, "for_uri", return_value=_DropsFirstFileStore()
+    )
+
+    with pytest.raises(RuntimeError, match="does not match local outputs"):
+        deploy_ferceqr.deploy_ferceqr(deploy_context)
+
+    assert (tmp_path / "FERCEQR_FAILURE").exists()
+    assert list(deploy_root.iterdir()) == []
+    assert not any(d.name.startswith("._staging_") for d in tmp_path.iterdir())
+    zulip_mock.send_stream_message.assert_called_once()
 
 
 def test_deploy_ferceqr_requires_source_partitions(mocker, tmp_path):
-    """Deployment should fail closed if the run is missing source partition tags."""
-    deploy_context = _build_deploy_context(tmp_path, mocker)
+    """With targets configured but no source partition tags, fail closed."""
+    deploy_context = _build_deploy_context(
+        tmp_path, mocker, targets=[UPath(tmp_path / "deploy")]
+    )
     mocker.patch.object(deploy_ferceqr, "logger", mocker.Mock())
 
     with pytest.raises(RuntimeError, match="no deployable partitions"):
@@ -333,192 +444,48 @@ def test_build_message_includes_asset_partition_status_table(mocker):
     assert ":ghost:" in table
 
 
-# ---------------------------------------------------------------------------
-# Staging helper tests
-# ---------------------------------------------------------------------------
-
-
-@pytest.mark.parametrize(
-    "build_id,expected_pattern",
-    [
-        ("build-abc123", "/._staging_build-abc123"),
-        (None, "._staging_"),
-    ],
-)
-def test_staging_path_naming(
-    monkeypatch: pytest.MonkeyPatch, build_id: str | None, expected_pattern: str
-) -> None:
-    """_staging_path should use BUILD_ID when set, otherwise a random hex suffix."""
-    if build_id is not None:
-        monkeypatch.setenv("BUILD_ID", build_id)
-    else:
-        monkeypatch.delenv("BUILD_ID", raising=False)
-
-    dist = deploy_ferceqr._staging_path(UPath("/base"))
-    assert expected_pattern in str(dist)
-
-
-def test_deploy_to_staging_writes_files(mocker, tmp_path):
-    """_deploy_to_staging should copy parquet files and datapackage to the staging dir."""
-    source_root = tmp_path / "source"
-    deploy_root = tmp_path / "deploy"
-    deploy_root.mkdir()
-    deployment_resource = deploy_ferceqr.FercEqrDeploymentResource(
-        deployment_targets=[
-            FercEqrDeploymentTargetConfig(path=str(deploy_root)),
-        ],
-    )
-    partitions = ["2013q3", "2013q4"]
-
-    # Write the datapackage to disk, as deploy_ferceqr would.
-    datapackage_path = tmp_path / "ferceqr_parquet_datapackage.json"
-    datapackage_path.write_bytes(b'{"resources": []}')
-
-    # Create source parquet files
-    for table_name in deploy_ferceqr.FERCEQR_TRANSFORM_ASSETS:
-        table_dir = source_root / table_name
-        table_dir.mkdir(parents=True)
-        (table_dir / "2013q3.parquet").write_bytes(b"q3")
-        (table_dir / "2013q4.parquet").write_bytes(b"q4")
-
-    class FakeParquetData:
-        def __init__(self, table_name: str):
-            self.parquet_directory = source_root / table_name
-
-    mocker.patch.object(deploy_ferceqr, "ParquetData", FakeParquetData)
-    staging_targets = deploy_ferceqr._deploy_to_staging(
-        ferceqr_deployment=deployment_resource,
-        source_partitions=partitions,
-        datapackage_path=datapackage_path,
-    )
-
-    assert len(staging_targets) == 1
-    staging_dir = staging_targets[0]
-    assert str(staging_dir).startswith(str(tmp_path / "._staging_"))
-
-    # Verify parquet files
-    for table_name in deploy_ferceqr.FERCEQR_TRANSFORM_ASSETS:
-        table_dir = staging_dir / table_name
-        assert table_dir.is_dir()
-        parquet_files = sorted(path.name for path in table_dir.glob("*.parquet"))
-        assert parquet_files == ["2013q3.parquet", "2013q4.parquet"], (
-            f"Unexpected files in {table_dir}: {parquet_files}"
-        )
-
-    # Verify datapackage was copied
-    datapackage = staging_dir / "ferceqr_parquet_datapackage.json"
-    assert datapackage.exists()
-    assert datapackage.read_bytes() == b'{"resources": []}'
-
-
-def test_deploy_to_staging_missing_source_raises(mocker, tmp_path):
-    """_deploy_to_staging should raise FileNotFoundError if a source parquet is missing."""
-    source_root = tmp_path / "source"
-    deploy_root = tmp_path / "deploy"
-    deploy_root.mkdir()
-    deployment_resource = deploy_ferceqr.FercEqrDeploymentResource(
-        deployment_targets=[
-            FercEqrDeploymentTargetConfig(path=str(deploy_root)),
-        ],
-    )
-    partitions = ["missing_quarter"]
-
-    # Write the datapackage to disk.
-    datapackage_path = tmp_path / "ferceqr_parquet_datapackage.json"
-    datapackage_path.write_bytes(b"{}")
-
-    # Create source without the partition file
-    table_dir = source_root / deploy_ferceqr.FERCEQR_TRANSFORM_ASSETS[0]
-    table_dir.mkdir(parents=True)
-
-    class FakeParquetData:
-        def __init__(self, table_name: str):
-            self.parquet_directory = source_root / table_name
-
-    mocker.patch.object(deploy_ferceqr, "ParquetData", FakeParquetData)
-    with pytest.raises(FileNotFoundError, match="missing_quarter"):
-        deploy_ferceqr._deploy_to_staging(
-            ferceqr_deployment=deployment_resource,
-            source_partitions=partitions,
-            datapackage_path=datapackage_path,
-        )
-
-
-def test_promote_staging_moves_files_to_final_path(tmp_path):
-    """_promote_staging should move staging contents to the final destination."""
-    deploy_root = tmp_path / "deploy"
-    deploy_root.mkdir()
-    staging_dir = tmp_path / "._staging_test"
-    staging_dir.mkdir()
-
-    for table_name in deploy_ferceqr.FERCEQR_TRANSFORM_ASSETS:
-        table_dir = staging_dir / table_name
-        table_dir.mkdir(parents=True)
-        (table_dir / "2013q3.parquet").write_bytes(b"q3")
-        (table_dir / "2013q4.parquet").write_bytes(b"q4")
-
-    (staging_dir / "ferceqr_parquet_datapackage.json").write_bytes(b"{}")
-
-    deploy_ferceqr._promote_staging(
-        staging_targets=[UPath(staging_dir)],
-        resolved_targets=[UPath(deploy_root)],
-    )
-
-    # Staging dir should be gone
-    assert not staging_dir.exists()
-
-    # Files should be in the final path
-    for table_name in deploy_ferceqr.FERCEQR_TRANSFORM_ASSETS:
-        assert (deploy_root / table_name / "2013q3.parquet").exists()
-        assert (deploy_root / table_name / "2013q4.parquet").exists()
-
-    assert (deploy_root / "ferceqr_parquet_datapackage.json").exists()
-
-
-def test_remove_staging_cleans_up_directory(tmp_path):
-    """_remove_staging should delete the entire staging directory tree."""
-    staging_dir = tmp_path / "._staging_test"
-    staging_dir.mkdir()
-    (staging_dir / "ferceqr_parquet_datapackage.json").write_bytes(b"{}")
-    table_dir = staging_dir / "core_ferceqr__contracts"
-    table_dir.mkdir()
-    (table_dir / "2013q3.parquet").write_bytes(b"q3")
-
-    deploy_ferceqr._remove_staging(UPath(staging_dir))
-
-    assert not staging_dir.exists()
-
-
-def test_deploy_ferceqr_staging_is_cleaned_up_on_failure(mocker, tmp_path):
-    """If promotion fails, the staging directory should be removed."""
+def test_deploy_ferceqr_promote_failure_cleans_up_and_reports(mocker, tmp_path):
+    """A failure during promotion cleans up staging and reports FERCEQR_FAILURE."""
     source_root = tmp_path / "source"
     deploy_root = tmp_path / "deploy"
     deploy_root.mkdir()
     deploy_context = _build_deploy_context(
         tmp_path, mocker, targets=[UPath(deploy_root)]
     )
-
     _mock_deploy_dependencies(mocker, deploy_context, source_root, ["2013q3"])
-
-    # Replace _promote_staging with one that fails before renaming.
-    def _broken_promote(staging_targets, resolved_targets):
-        for _staging_dir, _final_dir in zip(
-            staging_targets, resolved_targets, strict=True
-        ):
-            raise RuntimeError("promotion failed before rename")
-
-    mocker.patch.object(deploy_ferceqr, "_promote_staging", _broken_promote)
-    # Suppress expected error-path logging so it doesn't appear as alarming noise
-    # in the test output. The error handling is production-correct; this test is
-    # only verifying that staging cleanup runs after promotion fails.
     mocker.patch.object(deploy_ferceqr, "logger", mocker.Mock())
+    mocker.patch.object(
+        deploy_ferceqr,
+        "_promote_target",
+        side_effect=RuntimeError("promotion failed before move"),
+    )
 
     with pytest.raises(RuntimeError, match="promotion failed"):
         deploy_ferceqr.deploy_ferceqr(deploy_context)
 
-    # Staging directory should have been cleaned up from the sibling location
-    staging_dirs = [d for d in tmp_path.iterdir() if d.name.startswith("._staging_")]
-    assert staging_dirs == [], f"Staging directories left behind: {staging_dirs}"
+    assert not any(d.name.startswith("._staging_") for d in tmp_path.iterdir())
+    assert not (deploy_root / deploy_ferceqr.DATAPACKAGE_FILENAME).exists()
+    assert (tmp_path / "FERCEQR_FAILURE").exists()
 
-    # Final deployment should not exist
-    assert not (deploy_root / "ferceqr_parquet_datapackage.json").exists()
+
+# ---------------------------------------------------------------------------
+# Deployment helper tests
+# ---------------------------------------------------------------------------
+
+
+def test_deployment_targets_builds_sibling_scratch_prefixes(mocker, tmp_path):
+    """_deployment_targets derives the staging/previous prefixes from the target URI.
+
+    This is a unit test rather than a behavioral one because the string handling
+    (sibling prefixes, BUILD_ID suffix, data/meta split) is fiddly and awkward to
+    pin down through the asset.
+    """
+    mocker.patch.dict(deploy_ferceqr.os.environ, {"BUILD_ID": "build-abc"}, clear=False)
+    deploy_root = tmp_path / "dist" / "ferceqr"
+    (target,) = deploy_ferceqr._deployment_targets([UPath(deploy_root)])
+    assert isinstance(target.store, ObjectStore)
+    assert target.final == str(deploy_root)
+    assert target.staging == str(tmp_path / "dist" / "._staging_build-abc")
+    assert target.previous == str(tmp_path / "dist" / "._ferceqr_previous")
+    assert target.staging_data == f"{target.staging}/data"
+    assert target.staging_meta == f"{target.staging}/meta"

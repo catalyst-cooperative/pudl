@@ -11,8 +11,8 @@ cd "${PUDL_ROOT_PATH:?PUDL_ROOT_PATH must be set by the build container}" || exi
 # deployment, if this envvar was never wired through to the container.
 : "${DEPLOYMENT_ENVIRONMENT:?DEPLOYMENT_ENVIRONMENT must be set by the build container}"
 
-# Select the PUDL-specific dagster configuration.
-cp "${DAGSTER_HOME}/dagster-pudl.yaml" "${DAGSTER_HOME}/dagster.yaml"
+# Select the PUDL-specific dagster configuration from the repo copy.
+cp "${PUDL_ROOT_PATH}/builds/dagster-pudl.yaml" "${DAGSTER_HOME}/dagster.yaml"
 
 function send_zulip_msg() {
     local message="$1"
