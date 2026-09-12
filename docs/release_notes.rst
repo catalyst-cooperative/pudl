@@ -262,6 +262,11 @@ Bug Fixes & Data Cleaning
   present in both databases, neither database has extra tables, and every table has the
   same columns and the same row count in SQLite, DuckDB, and its source Parquet file.
   See PR :pr:`5538`.
+* Added unit tests for the ID assignment process that builds
+  :ref:`core_epa__assn_eia_epacamd_subplant_ids`. Fixed several bugs that those tests
+  exposed, including on that could split a physically connected group of generators into
+  separate subplants. Simplified the underlying ID assignment logic to be entirely
+  graph-based. See PR :pr:`5543`.
 * Closed a long-standing gap in which Pandera's Polars backend only checked column
   presence and dtype for ``pl.LazyFrame`` assets, silently skipping every range, enum,
   nullability, regex, and uniqueness check declared in our metadata for the vast
