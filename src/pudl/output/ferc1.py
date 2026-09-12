@@ -245,7 +245,7 @@ def ferc1_output_asset_factory(table_name: str) -> AssetsDefinition:
 
     @asset(
         name=f"out_ferc1__{table_name}",
-        io_manager_key="pudl_io_manager",
+        io_manager_key="parquet_io_manager",
         compute_kind="Python",
         ins=ins,
     )
@@ -341,7 +341,7 @@ def _out_ferc1__yearly_plants_utilities(
 
 
 @asset(
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     compute_kind="Python",
     op_tags={"dagster/priority": 10},
 )
@@ -401,7 +401,7 @@ def out_ferc1__yearly_steam_plants_sched402(
 
 
 @asset(
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     compute_kind="Python",
     op_tags={"dagster/priority": 10},
 )
@@ -442,7 +442,7 @@ def out_ferc1__yearly_small_plants_sched410(
 
 
 @asset(
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     compute_kind="Python",
     op_tags={"dagster/priority": 10},
 )
@@ -477,7 +477,7 @@ def out_ferc1__yearly_hydroelectric_plants_sched406(
 
 
 @asset(
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     compute_kind="Python",
     op_tags={"dagster/priority": 10},
 )
@@ -512,7 +512,7 @@ def out_ferc1__yearly_pumped_storage_plants_sched408(
 
 
 @asset(
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     compute_kind="Python",
     op_tags={"dagster/priority": 10},
 )
@@ -558,7 +558,7 @@ def out_ferc1__yearly_steam_plants_fuel_sched402(
 
 
 @asset(
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     compute_kind="Python",
     op_tags={"dagster/priority": 10},
 )
@@ -612,7 +612,7 @@ def out_ferc1__yearly_all_plants(
 
 
 @asset(
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     config_schema={
         "thresh": Field(
             float,
@@ -1110,7 +1110,7 @@ EXPLOSION_ARGS = [
             ),
         ],
         "off_by_facts": [],
-        "io_manager_key": "pudl_io_manager",
+        "io_manager_key": "parquet_io_manager",
     },
     {
         "root_table": "core_ferc1__yearly_balance_sheet_assets_sched110",
@@ -1170,7 +1170,7 @@ EXPLOSION_ARGS = [
                 pd.NA,
             ),
         ],
-        "io_manager_key": "pudl_io_manager",
+        "io_manager_key": "parquet_io_manager",
     },
     {
         "root_table": "core_ferc1__yearly_balance_sheet_liabilities_sched110",
@@ -1191,7 +1191,7 @@ EXPLOSION_ARGS = [
             )
         ],
         "off_by_facts": [],
-        "io_manager_key": "pudl_io_manager",
+        "io_manager_key": "parquet_io_manager",
     },
 ]
 
@@ -2812,7 +2812,7 @@ _tag_checks = [
 ] + [make_check_correction_tags(spec) for spec in check_specs_detailed_tables_tags]
 
 
-@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
+@asset(io_manager_key="parquet_io_manager", compute_kind="Python")
 def out_ferc1__yearly_rate_base(
     out_ferc1__yearly_detailed_balance_sheet_assets: pd.DataFrame,
     out_ferc1__yearly_detailed_balance_sheet_liabilities: pd.DataFrame,

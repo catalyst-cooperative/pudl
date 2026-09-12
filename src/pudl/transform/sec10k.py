@@ -323,7 +323,7 @@ def _match_ex21_subsidiaries_to_filer_company(
 ### SEC 10-K core asset definitions ###
 #######################################
 @dg.asset(
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     group_name="core_sec10k",
 )
 def core_sec10k__quarterly_filings(
@@ -493,7 +493,7 @@ def core_sec10k__company_info(
 
 
 @dg.asset(
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     group_name="core_sec10k",
 )
 def core_sec10k__quarterly_company_information(
@@ -613,7 +613,7 @@ def core_sec10k__quarterly_company_information(
 
 
 @dg.asset(
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     group_name="core_sec10k",
 )
 def core_sec10k__changelog_company_name(
@@ -653,7 +653,7 @@ def core_sec10k__changelog_company_name(
 
 
 @dg.asset(
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     group_name="core_sec10k",
 )
 def core_sec10k__quarterly_exhibit_21_company_ownership(
@@ -719,7 +719,7 @@ def core_sec10k__quarterly_exhibit_21_company_ownership(
 
 
 @dg.asset(
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     group_name="core_sec10k",
 )
 def core_sec10k__assn_sec10k_filers_and_eia_utilities(
@@ -747,7 +747,7 @@ def core_sec10k__assn_sec10k_filers_and_eia_utilities(
     return sec_eia_assn
 
 
-@dg.asset(io_manager_key="pudl_io_manager", group_name="core_sec10k")
+@dg.asset(io_manager_key="parquet_io_manager", group_name="core_sec10k")
 def core_sec10k__assn_exhibit_21_subsidiaries_and_filers(
     core_sec10k__quarterly_filings,
     core_sec10k__quarterly_company_information,
@@ -795,7 +795,7 @@ def core_sec10k__assn_exhibit_21_subsidiaries_and_filers(
     return out_df
 
 
-@dg.asset(io_manager_key="pudl_io_manager", group_name="core_sec10k")
+@dg.asset(io_manager_key="parquet_io_manager", group_name="core_sec10k")
 def core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities(
     core_sec10k__assn_sec10k_filers_and_eia_utilities: pd.DataFrame,
     core_eia__entity_utilities: pd.DataFrame,
