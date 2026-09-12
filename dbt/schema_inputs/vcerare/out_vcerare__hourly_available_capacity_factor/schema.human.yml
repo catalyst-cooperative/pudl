@@ -40,6 +40,7 @@ sources:
                   arguments:
                     value_set:
                       - "{{ dbt_date.date(2020, 12, 31) }}"
+                      - "{{ dbt_date.date(2024, 12, 31) }}"
           - name: report_year
             data_tests:
               - not_null
