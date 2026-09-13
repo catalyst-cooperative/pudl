@@ -15,7 +15,7 @@ AK_FIPS = {"name": "Alaska", "code": "AK", "fips": "02"}
 
 
 @pytest.mark.parametrize(
-    "state,expected",
+    ("state", "expected"),
     [
         ("Alaska", AK_FIPS),
         ("alaska", AK_FIPS),
@@ -125,7 +125,7 @@ def test_sales(mocker, out_ferc714__hourly_estimated_state_demand_args):
 
 
 @pytest.mark.parametrize(
-    "mean_overlaps,expected",
+    ("mean_overlaps", "expected"),
     [
         (
             True,

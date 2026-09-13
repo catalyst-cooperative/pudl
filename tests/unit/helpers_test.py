@@ -248,7 +248,7 @@ def test_monthly_attribute_merge():
 
 
 @pytest.mark.parametrize(
-    "partitions,expected_filename",
+    ("partitions", "expected_filename"),
     [
         ({}, "core_eia__plants.parquet"),
         ({"year": 2022, "state": "ca"}, "2022_ca.parquet"),
@@ -566,7 +566,7 @@ def test_convert_df_to_excel_file():
 
 
 @pytest.mark.parametrize(
-    "df,n_digits",
+    ("df", "n_digits"),
     [
         (
             pd.DataFrame(
@@ -1025,7 +1025,7 @@ def test_standardize_phone_column():
 
 
 @pytest.mark.parametrize(
-    "raw_year,min_valid_year,max_valid_year,base_century,expected",
+    ("raw_year", "min_valid_year", "max_valid_year", "base_century", "expected"),
     [
         pytest.param(
             pd.Series(["05", "95", "2008", "1999"], dtype="string"),
@@ -1063,7 +1063,7 @@ def test_normalize_year_fragments_valid(
 
 
 @pytest.mark.parametrize(
-    "raw_year,min_valid_year,max_valid_year,base_century,error_match",
+    ("raw_year", "min_valid_year", "max_valid_year", "base_century", "error_match"),
     [
         pytest.param(
             pd.Series(["5", "1999"], dtype="string"),
@@ -1101,7 +1101,7 @@ def test_normalize_year_fragments_raises_invalid_values(
 
 
 @pytest.mark.parametrize(
-    "raw_year,min_valid_year,max_valid_year,base_century,error_match",
+    ("raw_year", "min_valid_year", "max_valid_year", "base_century", "error_match"),
     [
         pytest.param(
             pd.Series(["05"], dtype="string"),
@@ -1147,7 +1147,7 @@ def test_normalize_year_fragments_raises_invalid_arguments(
 
 
 @pytest.mark.parametrize(
-    "value,should_pass",
+    ("value", "should_pass"),
     [
         ("true", True),
         ("True", True),

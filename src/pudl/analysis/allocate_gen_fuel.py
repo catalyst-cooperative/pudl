@@ -2239,7 +2239,9 @@ def _test_frac(gen_pm_fuel: pd.DataFrame) -> pd.DataFrame:
 
 
 def test_gen_fuel_allocation(
-    gen: pd.DataFrame, net_gen_alloc: pd.DataFrame, ratio: float = 0.05
+    gen: pd.DataFrame,
+    net_gen_alloc: pd.DataFrame,
+    ratio: float = 0.05,  # noqa: PT028
 ) -> None:
     """Does the allocated MWh differ from the granular :ref:`core_eia923__monthly_generation`?
 

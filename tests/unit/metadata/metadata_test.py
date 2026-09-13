@@ -89,7 +89,7 @@ def test_all_excluded_resources_exist() -> None:
 
 def test_get_etl_group_tables() -> None:
     """Test that a Value error is raised for non existent etl group."""
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="no resources for ETL group"):
         Package.get_etl_group_tables("not_an_etl_group")
 
 
@@ -743,7 +743,7 @@ def test_resource_descriptors_valid():
     assert len(descriptors) > 0
 
 
-@pytest.fixture()
+@pytest.fixture
 def dummy_resource_dict():
     return {
         "description": "test resource based on core_eia__entity_plants",
@@ -757,7 +757,7 @@ def dummy_resource_dict():
     }
 
 
-@pytest.fixture()
+@pytest.fixture
 def dummy_resource_dict_w_geometry():
     return {
         "description": "test resource based on core_eia__entity_plants with added geometry field",
@@ -771,7 +771,7 @@ def dummy_resource_dict_w_geometry():
     }
 
 
-@pytest.fixture()
+@pytest.fixture
 def dummy_pandera_schema(dummy_resource_dict):
     resource_descriptor = PudlResourceDescriptor.model_validate(dummy_resource_dict)
     resource = Resource.model_validate(
@@ -782,7 +782,7 @@ def dummy_pandera_schema(dummy_resource_dict):
     return resource.schema.to_pandera()
 
 
-@pytest.fixture()
+@pytest.fixture
 def dummy_pandera_schema_w_geometry(dummy_resource_dict_w_geometry):
     resource_descriptor = PudlResourceDescriptor.model_validate(
         dummy_resource_dict_w_geometry
@@ -796,7 +796,7 @@ def dummy_pandera_schema_w_geometry(dummy_resource_dict_w_geometry):
 
 
 @pytest.mark.parametrize(
-    "data,backend",
+    ("data", "backend"),
     [
         (
             pl.DataFrame(
@@ -833,7 +833,7 @@ def test_resource_descriptors_can_encode_schemas(
 
 
 @pytest.mark.parametrize(
-    "error_msg,data",
+    ("error_msg", "data"),
     [
         pytest.param(
             "column 'plant_id_eia' not in dataframe",
@@ -870,7 +870,7 @@ def test_resource_descriptor_schema_failures(error_msg, data, dummy_pandera_sche
 
 
 @pytest.mark.parametrize(
-    "error_msg,data",
+    ("error_msg", "data"),
     [
         pytest.param(
             "column 'plant_id_eia' not in dataframe",
@@ -1040,7 +1040,7 @@ def test_frictionless_data_package_filter_resources():
 
 
 @pytest.mark.parametrize(
-    "partition_key,period,offset,expected",
+    ("partition_key", "period", "offset", "expected"),
     [
         ("years", "2026", 0, "2026"),
         ("years", "2026", 1, "2027"),
@@ -1093,7 +1093,7 @@ def test_source_availability() -> None:
 
 
 @pytest.mark.parametrize(
-    "given_name,given_settings,given_rowcounts,given_source,expected",
+    ("given_name", "given_settings", "given_rowcounts", "given_source", "expected"),
     [
         (  # manually specified
             "test_eia__entity_test",
@@ -1155,9 +1155,8 @@ def test_resolve_resource_availability(
         resource_id=given_name, settings=given_settings
     ).build()
 
-    assert (resolved.availability.type == expected.type) and (
-        resolved.availability.description == expected.description
-    )
+    assert resolved.availability.type == expected.type
+    assert resolved.availability.description == expected.description
 
 
 # TODO: flip this to true after we do the second pass to set description_primary_key

@@ -47,17 +47,18 @@ class TestGenericDataConfig:
 
         In this case, the required ``data_source`` parameter is missing.
         """
+        working_partitions = {"years": [2001]}
+        working_tables = ["table"]
+
+        # The ValidationError is raised while evaluating the class body itself
+        # (constructing the default DataSource value), not on instantiation.
         with pytest.raises(ValidationError):
-            working_partitions = {"years": [2001]}
-            working_tables = ["table"]
 
             class Test(GenericDataConfig):
                 data_source: DataSource = DataSource(  # type: ignore[invalid-attribute-override, missing-argument]
                     working_partitions=working_partitions,
                     working_tables=working_tables,  # type: ignore[unknown-argument]
                 )
-
-            Test()
 
 
 class TestFerc1DataConfig:
@@ -379,13 +380,13 @@ class TestGlobalConfig:
 
     def test_immutability(self: Self):
         """Test immutability config is working correctly."""
+        data_config = PudlDataConfig()
         with pytest.raises(ValidationError):
-            data_config = PudlDataConfig()
             data_config.eia = EiaDataConfig()
 
+        eia_data_config = EiaDataConfig()
         with pytest.raises(ValidationError):
-            data_config = EiaDataConfig()
-            data_config.eia860 = Eia860DataConfig()
+            eia_data_config.eia860 = Eia860DataConfig()
 
 
 class TestGlobalDataConfigResource:
