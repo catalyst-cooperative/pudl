@@ -1878,7 +1878,7 @@ def impute_timeseries_asset_factory(  # noqa: C901
     simulation_group_col: str | None = None,
     output_io_manager_key: str = "parquet_io_manager",
     op_tags: dict[str, Any] | None = None,
-    settings: ImputeTimeseriesSettings = ImputeTimeseriesSettings(),
+    settings: ImputeTimeseriesSettings | None = None,
 ) -> pd.DataFrame:
     """Produces assets to impute values for a given timeseries table/column.
 
@@ -1928,6 +1928,7 @@ def impute_timeseries_asset_factory(  # noqa: C901
     # if `output_asset_name` starts with an underscore
     asset_prefix = re.sub(r"^__", "_", f"_{output_asset_name}")
     op_tags = op_tags or {}
+    settings = settings if settings is not None else ImputeTimeseriesSettings()
 
     # Asset names
     timeseries_matrix_asset = f"{asset_prefix}_timeseries_matrix"

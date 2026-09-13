@@ -508,7 +508,8 @@ line-ending = "auto"
 [tool.ruff.lint]
 # Configurations that apply to the `lint` subcommand.
 preview = true # Required for NPY201
-extend-select = [
+explicit-preview-rules = true # and ONLY NPY201
+select = [
     "A", # flake8-builtins
     "B", # flake8-bugbear
     "C", # Limit cyclomatic complexity using mccabe
@@ -535,14 +536,35 @@ extend-select = [
     # These rules would be good, but will require more effort:
     # "ANN", # identify missing type annotations
     # "ARG", # find unused arguments
-    # "DTZ", # datetime / timzeone issues flake8-datetimez
     # "ERA", # eradicate: finds commented out code
-    # "FURB", # refurb: general code quality/modernization. Still in preview.
-    # "PERF", # performance issues
-    # "PT", # pytest style
-    # "PL", # PyLint (lots of rules)
-    # "RUF", # Ruff specific rules
-    # "T", # Find print statements that should probably be logging
+    # "T20", # find print statements that should probably be logging
+    #
+    # New rulesets that became part of Ruff's defaults as of v0.16. Enable these
+    # one at a time, address (or ignore) the resulting violations in their own
+    # commit, then move on to the next:
+    # "AIR", # Airflow
+    # "ASYNC", # flake8-async
+    # "BLE", # flake8-blind-except
+    # "COM", # flake8-commas
+    # "DJ", # flake8-django
+    # "DTZ", # flake8-datetimez: datetime / timezone issues
+    # "FA", # flake8-future-annotations
+    # "FAST", # FastAPI
+    # "FLY", # flynt: convert % and .format() to f-strings
+    # "FURB", # refurb: general code quality/modernization
+    # "G", # flake8-logging-format
+    # "INT", # flake8-gettext
+    # "ISC", # flake8-implicit-str-concat
+    # "LOG", # flake8-logging
+    # "PERF", # Perflint: performance issues
+    # "PL", # Pylint (Convention/Error/Refactor/Warning)
+    # "PT", # flake8-pytest-style
+    # "PYI", # flake8-pyi: type stub conventions
+    # "RUF", # Ruff-specific rules
+    # "TC", # flake8-type-checking
+    # "TID", # flake8-tidy-imports
+    # "TRY", # tryceratops: exception handling anti-patterns
+    # "T10", # flake8-debugger
 ]
 ignore = [
     "D401", # Require imperative mood in docstrings.

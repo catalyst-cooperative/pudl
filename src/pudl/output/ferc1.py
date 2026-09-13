@@ -1221,8 +1221,8 @@ class Exploder:
         metadata_xbrl_ferc1: pd.DataFrame,
         calculation_components_xbrl_ferc1: pd.DataFrame,
         seed_nodes: list[NodeId],
-        tags: pd.DataFrame = pd.DataFrame(),
-        group_metric_checks: GroupMetricChecks = GroupMetricChecks(),
+        tags: pd.DataFrame | None = None,
+        group_metric_checks: GroupMetricChecks | None = None,
         off_by_facts: list[OffByFactoid] | None = None,
     ):
         """Instantiate an Exploder class.
@@ -1237,11 +1237,15 @@ class Exploder:
         """
         self.table_names: list[str] = table_names
         self.root_table: str = root_table
-        self.group_metric_checks = group_metric_checks
         self.metadata_xbrl_ferc1 = metadata_xbrl_ferc1
         self.calculation_components_xbrl_ferc1 = calculation_components_xbrl_ferc1
         self.seed_nodes = seed_nodes
-        self.tags = tags
+        self.tags = tags if tags is not None else pd.DataFrame()
+        self.group_metric_checks = (
+            group_metric_checks
+            if group_metric_checks is not None
+            else GroupMetricChecks()
+        )
         self.off_by_facts = off_by_facts
 
     @cached_property
