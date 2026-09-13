@@ -4502,7 +4502,7 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
 
         util_groups = df.groupby(["utility_id_ferc1", "report_year"])
 
-        return util_groups.apply(lambda x: self._label_note_rows_group(x))
+        return util_groups.apply(self._label_note_rows_group)
 
     def _label_total_rows(self, df: pd.DataFrame) -> pd.DataFrame:
         """Label total rows by adding ``total`` to ``row_type`` column.
@@ -4940,7 +4940,7 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
         )
         # Group by year and utility and run footnote association
         groups = df.groupby(["report_year", "utility_id_ferc1"])
-        sg_notes = groups.apply(lambda x: associate_notes_with_values_group(x))
+        sg_notes = groups.apply(associate_notes_with_values_group)
         # Remove footnote column now that rows are associated
         sg_notes = sg_notes.drop(columns=["footnote"])
 
@@ -7569,7 +7569,7 @@ def _core_ferc1__calculation_metric_checks(**kwargs):
     transformed_ferc1_dfs = {
         name: df
         for (name, df) in kwargs.items()
-        if name not in ["_core_ferc1_xbrl__calculation_components"]
+        if name != "_core_ferc1_xbrl__calculation_components"
     }
     # standardize the two key columns we are going to use into generic names
     xbrl_factoid_name = table_to_xbrl_factoid_name()

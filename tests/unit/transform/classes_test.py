@@ -762,11 +762,11 @@ def unit_corrections_are_homogeneous(
     """
     cat_cols = {uc.cat_col for uc in corrections}
     assert len(cat_cols) == 1  # nosec: B101
-    cat_col = list(cat_cols)[0]
+    cat_col = next(iter(cat_cols))
 
     data_cols = {uc.data_col for uc in corrections}
     assert len(data_cols) == 1  # nosec: B101
-    data_col = list(data_cols)[0]
+    data_col = next(iter(data_cols))
 
     categories = list({uc.cat_val for uc in corrections})
 
