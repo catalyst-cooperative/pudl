@@ -16,7 +16,7 @@ from typing import Annotated, Any, Literal, Self, TypeVar, get_args
 import duckdb
 import duckdb.sqltypes
 import frictionless
-import geopandas as gpd  # noqa: ICN002
+import geopandas as gpd
 import jinja2
 import numpy as np
 import pandas as pd

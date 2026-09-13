@@ -32,7 +32,7 @@ import io
 from types import SimpleNamespace
 
 import dagster as dg
-import geopandas as gpd  # noqa: ICN002
+import geopandas as gpd
 import pandas as pd
 import pint
 import polars as pl

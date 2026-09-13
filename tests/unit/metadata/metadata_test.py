@@ -7,7 +7,7 @@ from typing import Any, Literal
 
 import duckdb.sqltypes
 import frictionless
-import geopandas as gpd  # noqa: ICN002
+import geopandas as gpd
 import pandas as pd
 import pandera.pandas as pr_pandas
 import pandera.polars as pr_polars

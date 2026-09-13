@@ -5,7 +5,7 @@ import warnings
 from collections.abc import Callable, Iterable
 from typing import Literal
 
-import geopandas as gpd  # noqa: ICN002
+import geopandas as gpd
 import pandas as pd
 import shapely.ops
 from shapely.geometry import GeometryCollection, MultiPolygon, Polygon
