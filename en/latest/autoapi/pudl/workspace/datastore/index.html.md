@@ -40,11 +40,11 @@ Return the canonical packaged Zenodo DOI settings path.
 
 ### *exception* pudl.workspace.datastore.ChecksumMismatchError
 
-Bases: [`ValueError`](https://docs.python.org/3/library/exceptions.html#ValueError)
+Bases: [`ValueError`](https://docs.python.org/3/builtins/exceptions.html#ValueError)
 
 Resource checksum (md5) does not match.
 
-### *class* pudl.workspace.datastore.DatapackageDescriptor(datapackage_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict), dataset: [str](https://docs.python.org/3/library/stdtypes.html#str), doi: [ZenodoDoi](#pudl.workspace.datastore.ZenodoDoi))
+### *class* pudl.workspace.datastore.DatapackageDescriptor(datapackage_json: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict), dataset: [str](https://docs.python.org/3/builtins/stdtypes.html#str), doi: [ZenodoDoi](#pudl.workspace.datastore.ZenodoDoi))
 
 A simple wrapper providing access to datapackage.json contents.
 
@@ -54,39 +54,39 @@ A simple wrapper providing access to datapackage.json contents.
 
 #### doi
 
-#### \_get_resource_metadata(name: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)
+#### \_get_resource_metadata(name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)
 
-#### get_resource_path(name: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+#### get_resource_path(name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Returns zenodo url that holds contents of given named resource.
 
-#### get_download_size() → [int](https://docs.python.org/3/library/functions.html#int)
+#### get_download_size() → [int](https://docs.python.org/3/builtins/functions.html#int)
 
 Returns the total download size of all the resources in MB.
 
-#### validate_checksum(name: [str](https://docs.python.org/3/library/stdtypes.html#str), content: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [bool](https://docs.python.org/3/library/functions.html#bool)
+#### validate_checksum(name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), content: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [bool](https://docs.python.org/3/builtins/functions.html#bool)
 
 Returns True if content matches checksum for given named resource.
 
-#### \_matches(res: [dict](https://docs.python.org/3/library/stdtypes.html#dict), \*\*filters: Any)
+#### \_matches(res: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict), \*\*filters: Any)
 
-#### \_match_from_partition(parts: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)], k: [str](https://docs.python.org/3/library/stdtypes.html#str), v: [str](https://docs.python.org/3/library/stdtypes.html#str) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)])
+#### \_match_from_partition(parts: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)], k: [str](https://docs.python.org/3/builtins/stdtypes.html#str), v: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)])
 
-#### get_resources(name: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \*\*filters: Any) → [collections.abc.Iterator](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterator)[[pudl.workspace.resource_cache.PudlResourceKey](../resource_cache/index.html.md#pudl.workspace.resource_cache.PudlResourceKey)]
+#### get_resources(name: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, \*\*filters: Any) → [collections.abc.Iterator](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterator)[[pudl.workspace.resource_cache.PudlResourceKey](../resource_cache/index.html.md#pudl.workspace.resource_cache.PudlResourceKey)]
 
 Returns series of PudlResourceKey identifiers for matching resources.
 
 * **Parameters:**
   * **name** – if specified, find resource(s) with this name.
-  * **filters** ([*dict*](https://docs.python.org/3/library/stdtypes.html#dict)) – if specified, find resource(s) matching these key=value
+  * **filters** ([*dict*](https://docs.python.org/3/builtins/stdtypes.html#dict)) – if specified, find resource(s) matching these key=value
     constraints. The constraints are matched against the ‘parts’ field of
     the resource entry in the datapackage.json.
 
-#### get_partitions(name: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [set](https://docs.python.org/3/library/stdtypes.html#set)[[str](https://docs.python.org/3/library/stdtypes.html#str)]]
+#### get_partitions(name: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]]
 
 Return mapping of known partition keys to their allowed known values.
 
-#### get_partition_filters(\*\*filters: Any) → [collections.abc.Iterator](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterator)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)]]
+#### get_partition_filters(\*\*filters: Any) → [collections.abc.Iterator](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterator)[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]]
 
 Returns list of all known partition mappings.
 
@@ -96,13 +96,13 @@ used as filters and should map to unique resource.
 * **Parameters:**
   **filters** – additional constraints for selecting relevant partitions.
 
-#### \_validate_datapackage(datapackage_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict))
+#### \_validate_datapackage(datapackage_json: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict))
 
 Checks the correctness of datapackage.json metadata.
 
 Throws ValueError if invalid.
 
-#### get_json_string() → [str](https://docs.python.org/3/library/stdtypes.html#str)
+#### get_json_string() → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Exports the underlying json as normalized (sorted, indented) json string.
 
@@ -174,13 +174,13 @@ Digital Object Identifiers pointing to currently used Zenodo archives.
 
 Configuration for the model, should be a dictionary conforming to [ConfigDict][pydantic.config.ConfigDict].
 
-#### get_doi(dataset: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [ZenodoDoi](#pudl.workspace.datastore.ZenodoDoi)
+#### get_doi(dataset: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [ZenodoDoi](#pudl.workspace.datastore.ZenodoDoi)
 
 Look up configured DOI by dataset.
 
 Throws a KeyError if dataset not configured.
 
-#### *classmethod* from_yaml(path: [str](https://docs.python.org/3/library/stdtypes.html#str) | [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [ZenodoDoiSettings](#pudl.workspace.datastore.ZenodoDoiSettings)
+#### *classmethod* from_yaml(path: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [ZenodoDoiSettings](#pudl.workspace.datastore.ZenodoDoiSettings)
 
 Create a ZenodoDoiSettings instance from a YAML file path.
 
@@ -189,23 +189,23 @@ Create a ZenodoDoiSettings instance from a YAML file path.
 * **Returns:**
   A ZenodoDoiSettings object with DOIs loaded from the YAML file.
 
-### *class* pudl.workspace.datastore.ZenodoFetcher(zenodo_dois: [ZenodoDoiSettings](#pudl.workspace.datastore.ZenodoDoiSettings) | [None](https://docs.python.org/3/library/constants.html#None) = None, timeout: [float](https://docs.python.org/3/library/functions.html#float) = 100.0)
+### *class* pudl.workspace.datastore.ZenodoFetcher(zenodo_dois: [ZenodoDoiSettings](#pudl.workspace.datastore.ZenodoDoiSettings) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, timeout: [float](https://docs.python.org/3/builtins/functions.html#float) = 100.0)
 
 API for fetching datapackage descriptors and resource contents from zenodo.
 
-#### \_descriptor_cache *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [DatapackageDescriptor](#pudl.workspace.datastore.DatapackageDescriptor)]*
+#### \_descriptor_cache *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [DatapackageDescriptor](#pudl.workspace.datastore.DatapackageDescriptor)]*
 
 #### zenodo_dois *: [ZenodoDoiSettings](#pudl.workspace.datastore.ZenodoDoiSettings)*
 
-#### timeout *: [float](https://docs.python.org/3/library/functions.html#float)*
+#### timeout *: [float](https://docs.python.org/3/builtins/functions.html#float)*
 
 #### http
 
-#### get_doi(dataset: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [ZenodoDoi](#pudl.workspace.datastore.ZenodoDoi)
+#### get_doi(dataset: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [ZenodoDoi](#pudl.workspace.datastore.ZenodoDoi)
 
 Returns DOI for given dataset.
 
-#### get_known_datasets() → [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]
+#### get_known_datasets() → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]
 
 Returns list of supported datasets.
 
@@ -215,21 +215,21 @@ Construct a Zenodo depsition URL based on its Zenodo DOI.
 
 #### \_fetch_from_url(url: [pydantic.HttpUrl](https://pydantic.dev/docs/validation/latest/api/pydantic/networks/#pydantic.networks.HttpUrl)) → requests.Response
 
-#### get_descriptor(dataset: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [DatapackageDescriptor](#pudl.workspace.datastore.DatapackageDescriptor)
+#### get_descriptor(dataset: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [DatapackageDescriptor](#pudl.workspace.datastore.DatapackageDescriptor)
 
 Returns class:DatapackageDescriptor for given dataset.
 
-#### get_resource(res: [pudl.workspace.resource_cache.PudlResourceKey](../resource_cache/index.html.md#pudl.workspace.resource_cache.PudlResourceKey)) → [bytes](https://docs.python.org/3/library/stdtypes.html#bytes)
+#### get_resource(res: [pudl.workspace.resource_cache.PudlResourceKey](../resource_cache/index.html.md#pudl.workspace.resource_cache.PudlResourceKey)) → [bytes](https://docs.python.org/3/builtins/stdtypes.html#bytes)
 
 Given resource key, retrieve contents of the file from zenodo.
 
-### *class* pudl.workspace.datastore.Datastore(local_cache_path: [str](https://docs.python.org/3/library/stdtypes.html#str) | [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path) | upath.UPath | [None](https://docs.python.org/3/library/constants.html#None) = None, cloud_cache_path: [str](https://docs.python.org/3/library/stdtypes.html#str) | upath.UPath | [None](https://docs.python.org/3/library/constants.html#None) = 's3://pudl.catalyst.coop/zenodo', timeout: [float](https://docs.python.org/3/library/functions.html#float) = 15.0, zenodo_dois: [ZenodoDoiSettings](#pudl.workspace.datastore.ZenodoDoiSettings) | [None](https://docs.python.org/3/library/constants.html#None) = None)
+### *class* pudl.workspace.datastore.Datastore(local_cache_path: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path) | upath.UPath | [None](https://docs.python.org/3/builtins/constants.html#None) = None, cloud_cache_path: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | upath.UPath | [None](https://docs.python.org/3/builtins/constants.html#None) = 's3://pudl.catalyst.coop/zenodo', timeout: [float](https://docs.python.org/3/builtins/functions.html#float) = 15.0, zenodo_dois: [ZenodoDoiSettings](#pudl.workspace.datastore.ZenodoDoiSettings) | [None](https://docs.python.org/3/builtins/constants.html#None) = None)
 
 Handle connections and downloading of Zenodo Source archives.
 
 #### \_cache
 
-#### \_datapackage_descriptors *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [DatapackageDescriptor](#pudl.workspace.datastore.DatapackageDescriptor)]*
+#### \_datapackage_descriptors *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [DatapackageDescriptor](#pudl.workspace.datastore.DatapackageDescriptor)]*
 
 #### temporary_extraction_dir
 
@@ -239,19 +239,19 @@ Handle connections and downloading of Zenodo Source archives.
 
 Expose the DOI settings used by this datastore instance.
 
-#### get_doi(dataset: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [ZenodoDoi](#pudl.workspace.datastore.ZenodoDoi)
+#### get_doi(dataset: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [ZenodoDoi](#pudl.workspace.datastore.ZenodoDoi)
 
 Return the configured DOI for a dataset.
 
-#### get_known_datasets() → [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]
+#### get_known_datasets() → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]
 
 Returns list of supported datasets.
 
-#### get_datapackage_descriptor(dataset: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [DatapackageDescriptor](#pudl.workspace.datastore.DatapackageDescriptor)
+#### get_datapackage_descriptor(dataset: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [DatapackageDescriptor](#pudl.workspace.datastore.DatapackageDescriptor)
 
 Fetch datapackage descriptor for dataset either from cache or Zenodo.
 
-#### get_resources(dataset: [str](https://docs.python.org/3/library/stdtypes.html#str), cached_only: [bool](https://docs.python.org/3/library/functions.html#bool) = False, skip_optimally_cached: [bool](https://docs.python.org/3/library/functions.html#bool) = False, \*\*filters: Any) → [collections.abc.Iterator](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterator)[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pudl.workspace.resource_cache.PudlResourceKey](../resource_cache/index.html.md#pudl.workspace.resource_cache.PudlResourceKey), [bytes](https://docs.python.org/3/library/stdtypes.html#bytes)]]
+#### get_resources(dataset: [str](https://docs.python.org/3/builtins/stdtypes.html#str), cached_only: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, skip_optimally_cached: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, \*\*filters: Any) → [collections.abc.Iterator](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterator)[[tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[pudl.workspace.resource_cache.PudlResourceKey](../resource_cache/index.html.md#pudl.workspace.resource_cache.PudlResourceKey), [bytes](https://docs.python.org/3/builtins/stdtypes.html#bytes)]]
 
 Return content of the matching resources.
 
@@ -265,15 +265,15 @@ Return content of the matching resources.
 * **Yields:**
   (PudlResourceKey, io.BytesIO) holding content for each matching resource
 
-#### remove_from_cache(res: [pudl.workspace.resource_cache.PudlResourceKey](../resource_cache/index.html.md#pudl.workspace.resource_cache.PudlResourceKey)) → [None](https://docs.python.org/3/library/constants.html#None)
+#### remove_from_cache(res: [pudl.workspace.resource_cache.PudlResourceKey](../resource_cache/index.html.md#pudl.workspace.resource_cache.PudlResourceKey)) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Remove given resource from the associated cache.
 
-#### get_unique_resource(dataset: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*filters: Any) → [bytes](https://docs.python.org/3/library/stdtypes.html#bytes)
+#### get_unique_resource(dataset: [str](https://docs.python.org/3/builtins/stdtypes.html#str), \*\*filters: Any) → [bytes](https://docs.python.org/3/builtins/stdtypes.html#bytes)
 
 Returns content of a resource assuming there is exactly one that matches.
 
-#### get_zipfile_resource(dataset: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*filters: Any) → [zipfile.ZipFile](https://docs.python.org/3/library/zipfile.html#zipfile.ZipFile)
+#### get_zipfile_resource(dataset: [str](https://docs.python.org/3/builtins/stdtypes.html#str), \*\*filters: Any) → [zipfile.ZipFile](https://docs.python.org/3/library/zipfile.html#zipfile.ZipFile)
 
 Retrieves unique resource and opens it as a ZipFile.
 
@@ -281,12 +281,12 @@ Retrieves unique resource and opens it as a ZipFile.
 
 Given a zipfile, return a list of the file names in it.
 
-### pudl.workspace.datastore.validate_cache(dstore: [Datastore](#pudl.workspace.datastore.Datastore), datasets: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], partition: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [int](https://docs.python.org/3/library/functions.html#int) | [str](https://docs.python.org/3/library/stdtypes.html#str)]) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.workspace.datastore.validate_cache(dstore: [Datastore](#pudl.workspace.datastore.Datastore), datasets: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], partition: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [int](https://docs.python.org/3/builtins/functions.html#int) | [str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Validate elements in the datastore cache.
 
 Delete invalid entries from cache.
 
-### pudl.workspace.datastore.fetch_resources(dstore: [Datastore](#pudl.workspace.datastore.Datastore), datasets: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], partition: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [int](https://docs.python.org/3/library/functions.html#int) | [str](https://docs.python.org/3/library/stdtypes.html#str)], cloud_cache_path: [str](https://docs.python.org/3/library/stdtypes.html#str), bypass_local_cache: [bool](https://docs.python.org/3/library/functions.html#bool)) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.workspace.datastore.fetch_resources(dstore: [Datastore](#pudl.workspace.datastore.Datastore), datasets: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], partition: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [int](https://docs.python.org/3/builtins/functions.html#int) | [str](https://docs.python.org/3/builtins/stdtypes.html#str)], cloud_cache_path: [str](https://docs.python.org/3/builtins/stdtypes.html#str), bypass_local_cache: [bool](https://docs.python.org/3/builtins/functions.html#bool)) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Retrieve all matching resources and store them in the cache.

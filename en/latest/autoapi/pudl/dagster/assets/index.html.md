@@ -53,7 +53,7 @@ For the underlying Dagster concept, see [https://docs.dagster.io/guides/build/as
 
 ### pudl.dagster.assets.default_assets
 
-### pudl.dagster.assets.get_keys_from_assets(asset_def) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[dagster.AssetKey](https://docs.dagster.io/api/dagster/assets/#dagster.AssetKey)]
+### pudl.dagster.assets.get_keys_from_assets(asset_def) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dagster.AssetKey](https://docs.dagster.io/api/dagster/assets/#dagster.AssetKey)]
 
 Get a list of asset keys for an asset definition or spec.
 

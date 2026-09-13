@@ -29,13 +29,13 @@ Extractor for NREL ATB.
 
 Instance of metadata object to use with this extractor.
 
-#### source_filename(page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](../extractor/index.html.md#pudl.extract.extractor.PartitionSelection)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+#### source_filename(page: [str](https://docs.python.org/3/builtins/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](../extractor/index.html.md#pudl.extract.extractor.PartitionSelection)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Get the file name for the right page and part.
 
 In this instance we are using the same methodology from the excel metadata extractor.
 
-#### load_source(page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition)
+#### load_source(page: [str](https://docs.python.org/3/builtins/stdtypes.html#str), \*\*partition)
 
 Fetch the electricity parquet file from the NREL ATB zip archive.
 

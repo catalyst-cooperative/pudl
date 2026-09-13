@@ -22,17 +22,17 @@ require hand mapping to extract in PUDL.
 
 ### pudl.scripts.update_zenodo_dois.logger
 
-### pudl.scripts.update_zenodo_dois.get_latest_record_id(record_id: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None), [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)]
+### pudl.scripts.update_zenodo_dois.get_latest_record_id(record_id: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None), [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)]
 
 Get ID of the latest version of any Zenodo record.
 
 Given the ID of any Zenodo record, this will return the record ID and DOI of the
 latest version associated with the same concept DOI.
 
-### pudl.scripts.update_zenodo_dois.update_yaml_dois(yaml_file: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), datasets: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), ...]) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [dict](https://docs.python.org/3/library/stdtypes.html#dict)]
+### pudl.scripts.update_zenodo_dois.update_yaml_dois(yaml_file: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), datasets: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), ...]) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)]
 
 Check all DOIs and update to latest record versions.
 
-### pudl.scripts.update_zenodo_dois.main(ctx: click.Context, datasets: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), ...]) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.scripts.update_zenodo_dois.main(ctx: click.Context, datasets: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), ...]) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Auto-update Zenodo DOIs to the latest value. Use ‘all’ to update all DOIs.

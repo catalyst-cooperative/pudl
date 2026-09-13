@@ -63,9 +63,9 @@ A collection of denormalized FERC assets and helper functions.
 
 ### pudl.output.ferc1.logger
 
-### pudl.output.ferc1.EXPLOSION_CALCULATION_TOLERANCES *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pudl.transform.ferc1.GroupMetricChecks](../../transform/ferc1/index.html.md#pudl.transform.ferc1.GroupMetricChecks)]*
+### pudl.output.ferc1.EXPLOSION_CALCULATION_TOLERANCES *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pudl.transform.ferc1.GroupMetricChecks](../../transform/ferc1/index.html.md#pudl.transform.ferc1.GroupMetricChecks)]*
 
-### pudl.output.ferc1.MANUAL_DBF_METADATA_FIXES *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str) | [int](https://docs.python.org/3/library/functions.html#int) | pandas._libs.missing.NAType]]*
+### pudl.output.ferc1.MANUAL_DBF_METADATA_FIXES *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [int](https://docs.python.org/3/builtins/functions.html#int) | pandas._libs.missing.NAType]]*
 
 Manually compiled metadata from DBF-only or PUDL-generated xbrl_factios.
 
@@ -74,7 +74,7 @@ of expectations from assuming the calculation components in any given explosion
 is a tree structure to being a dag. These xbrl_factoids were added in
 transform.ferc1 and could be removed upon this transition.
 
-### pudl.output.ferc1.get_core_ferc1_asset_description(asset_name: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+### pudl.output.ferc1.get_core_ferc1_asset_description(asset_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Get the asset description portion of a core FERC FORM 1 asset.
 
@@ -88,7 +88,7 @@ from core assets using asset factories.
 * **Return type:**
   asset_description
 
-### pudl.output.ferc1.ferc1_output_asset_factory(table_name: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
+### pudl.output.ferc1.ferc1_output_asset_factory(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
 
 Define an output asset for the FERC1 table by adding in utility IDs.
 
@@ -166,7 +166,7 @@ consumption.
 * **Returns:**
   A DataFrame with fuel use summarized by plant.
 
-### pudl.output.ferc1.calc_annual_capital_additions_ferc1(steam_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), window: [int](https://docs.python.org/3/library/functions.html#int) = 3) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.output.ferc1.calc_annual_capital_additions_ferc1(steam_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), window: [int](https://docs.python.org/3/builtins/functions.html#int) = 3) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Calculate annual capital additions for FERC1 steam records.
 
@@ -205,15 +205,15 @@ The additional dimensions (`utility_type`, `plant_status`, and
 `plant_function`) each have a small number of allowable values, which we could
 further impose as constraints on the values here using Pydantic if we wanted.
 
-#### table_name *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### table_name *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### xbrl_factoid *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### xbrl_factoid *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### utility_type *: [str](https://docs.python.org/3/library/stdtypes.html#str) | pandas._libs.missing.NAType*
+#### utility_type *: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | pandas._libs.missing.NAType*
 
-#### plant_status *: [str](https://docs.python.org/3/library/stdtypes.html#str) | pandas._libs.missing.NAType*
+#### plant_status *: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | pandas._libs.missing.NAType*
 
-#### plant_function *: [str](https://docs.python.org/3/library/stdtypes.html#str) | pandas._libs.missing.NAType*
+#### plant_function *: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | pandas._libs.missing.NAType*
 
 ### *class* pudl.output.ferc1.OffByFactoid
 
@@ -226,43 +226,43 @@ non-reported calculation to generate it. These calculated factoids are either
 missing one factoid, or include an additional factoid not included in the FERC
 metadata. Thus, the calculations are ‘off by’ this factoid.
 
-#### table_name *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### table_name *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### xbrl_factoid *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### xbrl_factoid *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### utility_type *: [str](https://docs.python.org/3/library/stdtypes.html#str) | pandas._libs.missing.NAType*
+#### utility_type *: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | pandas._libs.missing.NAType*
 
-#### plant_status *: [str](https://docs.python.org/3/library/stdtypes.html#str) | pandas._libs.missing.NAType*
+#### plant_status *: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | pandas._libs.missing.NAType*
 
-#### plant_function *: [str](https://docs.python.org/3/library/stdtypes.html#str) | pandas._libs.missing.NAType*
+#### plant_function *: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | pandas._libs.missing.NAType*
 
-#### table_name_off_by *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### table_name_off_by *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### xbrl_factoid_off_by *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### xbrl_factoid_off_by *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### utility_type_off_by *: [str](https://docs.python.org/3/library/stdtypes.html#str) | pandas._libs.missing.NAType*
+#### utility_type_off_by *: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | pandas._libs.missing.NAType*
 
-#### plant_status_off_by *: [str](https://docs.python.org/3/library/stdtypes.html#str) | pandas._libs.missing.NAType*
+#### plant_status_off_by *: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | pandas._libs.missing.NAType*
 
-#### plant_function_off_by *: [str](https://docs.python.org/3/library/stdtypes.html#str) | pandas._libs.missing.NAType*
+#### plant_function_off_by *: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | pandas._libs.missing.NAType*
 
 ### pudl.output.ferc1.\_out_ferc1_\_detailed_tags(\_core_ferc1_\_table_dimensions) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Grab the stored tables of tags and add inferred dimension.
 
-### pudl.output.ferc1.\_get_tags(file_name: [str](https://docs.python.org/3/library/stdtypes.html#str), \_core_ferc1_\_table_dimensions: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.output.ferc1.\_get_tags(file_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), \_core_ferc1_\_table_dimensions: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Grab tags from a stored CSV file and apply `make_xbrl_factoid_dimensions_explicit()`.
 
 ### pudl.output.ferc1.\_aggregatable_dimension_tags(\_core_ferc1_\_table_dimensions: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), dimension: Literal['plant_status', 'plant_function']) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
-### pudl.output.ferc1.exploded_table_asset_factory(root_table: [str](https://docs.python.org/3/library/stdtypes.html#str), table_names: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], seed_nodes: [list](https://docs.python.org/3/library/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)], group_metric_checks: [pudl.transform.ferc1.GroupMetricChecks](../../transform/ferc1/index.html.md#pudl.transform.ferc1.GroupMetricChecks), off_by_facts: [list](https://docs.python.org/3/library/stdtypes.html#list)[[OffByFactoid](#pudl.output.ferc1.OffByFactoid)], io_manager_key: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
+### pudl.output.ferc1.exploded_table_asset_factory(root_table: [str](https://docs.python.org/3/builtins/stdtypes.html#str), table_names: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], seed_nodes: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)], group_metric_checks: [pudl.transform.ferc1.GroupMetricChecks](../../transform/ferc1/index.html.md#pudl.transform.ferc1.GroupMetricChecks), off_by_facts: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[OffByFactoid](#pudl.output.ferc1.OffByFactoid)], io_manager_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
 
 Create an exploded table based on a set of related input tables.
 
 ### pudl.output.ferc1.EXPLOSION_ARGS
 
-### pudl.output.ferc1.create_exploded_table_assets() → [list](https://docs.python.org/3/library/stdtypes.html#list)[[dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)]
+### pudl.output.ferc1.create_exploded_table_assets() → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)]
 
 Create a list of exploded FERC Form 1 assets.
 
@@ -272,16 +272,16 @@ Create a list of exploded FERC Form 1 assets.
 
 ### pudl.output.ferc1.exploded_ferc1_assets
 
-### *class* pudl.output.ferc1.Exploder(table_names: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], root_table: [str](https://docs.python.org/3/library/stdtypes.html#str), metadata_xbrl_ferc1: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), calculation_components_xbrl_ferc1: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), seed_nodes: [list](https://docs.python.org/3/library/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)], tags: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) = pd.DataFrame(), group_metric_checks: [pudl.transform.ferc1.GroupMetricChecks](../../transform/ferc1/index.html.md#pudl.transform.ferc1.GroupMetricChecks) = GroupMetricChecks(), off_by_facts: [list](https://docs.python.org/3/library/stdtypes.html#list)[[OffByFactoid](#pudl.output.ferc1.OffByFactoid)] | [None](https://docs.python.org/3/library/constants.html#None) = None)
+### *class* pudl.output.ferc1.Exploder(table_names: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], root_table: [str](https://docs.python.org/3/builtins/stdtypes.html#str), metadata_xbrl_ferc1: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), calculation_components_xbrl_ferc1: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), seed_nodes: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)], tags: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) = pd.DataFrame(), group_metric_checks: [pudl.transform.ferc1.GroupMetricChecks](../../transform/ferc1/index.html.md#pudl.transform.ferc1.GroupMetricChecks) = GroupMetricChecks(), off_by_facts: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[OffByFactoid](#pudl.output.ferc1.OffByFactoid)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None)
 
 Get unique, granular datapoints from a set of related, nested FERC1 tables.
 
 The controlling method of this class which executes its primary function is
 [`boom()`](#pudl.output.ferc1.Exploder.boom).
 
-#### table_names *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+#### table_names *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
-#### root_table *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### root_table *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
 #### group_metric_checks
 
@@ -328,27 +328,27 @@ appear as their own records within the concatenated metadata dataframe.
 
 Construct a calculation forest based on class attributes.
 
-#### *property* dimensions *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+#### *property* dimensions *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
 Get all of the column names for the other dimensions.
 
-#### *property* exploded_pks *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+#### *property* exploded_pks *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
 Get the joint primary keys of the exploded tables.
 
-#### *property* value_col *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### *property* value_col *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
 Get the value column for the exploded tables.
 
-#### *property* calc_idx *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+#### *property* calc_idx *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
 Primary key columns for calculations in this explosion.
 
-#### prep_table_to_explode(table_name: [str](https://docs.python.org/3/library/stdtypes.html#str), table_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### prep_table_to_explode(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), table_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Assign table name and rename factoid column in preparation for explosion.
 
-#### boom(tables_to_explode: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### boom(tables_to_explode: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Explode a set of nested tables.
 
@@ -368,7 +368,7 @@ There are seven main stages of this process:
 * **Parameters:**
   **tables_to_explode** – dictionary of table name (key) to transformed table (value).
 
-#### initial_explosion_concatenation(tables_to_explode: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### initial_explosion_concatenation(tables_to_explode: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Concatenate all of the tables for the explosion.
 
@@ -461,11 +461,11 @@ will be used as seeds.
 This class makes heavy use of `networkx` to manage the graph that we build
 from calculation relationships and relies heavily on `networkx` terminology.
 
-#### calc_cols *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= ['table_name', 'xbrl_factoid', 'utility_type', 'plant_status', 'plant_function']*
+#### calc_cols *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= ['table_name', 'xbrl_factoid', 'utility_type', 'plant_status', 'plant_function']*
 
 #### exploded_calcs *: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)*
 
-#### seeds *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]* *= []*
+#### seeds *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]* *= []*
 
 #### tags *: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)*
 
@@ -475,7 +475,7 @@ from calculation relationships and relies heavily on `networkx` terminology.
 
 Configuration for the model, should be a dictionary conforming to [ConfigDict][pydantic.config.ConfigDict].
 
-#### *property* parent_cols *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+#### *property* parent_cols *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
 Construct parent_cols based on the provided calc_cols.
 
@@ -524,13 +524,13 @@ calculation components table.
 Then we compile a dictionary of node attributes, based on the individual
 calculation components in the exploded calcs dataframe.
 
-#### *property* node_attrs *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[NodeId](#pudl.output.ferc1.NodeId), [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)]]]*
+#### *property* node_attrs *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[NodeId](#pudl.output.ferc1.NodeId), [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]]]*
 
 Construct a dictionary of node attributes for application to the forest.
 
 Note attributes consist of the manually assigned tags.
 
-#### *property* edge_attrs *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Any, Any]*
+#### *property* edge_attrs *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[Any, Any]*
 
 Construct a dictionary of edge attributes for application to the forest.
 
@@ -565,14 +565,14 @@ propagate the tags root-ward first because we primarily manually compiled
 tags for the leaf nodes, so we want to send the values for the leafy tags
 root-ward first before trying to send tags leaf-ward.
 
-#### check_lost_tags(lost_nodes: [list](https://docs.python.org/3/library/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]) → [None](https://docs.python.org/3/library/constants.html#None)
+#### check_lost_tags(lost_nodes: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Check whether any of the input lost nodes were also tagged nodes.
 
 It is not necessarily a problem if there are “lost” tags. This is mostly
 here as a debugging tool.
 
-#### *static* check_conflicting_tags(annotated_forest: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)) → [None](https://docs.python.org/3/library/constants.html#None)
+#### *static* check_conflicting_tags(annotated_forest: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Check for conflicts between ancestor and descendant tags.
 
@@ -627,58 +627,58 @@ but a forest with several root nodes might also be appropriate, since the root
 table may or may not have a top level summary value that includes all underlying
 calculated values of interest.
 
-#### *static* roots(graph: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]
+#### *static* roots(graph: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]
 
 Identify all root nodes in a digraph.
 
-#### *property* full_digraph_roots *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]*
+#### *property* full_digraph_roots *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]*
 
 Find all roots in the full digraph described by the exploded metadata.
 
-#### *property* seeded_digraph_roots *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]*
+#### *property* seeded_digraph_roots *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]*
 
 Find all roots in the seeded digraph.
 
-#### *property* forest_roots *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]*
+#### *property* forest_roots *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]*
 
 Find all roots in the pruned calculation forest.
 
-#### *static* leaves(graph: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]
+#### *static* leaves(graph: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]
 
 Identify all leaf nodes in a digraph.
 
-#### *property* full_digraph_leaves *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]*
+#### *property* full_digraph_leaves *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]*
 
 All leaf nodes in the full digraph.
 
-#### *property* seeded_digraph_leaves *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]*
+#### *property* seeded_digraph_leaves *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]*
 
 All leaf nodes in the seeded digraph.
 
-#### *property* forest_leaves *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]*
+#### *property* forest_leaves *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]*
 
 All leaf nodes in the pruned forest.
 
-#### *property* orphans *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]*
+#### *property* orphans *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]*
 
 Identify all nodes that appear in the exploded_calcs but not in the full digraph.
 
 Because we removed the metadata and are now building the tree entirely based on
 the exploded_calcs, this should now never produce any orphans and is a bit redundant.
 
-#### *property* pruned *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]*
+#### *property* pruned *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]*
 
 List of all nodes that appear in the DAG but not in the pruned forest.
 
-#### stepchildren(graph: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]
+#### stepchildren(graph: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]
 
 Find all nodes in the graph that have more than one parent.
 
-#### stepparents(graph: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]
+#### stepparents(graph: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]
 
 Find all nodes in the graph with children having more than one parent.
 
-#### \_get_path_weight(path: [list](https://docs.python.org/3/library/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)], graph: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)) → [float](https://docs.python.org/3/library/functions.html#float)
+#### \_get_path_weight(path: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)], graph: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)) → [float](https://docs.python.org/3/builtins/functions.html#float)
 
 Multiply all weights along a path together.
 
@@ -708,23 +708,23 @@ This dataframe has a format similar to exploded_calcs and can be used with the
 exploded data to verify that the root values can still be correctly calculated
 from the leaf values.
 
-#### *property* table_names *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+#### *property* table_names *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
 Produce the list of tables involved in this explosion.
 
-#### plot_graph(graph: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)) → [None](https://docs.python.org/3/library/constants.html#None)
+#### plot_graph(graph: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Visualize a CalculationForest graph.
 
-#### plot_nodes(nodes: [list](https://docs.python.org/3/library/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]) → [None](https://docs.python.org/3/library/constants.html#None)
+#### plot_nodes(nodes: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Plot a list of nodes based on edges found in exploded_calcs.
 
-#### plot(graph: Literal['full_digraph', 'seeded_digraph', 'forest']) → [None](https://docs.python.org/3/library/constants.html#None)
+#### plot(graph: Literal['full_digraph', 'seeded_digraph', 'forest']) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Visualize various stages of the calculation forest.
 
-#### leafy_data(exploded_data: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), value_col: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### leafy_data(exploded_data: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), value_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Use the calculation forest to prune the exploded dataframe.
 
@@ -759,7 +759,7 @@ tabular representation of the calculation forest that can be inspected in Excel.
 Include inter-layer calculation weights and tags associated with the nodes pre
 propagation.
 
-### pudl.output.ferc1.nodes_to_df(calc_forest: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph), nodes: [list](https://docs.python.org/3/library/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.output.ferc1.nodes_to_df(calc_forest: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph), nodes: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Construct a dataframe from a list of nodes, including their annotations.
 
@@ -796,9 +796,9 @@ Check if tags got propagated.
     many of the explosion tables so we will filter it before checking if the tag was
     propagated.
 * **Raises:**
-  * [**AssertionError**](https://docs.python.org/3/library/exceptions.html#AssertionError) – If there are more manually compiled tags for the `xbrl_factoids`
+  * [**AssertionError**](https://docs.python.org/3/builtins/exceptions.html#AssertionError) – If there are more manually compiled tags for the `xbrl_factoids`
     in `df` than found in `_out_ferc1__explosion_tags`.
-  * [**AssertionError**](https://docs.python.org/3/library/exceptions.html#AssertionError) – If there are more manually compiled tags for the correction
+  * [**AssertionError**](https://docs.python.org/3/builtins/exceptions.html#AssertionError) – If there are more manually compiled tags for the correction
     `xbrl_factoids` in `df` than found in `_out_ferc1__explosion_tags`.
 
 ### pudl.output.ferc1.check_for_correction_xbrl_factoids_with_tag(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), propagated_tag: Literal['in_rate_base'])
@@ -813,7 +813,7 @@ Check if any correction records have tags.
     tags.
   * **propagated_tag** – name of tag. Currently `in_rate_base` is the only propagated tag.
 * **Raises:**
-  [**AssertionError**](https://docs.python.org/3/library/exceptions.html#AssertionError) – If there are zero correction `xbrl_factoids` in `df` with tags.
+  [**AssertionError**](https://docs.python.org/3/builtins/exceptions.html#AssertionError) – If there are zero correction `xbrl_factoids` in `df` with tags.
 
 ### pudl.output.ferc1.check_specs_detailed_tables_tags
 
@@ -855,11 +855,11 @@ Replace the dimension columns with their aggregatable counterparts.
 
 Define some simple checks that can run on FERC 1 assets.
 
-#### name *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### name *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### asset *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### asset *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### idx *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[int](https://docs.python.org/3/library/functions.html#int), [int](https://docs.python.org/3/library/functions.html#int)]*
+#### idx *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[int](https://docs.python.org/3/builtins/functions.html#int), [int](https://docs.python.org/3/builtins/functions.html#int)]*
 
 ### pudl.output.ferc1.check_specs
 
@@ -884,7 +884,7 @@ base data.
 `cash_working_capital` is a new `xbrl_factiod` because it is not reported
 in the FERC1 data, but it is included in rate base so we had to calculate it.
 
-### pudl.output.ferc1.disaggregate_null_or_total_tag(rate_base_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), tag_col: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.output.ferc1.disaggregate_null_or_total_tag(rate_base_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), tag_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Disaggregate records with an null or total value in the `tag_col`.
 
@@ -904,7 +904,7 @@ rate base table. This is done in two steps:
   * **tag_col** – column with the tags that contains null or total values to be
     disaggregated.
 
-### pudl.output.ferc1.get_column_value_ratio(rate_base_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), ratio_idx: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], column: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.output.ferc1.get_column_value_ratio(rate_base_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), ratio_idx: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], column: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Calculate the percentage of the `ending_balance` within each value in the column.
 

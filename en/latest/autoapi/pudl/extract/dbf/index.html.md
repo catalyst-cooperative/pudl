@@ -39,11 +39,11 @@ Generalized DBF extractor for FERC data.
 
 ### *exception* pudl.extract.dbf.DbcFileMissingError
 
-Bases: [`Exception`](https://docs.python.org/3/library/exceptions.html#Exception)
+Bases: [`Exception`](https://docs.python.org/3/builtins/exceptions.html#Exception)
 
 This is raised when the DBC index file is missing.
 
-### *class* pudl.extract.dbf.DbfTableSchema(table_name: [str](https://docs.python.org/3/library/stdtypes.html#str))
+### *class* pudl.extract.dbf.DbfTableSchema(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str))
 
 Simple data-wrapper for the fox-pro table schema.
 
@@ -55,19 +55,19 @@ Simple data-wrapper for the fox-pro table schema.
 
 #### \_short_name_map
 
-#### add_column(col_name: [str](https://docs.python.org/3/library/stdtypes.html#str), col_type: [type](../../metadata/classes/index.html.md#pudl.metadata.classes.Field.type)[[sqlalchemy.types.TypeEngine](https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine)] | [sqlalchemy.types.TypeEngine](https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine), short_name: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None)
+#### add_column(col_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), col_type: [type](../../metadata/classes/index.html.md#pudl.metadata.classes.Field.type)[[sqlalchemy.types.TypeEngine](https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine)] | [sqlalchemy.types.TypeEngine](https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine), short_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None)
 
 Adds a new column to this table schema.
 
-#### get_columns() → [collections.abc.Iterator](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterator)[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), [type](../../metadata/classes/index.html.md#pudl.metadata.classes.Field.type)[[sqlalchemy.types.TypeEngine](https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine)] | [sqlalchemy.types.TypeEngine](https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine)]]
+#### get_columns() → [collections.abc.Iterator](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterator)[[tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [type](../../metadata/classes/index.html.md#pudl.metadata.classes.Field.type)[[sqlalchemy.types.TypeEngine](https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine)] | [sqlalchemy.types.TypeEngine](https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine)]]
 
 Iterates over the (column_name, column_type) pairs.
 
-#### get_column_names() → [set](https://docs.python.org/3/library/stdtypes.html#set)[[str](https://docs.python.org/3/library/stdtypes.html#str)]
+#### get_column_names() → [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]
 
 Returns set of long column names.
 
-#### get_column_rename_map() → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)]
+#### get_column_rename_map() → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]
 
 Returns dictionary that maps from short to long column names.
 
@@ -78,7 +78,7 @@ Creates SQLAlchemy table described by this instance.
 * **Parameters:**
   **sa_meta** – new table will be written to this MetaData object.
 
-### *class* pudl.extract.dbf.FercDbfArchive(zipfile: FercDbfArchive._\_init_\_.zipfile, dbc_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), table_file_map: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)], partition: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any], field_parser: [type](../../metadata/classes/index.html.md#pudl.metadata.classes.Field.type)[dbfread.FieldParser])
+### *class* pudl.extract.dbf.FercDbfArchive(zipfile: FercDbfArchive._\_init_\_.zipfile, dbc_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), table_file_map: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)], partition: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any], field_parser: [type](../../metadata/classes/index.html.md#pudl.metadata.classes.Field.type)[dbfread.FieldParser])
 
 Represents API for accessing files within a single DBF archive.
 
@@ -97,25 +97,25 @@ Typically, archive contains data for a single year and single FERC form dataset
 
 #### field_parser
 
-#### \_table_schemas *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]]*
+#### \_table_schemas *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]]*
 
-#### get_file(filename: [str](https://docs.python.org/3/library/stdtypes.html#str)) → IO[[bytes](https://docs.python.org/3/library/stdtypes.html#bytes)]
+#### get_file(filename: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → IO[[bytes](https://docs.python.org/3/builtins/stdtypes.html#bytes)]
 
 Opens the file within this archive.
 
-#### get_db_schema() → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]]
+#### get_db_schema() → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]]
 
 Returns dict with table names as keys, and list of column names as values.
 
-#### get_table_dbf(table_name: [str](https://docs.python.org/3/library/stdtypes.html#str)) → dbfread.DBF
+#### get_table_dbf(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → dbfread.DBF
 
 Opens the DBF for a given table.
 
-#### get_table_schema(table_name: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [DbfTableSchema](#pudl.extract.dbf.DbfTableSchema)
+#### get_table_schema(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [DbfTableSchema](#pudl.extract.dbf.DbfTableSchema)
 
 Returns TableSchema for a given table and a given year.
 
-#### load_table(table_name: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### load_table(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Returns dataframe that holds data for a table contained within this archive.
 
@@ -128,11 +128,11 @@ Bases: `Protocol`
 
 This is the interface definition for dealing with fox-pro datastores.
 
-#### get_dataset() → [str](https://docs.python.org/3/library/stdtypes.html#str)
+#### get_dataset() → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Returns name of the dataset that this datastore provides access to.
 
-#### get_table_names() → [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]
+#### get_table_names() → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]
 
 Returns list of all available table names.
 
@@ -140,11 +140,11 @@ Returns list of all available table names.
 
 Returns single archive matching specific filters.
 
-#### get_table_schema(table_name: [str](https://docs.python.org/3/library/stdtypes.html#str), year: [int](https://docs.python.org/3/library/functions.html#int)) → [DbfTableSchema](#pudl.extract.dbf.DbfTableSchema)
+#### get_table_schema(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), year: [int](https://docs.python.org/3/builtins/functions.html#int)) → [DbfTableSchema](#pudl.extract.dbf.DbfTableSchema)
 
 Returns schema for a given table and a given year.
 
-#### load_table_dfs(table_name: [str](https://docs.python.org/3/library/stdtypes.html#str), partitions: [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [None](https://docs.python.org/3/library/constants.html#None)
+#### load_table_dfs(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), partitions: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Returns dataframe that contains data for a given table across given years.
 
@@ -154,7 +154,7 @@ Bases: `dbfread.FieldParser`
 
 A custom DBF parser to deal with bad FERC data types.
 
-#### parseN(field, data: [bytes](https://docs.python.org/3/library/stdtypes.html#bytes)) → [int](https://docs.python.org/3/library/functions.html#int) | [float](https://docs.python.org/3/library/functions.html#float) | [None](https://docs.python.org/3/library/constants.html#None)
+#### parseN(field, data: [bytes](https://docs.python.org/3/builtins/stdtypes.html#bytes)) → [int](https://docs.python.org/3/builtins/functions.html#int) | [float](https://docs.python.org/3/builtins/functions.html#float) | [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Augments the Numeric DBF parser to account for bad FERC data.
 
@@ -185,7 +185,7 @@ which should result in an error if encountered.
 * **Type:**
   Dict
 
-### *class* pudl.extract.dbf.PartitionedDataFrame(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), partition: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any])
+### *class* pudl.extract.dbf.PartitionedDataFrame(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), partition: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any])
 
 This class bundles [`pandas.DataFrame`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) with partition information.
 
@@ -193,7 +193,7 @@ This class bundles [`pandas.DataFrame`](https://pandas.pydata.org/pandas-docs/st
 
 #### partition
 
-### *class* pudl.extract.dbf.FercDbfReader(datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore), dataset: [str](https://docs.python.org/3/library/stdtypes.html#str), field_parser: [type](../../metadata/classes/index.html.md#pudl.metadata.classes.Field.type)[dbfread.FieldParser] = FercFieldParser)
+### *class* pudl.extract.dbf.FercDbfReader(datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore), dataset: [str](https://docs.python.org/3/builtins/stdtypes.html#str), field_parser: [type](../../metadata/classes/index.html.md#pudl.metadata.classes.Field.type)[dbfread.FieldParser] = FercFieldParser)
 
 Wrapper to provide standardized access to FERC DBF databases.
 
@@ -209,27 +209,27 @@ Wrapper to provide standardized access to FERC DBF databases.
 
 #### \_table_file_map
 
-#### get_dataset() → [str](https://docs.python.org/3/library/stdtypes.html#str)
+#### get_dataset() → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Return the name of the dataset this datastore works with.
 
-#### \_open_csv_resource(base_filename: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [csv.DictReader](https://docs.python.org/3/library/csv.html#csv.DictReader)
+#### \_open_csv_resource(base_filename: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [csv.DictReader](https://docs.python.org/3/library/csv.html#csv.DictReader)
 
 Open the given resource file as [`csv.DictReader`](https://docs.python.org/3/library/csv.html#csv.DictReader).
 
-#### get_archive(year: [int](https://docs.python.org/3/library/functions.html#int), \*\*filters) → [FercDbfArchive](#pudl.extract.dbf.FercDbfArchive)
+#### get_archive(year: [int](https://docs.python.org/3/builtins/functions.html#int), \*\*filters) → [FercDbfArchive](#pudl.extract.dbf.FercDbfArchive)
 
 Returns single dbf archive matching given filters.
 
-#### get_table_names() → [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]
+#### get_table_names() → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]
 
 Returns list of tables that this datastore provides access to.
 
-#### *static* \_normalize(filters: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)]
+#### *static* \_normalize(filters: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]
 
 Casts partition values to lowercase strings.
 
-#### valid_partition_filter(fl: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]) → [bool](https://docs.python.org/3/library/functions.html#bool)
+#### valid_partition_filter(fl: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]) → [bool](https://docs.python.org/3/builtins/functions.html#bool)
 
 Returns True if a given filter fl is considered to be valid.
 
@@ -237,7 +237,7 @@ This can be used to eliminate partitions that are not suitable for processing,
 e.g. for early years of FERC Form 2, databases marked with part=1 or part=2 are
 not suitable.
 
-#### load_table_dfs(table_name: [str](https://docs.python.org/3/library/stdtypes.html#str), partitions: [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[PartitionedDataFrame](#pudl.extract.dbf.PartitionedDataFrame)]
+#### load_table_dfs(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), partitions: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]]) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[PartitionedDataFrame](#pudl.extract.dbf.PartitionedDataFrame)]
 
 Returns all data for a given table.
 
@@ -299,15 +299,15 @@ Returns dataset relevant data configuration from ferc_to_sqlite_data_config.
 
 Returns appropriate instance of AbstractFercDbfReader to access the data.
 
-#### get_db_path() → [str](https://docs.python.org/3/library/stdtypes.html#str)
+#### get_db_path() → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Returns the path to the sqlite database.
 
-#### get_db_uri() → [str](https://docs.python.org/3/library/stdtypes.html#str)
+#### get_db_uri() → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Returns the connection string for the sqlite database.
 
-#### \_clean_frictionless_types(type_: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+#### \_clean_frictionless_types(type_: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Normalize types from SQLite to frictionless.
 
@@ -339,7 +339,7 @@ Create sqlalchemy engine and metadata.
 
 Creates database schema based on the input tables.
 
-#### transform_table(table_name: [str](https://docs.python.org/3/library/stdtypes.html#str), in_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### transform_table(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), in_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Transforms the content of a single table.
 
@@ -350,11 +350,11 @@ been loaded from fox pro database and before it’s written to sqlite database.
   * **table_name** – name of the table that the dataframe is associated with
   * **in_df** – dataframe that holds all records.
 
-#### *static* is_valid_partition(fl: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]) → [bool](https://docs.python.org/3/library/functions.html#bool)
+#### *static* is_valid_partition(fl: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]) → [bool](https://docs.python.org/3/builtins/functions.html#bool)
 
 Returns True if the partition filter should be considered for processing.
 
-#### aggregate_table_frames(table_name: [str](https://docs.python.org/3/library/stdtypes.html#str), dfs: [list](https://docs.python.org/3/library/stdtypes.html#list)[[PartitionedDataFrame](#pudl.extract.dbf.PartitionedDataFrame)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [None](https://docs.python.org/3/library/constants.html#None)
+#### aggregate_table_frames(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), dfs: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[PartitionedDataFrame](#pudl.extract.dbf.PartitionedDataFrame)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Function to aggregate partitioned data frames into a single one.
 
@@ -387,7 +387,7 @@ names so we can’t use it.
 Maintainer note: this function was adapted from ferc-xbrl-extractor; changes
 here should be considered for sync there and vice-versa.
 
-### pudl.extract.dbf.convert_and_validate_datapackage_sqlite_to_parquet(datapackage_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)
+### pudl.extract.dbf.convert_and_validate_datapackage_sqlite_to_parquet(datapackage_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)
 
 Convert the SQLite datapackage into one that points at Parquet files.
 
@@ -397,7 +397,7 @@ Convert the SQLite datapackage into one that points at Parquet files.
 Maintainer note: this function was adapted from ferc-xbrl-extractor; changes
 here should be considered for sync there and vice-versa.
 
-### pudl.extract.dbf.write_datapackage(datapackage: [dict](https://docs.python.org/3/library/stdtypes.html#dict), output_dir: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path))
+### pudl.extract.dbf.write_datapackage(datapackage: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict), output_dir: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path))
 
 Write a datapackage to <output_dir>/datapackage.json.
 
@@ -406,7 +406,7 @@ output_dir must exist.
 Maintainer note: this function was adapted from ferc-xbrl-extractor; changes
 here should be considered for sync there and vice-versa.
 
-### pudl.extract.dbf.add_key_constraints(meta: sqlalchemy.MetaData, pk_table: [str](https://docs.python.org/3/library/stdtypes.html#str), column: [str](https://docs.python.org/3/library/stdtypes.html#str), pk_column: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None) → sqlalchemy.MetaData
+### pudl.extract.dbf.add_key_constraints(meta: sqlalchemy.MetaData, pk_table: [str](https://docs.python.org/3/builtins/stdtypes.html#str), column: [str](https://docs.python.org/3/builtins/stdtypes.html#str), pk_column: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → sqlalchemy.MetaData
 
 Adds primary and foreign key to tables present in meta.
 
@@ -418,7 +418,7 @@ Adds primary and foreign key to tables present in meta.
   * **pk_column** – (optional) if specified, this is the primary key column name in
     the table. If not specified, it is assumed that this is the same as pk_column.
 
-### pudl.extract.dbf.deduplicate_by_year(dfs: [list](https://docs.python.org/3/library/stdtypes.html#list)[[PartitionedDataFrame](#pudl.extract.dbf.PartitionedDataFrame)], pk_column: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.extract.dbf.deduplicate_by_year(dfs: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[PartitionedDataFrame](#pudl.extract.dbf.PartitionedDataFrame)], pk_column: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Deduplicate records by year, keeping the most recent version of each record.
 

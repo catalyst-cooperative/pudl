@@ -85,16 +85,16 @@ More on state-to-timezone conversion here:
 [https://en.wikipedia.org/wiki/List_of_time_offsets_by_U.S._state_and_territory](https://en.wikipedia.org/wiki/List_of_time_offsets_by_U.S._state_and_territory)
 
 * **Parameters:**
-  * **lng** ([*int*](https://docs.python.org/3/library/functions.html#int) *or* *float in* *[* *-180* *,**180* *]*) – Longitude, in decimal degrees
-  * **lat** ([*int*](https://docs.python.org/3/library/functions.html#int) *or* *float in* *[* *-90* *,* *90* *]*) – Latitude, in decimal degrees
-  * **state** ([*str*](https://docs.python.org/3/library/stdtypes.html#str)) – Abbreviation for US state or Canadian province
-  * **strict** ([*bool*](https://docs.python.org/3/library/functions.html#bool)) – Raise an error if no timezone is found?
+  * **lng** ([*int*](https://docs.python.org/3/builtins/functions.html#int) *or* *float in* *[* *-180* *,**180* *]*) – Longitude, in decimal degrees
+  * **lat** ([*int*](https://docs.python.org/3/builtins/functions.html#int) *or* *float in* *[* *-90* *,* *90* *]*) – Latitude, in decimal degrees
+  * **state** ([*str*](https://docs.python.org/3/builtins/stdtypes.html#str)) – Abbreviation for US state or Canadian province
+  * **strict** ([*bool*](https://docs.python.org/3/builtins/functions.html#bool)) – Raise an error if no timezone is found?
 * **Returns:**
   The timezone (as an IANA string) for that location.
 * **Return type:**
-  [str](https://docs.python.org/3/library/stdtypes.html#str)
+  [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
-### pudl.transform.eia.occurrence_consistency(entity_idx: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], compiled_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), col: [str](https://docs.python.org/3/library/stdtypes.html#str), cols_to_consit: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], strictness: [float](https://docs.python.org/3/library/functions.html#float) = 0.7) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.transform.eia.occurrence_consistency(entity_idx: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], compiled_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), col: [str](https://docs.python.org/3/builtins/stdtypes.html#str), cols_to_consit: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], strictness: [float](https://docs.python.org/3/builtins/functions.html#float) = 0.7) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Find the occurrence of entities & the consistency of records.
 
@@ -121,7 +121,7 @@ information we can determine if the reported records are strict enough.
   A transformed version of compiled_df with NaNs removed and with new columns with
   information about the consistency of the reported values.
 
-### pudl.transform.eia.\_lat_long(dirty_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), clean_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), entity_id_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), entity_idx: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], col: [str](https://docs.python.org/3/library/stdtypes.html#str), cols_to_consit: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], round_to: [int](https://docs.python.org/3/library/functions.html#int) = 2, \*\*kwargs) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.transform.eia.\_lat_long(dirty_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), clean_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), entity_id_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), entity_idx: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], col: [str](https://docs.python.org/3/builtins/stdtypes.html#str), cols_to_consit: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], round_to: [int](https://docs.python.org/3/builtins/functions.html#int) = 2, \*\*kwargs) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Harvests more complete lat/long in special cases.
 
@@ -147,7 +147,7 @@ consistent records.
   clean_df. Some will have harvested records that were found after rounding. Some
   will have NaNs if no consistently reported records were found.
 
-### pudl.transform.eia.\_last_operating_date(dirty_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), clean_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), entity_id_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), entity_idx: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], col: [str](https://docs.python.org/3/library/stdtypes.html#str), cols_to_consit: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], \*\*kwargs) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.transform.eia.\_last_operating_date(dirty_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), clean_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), entity_id_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), entity_idx: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], col: [str](https://docs.python.org/3/builtins/stdtypes.html#str), cols_to_consit: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], \*\*kwargs) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 When there’s no consistent generator operating date, take the last reported one.
 
@@ -204,14 +204,14 @@ for EIA 923, 2011-2017 for EIA 860).
 * **Returns:**
   The same plants_entity table, with the addition of some missing EPA CEMS plants.
 
-### pudl.transform.eia.\_compile_all_entity_records(entity: [EiaEntity](#pudl.transform.eia.EiaEntity), clean_dfs: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.transform.eia.\_compile_all_entity_records(entity: [EiaEntity](#pudl.transform.eia.EiaEntity), clean_dfs: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Compile all of the entity records from each table they appear in.
 
 Comb through each of the dataframes in clean_dfs to pull out every instance of the
 entity id.
 
-### pudl.transform.eia.\_manage_strictness(col: [str](https://docs.python.org/3/library/stdtypes.html#str), special_case_strictness: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [float](https://docs.python.org/3/library/functions.html#float)]) → [float](https://docs.python.org/3/library/functions.html#float)
+### pudl.transform.eia.\_manage_strictness(col: [str](https://docs.python.org/3/builtins/stdtypes.html#str), special_case_strictness: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [float](https://docs.python.org/3/builtins/functions.html#float)]) → [float](https://docs.python.org/3/builtins/functions.html#float)
 
 Manage the strictness level for each column.
 
@@ -222,7 +222,7 @@ Manage the strictness level for each column.
     0.7. If any column you want to have a different consistency requirement,
     add it into this special case dictionary.
 
-### pudl.transform.eia.harvest_entity_tables(entity: [EiaEntity](#pudl.transform.eia.EiaEntity), clean_dfs: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)], special_case_strictness: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [float](https://docs.python.org/3/library/functions.html#float)] = {}, debug: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)
+### pudl.transform.eia.harvest_entity_tables(entity: [EiaEntity](#pudl.transform.eia.EiaEntity), clean_dfs: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)], special_case_strictness: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [float](https://docs.python.org/3/builtins/functions.html#float)] = {}, debug: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)
 
 Compile consistent records for various entities.
 
@@ -263,7 +263,7 @@ the real world.
   col_dfs (a dictionary of dataframes, one per harvested column, with information)
   about their consistency and the values which were harvested)
 * **Raises:**
-  * [**AssertionError**](https://docs.python.org/3/library/exceptions.html#AssertionError) – If the consistency of any record value is <90% (when
+  * [**AssertionError**](https://docs.python.org/3/builtins/exceptions.html#AssertionError) – If the consistency of any record value is <90% (when
   * **debug=False****)** – 
 
 ### pudl.transform.eia.core_eia860_\_assn_boiler_generator(context, \*\*clean_dfs) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
@@ -293,13 +293,13 @@ generation units, at least for 2014 and later.
 * **Returns:**
   A dataframe containing the boiler generator associations.
 * **Raises:**
-  * [**AssertionError**](https://docs.python.org/3/library/exceptions.html#AssertionError) – If the boiler - generator association graphs are not bi-partite,
+  * [**AssertionError**](https://docs.python.org/3/builtins/exceptions.html#AssertionError) – If the boiler - generator association graphs are not bi-partite,
     meaning generators only connect to boilers, and boilers only connect to
     generators.
-  * [**AssertionError**](https://docs.python.org/3/library/exceptions.html#AssertionError) – If all boilers do not end up with the same unit_id each year.
-  * [**AssertionError**](https://docs.python.org/3/library/exceptions.html#AssertionError) – If all generators do not end up with the same unit_id each year.
+  * [**AssertionError**](https://docs.python.org/3/builtins/exceptions.html#AssertionError) – If all boilers do not end up with the same unit_id each year.
+  * [**AssertionError**](https://docs.python.org/3/builtins/exceptions.html#AssertionError) – If all generators do not end up with the same unit_id each year.
 
-### pudl.transform.eia.\_restrict_years(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), eia_data_config: [pudl.settings.EiaDataConfig](../../settings/index.html.md#pudl.settings.EiaDataConfig) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.transform.eia.\_restrict_years(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), eia_data_config: [pudl.settings.EiaDataConfig](../../settings/index.html.md#pudl.settings.EiaDataConfig) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Restricts eia years for boiler generator association.
 
@@ -359,13 +359,13 @@ the BA codes:
   `balancing_authority_code_eia` column and an updated corresponding
   `balancing_authority_name_eia` column.
 
-### pudl.transform.eia.harvested_entity_asset_factory(entity: [EiaEntity](#pudl.transform.eia.EiaEntity), io_manager_key: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
+### pudl.transform.eia.harvested_entity_asset_factory(entity: [EiaEntity](#pudl.transform.eia.EiaEntity), io_manager_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
 
 Create an asset definition for the harvested entity tables.
 
 ### pudl.transform.eia.harvested_entities
 
-### pudl.transform.eia.finished_eia_asset_factory(table_name: [str](https://docs.python.org/3/library/stdtypes.html#str), \_core_table_name: [str](https://docs.python.org/3/library/stdtypes.html#str), io_manager_key: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
+### pudl.transform.eia.finished_eia_asset_factory(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), \_core_table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), io_manager_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
 
 An asset factory for finished EIA tables.
 

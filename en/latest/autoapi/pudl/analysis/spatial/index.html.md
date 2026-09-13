@@ -15,20 +15,20 @@ Spatial operations for demand allocation.
 
 ## Module Contents
 
-### pudl.analysis.spatial.check_gdf(gdf: [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame)) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.analysis.spatial.check_gdf(gdf: [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame)) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Check that GeoDataFrame contains (Multi)Polygon geometries with non-zero area.
 
 * **Parameters:**
   **gdf** – GeoDataFrame.
 * **Raises:**
-  * [**TypeError**](https://docs.python.org/3/library/exceptions.html#TypeError) – Object is not a GeoDataFrame.
-  * [**AttributeError**](https://docs.python.org/3/library/exceptions.html#AttributeError) – GeoDataFrame has no geometry.
-  * [**TypeError**](https://docs.python.org/3/library/exceptions.html#TypeError) – Geometry is not a GeoSeries.
-  * [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – Geometry contains null geometries.
-  * [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – Geometry contains non-(Multi)Polygon geometries.
-  * [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – Geometry contains (Multi)Polygon geometries with zero area.
-  * [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – MultiPolygon contains Polygon geometries with zero area.
+  * [**TypeError**](https://docs.python.org/3/builtins/exceptions.html#TypeError) – Object is not a GeoDataFrame.
+  * [**AttributeError**](https://docs.python.org/3/builtins/exceptions.html#AttributeError) – GeoDataFrame has no geometry.
+  * [**TypeError**](https://docs.python.org/3/builtins/exceptions.html#TypeError) – Geometry is not a GeoSeries.
+  * [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – Geometry contains null geometries.
+  * [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – Geometry contains non-(Multi)Polygon geometries.
+  * [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – Geometry contains (Multi)Polygon geometries with zero area.
+  * [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – MultiPolygon contains Polygon geometries with zero area.
 
 ### pudl.analysis.spatial.polygonize(geom: shapely.geometry.base.BaseGeometry) → shapely.geometry.Polygon | shapely.geometry.MultiPolygon
 
@@ -39,9 +39,9 @@ Convert geometry to (Multi)Polygon.
 * **Returns:**
   Geometry converted to (Multi)Polygon, with all zero-area components removed.
 * **Raises:**
-  [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – Geometry has zero area.
+  [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – Geometry has zero area.
 
-### pudl.analysis.spatial.explode(gdf: [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame), ratios: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [None](https://docs.python.org/3/library/constants.html#None) = None) → [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame)
+### pudl.analysis.spatial.explode(gdf: [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame), ratios: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame)
 
 Explode MultiPolygon to multiple Polygon geometries.
 
@@ -52,12 +52,12 @@ Explode MultiPolygon to multiple Polygon geometries.
     If provided, MultiPolygon cannot self-intersect.
     By default, the original value is used unchanged.
 * **Raises:**
-  [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – Geometry contains self-intersecting MultiPolygon.
+  [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – Geometry contains self-intersecting MultiPolygon.
 * **Returns:**
   GeoDataFrame with each Polygon as a separate row in the GeoDataFrame.
   The index is the number of the source row in the input GeoDataFrame.
 
-### pudl.analysis.spatial.self_union(gdf: [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame), ratios: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [None](https://docs.python.org/3/library/constants.html#None) = None) → [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame)
+### pudl.analysis.spatial.self_union(gdf: [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame), ratios: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame)
 
 Calculate the geometric union of a feature layer with itself.
 
@@ -73,9 +73,9 @@ Each split feature contains the attributes of the original feature.
   GeoDataFrame representing the union of the input features with themselves.
   Its index contains tuples of the index of the original overlapping features.
 * **Raises:**
-  [**NotImplementedError**](https://docs.python.org/3/library/exceptions.html#NotImplementedError) – MultiPolygon geometries are not yet supported.
+  [**NotImplementedError**](https://docs.python.org/3/builtins/exceptions.html#NotImplementedError) – MultiPolygon geometries are not yet supported.
 
-### pudl.analysis.spatial.dissolve(gdf: [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame), by: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[[str](https://docs.python.org/3/library/stdtypes.html#str)], func: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable) | [str](https://docs.python.org/3/library/stdtypes.html#str) | [list](https://docs.python.org/3/library/stdtypes.html#list) | [dict](https://docs.python.org/3/library/stdtypes.html#dict), how: Literal['union', 'first'] | [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[geopandas.GeoSeries](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoSeries.html#geopandas.GeoSeries)], shapely.geometry.base.BaseGeometry] = 'union') → [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame)
+### pudl.analysis.spatial.dissolve(gdf: [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame), by: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], func: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable) | [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [list](https://docs.python.org/3/builtins/stdtypes.html#list) | [dict](https://docs.python.org/3/builtins/stdtypes.html#dict), how: Literal['union', 'first'] | [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[geopandas.GeoSeries](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoSeries.html#geopandas.GeoSeries)], shapely.geometry.base.BaseGeometry] = 'union') → [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame)
 
 Dissolve layer by aggregating features based on common attributes.
 
@@ -91,7 +91,7 @@ Dissolve layer by aggregating features based on common attributes.
   GeoDataFrame with dissolved geometry and data columns,
   and grouping columns set as the index.
 
-### pudl.analysis.spatial.overlay(\*gdfs: [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame), how: Literal['intersection', 'union', 'identity', 'symmetric_difference', 'difference'] = 'intersection', ratios: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [None](https://docs.python.org/3/library/constants.html#None) = None) → [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame)
+### pudl.analysis.spatial.overlay(\*gdfs: [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame), how: Literal['intersection', 'union', 'identity', 'symmetric_difference', 'difference'] = 'intersection', ratios: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame)
 
 Overlay multiple layers incrementally.
 
@@ -114,10 +114,10 @@ feature from each layer (null if none) could be returned as the index.
   * **ratios** – Names of columns to rescale by the area fraction of the split feature
     relative to the original. By default, the original value is used unchanged.
 * **Raises:**
-  [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – Duplicate column names in layers.
+  [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – Duplicate column names in layers.
 * **Returns:**
   GeoDataFrame with the geometries and attributes resulting from the overlay.
 
-### pudl.analysis.spatial.get_data_columns(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [list](https://docs.python.org/3/library/stdtypes.html#list)
+### pudl.analysis.spatial.get_data_columns(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)
 
 Return list of columns, ignoring geometry.

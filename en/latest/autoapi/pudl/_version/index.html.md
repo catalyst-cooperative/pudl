@@ -12,14 +12,14 @@
 
 ## Module Contents
 
-### pudl._version.version *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+### pudl._version.version *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-### pudl._version.\_\_version_\_ *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+### pudl._version.\_\_version_\_ *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-### pudl._version.\_\_version_tuple_\_ *: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[int](https://docs.python.org/3/library/functions.html#int) | [str](https://docs.python.org/3/library/stdtypes.html#str), ...]*
+### pudl._version.\_\_version_tuple_\_ *: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[int](https://docs.python.org/3/builtins/functions.html#int) | [str](https://docs.python.org/3/builtins/stdtypes.html#str), ...]*
 
-### pudl._version.version_tuple *: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[int](https://docs.python.org/3/library/functions.html#int) | [str](https://docs.python.org/3/library/stdtypes.html#str), ...]*
+### pudl._version.version_tuple *: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[int](https://docs.python.org/3/builtins/functions.html#int) | [str](https://docs.python.org/3/builtins/stdtypes.html#str), ...]*
 
-### pudl._version.commit_id *: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)*
+### pudl._version.commit_id *: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)*
 
-### pudl._version.\_\_commit_id_\_ *: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)*
+### pudl._version.\_\_commit_id_\_ *: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)*

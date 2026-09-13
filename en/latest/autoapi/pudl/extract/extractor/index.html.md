@@ -33,7 +33,7 @@ Generic functionality for extractors.
 
 ### pudl.extract.extractor.logger
 
-### *class* pudl.extract.extractor.GenericMetadata(dataset_name: [str](https://docs.python.org/3/library/stdtypes.html#str))
+### *class* pudl.extract.extractor.GenericMetadata(dataset_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str))
 
 Load generic metadata from Python package data.
 
@@ -52,31 +52,31 @@ It expects the following kinds of files:
 
 #### \_column_map
 
-#### get_dataset_name() → [str](https://docs.python.org/3/library/stdtypes.html#str)
+#### get_dataset_name() → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Returns the name of the dataset described by this metadata.
 
-#### \_load_csv(package: [str](https://docs.python.org/3/library/stdtypes.html#str), filename: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### \_load_csv(package: [str](https://docs.python.org/3/builtins/stdtypes.html#str), filename: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Load metadata from a filename that is found in a package.
 
-#### \_load_column_maps(column_map_pkg: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)
+#### \_load_column_maps(column_map_pkg: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)
 
 Create a dictionary of all column mapping CSVs to use in get_column_map().
 
-#### \_get_partition_selection(partition: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [PartitionSelection](#pudl.extract.extractor.PartitionSelection)]) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+#### \_get_partition_selection(partition: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [PartitionSelection](#pudl.extract.extractor.PartitionSelection)]) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Grab the partition key.
 
-#### get_all_pages() → [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]
+#### get_all_pages() → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]
 
 Returns list of all known pages.
 
-#### get_all_columns(page) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]
+#### get_all_columns(page) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]
 
 Returns list of all pudl columns for a given page across all partitions.
 
-#### get_column_map(page, \*\*partition) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)]
+#### get_column_map(page, \*\*partition) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]
 
 Return dictionary of original columns to renamed columns for renaming in a given partition and page.
 
@@ -102,9 +102,9 @@ List of supported pages that should not be extracted.
 
 #### ds
 
-#### cols_added *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= []*
+#### cols_added *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= []*
 
-#### *abstractmethod* source_filename(page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition: [PartitionSelection](#pudl.extract.extractor.PartitionSelection)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+#### *abstractmethod* source_filename(page: [str](https://docs.python.org/3/builtins/stdtypes.html#str), \*\*partition: [PartitionSelection](#pudl.extract.extractor.PartitionSelection)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Produce the source file name as it will appear in the archive.
 
@@ -117,7 +117,7 @@ Produce the source file name as it will appear in the archive.
 * **Returns:**
   string name of the source file
 
-#### *abstractmethod* load_source(page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition: [PartitionSelection](#pudl.extract.extractor.PartitionSelection)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### *abstractmethod* load_source(page: [str](https://docs.python.org/3/builtins/stdtypes.html#str), \*\*partition: [PartitionSelection](#pudl.extract.extractor.PartitionSelection)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Produce the source data for the given page and partition(s).
 
@@ -130,31 +130,31 @@ Produce the source data for the given page and partition(s).
 * **Returns:**
   pd.DataFrame instance with the source data
 
-#### process_raw(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition: [PartitionSelection](#pudl.extract.extractor.PartitionSelection)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### process_raw(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), page: [str](https://docs.python.org/3/builtins/stdtypes.html#str), \*\*partition: [PartitionSelection](#pudl.extract.extractor.PartitionSelection)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Takes any special steps for processing raw data and renaming columns.
 
-#### process_renamed(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition: [PartitionSelection](#pudl.extract.extractor.PartitionSelection)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### process_renamed(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), page: [str](https://docs.python.org/3/builtins/stdtypes.html#str), \*\*partition: [PartitionSelection](#pudl.extract.extractor.PartitionSelection)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Takes any special steps for processing data after columns are renamed.
 
-#### get_page_cols(page: [str](https://docs.python.org/3/library/stdtypes.html#str), partition_selection: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [pandas.RangeIndex](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.RangeIndex.html#pandas.RangeIndex)
+#### get_page_cols(page: [str](https://docs.python.org/3/builtins/stdtypes.html#str), partition_selection: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [pandas.RangeIndex](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.RangeIndex.html#pandas.RangeIndex)
 
 Get the columns for a particular page and partition key.
 
-#### validate(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition: [PartitionSelection](#pudl.extract.extractor.PartitionSelection))
+#### validate(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), page: [str](https://docs.python.org/3/builtins/stdtypes.html#str), \*\*partition: [PartitionSelection](#pudl.extract.extractor.PartitionSelection))
 
 Check if there are any missing or extra columns.
 
-#### process_final_page(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), page: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### process_final_page(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), page: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Final processing stage applied to a page DataFrame.
 
-#### combine(dfs: [list](https://docs.python.org/3/library/stdtypes.html#list)[[pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)], page: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### combine(dfs: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)], page: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Concatenate dataframes into one, take any special steps for processing final page.
 
-#### extract(\*\*partitions: [PartitionSelection](#pudl.extract.extractor.PartitionSelection)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]
+#### extract(\*\*partitions: [PartitionSelection](#pudl.extract.extractor.PartitionSelection)) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]
 
 Extracts dataframes.
 
@@ -168,7 +168,7 @@ DataFrames containing data across given years.
   {‘year_month’: ‘2020-08’}
   {‘form’: ‘gas_distribution’, ‘year’=’2020’}
 
-### pudl.extract.extractor.concat_pages(paged_dfs: [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]]) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]
+### pudl.extract.extractor.concat_pages(paged_dfs: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]]) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]
 
 Concatenate similar pages of data from different years into single dataframes.
 
@@ -189,11 +189,11 @@ impact the overall concurrency of the DAG much.
   A dictionary of DataFrames keyed by page name, where the DataFrame contains that
   page’s data from all extracted years concatenated together.
 
-### pudl.extract.extractor.\_is_dict_str_strint(\_context: [dagster.TypeCheckContext](https://docs.dagster.io/api/dagster/execution/#dagster.TypeCheckContext), x: Any) → [bool](https://docs.python.org/3/library/functions.html#bool)
+### pudl.extract.extractor.\_is_dict_str_strint(\_context: [dagster.TypeCheckContext](https://docs.dagster.io/api/dagster/execution/#dagster.TypeCheckContext), x: Any) → [bool](https://docs.python.org/3/builtins/functions.html#bool)
 
 ### pudl.extract.extractor.dagster_dict_str_strint
 
-### pudl.extract.extractor.partition_extractor_factory(extractor_cls: [type](../../metadata/classes/index.html.md#pudl.metadata.classes.Field.type)[[GenericExtractor](#pudl.extract.extractor.GenericExtractor)], name: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [dagster.OpDefinition](https://docs.dagster.io/api/dagster/ops/#dagster.OpDefinition)
+### pudl.extract.extractor.partition_extractor_factory(extractor_cls: [type](../../metadata/classes/index.html.md#pudl.metadata.classes.Field.type)[[GenericExtractor](#pudl.extract.extractor.GenericExtractor)], name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [dagster.OpDefinition](https://docs.dagster.io/api/dagster/ops/#dagster.OpDefinition)
 
 Construct a Dagster op that extracts one partition of data, given an extractor.
 
@@ -201,14 +201,14 @@ Construct a Dagster op that extracts one partition of data, given an extractor.
   * **extractor_cls** – Class of type `Extractor` used to extract the data.
   * **name** – Name of an Excel based dataset (e.g. “eia860”).
 
-### pudl.extract.extractor.partitions_from_data_config_factory(name: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [dagster.OpDefinition](https://docs.dagster.io/api/dagster/ops/#dagster.OpDefinition)
+### pudl.extract.extractor.partitions_from_data_config_factory(name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [dagster.OpDefinition](https://docs.dagster.io/api/dagster/ops/#dagster.OpDefinition)
 
 Construct a Dagster op to get target partitions from data config in Dagster context.
 
 * **Parameters:**
   **name** – Name of an Excel based dataset (e.g. “eia860”).
 
-### pudl.extract.extractor.raw_df_factory(extractor_cls: [type](../../metadata/classes/index.html.md#pudl.metadata.classes.Field.type)[[GenericExtractor](#pudl.extract.extractor.GenericExtractor)], name: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
+### pudl.extract.extractor.raw_df_factory(extractor_cls: [type](../../metadata/classes/index.html.md#pudl.metadata.classes.Field.type)[[GenericExtractor](#pudl.extract.extractor.GenericExtractor)], name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
 
 Return a dagster graph asset to extract raw DataFrames from CSV or Excel files.
 

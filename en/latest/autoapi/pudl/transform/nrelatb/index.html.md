@@ -51,11 +51,11 @@ Bases: [`pydantic.BaseModel`](https://pydantic.dev/docs/validation/latest/api/py
 
 Info needed to convert a selection of the raw NREL table into a normalized table.
 
-#### idx *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+#### idx *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
 Primary key columns of normalized subset table.
 
-#### columns *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+#### columns *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
 Columns reported in raw NREL table that are unique to the [`idx`](#pudl.transform.nrelatb.TableNormalizer.idx).
 
@@ -92,17 +92,17 @@ Info needed to unstack a portion of the NREL ATB table.
 This class defines a portion of the raw ATB table to get the [`transform_unstack()`](#pudl.transform.nrelatb.transform_unstack)
 treatment. The set of tables which get this treatment are defined in [`Unstacker`](#pudl.transform.nrelatb.Unstacker).
 
-#### idx *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+#### idx *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
-#### core_metric_parameters *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+#### core_metric_parameters *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
 Values from the `core_metric_parameter` column to be included in this unstack.
 
-#### *classmethod* idx_are_same_or_subset_of_idx_all(idx: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)])
+#### *classmethod* idx_are_same_or_subset_of_idx_all(idx: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)])
 
 Are the [`idx`](#pudl.transform.nrelatb.TableUnstacker.idx) columns either the same as or a subset of [`IDX_ALL`](#pudl.transform.nrelatb.IDX_ALL)?
 
-#### *property* idx_unstacked *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+#### *property* idx_unstacked *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
 Primary key columns after the table is unstacked.
 
@@ -151,7 +151,7 @@ This class defines all of the tables in the ATB data that get the
 
 #### tech_detail_table *: [TableUnstacker](#pudl.transform.nrelatb.TableUnstacker)*
 
-#### *property* core_metric_parameters_all *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+#### *property* core_metric_parameters_all *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
 Compilation of all of the parameter values from each of the tables.
 
@@ -174,7 +174,7 @@ Transform the data defining the assumptions for the ATB financial cases which va
 
 Right now, this unstacks the table and applies [`broadcast_fixed_charge_rate_across_tech_detail()`](#pudl.transform.nrelatb.broadcast_fixed_charge_rate_across_tech_detail).
 
-### pudl.transform.nrelatb.broadcast_fixed_charge_rate_across_tech_detail(nrelatb_unstacked: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), idx_broadcast: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.transform.nrelatb.broadcast_fixed_charge_rate_across_tech_detail(nrelatb_unstacked: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), idx_broadcast: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 For older years, broadcast the `fixed_charge_rate` parameter across the technical detail columns.
 
@@ -203,7 +203,7 @@ associated records in the rest of the data (the are left_only records in
 Probably we could treat `cost_recovery_period_years` as a categorical column and/or
 figure out ways to fill in these nulls with the right set of merge keys.
 
-### pudl.transform.nrelatb.\_broadcast_core_metric_parameters(nrelatb_unstacked: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), mask_broadcast: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), core_metric_parameters: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], idx_broadcast: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.transform.nrelatb.\_broadcast_core_metric_parameters(nrelatb_unstacked: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), mask_broadcast: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), core_metric_parameters: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], idx_broadcast: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Broadcast a section of a table and fillna with the broadcasted values.
 

@@ -50,23 +50,23 @@ cycle.
 
 ## Module Contents
 
-### pudl.metadata.dtypes.FIELD_DTYPES_POLARS *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [type](../classes/index.html.md#pudl.metadata.classes.Field.type)[polars.DataType] | polars.DataType]*
+### pudl.metadata.dtypes.FIELD_DTYPES_POLARS *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [type](../classes/index.html.md#pudl.metadata.classes.Field.type)[polars.DataType] | polars.DataType]*
 
 Polars data type by simplified PUDL field type.
 
-### pudl.metadata.dtypes.FIELD_DTYPES_DUCKDB *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), duckdb.sqltypes.DuckDBPyType]*
+### pudl.metadata.dtypes.FIELD_DTYPES_DUCKDB *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), duckdb.sqltypes.DuckDBPyType]*
 
 DuckDB data type by simplified PUDL field type.
 
-### pudl.metadata.dtypes.FIELD_DTYPES_PANDAS *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)]*
+### pudl.metadata.dtypes.FIELD_DTYPES_PANDAS *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
 Pandas data type by simplified PUDL field type.
 
-### pudl.metadata.dtypes.FIELD_DTYPES_PYARROW *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pyarrow.DataType](https://arrow.apache.org/docs/python/generated/pyarrow.DataType.html#pyarrow.DataType)]*
+### pudl.metadata.dtypes.FIELD_DTYPES_PYARROW *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pyarrow.DataType](https://arrow.apache.org/docs/python/generated/pyarrow.DataType.html#pyarrow.DataType)]*
 
 Pyarrow data type by simplified PUDL field type.
 
-### pudl.metadata.dtypes.FIELD_DTYPES_SQLALCHEMY *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [type](../classes/index.html.md#pudl.metadata.classes.Field.type)[[sqlalchemy.types.TypeEngine](https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine)] | [sqlalchemy.types.TypeEngine](https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine)]*
+### pudl.metadata.dtypes.FIELD_DTYPES_SQLALCHEMY *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [type](../classes/index.html.md#pudl.metadata.classes.Field.type)[[sqlalchemy.types.TypeEngine](https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine)] | [sqlalchemy.types.TypeEngine](https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine)]*
 
 Generic SQLAlchemy column types by simplified PUDL field type.
 
@@ -81,7 +81,7 @@ dialect enforcing the declared column width – unlike SQLite, which stores ever
 affinity value as an 8-byte IEEE double regardless of the declared type name – still
 gets the right physical size.
 
-### pudl.metadata.dtypes.FIELD_DTYPES_SQLITE *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [type](../classes/index.html.md#pudl.metadata.classes.Field.type)[[sqlalchemy.types.TypeEngine](https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine)] | [sqlalchemy.types.TypeEngine](https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine)]*
+### pudl.metadata.dtypes.FIELD_DTYPES_SQLITE *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [type](../classes/index.html.md#pudl.metadata.classes.Field.type)[[sqlalchemy.types.TypeEngine](https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine)] | [sqlalchemy.types.TypeEngine](https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine)]*
 
 SQLAlchemy column types for the SQLite dialect specifically.
 
@@ -92,23 +92,23 @@ get microsecond precision out of that text column. DuckDB has a native `TIMESTAM
 type that already stores microseconds, so `FIELD_DTYPES_SQLALCHEMY`’s plain
 `sa.DateTime` is correct for it as-is.
 
-### pudl.metadata.dtypes.CONSTRAINT_DTYPES *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [type](../classes/index.html.md#pudl.metadata.classes.Field.type)]*
+### pudl.metadata.dtypes.CONSTRAINT_DTYPES *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [type](../classes/index.html.md#pudl.metadata.classes.Field.type)]*
 
 Python types for field constraints by simplified PUDL field type.
 
-### pudl.metadata.dtypes.PERIODS *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)], [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series) | [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]]*
+### pudl.metadata.dtypes.PERIODS *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)], [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series) | [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]]*
 
 Functions converting datetimes to period start times, by time period.
 
 ### pudl.metadata.dtypes.PudlDtypeBackend
 
-### pudl.metadata.dtypes.\_DTYPE_MAPS_BY_BACKEND *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[PudlDtypeBackend](#pudl.metadata.dtypes.PudlDtypeBackend), [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]*
+### pudl.metadata.dtypes.\_DTYPE_MAPS_BY_BACKEND *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[PudlDtypeBackend](#pudl.metadata.dtypes.PudlDtypeBackend), [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]]*
 
-### pudl.metadata.dtypes.\_get_applicable_dtypes(columns: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], field_namespace: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None), resource: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None), dtype_backend: [PudlDtypeBackend](#pudl.metadata.dtypes.PudlDtypeBackend), strict: [bool](https://docs.python.org/3/library/functions.html#bool)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]
+### pudl.metadata.dtypes.\_get_applicable_dtypes(columns: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], field_namespace: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None), resource: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None), dtype_backend: [PudlDtypeBackend](#pudl.metadata.dtypes.PudlDtypeBackend), strict: [bool](https://docs.python.org/3/builtins/functions.html#bool)) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]
 
 Return the subset of resolved dtypes needed to cast the given columns.
 
-### pudl.metadata.dtypes.get_pudl_dtypes(field_namespace: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, resource: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, dtype_backend: [PudlDtypeBackend](#pudl.metadata.dtypes.PudlDtypeBackend) = 'pandas') → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]
+### pudl.metadata.dtypes.get_pudl_dtypes(field_namespace: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, resource: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, dtype_backend: [PudlDtypeBackend](#pudl.metadata.dtypes.PudlDtypeBackend) = 'pandas') → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]
 
 Compile a dictionary of field dtypes.
 
@@ -122,7 +122,7 @@ Compile a dictionary of field dtypes.
 * **Returns:**
   A mapping of PUDL field names to their associated data types.
 
-### pudl.metadata.dtypes.\_get_pudl_namespace_dtypes(field_namespace: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, dtype_backend: [PudlDtypeBackend](#pudl.metadata.dtypes.PudlDtypeBackend) = 'pandas') → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]
+### pudl.metadata.dtypes.\_get_pudl_namespace_dtypes(field_namespace: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, dtype_backend: [PudlDtypeBackend](#pudl.metadata.dtypes.PudlDtypeBackend) = 'pandas') → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]
 
 Compile a dictionary of field dtypes based on the namespace-level field metadata.
 
@@ -136,7 +136,7 @@ If no field_namespace is provided, the global PUDL field metadata is used.
 * **Returns:**
   A mapping of PUDL field names to their associated data types.
 
-### pudl.metadata.dtypes.\_get_pudl_resource_dtypes(resource: [str](https://docs.python.org/3/library/stdtypes.html#str), dtype_backend: [PudlDtypeBackend](#pudl.metadata.dtypes.PudlDtypeBackend) = 'pandas') → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]
+### pudl.metadata.dtypes.\_get_pudl_resource_dtypes(resource: [str](https://docs.python.org/3/builtins/stdtypes.html#str), dtype_backend: [PudlDtypeBackend](#pudl.metadata.dtypes.PudlDtypeBackend) = 'pandas') → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]
 
 Compile a dictionary of field dtypes for a specific PUDL resource.
 
@@ -148,7 +148,7 @@ Compile a dictionary of field dtypes for a specific PUDL resource.
 * **Returns:**
   A mapping of PUDL field names to their associated data types.
 
-### pudl.metadata.dtypes.apply_pudl_dtypes(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame), field_namespace: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, resource: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, strict: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame)
+### pudl.metadata.dtypes.apply_pudl_dtypes(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame), field_namespace: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, resource: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, strict: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame)
 
 Apply dtypes to those columns in a dataframe that have PUDL types defined.
 
@@ -162,7 +162,7 @@ Apply dtypes to those columns in a dataframe that have PUDL types defined.
 * **Returns:**
   The input dataframe, but with standard PUDL types applied.
 
-### pudl.metadata.dtypes.apply_pudl_dtypes_polars(lf: polars.LazyFrame, field_namespace: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, resource: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, strict: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → polars.LazyFrame
+### pudl.metadata.dtypes.apply_pudl_dtypes_polars(lf: polars.LazyFrame, field_namespace: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, resource: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, strict: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → polars.LazyFrame
 
 Apply dtypes to those columns in a dataframe that have PUDL types defined.
 

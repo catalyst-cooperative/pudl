@@ -101,7 +101,7 @@ described at:
 
 ### pudl.analysis.timeseries_cleaning.logger
 
-### pudl.analysis.timeseries_cleaning.STANDARD_UTC_OFFSETS *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)]*
+### pudl.analysis.timeseries_cleaning.STANDARD_UTC_OFFSETS *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
 Hour offset from Coordinated Universal Time (UTC) by time zone.
 
@@ -127,7 +127,7 @@ Entity ID column(s). Used to group timeseries by entity.
 
 Datetimes in UTC timezone.
 
-#### timezone *: [pandera.typing.Series](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.typing.Series.html#pandera.typing.Series)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [None](https://docs.python.org/3/library/constants.html#None)*
+#### timezone *: [pandera.typing.Series](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.typing.Series.html#pandera.typing.Series)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [None](https://docs.python.org/3/builtins/constants.html#None)*
 
 Local timezone of entity.
 
@@ -157,7 +157,7 @@ Datetimes shifted by UTC offset to align all timeseries’.
 
 Column containing actual values to impute.
 
-#### flags *: [pandera.typing.Series](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.typing.Series.html#pandera.typing.Series)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [None](https://docs.python.org/3/library/constants.html#None)*
+#### flags *: [pandera.typing.Series](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.typing.Series.html#pandera.typing.Series)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [None](https://docs.python.org/3/builtins/constants.html#None)*
 
 Column indicating why value was flagged for imputation.
 
@@ -203,7 +203,7 @@ dtype: datetime64[ns]
 
 Return DataFrame with `datetime_utc` shifted by offset to align timeseries’.
 
-### pudl.analysis.timeseries_cleaning.pivot_aligned_timeseries_dataframe(aligned_df: [pandera.typing.DataFrame](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.typing.DataFrame.html#pandera.typing.DataFrame)[[AlignedTimeseriesDataFrame](#pudl.analysis.timeseries_cleaning.AlignedTimeseriesDataFrame)], value_col: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'value_col') → [pandera.typing.DataFrame](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.typing.DataFrame.html#pandera.typing.DataFrame)[[TimeseriesMatrix](#pudl.analysis.timeseries_cleaning.TimeseriesMatrix)]
+### pudl.analysis.timeseries_cleaning.pivot_aligned_timeseries_dataframe(aligned_df: [pandera.typing.DataFrame](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.typing.DataFrame.html#pandera.typing.DataFrame)[[AlignedTimeseriesDataFrame](#pudl.analysis.timeseries_cleaning.AlignedTimeseriesDataFrame)], value_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'value_col') → [pandera.typing.DataFrame](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.typing.DataFrame.html#pandera.typing.DataFrame)[[TimeseriesMatrix](#pudl.analysis.timeseries_cleaning.TimeseriesMatrix)]
 
 Pivot aligned timeseries dataframe into timeseries matrix and pad if needed.
 
@@ -227,17 +227,17 @@ Container class used to flag values in a timeseries matrix for imputation.
 
 #### flags *: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)*
 
-#### uuid *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### uuid *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
 #### \_\_hash_\_()
 
 Implement hash for lru_cache.
 
-#### *classmethod* from_timeseries_matrix(matrix: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), flags: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries)
+#### *classmethod* from_timeseries_matrix(matrix: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), flags: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries)
 
 Create a timeseries object from a dataframe.
 
-#### to_dataframes() → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]
+#### to_dataframes() → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]
 
 Convert back to a dataframe.
 
@@ -251,7 +251,7 @@ Flags values (if not already flagged) and nulls flagged values.
   * **mask** – Boolean mask of the values to flag.
   * **flag** – Flag name.
 
-### pudl.analysis.timeseries_cleaning.slice_axis(x: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), start: [int](https://docs.python.org/3/library/functions.html#int) | [None](https://docs.python.org/3/library/constants.html#None) = None, end: [int](https://docs.python.org/3/library/functions.html#int) | [None](https://docs.python.org/3/library/constants.html#None) = None, step: [int](https://docs.python.org/3/library/functions.html#int) | [None](https://docs.python.org/3/library/constants.html#None) = None, axis: [int](https://docs.python.org/3/library/functions.html#int) = 0) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[slice](https://docs.python.org/3/library/functions.html#slice), ...]
+### pudl.analysis.timeseries_cleaning.slice_axis(x: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), start: [int](https://docs.python.org/3/builtins/functions.html#int) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, end: [int](https://docs.python.org/3/builtins/functions.html#int) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, step: [int](https://docs.python.org/3/builtins/functions.html#int) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, axis: [int](https://docs.python.org/3/builtins/functions.html#int) = 0) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[slice](https://docs.python.org/3/builtins/functions.html#slice), ...]
 
 Return an index that slices an array along an axis.
 
@@ -262,7 +262,7 @@ Return an index that slices an array along an axis.
   * **step** – Step size of slice.
   * **axis** – Axis along which to slice.
 * **Returns:**
-  Tuple of [`slice`](https://docs.python.org/3/library/functions.html#slice) that slices array x along axis axis
+  Tuple of [`slice`](https://docs.python.org/3/builtins/functions.html#slice) that slices array x along axis axis
   (x[…, start:stop:step]).
 
 ### Examples
@@ -277,7 +277,7 @@ np.True_
 np.True_
 ```
 
-### pudl.analysis.timeseries_cleaning.array_diff(x: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), periods: [int](https://docs.python.org/3/library/functions.html#int) = 1, axis: [int](https://docs.python.org/3/library/functions.html#int) = 0, fill: Any = np.nan) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
+### pudl.analysis.timeseries_cleaning.array_diff(x: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), periods: [int](https://docs.python.org/3/builtins/functions.html#int) = 1, axis: [int](https://docs.python.org/3/builtins/functions.html#int) = 0, fill: Any = np.nan) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
 
 First discrete difference of array elements.
 
@@ -302,7 +302,7 @@ np.True_
 np.True_
 ```
 
-### pudl.analysis.timeseries_cleaning.encode_run_length(x: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence) | [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)]
+### pudl.analysis.timeseries_cleaning.encode_run_length(x: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence) | [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)]
 
 Encode vector with run-length encoding.
 
@@ -325,7 +325,7 @@ Encode vector with run-length encoding.
 (array([nan,  1., nan,  1.]), array([1, 2, 1, 1]))
 ```
 
-### pudl.analysis.timeseries_cleaning.insert_run_length(x: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence) | [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), values: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence) | [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), lengths: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/library/functions.html#int)], mask: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[bool](https://docs.python.org/3/library/functions.html#bool)] | [None](https://docs.python.org/3/library/constants.html#None) = None, padding: [int](https://docs.python.org/3/library/functions.html#int) = 0, intersect: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
+### pudl.analysis.timeseries_cleaning.insert_run_length(x: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence) | [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), values: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence) | [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), lengths: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/builtins/functions.html#int)], mask: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[bool](https://docs.python.org/3/builtins/functions.html#bool)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None, padding: [int](https://docs.python.org/3/builtins/functions.html#int) = 0, intersect: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
 
 Insert run-length encoded values into a vector.
 
@@ -339,9 +339,9 @@ Insert run-length encoded values into a vector.
     if mask is provided, the edges of masked-out areas.
   * **intersect** – Whether to allow inserted runs to intersect each other.
 * **Raises:**
-  * [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – Padding must zero or greater.
-  * [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – Run length must be greater than zero.
-  * [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – Could not find space for run of length {length}.
+  * [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – Padding must zero or greater.
+  * [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – Run length must be greater than zero.
+  * [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – Could not find space for run of length {length}.
 * **Returns:**
   Copy of array x with values inserted.
 
@@ -399,19 +399,19 @@ The same as above, with non-zero padding, yields a unique solution:
 array([nan,  2., nan, nan,  5., nan, nan,  8., nan])
 ```
 
-### pudl.analysis.timeseries_cleaning.\_mat2ten(matrix: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), shape: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), mode: [int](https://docs.python.org/3/library/functions.html#int)) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
+### pudl.analysis.timeseries_cleaning.\_mat2ten(matrix: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), shape: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), mode: [int](https://docs.python.org/3/builtins/functions.html#int)) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
 
 Fold matrix into a tensor.
 
-### pudl.analysis.timeseries_cleaning.\_ten2mat(tensor: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), mode: [int](https://docs.python.org/3/library/functions.html#int)) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
+### pudl.analysis.timeseries_cleaning.\_ten2mat(tensor: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), mode: [int](https://docs.python.org/3/builtins/functions.html#int)) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
 
 Unfold tensor into a matrix.
 
-### pudl.analysis.timeseries_cleaning.\_svt_tnn(matrix: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), tau: [float](https://docs.python.org/3/library/functions.html#float), theta: [int](https://docs.python.org/3/library/functions.html#int)) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
+### pudl.analysis.timeseries_cleaning.\_svt_tnn(matrix: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), tau: [float](https://docs.python.org/3/builtins/functions.html#float), theta: [int](https://docs.python.org/3/builtins/functions.html#int)) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
 
 Singular value thresholding (SVT) truncated nuclear norm (TNN) minimization.
 
-### pudl.analysis.timeseries_cleaning.impute_latc_tnn(tensor: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), lags: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/library/functions.html#int)] = [1], alpha: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[float](https://docs.python.org/3/library/functions.html#float)] = [1 / 3, 1 / 3, 1 / 3], rho0: [float](https://docs.python.org/3/library/functions.html#float) = 1e-07, lambda0: [float](https://docs.python.org/3/library/functions.html#float) = 2e-07, theta: [int](https://docs.python.org/3/library/functions.html#int) = 20, epsilon: [float](https://docs.python.org/3/library/functions.html#float) = 1e-07, maxiter: [int](https://docs.python.org/3/library/functions.html#int) = 300) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
+### pudl.analysis.timeseries_cleaning.impute_latc_tnn(tensor: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), lags: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/builtins/functions.html#int)] = [1], alpha: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[float](https://docs.python.org/3/builtins/functions.html#float)] = [1 / 3, 1 / 3, 1 / 3], rho0: [float](https://docs.python.org/3/builtins/functions.html#float) = 1e-07, lambda0: [float](https://docs.python.org/3/builtins/functions.html#float) = 2e-07, theta: [int](https://docs.python.org/3/builtins/functions.html#int) = 20, epsilon: [float](https://docs.python.org/3/builtins/functions.html#float) = 1e-07, maxiter: [int](https://docs.python.org/3/builtins/functions.html#int) = 300) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
 
 Impute tensor values with LATC-TNN method by Chen and Sun (2020).
 
@@ -434,11 +434,11 @@ truncated nuclear norm (TNN) minimization.
 * **Returns:**
   Tensor with missing values in tensor replaced by imputed values.
 
-### pudl.analysis.timeseries_cleaning.\_tsvt(tensor: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), phi: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), tau: [float](https://docs.python.org/3/library/functions.html#float)) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
+### pudl.analysis.timeseries_cleaning.\_tsvt(tensor: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), phi: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), tau: [float](https://docs.python.org/3/builtins/functions.html#float)) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
 
 Tensor singular value thresholding (TSVT).
 
-### pudl.analysis.timeseries_cleaning.impute_latc_tubal(tensor: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), lags: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/library/functions.html#int)] = [1], rho0: [float](https://docs.python.org/3/library/functions.html#float) = 1e-07, lambda0: [float](https://docs.python.org/3/library/functions.html#float) = 2e-07, epsilon: [float](https://docs.python.org/3/library/functions.html#float) = 1e-07, maxiter: [int](https://docs.python.org/3/library/functions.html#int) = 300) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
+### pudl.analysis.timeseries_cleaning.impute_latc_tubal(tensor: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), lags: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/builtins/functions.html#int)] = [1], rho0: [float](https://docs.python.org/3/builtins/functions.html#float) = 1e-07, lambda0: [float](https://docs.python.org/3/builtins/functions.html#float) = 2e-07, epsilon: [float](https://docs.python.org/3/builtins/functions.html#float) = 1e-07, maxiter: [int](https://docs.python.org/3/builtins/functions.html#int) = 300) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
 
 Impute tensor values with LATC-Tubal method by Chen, Chen and Sun (2020).
 
@@ -468,7 +468,7 @@ Flag null values (MISSING_VALUE).
 
 Flag negative or zero values (NEGATIVE_OR_ZERO).
 
-### pudl.analysis.timeseries_cleaning.flag_identical_run(ts: [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries), length: [int](https://docs.python.org/3/library/functions.html#int) = 3) → [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries)
+### pudl.analysis.timeseries_cleaning.flag_identical_run(ts: [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries), length: [int](https://docs.python.org/3/builtins/functions.html#int) = 3) → [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries)
 
 Flag the last values in identical runs (IDENTICAL_RUN).
 
@@ -476,32 +476,32 @@ Flag the last values in identical runs (IDENTICAL_RUN).
   **length** – Run length to flag.
   If 3, the third (and subsequent) identical values are flagged.
 * **Raises:**
-  [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – Run length must be 2 or greater.
+  [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – Run length must be 2 or greater.
 
-### pudl.analysis.timeseries_cleaning.flag_global_outlier(ts: [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries), medians: [float](https://docs.python.org/3/library/functions.html#float) = 9) → [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries)
+### pudl.analysis.timeseries_cleaning.flag_global_outlier(ts: [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries), medians: [float](https://docs.python.org/3/builtins/functions.html#float) = 9) → [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries)
 
 Flag values greater or less than n times the global median (GLOBAL_OUTLIER).
 
 * **Parameters:**
   **medians** – Number of times the median the value must exceed the median.
 
-### pudl.analysis.timeseries_cleaning.flag_global_outlier_neighbor(ts: [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries), neighbors: [int](https://docs.python.org/3/library/functions.html#int) = 1) → [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries)
+### pudl.analysis.timeseries_cleaning.flag_global_outlier_neighbor(ts: [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries), neighbors: [int](https://docs.python.org/3/builtins/functions.html#int) = 1) → [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries)
 
 Flag values neighboring global outliers (GLOBAL_OUTLIER_NEIGHBOR).
 
 * **Parameters:**
   **neighbors** – Number of neighbors to flag on either side of each outlier.
 * **Raises:**
-  [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – Global outliers must be flagged first.
+  [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – Global outliers must be flagged first.
 
-### pudl.analysis.timeseries_cleaning.rolling_median(ts: [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries), window: [int](https://docs.python.org/3/library/functions.html#int) = 48) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
+### pudl.analysis.timeseries_cleaning.rolling_median(ts: [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries), window: [int](https://docs.python.org/3/builtins/functions.html#int) = 48) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
 
 Rolling median of values.
 
 * **Parameters:**
   **window** – Number of values in the moving window.
 
-### pudl.analysis.timeseries_cleaning.rolling_median_offset(ts: [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries), window: [int](https://docs.python.org/3/library/functions.html#int) = 48) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
+### pudl.analysis.timeseries_cleaning.rolling_median_offset(ts: [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries), window: [int](https://docs.python.org/3/builtins/functions.html#int) = 48) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
 
 Values minus the rolling median.
 
@@ -510,7 +510,7 @@ Estimates the local cycle in cyclical data by removing longterm trends.
 * **Parameters:**
   **window** – Number of values in the moving window.
 
-### pudl.analysis.timeseries_cleaning.median_of_rolling_median_offset(ts: [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries), window: [int](https://docs.python.org/3/library/functions.html#int) = 48, shifts: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/library/functions.html#int)] = range(-240, 241, 24)) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
+### pudl.analysis.timeseries_cleaning.median_of_rolling_median_offset(ts: [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries), window: [int](https://docs.python.org/3/builtins/functions.html#int) = 48, shifts: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/builtins/functions.html#int)] = range(-240, 241, 24)) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
 
 Median of the offset from the rolling median.
 
@@ -522,7 +522,7 @@ Estimates the typical local cycle in cyclical data.
   * **window** – Number of values in the moving window for the rolling median.
   * **shifts** – Number of values to shift the rolling median offset by.
 
-### pudl.analysis.timeseries_cleaning.rolling_iqr_of_rolling_median_offset(ts: [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries), window: [int](https://docs.python.org/3/library/functions.html#int) = 48, iqr_window: [int](https://docs.python.org/3/library/functions.html#int) = 240) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
+### pudl.analysis.timeseries_cleaning.rolling_iqr_of_rolling_median_offset(ts: [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries), window: [int](https://docs.python.org/3/builtins/functions.html#int) = 48, iqr_window: [int](https://docs.python.org/3/builtins/functions.html#int) = 240) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
 
 Rolling interquartile range (IQR) of rolling median offset.
 
@@ -532,7 +532,7 @@ Estimates the spread of the local cycles in cyclical data.
   * **window** – Number of values in the moving window for the rolling median.
   * **iqr_window** – Number of values in the moving window for the rolling IQR.
 
-### pudl.analysis.timeseries_cleaning.median_prediction(ts: [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries), window: [int](https://docs.python.org/3/library/functions.html#int) = 48, shifts: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/library/functions.html#int)] = range(-240, 241, 24), long_window: [int](https://docs.python.org/3/library/functions.html#int) = 480) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
+### pudl.analysis.timeseries_cleaning.median_prediction(ts: [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries), window: [int](https://docs.python.org/3/builtins/functions.html#int) = 48, shifts: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/builtins/functions.html#int)] = range(-240, 241, 24), long_window: [int](https://docs.python.org/3/builtins/functions.html#int) = 480) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
 
 Values predicted from local and regional rolling medians.
 
@@ -546,7 +546,7 @@ Calculated as { local median } +
   * **long_window** – Number of values in the moving window
     for the regional (long) rolling median.
 
-### pudl.analysis.timeseries_cleaning.flag_local_outlier(ts: [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries), window: [int](https://docs.python.org/3/library/functions.html#int) = 48, shifts: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/library/functions.html#int)] = range(-240, 241, 24), long_window: [int](https://docs.python.org/3/library/functions.html#int) = 480, iqr_window: [int](https://docs.python.org/3/library/functions.html#int) = 240, multiplier: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[float](https://docs.python.org/3/library/functions.html#float), [float](https://docs.python.org/3/library/functions.html#float)] = (3.5, 2.5)) → [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries)
+### pudl.analysis.timeseries_cleaning.flag_local_outlier(ts: [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries), window: [int](https://docs.python.org/3/builtins/functions.html#int) = 48, shifts: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/builtins/functions.html#int)] = range(-240, 241, 24), long_window: [int](https://docs.python.org/3/builtins/functions.html#int) = 480, iqr_window: [int](https://docs.python.org/3/builtins/functions.html#int) = 240, multiplier: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[float](https://docs.python.org/3/builtins/functions.html#float), [float](https://docs.python.org/3/builtins/functions.html#float)] = (3.5, 2.5)) → [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries)
 
 Flag local outliers (LOCAL_OUTLIER_HIGH, LOCAL_OUTLIER_LOW).
 
@@ -565,7 +565,7 @@ a multiplier times the [`rolling_iqr_of_rolling_median_offset()`](#pudl.analysis
     the value must be above (HIGH) and below (LOW)
     the [`median_prediction()`](#pudl.analysis.timeseries_cleaning.median_prediction) to be flagged.
 
-### pudl.analysis.timeseries_cleaning.diff(ts: [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries), shift: [int](https://docs.python.org/3/library/functions.html#int) = 1) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
+### pudl.analysis.timeseries_cleaning.diff(ts: [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries), shift: [int](https://docs.python.org/3/builtins/functions.html#int) = 1) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
 
 Values minus the value of their neighbor.
 
@@ -573,7 +573,7 @@ Values minus the value of their neighbor.
   **shift** – Positions to shift for calculating the difference.
   Positive values select a preceding (left) neighbor.
 
-### pudl.analysis.timeseries_cleaning.rolling_iqr_of_diff(ts: [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries), shift: [int](https://docs.python.org/3/library/functions.html#int) = 1, window: [int](https://docs.python.org/3/library/functions.html#int) = 240) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
+### pudl.analysis.timeseries_cleaning.rolling_iqr_of_diff(ts: [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries), shift: [int](https://docs.python.org/3/builtins/functions.html#int) = 1, window: [int](https://docs.python.org/3/builtins/functions.html#int) = 240) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
 
 Rolling interquartile range (IQR) of difference between neighboring values.
 
@@ -581,7 +581,7 @@ Rolling interquartile range (IQR) of difference between neighboring values.
   * **shift** – Positions to shift for calculating the difference.
   * **window** – Number of values in the moving window for the rolling IQR.
 
-### pudl.analysis.timeseries_cleaning.flag_double_delta(ts: [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries), iqr_window: [int](https://docs.python.org/3/library/functions.html#int) = 240, multiplier: [float](https://docs.python.org/3/library/functions.html#float) = 2) → [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries)
+### pudl.analysis.timeseries_cleaning.flag_double_delta(ts: [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries), iqr_window: [int](https://docs.python.org/3/builtins/functions.html#int) = 240, multiplier: [float](https://docs.python.org/3/builtins/functions.html#float) = 2) → [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries)
 
 Flag values very different from neighbors on either side (DOUBLE_DELTA).
 
@@ -602,7 +602,7 @@ Values divided by their value predicted from medians.
 * **Parameters:**
   **kwargs** – Arguments to [`median_prediction()`](#pudl.analysis.timeseries_cleaning.median_prediction).
 
-### pudl.analysis.timeseries_cleaning.iqr_of_diff_of_relative_median_prediction(ts: [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries), shift: [int](https://docs.python.org/3/library/functions.html#int) = 1, \*\*kwargs: Any) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
+### pudl.analysis.timeseries_cleaning.iqr_of_diff_of_relative_median_prediction(ts: [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries), shift: [int](https://docs.python.org/3/builtins/functions.html#int) = 1, \*\*kwargs: Any) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
 
 Interquartile range of running difference of relative median prediction.
 
@@ -611,9 +611,9 @@ Interquartile range of running difference of relative median prediction.
     Positive values select a preceding (left) neighbor.
   * **kwargs** – Arguments to [`relative_median_prediction()`](#pudl.analysis.timeseries_cleaning.relative_median_prediction).
 
-### pudl.analysis.timeseries_cleaning.\_find_single_delta(ts: [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries), relative_median_prediction: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), relative_median_prediction_long: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), rolling_iqr_of_diff: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), iqr_of_diff_of_relative_median_prediction: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), reverse: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
+### pudl.analysis.timeseries_cleaning.\_find_single_delta(ts: [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries), relative_median_prediction: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), relative_median_prediction_long: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), rolling_iqr_of_diff: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), iqr_of_diff_of_relative_median_prediction: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), reverse: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
 
-### pudl.analysis.timeseries_cleaning.flag_single_delta(ts: [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries), window: [int](https://docs.python.org/3/library/functions.html#int) = 48, shifts: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/library/functions.html#int)] = range(-240, 241, 24), long_window: [int](https://docs.python.org/3/library/functions.html#int) = 480, iqr_window: [int](https://docs.python.org/3/library/functions.html#int) = 240, multiplier: [float](https://docs.python.org/3/library/functions.html#float) = 5, rel_multiplier: [float](https://docs.python.org/3/library/functions.html#float) = 15) → [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries)
+### pudl.analysis.timeseries_cleaning.flag_single_delta(ts: [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries), window: [int](https://docs.python.org/3/builtins/functions.html#int) = 48, shifts: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/builtins/functions.html#int)] = range(-240, 241, 24), long_window: [int](https://docs.python.org/3/builtins/functions.html#int) = 480, iqr_window: [int](https://docs.python.org/3/builtins/functions.html#int) = 240, multiplier: [float](https://docs.python.org/3/builtins/functions.html#float) = 5, rel_multiplier: [float](https://docs.python.org/3/builtins/functions.html#float) = 15) → [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries)
 
 Flag values very different from the nearest unflagged value (SINGLE_DELTA).
 
@@ -641,7 +641,7 @@ respectively.
     prediction the value’s prediction difference to its neighbor must exceed
     for the value to be flagged.
 
-### pudl.analysis.timeseries_cleaning.flag_anomalous_region(ts: [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries), window: [int](https://docs.python.org/3/library/functions.html#int) = 48, threshold: [float](https://docs.python.org/3/library/functions.html#float) = 0.15) → [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries)
+### pudl.analysis.timeseries_cleaning.flag_anomalous_region(ts: [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries), window: [int](https://docs.python.org/3/builtins/functions.html#int) = 48, threshold: [float](https://docs.python.org/3/builtins/functions.html#float) = 0.15) → [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries)
 
 Flag values surrounded by flagged values (ANOMALOUS_REGION).
 
@@ -651,7 +651,7 @@ Original null values are not considered flagged values.
   * **window** – Width of regions.
   * **threshold** – Fraction of flagged values required for a region to be flagged.
 
-### pudl.analysis.timeseries_cleaning.flag_bad_years(ts: [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries), min_data: [int](https://docs.python.org/3/library/functions.html#int) = 100, min_data_fraction: [float](https://docs.python.org/3/library/functions.html#float) = 0.9) → [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries)
+### pudl.analysis.timeseries_cleaning.flag_bad_years(ts: [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries), min_data: [int](https://docs.python.org/3/builtins/functions.html#int) = 100, min_data_fraction: [float](https://docs.python.org/3/builtins/functions.html#float) = 0.9) → [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries)
 
 Flag entire years, which are missing a large portion of values (BAD_YEAR).
 
@@ -669,7 +669,7 @@ even if the rest of the year is NULL, then it will still be included for imputat
   * **min_data_fraction** – Minimum fraction of non-null hours between the first and last
     non-null hour in a year.
 
-### pudl.analysis.timeseries_cleaning.flag_ruggles(timeseries_matrix: [pandera.typing.DataFrame](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.typing.DataFrame.html#pandera.typing.DataFrame)[[TimeseriesMatrix](#pudl.analysis.timeseries_cleaning.TimeseriesMatrix)], min_data: [int](https://docs.python.org/3/library/functions.html#int) = 100, min_data_fraction: [float](https://docs.python.org/3/library/functions.html#float) = 0.9) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pandera.typing.DataFrame](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.typing.DataFrame.html#pandera.typing.DataFrame)[[TimeseriesMatrix](#pudl.analysis.timeseries_cleaning.TimeseriesMatrix)], [pandera.typing.DataFrame](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.typing.DataFrame.html#pandera.typing.DataFrame)[[TimeseriesMatrix](#pudl.analysis.timeseries_cleaning.TimeseriesMatrix)]]
+### pudl.analysis.timeseries_cleaning.flag_ruggles(timeseries_matrix: [pandera.typing.DataFrame](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.typing.DataFrame.html#pandera.typing.DataFrame)[[TimeseriesMatrix](#pudl.analysis.timeseries_cleaning.TimeseriesMatrix)], min_data: [int](https://docs.python.org/3/builtins/functions.html#int) = 100, min_data_fraction: [float](https://docs.python.org/3/builtins/functions.html#float) = 0.9) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[pandera.typing.DataFrame](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.typing.DataFrame.html#pandera.typing.DataFrame)[[TimeseriesMatrix](#pudl.analysis.timeseries_cleaning.TimeseriesMatrix)], [pandera.typing.DataFrame](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.typing.DataFrame.html#pandera.typing.DataFrame)[[TimeseriesMatrix](#pudl.analysis.timeseries_cleaning.TimeseriesMatrix)]]
 
 Flag values following the method of Ruggles and others (2020).
 
@@ -687,14 +687,14 @@ Assumes values are hourly electricity demand.
   the input timeseries with flagged values Nulled out in preparation for
   imputation. The second contains the actual flags for reference.
 
-### pudl.analysis.timeseries_cleaning.summarize_flags(imputed_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), id_col: [str](https://docs.python.org/3/library/stdtypes.html#str), value_col: [str](https://docs.python.org/3/library/stdtypes.html#str), flag_col: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.analysis.timeseries_cleaning.summarize_flags(imputed_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), id_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str), value_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str), flag_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Summarize flagged values by flag, count and median.
 
 * **Parameters:**
   **imputed_df** – DataFrame
 
-### pudl.analysis.timeseries_cleaning.simulate_nulls(x: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), lengths: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/library/functions.html#int)] | [None](https://docs.python.org/3/library/constants.html#None) = None, padding: [int](https://docs.python.org/3/library/functions.html#int) = 1, intersect: [bool](https://docs.python.org/3/library/functions.html#bool) = False, overlap: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
+### pudl.analysis.timeseries_cleaning.simulate_nulls(x: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), lengths: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/builtins/functions.html#int)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None, padding: [int](https://docs.python.org/3/builtins/functions.html#int) = 1, intersect: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, overlap: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
 
 Find non-null values to null to match a run-length distribution.
 
@@ -711,7 +711,7 @@ Find non-null values to null to match a run-length distribution.
 * **Returns:**
   Boolean mask of current non-null values to set to null.
 * **Raises:**
-  [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – Could not find space for run of length {length}.
+  [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – Could not find space for run of length {length}.
 
 ### Examples
 
@@ -723,7 +723,7 @@ array([ True, False, False, False, True, True, False, False, False])
 array([False, False, False, True, True, True, True, False, False])
 ```
 
-### pudl.analysis.timeseries_cleaning.fold_tensor(x: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), periods: [int](https://docs.python.org/3/library/functions.html#int) = 24) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
+### pudl.analysis.timeseries_cleaning.fold_tensor(x: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), periods: [int](https://docs.python.org/3/builtins/functions.html#int) = 24) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
 
 Fold into a 3-dimensional tensor representation.
 
@@ -752,7 +752,7 @@ Unfold a 3-dimensional tensor representation.
 
 Performs the reverse of [`fold_tensor()`](#pudl.analysis.timeseries_cleaning.fold_tensor).
 
-### pudl.analysis.timeseries_cleaning.impute(df: [pandera.typing.DataFrame](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.typing.DataFrame.html#pandera.typing.DataFrame)[[TimeseriesMatrix](#pudl.analysis.timeseries_cleaning.TimeseriesMatrix)], mask: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray) | [None](https://docs.python.org/3/library/constants.html#None) = None, periods: [int](https://docs.python.org/3/library/functions.html#int) = 24, blocks: [int](https://docs.python.org/3/library/functions.html#int) = 1, method: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'tubal', \*\*kwargs: Any) → [pandera.typing.DataFrame](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.typing.DataFrame.html#pandera.typing.DataFrame)[[TimeseriesMatrix](#pudl.analysis.timeseries_cleaning.TimeseriesMatrix)]
+### pudl.analysis.timeseries_cleaning.impute(df: [pandera.typing.DataFrame](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.typing.DataFrame.html#pandera.typing.DataFrame)[[TimeseriesMatrix](#pudl.analysis.timeseries_cleaning.TimeseriesMatrix)], mask: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, periods: [int](https://docs.python.org/3/builtins/functions.html#int) = 24, blocks: [int](https://docs.python.org/3/builtins/functions.html#int) = 1, method: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'tubal', \*\*kwargs: Any) → [pandera.typing.DataFrame](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.typing.DataFrame.html#pandera.typing.DataFrame)[[TimeseriesMatrix](#pudl.analysis.timeseries_cleaning.TimeseriesMatrix)]
 
 Impute null values.
 
@@ -775,7 +775,7 @@ so the series cannot already contain zeros.
   Array of same shape as `x` with all null values
   (and those selected by mask) replaced with imputed values.
 * **Raises:**
-  [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – Zero values present. Replace with very small value.
+  [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – Zero values present. Replace with very small value.
 
 ### pudl.analysis.timeseries_cleaning.summarize_imputed(matrix: [pandera.typing.DataFrame](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.typing.DataFrame.html#pandera.typing.DataFrame)[[TimeseriesMatrix](#pudl.analysis.timeseries_cleaning.TimeseriesMatrix)], imputed_matrix: [pandera.typing.DataFrame](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.typing.DataFrame.html#pandera.typing.DataFrame)[[TimeseriesMatrix](#pudl.analysis.timeseries_cleaning.TimeseriesMatrix)], mask: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
@@ -795,7 +795,7 @@ following statistics:
 * **Returns:**
   Table of imputed value statistics for each series.
 
-### pudl.analysis.timeseries_cleaning.impute_flagged_values(df: [pandera.typing.DataFrame](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.typing.DataFrame.html#pandera.typing.DataFrame)[[TimeseriesMatrix](#pudl.analysis.timeseries_cleaning.TimeseriesMatrix)], years: [list](https://docs.python.org/3/library/stdtypes.html#list)[[int](https://docs.python.org/3/library/functions.html#int)], method: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[int](https://docs.python.org/3/library/functions.html#int), Literal['tubal', 'tnn']], periods: [int](https://docs.python.org/3/library/functions.html#int) = 24, blocks: [int](https://docs.python.org/3/library/functions.html#int) = 1) → [pandera.typing.DataFrame](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.typing.DataFrame.html#pandera.typing.DataFrame)[[TimeseriesMatrix](#pudl.analysis.timeseries_cleaning.TimeseriesMatrix)]
+### pudl.analysis.timeseries_cleaning.impute_flagged_values(df: [pandera.typing.DataFrame](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.typing.DataFrame.html#pandera.typing.DataFrame)[[TimeseriesMatrix](#pudl.analysis.timeseries_cleaning.TimeseriesMatrix)], years: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[int](https://docs.python.org/3/builtins/functions.html#int)], method: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[int](https://docs.python.org/3/builtins/functions.html#int), Literal['tubal', 'tnn']], periods: [int](https://docs.python.org/3/builtins/functions.html#int) = 24, blocks: [int](https://docs.python.org/3/builtins/functions.html#int) = 1) → [pandera.typing.DataFrame](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.typing.DataFrame.html#pandera.typing.DataFrame)[[TimeseriesMatrix](#pudl.analysis.timeseries_cleaning.TimeseriesMatrix)]
 
 Impute null values in input timeseries matrix.
 
@@ -824,26 +824,26 @@ CPU cores. If you want to limit the number of cores used, you can set the
 
 Define settings used to simulate flagged values for scoring imputation.
 
-#### num_months *: [int](https://docs.python.org/3/library/functions.html#int)* *= 30*
+#### num_months *: [int](https://docs.python.org/3/builtins/functions.html#int)* *= 30*
 
 The number of months of data to simulate.
 
-#### min_flag_rate *: [float](https://docs.python.org/3/library/functions.html#float)* *= 0.1*
+#### min_flag_rate *: [float](https://docs.python.org/3/builtins/functions.html#float)* *= 0.1*
 
 Min ratio of bad points in a section of data to be used for reference.
 
-#### max_flag_rate *: [float](https://docs.python.org/3/library/functions.html#float)* *= 0.5*
+#### max_flag_rate *: [float](https://docs.python.org/3/builtins/functions.html#float)* *= 0.5*
 
 Max ratio of bad points in a section of data to be used for reference.
 
-#### output_io_manager_key *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= 'io_manager'*
+#### output_io_manager_key *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 'io_manager'*
 
 Specify io-manager for final simulated asset.
 
 In some cases we use the parquet IO-manager so we can build notebooks/visualizations
 on simulated data.
 
-#### mape_threshold *: [float](https://docs.python.org/3/library/functions.html#float)* *= 0.05*
+#### mape_threshold *: [float](https://docs.python.org/3/builtins/functions.html#float)* *= 0.05*
 
 Maximum allowable mean absolute percent error computed on simulated values. Will be checked in an asset check.
 
@@ -893,7 +893,7 @@ while simulation months have no values which were flagged for imputation.
   DataFrame which contains all ID/datetime pairs that should be flagged for
   simulated imputation.
 
-### pudl.analysis.timeseries_cleaning.get_simulated_flag_mask(settings: [SimulateFlagsSettings](#pudl.analysis.timeseries_cleaning.SimulateFlagsSettings), imputed_df: [pandera.typing.DataFrame](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.typing.DataFrame.html#pandera.typing.DataFrame)[[AlignedTimeseriesDataFrame](#pudl.analysis.timeseries_cleaning.AlignedTimeseriesDataFrame)], simulation_group: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pandera.typing.DataFrame](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.typing.DataFrame.html#pandera.typing.DataFrame)[[TimeseriesMatrix](#pudl.analysis.timeseries_cleaning.TimeseriesMatrix)], [set](https://docs.python.org/3/library/stdtypes.html#set)[[int](https://docs.python.org/3/library/functions.html#int)]]
+### pudl.analysis.timeseries_cleaning.get_simulated_flag_mask(settings: [SimulateFlagsSettings](#pudl.analysis.timeseries_cleaning.SimulateFlagsSettings), imputed_df: [pandera.typing.DataFrame](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.typing.DataFrame.html#pandera.typing.DataFrame)[[AlignedTimeseriesDataFrame](#pudl.analysis.timeseries_cleaning.AlignedTimeseriesDataFrame)], simulation_group: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[pandera.typing.DataFrame](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.typing.DataFrame.html#pandera.typing.DataFrame)[[TimeseriesMatrix](#pudl.analysis.timeseries_cleaning.TimeseriesMatrix)], [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[int](https://docs.python.org/3/builtins/functions.html#int)]]
 
 Return a flag mask to flag values for simulated imputation.
 
@@ -919,22 +919,22 @@ imputation.
 
 Define settings used for timeseries imputation.
 
-#### min_data_fraction *: [float](https://docs.python.org/3/library/functions.html#float)* *= 0.7*
+#### min_data_fraction *: [float](https://docs.python.org/3/builtins/functions.html#float)* *= 0.7*
 
 Fraction of values in a year which must be non-null to do imputation on year.
 
-#### min_data *: [int](https://docs.python.org/3/library/functions.html#int)* *= 100*
+#### min_data *: [int](https://docs.python.org/3/builtins/functions.html#int)* *= 100*
 
 Minimum number of values which must be non-null to do imputation on year.
 
-#### periods *: [int](https://docs.python.org/3/library/functions.html#int)* *= 24*
+#### periods *: [int](https://docs.python.org/3/builtins/functions.html#int)* *= 24*
 
 Number of consecutive values in each series to fold into a group.
 
 See [`fold_tensor()`](#pudl.analysis.timeseries_cleaning.fold_tensor). The default of 24 is meant for hourly data with a diurnal
 periodicity.
 
-#### blocks *: [int](https://docs.python.org/3/library/functions.html#int)* *= 1*
+#### blocks *: [int](https://docs.python.org/3/builtins/functions.html#int)* *= 1*
 
 Split timeseries matrix into equal sized blocks before running imputation.
 
@@ -945,17 +945,17 @@ Imputation method to use.
 * tubal indicates [`impute_latc_tubal()`](#pudl.analysis.timeseries_cleaning.impute_latc_tubal)
 * tnn indicates [`impute_latc_tnn()`](#pudl.analysis.timeseries_cleaning.impute_latc_tnn)
 
-#### method_overrides *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[int](https://docs.python.org/3/library/functions.html#int), Literal['tubal', 'tnn']]*
+#### method_overrides *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[int](https://docs.python.org/3/builtins/functions.html#int), Literal['tubal', 'tnn']]*
 
 Override stated imputation method for specific years.
 
-#### simulate_flags_settings *: [SimulateFlagsSettings](#pudl.analysis.timeseries_cleaning.SimulateFlagsSettings) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### simulate_flags_settings *: [SimulateFlagsSettings](#pudl.analysis.timeseries_cleaning.SimulateFlagsSettings) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
 Settings to simulate flagged values and score imputation.
 
 Defaults to None which will not do any simulation/scoring.
 
-### pudl.analysis.timeseries_cleaning.impute_timeseries_asset_factory(input_asset_name: [str](https://docs.python.org/3/library/stdtypes.html#str), output_asset_name: [str](https://docs.python.org/3/library/stdtypes.html#str), years_from_context: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable), id_col: [str](https://docs.python.org/3/library/stdtypes.html#str), value_col: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'demand_mwh', imputed_value_col: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'demand_imputed_mwh', reported_value_col: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'demand_reported_mwh', simulation_group_col: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, output_io_manager_key: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'parquet_io_manager', op_tags: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any] | [None](https://docs.python.org/3/library/constants.html#None) = None, settings: [ImputeTimeseriesSettings](#pudl.analysis.timeseries_cleaning.ImputeTimeseriesSettings) = ImputeTimeseriesSettings()) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.analysis.timeseries_cleaning.impute_timeseries_asset_factory(input_asset_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), output_asset_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), years_from_context: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable), id_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str), value_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'demand_mwh', imputed_value_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'demand_imputed_mwh', reported_value_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'demand_reported_mwh', simulation_group_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, output_io_manager_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'parquet_io_manager', op_tags: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any] | [None](https://docs.python.org/3/builtins/constants.html#None) = None, settings: [ImputeTimeseriesSettings](#pudl.analysis.timeseries_cleaning.ImputeTimeseriesSettings) = ImputeTimeseriesSettings()) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Produces assets to impute values for a given timeseries table/column.
 

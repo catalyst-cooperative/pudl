@@ -64,13 +64,13 @@ re-materialized more than once – `fetch_materializations` returns
 most-recent-first, so the first record seen for each partition is already the
 one we want.
 
-### pudl.transform.ferceqr.\_CORE_FERCEQR_TABLE_LABELS *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[dagster.AssetKey](https://docs.dagster.io/api/dagster/assets/#dagster.AssetKey), [str](https://docs.python.org/3/library/stdtypes.html#str)]*
+### pudl.transform.ferceqr.\_CORE_FERCEQR_TABLE_LABELS *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[dagster.AssetKey](https://docs.dagster.io/api/dagster/assets/#dagster.AssetKey), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
 ### pudl.transform.ferceqr.\_CHECK_EVALUATION_FETCH_LIMIT *= 2000*
 
 4 core ferceqr tables x ~52 quarters, with headroom for re-run partitions.
 
-### pudl.transform.ferceqr.apply_duckdb_dtypes(table_data: [duckdb.DuckDBPyRelation](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyRelation), table_name: [str](https://docs.python.org/3/library/stdtypes.html#str), conn: [duckdb.DuckDBPyConnection](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyConnection))
+### pudl.transform.ferceqr.apply_duckdb_dtypes(table_data: [duckdb.DuckDBPyRelation](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyRelation), table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), conn: [duckdb.DuckDBPyConnection](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyConnection))
 
 Cast each column to the dtype declared in the PUDL metadata schema for the table.
 
@@ -83,7 +83,7 @@ before the cast is applied.
   * **table_name** – PUDL table name used to look up the schema from the metadata.
   * **conn** – DuckDB connection used to register custom enum types as needed.
 
-### pudl.transform.ferceqr.rename_duckdb_columns(table_data: [duckdb.DuckDBPyRelation](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyRelation), mapping: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)]) → [duckdb.DuckDBPyRelation](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyRelation)
+### pudl.transform.ferceqr.rename_duckdb_columns(table_data: [duckdb.DuckDBPyRelation](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyRelation), mapping: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [duckdb.DuckDBPyRelation](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyRelation)
 
 Rename one or more columns in a DuckDB relation, passing all others through unchanged.
 
@@ -91,7 +91,7 @@ Rename one or more columns in a DuckDB relation, passing all others through unch
   * **table_data** – DuckDB relation containing the columns to rename.
   * **mapping** – Maps existing column names to their new names.
 
-### pudl.transform.ferceqr.apply_column_transforms(table_data: [duckdb.DuckDBPyRelation](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyRelation), columns: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], transform: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[str](https://docs.python.org/3/library/stdtypes.html#str)], [duckdb.Expression](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.Expression)]) → [duckdb.DuckDBPyRelation](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyRelation)
+### pudl.transform.ferceqr.apply_column_transforms(table_data: [duckdb.DuckDBPyRelation](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyRelation), columns: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], transform: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], [duckdb.Expression](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.Expression)]) → [duckdb.DuckDBPyRelation](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyRelation)
 
 Apply a DuckDB expression factory to a set of columns, replacing each in place.
 
@@ -105,28 +105,28 @@ name. All columns not listed in *columns* are passed through unchanged.
   * **transform** – Callable that accepts a column name and returns a DuckDB Expression
     defining the transformation for that column.
 
-### pudl.transform.ferceqr.\_yn_to_bool(col: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [duckdb.Expression](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.Expression)
+### pudl.transform.ferceqr.\_yn_to_bool(col: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [duckdb.Expression](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.Expression)
 
 Return a DuckDB expression that converts `'Y'`/`'N'` strings to booleans.
 
 The comparison is case-insensitive. Any value other than `'Y'` or `'N'` is
 mapped to `NULL`.
 
-### pudl.transform.ferceqr.\_na_to_null(col_name: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [duckdb.Expression](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.Expression)
+### pudl.transform.ferceqr.\_na_to_null(col_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [duckdb.Expression](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.Expression)
 
 Return a DuckDB expression that converts `'N/A'` or `'NA'` strings to NULL.
 
 The comparison is case-insensitive. All other values are uppercased and returned
 unchanged.
 
-### pudl.transform.ferceqr.\_parse_datetimes(col_name: [str](https://docs.python.org/3/library/stdtypes.html#str), fmt: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [duckdb.Expression](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.Expression)
+### pudl.transform.ferceqr.\_parse_datetimes(col_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), fmt: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [duckdb.Expression](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.Expression)
 
 Return a DuckDB expression that parses a datetime string column using `fmt`.
 
 Uses DuckDB’s `TRY_STRPTIME`, so values that cannot be parsed return `NULL`
 rather than raising an error.
 
-### pudl.transform.ferceqr.\_recode_categoricals(col_name: [str](https://docs.python.org/3/library/stdtypes.html#str), replace_mapping: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)]) → [duckdb.Expression](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.Expression)
+### pudl.transform.ferceqr.\_recode_categoricals(col_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), replace_mapping: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [duckdb.Expression](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.Expression)
 
 Return a DuckDB expression that replaces exact categorical values in a column.
 
@@ -155,7 +155,7 @@ Transform the raw FERC EQR electricity contracts table.
 
 Transform the raw FERC EQR index price publisher table.
 
-### pudl.transform.ferceqr.\_latest_extraction_stats_by_quarter(instance: [dagster.DagsterInstance](https://docs.dagster.io/api/dagster/internals/#dagster.DagsterInstance)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]
+### pudl.transform.ferceqr.\_latest_extraction_stats_by_quarter(instance: [dagster.DagsterInstance](https://docs.dagster.io/api/dagster/internals/#dagster.DagsterInstance)) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]]
 
 Return `{year_quarter: extraction_stats}` from each partition’s latest run.
 
@@ -163,7 +163,7 @@ Reads the `extraction_stats` JSON metadata that `pudl.extract.ferceqr.
 extract_ferceqr()` attaches to `raw_ferceqr__extract_errors`, directly from this
 Dagster instance’s event log – no Parquet data is read.
 
-### pudl.transform.ferceqr.\_latest_check_evaluations_by_quarter(instance: [dagster.DagsterInstance](https://docs.dagster.io/api/dagster/internals/#dagster.DagsterInstance)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), dagster.AssetCheckEvaluation]]
+### pudl.transform.ferceqr.\_latest_check_evaluations_by_quarter(instance: [dagster.DagsterInstance](https://docs.dagster.io/api/dagster/internals/#dagster.DagsterInstance)) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), dagster.AssetCheckEvaluation]]
 
 Return `{year_quarter: {table_label: evaluation}}` from each check’s latest run.
 
@@ -179,7 +179,7 @@ on the `AssetCheckEvaluation` payload, so this reads events generically
 `core_ferceqr__*` tables’ `pandera_schema_check` results itself, rather
 than being able to ask the instance for exactly those upfront.
 
-### pudl.transform.ferceqr.\_build_ferceqr_diagnostics_rows(extraction_stats_by_quarter: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]], check_evaluations_by_quarter: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), dagster.AssetCheckEvaluation]]) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]
+### pudl.transform.ferceqr.\_build_ferceqr_diagnostics_rows(extraction_stats_by_quarter: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]], check_evaluations_by_quarter: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), dagster.AssetCheckEvaluation]]) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]]
 
 Flatten per-quarter extraction stats and check results into one wide table.
 

@@ -81,11 +81,11 @@ Path to the PUDL utility ID mapping CSV.
 
 Path to the PUDL-assign FERC1 utility ID mapping CSV.
 
-### pudl.glue.ferc1_eia.MIN_PLANT_CAPACITY_MW *: [float](https://docs.python.org/3/library/functions.html#float)* *= 5.0*
+### pudl.glue.ferc1_eia.MIN_PLANT_CAPACITY_MW *: [float](https://docs.python.org/3/builtins/functions.html#float)* *= 5.0*
 
-### pudl.glue.ferc1_eia.MAX_LOST_PLANTS_EIA *: [int](https://docs.python.org/3/library/functions.html#int)* *= 50*
+### pudl.glue.ferc1_eia.MAX_LOST_PLANTS_EIA *: [int](https://docs.python.org/3/builtins/functions.html#int)* *= 50*
 
-### pudl.glue.ferc1_eia.MAX_LOST_UTILS_EIA *: [int](https://docs.python.org/3/library/functions.html#int)* *= 10*
+### pudl.glue.ferc1_eia.MAX_LOST_UTILS_EIA *: [int](https://docs.python.org/3/builtins/functions.html#int)* *= 10*
 
 ### pudl.glue.ferc1_eia.get_plant_map() → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
@@ -133,7 +133,7 @@ Name of the PUDL database table that this table transformer produces.
 Must be defined in the database schema / metadata. This ID is used to instantiate
 the appropriate `TableTransformParams` object.
 
-#### transform(raw_dbf_dfs: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)], raw_xbrl_dfs: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### transform(raw_dbf_dfs: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)], raw_xbrl_dfs: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Only apply the generic :meth:`transform_start`.
 
@@ -141,7 +141,7 @@ Only apply the generic :meth:`transform_start`.
 
 Basic name normalization and dropping of invalid rows.
 
-#### drop_invalid_rows(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), params: [list](https://docs.python.org/3/library/stdtypes.html#list)[[pudl.transform.classes.InvalidRows](../../transform/classes/index.html.md#pudl.transform.classes.InvalidRows)] | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### drop_invalid_rows(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), params: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[pudl.transform.classes.InvalidRows](../../transform/classes/index.html.md#pudl.transform.classes.InvalidRows)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Add required valid columns before running standard drop_invalid_rows.
 
@@ -156,7 +156,7 @@ Pull all plants in the FERC Form 1 DBF and XBRL DB for given years.
 
 This job expects ferc1_dbf.sqlite and ferc_xbrl.sqlite databases to be populated.
 
-### pudl.glue.ferc1_eia.get_missing_ids(ids_left: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), ids_right: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), id_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [pandas.Index](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Index.html#pandas.Index)
+### pudl.glue.ferc1_eia.get_missing_ids(ids_left: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), ids_right: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), id_cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [pandas.Index](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Index.html#pandas.Index)
 
 Identify IDs that are missing from the left df but show up in the right df.
 
@@ -204,7 +204,7 @@ that do have plants reporting in EIA-923, sum up the total capacity of all of th
 plants and include that in the output dataframe so that we can effectively
 prioritize mapping them.
 
-### pudl.glue.ferc1_eia.glue(ferc1: [bool](https://docs.python.org/3/library/functions.html#bool) = False, eia: [bool](https://docs.python.org/3/library/functions.html#bool) = False)
+### pudl.glue.ferc1_eia.glue(ferc1: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, eia: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False)
 
 Generates a dictionary of dataframes for glue tables between FERC1, EIA.
 

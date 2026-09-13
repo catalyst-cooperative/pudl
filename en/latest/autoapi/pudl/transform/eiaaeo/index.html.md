@@ -63,7 +63,7 @@ Break human-readable category name into machine-readable fields.
 Fortunately the only field we’re pulling out of the category so far is the
 region, which is the last of two comma-separated fields.
 
-### pudl.transform.eiaaeo.subtotals_match_reported_totals_ratio(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), pk: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], fact_columns: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], dimension_column: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [float](https://docs.python.org/3/library/functions.html#float)
+### pudl.transform.eiaaeo.subtotals_match_reported_totals_ratio(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), pk: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], fact_columns: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], dimension_column: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [float](https://docs.python.org/3/builtins/functions.html#float)
 
 When subtotals and totals are reported in the same column, check their sums.
 
@@ -87,7 +87,7 @@ function, which would clean up the call sites.
   The ratio of reported totals that are np.isclose() to the sum of their
   component parts.
 
-### pudl.transform.eiaaeo.series_sum_ratio(summands: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), total: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)) → [float](https://docs.python.org/3/library/functions.html#float)
+### pudl.transform.eiaaeo.series_sum_ratio(summands: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), total: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)) → [float](https://docs.python.org/3/builtins/functions.html#float)
 
 Find how well multiple columns sum to another column.
 
@@ -98,7 +98,7 @@ Find how well multiple columns sum to another column.
   the ratio of values in `total` that are np.isclose() to the sum of
   `summands`.
 
-### pudl.transform.eiaaeo.filter_enrich_sanitize(raw_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), relevant_series_names: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.transform.eiaaeo.filter_enrich_sanitize(raw_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), relevant_series_names: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Basic cleaning steps common to all AEO tables.
 
@@ -114,7 +114,7 @@ Various columns have different names for their “total” fact.
 
 This combines them into one “total” dimension.
 
-### pudl.transform.eiaaeo.unstack(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), eventual_pk: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)])
+### pudl.transform.eiaaeo.unstack(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), eventual_pk: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)])
 
 Unstack the values by the various variable names provided.
 
@@ -173,11 +173,11 @@ store that base year as well.
 
 Define some simple checks that can run on any AEO asset.
 
-#### name *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### name *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### asset *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### asset *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### category_counts *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [int](https://docs.python.org/3/library/functions.html#int)]*
+#### category_counts *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [int](https://docs.python.org/3/builtins/functions.html#int)]*
 
 ### pudl.transform.eiaaeo.BASE_AEO_CATEGORIES
 

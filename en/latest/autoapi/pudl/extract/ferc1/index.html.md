@@ -110,11 +110,11 @@ Absent for tables introduced after DBF reporting ended in 2020.
 
 #### xbrl *: [RawFercTableName](#pudl.extract.ferc1.RawFercTableName)*
 
-### pudl.extract.ferc1.TABLE_NAME_MAP_FERC1 *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [RawTableMapping](#pudl.extract.ferc1.RawTableMapping)]*
+### pudl.extract.ferc1.TABLE_NAME_MAP_FERC1 *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [RawTableMapping](#pudl.extract.ferc1.RawTableMapping)]*
 
 A mapping of PUDL DB table names to their XBRL and DBF source table names.
 
-### pudl.extract.ferc1.XBRL_META_ONLY_FERC1 *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [RawTableMapping](#pudl.extract.ferc1.RawTableMapping)]*
+### pudl.extract.ferc1.XBRL_META_ONLY_FERC1 *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [RawTableMapping](#pudl.extract.ferc1.RawTableMapping)]*
 
 A mapping of XBRL to (future) PUDL table names for tables not yet in PUDL.
 
@@ -148,7 +148,7 @@ This identifies respondents that are referenced by other tables but that are not
 in the f1_respondent_id tables. These missing respondents are inserted back into
 f1_respondent_id table.
 
-#### PUDL_RIDS *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[int](https://docs.python.org/3/library/functions.html#int), [str](https://docs.python.org/3/library/stdtypes.html#str)]*
+#### PUDL_RIDS *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[int](https://docs.python.org/3/builtins/functions.html#int), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
 Missing FERC 1 Respondent IDs for which we have identified the respondent.
 
@@ -160,7 +160,7 @@ Some respondent_ids are referenced by other tables, but are not listed in the
 f1_respondent_id table. This function finds all of these missing respondents and
 backfills them into the f1_respondent_id table.
 
-#### get_observed_respondents() → [set](https://docs.python.org/3/library/stdtypes.html#set)[[int](https://docs.python.org/3/library/functions.html#int)]
+#### get_observed_respondents() → [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[int](https://docs.python.org/3/builtins/functions.html#int)]
 
 Compile the set of all observed respondent IDs found in the FERC 1 database.
 
@@ -172,11 +172,11 @@ the table when we clone the database.
 * **Returns:**
   Every respondent ID reported in any of the FERC 1 DB tables.
 
-#### aggregate_table_frames(table_name: [str](https://docs.python.org/3/library/stdtypes.html#str), dfs: [list](https://docs.python.org/3/library/stdtypes.html#list)[[pudl.extract.dbf.PartitionedDataFrame](../dbf/index.html.md#pudl.extract.dbf.PartitionedDataFrame)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [None](https://docs.python.org/3/library/constants.html#None)
+#### aggregate_table_frames(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), dfs: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[pudl.extract.dbf.PartitionedDataFrame](../dbf/index.html.md#pudl.extract.dbf.PartitionedDataFrame)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Deduplicates records in f1_respondent_id table.
 
-### pudl.extract.ferc1.create_raw_ferc1_assets() → [list](https://docs.python.org/3/library/stdtypes.html#list)[[dagster.AssetSpec](https://docs.dagster.io/api/dagster/assets/#dagster.AssetSpec)]
+### pudl.extract.ferc1.create_raw_ferc1_assets() → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dagster.AssetSpec](https://docs.dagster.io/api/dagster/assets/#dagster.AssetSpec)]
 
 Create AssetSpecs for raw ferc1 tables.
 
@@ -189,7 +189,7 @@ Definition.
 
 ### pudl.extract.ferc1.raw_ferc1_assets
 
-### pudl.extract.ferc1.raw_ferc1_xbrl_\_metadata_json(context) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]]]
+### pudl.extract.ferc1.raw_ferc1_xbrl_\_metadata_json(context) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]]]]
 
 Extract the FERC 1 XBRL Taxonomy metadata we’ve stored as JSON.
 

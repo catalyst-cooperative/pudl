@@ -251,11 +251,11 @@ This parameter model has no associated transform function since it is used with 
 dataframe at once, it’s a table transformation (though it could also have been
 implemented as a column transform).
 
-#### columns *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)]*
+#### columns *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
 A dictionary of columns to be renamed.
 
-### pudl.transform.classes.rename_columns(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), params: [RenameColumns](#pudl.transform.classes.RenameColumns) | [None](https://docs.python.org/3/library/constants.html#None) = None, \*\*kwargs) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.transform.classes.rename_columns(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), params: [RenameColumns](#pudl.transform.classes.RenameColumns) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, \*\*kwargs) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Rename the whole collection of dataframe columns using input params.
 
@@ -273,11 +273,11 @@ by the [`normalize_strings()`](#pudl.transform.classes.normalize_strings) functi
 different columns to be comparable, but there are a couple of column-specific
 parameterizations that are useful, and they are encapsulated by this class.
 
-#### remove_chars *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### remove_chars *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
 A string of individual ASCII characters removed at the end of normalization.
 
-#### nullable *: [bool](https://docs.python.org/3/library/functions.html#bool)* *= False*
+#### nullable *: [bool](https://docs.python.org/3/builtins/functions.html#bool)* *= False*
 
 Whether the normalized string should be cast to `pd.StringDtype`.
 
@@ -309,9 +309,9 @@ Bases: [`TransformParams`](#pudl.transform.classes.TransformParams)
 
 Boolean parameter for [`enforce_snake_case()`](#pudl.transform.classes.enforce_snake_case).
 
-#### enforce_snake_case *: [bool](https://docs.python.org/3/library/functions.html#bool)*
+#### enforce_snake_case *: [bool](https://docs.python.org/3/builtins/functions.html#bool)*
 
-### pudl.transform.classes.enforce_snake_case(col: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), params: [EnforceSnakeCase](#pudl.transform.classes.EnforceSnakeCase) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
+### pudl.transform.classes.enforce_snake_case(col: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), params: [EnforceSnakeCase](#pudl.transform.classes.EnforceSnakeCase) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
 
 Enforce snake_case for a column.
 
@@ -339,9 +339,9 @@ Stores a named boolean variable that is employed in
 treatment should be applied. Pydantic 2.0 will allow validation of these simple
 variables without needing to define a model.
 
-#### strip_non_numeric_values *: [bool](https://docs.python.org/3/library/functions.html#bool)*
+#### strip_non_numeric_values *: [bool](https://docs.python.org/3/builtins/functions.html#bool)*
 
-### pudl.transform.classes.strip_non_numeric_values(col: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), params: [StripNonNumericValues](#pudl.transform.classes.StripNonNumericValues) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
+### pudl.transform.classes.strip_non_numeric_values(col: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), params: [StripNonNumericValues](#pudl.transform.classes.StripNonNumericValues) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
 
 Strip a column of any non numeric values.
 
@@ -366,7 +366,7 @@ Bases: [`TransformParams`](#pudl.transform.classes.TransformParams)
 
 Mappings to categorize the values in freeform string columns.
 
-#### categories *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [set](https://docs.python.org/3/library/stdtypes.html#set)[[str](https://docs.python.org/3/library/stdtypes.html#str)]]*
+#### categories *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]]*
 
 Mapping from a categorical string to the set of the values it should replace.
 
@@ -388,7 +388,7 @@ with open("categoryfile.yml", "w") as f:
 
 We recommend putting any YAML files within a dataset directory in `src/pudl/package_data`.
 
-#### na_category *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= 'na_category'*
+#### na_category *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 'na_category'*
 
 All strings mapped to this category will be set to NA at the end.
 
@@ -411,7 +411,7 @@ Ensure that every category contains the string it will map to.
 This ensures that if the categorization is applied more than once, it doesn’t
 change the output.
 
-#### *property* mapping *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)]*
+#### *property* mapping *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
 A 1-to-1 mapping appropriate for use with `pd.Series.map()`.
 
@@ -445,13 +445,13 @@ values result in no alteration of the column.
     the series is not renamed. Note that either both or neither of `from_unit`
     and `to_unit` can be left unset, but not just one of them.
 
-#### multiplier *: [float](https://docs.python.org/3/library/functions.html#float)* *= 1.0*
+#### multiplier *: [float](https://docs.python.org/3/builtins/functions.html#float)* *= 1.0*
 
-#### adder *: [float](https://docs.python.org/3/library/functions.html#float)* *= 0.0*
+#### adder *: [float](https://docs.python.org/3/builtins/functions.html#float)* *= 0.0*
 
-#### from_unit *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= ''*
+#### from_unit *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= ''*
 
-#### to_unit *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= ''*
+#### to_unit *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= ''*
 
 #### both_or_neither_units_are_none()
 
@@ -465,11 +465,11 @@ Allows a unit conversion to be undone. This is currently used in the context of
 validating the combination of `UnitConversions` that are used in the
 [`UnitCorrections`](#pudl.transform.classes.UnitCorrections) parameter model.
 
-#### *property* pattern *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### *property* pattern *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
 Regular expression based on from_unit for use with [`re.sub()`](https://docs.python.org/3/library/re.html#re.sub).
 
-#### *property* repl *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### *property* repl *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
 Regex backreference to parentheticals, for use with [`re.sub()`](https://docs.python.org/3/library/re.html#re.sub).
 
@@ -487,11 +487,11 @@ Bases: [`TransformParams`](#pudl.transform.classes.TransformParams)
 
 Column level specification of min and/or max values.
 
-#### lower_bound *: [float](https://docs.python.org/3/library/functions.html#float)*
+#### lower_bound *: [float](https://docs.python.org/3/builtins/functions.html#float)*
 
-#### upper_bound *: [float](https://docs.python.org/3/library/functions.html#float)*
+#### upper_bound *: [float](https://docs.python.org/3/builtins/functions.html#float)*
 
-#### *classmethod* upper_bound_gte_lower_bound(upper_bound: [float](https://docs.python.org/3/library/functions.html#float), info: [pydantic.ValidationInfo](https://pydantic.dev/docs/validation/latest/api/pydantic-core/pydantic_core_schema/#pydantic_core.core_schema.ValidationInfo))
+#### *classmethod* upper_bound_gte_lower_bound(upper_bound: [float](https://docs.python.org/3/builtins/functions.html#float), info: [pydantic.ValidationInfo](https://pydantic.dev/docs/validation/latest/api/pydantic-core/pydantic_core_schema/#pydantic_core.core_schema.ValidationInfo))
 
 Require upper bound to be greater than or equal to lower bound.
 
@@ -515,15 +515,15 @@ Note that since the unit correction depends on other columns in the dataframe to
 select a relevant subset of records, it is a table transform not a column transform,
 and so needs to know what column it applies to internally.
 
-#### data_col *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### data_col *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
 The label of the column to be modified.
 
-#### cat_col *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### cat_col *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
 Label of a categorical column which will be used to select records to correct.
 
-#### cat_val *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### cat_val *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
 Categorical value to use to select records for correction.
 
@@ -531,11 +531,11 @@ Categorical value to use to select records for correction.
 
 The range of values expected to be found in `data_col`.
 
-#### unit_conversions *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[UnitConversion](#pudl.transform.classes.UnitConversion)]*
+#### unit_conversions *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[UnitConversion](#pudl.transform.classes.UnitConversion)]*
 
 A list of unit conversions to use to identify errors and correct them.
 
-#### *classmethod* no_column_rename(params: [list](https://docs.python.org/3/library/stdtypes.html#list)[[UnitConversion](#pudl.transform.classes.UnitConversion)]) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[UnitConversion](#pudl.transform.classes.UnitConversion)]
+#### *classmethod* no_column_rename(params: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[UnitConversion](#pudl.transform.classes.UnitConversion)]) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[UnitConversion](#pudl.transform.classes.UnitConversion)]
 
 Ensure that the unit conversions used in corrections don’t rename the column.
 
@@ -589,26 +589,26 @@ Bases: [`TransformParams`](#pudl.transform.classes.TransformParams)
 
 Pameters that identify invalid rows to drop.
 
-#### invalid_values *: Annotated[[set](https://docs.python.org/3/library/stdtypes.html#set)[Any], [Field](../../metadata/classes/index.html.md#pudl.metadata.classes.Field)(min_length=1)] | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### invalid_values *: Annotated[[set](https://docs.python.org/3/builtins/stdtypes.html#set)[Any], [Field](../../metadata/classes/index.html.md#pudl.metadata.classes.Field)(min_length=1)] | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
 A list of values that should be considered invalid in the selected columns.
 
-#### required_valid_cols *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### required_valid_cols *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
 List of columns passed into `pd.filter()` as the `items` argument.
 
-#### allowed_invalid_cols *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### allowed_invalid_cols *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
 List of columns *not* to search for valid values to preserve.
 
 Used to construct an `items` argument for `pd.filter()`. This option is useful
 when a table is wide, and specifying all `required_valid_cols` would be tedious.
 
-#### like *: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### like *: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
 A string to use as the `like` argument to `pd.filter()`
 
-#### regex *: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### regex *: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
 A regular expression to use as the `regex` argument to `pd.filter()`.
 
@@ -634,7 +634,7 @@ The categorize strings function replaces bad values, but it requires all the val
 in the column to fall under a certain category. This function allows you to replace
 certain specific values with NA without having to categorize the rest of the column.
 
-#### replace_with_na *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+#### replace_with_na *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
 A list of values that should be replaced with NA.
 
@@ -652,19 +652,19 @@ Bases: [`TransformParams`](#pudl.transform.classes.TransformParams)
 
 Parameters that replace certain values with a manually corrected value.
 
-#### idx_cols *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+#### idx_cols *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
 The column(s) used to identify a record.
 
-#### fix_cols *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+#### fix_cols *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
 The column(s) to be fixed.
 
-#### expect_unique *: [bool](https://docs.python.org/3/library/functions.html#bool)*
+#### expect_unique *: [bool](https://docs.python.org/3/builtins/functions.html#bool)*
 
 Set to True if each fix should correspond to only one row.
 
-#### spot_fixes *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str) | [int](https://docs.python.org/3/library/functions.html#int) | [float](https://docs.python.org/3/library/functions.html#float) | [bool](https://docs.python.org/3/library/functions.html#bool), ...]]*
+#### spot_fixes *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str) | [int](https://docs.python.org/3/builtins/functions.html#int) | [float](https://docs.python.org/3/builtins/functions.html#float) | [bool](https://docs.python.org/3/builtins/functions.html#bool), ...]]*
 
 A tuple containing the values of the idx_cols and fix_cols for each fix.
 
@@ -702,27 +702,27 @@ Data source-specific [`TableTransformParams`](#pudl.transform.classes.TableTrans
 the data source-specific transform modules and inherit from this class. See e.g.
 [`pudl.transform.ferc1.Ferc1TableTransformParams`](../ferc1/index.html.md#pudl.transform.ferc1.Ferc1TableTransformParams)
 
-#### convert_units *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [UnitConversion](#pudl.transform.classes.UnitConversion)]*
+#### convert_units *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [UnitConversion](#pudl.transform.classes.UnitConversion)]*
 
-#### categorize_strings *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [StringCategories](#pudl.transform.classes.StringCategories)]*
+#### categorize_strings *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [StringCategories](#pudl.transform.classes.StringCategories)]*
 
-#### nullify_outliers *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [ValidRange](#pudl.transform.classes.ValidRange)]*
+#### nullify_outliers *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [ValidRange](#pudl.transform.classes.ValidRange)]*
 
-#### normalize_strings *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [StringNormalization](#pudl.transform.classes.StringNormalization)]*
+#### normalize_strings *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [StringNormalization](#pudl.transform.classes.StringNormalization)]*
 
-#### strip_non_numeric_values *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [StripNonNumericValues](#pudl.transform.classes.StripNonNumericValues)]*
+#### strip_non_numeric_values *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [StripNonNumericValues](#pudl.transform.classes.StripNonNumericValues)]*
 
-#### replace_with_na *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [ReplaceWithNa](#pudl.transform.classes.ReplaceWithNa)]*
+#### replace_with_na *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [ReplaceWithNa](#pudl.transform.classes.ReplaceWithNa)]*
 
-#### correct_units *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[UnitCorrections](#pudl.transform.classes.UnitCorrections)]* *= []*
+#### correct_units *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[UnitCorrections](#pudl.transform.classes.UnitCorrections)]* *= []*
 
 #### rename_columns *: [RenameColumns](#pudl.transform.classes.RenameColumns)*
 
-#### drop_invalid_rows *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[InvalidRows](#pudl.transform.classes.InvalidRows)]* *= []*
+#### drop_invalid_rows *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[InvalidRows](#pudl.transform.classes.InvalidRows)]* *= []*
 
-#### spot_fix_values *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[SpotFixes](#pudl.transform.classes.SpotFixes)]* *= []*
+#### spot_fix_values *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[SpotFixes](#pudl.transform.classes.SpotFixes)]* *= []*
 
-#### *classmethod* from_dict(params: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]) → [TableTransformParams](#pudl.transform.classes.TableTransformParams)
+#### *classmethod* from_dict(params: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]) → [TableTransformParams](#pudl.transform.classes.TableTransformParams)
 
 Construct `TableTransformParams` from a dictionary of keyword arguments.
 
@@ -738,7 +738,7 @@ This is a shortcut, which allows us to constitute the parameter models based on
 the table they are associated with without having to pass in a potentially large
 nested data structure, which gets messy in Dagster.
 
-### pudl.transform.classes.cache_df(key: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'main') → [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[..., [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]
+### pudl.transform.classes.cache_df(key: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'main') → [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[..., [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]
 
 A decorator for caching dataframes within an [`AbstractTableTransformer`](#pudl.transform.classes.AbstractTableTransformer).
 
@@ -770,7 +770,7 @@ There’s a lot of nested functions in here. For a more thorough explanation, se
 * **Returns:**
   The decorated class method.
 
-### *class* pudl.transform.classes.AbstractTableTransformer(params: [TableTransformParams](#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, \*\*kwargs)
+### *class* pudl.transform.classes.AbstractTableTransformer(params: [TableTransformParams](#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True, \*\*kwargs)
 
 Bases: [`abc.ABC`](https://docs.python.org/3/library/abc.html#abc.ABC)
 
@@ -818,18 +818,18 @@ Name of the PUDL database table that this table transformer produces.
 Must be defined in the database schema / metadata. This ID is used to instantiate
 the appropriate [`TableTransformParams`](#pudl.transform.classes.TableTransformParams) object.
 
-#### cache_dfs *: [bool](https://docs.python.org/3/library/functions.html#bool)* *= False*
+#### cache_dfs *: [bool](https://docs.python.org/3/builtins/functions.html#bool)* *= False*
 
 Whether to cache copies of intermediate dataframes until transformation is done.
 
 When True, the TableTransformer will save dataframes internally at each step of the
 transform, so that they can be inspected easily if the transformation fails.
 
-#### clear_cached_dfs *: [bool](https://docs.python.org/3/library/functions.html#bool)* *= True*
+#### clear_cached_dfs *: [bool](https://docs.python.org/3/builtins/functions.html#bool)* *= True*
 
 Determines whether cached dataframes are deleted at the end of the transform.
 
-#### \_cached_dfs *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]*
+#### \_cached_dfs *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]*
 
 Cached intermediate dataframes for use in development and debugging.
 
@@ -892,48 +892,48 @@ database schema and dropping invalid records based on parameterized criteria.
 
 Apply all specified transformations to the appropriate input dataframes.
 
-#### rename_columns(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), params: [RenameColumns](#pudl.transform.classes.RenameColumns) | [None](https://docs.python.org/3/library/constants.html#None) = None, \*\*kwargs) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### rename_columns(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), params: [RenameColumns](#pudl.transform.classes.RenameColumns) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, \*\*kwargs) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Rename the whole collection of dataframe columns using input params.
 
 Raise an error if there’s any mismatch between the columns in the dataframe, and
 the columns that have been defined in the mapping for renaming.
 
-#### normalize_strings(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), params: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [bool](https://docs.python.org/3/library/functions.html#bool)] | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### normalize_strings(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), params: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [bool](https://docs.python.org/3/builtins/functions.html#bool)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Method wrapper for string normalization.
 
-#### strip_non_numeric_values(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), params: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [bool](https://docs.python.org/3/library/functions.html#bool)] | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### strip_non_numeric_values(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), params: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [bool](https://docs.python.org/3/builtins/functions.html#bool)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Method wrapper for stripping non-numeric values.
 
-#### categorize_strings(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), params: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [StringCategories](#pudl.transform.classes.StringCategories)] | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### categorize_strings(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), params: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [StringCategories](#pudl.transform.classes.StringCategories)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Method wrapper for string categorization.
 
-#### nullify_outliers(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), params: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [ValidRange](#pudl.transform.classes.ValidRange)] | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### nullify_outliers(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), params: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [ValidRange](#pudl.transform.classes.ValidRange)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Method wrapper for nullifying outlying values.
 
-#### convert_units(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), params: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [UnitConversion](#pudl.transform.classes.UnitConversion)] | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### convert_units(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), params: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [UnitConversion](#pudl.transform.classes.UnitConversion)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Method wrapper for columnwise unit conversions.
 
-#### correct_units(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), params: [UnitCorrections](#pudl.transform.classes.UnitCorrections) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### correct_units(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), params: [UnitCorrections](#pudl.transform.classes.UnitCorrections) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Apply all specified unit corrections to the table in order.
 
 Note: this is a table transform, not a multi-column transform.
 
-#### drop_invalid_rows(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), params: [list](https://docs.python.org/3/library/stdtypes.html#list)[[InvalidRows](#pudl.transform.classes.InvalidRows)] | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### drop_invalid_rows(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), params: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[InvalidRows](#pudl.transform.classes.InvalidRows)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Drop rows with only invalid values in all specified columns.
 
-#### replace_with_na(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), params: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [ReplaceWithNa](#pudl.transform.classes.ReplaceWithNa)] | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### replace_with_na(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), params: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [ReplaceWithNa](#pudl.transform.classes.ReplaceWithNa)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Replace specified values with NA.
 
-#### spot_fix_values(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), params: [list](https://docs.python.org/3/library/stdtypes.html#list)[[SpotFixes](#pudl.transform.classes.SpotFixes)] | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### spot_fix_values(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), params: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[SpotFixes](#pudl.transform.classes.SpotFixes)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Replace specified values with specified values.
 

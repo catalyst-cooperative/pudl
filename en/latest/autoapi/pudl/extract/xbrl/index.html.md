@@ -23,7 +23,7 @@ Generic extractor for all FERC XBRL data.
 
 ### pudl.extract.xbrl.logger
 
-### *class* pudl.extract.xbrl.\_FilteringStream(wrapped, drop_patterns: [list](https://docs.python.org/3/library/stdtypes.html#list)[[re.Pattern](https://docs.python.org/3/library/re.html#re.Pattern)[[str](https://docs.python.org/3/library/stdtypes.html#str)]])
+### *class* pudl.extract.xbrl.\_FilteringStream(wrapped, drop_patterns: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[re.Pattern](https://docs.python.org/3/library/re.html#re.Pattern)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]])
 
 Pass-through text stream that drops matching noisy lines.
 
@@ -33,9 +33,9 @@ Pass-through text stream that drops matching noisy lines.
 
 #### \_dropped_previous_line *= False*
 
-#### write(text: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [int](https://docs.python.org/3/library/functions.html#int)
+#### write(text: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [int](https://docs.python.org/3/builtins/functions.html#int)
 
-#### flush() → [None](https://docs.python.org/3/library/constants.html#None)
+#### flush() → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 ### pudl.extract.xbrl.\_suppress_arelle_message_spam()
 
@@ -51,11 +51,11 @@ Simple datastore wrapper for accessing ferc1 xbrl resources.
 
 Returns the path to the taxonomy entry point within the an archive.
 
-#### get_filings(year: [int](https://docs.python.org/3/library/functions.html#int), form: [pudl.settings.FercForm](../../settings/index.html.md#pudl.settings.FercForm)) → [io.BytesIO](https://docs.python.org/3/library/io.html#io.BytesIO)
+#### get_filings(year: [int](https://docs.python.org/3/builtins/functions.html#int), form: [pudl.settings.FercForm](../../settings/index.html.md#pudl.settings.FercForm)) → [io.BytesIO](https://docs.python.org/3/library/io.html#io.BytesIO)
 
 Return the corresponding archive full of XBRL filings.
 
-### pudl.extract.xbrl.convert_form(ferc_to_sqlite: [pudl.settings.FercToSqliteDataConfig](../../settings/index.html.md#pudl.settings.FercToSqliteDataConfig), form: [pudl.settings.FercForm](../../settings/index.html.md#pudl.settings.FercForm), datastore: [FercXbrlDatastore](#pudl.extract.xbrl.FercXbrlDatastore), pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths), batch_size: [int](https://docs.python.org/3/library/functions.html#int) | [None](https://docs.python.org/3/library/constants.html#None) = None, workers: [int](https://docs.python.org/3/library/functions.html#int) | [None](https://docs.python.org/3/library/constants.html#None) = None, loglevel: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'INFO') → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.extract.xbrl.convert_form(ferc_to_sqlite: [pudl.settings.FercToSqliteDataConfig](../../settings/index.html.md#pudl.settings.FercToSqliteDataConfig), form: [pudl.settings.FercForm](../../settings/index.html.md#pudl.settings.FercForm), datastore: [FercXbrlDatastore](#pudl.extract.xbrl.FercXbrlDatastore), pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths), batch_size: [int](https://docs.python.org/3/builtins/functions.html#int) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, workers: [int](https://docs.python.org/3/builtins/functions.html#int) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, loglevel: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'INFO') → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Clone a single FERC XBRL form to SQLite.
 

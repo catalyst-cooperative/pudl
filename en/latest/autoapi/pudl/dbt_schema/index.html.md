@@ -45,7 +45,7 @@ format, then applying human-sourced patches to the auto-generated schemas.
 
 ### pudl.dbt_schema.\_DESCRIPTION_WRAP_WIDTH *= 88*
 
-### pudl.dbt_schema.\_normalize_whitespace(text: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+### pudl.dbt_schema.\_normalize_whitespace(text: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Collapse all whitespace (including blank lines) to single spaces.
 
@@ -61,9 +61,9 @@ The `description` fields show up in two places: the typed `description` field on
 entries which are untyped `list` content that pydantic doesn’t otherwise inspect.
 This function is used as a validator for both.
 
-### pudl.dbt_schema.\_normalize_description_field(value: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)) → [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.dbt_schema.\_normalize_description_field(value: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)
 
-### pudl.dbt_schema.\_normalize_data_tests_field(value: [list](https://docs.python.org/3/library/stdtypes.html#list) | [None](https://docs.python.org/3/library/constants.html#None)) → [list](https://docs.python.org/3/library/stdtypes.html#list) | [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.dbt_schema.\_normalize_data_tests_field(value: [list](https://docs.python.org/3/builtins/stdtypes.html#list) | [None](https://docs.python.org/3/builtins/constants.html#None)) → [list](https://docs.python.org/3/builtins/stdtypes.html#list) | [None](https://docs.python.org/3/builtins/constants.html#None)
 
 ### pudl.dbt_schema.\_NormalizedDescription
 
@@ -71,7 +71,7 @@ This function is used as a validator for both.
 
 ### *class* pudl.dbt_schema.\_LiteralStr
 
-Bases: [`str`](https://docs.python.org/3/library/stdtypes.html#str)
+Bases: [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Marker subclass telling the dumper to use YAML literal block style (`|`).
 
@@ -81,7 +81,7 @@ Everything else (regexes, SQL snippets, argument lists) is left completely
 alone, since forcing a global line width in the dumper risks reflowing
 content where whitespace is significant.
 
-### pudl.dbt_schema.\_wrap_description(text: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [str](https://docs.python.org/3/library/stdtypes.html#str) | [\_LiteralStr](#pudl.dbt_schema._LiteralStr)
+### pudl.dbt_schema.\_wrap_description(text: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [\_LiteralStr](#pudl.dbt_schema._LiteralStr)
 
 Re-wrap a description string to short lines, for readability on disk.
 
@@ -100,11 +100,11 @@ plain string so short descriptions keep their current compact
 
 Recursively re-wrap every `description` field in a dumped schema dict.
 
-### pudl.dbt_schema.\_prettier_yaml_dumps(yaml_contents: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+### pudl.dbt_schema.\_prettier_yaml_dumps(yaml_contents: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Dump YAML to string that Prettier likes.
 
-### pudl.dbt_schema.\_foreign_key_data_tests(resource: [pudl.metadata.classes.Resource](../metadata/classes/index.html.md#pudl.metadata.classes.Resource)) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)] | [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.dbt_schema.\_foreign_key_data_tests(resource: [pudl.metadata.classes.Resource](../metadata/classes/index.html.md#pudl.metadata.classes.Resource)) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)] | [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Build `foreign_key` data test entries for a resource’s outgoing FKs.
 
@@ -121,15 +121,15 @@ Define yaml structure of a dbt column.
 
 Configuration for the model, should be a dictionary conforming to [ConfigDict][pydantic.config.ConfigDict].
 
-#### name *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### name *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
 #### description *: [\_NormalizedDescription](#pudl.dbt_schema._NormalizedDescription)* *= None*
 
 #### data_tests *: [\_NormalizedDataTests](#pudl.dbt_schema._NormalizedDataTests)* *= None*
 
-#### meta *: [dict](https://docs.python.org/3/library/stdtypes.html#dict) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### meta *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### tags *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### tags *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
 ### *class* pudl.dbt_schema.DbtTable(/, \*\*data: Any)
 
@@ -141,21 +141,21 @@ Define yaml structure of a dbt table.
 
 Configuration for the model, should be a dictionary conforming to [ConfigDict][pydantic.config.ConfigDict].
 
-#### name *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### name *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
 #### description *: [\_NormalizedDescription](#pudl.dbt_schema._NormalizedDescription)* *= None*
 
 #### data_tests *: [\_NormalizedDataTests](#pudl.dbt_schema._NormalizedDataTests)* *= None*
 
-#### columns *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[DbtColumn](#pudl.dbt_schema.DbtColumn)] | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### columns *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[DbtColumn](#pudl.dbt_schema.DbtColumn)] | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### meta *: [dict](https://docs.python.org/3/library/stdtypes.html#dict) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### meta *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### tags *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### tags *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### config *: [dict](https://docs.python.org/3/library/stdtypes.html#dict) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### config *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### *classmethod* from_table_name(table_name: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [DbtTable](#pudl.dbt_schema.DbtTable)
+#### *classmethod* from_table_name(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [DbtTable](#pudl.dbt_schema.DbtTable)
 
 Construct configuration defining table from PUDL metadata.
 
@@ -169,13 +169,13 @@ Define basic dbt yml structure to add a pudl table as a dbt source.
 
 Configuration for the model, should be a dictionary conforming to [ConfigDict][pydantic.config.ConfigDict].
 
-#### name *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= 'pudl'*
+#### name *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 'pudl'*
 
-#### tables *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[DbtTable](#pudl.dbt_schema.DbtTable)] | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### tables *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[DbtTable](#pudl.dbt_schema.DbtTable)] | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
 #### description *: [\_NormalizedDescription](#pudl.dbt_schema._NormalizedDescription)* *= None*
 
-#### meta *: [dict](https://docs.python.org/3/library/stdtypes.html#dict) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### meta *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
 ### *class* pudl.dbt_schema.DbtSchema(/, \*\*data: Any)
 
@@ -187,13 +187,13 @@ Define basic structure of a dbt models yaml file.
 
 Configuration for the model, should be a dictionary conforming to [ConfigDict][pydantic.config.ConfigDict].
 
-#### version *: [int](https://docs.python.org/3/library/functions.html#int)* *= 2*
+#### version *: [int](https://docs.python.org/3/builtins/functions.html#int)* *= 2*
 
-#### sources *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[DbtSource](#pudl.dbt_schema.DbtSource)] | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### sources *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[DbtSource](#pudl.dbt_schema.DbtSource)] | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### models *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[DbtTable](#pudl.dbt_schema.DbtTable)] | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### models *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[DbtTable](#pudl.dbt_schema.DbtTable)] | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### *classmethod* from_table_name(table_name: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [DbtSchema](#pudl.dbt_schema.DbtSchema)
+#### *classmethod* from_table_name(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [DbtSchema](#pudl.dbt_schema.DbtSchema)
 
 Construct configuration defining table from PUDL metadata.
 
@@ -220,7 +220,7 @@ Merge two DbtSchemas by applying human-schema as a patch on top of machine-schem
 
 Empty merged sources will be stored in the DbtSchema model as None to avoid serializing them.
 
-### pudl.dbt_schema.merge_by_name(machine_elements: [list](https://docs.python.org/3/library/stdtypes.html#list), human_elements: [list](https://docs.python.org/3/library/stdtypes.html#list), merger: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable), element_factory: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)) → [list](https://docs.python.org/3/library/stdtypes.html#list)
+### pudl.dbt_schema.merge_by_name(machine_elements: [list](https://docs.python.org/3/builtins/stdtypes.html#list), human_elements: [list](https://docs.python.org/3/builtins/stdtypes.html#list), merger: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable), element_factory: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)
 
 Perform a generic merge of two lists of dbt elements, matching by name.
 
@@ -231,7 +231,7 @@ Perform a generic merge of two lists of dbt elements, matching by name.
     column) and returns a new element that is the merged version.
   * **element_factory** – callable that takes the element name and returns an empty instance - used if e.g. the human element doesn’t exist.
 
-### pudl.dbt_schema.merge_sources_by_name(machine_sources: [list](https://docs.python.org/3/library/stdtypes.html#list)[[DbtSource](#pudl.dbt_schema.DbtSource)], human_sources: [list](https://docs.python.org/3/library/stdtypes.html#list)[[DbtSource](#pudl.dbt_schema.DbtSource)]) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[DbtSource](#pudl.dbt_schema.DbtSource)]
+### pudl.dbt_schema.merge_sources_by_name(machine_sources: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[DbtSource](#pudl.dbt_schema.DbtSource)], human_sources: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[DbtSource](#pudl.dbt_schema.DbtSource)]) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[DbtSource](#pudl.dbt_schema.DbtSource)]
 
 Match machine/human sources by name, then merge them.
 
@@ -242,7 +242,7 @@ Merge two DbtSources by applying human-source as a patch on top of machine-sourc
 Returns a deep copy of the machine source to avoid aliasing,
 updating with tables as the merge of the tables of the machine and human sources.
 
-### pudl.dbt_schema.merge_tables_by_name(machine_tables: [list](https://docs.python.org/3/library/stdtypes.html#list)[[DbtTable](#pudl.dbt_schema.DbtTable)], human_tables: [list](https://docs.python.org/3/library/stdtypes.html#list)[[DbtTable](#pudl.dbt_schema.DbtTable)]) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[DbtTable](#pudl.dbt_schema.DbtTable)]
+### pudl.dbt_schema.merge_tables_by_name(machine_tables: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[DbtTable](#pudl.dbt_schema.DbtTable)], human_tables: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[DbtTable](#pudl.dbt_schema.DbtTable)]) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[DbtTable](#pudl.dbt_schema.DbtTable)]
 
 Match machine/human tables by name, then merge them.
 
@@ -253,7 +253,7 @@ Merge two DbtTables by applying human-table as a patch on top of machine-table.
 Returns a deep copy of the machine table to avoid aliasing,
 updating with columns and table-level data tests as the merge of the respective machine and human data.
 
-### pudl.dbt_schema.merge_columns_by_name(machine_columns: [list](https://docs.python.org/3/library/stdtypes.html#list)[[DbtColumn](#pudl.dbt_schema.DbtColumn)], human_columns: [list](https://docs.python.org/3/library/stdtypes.html#list)[[DbtColumn](#pudl.dbt_schema.DbtColumn)]) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[DbtColumn](#pudl.dbt_schema.DbtColumn)]
+### pudl.dbt_schema.merge_columns_by_name(machine_columns: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[DbtColumn](#pudl.dbt_schema.DbtColumn)], human_columns: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[DbtColumn](#pudl.dbt_schema.DbtColumn)]) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[DbtColumn](#pudl.dbt_schema.DbtColumn)]
 
 Match machine/human columns by name, then merge them.
 

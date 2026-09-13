@@ -37,7 +37,7 @@ should go in dbt.
 
 ## Module Contents
 
-### pudl.dagster.asset_checks.group_mean_continuity_check(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), thresholds: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [float](https://docs.python.org/3/library/functions.html#float)], groupby_col: [str](https://docs.python.org/3/library/stdtypes.html#str), n_outliers_allowed: [int](https://docs.python.org/3/library/functions.html#int) = 0) → [dagster.AssetCheckResult](https://docs.dagster.io/api/dagster/asset-checks/#dagster.AssetCheckResult)
+### pudl.dagster.asset_checks.group_mean_continuity_check(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), thresholds: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [float](https://docs.python.org/3/builtins/functions.html#float)], groupby_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str), n_outliers_allowed: [int](https://docs.python.org/3/builtins/functions.html#int) = 0) → [dagster.AssetCheckResult](https://docs.dagster.io/api/dagster/asset-checks/#dagster.AssetCheckResult)
 
 Check that certain variables don’t vary too much on average between groups.
 
@@ -53,7 +53,7 @@ cooling systems didn’t jump by 10x from 2012-2013.”
   * **n_outliers_allowed** – how many data points are allowed to be above the
     threshold.
 
-### pudl.dagster.asset_checks.asset_check_from_schema(asset_key: [dagster.AssetKey](https://docs.dagster.io/api/dagster/assets/#dagster.AssetKey), package: [pudl.metadata.classes.Package](../../metadata/classes/index.html.md#pudl.metadata.classes.Package), duckdb_asset: [bool](https://docs.python.org/3/library/functions.html#bool)) → [dagster.AssetChecksDefinition](https://docs.dagster.io/api/dagster/asset-checks/#dagster.AssetChecksDefinition) | [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.dagster.asset_checks.asset_check_from_schema(asset_key: [dagster.AssetKey](https://docs.dagster.io/api/dagster/assets/#dagster.AssetKey), package: [pudl.metadata.classes.Package](../../metadata/classes/index.html.md#pudl.metadata.classes.Package), duckdb_asset: [bool](https://docs.python.org/3/builtins/functions.html#bool)) → [dagster.AssetChecksDefinition](https://docs.dagster.io/api/dagster/asset-checks/#dagster.AssetChecksDefinition) | [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Create a Dagster asset check based on the resource schema, if defined.
 
@@ -67,7 +67,7 @@ return `ParquetData` objects, which are handled by the default io-manager. In
 this case, the resulting parquet file(s) will be scanned with Polars to produce
 a LazyFrame, then handled exactly the same as a typical asset.
 
-### pudl.dagster.asset_checks.valid_datapackage_check(asset_key: [dagster.AssetKey](https://docs.dagster.io/api/dagster/assets/#dagster.AssetKey) | [str](https://docs.python.org/3/library/stdtypes.html#str), , description: [str](https://docs.python.org/3/library/stdtypes.html#str), blocking: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → [dagster.AssetChecksDefinition](https://docs.dagster.io/api/dagster/asset-checks/#dagster.AssetChecksDefinition)
+### pudl.dagster.asset_checks.valid_datapackage_check(asset_key: [dagster.AssetKey](https://docs.dagster.io/api/dagster/assets/#dagster.AssetKey) | [str](https://docs.python.org/3/builtins/stdtypes.html#str), , description: [str](https://docs.python.org/3/builtins/stdtypes.html#str), blocking: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True) → [dagster.AssetChecksDefinition](https://docs.dagster.io/api/dagster/asset-checks/#dagster.AssetChecksDefinition)
 
 Return a Dagster asset check that validates a frictionless datapackage descriptor.
 
@@ -86,7 +86,7 @@ resources, schemas, and fields against the frictionless spec using
 
 ### pudl.dagster.asset_checks.duckdb_assets *= ['core_ferceqr_\_quarterly_identity', 'core_ferceqr_\_contracts',...*
 
-### pudl.dagster.asset_checks.valid_datapackage_unit_strings_check(asset_key: [dagster.AssetKey](https://docs.dagster.io/api/dagster/assets/#dagster.AssetKey) | [str](https://docs.python.org/3/library/stdtypes.html#str), , description: [str](https://docs.python.org/3/library/stdtypes.html#str), blocking: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → [dagster.AssetChecksDefinition](https://docs.dagster.io/api/dagster/asset-checks/#dagster.AssetChecksDefinition)
+### pudl.dagster.asset_checks.valid_datapackage_unit_strings_check(asset_key: [dagster.AssetKey](https://docs.dagster.io/api/dagster/assets/#dagster.AssetKey) | [str](https://docs.python.org/3/builtins/stdtypes.html#str), , description: [str](https://docs.python.org/3/builtins/stdtypes.html#str), blocking: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True) → [dagster.AssetChecksDefinition](https://docs.dagster.io/api/dagster/asset-checks/#dagster.AssetChecksDefinition)
 
 Return a Dagster asset check that validates unit strings in a datapackage descriptor.
 

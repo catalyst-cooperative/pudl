@@ -27,15 +27,15 @@ asset checks, or when they don’t cleanly apply to an individual asset.
 
 ### pudl.validate.quality.logger
 
-### *exception* pudl.validate.quality.ExcessiveNullRowsError(message: [str](https://docs.python.org/3/library/stdtypes.html#str), null_rows: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame))
+### *exception* pudl.validate.quality.ExcessiveNullRowsError(message: [str](https://docs.python.org/3/builtins/stdtypes.html#str), null_rows: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame))
 
-Bases: [`ValueError`](https://docs.python.org/3/library/exceptions.html#ValueError)
+Bases: [`ValueError`](https://docs.python.org/3/builtins/exceptions.html#ValueError)
 
 Exception raised when rows have excessive null values.
 
 #### null_rows
 
-### pudl.validate.quality.no_null_rows(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [str](https://docs.python.org/3/library/stdtypes.html#str) = 'all', df_name: [str](https://docs.python.org/3/library/stdtypes.html#str) = '', max_null_fraction: [float](https://docs.python.org/3/library/functions.html#float) = 0.9) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.validate.quality.no_null_rows(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'all', df_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = '', max_null_fraction: [float](https://docs.python.org/3/builtins/functions.html#float) = 0.9) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Check for rows with excessive missing values, usually due to a merge gone wrong.
 
@@ -54,7 +54,7 @@ row is considered Null and the check fails.
   * [**ExcessiveNullRowsError**](#pudl.validate.quality.ExcessiveNullRowsError) – If the fraction of NA values in any row is greater than
   * **max_null_fraction\`** – 
 
-### pudl.validate.quality.weighted_quantile(data: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), weights: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), quantile: [float](https://docs.python.org/3/library/functions.html#float)) → [float](https://docs.python.org/3/library/functions.html#float)
+### pudl.validate.quality.weighted_quantile(data: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), weights: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), quantile: [float](https://docs.python.org/3/builtins/functions.html#float)) → [float](https://docs.python.org/3/builtins/functions.html#float)
 
 Calculate the weighted quantile of a Series or DataFrame column.
 

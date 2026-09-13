@@ -76,7 +76,7 @@ are so few records compared to the >90k total records.
 Then there are a few extra fun records that are still duplicated. These all have
 the know null-like operator_id_phmsa of 0 so we are going to drop them.
 
-### pudl.transform.phmsagas.\_assign_cols_from_patterns(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), col_patterns: [dict](https://docs.python.org/3/library/stdtypes.html#dict), pattern_col: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.transform.phmsagas.\_assign_cols_from_patterns(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), col_patterns: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict), pattern_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Add new columns based on regex patterns within an existing column.
 
@@ -106,7 +106,7 @@ This function mostly deduplicates the records on the core primary key.
 
 Melt a dataframe based on a filter regex pattern and assign pattern columns.
 
-### pudl.transform.phmsagas.\_melt_merge_main_services(cleaned_raw: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), main_pattern: [str](https://docs.python.org/3/library/stdtypes.html#str), services_pattern: [str](https://docs.python.org/3/library/stdtypes.html#str), col_patterns: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.transform.phmsagas.\_melt_merge_main_services(cleaned_raw: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), main_pattern: [str](https://docs.python.org/3/builtins/stdtypes.html#str), services_pattern: [str](https://docs.python.org/3/builtins/stdtypes.html#str), col_patterns: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Filter, melt, add columns then merge miles of main and service.
 
@@ -166,7 +166,7 @@ Transform table of damages - broken out by type and sub-type.
 
 Transform this distribution table of miscellaneous numeric values.
 
-### pudl.transform.phmsagas.\_assert_install_decade_totals_match_expected(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.transform.phmsagas.\_assert_install_decade_totals_match_expected(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Assert known mismatch counts between reported and summed install decades.
 

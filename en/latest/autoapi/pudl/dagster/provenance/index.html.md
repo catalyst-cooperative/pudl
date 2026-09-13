@@ -36,7 +36,7 @@ For the closest Dagster concept, see
 
 ### pudl.dagster.provenance.FERC_TO_SQLITE_METADATA_KEY *= 'ferc_to_sqlite'*
 
-### pudl.dagster.provenance.\_get_ferc_to_sqlite_asset_key(dataset: [str](https://docs.python.org/3/library/stdtypes.html#str), data_format: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [dagster.AssetKey](https://docs.dagster.io/api/dagster/assets/#dagster.AssetKey)
+### pudl.dagster.provenance.\_get_ferc_to_sqlite_asset_key(dataset: [str](https://docs.python.org/3/builtins/stdtypes.html#str), data_format: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [dagster.AssetKey](https://docs.dagster.io/api/dagster/assets/#dagster.AssetKey)
 
 Return the asset key corresponding to a ferc_to_sqlite asset from dataset/format.
 
@@ -49,15 +49,15 @@ compatible FERC SQLite prerequisite must contain. Used by
 `assert_ferc_sqlite_compatible()` to compare against the stored
 [`FercSqliteProvenanceRecord`](#pudl.dagster.provenance.FercSqliteProvenanceRecord) that was written when the DB was built.
 
-#### dataset *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### dataset *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### data_format *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### data_format *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### zenodo_doi *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### zenodo_doi *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### years *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[int](https://docs.python.org/3/library/functions.html#int)]*
+#### years *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[int](https://docs.python.org/3/builtins/functions.html#int)]*
 
-#### ferc_xbrl_extractor_version *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### ferc_xbrl_extractor_version *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
 #### *property* asset_key *: [dagster.AssetKey](https://docs.dagster.io/api/dagster/assets/#dagster.AssetKey)*
 
@@ -69,7 +69,7 @@ Bases: [`pydantic.BaseModel`](https://pydantic.dev/docs/validation/latest/api/py
 
 Stored provenance + extra debugging fields from materialization time.
 
-#### dataset *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### dataset *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
 #### data_format *: Literal['dbf', 'xbrl']*
 
@@ -77,20 +77,20 @@ Stored provenance + extra debugging fields from materialization time.
 
 #### source *: Literal['nightly', 'local_cache', 'local_new']*
 
-#### zenodo_doi *: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### zenodo_doi *: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### years *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[int](https://docs.python.org/3/library/functions.html#int)] | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### years *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[int](https://docs.python.org/3/builtins/functions.html#int)] | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### data_config *: [pudl.settings.FercToSqliteDataConfig](../../settings/index.html.md#pudl.settings.FercToSqliteDataConfig) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### data_config *: [pudl.settings.FercToSqliteDataConfig](../../settings/index.html.md#pudl.settings.FercToSqliteDataConfig) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### ferc_xbrl_extractor_version *: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### ferc_xbrl_extractor_version *: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### *classmethod* from_dagster_instance(instance: [dagster.DagsterInstance](https://docs.dagster.io/api/dagster/internals/#dagster.DagsterInstance), dataset: [str](https://docs.python.org/3/library/stdtypes.html#str), data_format: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [FercSqliteProvenanceRecord](#pudl.dagster.provenance.FercSqliteProvenanceRecord)
+#### *classmethod* from_dagster_instance(instance: [dagster.DagsterInstance](https://docs.dagster.io/api/dagster/internals/#dagster.DagsterInstance), dataset: [str](https://docs.python.org/3/builtins/stdtypes.html#str), data_format: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [FercSqliteProvenanceRecord](#pudl.dagster.provenance.FercSqliteProvenanceRecord)
 
 Return FercSqliteProvenanceRecord from dagster metadata if available.
 
 * **Raises:**
-  [**RuntimeError**](https://docs.python.org/3/library/exceptions.html#RuntimeError) – if no Dagster provenance metadata is available.
+  [**RuntimeError**](https://docs.python.org/3/builtins/exceptions.html#RuntimeError) – if no Dagster provenance metadata is available.
 
 #### to_datapackage(datapackage_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path))
 
@@ -104,11 +104,11 @@ Note that this method accepts `datapackage_path` as a `UPath` as we read
 provenance metadata directly from nightly builds, but `to_datapackage` only
 accepts a regular `Path`, as we should never try to write directly to s3.
 
-### pudl.dagster.provenance.get_xbrl_extractor_version() → [str](https://docs.python.org/3/library/stdtypes.html#str)
+### pudl.dagster.provenance.get_xbrl_extractor_version() → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Return the installed version of `catalystcoop.ferc_xbrl_extractor`.
 
-### pudl.dagster.provenance.ferc_sqlite_provenance_is_compatible(, observed_provenance: [FercSqliteProvenanceRecord](#pudl.dagster.provenance.FercSqliteProvenanceRecord) | [None](https://docs.python.org/3/library/constants.html#None), required_provenance: [FercSqliteProvenance](#pudl.dagster.provenance.FercSqliteProvenance)) → [bool](https://docs.python.org/3/library/functions.html#bool)
+### pudl.dagster.provenance.ferc_sqlite_provenance_is_compatible(, observed_provenance: [FercSqliteProvenanceRecord](#pudl.dagster.provenance.FercSqliteProvenanceRecord) | [None](https://docs.python.org/3/builtins/constants.html#None), required_provenance: [FercSqliteProvenance](#pudl.dagster.provenance.FercSqliteProvenance)) → [bool](https://docs.python.org/3/builtins/functions.html#bool)
 
 Ensure a persisted FERC SQLite prerequisite is compatible with this run.
 

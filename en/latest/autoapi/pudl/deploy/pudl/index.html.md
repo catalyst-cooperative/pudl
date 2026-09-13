@@ -92,13 +92,13 @@ container doesn’t have (that check lives in the GHA workflow instead).
 
 Configuration for the model, should be a dictionary conforming to [ConfigDict][pydantic.config.ConfigDict].
 
-#### git_tag *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### git_tag *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
 #### environment *: Literal['staging', 'production']*
 
-#### deploy_to_gcs *: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### deploy_to_gcs *: [bool](https://docs.python.org/3/builtins/functions.html#bool) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### deploy_to_s3 *: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### deploy_to_s3 *: [bool](https://docs.python.org/3/builtins/functions.html#bool) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
 #### *property* deploy_type *: [DeploymentType](#pudl.deploy.pudl.DeploymentType)*
 
@@ -108,7 +108,7 @@ The deploy type implied by `git_tag`’s shape.
 
 #### \_validate_has_an_upload_target() → [DeploymentPlan](#pudl.deploy.pudl.DeploymentPlan)
 
-#### *property* upload_to_gcs *: [bool](https://docs.python.org/3/library/functions.html#bool)*
+#### *property* upload_to_gcs *: [bool](https://docs.python.org/3/builtins/functions.html#bool)*
 
 Whether this deployment uploads outputs to GCS.
 
@@ -116,7 +116,7 @@ Defaults to `True` for every deploy type – GCS has no egress fees and is
 the primary distribution target – but a build can still explicitly opt out
 (e.g. an S3-only test).
 
-#### *property* upload_to_s3 *: [bool](https://docs.python.org/3/library/functions.html#bool)*
+#### *property* upload_to_s3 *: [bool](https://docs.python.org/3/builtins/functions.html#bool)*
 
 Whether this deployment uploads outputs to S3.
 
@@ -125,7 +125,7 @@ Nightly and stable deploys default to `True`. Branch builds default to
 exercises the real S3 deployment every night anyway. A branch build can
 still opt in explicitly when that’s the thing being tested.
 
-#### *property* path_suffixes *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+#### *property* path_suffixes *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
 Cloud storage path suffixes this deployment uploads to.
 
@@ -133,11 +133,11 @@ Nightly and branch builds share the same rolling “nightly”/”eel-hole”
 paths; stable releases get their own permanent version-tagged path plus
 “stable”.
 
-#### *property* zenodo_source_suffix *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### *property* zenodo_source_suffix *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
 The single path suffix Zenodo should pull outputs from.
 
-#### *property* gcs_temporary_hold *: [bool](https://docs.python.org/3/library/functions.html#bool)*
+#### *property* gcs_temporary_hold *: [bool](https://docs.python.org/3/builtins/functions.html#bool)*
 
 Whether this deployment’s permanent path should get a GCS temporary hold.
 
@@ -145,25 +145,25 @@ Only a *production* stable release gets a hold, protecting its permanent
 version-tagged path. A staging deploy of the same tag is just a disposable
 test output and must remain clearable.
 
-#### *property* immutable_suffixes *: [frozenset](https://docs.python.org/3/library/stdtypes.html#frozenset)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+#### *property* immutable_suffixes *: [frozenset](https://docs.python.org/3/builtins/stdtypes.html#frozenset)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
 Path suffixes that are permanent and must never be cleared before upload.
 
 This is also the only path that’s protected by `gcs_temporary_hold`.
 
-#### *property* redeploy_eel_hole *: [bool](https://docs.python.org/3/library/functions.html#bool)*
+#### *property* redeploy_eel_hole *: [bool](https://docs.python.org/3/builtins/functions.html#bool)*
 
 Whether this deployment should redeploy the PUDL Viewer (Eel Hole).
 
-#### *property* update_git_branch *: [bool](https://docs.python.org/3/library/functions.html#bool)*
+#### *property* update_git_branch *: [bool](https://docs.python.org/3/builtins/functions.html#bool)*
 
 Whether this deployment should fast-forward a git branch to its tag.
 
-#### *property* trigger_zenodo_release *: [bool](https://docs.python.org/3/library/functions.html#bool)*
+#### *property* trigger_zenodo_release *: [bool](https://docs.python.org/3/builtins/functions.html#bool)*
 
 Whether this deployment should trigger a Zenodo release.
 
-### pudl.deploy.pudl.\_zip_parquet_files(parquet_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), output_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.deploy.pudl.\_zip_parquet_files(parquet_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), output_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Create a zipfile containing parquet files and an associated datapackage JSON file.
 
@@ -174,14 +174,14 @@ JSON file that describes those parquet files.
   * **parquet_path** – Path to directory containing parquet files.
   * **output_path** – Path to zipfile that should be created by this function.
 
-### pudl.deploy.pudl.\_compress_sqlite_file(sqlite_file: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.deploy.pudl.\_compress_sqlite_file(sqlite_file: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Compress a SQLite database into a zip file and remove the original.
 
 Safe to call concurrently across different files – each call only touches
 its own independent `ZipFile` and path.
 
-### pudl.deploy.pudl.download_build_outputs(local_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), build_path: upath.UPath) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.deploy.pudl.download_build_outputs(local_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), build_path: upath.UPath) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Download raw ETL build outputs from builds.catalyst.coop to local disk.
 
@@ -193,7 +193,7 @@ timed and reported as separate deploy stages.
   * **local_path** – Path on local filesystem to download outputs into.
   * **build_path** – Remote path containing raw build outputs.
 
-### pudl.deploy.pudl.prepare_outputs_for_distribution(local_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), build_path: upath.UPath) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.deploy.pudl.prepare_outputs_for_distribution(local_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), build_path: upath.UPath) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Prepare already-downloaded ETL outputs for distribution.
 
@@ -213,7 +213,7 @@ them.
   * **build_path** – Remote path the raw build outputs came from – only used here to
     derive the build ID for the provenance marker file.
 
-### pudl.deploy.pudl.clear_deployment_path(fs, path: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.deploy.pudl.clear_deployment_path(fs, path: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Empty a cloud storage prefix before writing fresh deployment outputs.
 
@@ -222,7 +222,7 @@ use `fs.rm(path, recursive=True)` instead of `rmdir()`, which would raise
 `NotADirectoryError` – the same pattern used for FERC EQR staging cleanup in
 `pudl.dagster.assets.deploy.ferceqr`.
 
-### pudl.deploy.pudl.\_upload_to_path(fs, path: [str](https://docs.python.org/3/library/stdtypes.html#str), source_dir: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), clear_first: [bool](https://docs.python.org/3/library/functions.html#bool)) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.deploy.pudl.\_upload_to_path(fs, path: [str](https://docs.python.org/3/builtins/stdtypes.html#str), source_dir: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), clear_first: [bool](https://docs.python.org/3/builtins/functions.html#bool)) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Clear (if requested) and upload all outputs to one destination path.
 
@@ -230,7 +230,7 @@ Safe to call concurrently for different `(fs, path)` combinations – gcsfs
 and s3fs are both designed to support concurrent use from multiple threads,
 and each call here only touches its own independent bucket/path.
 
-### pudl.deploy.pudl.\_assert_permanent_paths_are_empty(gcs_fs: gcsfs.GCSFileSystem | [None](https://docs.python.org/3/library/constants.html#None), s3_fs: s3fs.S3FileSystem | [None](https://docs.python.org/3/library/constants.html#None), path_suffixes: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], immutable_suffixes: [frozenset](https://docs.python.org/3/library/stdtypes.html#frozenset)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.deploy.pudl.\_assert_permanent_paths_are_empty(gcs_fs: gcsfs.GCSFileSystem | [None](https://docs.python.org/3/builtins/constants.html#None), s3_fs: s3fs.S3FileSystem | [None](https://docs.python.org/3/builtins/constants.html#None), path_suffixes: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], immutable_suffixes: [frozenset](https://docs.python.org/3/builtins/stdtypes.html#frozenset)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Refuse to deploy to a permanent, version-tagged path that already has content.
 
@@ -242,7 +242,7 @@ which almost always means the same version tag is being deployed a second time.
 That’s an invalid request, so we check and raise up front rather than silently
 uploading over the top of it.
 
-### pudl.deploy.pudl.upload_outputs(source_dir: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), path_suffixes: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], immutable_suffixes: [frozenset](https://docs.python.org/3/library/stdtypes.html#frozenset)[[str](https://docs.python.org/3/library/stdtypes.html#str)] = frozenset(), upload_to_gcs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, upload_to_s3: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.deploy.pudl.upload_outputs(source_dir: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), path_suffixes: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], immutable_suffixes: [frozenset](https://docs.python.org/3/builtins/stdtypes.html#frozenset)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] = frozenset(), upload_to_gcs: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True, upload_to_s3: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Upload outputs to cloud storage paths.
 
@@ -267,10 +267,10 @@ network destinations, and this is I/O-bound work that releases the GIL.
   * **upload_to_s3** – Whether to upload to S3. Branch builds skip S3 by default
     because its egress fees are large and the nightly build tests it anyway.
 * **Raises:**
-  * [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – If neither `upload_to_gcs` nor `upload_to_s3` is enabled.
-  * [**RuntimeError**](https://docs.python.org/3/library/exceptions.html#RuntimeError) – If a permanent, immutable path already has content.
+  * [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – If neither `upload_to_gcs` nor `upload_to_s3` is enabled.
+  * [**RuntimeError**](https://docs.python.org/3/builtins/exceptions.html#RuntimeError) – If a permanent, immutable path already has content.
 
-### pudl.deploy.pudl.update_git_branch(tag: [str](https://docs.python.org/3/library/stdtypes.html#str), branch: [str](https://docs.python.org/3/library/stdtypes.html#str), environment: Literal['staging', 'production'], github_token: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.deploy.pudl.update_git_branch(tag: [str](https://docs.python.org/3/builtins/stdtypes.html#str), branch: [str](https://docs.python.org/3/builtins/stdtypes.html#str), environment: Literal['staging', 'production'], github_token: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Merge git tag into branch and push to origin.
 
@@ -287,7 +287,7 @@ git push.
 * **Raises:**
   [**subprocess.CalledProcessError**](https://docs.python.org/3/library/subprocess.html#subprocess.CalledProcessError) – If git commands fail.
 
-### pudl.deploy.pudl.dispatch_github_workflow(repo: [str](https://docs.python.org/3/library/stdtypes.html#str), workflow_file: [str](https://docs.python.org/3/library/stdtypes.html#str), ref: [str](https://docs.python.org/3/library/stdtypes.html#str), token: [str](https://docs.python.org/3/library/stdtypes.html#str), inputs: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)] | [None](https://docs.python.org/3/library/constants.html#None) = None) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.deploy.pudl.dispatch_github_workflow(repo: [str](https://docs.python.org/3/builtins/stdtypes.html#str), workflow_file: [str](https://docs.python.org/3/builtins/stdtypes.html#str), ref: [str](https://docs.python.org/3/builtins/stdtypes.html#str), token: [str](https://docs.python.org/3/builtins/stdtypes.html#str), inputs: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Trigger a workflow_dispatch event on a GitHub Actions workflow.
 
@@ -298,7 +298,7 @@ Trigger a workflow_dispatch event on a GitHub Actions workflow.
   * **token** – Bearer token to authenticate to GitHub.
   * **inputs** – workflow_dispatch inputs, if the workflow takes any.
 
-### pudl.deploy.pudl.trigger_zenodo_release(build_ref: [str](https://docs.python.org/3/library/stdtypes.html#str), deploy_type: [DeploymentType](#pudl.deploy.pudl.DeploymentType), source_suffix: [str](https://docs.python.org/3/library/stdtypes.html#str), token: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.deploy.pudl.trigger_zenodo_release(build_ref: [str](https://docs.python.org/3/builtins/stdtypes.html#str), deploy_type: [DeploymentType](#pudl.deploy.pudl.DeploymentType), source_suffix: [str](https://docs.python.org/3/builtins/stdtypes.html#str), token: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Trigger Zenodo data release GitHub Actions workflow.
 
@@ -312,7 +312,7 @@ deposition with PUDL data outputs.
     path to data outputs which will populate zenodo deposition.
   * **token** – the bearer token to authenticate to GitHub.
 
-### pudl.deploy.pudl.update_pudl_viewer(token: [str](https://docs.python.org/3/library/stdtypes.html#str), environment: Literal['staging', 'production']) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.deploy.pudl.update_pudl_viewer(token: [str](https://docs.python.org/3/builtins/stdtypes.html#str), environment: Literal['staging', 'production']) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Update PUDL Viewer Cloud Run service to latest image.
 
@@ -320,7 +320,7 @@ Update PUDL Viewer Cloud Run service to latest image.
   * **token** – the bearer token to authenticate to GitHub.
   * **environment** – deploy staging or production version of viewer.
 
-### pudl.deploy.pudl.set_gcs_temporary_hold(gcs_path: [str](https://docs.python.org/3/library/stdtypes.html#str), billing_project: [str](https://docs.python.org/3/library/stdtypes.html#str) = '') → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.deploy.pudl.set_gcs_temporary_hold(gcs_path: [str](https://docs.python.org/3/builtins/stdtypes.html#str), billing_project: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = '') → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Set temporary hold on GCS objects to prevent deletion.
 
@@ -338,18 +338,18 @@ accidental deletion or lifecycle policies.
     resolution the `gcloud` CLI itself uses, so e.g. a local dev shell
     with a configured `gcloud` project needs no explicit argument.
 * **Raises:**
-  [**RuntimeError**](https://docs.python.org/3/library/exceptions.html#RuntimeError) – If no objects are found at `gcs_path` or a post-hold
+  [**RuntimeError**](https://docs.python.org/3/builtins/exceptions.html#RuntimeError) – If no objects are found at `gcs_path` or a post-hold
   sweep finds objects still missing the hold.
 
 ### pudl.deploy.pudl.check_build_success(build_path: upath.UPath) → upath.UPath
 
 Raise error if success file doesn’t exist in build directory.
 
-### pudl.deploy.pudl.get_build_from_tag(tag: [str](https://docs.python.org/3/library/stdtypes.html#str)) → upath.UPath
+### pudl.deploy.pudl.get_build_from_tag(tag: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → upath.UPath
 
 Find any builds associated with a git tag and return a GCS path to most recent build.
 
-### pudl.deploy.pudl.get_deployment_type_from_tag(git_tag: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [DeploymentType](#pudl.deploy.pudl.DeploymentType)
+### pudl.deploy.pudl.get_deployment_type_from_tag(git_tag: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [DeploymentType](#pudl.deploy.pudl.DeploymentType)
 
 Check if tag looks like a ‘nightly’, ‘branch’, or ‘stable’ tag.
 
@@ -361,13 +361,13 @@ Everything `pudl_deploy`’s `main()` needs after resolving a deployment.
 
 #### build_path *: upath.UPath*
 
-#### build_id *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### build_id *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
 #### local_copy_path *: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)*
 
 #### local_logfile *: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)*
 
-### pudl.deploy.pudl.resolve_build(git_tag: [str](https://docs.python.org/3/library/stdtypes.html#str), environment: Literal['staging', 'production'], deploy_to_gcs: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, deploy_to_s3: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [ResolvedBuild](#pudl.deploy.pudl.ResolvedBuild)
+### pudl.deploy.pudl.resolve_build(git_tag: [str](https://docs.python.org/3/builtins/stdtypes.html#str), environment: Literal['staging', 'production'], deploy_to_gcs: [bool](https://docs.python.org/3/builtins/functions.html#bool) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, deploy_to_s3: [bool](https://docs.python.org/3/builtins/functions.html#bool) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [ResolvedBuild](#pudl.deploy.pudl.ResolvedBuild)
 
 Resolve the deployment plan, locate the build, and set up local logging.
 
@@ -430,13 +430,13 @@ Outcome of a single deployment stage, for Zulip stage-table reporting.
 
 #### status *: [StageStatus](#pudl.deploy.pudl.StageStatus)*
 
-#### duration_seconds *: [float](https://docs.python.org/3/library/functions.html#float)* *= 0.0*
+#### duration_seconds *: [float](https://docs.python.org/3/builtins/functions.html#float)* *= 0.0*
 
-### pudl.deploy.pudl.new_deploy_stage_results() → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[DeployStage](#pudl.deploy.pudl.DeployStage), [StageResult](#pudl.deploy.pudl.StageResult)]
+### pudl.deploy.pudl.new_deploy_stage_results() → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[DeployStage](#pudl.deploy.pudl.DeployStage), [StageResult](#pudl.deploy.pudl.StageResult)]
 
 Initialize every tracked deploy stage as skipped, in table display order.
 
-### pudl.deploy.pudl.run_stage(stage_fn: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[..., [T](../../metadata/classes/index.html.md#pudl.metadata.classes.T)], stage_name: [DeployStage](#pudl.deploy.pudl.DeployStage), stage_results: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[DeployStage](#pudl.deploy.pudl.DeployStage), [StageResult](#pudl.deploy.pudl.StageResult)], \*args, fail_hard: [bool](https://docs.python.org/3/library/functions.html#bool) = True, \*\*kwargs) → [T](../../metadata/classes/index.html.md#pudl.metadata.classes.T) | [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.deploy.pudl.run_stage(stage_fn: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[..., [T](../../metadata/classes/index.html.md#pudl.metadata.classes.T)], stage_name: [DeployStage](#pudl.deploy.pudl.DeployStage), stage_results: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[DeployStage](#pudl.deploy.pudl.DeployStage), [StageResult](#pudl.deploy.pudl.StageResult)], \*args, fail_hard: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True, \*\*kwargs) → [T](../../metadata/classes/index.html.md#pudl.metadata.classes.T) | [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Run a deploy stage, recording its status and duration in `stage_results`.
 
@@ -451,15 +451,15 @@ Returns whatever `stage_fn` returns (`None` if it failed with
 – can be run through the same tracking/reporting machinery as side-effect-only
 stages.
 
-### pudl.deploy.pudl.format_stage_duration(elapsed_seconds: [float](https://docs.python.org/3/library/functions.html#float)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+### pudl.deploy.pudl.format_stage_duration(elapsed_seconds: [float](https://docs.python.org/3/builtins/functions.html#float)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Format a duration in seconds as `HH:MM:SS`.
 
-### pudl.deploy.pudl.stage_emoji(status: [StageStatus](#pudl.deploy.pudl.StageStatus)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+### pudl.deploy.pudl.stage_emoji(status: [StageStatus](#pudl.deploy.pudl.StageStatus)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Return the Zulip emoji corresponding to a stage status.
 
-### pudl.deploy.pudl.build_deploy_logfile_links(build_id: [str](https://docs.python.org/3/library/stdtypes.html#str), deploy_logfile_name: [str](https://docs.python.org/3/library/stdtypes.html#str), batch_job_name: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+### pudl.deploy.pudl.build_deploy_logfile_links(build_id: [str](https://docs.python.org/3/builtins/stdtypes.html#str), deploy_logfile_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), batch_job_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Build markdown links for reviewing a deployment’s logs and outputs.
 
@@ -474,10 +474,10 @@ nightly build’s own Zulip notification (see `pudl_logfile_links`).
     known – omitted from the message (rather than producing a broken
     link) when unset, e.g. when testing outside of an actual Batch job.
 
-### pudl.deploy.pudl.build_deploy_zulip_message(build_id: [str](https://docs.python.org/3/library/stdtypes.html#str), git_tag: [str](https://docs.python.org/3/library/stdtypes.html#str), stage_results: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[DeployStage](#pudl.deploy.pudl.DeployStage), [StageResult](#pudl.deploy.pudl.StageResult)], total_duration_seconds: [float](https://docs.python.org/3/library/functions.html#float), deploy_logfile_name: [str](https://docs.python.org/3/library/stdtypes.html#str), batch_job_name: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+### pudl.deploy.pudl.build_deploy_zulip_message(build_id: [str](https://docs.python.org/3/builtins/stdtypes.html#str), git_tag: [str](https://docs.python.org/3/builtins/stdtypes.html#str), stage_results: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[DeployStage](#pudl.deploy.pudl.DeployStage), [StageResult](#pudl.deploy.pudl.StageResult)], total_duration_seconds: [float](https://docs.python.org/3/builtins/functions.html#float), deploy_logfile_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), batch_job_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Build a markdown Zulip message summarizing deployment stage statuses.
 
-### pudl.deploy.pudl.send_zulip_message(message: [str](https://docs.python.org/3/library/stdtypes.html#str), api_key: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.deploy.pudl.send_zulip_message(message: [str](https://docs.python.org/3/builtins/stdtypes.html#str), api_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Post a message to the pudl-deployments Zulip stream.

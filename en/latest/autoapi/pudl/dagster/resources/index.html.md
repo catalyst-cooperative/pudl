@@ -51,9 +51,9 @@ Explicit Dagster resource config takes precedence. Any unset field falls back to
 the current process environment so dg runs, local .env files, test fixtures,
 and container-provided environment variables all share a single typed entry point.
 
-#### pudl_input *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### pudl_input *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### pudl_output *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### pudl_output *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
 #### create_resource(context) → [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths)
 
@@ -65,11 +65,11 @@ Bases: [`dagster.ConfigurableResource`](https://docs.dagster.io/api/dagster/reso
 
 Encodes runtime settings for the ferc_to_sqlite graphs.
 
-#### xbrl_num_workers *: [None](https://docs.python.org/3/library/constants.html#None) | [int](https://docs.python.org/3/library/functions.html#int)* *= None*
+#### xbrl_num_workers *: [None](https://docs.python.org/3/builtins/constants.html#None) | [int](https://docs.python.org/3/builtins/functions.html#int)* *= None*
 
-#### xbrl_batch_size *: [int](https://docs.python.org/3/library/functions.html#int)* *= 50*
+#### xbrl_batch_size *: [int](https://docs.python.org/3/builtins/functions.html#int)* *= 50*
 
-#### xbrl_loglevel *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= 'INFO'*
+#### xbrl_loglevel *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 'INFO'*
 
 ### *class* pudl.dagster.resources.GlobalDataConfigResource
 
@@ -77,7 +77,7 @@ Bases: [`dagster.ConfigurableResource`](https://docs.dagster.io/api/dagster/reso
 
 Load validated PUDL data configuration from a shared ETL YAML file.
 
-#### global_data_config_path *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= ''*
+#### global_data_config_path *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= ''*
 
 #### create_resource(context) → [pudl.settings.GlobalDataConfig](../../settings/index.html.md#pudl.settings.GlobalDataConfig)
 
@@ -98,7 +98,7 @@ Two configuration paths are supported:
   file, allowing deployments or tests to substitute different DOIs without modifying
   the source code.
 
-#### zenodo_dois_path *: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### zenodo_dois_path *: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
 #### create_resource(context) → [pudl.workspace.datastore.ZenodoDoiSettings](../../workspace/datastore/index.html.md#pudl.workspace.datastore.ZenodoDoiSettings)
 
@@ -114,9 +114,9 @@ Dagster resource to interact with Zenodo archives.
 
 #### pudl_paths *: dagster.ResourceDependency[[PudlPathsResource](#pudl.dagster.resources.PudlPathsResource)]*
 
-#### cloud_cache_path *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= 's3://pudl.catalyst.coop/zenodo'*
+#### cloud_cache_path *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 's3://pudl.catalyst.coop/zenodo'*
 
-#### use_local_cache *: [bool](https://docs.python.org/3/library/functions.html#bool)* *= True*
+#### use_local_cache *: [bool](https://docs.python.org/3/builtins/functions.html#bool)* *= True*
 
 #### create_resource(context) → [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore)
 
@@ -132,7 +132,7 @@ The default value of `path` points to the published archive of FERC EQR filings 
 GCS which is what we use in production. For testing or development, this can be
 overridden to point to a local path with a subset of the archive.
 
-#### path *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### path *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
 #### *property* upath *: upath.UPath*
 
@@ -149,13 +149,13 @@ URI, `gs://` URI, or `s3://` URI.  `storage_options` is unpacked as
 `**kwargs` when constructing the `UPath`, allowing per-target fsspec
 settings such as `requester_pays=True` for requester-pays GCS buckets.
 
-#### path *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### path *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### storage_options *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]*
+#### storage_options *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]*
 
-#### append_build_id *: [bool](https://docs.python.org/3/library/functions.html#bool)* *= False*
+#### append_build_id *: [bool](https://docs.python.org/3/builtins/functions.html#bool)* *= False*
 
-#### *classmethod* validate_path(value: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+#### *classmethod* validate_path(value: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Validate deployment targets as remote URLs or local directories.
 
@@ -169,19 +169,19 @@ Deployment targets can be provided directly as structured config or loaded from 
 YAML file. Direct `deployment_targets` take precedence. When neither explicit
 targets nor a deployment config path are provided, deployment is skipped.
 
-#### deployment_targets *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[FercEqrDeploymentTargetConfig](#pudl.dagster.resources.FercEqrDeploymentTargetConfig)]* *= []*
+#### deployment_targets *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[FercEqrDeploymentTargetConfig](#pudl.dagster.resources.FercEqrDeploymentTargetConfig)]* *= []*
 
-#### deployment_config_path *: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### deployment_config_path *: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### *classmethod* from_yaml(deployment_config_path: [str](https://docs.python.org/3/library/stdtypes.html#str) | [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [FercEqrDeploymentResource](#pudl.dagster.resources.FercEqrDeploymentResource)
+#### *classmethod* from_yaml(deployment_config_path: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [FercEqrDeploymentResource](#pudl.dagster.resources.FercEqrDeploymentResource)
 
 Create a FERC EQR deployment resource from a YAML config file.
 
-#### configured_targets() → [list](https://docs.python.org/3/library/stdtypes.html#list)[[FercEqrDeploymentTargetConfig](#pudl.dagster.resources.FercEqrDeploymentTargetConfig)]
+#### configured_targets() → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[FercEqrDeploymentTargetConfig](#pudl.dagster.resources.FercEqrDeploymentTargetConfig)]
 
 Return deployment-target config with explicit overrides taking precedence.
 
-#### resolved_targets() → [list](https://docs.python.org/3/library/stdtypes.html#list)[upath.UPath]
+#### resolved_targets() → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[upath.UPath]
 
 Return the list of `UPath` deployment destinations.
 
@@ -194,15 +194,15 @@ Bases: [`dagster.ConfigurableResource`](https://docs.dagster.io/api/dagster/reso
 
 Send notifications to Zulip streams via the Zulip API.
 
-#### base_url *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= 'https://catalyst-cooperative.zulipchat.com'*
+#### base_url *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 'https://catalyst-cooperative.zulipchat.com'*
 
-#### bot_email *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= 'build-status-bot@catalyst-cooperative.zulipchat.com'*
+#### bot_email *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 'build-status-bot@catalyst-cooperative.zulipchat.com'*
 
-#### api_key *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### api_key *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### timeout_seconds *: [int](https://docs.python.org/3/library/functions.html#int)* *= 30*
+#### timeout_seconds *: [int](https://docs.python.org/3/builtins/functions.html#int)* *= 30*
 
-#### send_stream_message(, stream: [str](https://docs.python.org/3/library/stdtypes.html#str), topic: [str](https://docs.python.org/3/library/stdtypes.html#str), content: [str](https://docs.python.org/3/library/stdtypes.html#str), file_path: [str](https://docs.python.org/3/library/stdtypes.html#str) | [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)
+#### send_stream_message(, stream: [str](https://docs.python.org/3/builtins/stdtypes.html#str), topic: [str](https://docs.python.org/3/builtins/stdtypes.html#str), content: [str](https://docs.python.org/3/builtins/stdtypes.html#str), file_path: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)
 
 Send a message to a Zulip stream topic and return the API response.
 
@@ -228,4 +228,4 @@ ensures a notification hiccup never crashes an asset.
 
 ### pudl.dagster.resources.zulip_notification_resource
 
-### pudl.dagster.resources.default_resources *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]*
+### pudl.dagster.resources.default_resources *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]*

@@ -40,7 +40,7 @@ For the underlying Dagster concept, see [https://docs.dagster.io/guides/build/io
 
 ### pudl.dagster.io_managers.logger
 
-### pudl.dagster.io_managers.\_get_dagster_instance_if_available(context: [dagster.InputContext](https://docs.dagster.io/api/dagster/io-managers/#dagster.InputContext)) → [dagster.DagsterInstance](https://docs.dagster.io/api/dagster/internals/#dagster.DagsterInstance) | [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.dagster.io_managers.\_get_dagster_instance_if_available(context: [dagster.InputContext](https://docs.dagster.io/api/dagster/io-managers/#dagster.InputContext)) → [dagster.DagsterInstance](https://docs.dagster.io/api/dagster/internals/#dagster.DagsterInstance) | [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Return the Dagster instance from an input context if one was provided.
 
@@ -52,7 +52,7 @@ Returns `None` in two cases where provenance checks should be skipped:
   `instance=` argument). An ephemeral instance has an empty event log, so
   provenance checks against it would always raise rather than meaningfully validate.
 
-### pudl.dagster.io_managers.get_table_name_from_context(context: [dagster.InputContext](https://docs.dagster.io/api/dagster/io-managers/#dagster.InputContext) | [dagster.OutputContext](https://docs.dagster.io/api/dagster/io-managers/#dagster.OutputContext)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+### pudl.dagster.io_managers.get_table_name_from_context(context: [dagster.InputContext](https://docs.dagster.io/api/dagster/io-managers/#dagster.InputContext) | [dagster.OutputContext](https://docs.dagster.io/api/dagster/io-managers/#dagster.OutputContext)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Retrieves the table name from the context object.
 
@@ -64,7 +64,7 @@ IOManager that writes pudl tables to pyarrow parquet files.
 
 #### pudl_paths *: dagster.ResourceDependency[[pudl.dagster.resources.PudlPathsResource](../resources/index.html.md#pudl.dagster.resources.PudlPathsResource)]*
 
-#### *static* \_record_parquet_file_metadata(context: [dagster.OutputContext](https://docs.dagster.io/api/dagster/io-managers/#dagster.OutputContext), parquet_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [None](https://docs.python.org/3/library/constants.html#None)
+#### *static* \_record_parquet_file_metadata(context: [dagster.OutputContext](https://docs.dagster.io/api/dagster/io-managers/#dagster.OutputContext), parquet_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Attach file size and SHA-256 hash to the Dagster output metadata.
 
@@ -72,7 +72,7 @@ This metadata is later retrieved by the `pudl_datapackage` asset to
 populate the frictionless datapackage descriptor without re-reading the
 parquet files.
 
-#### handle_output(context: [dagster.OutputContext](https://docs.dagster.io/api/dagster/io-managers/#dagster.OutputContext), obj: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame) | polars.LazyFrame) → [None](https://docs.python.org/3/library/constants.html#None)
+#### handle_output(context: [dagster.OutputContext](https://docs.dagster.io/api/dagster/io-managers/#dagster.OutputContext), obj: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame) | polars.LazyFrame) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Writes a pudl dataframe to a Parquet file.
 
@@ -106,17 +106,17 @@ this base class owns three shared responsibilities:
 
 #### zenodo_dois *: dagster.ResourceDependency[[pudl.dagster.resources.ZenodoDoiSettingsResource](../resources/index.html.md#pudl.dagster.resources.ZenodoDoiSettingsResource)]*
 
-#### dataset *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### dataset *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### data_format *: ClassVar[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+#### data_format *: ClassVar[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
-#### \_engine *: sqlalchemy.Engine | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### \_engine *: sqlalchemy.Engine | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### \_metadata *: sqlalchemy.MetaData | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### \_metadata *: sqlalchemy.MetaData | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### *property* \_years_key *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### *property* \_years_key *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### *property* db_name *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### *property* db_name *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
 Return the SQLite database name for this dataset and data format.
 
@@ -135,11 +135,11 @@ Return cached reflected metadata for this database.
 The metadata is reflected on first access and reused for subsequent reads.
 Accessing this property requires the SQLite database to already exist.
 
-#### \_get_sqlalchemy_table(table_name: [str](https://docs.python.org/3/library/stdtypes.html#str)) → sqlalchemy.Table
+#### \_get_sqlalchemy_table(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → sqlalchemy.Table
 
 Return reflected SQLAlchemy table metadata for a FERC SQLite table.
 
-#### \_check_provenance(context: [dagster.InputContext](https://docs.dagster.io/api/dagster/io-managers/#dagster.InputContext)) → [None](https://docs.python.org/3/library/constants.html#None)
+#### \_check_provenance(context: [dagster.InputContext](https://docs.dagster.io/api/dagster/io-managers/#dagster.InputContext)) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Check that the existing FERC SQLite database is compatible with this run.
 
@@ -155,11 +155,11 @@ Ensure that the database exists and its schema has been reflected, then verify
 the upstream FERC-to-SQLite provenance recorded in Dagster before delegating to
 the subclass-specific query implementation.
 
-#### *abstractmethod* handle_output(context: [dagster.OutputContext](https://docs.dagster.io/api/dagster/io-managers/#dagster.OutputContext), obj: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [str](https://docs.python.org/3/library/stdtypes.html#str)) → [None](https://docs.python.org/3/library/constants.html#None)
+#### *abstractmethod* handle_output(context: [dagster.OutputContext](https://docs.dagster.io/api/dagster/io-managers/#dagster.OutputContext), obj: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Reject writes because these IO managers currently support reads only.
 
-#### *abstractmethod* \_query(table_name: [str](https://docs.python.org/3/library/stdtypes.html#str), years: [list](https://docs.python.org/3/library/stdtypes.html#list)[[int](https://docs.python.org/3/library/functions.html#int)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### *abstractmethod* \_query(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), years: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[int](https://docs.python.org/3/builtins/functions.html#int)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Execute a filtered read against the FERC SQLite database.
 
@@ -171,9 +171,9 @@ IO manager for reading tables from FERC DBF SQLite databases.
 
 Instantiate with `dataset` (`ferc1`, `ferc714`, etc.)
 
-#### data_format *: ClassVar[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= 'dbf'*
+#### data_format *: ClassVar[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= 'dbf'*
 
-#### \_query(table_name: [str](https://docs.python.org/3/library/stdtypes.html#str), years: [list](https://docs.python.org/3/library/stdtypes.html#list)[[int](https://docs.python.org/3/library/functions.html#int)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### \_query(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), years: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[int](https://docs.python.org/3/builtins/functions.html#int)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Execute the year-filtered read against the FERC DBF SQLite database.
 
@@ -185,9 +185,9 @@ IO manager for reading tables from a FERC XBRL SQLite database.
 
 Instantiate with `dataset` (`ferc1`, `ferc714`, etc.).
 
-#### data_format *: ClassVar[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= 'xbrl'*
+#### data_format *: ClassVar[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= 'xbrl'*
 
-#### *static* refine_report_year(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), xbrl_years: [list](https://docs.python.org/3/library/stdtypes.html#list)[[int](https://docs.python.org/3/library/functions.html#int)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### *static* refine_report_year(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), xbrl_years: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[int](https://docs.python.org/3/builtins/functions.html#int)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Set a fact’s report year by its actual dates.
 
@@ -199,7 +199,7 @@ other years in the filing.
 In many cases we can infer the actual report year from the fact’s associated
 time period - either duration or instant.
 
-#### \_query(table_name: [str](https://docs.python.org/3/library/stdtypes.html#str), years: [list](https://docs.python.org/3/library/stdtypes.html#list)[[int](https://docs.python.org/3/library/functions.html#int)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### \_query(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), years: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[int](https://docs.python.org/3/builtins/functions.html#int)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Execute the full-table read against the FERC XBRL SQLite database.
 
@@ -215,4 +215,4 @@ Execute the full-table read against the FERC XBRL SQLite database.
 
 ### pudl.dagster.io_managers.ferc714_xbrl_sqlite_io_manager
 
-### pudl.dagster.io_managers.default_io_managers *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]*
+### pudl.dagster.io_managers.default_io_managers *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]*

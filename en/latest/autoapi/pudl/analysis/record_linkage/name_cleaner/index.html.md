@@ -70,7 +70,7 @@ Whether to leave, remove, or normalize legal terms.
 
 #### REMOVE *= 2*
 
-### pudl.analysis.record_linkage.name_cleaner.\_get_legal_terms_dict() → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [list](https://docs.python.org/3/library/stdtypes.html#list)]
+### pudl.analysis.record_linkage.name_cleaner.\_get_legal_terms_dict() → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [list](https://docs.python.org/3/builtins/stdtypes.html#list)]
 
 ### *class* pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner(/, \*\*data: Any)
 
@@ -78,7 +78,7 @@ Bases: [`pydantic.BaseModel`](https://pydantic.dev/docs/validation/latest/api/py
 
 Class to normalize/clean up text based company names.
 
-#### cleaning_rules_list *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= ['remove_word_the_from_the_end', 'remove_word_the_from_the_beginning',...*
+#### cleaning_rules_list *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= ['remove_word_the_from_the_end', 'remove_word_the_from_the_beginning',...*
 
 A list of cleaning rules that the CompanyNameCleaner should apply.
 
@@ -90,14 +90,14 @@ A flag to indicate how to habndle legal terms.
 
 Options are to remove, normalize, or keep them as is.
 
-#### place_word_the_at_beginning *: [bool](https://docs.python.org/3/library/functions.html#bool)* *= False*
+#### place_word_the_at_beginning *: [bool](https://docs.python.org/3/builtins/functions.html#bool)* *= False*
 
 A flag to indicate whether to move ‘the’ to the start of a string.
 
 If True, then if the word ‘the’ appears at the end of a string,
 remove it and place ‘the’ at the beginning of the string.
 
-#### remove_unicode *: [bool](https://docs.python.org/3/library/functions.html#bool)* *= False*
+#### remove_unicode *: [bool](https://docs.python.org/3/builtins/functions.html#bool)* *= False*
 
 Define if unicode characters should be removed from text’s name.
 
@@ -114,17 +114,17 @@ Define the letter case of the cleaning output.
 
 Indicates where in the string legal terms are found.
 
-#### remove_accents *: [bool](https://docs.python.org/3/library/functions.html#bool)* *= False*
+#### remove_accents *: [bool](https://docs.python.org/3/builtins/functions.html#bool)* *= False*
 
 Flag to indicate whether to remove accents from strings.
 
 If True, replace letters with accents with non-accented ones.
 
-#### legal_terms_dict *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [list](https://docs.python.org/3/library/stdtypes.html#list)]* *= None*
+#### legal_terms_dict *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [list](https://docs.python.org/3/builtins/stdtypes.html#list)]* *= None*
 
 #### \_validate_cleaning_rules() → Self
 
-#### \_apply_regex_rules(col: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), dict_regex_rules: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]]) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
+#### \_apply_regex_rules(col: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), dict_regex_rules: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]]) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
 
 Applies several cleaning rules based on a custom dictionary.
 
@@ -169,7 +169,7 @@ Clean names and normalize legal terms.
 * **Returns:**
   A the clean version of the column.
 
-#### apply_name_cleaning(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), return_as_dframe: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### apply_name_cleaning(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), return_as_dframe: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Clean up text names in a dataframe.
 

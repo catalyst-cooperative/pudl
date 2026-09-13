@@ -24,7 +24,7 @@ Code for transforming RUS data that pertains to more than one RUS Form.
 
 ### pudl.transform.rus.logger
 
-### pudl.transform.rus.early_check_pk(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), pk_early: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] = ['report_date', 'borrower_id_rus'], raise_fail=True) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.transform.rus.early_check_pk(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), pk_early: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] = ['report_date', 'borrower_id_rus'], raise_fail=True) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Check the expected primary key of the table.
 
@@ -34,7 +34,7 @@ By default the expected primary key is [“report_date”, “borrower_id_rus”
 
 Standard transforms for raw RUS data.
 
-### pudl.transform.rus.convert_units(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), old_unit: [str](https://docs.python.org/3/library/stdtypes.html#str), new_unit: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None), converter: [float](https://docs.python.org/3/library/functions.html#float) | [int](https://docs.python.org/3/library/functions.html#int)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.transform.rus.convert_units(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), old_unit: [str](https://docs.python.org/3/builtins/stdtypes.html#str), new_unit: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None), converter: [float](https://docs.python.org/3/builtins/functions.html#float) | [int](https://docs.python.org/3/builtins/functions.html#int)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Convert units within a column and rename column with new units.
 
@@ -63,7 +63,7 @@ Enum for the different types of RUS entities.
 
 #### BORROWERS
 
-### pudl.transform.rus.finished_rus_asset_factory(table_name: [str](https://docs.python.org/3/library/stdtypes.html#str), \_core_table_name: [str](https://docs.python.org/3/library/stdtypes.html#str), io_manager_key: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
+### pudl.transform.rus.finished_rus_asset_factory(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), \_core_table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), io_manager_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
 
 An asset factory for finished RUS tables.
 

@@ -79,7 +79,7 @@ offset for the plants’ timezones in January.
   Polars DataFrame of applicable timezones taken from the core_eia_\_entity_plants
   table.
 
-### pudl.transform.epacems.\_validate_crosswalk_uniqueness(crosswalk_df: polars.DataFrame) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.transform.epacems.\_validate_crosswalk_uniqueness(crosswalk_df: polars.DataFrame) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Validate that crosswalk has unique plant_id_eia values per EPA plant/unit.
 
@@ -89,7 +89,7 @@ transformation.
 * **Parameters:**
   **crosswalk_df** – A polars DataFrame of the core_epa_\_assn_eia_epacamd table.
 * **Raises:**
-  * [**AssertionError**](https://docs.python.org/3/library/exceptions.html#AssertionError) – If crosswalk has multiple plant_id_eia values for a single EPA
+  * [**AssertionError**](https://docs.python.org/3/builtins/exceptions.html#AssertionError) – If crosswalk has multiple plant_id_eia values for a single EPA
   * **identifier.** – 
 
 ### pudl.transform.epacems.transform_epacems(raw_lf: polars.LazyFrame, core_epa_\_assn_eia_epacamd: polars.DataFrame, plant_utc_offset: polars.DataFrame) → polars.LazyFrame

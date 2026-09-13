@@ -1,5 +1,27 @@
 # PUDL Release Notes
 
+<a id="release-v2026-10-0"></a>
+
+## v2026.10.0 (2026-10-XX)
+
+This is the upcoming PUDL data release, scheduled for early October, 2026.
+
+### Enhancements
+
+### New Data
+
+### Expanded Data Coverage
+
+### Documentation
+
+### New Data Tests & Validations
+
+### Bug Fixes & Data Cleaning
+
+### Performance Improvements
+
+### Developer Experience
+
 <a id="release-v2026-9-0"></a>
 
 ## v2026.9.0 (2026-09-11)
@@ -902,7 +924,7 @@ as usual. We are exploring other ways of integrating the updated data.
   `pudl.extract.ferc1.extract_dbf_generic` functions. The extraction logic is now
   covered by the [`pudl.dagster.io_managers.ferc1_xbrl_sqlite_io_manager`](autoapi/pudl/dagster/io_managers/index.html.md#pudl.dagster.io_managers.ferc1_xbrl_sqlite_io_manager) and
   [`pudl.dagster.io_managers.ferc1_dbf_sqlite_io_manager`](autoapi/pudl/dagster/io_managers/index.html.md#pudl.dagster.io_managers.ferc1_dbf_sqlite_io_manager) IO Managers.
-* Fixed a [`TypeError`](https://docs.python.org/3/library/exceptions.html#TypeError) in MCOE asset checks where `sum(exc.null_rows)` iterated
+* Fixed a [`TypeError`](https://docs.python.org/3/builtins/exceptions.html#TypeError) in MCOE asset checks where `sum(exc.null_rows)` iterated
   over a DataFrame’s column names as strings instead of counting rows. Replaced with
   `len(exc.null_rows)`. See PR [#5124](https://github.com/catalyst-cooperative/pudl/pull/5124).
 * Fixed a data integrity bug in the FERC SQLite IO manager where SQLite silently

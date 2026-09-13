@@ -37,7 +37,7 @@ read in when the fips partition is set to True.
 
 Apply basic cleaning to column names.
 
-### pudl.extract.vcerare.extract_vcerare(context) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[int](https://docs.python.org/3/library/functions.html#int), [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData)], [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[int](https://docs.python.org/3/library/functions.html#int), [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData)], [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[int](https://docs.python.org/3/library/functions.html#int), [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData)]]
+### pudl.extract.vcerare.extract_vcerare(context) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[int](https://docs.python.org/3/builtins/functions.html#int), [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData)], [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[int](https://docs.python.org/3/builtins/functions.html#int), [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData)], [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[int](https://docs.python.org/3/builtins/functions.html#int), [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData)]]
 
 Extract data from all vcerare pages and write to parquet files.
 

@@ -28,7 +28,7 @@ Functions for manipulating metadata constants.
 
 ## Module Contents
 
-### pudl.metadata.helpers.format_errors(\*errors: [str](https://docs.python.org/3/library/stdtypes.html#str), title: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, pydantic: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+### pudl.metadata.helpers.format_errors(\*errors: [str](https://docs.python.org/3/builtins/stdtypes.html#str), title: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, pydantic: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Format multiple errors into a single error.
 
@@ -57,7 +57,7 @@ bad
   * worse
 ```
 
-### pudl.metadata.helpers.\_parse_field_names(fields: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str) | [dict](https://docs.python.org/3/library/stdtypes.html#dict)]) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]
+### pudl.metadata.helpers.\_parse_field_names(fields: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str) | [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)]) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]
 
 Parse field names.
 
@@ -66,7 +66,7 @@ Parse field names.
 * **Returns:**
   Field names.
 
-### pudl.metadata.helpers.\_parse_foreign_key_rule(rule: [dict](https://docs.python.org/3/library/stdtypes.html#dict), name: [str](https://docs.python.org/3/library/stdtypes.html#str), key: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)]
+### pudl.metadata.helpers.\_parse_foreign_key_rule(rule: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict), name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), key: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)]
 
 Parse foreign key rule from resource descriptor.
 
@@ -82,7 +82,7 @@ Parse foreign key rule from resource descriptor.
 * **Return type:**
   Parsed foreign key rules
 
-### pudl.metadata.helpers.\_build_foreign_key_tree(resources: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [dict](https://docs.python.org/3/library/stdtypes.html#dict)]) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), ...], [dict](https://docs.python.org/3/library/stdtypes.html#dict)]]
+### pudl.metadata.helpers.\_build_foreign_key_tree(resources: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)]) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), ...], [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)]]
 
 Build foreign key tree.
 
@@ -95,7 +95,7 @@ Build foreign key tree.
   * reference[‘resource’] (str): Reference name.
   * reference[‘fields’] (List[str]): Reference field names.
 
-### pudl.metadata.helpers.\_traverse_foreign_key_tree(tree: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), ...], [dict](https://docs.python.org/3/library/stdtypes.html#dict)]], name: [str](https://docs.python.org/3/library/stdtypes.html#str), fields: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), ...]) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]
+### pudl.metadata.helpers.\_traverse_foreign_key_tree(tree: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), ...], [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)]], name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), fields: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), ...]) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]]
 
 Traverse foreign key tree.
 
@@ -110,7 +110,7 @@ Traverse foreign key tree.
 * **Return type:**
   Sequence of foreign keys starting from name and fields
 
-### pudl.metadata.helpers.build_foreign_keys(resources: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [dict](https://docs.python.org/3/library/stdtypes.html#dict)], prune: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)]]
+### pudl.metadata.helpers.build_foreign_keys(resources: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)], prune: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)]]
 
 Build foreign keys for each resource.
 
@@ -160,7 +160,7 @@ be assigned a foreign key (foreign_keys) to the reference’s primary key:
 {'fields': ['z'], 'reference': {'resource': 'x', 'fields': ['z']}}
 ```
 
-### pudl.metadata.helpers.split_period(name: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)]
+### pudl.metadata.helpers.split_period(name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)]
 
 Split the time period from a column name.
 
@@ -180,7 +180,7 @@ Split the time period from a column name.
 ('date', None)
 ```
 
-### pudl.metadata.helpers.expand_periodic_column_names(names: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]
+### pudl.metadata.helpers.expand_periodic_column_names(names: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]
 
 Add smaller periods to a list of column names.
 
@@ -198,7 +198,7 @@ Add smaller periods to a list of column names.
 
 ### *exception* pudl.metadata.helpers.AggregationError
 
-Bases: [`ValueError`](https://docs.python.org/3/library/exceptions.html#ValueError)
+Bases: [`ValueError`](https://docs.python.org/3/builtins/exceptions.html#ValueError)
 
 Error raised by aggregation functions.
 
@@ -206,7 +206,7 @@ Error raised by aggregation functions.
 
 Return most frequent value (or error if none exists).
 
-### pudl.metadata.helpers.most_and_more_frequent(x: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), min_frequency: [float](https://docs.python.org/3/library/functions.html#float) | [None](https://docs.python.org/3/library/constants.html#None) = None) → Any
+### pudl.metadata.helpers.most_and_more_frequent(x: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), min_frequency: [float](https://docs.python.org/3/builtins/functions.html#float) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → Any
 
 Return the most frequent value if more frequent than `min_frequency`.
 
@@ -220,11 +220,11 @@ has a frequency of 1.
 
 Return single unique value (or error if none exists).
 
-### pudl.metadata.helpers.as_dict(x: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Any, [list](https://docs.python.org/3/library/stdtypes.html#list)]
+### pudl.metadata.helpers.as_dict(x: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[Any, [list](https://docs.python.org/3/builtins/stdtypes.html#list)]
 
 Return dictionary of values, listed by index.
 
-### pudl.metadata.helpers.try_aggfunc(func: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable), raised: [bool](https://docs.python.org/3/library/functions.html#bool) = True, error: [str](https://docs.python.org/3/library/stdtypes.html#str) | [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)
+### pudl.metadata.helpers.try_aggfunc(func: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable), raised: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True, error: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)
 
 Wrap aggregate function in a try-except for error handling.
 
@@ -262,7 +262,7 @@ AggregationError: Bad dtype int64
 AggregationError({'a': [0, 0, 1], 'b': [1]})
 ```
 
-### pudl.metadata.helpers.groupby_apply(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), by: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable), aggfuncs: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Any, [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)], raised: [bool](https://docs.python.org/3/library/functions.html#bool) = True, error: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Any, [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)]]
+### pudl.metadata.helpers.groupby_apply(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), by: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable), aggfuncs: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[Any, [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)], raised: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True, error: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[Any, [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)]]
 
 Aggregate dataframe and capture errors (using apply).
 
@@ -308,7 +308,7 @@ x
 dtype: object
 ```
 
-### pudl.metadata.helpers.groupby_aggregate(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), by: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable), aggfuncs: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Any, [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)], raised: [bool](https://docs.python.org/3/library/functions.html#bool) = True, error: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Any, [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)]]
+### pudl.metadata.helpers.groupby_aggregate(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), by: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable), aggfuncs: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[Any, [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)], raised: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True, error: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[Any, [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)]]
 
 Aggregate dataframe and capture errors (using aggregate).
 

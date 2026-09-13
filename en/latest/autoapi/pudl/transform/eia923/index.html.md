@@ -49,7 +49,7 @@ Module to perform data cleaning functions on EIA923 data tables.
 
 ### pudl.transform.eia923.logger
 
-### pudl.transform.eia923.COALMINE_COUNTRY_CODES *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)]*
+### pudl.transform.eia923.COALMINE_COUNTRY_CODES *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
 A mapping of EIA foreign coal mine country codes to 3-letter ISO-3166-1 codes.
 
@@ -62,7 +62,7 @@ Instead of using the provided non-standard codes, we convert to the ISO-3166-1 t
 letter country codes:
 [https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3)
 
-### pudl.transform.eia923.\_get_plant_nuclear_unit_id_map(nuc_fuel: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[int](https://docs.python.org/3/library/functions.html#int), [str](https://docs.python.org/3/library/stdtypes.html#str)]
+### pudl.transform.eia923.\_get_plant_nuclear_unit_id_map(nuc_fuel: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[int](https://docs.python.org/3/builtins/functions.html#int), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]
 
 Get a plant_id -> nuclear_unit_id mapping for all plants with one nuclear unit.
 
@@ -90,7 +90,7 @@ Params:
 * **Return type:**
   nuc_fuel
 
-### pudl.transform.eia923.\_get_plant_prime_mover_map(gen_fuel: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[int](https://docs.python.org/3/library/functions.html#int), [str](https://docs.python.org/3/library/stdtypes.html#str)]
+### pudl.transform.eia923.\_get_plant_prime_mover_map(gen_fuel: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[int](https://docs.python.org/3/builtins/functions.html#int), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]
 
 Get a plant_id -> prime_mover_code mapping for all plants with one prime mover.
 
@@ -117,7 +117,7 @@ have multiple prime movers.
 * **Return type:**
   gen_fuel
 
-### pudl.transform.eia923.\_get_most_frequent_energy_source_map(gen_fuel: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)]
+### pudl.transform.eia923.\_get_most_frequent_energy_source_map(gen_fuel: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]
 
 Get the a mapping of the most common energy_source for each fuel_type_code_agg.
 
@@ -144,7 +144,7 @@ Transformations include:
 * **Return type:**
   gen_fuel
 
-### pudl.transform.eia923.\_aggregate_generation_fuel_duplicates(gen_fuel: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), nuclear: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.transform.eia923.\_aggregate_generation_fuel_duplicates(gen_fuel: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), nuclear: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Aggregate remaining duplicate generation fuels.
 
@@ -201,7 +201,7 @@ both the FRC table and the coalmine table.
 * **Returns:**
   A cleaned DataFrame containing coalmine information.
 
-### pudl.transform.eia923.plants_eia923(eia923_dfs: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)], eia923_transformed_dfs: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]
+### pudl.transform.eia923.plants_eia923(eia923_dfs: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)], eia923_transformed_dfs: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]
 
 Transforms the plants_eia923 table.
 
@@ -269,7 +269,7 @@ Transformations include:
 * **Return type:**
   \_core_eia923_\_generation_fuel
 
-### pudl.transform.eia923.\_map_prime_mover_sets(prime_mover_set: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+### pudl.transform.eia923.\_map_prime_mover_sets(prime_mover_set: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Map unique prime mover combinations to a single prime mover code.
 
@@ -285,7 +285,7 @@ In 2001-2019 data, the .value_counts() of the combinations is:
 * **Returns:**
   single prime mover code
 * **Return type:**
-  [str](https://docs.python.org/3/library/stdtypes.html#str)
+  [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 ### pudl.transform.eia923.\_aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
@@ -362,7 +362,7 @@ Transformations include:
 * **Returns:**
   Cleaned `_core_eia923__generation` dataframe ready for harvesting.
 
-### pudl.transform.eia923.\_drop_duplicates_\_core_eia923_\_generation(gen_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), unit_test: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.transform.eia923.\_drop_duplicates_\_core_eia923_\_generation(gen_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), unit_test: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 ### pudl.transform.eia923.\_core_eia923_\_coalmine(raw_eia923_\_fuel_receipts_costs: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), \_core_censuspep_\_yearly_geocodes: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
@@ -421,7 +421,7 @@ second, with precision of 0.1 cfs.”
 
 Check to see if columns vary as slowly as expected.
 
-### pudl.transform.eia923.\_build_emissions_control_dates(raw_value: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), year: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), month: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), day: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), min_valid_year: [int](https://docs.python.org/3/library/functions.html#int), max_valid_year: [int](https://docs.python.org/3/library/functions.html#int)) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
+### pudl.transform.eia923.\_build_emissions_control_dates(raw_value: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), year: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), month: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), day: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), min_valid_year: [int](https://docs.python.org/3/builtins/functions.html#int), max_valid_year: [int](https://docs.python.org/3/builtins/functions.html#int)) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
 
 Validate date parts and build parsed timestamps.
 
@@ -443,9 +443,9 @@ validation rules:
 * **Returns:**
   Parsed timestamps for valid date parts.
 * **Raises:**
-  [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – If year/month/day parts violate expected constraints.
+  [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – If year/month/day parts violate expected constraints.
 
-### pudl.transform.eia923.\_parse_emissions_control_date_subset(raw_subset: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), pattern: [str](https://docs.python.org/3/library/stdtypes.html#str), min_valid_year: [int](https://docs.python.org/3/library/functions.html#int), max_valid_year: [int](https://docs.python.org/3/library/functions.html#int), month_group: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None), day_group: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None), default_month: [int](https://docs.python.org/3/library/functions.html#int) = 1, default_day: [int](https://docs.python.org/3/library/functions.html#int) = 1) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
+### pudl.transform.eia923.\_parse_emissions_control_date_subset(raw_subset: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), pattern: [str](https://docs.python.org/3/builtins/stdtypes.html#str), min_valid_year: [int](https://docs.python.org/3/builtins/functions.html#int), max_valid_year: [int](https://docs.python.org/3/builtins/functions.html#int), month_group: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None), day_group: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None), default_month: [int](https://docs.python.org/3/builtins/functions.html#int) = 1, default_day: [int](https://docs.python.org/3/builtins/functions.html#int) = 1) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
 
 Parse one recognized emissions-control date format for a subset of rows.
 
@@ -464,7 +464,7 @@ Parse one recognized emissions-control date format for a subset of rows.
   Parsed datetime series for the input subset, with `0000` year fragments
   converted to `NaT` before year normalization.
 
-### pudl.transform.eia923.\_clean_emissions_control_dates(col: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), min_valid_year: [int](https://docs.python.org/3/library/functions.html#int), max_valid_year: [int](https://docs.python.org/3/library/functions.html#int), spot_fixes: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pandas.Timestamp](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Timestamp.html#pandas.Timestamp)] | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
+### pudl.transform.eia923.\_clean_emissions_control_dates(col: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), min_valid_year: [int](https://docs.python.org/3/builtins/functions.html#int), max_valid_year: [int](https://docs.python.org/3/builtins/functions.html#int), spot_fixes: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.Timestamp](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Timestamp.html#pandas.Timestamp)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
 
 Parse raw EIA-923 emissions-control date strings into datetimes.
 
@@ -489,7 +489,7 @@ during ETL/testing rather than silently becoming bad timestamps.
   A `datetime64[ns]` Series containing parsed timestamps and `NaT` for known
   missing/sentinel values.
 * **Raises:**
-  [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – If characters, structure, or date parts violate parsing
+  [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – If characters, structure, or date parts violate parsing
   assumptions.
 
 ### pudl.transform.eia923.\_core_eia923_\_yearly_fgd_operation_maintenance(raw_eia923_\_fgd_operation_maintenance: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
