@@ -10,7 +10,6 @@ import logging
 import os
 import re
 import time
-import traceback
 import uuid
 from collections.abc import Callable
 from datetime import timedelta
@@ -502,8 +501,7 @@ def deployment_status_asset(asset_fn: Callable) -> dg.AssetsDefinition:
             _clear_status_files(context.resources.pudl_paths)
             asset_fn(context)
         except Exception:
-            logger.error("FERC EQR deployment handler failed!")
-            logger.error(traceback.format_exc())
+            logger.exception("FERC EQR deployment handler failed!")
             _write_status_file("FERCEQR_FAILURE", context.resources.pudl_paths)
             raise
 
@@ -567,10 +565,10 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
             resolved_targets=resolved_targets,
         )
     except Exception:
-        logger.error(
+        logger.exception(
             "FERC EQR deployment promotion failed! "
             "Staging directories may contain partial data; "
-            "cleaning up staging paths.\n" + traceback.format_exc(),
+            "cleaning up staging paths."
         )
         # Send failure notification inline before the exception propagates.
         # The sensor-triggered failure asset never gets to run because the
@@ -586,16 +584,13 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
                 content=notification_markdown,
             )
         except Exception:
-            logger.error(
-                "FERC EQR failure notification also failed:\n" + traceback.format_exc()
-            )
+            logger.exception("FERC EQR failure notification also failed")
         for staging_dir in staging_targets:
             try:
                 _remove_staging(staging_dir)
             except Exception:
                 logger.warning(
-                    f"Failed to clean up staging dir {staging_dir}:\n"
-                    + traceback.format_exc()
+                    f"Failed to clean up staging dir {staging_dir}", exc_info=True
                 )
         # Write the failure sentinel HERE (inside the inline handler) so the
         # log messages above are flushed before the sentinel triggers killall.
