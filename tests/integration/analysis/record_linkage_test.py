@@ -106,12 +106,8 @@ def _generate_random_test_df(
     default_plant_name: str,
     size: int = 2022 - 1994,
     plant_name_max_edits: int = 5,
-    plant_type=random.choice(
-        list(StringCategories(**PLANT_TYPE_CATEGORIES).categories.keys())
-    ),
-    construction_type=random.choice(
-        list(StringCategories(**CONSTRUCTION_TYPE_CATEGORIES).categories.keys())
-    ),
+    plant_type=None,
+    construction_type=None,
     plant_type_error_prob: float = 0.01,
     construction_type_error_prob: float = 0.01,
     construction_year_error_prob: float = 0.01,
@@ -119,9 +115,19 @@ def _generate_random_test_df(
     capacity_sigma: float = 10.0,
     capacity_change_prob: float = 0.01,
     utility_id_error_prob: float = 0.01,
-    utility_id: int = random.randrange(1000),
+    utility_id: int | None = None,
 ):
     """Generate a random input DataFrame for testing record linkage."""
+    if plant_type is None:
+        plant_type = random.choice(
+            list(StringCategories(**PLANT_TYPE_CATEGORIES).categories.keys())
+        )
+    if construction_type is None:
+        construction_type = random.choice(
+            list(StringCategories(**CONSTRUCTION_TYPE_CATEGORIES).categories.keys())
+        )
+    if utility_id is None:
+        utility_id = random.randrange(1000)
 
     generated_df = pd.DataFrame(
         {
