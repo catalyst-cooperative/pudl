@@ -196,7 +196,7 @@ def test_ferc_dbf_io_manager_rejects_stale_provenance(mocker, caplog):
         caplog.at_level(logging.WARNING),
     ):
         manager.load_input(context)
-        assert "Zenodo DOI mismatch" in caplog.text
+    assert "Zenodo DOI mismatch" in caplog.text
 
     query.assert_not_called()
 
@@ -278,7 +278,7 @@ def test_report_year_fixing_duration():
 
 
 @pytest.mark.parametrize(
-    "df, match",
+    ("df", "match"),
     [
         (
             pd.DataFrame.from_records(
