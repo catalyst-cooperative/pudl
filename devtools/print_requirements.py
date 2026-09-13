@@ -5,4 +5,4 @@ import distutils.core
 
 setup = distutils.core.run_setup("setup.py")
 for dep in setup.install_requires:
-    print(dep)
+    print(dep)  # noqa: T201
