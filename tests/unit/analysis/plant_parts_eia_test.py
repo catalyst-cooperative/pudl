@@ -165,6 +165,7 @@ def test_make_mega_gen_tbl():
                 "report_date": "2020-01-01",
                 "generator_id": ["a", "b", "c"],
                 "utility_id_eia": [111, 111, 111],
+                "utility_id_pudl": [11, 11, 11],
                 "unit_id_pudl": 1,
                 "prime_mover_code": ["CT", "CT", "CA"],
                 "technology_description": "Natural Gas Fired Combined Cycle",
@@ -193,6 +194,7 @@ def test_make_mega_gen_tbl():
                 "report_date": "2020-01-01",
                 "generator_id": ["a", "b", "c", "c"],
                 "owner_utility_id_eia": [111, 111, 111, 888],
+                "utility_id_pudl": [11, 11, 11, 88],
                 "fraction_owned": [1, 1, 0.75, 0.25],
             }
         )
@@ -227,8 +229,13 @@ def test_make_mega_gen_tbl():
                 "generator_operating_year": 2001,
                 "operational_status_pudl": "operating",
                 "capacity_eoy_mw": [50, 50, 100, 100, 50, 50, 100, 100],
+                # The operator is the same for every ownership slice, while the
+                # utility_id_* columns describe each generator's owner.
+                "operator_utility_id_eia": 111,
+                "operator_utility_id_pudl": 11,
                 "fraction_owned": [1.00, 1.00, 0.75, 0.25, 1.00, 1.00, 1.00, 1.00],
                 "utility_id_eia": [111, 111, 111, 888, 111, 111, 111, 888],
+                "utility_id_pudl": [11, 11, 11, 88, 11, 11, 11, 88],
                 "ownership_record_type": [
                     "owned",
                     "owned",
@@ -247,7 +254,11 @@ def test_make_mega_gen_tbl():
                 "report_date": "datetime64[us]",
                 "generator_operating_date": "datetime64[us]",
                 "generator_operating_year": "Int64",
-                "utility_id_eia": "Int64",  # convert to pandas Int64 instead of numpy int64
+                # convert to pandas Int64 instead of numpy int64
+                "utility_id_eia": "Int64",
+                "utility_id_pudl": "Int64",
+                "operator_utility_id_eia": "Int64",
+                "operator_utility_id_pudl": "Int64",
             }
         )
         .set_index([[0, 1, 2, 3, 0, 1, 2, 3]])
@@ -493,6 +504,100 @@ def test_scale_by_ownership_swaps_owner_utility_columns():
                     "Other Owner Co",
                     "Operator Co",
                 ],
+                "ownership_record_type": ["owned"] * 3 + ["total"] * 3,
+            },
+        )
+        .astype({"report_date": "datetime64[us]"})
+        .convert_dtypes()
+    )
+
+    pd.testing.assert_frame_equal(
+        out, expected[out.columns], check_like=True, check_dtype=False
+    )
+
+
+def test_label_operator_utility_survives_ownership_scaling():
+    """The operator's IDs are preserved when ownership swaps in the owner's IDs.
+
+    ``label_operator_utility`` stashes the operator's ``utility_id_eia`` and
+    ``utility_id_pudl`` before :func:`pudl.helpers.scale_by_ownership` overwrites
+    those columns with the owner's IDs, so every record ends up describing both
+    the owner and the operator of the generator.
+    See https://github.com/catalyst-cooperative/pudl/issues/5550
+    """
+    # Generator "a" is jointly owned by its operator (utility 3) and utility 4.
+    # Generator "b" doesn't show up in the ownership table, so its operator is
+    # assumed to be its sole owner.
+    own = pd.DataFrame(
+        {
+            "plant_id_eia": [1, 1],
+            "report_date": ["2019-01-01", "2019-01-01"],
+            "generator_id": ["a", "a"],
+            "owner_utility_id_eia": [3, 4],
+            "utility_id_pudl": [30, 40],
+            "fraction_owned": [0.7, 0.3],
+        },
+    ).astype(
+        {
+            "report_date": "datetime64[us]",
+            "owner_utility_id_eia": pd.Int64Dtype(),
+            "utility_id_pudl": pd.Int64Dtype(),
+        }
+    )
+
+    gens = pd.DataFrame(
+        {
+            "plant_id_eia": [1, 1],
+            "report_date": ["2019-01-01", "2019-01-01"],
+            "generator_id": ["a", "b"],
+            "utility_id_eia": [3, 3],
+            "utility_id_pudl": [30, 30],
+            "capacity_mw": [100.0, 50.0],
+        },
+    ).astype(
+        {
+            "report_date": "datetime64[us]",
+            "utility_id_eia": pd.Int64Dtype(),
+            "utility_id_pudl": pd.Int64Dtype(),
+        }
+    )
+
+    out = (
+        pudl.helpers.scale_by_ownership(
+            gens=pudl.analysis.plant_parts_eia.MakeMegaGenTbl().label_operator_utility(
+                gens
+            ),
+            own_eia860=own,
+            scale_cols=["capacity_mw"],
+        )
+        .sort_values(
+            ["ownership_record_type", "generator_id", "utility_id_eia"],
+            ignore_index=True,
+        )
+        .convert_dtypes()
+    )
+
+    expected = (
+        pd.DataFrame(
+            {
+                "plant_id_eia": [1, 1, 1, 1, 1, 1],
+                "report_date": ["2019-01-01"] * 6,
+                "generator_id": ["a", "a", "b", "a", "a", "b"],
+                "capacity_mw": [
+                    100 * 0.7,
+                    100 * 0.3,
+                    50.0,
+                    100.0,
+                    100.0,
+                    50.0,
+                ],
+                "fraction_owned": [0.7, 0.3, 1.0, 1.0, 1.0, 1.0],
+                "utility_id_eia": [3, 4, 3, 3, 4, 3],
+                "utility_id_pudl": [30, 40, 30, 30, 40, 30],
+                # The operator is the same utility for every slice of a given
+                # generator, whether or not it happens to own that slice.
+                "operator_utility_id_eia": [3, 3, 3, 3, 3, 3],
+                "operator_utility_id_pudl": [30, 30, 30, 30, 30, 30],
                 "ownership_record_type": ["owned"] * 3 + ["total"] * 3,
             },
         )
