@@ -33,6 +33,11 @@ Performance Improvements
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^
 
+* Upgraded to Pyrefly 1.3.0 and adopted its new concise baseline format Fix a handful of
+  genuine typing gaps the upgrade surfaced -- mostly places where code assumed a regex
+  match, dict lookup, or similar "maybe nothing" result was always present without the
+  type checker being told why. See PR :pr:`5583`.
+
 .. _release-v2026.9.0:
 
 ---------------------------------------------------------------------------------------
