@@ -6,7 +6,7 @@ import pandas as pd
 import polars as pl
 import pytest
 
-import pudl.transform.vcerare as vcerare
+from pudl.transform import vcerare
 
 
 def test_standardize_census_names():

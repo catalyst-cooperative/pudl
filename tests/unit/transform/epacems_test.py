@@ -2,7 +2,7 @@
 
 import polars as pl
 
-import pudl.transform.epacems as epacems
+from pudl.transform import epacems
 
 
 def test_harmonize_eia_epa_orispl():

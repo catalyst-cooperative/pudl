@@ -5,8 +5,8 @@ from enum import StrEnum, auto
 import pandas as pd
 from dagster import AssetIn, AssetsDefinition, asset
 
-import pudl.helpers as helpers
 import pudl.logging_helpers
+from pudl import helpers
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -26,7 +26,6 @@ def early_check_pk(
         if raise_fail:
             raise AssertionError(message)
         logger.warning(message)
-    return
 
 
 def early_transform(
@@ -52,7 +51,7 @@ def early_transform(
 
 
 def convert_units(
-    df: pd.DataFrame, old_unit: str, new_unit: str | None, converter: float | int
+    df: pd.DataFrame, old_unit: str, new_unit: str | None, converter: float
 ) -> pd.DataFrame:
     """Convert units within a column and rename column with new units.
 

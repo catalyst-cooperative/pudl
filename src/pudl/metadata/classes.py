@@ -746,7 +746,7 @@ class Field(PudlMeta):
             return pd.CategoricalDtype(self.constraints.enum)
         return FIELD_DTYPES_PANDAS[self.type]
 
-    def to_sqlite_dtype(self) -> type:  # noqa: A003
+    def to_sqlite_dtype(self) -> type:
         """Return SQLAlchemy data type."""
         if self.constraints.enum:
             return sa.Enum(*self.constraints.enum)
@@ -936,7 +936,7 @@ class Field(PudlMeta):
             autoincrement=False,
         )
 
-    def encode(self, col: pd.Series, dtype: type | None = None) -> pd.Series:  # noqa: A003
+    def encode(self, col: pd.Series, dtype: type | None = None) -> pd.Series:
         """Recode the Field if it has an associated encoder."""
         return self.encoder.encode(col, dtype=dtype) if self.encoder else col
 
@@ -1911,7 +1911,7 @@ class Resource(PudlMeta):
         return obj
 
     @staticmethod
-    def dict_from_resource_descriptor(  # noqa: C901
+    def dict_from_resource_descriptor(
         resource_id: str,
         descriptor: PudlResourceDescriptor,
     ) -> dict:
