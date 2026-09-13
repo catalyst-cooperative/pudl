@@ -12,6 +12,13 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
 Enhancements
 ^^^^^^^^^^^^
 
+* Added ``operator_utility_id_eia`` and ``operator_utility_id_pudl`` to
+  :ref:`out_eia__yearly_generators_by_ownership`, identifying the utility that operates
+  each generator. The existing ``utility_id_eia``, ``utility_id_pudl`` and
+  ``utility_name_eia`` columns describe the generator's owner, so until now jointly
+  owned generators gave no indication of who actually runs them. See issue :issue:`5550`
+  and PR :pr:`5585`.
+
 New Data
 ^^^^^^^^
 
