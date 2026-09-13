@@ -13,13 +13,15 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 def early_check_pk(
     df: pd.DataFrame,
-    pk_early: list[str] = ["report_date", "borrower_id_rus"],
+    pk_early: list[str] | None = None,
     raise_fail=True,
 ) -> None:
     """Check the expected primary key of the table.
 
     By default the expected primary key is ["report_date", "borrower_id_rus"].
     """
+    if pk_early is None:
+        pk_early = ["report_date", "borrower_id_rus"]
     dupes = df[df.duplicated(subset=pk_early, keep=False)]
     if not dupes.empty:
         message = f"Found early indication of {len(dupes)} not good bad bad duplicates:\n{dupes}"
@@ -29,9 +31,13 @@ def early_check_pk(
 
 
 def early_transform(
-    raw_df: pd.DataFrame, boolean_columns_to_fix=[], string_cols_to_simplify=[]
+    raw_df: pd.DataFrame, boolean_columns_to_fix=None, string_cols_to_simplify=None
 ) -> pd.DataFrame:
     """Standard transforms for raw RUS data."""
+    if string_cols_to_simplify is None:
+        string_cols_to_simplify = []
+    if boolean_columns_to_fix is None:
+        boolean_columns_to_fix = []
     df = (
         helpers.standardize_na_values(raw_df)
         # the report_month column is seemingly always 12 so this will default to Dec.

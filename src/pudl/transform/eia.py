@@ -486,7 +486,7 @@ def _manage_strictness(col: str, special_case_strictness: dict[str, float]) -> f
 def harvest_entity_tables(  # noqa: C901
     entity: EiaEntity,
     clean_dfs: dict[str, pd.DataFrame],
-    special_case_strictness: dict[str, float] = {},
+    special_case_strictness: dict[str, float] | None = None,
     debug: bool = False,
 ) -> tuple:
     """Compile consistent records for various entities.
@@ -539,6 +539,8 @@ def harvest_entity_tables(  # noqa: C901
         * Determine how to treat mostly static records
     """
     # we know these columns must be in the dfs
+    if special_case_strictness is None:
+        special_case_strictness = {}
     id_cols = ENTITIES[entity.value]["id_cols"]
     static_cols = ENTITIES[entity.value]["static_cols"]
     annual_cols = ENTITIES[entity.value]["annual_cols"]
@@ -1302,9 +1304,9 @@ def harvested_entity_asset_factory(
         # Take all of the column inputs and make them into one big forensics changelog
         # table
         logger.debug("Concatenating all of the column inputs for {entity.value}")
-        out_all = pd.concat(
-            [df for harvested_col_name, df in _col_dfs.items()], axis="index"
-        ).reset_index(drop=True)
+        out_all = pd.concat(list(_col_dfs.values()), axis="index").reset_index(
+            drop=True
+        )
         logger.debug("Making changelog out of all forensics inputs for {entity.value}")
         forensics = make_changelog(out_all, ENTITIES[entity.value]["id_cols"])
 

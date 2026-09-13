@@ -454,7 +454,7 @@ def raw_df_factory(
         partitions = partitions_from_data_config()
         # Clone dagster op for each year using DynamicOut.map()
         # See https://docs.dagster.io/_apidocs/dynamic#dagster.DynamicOut
-        dfs = partitions.map(lambda partition: partition_extractor(partition))
+        dfs = partitions.map(partition_extractor)
         # Collect the results from all of those cloned ops and concatenate the
         # individual years of data into a single multi-year dataframe for each different
         # page in the spreadsheet based dataset using DynamicOut.collect()

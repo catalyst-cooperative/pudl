@@ -596,7 +596,7 @@ def full_timeseries_date_merge(
     left_date_col: str = "report_date",
     right_date_col: str = "report_date",
     new_date_col: str = "report_date",
-    date_on: list[str] = ["year"],
+    date_on: list[str] | None = None,
     how: Literal["inner", "outer", "left", "right", "cross"] = "inner",
     report_at_start: bool = True,
     freq: str = "MS",
@@ -606,6 +606,8 @@ def full_timeseries_date_merge(
 
     Arguments: see arguments for ``date_merge`` and ``expand_timeseries``
     """
+    if date_on is None:
+        date_on = ["year"]
     out = date_merge(
         left=left,
         right=right,
@@ -2788,7 +2790,7 @@ def parse_address(addr: str):
     try:
         if pd.isna(addr):
             return (addr, None, None, None)
-        tagged, addr_type = usaddress.tag(addr)
+        tagged, _addr_type = usaddress.tag(addr)
 
         parsed = defaultdict(str)
         for key, val in tagged.items():

@@ -697,15 +697,13 @@ def core_rus7__entity_borrowers(context, **clean_dfs):
     # always produces entity (aka static) as annual (aka scd) tables.
     # as well as a helpful-for-debugging dictionary of dfs for all
     # values columns we are harvesting
-    entity_df, annual_df, _col_dfs = harvest_entity_tables(
+    entity_df, _annual_df, _col_dfs = harvest_entity_tables(
         entity,
         clean_dfs,
         special_case_strictness=special_case_strictness,
         debug=True,
     )
-    out_all = pd.concat(
-        [df for harvested_col_name, df in _col_dfs.items()], axis="index"
-    ).reset_index(drop=True)
+    out_all = pd.concat(list(_col_dfs.values()), axis="index").reset_index(drop=True)
     forensics = make_changelog(out_all, ["borrower_id_rus"])
     return entity_df, forensics
 
