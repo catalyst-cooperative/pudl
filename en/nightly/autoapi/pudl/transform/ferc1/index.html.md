@@ -151,7 +151,7 @@ Add a `source_tables` field into metadata calculation components.
 When a particular component of a calculation does not originate from the table in
 which the calculated field is being reported, label the source table.
 
-### *class* pudl.transform.ferc1.SourceFerc1(\*args, \*\*kwds)
+### *class* pudl.transform.ferc1.SourceFerc1
 
 Bases: [`enum.Enum`](https://docs.python.org/3/library/enum.html#enum.Enum)
 
@@ -161,7 +161,7 @@ Enumeration of allowed FERC 1 raw data sources.
 
 #### DBF *= 'dbf'*
 
-### *class* pudl.transform.ferc1.TableIdFerc1(\*args, \*\*kwds)
+### *class* pudl.transform.ferc1.TableIdFerc1
 
 Bases: [`enum.Enum`](https://docs.python.org/3/library/enum.html#enum.Enum)
 
@@ -1379,7 +1379,7 @@ Transfer quarterly filed data to annual columns.
 
 Turn start year end year rows into columns for each value type.
 
-#### wide_to_tidy(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), source_ferc1: [SourceFerc1](#pudl.transform.ferc1.SourceFerc1), params: [WideToTidy](#pudl.transform.ferc1.WideToTidy) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### wide_to_tidy(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), source_ferc1: [SourceFerc1](#pudl.transform.ferc1.SourceFerc1), params: [WideToTidy](#pudl.transform.ferc1.WideToTidy) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[WideToTidy](#pudl.transform.ferc1.WideToTidy)] | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Reshape wide tables with FERC account columns to tidy format.
 

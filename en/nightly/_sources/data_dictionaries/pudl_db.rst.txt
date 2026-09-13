@@ -46413,7 +46413,7 @@ Annual time series of projections of costs and performance for various technolog
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -46547,7 +46547,7 @@ Columns
   * - model_case_nrelatb
     - string
     - 
-    - NREL's financial assumption cases. There are two cases which effect project financial assumptions: R&D Only Case and Market + Policies Case. R&D Only includes only projected R&D improvements while Market + Policy case includes policy and tax incentives. https://atb.nrel.gov/electricity/2024/financial_cases_&_methods
+    - NREL's financial assumption cases. There are two cases which effect project financial assumptions: R&D Only Case and Market + Policies Case. R&D Only includes only projected R&D improvements while Market + Policy case includes policy and tax incentives. https://atb.nrel.gov/electricity/2024/financial_cases_&_methods. In 2025, NREL added three new cases: R&D + TC, Exp, and Exp + TC. TC stands for tax credit and Exp stands for expanded cost drivers such as changing market and supply chain conditions. The expanded cost drivers cases is presented as a limited pilot in the 2025 ATB and is included for PV, Land-Based and Distributed Wind, and Battery technologies. https://atb.nlr.gov/electricity/2025/financial_cases_&_methods.
   * - model_tax_credit_case_nrelatb
     - string
     - 
@@ -46600,7 +46600,7 @@ Annual time series of financial assumptions for each model case (model_case_nrel
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -46689,7 +46689,7 @@ Columns
   * - model_case_nrelatb
     - string
     - 
-    - NREL's financial assumption cases. There are two cases which effect project financial assumptions: R&D Only Case and Market + Policies Case. R&D Only includes only projected R&D improvements while Market + Policy case includes policy and tax incentives. https://atb.nrel.gov/electricity/2024/financial_cases_&_methods
+    - NREL's financial assumption cases. There are two cases which effect project financial assumptions: R&D Only Case and Market + Policies Case. R&D Only includes only projected R&D improvements while Market + Policy case includes policy and tax incentives. https://atb.nrel.gov/electricity/2024/financial_cases_&_methods. In 2025, NREL added three new cases: R&D + TC, Exp, and Exp + TC. TC stands for tax credit and Exp stands for expanded cost drivers such as changing market and supply chain conditions. The expanded cost drivers cases is presented as a limited pilot in the 2025 ATB and is included for PV, Land-Based and Distributed Wind, and Battery technologies. https://atb.nlr.gov/electricity/2025/financial_cases_&_methods.
   * - projection_year
     - integer
     - 
@@ -46726,7 +46726,7 @@ Annual time series of additional financial assumptions for NREL ATB projections 
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -46815,7 +46815,7 @@ Columns
   * - model_case_nrelatb
     - string
     - 
-    - NREL's financial assumption cases. There are two cases which effect project financial assumptions: R&D Only Case and Market + Policies Case. R&D Only includes only projected R&D improvements while Market + Policy case includes policy and tax incentives. https://atb.nrel.gov/electricity/2024/financial_cases_&_methods
+    - NREL's financial assumption cases. There are two cases which effect project financial assumptions: R&D Only Case and Market + Policies Case. R&D Only includes only projected R&D improvements while Market + Policy case includes policy and tax incentives. https://atb.nrel.gov/electricity/2024/financial_cases_&_methods. In 2025, NREL added three new cases: R&D + TC, Exp, and Exp + TC. TC stands for tax credit and Exp stands for expanded cost drivers such as changing market and supply chain conditions. The expanded cost drivers cases is presented as a limited pilot in the 2025 ATB and is included for PV, Land-Based and Distributed Wind, and Battery technologies. https://atb.nlr.gov/electricity/2025/financial_cases_&_methods.
   * - model_tax_credit_case_nrelatb
     - string
     - 
@@ -46856,7 +46856,7 @@ Annual time series of technology statuses, indicating whether technologies in th
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:

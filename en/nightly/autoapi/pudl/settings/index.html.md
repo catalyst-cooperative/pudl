@@ -62,7 +62,7 @@ Module for validating pudl ETL data configurations.
 
 ### pudl.settings.logger
 
-### *class* pudl.settings.FercForm(\*args, \*\*kwds)
+### *class* pudl.settings.FercForm
 
 Bases: [`enum.Enum`](https://docs.python.org/3/library/enum.html#enum.Enum)
 

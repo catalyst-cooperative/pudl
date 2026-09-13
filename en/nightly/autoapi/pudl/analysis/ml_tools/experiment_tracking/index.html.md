@@ -67,7 +67,7 @@ Bases: [`dagster.Config`](https://docs.dagster.io/api/dagster/config/#dagster.Co
 
 Dagster config to setup experiment tracking with mlflow.
 
-#### tracking_uri *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= 'sqlite:///Instance of pathlib._local.Path/experiments.sqlite'*
+#### tracking_uri *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= 'sqlite:///Instance of pathlib.Path/experiments.sqlite'*
 
 #### tracking_enabled *: [bool](https://docs.python.org/3/library/functions.html#bool)* *= False*
 

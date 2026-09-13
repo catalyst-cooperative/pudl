@@ -198,7 +198,7 @@ Module Contents
    categories.
 
 
-   .. py:class:: EntityType(*args, **kwds)
+   .. py:class:: EntityType
 
       Bases: :py:obj:`enum.Enum`
 

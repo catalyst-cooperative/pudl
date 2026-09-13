@@ -62,12 +62,12 @@ There are six main stages of the allocation process in this module:
    granular [core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation-fuel) table to the
    [`IDX_GENS_PM_ESC`](#pudl.analysis.allocate_gen_fuel.IDX_GENS_PM_ESC) level. More details on the allocation process are below
    (see [`allocate_gen_fuel_by_gen_esc()`](#pudl.analysis.allocate_gen_fuel.allocate_gen_fuel_by_gen_esc) and [`allocate_fuel_by_gen_esc()`](#pudl.analysis.allocate_gen_fuel.allocate_fuel_by_gen_esc)).
-5. **Sanity check allocation**: Verify that the total allocated net generation and fuel
-   consumption within each plant is equal to the total of the originally reported values
-   within some tolerance (see [`test_original_gf_vs_the_allocated_by_gens_gf()`](#pudl.analysis.allocate_gen_fuel.test_original_gf_vs_the_allocated_by_gens_gf)).
-   Warn if assumptions about the data and the outputs aren’t met (see
-   [`warn_if_missing_pms()`](#pudl.analysis.allocate_gen_fuel.warn_if_missing_pms), [`_test_frac()`](#pudl.analysis.allocate_gen_fuel._test_frac), [`test_gen_fuel_allocation()`](#pudl.analysis.allocate_gen_fuel.test_gen_fuel_allocation) and
-   [`_test_gen_pm_fuel_output()`](#pudl.analysis.allocate_gen_fuel._test_gen_pm_fuel_output))
+5. **Sanity check allocation**: Warn if assumptions about the data and the outputs
+   aren’t met (see [`_warn_if_missing_pms()`](#pudl.analysis.allocate_gen_fuel._warn_if_missing_pms), [`_test_frac()`](#pudl.analysis.allocate_gen_fuel._test_frac) and
+   [`test_gen_fuel_allocation()`](#pudl.analysis.allocate_gen_fuel.test_gen_fuel_allocation)). Verifying that the total allocated net generation
+   and fuel consumption within each plant equals the originally reported values within
+   tolerance is handled by the `validate_eia923__generation_fuel_allocation` dbt
+   models.
 6. **Aggregate outputs**: Aggregate the allocated net generation and fuel consumption to
    the generator level, going from having primary keys of [`IDX_GENS_PM_ESC`](#pudl.analysis.allocate_gen_fuel.IDX_GENS_PM_ESC) to
    [`IDX_GENS`](#pudl.analysis.allocate_gen_fuel.IDX_GENS) (see `aggregate_gen_fuel_by_generator()`).
@@ -138,6 +138,7 @@ net generation (if it’s reported) or capacity (if generation is not reported).
 
 | [`logger`](#pudl.analysis.allocate_gen_fuel.logger)                   |                                                                                                                                                                      |
 |---------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`AllocationFrequency`](#pudl.analysis.allocate_gen_fuel.AllocationFrequency)      | The two frequencies at which generation & fuel data can be allocated.                                                                                                |
 | [`IDX_GENS`](#pudl.analysis.allocate_gen_fuel.IDX_GENS)                 | Primary key columns for generator records.                                                                                                                           |
 | [`IDX_GENS_PM_ESC`](#pudl.analysis.allocate_gen_fuel.IDX_GENS_PM_ESC)          | Primary key columns for plant, generator, prime mover & energy source records.                                                                                       |
 | [`IDX_PM_ESC`](#pudl.analysis.allocate_gen_fuel.IDX_PM_ESC)               | Primary key columns for plant, prime mover & energy source records.                                                                                                  |
@@ -146,25 +147,30 @@ net generation (if it’s reported) or capacity (if generation is not reported).
 | [`IDX_UNIT_ESC`](#pudl.analysis.allocate_gen_fuel.IDX_UNIT_ESC)             | Primary key columns for plant, energy source & unit records.                                                                                                         |
 | [`DATA_COLUMNS`](#pudl.analysis.allocate_gen_fuel.DATA_COLUMNS)             | Data columns from [core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation-fuel) that are being allocated. |
 | [`MISSING_SENTINEL`](#pudl.analysis.allocate_gen_fuel.MISSING_SENTINEL)         | A sentinel value for dealing with null or zero values.                                                                                                               |
+| [`ALLOCATION_FREQUENCIES`](#pudl.analysis.allocate_gen_fuel.ALLOCATION_FREQUENCIES)   |                                                                                                                                                                      |
 | [`allocate_gen_fuel_assets`](#pudl.analysis.allocate_gen_fuel.allocate_gen_fuel_assets) |                                                                                                                                                                      |
+| [`_TRANSITION_DATE_COL`](#pudl.analysis.allocate_gen_fuel._TRANSITION_DATE_COL)     | The column recording a generator's actual transition date, keyed by `operational_status`.                                                                            |
 
 ## Functions
 
 | [`allocate_gen_fuel_asset_factory`](#pudl.analysis.allocate_gen_fuel.allocate_gen_fuel_asset_factory)(...)                       | Build yearly and monthly net generation & fuel consumption allocation assets.                                                                                      |
 |-------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [`allocate_gen_fuel_by_generator_energy_source`](#pudl.analysis.allocate_gen_fuel.allocate_gen_fuel_by_generator_energy_source)(...)          | Allocate net gen from gen_fuel table to the generator/energy_source_code level.                                                                                    |
-| [`select_input_data`](#pudl.analysis.allocate_gen_fuel.select_input_data)(→ tuple[pandas.DataFrame])               | Select only the subset of input data needed for the allocation.                                                                                                    |
-| [`standardize_input_frequency`](#pudl.analysis.allocate_gen_fuel.standardize_input_frequency)(→ tuple)                       | Standardize the frequency of the input tables.                                                                                                                     |
+| [`select_input_data`](#pudl.analysis.allocate_gen_fuel.select_input_data)(→ tuple[pandas.DataFrame, ...)           | Select only the subset of input data needed for the allocation.                                                                                                    |
+| [`standardize_input_frequency`](#pudl.analysis.allocate_gen_fuel.standardize_input_frequency)(→ tuple[pandas.DataFrame, ...) | Standardize the frequency of the input tables.                                                                                                                     |
 | [`scale_allocated_net_gen_fuel_by_ownership`](#pudl.analysis.allocate_gen_fuel.scale_allocated_net_gen_fuel_by_ownership)(...)             | Scale allocated net gen at the generator/energy_source_code level by ownership.                                                                                    |
 | [`agg_by_generator`](#pudl.analysis.allocate_gen_fuel.agg_by_generator)(→ pandas.DataFrame)                       | Aggregate the allocated gen fuel data to the generator level.                                                                                                      |
 | [`stack_generators`](#pudl.analysis.allocate_gen_fuel.stack_generators)(→ pandas.DataFrame)                       | Stack the generator table with a set of columns.                                                                                                                   |
 | [`associate_generator_tables`](#pudl.analysis.allocate_gen_fuel.associate_generator_tables)(→ pandas.DataFrame)             | Associate the three tables needed to assign net gen and fuel to generators.                                                                                        |
-| [`_label_gf_unique_to_gen`](#pudl.analysis.allocate_gen_fuel._label_gf_unique_to_gen)(gen_assoc)                         |                                                                                                                                                                    |
+| [`_label_gf_unique_to_gen`](#pudl.analysis.allocate_gen_fuel._label_gf_unique_to_gen)(→ pandas.DataFrame)                | Flag rows whose plant/date/PM/ESC combo has only one generator.                                                                                                    |
 | [`remove_inactive_generators`](#pudl.analysis.allocate_gen_fuel.remove_inactive_generators)(→ pandas.DataFrame)             | Remove the retired generators.                                                                                                                                     |
-| [`identify_retiring_generators`](#pudl.analysis.allocate_gen_fuel.identify_retiring_generators)(→ pandas.DataFrame)           | Identify any generators that retire mid-year.                                                                                                                      |
-| [`identify_retired_plants`](#pudl.analysis.allocate_gen_fuel.identify_retired_plants)(→ pandas.DataFrame)                | Identify entire plants that have previously retired but are reporting data.                                                                                        |
-| [`identify_generators_coming_online`](#pudl.analysis.allocate_gen_fuel.identify_generators_coming_online)(→ pandas.DataFrame)      | Identify generators that are coming online mid-year.                                                                                                               |
-| [`identify_proposed_plants`](#pudl.analysis.allocate_gen_fuel.identify_proposed_plants)(→ pandas.DataFrame)               | Identify entirely new plants that are proposed but are already reporting data.                                                                                     |
+| [`_identify_transitioning_generators`](#pudl.analysis.allocate_gen_fuel._identify_transitioning_generators)(→ pandas.DataFrame)     | Identify generators whose annual status is empirically inaccurate.                                                                                                 |
+| [`identify_retiring_generators`](#pudl.analysis.allocate_gen_fuel.identify_retiring_generators)(→ pandas.DataFrame)           | Identify any generators whose annual "retired" label doesn't match other reporting.                                                                                |
+| [`identify_newly_operating_generators`](#pudl.analysis.allocate_gen_fuel.identify_newly_operating_generators)(→ pandas.DataFrame)    | Identify any generators whose annual "proposed" label doesn't match other reporting.                                                                               |
+| [`_transition_date_in_report_year`](#pudl.analysis.allocate_gen_fuel._transition_date_in_report_year)(→ pandas.Series)           | Make a boolean series indicating if a generator's transition falls in `report_year`.                                                                               |
+| [`_identify_entirely_transitioned_groups`](#pudl.analysis.allocate_gen_fuel._identify_entirely_transitioned_groups)(→ pandas.DataFrame) | Identify anomalously reporting PM/ESC groups with uniform `operational_status`.                                                                                    |
+| [`identify_retired_groups`](#pudl.analysis.allocate_gen_fuel.identify_retired_groups)(→ pandas.DataFrame)                | Identify entire PM/ESC groups that have previously retired but are reporting data.                                                                                 |
+| [`identify_proposed_groups`](#pudl.analysis.allocate_gen_fuel.identify_proposed_groups)(→ pandas.DataFrame)               | Identify entirely new PM/ESC groups that are proposed but already reporting data.                                                                                  |
 | [`_allocate_unassociated_pm_records`](#pudl.analysis.allocate_gen_fuel._allocate_unassociated_pm_records)(→ pandas.DataFrame)      | Associate unassociated [core_eia923_\_monthly_boiler_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-boiler-fuel) table records on idx_cols. |
 | [`prep_allocation_fraction`](#pudl.analysis.allocate_gen_fuel.prep_allocation_fraction)(→ pandas.DataFrame)               | Prepare the associated generators for allocation.                                                                                                                  |
 | [`allocate_gen_fuel_by_gen_esc`](#pudl.analysis.allocate_gen_fuel.allocate_gen_fuel_by_gen_esc)(→ pandas.DataFrame)           | Allocate net generation to generators/energy_source_code via three methods.                                                                                        |
@@ -177,15 +183,17 @@ net generation (if it’s reported) or capacity (if generation is not reported).
 | [`add_missing_energy_source_codes_to_gens`](#pudl.analysis.allocate_gen_fuel.add_missing_energy_source_codes_to_gens)(gens_at_freq, ...) | Add energy_source_codes to gens that were found only in the gf or bf tables.                                                                                       |
 | [`identify_missing_gf_escs_in_gens`](#pudl.analysis.allocate_gen_fuel.identify_missing_gf_escs_in_gens)(gens_at_freq, gf, bf)     | Identify energy_source_codes that exist in gf or bf but not gens.                                                                                                  |
 | [`allocate_bf_data_to_gens`](#pudl.analysis.allocate_gen_fuel.allocate_bf_data_to_gens)(→ pandas.DataFrame)               | Allocates boiler fuel data to the generator level.                                                                                                                 |
-| [`warn_if_missing_pms`](#pudl.analysis.allocate_gen_fuel.warn_if_missing_pms)(→ None)                                | Log warning if there are too many null `prime_mover_code` s.                                                                                                       |
+| [`_warn_if_missing_pms`](#pudl.analysis.allocate_gen_fuel._warn_if_missing_pms)(→ None)                               | Log warning if there are too many null `prime_mover_code` s.                                                                                                       |
 | [`_test_frac`](#pudl.analysis.allocate_gen_fuel._test_frac)(→ pandas.DataFrame)                             | Check if each of the IDX_PM_ESC groups frac's add up to 1.                                                                                                         |
-| [`_test_gen_pm_fuel_output`](#pudl.analysis.allocate_gen_fuel._test_gen_pm_fuel_output)(→ pandas.DataFrame)               |                                                                                                                                                                    |
 | [`test_gen_fuel_allocation`](#pudl.analysis.allocate_gen_fuel.test_gen_fuel_allocation)(→ None)                           | Does the allocated MWh differ from the granular [core_eia923_\_monthly_generation](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation)?    |
-| [`test_original_gf_vs_the_allocated_by_gens_gf`](#pudl.analysis.allocate_gen_fuel.test_original_gf_vs_the_allocated_by_gens_gf)(...)          | Test whether the allocated data and original data sum up to similar values.                                                                                        |
 
 ## Module Contents
 
 ### pudl.analysis.allocate_gen_fuel.logger
+
+### pudl.analysis.allocate_gen_fuel.AllocationFrequency
+
+The two frequencies at which generation & fuel data can be allocated.
 
 ### pudl.analysis.allocate_gen_fuel.IDX_GENS *= ['report_date', 'plant_id_eia', 'generator_id']*
 
@@ -233,13 +241,15 @@ A sentinel value for dealing with null or zero values.
    sentinel values. We avoid any negative values because there are instances of
    negative original values - especially negative net generation.
 
-### pudl.analysis.allocate_gen_fuel.allocate_gen_fuel_asset_factory(freq: Literal['YS', 'MS'], io_manager_key: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)]
+### pudl.analysis.allocate_gen_fuel.allocate_gen_fuel_asset_factory(freq: [AllocationFrequency](#pudl.analysis.allocate_gen_fuel.AllocationFrequency), io_manager_key: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)]
 
 Build yearly and monthly net generation & fuel consumption allocation assets.
 
+### pudl.analysis.allocate_gen_fuel.ALLOCATION_FREQUENCIES *: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[AllocationFrequency](#pudl.analysis.allocate_gen_fuel.AllocationFrequency), ...]* *= ('YS', 'MS')*
+
 ### pudl.analysis.allocate_gen_fuel.allocate_gen_fuel_assets
 
-### pudl.analysis.allocate_gen_fuel.allocate_gen_fuel_by_generator_energy_source(gf: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), bf: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), gen: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), bga: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), gens: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), freq: Literal['YS', 'MS'], debug: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.analysis.allocate_gen_fuel.allocate_gen_fuel_by_generator_energy_source(gf: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), bf: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), gen: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), bga: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), gens: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), freq: [AllocationFrequency](#pudl.analysis.allocate_gen_fuel.AllocationFrequency), debug: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Allocate net gen from gen_fuel table to the generator/energy_source_code level.
 
@@ -267,7 +277,7 @@ net generation from the [core_eia923_\_monthly_generation_fuel](../../../../data
   * **freq** – Frequency at which the tables are aggregated temporally.
   * **debug** – If True, return additional debugging information.
 
-### pudl.analysis.allocate_gen_fuel.select_input_data(gf: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), bf: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), gen: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), bga: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), gens: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]
+### pudl.analysis.allocate_gen_fuel.select_input_data(gf: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), bf: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), gen: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), bga: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), gens: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]
 
 Select only the subset of input data needed for the allocation.
 
@@ -276,7 +286,7 @@ restricting the dates to those which are available in all inputs. Otherwise we e
 up with a bunch of NA values since the generators table has up to a year of more
 recent data from the EIA-860M.
 
-### pudl.analysis.allocate_gen_fuel.standardize_input_frequency(bf: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), gens: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), gen: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), freq: Literal['MS', 'MS']) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)
+### pudl.analysis.allocate_gen_fuel.standardize_input_frequency(bf: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), gens: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), gen: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), freq: [AllocationFrequency](#pudl.analysis.allocate_gen_fuel.AllocationFrequency)) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]
 
 Standardize the frequency of the input tables.
 
@@ -393,7 +403,24 @@ associated.
   in the allocation process in [`allocate_gen_fuel_by_gen_esc()`](#pudl.analysis.allocate_gen_fuel.allocate_gen_fuel_by_gen_esc) and
   [`allocate_fuel_by_gen_esc()`](#pudl.analysis.allocate_gen_fuel.allocate_fuel_by_gen_esc).
 
-### pudl.analysis.allocate_gen_fuel.\_label_gf_unique_to_gen(gen_assoc: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame))
+### pudl.analysis.allocate_gen_fuel.\_label_gf_unique_to_gen(gen_assoc: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Flag rows whose plant/date/PM/ESC combo has only one generator.
+
+A gf-table ([core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation-fuel)) record is reported at
+plant/prime-mover/energy-source granularity, not per generator, so a nonzero
+value can’t always be attributed to a specific generator. When a given
+plant/report_date/prime_mover_code/energy_source_code combination is only ever
+reported by a single generator, though, any gf-table data for that combination
+can only belong to that one generator.
+
+* **Parameters:**
+  **gen_assoc** – table of generators with stacked energy sources and broadcasted
+  net generation data. Output of [`associate_generator_tables()`](#pudl.analysis.allocate_gen_fuel.associate_generator_tables).
+* **Returns:**
+  `gen_assoc` with a new boolean `gf_unique_to_gen` column, True for rows
+  whose plant/report_date/prime_mover_code/energy_source_code combination is
+  reported by exactly one generator.
 
 ### pudl.analysis.allocate_gen_fuel.remove_inactive_generators(gen_assoc: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
@@ -403,78 +430,237 @@ We don’t want to associate and later allocate net generation or fuel to genera
 that are retired (or proposed! or any other `operational_status` besides
 `existing`). However, we do want to keep the generators that report operational
 statuses other than `existing` but which report non-zero data despite being
-`retired` or `proposed`. This includes several categories of generators/plants:
+`retired` or `proposed`. This includes several categories of generators/plants,
+which come in mirror-image pairs – retiring/retired vs. newly operating/proposed –
+built from shared logic ([`_identify_transitioning_generators()`](#pudl.analysis.allocate_gen_fuel._identify_transitioning_generators) and
+[`_identify_entirely_transitioned_groups()`](#pudl.analysis.allocate_gen_fuel._identify_entirely_transitioned_groups)):
 
-> * `retiring_generators`: generators that retire mid-year or report data after
->   retiring.
-> * `retired_plants`: entire plants that supposedly retired prior to
->   the current year but which report data. If a plant has a mix of gens
->   which are existing and retired, they are not included in this category.
-> * `proposed_generators`: generators that become operational mid-year,
->   or which are marked as `proposed` but start reporting non-zero data
-> * `proposed_plants`: entire plants that have a `proposed` status but
->   which start reporting data. If a plant has a mix of gens which are
->   existing and proposed, they are not included in this category.
+* `retiring_generators`: generators that retire mid-year, or report data on or
+  after their retirement date despite being labeled “retired” for the whole year.
+* `retired_pm_esc_groups`: entire prime_mover/energy_source_code groups that
+  supposedly retired prior to the current year but which report data. A different
+  group at the same plant with a different (or mixed, or mid-year-transitioning)
+  status doesn’t disqualify this one, since gf-table data is reported at PM/ESC
+  granularity and so can never be ambiguous across groups. If a group has a mix of
+  gens which are existing and retired, they are not included in this category.
+* `newly_operating_generators`: generators that become operational mid-year, or
+  report data before their operating date despite being labeled “proposed” for the
+  whole year, or which start reporting non-zero data despite having no known
+  operating date yet.
+* `proposed_pm_esc_groups`: entire prime_mover/energy_source_code groups that
+  have a `proposed` status but which start reporting data before their operating
+  date, scoped per PM/ESC group for the same reason as `retired_pm_esc_groups`
+  above. If a group has a mix of gens which are existing and proposed, they are not
+  included in this category.
 
-When we do not have generator-specific generation for a proposed/retired
-generator that is not coming online/retiring mid-year, we can also look
-at whether there is generation reported for this generator in the gf table.
-However, if a proposed/retired generator is part of an existing plant, it
-is possible that the reported generation from the gf table belongs to one
-of the other existing generators. Thus, we want to only keep proposed/retired
-generators where the entire plant is proposed/retired (in which case the gf-
+When we do not have generator-specific generation for a proposed/retired generator
+that is not newly operating/retiring mid-year, we can also look at whether there is
+generation reported for this generator in the gf table. However, if a
+proposed/retired generator shares its prime_mover/energy_source_code group with an
+existing generator, it is possible that the reported generation from the gf table
+belongs to that other generator instead. Thus, we want to only keep proposed/retired
+generators where the entire PM/ESC group is proposed/retired (in which case the gf-
 reported generation could only come from one of the new/retired generators). If the
-reported gf data is for a prime_mover / energy_source_code combo that is unique
-to the retiring/proposed generator, we can identify it at the generator level.
+reported gf data is for a prime_mover / energy_source_code combo that is unique to
+the retiring/newly-operating generator, we can identify it at the generator level.
 
 We also want to keep unassociated plants that have no `generator_id` which will
 be associated via `_allocate_unassociated_records()`.
 
 * **Parameters:**
   **gen_assoc** – table of generators with stacked energy sources and broadcasted net
-  generation data from the core_eia923_\_monthly_generation and core_eia923_\_monthly_generation_fuel
-  tables. Output of [`associate_generator_tables()`](#pudl.analysis.allocate_gen_fuel.associate_generator_tables).
+  generation data from the core_eia923_\_monthly_generation and
+  core_eia923_\_monthly_generation_fuel tables. Output of
+  [`associate_generator_tables()`](#pudl.analysis.allocate_gen_fuel.associate_generator_tables).
+* **Returns:**
+  `gen_assoc` filtered down to existing generators, unassociated plants, and
+  the retiring/retired/newly-operating/proposed categories described above.
+
+### pudl.analysis.allocate_gen_fuel.\_TRANSITION_DATE_COL *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['retired', 'proposed'], [str](https://docs.python.org/3/library/stdtypes.html#str)]*
+
+The column recording a generator’s actual transition date, keyed by `operational_status`.
+
+### pudl.analysis.allocate_gen_fuel.\_identify_transitioning_generators(gen_assoc: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), operational_status: Literal['retired', 'proposed']) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Identify generators whose annual status is empirically inaccurate.
+
+Shared by [`identify_retiring_generators()`](#pudl.analysis.allocate_gen_fuel.identify_retiring_generators) (retiring, keyed on
+`generator_retirement_date`) and [`identify_newly_operating_generators()`](#pudl.analysis.allocate_gen_fuel.identify_newly_operating_generators)
+(newly operating, keyed on `generator_operating_date`), so the two mirror-image
+cases can’t silently drift out of sync with each other.
+
+A generator qualifies for a given `report_year` if ANY of the following hold:
+
+1. the transition-date column shows the annual `operational_status` label is
+   stale for at least one month of the year – e.g. a generator labeled “retired”
+   for the whole year whose `report_date <= generator_retirement_date` (it
+   hadn’t actually retired yet as of that month), or a generator labeled
+   “proposed” whose `report_date >= generator_operating_date` (it had already
+   started operating as of that month). This check is purely date-based, with no
+   bound on *how* stale the label is – a generator whose recorded transition date
+   is decades in the past, but whose annual status was simply never updated to
+   match, qualifies here just as readily as one that genuinely transitioned
+   mid-year, OR
+2. it reports generator-specific generation data in the g table, OR
+3. it has non-zero generation or fuel reported in the gf table for a PM/ESC combo
+   that is unique to that generator at the plant.
+
+Once a generator qualifies for a report_year, every month of that generator’s
+data in that report_year is kept, since the annual status label can’t be trusted
+to isolate exactly which months are the anomalous ones.
+
+* **Parameters:**
+  * **gen_assoc** – table of generators with stacked energy sources and broadcasted
+    net generation data. Output of [`associate_generator_tables()`](#pudl.analysis.allocate_gen_fuel.associate_generator_tables).
+  * **operational_status** – the `operational_status` value identifying candidate
+    generators (`"retired"` or `"proposed"`). Determines both the
+    transition-date column ([`_TRANSITION_DATE_COL`](#pudl.analysis.allocate_gen_fuel._TRANSITION_DATE_COL)) and the comparison
+    used to detect condition A above ([`operator.le()`](https://docs.python.org/3/library/operator.html#operator.le) for `"retired"`,
+    [`operator.ge()`](https://docs.python.org/3/library/operator.html#operator.ge) for `"proposed"`).
+* **Returns:**
+  The subset of `gen_assoc` rows belonging to qualifying generators, with
+  every month of each qualifying generator’s data retained for the
+  report_years it qualified in.
 
 ### pudl.analysis.allocate_gen_fuel.identify_retiring_generators(gen_assoc: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
-Identify any generators that retire mid-year.
+Identify any generators whose annual “retired” label doesn’t match other reporting.
 
-These are “retired” generators that either:
+Thin wrapper around [`_identify_transitioning_generators()`](#pudl.analysis.allocate_gen_fuel._identify_transitioning_generators) for the
+`"retired"` direction (keyed on `generator_retirement_date`). See that
+function for the qualifying conditions, the date comparison used, and the
+month-retention behavior.
 
-1. have a mid-year retirement date, OR
-2. report generator-specific generation data in the g table for a month after the
-   retirement date, OR
-3. Have non-zero generation or fuel reported in the gf table for a PM/ESC combo that
-   is unique to that generator at the plant, for a month after the retirement date.
+* **Parameters:**
+  **gen_assoc** – table of generators with stacked energy sources and broadcasted
+  net generation data. Output of [`associate_generator_tables()`](#pudl.analysis.allocate_gen_fuel.associate_generator_tables).
+* **Returns:**
+  The subset of `gen_assoc` rows belonging to retiring generators.
 
-### pudl.analysis.allocate_gen_fuel.identify_retired_plants(gen_assoc: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.analysis.allocate_gen_fuel.identify_newly_operating_generators(gen_assoc: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
-Identify entire plants that have previously retired but are reporting data.
+Identify any generators whose annual “proposed” label doesn’t match other reporting.
 
-### pudl.analysis.allocate_gen_fuel.identify_generators_coming_online(gen_assoc: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+Thin wrapper around [`_identify_transitioning_generators()`](#pudl.analysis.allocate_gen_fuel._identify_transitioning_generators) for the
+`"proposed"` direction (keyed on `generator_operating_date`). See that
+function for the qualifying conditions, the date comparison used, and the
+month-retention behavior.
 
-Identify generators that are coming online mid-year.
+* **Parameters:**
+  **gen_assoc** – table of generators with stacked energy sources and broadcasted
+  net generation data. Output of [`associate_generator_tables()`](#pudl.analysis.allocate_gen_fuel.associate_generator_tables).
+* **Returns:**
+  The subset of `gen_assoc` rows belonging to newly operating generators.
 
-These are defined as “proposed” generators that either:
+### pudl.analysis.allocate_gen_fuel.\_transition_date_in_report_year(operational_status: Literal['retired', 'proposed'], transition_date: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), report_year: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
 
-1. report generator-specific generation data in the g table, OR
-2. Have non-zero generation or fuel reported in the gf table for a PM/ESC combo that
-   is unique to that generator at the plant.
+Make a boolean series indicating if a generator’s transition falls in `report_year`.
 
-### pudl.analysis.allocate_gen_fuel.identify_proposed_plants(gen_assoc: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+For `"retired"`, true if the retirement date falls on or after the start of
+`report_year`. For `"proposed"`, true if the operating date falls on or
+before the end of `report_year`.
 
-Identify entirely new plants that are proposed but are already reporting data.
+* **Parameters:**
+  * **operational_status** – the `operational_status` value identifying the kind of
+    transition (`"retired"` or `"proposed"`). Determines whether
+    `transition_date` is compared against the start or the end of
+    `report_year`.
+  * **transition_date** – the date the transition actually happened
+    (`generator_retirement_date` for `"retired"`, or
+    `generator_operating_date` for `"proposed"`).
+  * **report_year** – the calendar year each row’s `transition_date` is being
+    checked against.
+* **Raises:**
+  [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – if `operational_status` is not `"retired"` or `"proposed"`.
+* **Returns:**
+  A boolean series, True for rows whose `transition_date` falls within
+  `report_year`.
+
+### pudl.analysis.allocate_gen_fuel.\_identify_entirely_transitioned_groups(gen_assoc: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), operational_status: Literal['retired', 'proposed']) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Identify anomalously reporting PM/ESC groups with uniform `operational_status`.
+
+Used by [`identify_retired_groups()`](#pudl.analysis.allocate_gen_fuel.identify_retired_groups) and [`identify_proposed_groups()`](#pudl.analysis.allocate_gen_fuel.identify_proposed_groups) so the
+two mirror-image cases are guaranteed to use the same process.
+
+The “entirely operational_status” check is applied by `(plant_id_eia,
+prime_mover_code, energy_source_code, report_year)` – a PM/ESC *group*-year
+because that’s the granularity at which the generation fuel table is reported.
+Scoping to the whole plant instead would let an unrelated PM/ESC group’s transition
+block a stable group’s rescue, or a mixed-status generator in a different group
+would block it via the “mixed status” check below (see
+`test_remove_inactive_generators_cross_group_transition_does_not_lose_data`).
+
+A PM/ESC-group-year is included only if:
+
+* it has at least one row whose `operational_status` column matches the given
+  `operational_status` argument, whose `report_date` is anomalous relative to
+  the transition-date column (i.e. a retired plant reporting *after* its retirement
+  date, or a proposed plant reporting *before* its operating date), whose generation
+  fuel table generation is reported (notnull, nonzero), and whose generation table
+  generation is *not* reported (since unambiguous generator-level reporting is
+  handled by [`_identify_transitioning_generators()`](#pudl.analysis.allocate_gen_fuel._identify_transitioning_generators));
+* every generator reported for that PM/ESC-group-year shares `operational_status`
+  (no mixed status);
+* none of those generators’ transition-date column falls within the report_year
+  (mid-year transitions are handled by [`_identify_transitioning_generators()`](#pudl.analysis.allocate_gen_fuel._identify_transitioning_generators)).
+
+The final output is filtered to months with non-null generation fuel table
+generation, since there’s nothing to allocate in months where nothing was reported.
+
+* **Parameters:**
+  * **gen_assoc** – table of generators with stacked energy sources and broadcasted net
+    generation data. Output of [`associate_generator_tables()`](#pudl.analysis.allocate_gen_fuel.associate_generator_tables).
+  * **operational_status** – the `operational_status` value identifying candidate
+    PM/ESC-group-years (`"retired"` or `"proposed"`). Determines the name of
+    the transition-date column ([`_TRANSITION_DATE_COL`](#pudl.analysis.allocate_gen_fuel._TRANSITION_DATE_COL)), the comparison
+    used to detect an anomalous report ([`operator.gt()`](https://docs.python.org/3/library/operator.html#operator.gt) for `"retired"`,
+    [`operator.lt()`](https://docs.python.org/3/library/operator.html#operator.lt) for `"proposed"`), and the within-report-year
+    transition check ([`_transition_date_in_report_year()`](#pudl.analysis.allocate_gen_fuel._transition_date_in_report_year)).
+* **Returns:**
+  The subset of `gen_assoc` rows belonging to entirely-`operational_status`
+  PM/ESC-group-years that reported anomalous gf-table generation, filtered to
+  months with non-null gf-table generation.
+
+### pudl.analysis.allocate_gen_fuel.identify_retired_groups(gen_assoc: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Identify entire PM/ESC groups that have previously retired but are reporting data.
+
+See [`_identify_entirely_transitioned_groups()`](#pudl.analysis.allocate_gen_fuel._identify_entirely_transitioned_groups) for the shared logic.
+
+* **Parameters:**
+  **gen_assoc** – table of generators with stacked energy sources and broadcasted
+  net generation data. Output of [`associate_generator_tables()`](#pudl.analysis.allocate_gen_fuel.associate_generator_tables).
+* **Returns:**
+  The subset of `gen_assoc` rows belonging to entirely-retired PM/ESC-
+  group-years that reported anomalous gf-table generation, filtered to
+  months with non-null gf-table generation.
+
+### pudl.analysis.allocate_gen_fuel.identify_proposed_groups(gen_assoc: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Identify entirely new PM/ESC groups that are proposed but already reporting data.
+
+See [`_identify_entirely_transitioned_groups()`](#pudl.analysis.allocate_gen_fuel._identify_entirely_transitioned_groups) for the shared logic.
+
+* **Parameters:**
+  **gen_assoc** – table of generators with stacked energy sources and broadcasted
+  net generation data. Output of [`associate_generator_tables()`](#pudl.analysis.allocate_gen_fuel.associate_generator_tables).
+* **Returns:**
+  The subset of `gen_assoc` rows belonging to entirely-proposed PM/ESC-
+  group-years that reported anomalous gf-table generation, filtered to
+  months with non-null gf-table generation.
 
 ### pudl.analysis.allocate_gen_fuel.\_allocate_unassociated_pm_records(gen_assoc: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), idx_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], col_w_unexpected_codes: Literal['energy_source_code', 'prime_mover_code'], data_columns: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Associate unassociated [core_eia923_\_monthly_boiler_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-boiler-fuel) table records on idx_cols.
 
-There are a subset of [core_eia923_\_monthly_boiler_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-boiler-fuel) and [core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation-fuel)
-records which do not merge onto the stacked generator table on `IDX_GENS_PM_ESC`
-or `ID_PM_ESC` respectively. These records generally don’t match with the set of
-prime movers and energy sources in the stacked generator table. In this method, we
-associate those straggler, unassociated records by merging these records with the
-stacked generators witouth the un-matching data column.
+There are a subset of [core_eia923_\_monthly_boiler_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-boiler-fuel) and
+[core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation-fuel) records which do not merge onto the
+stacked generator table on `IDX_GENS_PM_ESC` or `ID_PM_ESC` respectively. These
+records generally don’t match with the set of prime movers and energy sources in the
+stacked generator table. In this method, we associate those straggler, unassociated
+records by merging these records with the stacked generators without the unmatched
+data column.
 
 * **Parameters:**
   * **gen_assoc** – generators associated with data.
@@ -482,6 +668,11 @@ stacked generators witouth the un-matching data column.
   * **col_w_unexpected_codes** – name of the column which has codes in it that were not
     found in the generators table.
   * **data_columns** – the data columns to associate and allocate.
+* **Returns:**
+  `gen_assoc` with the unassociated records’ `data_columns` merged onto and
+  allocated across the matching generators, weighted by each generator’s share of
+  `capacity_mw` within `idx_cols` minus `col_w_unexpected_codes`. If there
+  are no unassociated records, `gen_assoc` is returned unchanged.
 
 ### pudl.analysis.allocate_gen_fuel.prep_allocation_fraction(gen_assoc: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
@@ -552,7 +743,7 @@ df. Sometimes the allocation process creates duplicate keys. This function
 identifies when this happens, and aggregates the data on these keys to remove the
 duplicates.
 
-### pudl.analysis.allocate_gen_fuel.distribute_annually_reported_data_to_months_if_annual(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), key_columns: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], data_column_name: [str](https://docs.python.org/3/library/stdtypes.html#str), freq: Literal['YS', 'MS']) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.analysis.allocate_gen_fuel.distribute_annually_reported_data_to_months_if_annual(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), key_columns: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], data_column_name: [str](https://docs.python.org/3/library/stdtypes.html#str), freq: [AllocationFrequency](#pudl.analysis.allocate_gen_fuel.AllocationFrequency)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Allocates annually-reported data from the gen or bf table to each month.
 
@@ -641,7 +832,7 @@ each generator. So if boiler “1” was associated with generator A (25 MW) and
 B (75 MW), 25% of the fuel consumption would be allocated to generator A and 75% would
 be allocated to generator B.
 
-### pudl.analysis.allocate_gen_fuel.warn_if_missing_pms(gens: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.analysis.allocate_gen_fuel.\_warn_if_missing_pms(gens: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [None](https://docs.python.org/3/library/constants.html#None)
 
 Log warning if there are too many null `prime_mover_code` s.
 
@@ -650,27 +841,30 @@ something that should probably be fixed in the input data see
 [https://github.com/catalyst-cooperative/pudl/issues/1585](https://github.com/catalyst-cooperative/pudl/issues/1585) set a threshold and ignore
 2001 bc most errors are 2001 errors.
 
+This is an input data quality check that can’t be migrated to dbt.
+
 ### pudl.analysis.allocate_gen_fuel.\_test_frac(gen_pm_fuel: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Check if each of the IDX_PM_ESC groups frac’s add up to 1.
 
-### pudl.analysis.allocate_gen_fuel.\_test_gen_pm_fuel_output(gen_pm_fuel: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), gf: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), gen: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+This is used to test data expectations in an intermediate step of the allocation
+process, and so can’t be migrated to dbt.
+
+* **Parameters:**
+  **gen_pm_fuel** – table of generators with an allocation `frac` column, grouped
+  by `IDX_PM_ESC`. Output of [`allocate_gen_fuel_by_gen_esc()`](#pudl.analysis.allocate_gen_fuel.allocate_gen_fuel_by_gen_esc).
+* **Returns:**
+  The subset of `IDX_PM_ESC` groups whose `frac` values don’t sum to 1
+  (empty if none are bad). Any bad groups are also logged as a warning.
 
 ### pudl.analysis.allocate_gen_fuel.test_gen_fuel_allocation(gen: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), net_gen_alloc: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), ratio: [float](https://docs.python.org/3/library/functions.html#float) = 0.05) → [None](https://docs.python.org/3/library/constants.html#None)
 
 Does the allocated MWh differ from the granular [core_eia923_\_monthly_generation](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation)?
 
+This test should be migrated to dbt, since it compares data from two finished
+outputs.
+
 * **Parameters:**
   * **gen** – the `core_eia923__monthly_generation` table.
   * **net_gen_alloc** – the allocated net generation at the [`IDX_PM_ESC`](#pudl.analysis.allocate_gen_fuel.IDX_PM_ESC) level
   * **ratio** – the tolerance
-
-### pudl.analysis.allocate_gen_fuel.test_original_gf_vs_the_allocated_by_gens_gf(gf: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), gf_allocated: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), data_columns: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] = DATA_COLUMNS, by: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] = ['year', 'plant_id_eia'], acceptance_threshold: [float](https://docs.python.org/3/library/functions.html#float) = 0.07) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
-
-Test whether the allocated data and original data sum up to similar values.
-
-* **Raises:**
-  * [**AssertionError**](https://docs.python.org/3/library/exceptions.html#AssertionError) – If the number of plant/years that are off by more than 5% is
-    not within acceptable level of tolerance.
-  * [**AssertionError**](https://docs.python.org/3/library/exceptions.html#AssertionError) – If the difference between the allocated and original data for
-    any plant/year is off by more than x10 or x-5.

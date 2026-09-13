@@ -87,7 +87,7 @@ Module Contents
 
    .. py:attribute:: tracking_uri
       :type:  str
-      :value: 'sqlite:///Instance of pathlib._local.Path/experiments.sqlite'
+      :value: 'sqlite:///Instance of pathlib.Path/experiments.sqlite'
 
 
 

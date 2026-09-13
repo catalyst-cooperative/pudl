@@ -2,9 +2,20 @@
 
 <a id="release-v2026-9-0"></a>
 
-## v2026.9.0 (2026-09-xx)
+## v2026.9.0 (2026-09-11)
 
-This is the upcoming PUDL release.
+This is a regular monthly PUDL data release, primarily motivated by updating the
+EIA-860M monthly data through August 2026. The biggest change this month is that we’ve
+started publishing a [DuckDB](https://duckdb.org) version of the PUDL database! We
+will be deprecating the old `pudl.sqlite` database in **January, 2027**.
+
+We also closed a gap where Pandera’s Polars backend was silently skipping some of the
+schema validation checks declared in our metadata (thankfully they were being enforced
+independently elsewhere!). We’ve added several new tables (EIA-176 company
+characteristics, EIA-923 fuel stocks and energy storage, PHMSA distribution mains by
+install decade), and extended the new CEMS-derived operational characteristics analysis
+back to 2000. See below for all the details, and the linked PRs and issues for the full
+story.
 
 ### Output Formats & Distribution
 
@@ -20,23 +31,24 @@ This is the upcoming PUDL release.
   the ETL purely for backwards compatibility. **We will stop producing SQLite versions
   of the fully processed PUDL data in 2027.** Please migrate to the Parquet outputs
   or the new `pudl.duckdb` database. This deprecation does not affect the minimally
-  processed raw FERC data, which will continue to be distributed as SQLite. See PR
+  processed raw FERC data, which will continue to be distributed as SQLite for the time
+  being, but will likely transition at some point in the near future as well. See PR
   [#5538](https://github.com/catalyst-cooperative/pudl/pull/5538).
 
 ### New Data
 
 #### EIA-176
 
-* Added [core_eia176_\_yearly_company_characteristics](data_dictionaries/pudl_db.html.md#core-eia176-yearly-company-characteristics) with company operation
-  type, ownership type, and company characteristic fields from EIA Form 176 Part 3
-  (Lines A-D). Includes `alternative_fleet_size`,
-  `customer_choice_residential_eligible`,
+* Added [core_eia176_\_yearly_company_characteristics](data_dictionaries/pudl_db.html.md#core-eia176-yearly-company-characteristics) with company operation type,
+  ownership type, and company characteristic fields from EIA Form 176 Part 3 (Lines
+  A-D). Includes `alternative_fleet_size`, `customer_choice_residential_eligible`,
   `customer_choice_residential_participating`, `has_sales_or_acquisitions`, and
-  `natural_gas_pump_price_dollars_per_mcf` (2014-2016 only). National-level
-  adjustment records (operating_state FX, MX, BL, OO) are excluded. The raw
-  `is_other_ownership` and `is_other_ownership_2` fields (which never co-occur)
-  are merged into a single `is_other_ownership` boolean.
-  See [#4697](https://github.com/catalyst-cooperative/pudl/issues/4697) and [#5412](https://github.com/catalyst-cooperative/pudl/pull/5412).
+  `natural_gas_pump_price_dollars_per_mcf` (2014-2016 only). National-level adjustment
+  records (operating_state FX, MX, BL, OO) are excluded. The raw `is_other_ownership`
+  and `is_other_ownership_2` fields (which never co-occur) are merged into a single
+  `is_other_ownership` boolean. See [#4697](https://github.com/catalyst-cooperative/pudl/issues/4697) and [#5412](https://github.com/catalyst-cooperative/pudl/pull/5412). Thank’s to
+  [@MeadBarrel](https://github.com/sponsors/MeadBarrel) for all the work on getting natural gas data integrated into PUDL,
+  and the ongoing support from [@switchbox-data](https://github.com/sponsors/switchbox-data).
 
 #### EIA-923
 
@@ -45,11 +57,12 @@ This is the upcoming PUDL release.
   generating facilities, aggregated by census division or state. The wide monthly
   source columns are reshaped into tall monthly records and the reported thousand-unit
   quantities are converted to base units. See issue [#5081](https://github.com/catalyst-cooperative/pudl/issues/5081) and PR [#5431](https://github.com/catalyst-cooperative/pudl/pull/5431).
+  Thanks to [@lazizbekravshanov](https://github.com/sponsors/lazizbekravshanov) for this contribution!
 * Added [out_eia923_\_energy_storage](data_dictionaries/pudl_db.html.md#out-eia923-energy-storage) for reported EIA-923 energy storage
   operations, with [out_eia923_\_monthly_energy_storage](data_dictionaries/pudl_db.html.md#out-eia923-monthly-energy-storage) and
   [out_eia923_\_yearly_energy_storage](data_dictionaries/pudl_db.html.md#out-eia923-yearly-energy-storage) providing monthly and yearly aggregations.
   All three include plant and utility metadata. See issue [#4311](https://github.com/catalyst-cooperative/pudl/issues/4311) and PR
-  [#5489](https://github.com/catalyst-cooperative/pudl/pull/5489).
+  [#5489](https://github.com/catalyst-cooperative/pudl/pull/5489). Shout out to [@giovannicozzolongo](https://github.com/sponsors/giovannicozzolongo) for this.
 * Extracted the unprocessed `raw_eia923__source_and_disposition` table for further
   future cleaning, see PR [#5546](https://github.com/catalyst-cooperative/pudl/pull/5546). Thanks to contributor [@giovannicozzolongo](https://github.com/sponsors/giovannicozzolongo)!
 
@@ -73,23 +86,57 @@ This is the upcoming PUDL release.
   window length as an upper bound on minimum up/down times) rather than thresholds fit
   to a single year of data. See PR [#5474](https://github.com/catalyst-cooperative/pudl/pull/5474).
 
+#### PHMSA
+
+* Added the `core_phmsagas__yearly_distribution_by_install_decade` table, which
+  reports [PHMSA](data_sources/phmsagas.html.md) gas distribution mains miles and
+  services by installation decade. See issue [#5266](https://github.com/catalyst-cooperative/pudl/issues/5266) and PR [#5443](https://github.com/catalyst-cooperative/pudl/pull/5443).
+
 ### Expanded Data Coverage
 
-#### NREL ATB
+#### EIA-191
 
-* Updated the NREL ATB extractor and transformer to accommodate changes to the 2024
-  data and format. See issue [#5467](https://github.com/catalyst-cooperative/pudl/issues/5467) and PR [#5513](https://github.com/catalyst-cooperative/pudl/pull/5513).
+* Updated [EIA-191](data_sources/eia191.html.md) data to include additional records
+  through June 2026. See PR [#5572](https://github.com/catalyst-cooperative/pudl/pull/5572).
+
+#### EIA-860M
+
+* Added [EIA-860M](data_sources/eia860.html.md) data through July 2026. See
+  issue [#5549](https://github.com/catalyst-cooperative/pudl/issues/5549) and PR [#5547](https://github.com/catalyst-cooperative/pudl/pull/5547).
 
 #### EIA-861
 
 * Added early release data from 2025 for [EIA-861](data_sources/eia861.html.md).
   See issue [#5492](https://github.com/catalyst-cooperative/pudl/issues/5492) and PR [#5493](https://github.com/catalyst-cooperative/pudl/pull/5493).
 
+#### EIA-930
+
+* Updated [EIA-930](data_sources/eia930.html.md) data to include data published up
+  through the beginning of September 2026. See PR [#5572](https://github.com/catalyst-cooperative/pudl/pull/5572).
+
+#### EIA API Bulk Electricity Data
+
+* Updated the EIA Bulk Electricity data to include data published up through the
+  beginning of June 2026. See PR [#5572](https://github.com/catalyst-cooperative/pudl/pull/5572).
+
+#### EPA CEMS
+
+* Updated the [EPA CEMS](data_sources/epacems.html.md) data with additional records
+  through June 2026. See PR [#5572](https://github.com/catalyst-cooperative/pudl/pull/5572).
+
+#### EPA MATS
+
+* Updated the raw EPA MATS archive with additional records through 2026 Q2 (June
+  2026). This data is not yet deeply integrated into PUDL. See PR [#5572](https://github.com/catalyst-cooperative/pudl/pull/5572).
+
+#### NREL ATB
+
+* Updated the NREL ATB extractor and transformer to accommodate changes to the 2024
+  data and format. See issue [#5467](https://github.com/catalyst-cooperative/pudl/issues/5467) and PR [#5513](https://github.com/catalyst-cooperative/pudl/pull/5513).
+* Added NREL ATB 2025 data. See PR [#5569](https://github.com/catalyst-cooperative/pudl/pull/5569).
+
 #### PHMSA
 
-* Added the `core_phmsagas__yearly_distribution_by_install_decade` table, which
-  reports [PHMSA](data_sources/phmsagas.html.md) gas distribution mains miles and
-  services by installation decade. See issue [#5266](https://github.com/catalyst-cooperative/pudl/issues/5266) and PR [#5443](https://github.com/catalyst-cooperative/pudl/pull/5443).
 * Added 2025 distribution and transmission data for
   [PHMSA](data_sources/phmsagas.html.md). See issue [#5504](https://github.com/catalyst-cooperative/pudl/issues/5504) and [#5548](https://github.com/catalyst-cooperative/pudl/pull/5548).
 
@@ -97,10 +144,10 @@ This is the upcoming PUDL release.
 
 * Added full 2026Q2 data for [FERC EQR](data_sources/ferceqr.html.md). See PR [#5442](https://github.com/catalyst-cooperative/pudl/pull/5442).
 
-#### EIA-860M
+#### FERC Form 2
 
-* Added [EIA-860M](data_sources/eia860.html.md) data through July 2026. See
-  issue [#5549](https://github.com/catalyst-cooperative/pudl/issues/5549) and PR [#5547](https://github.com/catalyst-cooperative/pudl/pull/5547).
+* Updated the raw FERC Form 2 archive to include additional 2025 data. This data is
+  converted to SQLite, but not deeply integrated into PUDL. See PR [#5572](https://github.com/catalyst-cooperative/pudl/pull/5572).
 
 #### Vibrant Pattern Futures Resource Adequacy Renewable Energy (RARE) Power Dataset
 
@@ -121,6 +168,11 @@ This is the upcoming PUDL release.
   which silently match no records at all (e.g. a misspelled `total_label` or
   a category renamed in a future data update), enabled for all of the plant
   costs checks. See issues [#5378](https://github.com/catalyst-cooperative/pudl/issues/5378), [#5154](https://github.com/catalyst-cooperative/pudl/issues/5154) and PR [#5510](https://github.com/catalyst-cooperative/pudl/pull/5510).
+* Calibrated per-year error thresholds for the heat-rate outlier checks on
+  [out_epacems_\_yearly_operational_characteristics](data_dictionaries/pudl_db.html.md#out-epacems-yearly-operational-characteristics), since the multi-year
+  extension in PR [#5474](https://github.com/catalyst-cooperative/pudl/pull/5474) introduced report years whose data quality, and thus
+  expected outlier rate, varies considerably over the 2000-2025 span. See PR
+  [#5571](https://github.com/catalyst-cooperative/pudl/pull/5571).
 
 ### Bug Fixes & Data Cleaning
 
@@ -137,7 +189,7 @@ This is the upcoming PUDL release.
   `google-cloud-storage` API to recursively hold every object under the prefix and
   verify after the fact that none were missed. Manually re-applied the hold to 4,000+
   previously published versioned release objects that had been missed by the original
-  bug. See PR pr:5477.
+  bug. See PR [#5477](https://github.com/catalyst-cooperative/pudl/pull/5477).
 * Fixed EIA-176 extraction bug where `raw_eia176__operation_types_and_sector_items`
   was always empty due to a mismatched page key. See [#4697](https://github.com/catalyst-cooperative/pudl/issues/4697) and [#5412](https://github.com/catalyst-cooperative/pudl/pull/5412).
 * Recovered dbt data validation tests that were being silently dropped from several
@@ -145,6 +197,15 @@ This is the upcoming PUDL release.
   key instead of `data_tests:`, meaning `dbt_helper` silently discarded the tests
   they contained instead of merging them into the generated `schema.yml`. See PR
   [#5458](https://github.com/catalyst-cooperative/pudl/pull/5458).
+* Fixed `allocate_gen_fuel.py` silently dropping legitimate generation and fuel
+  data for generators transitioning between `proposed`/`existing` or
+  `existing`/`retired` status across a multi-year ETL run. Unified the slightly
+  different logics of these transitions into a single, shared, symmetric process. This
+  simplification exposed a bug in which one generator’s status transition could silently
+  prevent data from another group of generators at the same plant from being allocated.
+  Added extensive unit tests an new dbt data quality tests validating that >=99.7% of
+  all reported generation and fuel survives allocation. Thanks to [@grgmiller](https://github.com/sponsors/grgmiller) for
+  surfacing and starting this fix. See [#5440](https://github.com/catalyst-cooperative/pudl/issues/5440) and PRs [#5419](https://github.com/catalyst-cooperative/pudl/pull/5419), [#5511](https://github.com/catalyst-cooperative/pudl/pull/5511).
 * Fixed several sources of non-deterministic row counts, where identical code and data
   produced different results on different machines (e.g. local macOS vs. nightly Linux
   builds) because several functions resolved ties among candidate values using
@@ -188,6 +249,17 @@ This is the upcoming PUDL release.
   present in both databases, neither database has extra tables, and every table has the
   same columns and the same row count in SQLite, DuckDB, and its source Parquet file.
   See PR [#5538](https://github.com/catalyst-cooperative/pudl/pull/5538).
+* Closed a long-standing gap in which Pandera’s Polars backend only checked column
+  presence and dtype for `pl.LazyFrame` assets, silently skipping every range, enum,
+  nullability, regex, and uniqueness check declared in our metadata for the vast
+  majority of PUDL tables. Content validation is now explicitly enabled for these
+  assets, checked one column at a time to keep memory bounded even on PUDL’s largest
+  tables. Thankfully these schema checks were also being enforced through independent
+  mechanisms, so no data quality issues resulted from this gap. See PR [#5432](https://github.com/catalyst-cooperative/pudl/pull/5432).
+* Corrected the `last_annual_meeting_date` field in
+  [core_rus7_\_yearly_meeting_and_board](data_dictionaries/pudl_db.html.md#core-rus7-yearly-meeting-and-board) and
+  [core_rus12_\_yearly_meeting_and_board](data_dictionaries/pudl_db.html.md#core-rus12-yearly-meeting-and-board) from a `datetime` to a `date` type.
+  See PR [#5518](https://github.com/catalyst-cooperative/pudl/pull/5518).
 
 ### Performance Improvements
 
