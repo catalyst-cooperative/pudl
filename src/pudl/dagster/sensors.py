@@ -169,6 +169,6 @@ default_sensors = [
 __all__ = [
     "default_sensors",
     "ferceqr_failure_sensor",
-    "ferceqr_success_sensor",
     "ferceqr_sensor_status",
+    "ferceqr_success_sensor",
 ]

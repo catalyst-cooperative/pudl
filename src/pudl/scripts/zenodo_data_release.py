@@ -93,7 +93,7 @@ class _LegacyMetadata(BaseModel):
     access_right: str
     creators: list[dict]
     keywords: list[str] = []
-    license: str = "cc-by-4.0"  # noqa: A003
+    license: str = "cc-by-4.0"
     language: str = "eng"
     version: str = ""
     publication_date: str = ""

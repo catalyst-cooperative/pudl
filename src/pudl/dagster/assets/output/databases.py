@@ -243,7 +243,7 @@ def _write_pudl_sqlite(
     with duckdb.connect() as conn:
         conn.execute("PRAGMA disable_progress_bar")
         conn.execute("LOAD sqlite")
-        conn.execute(f"ATTACH '{db_path}' AS {attach_alias} (TYPE sqlite)")  # noqa: S608
+        conn.execute(f"ATTACH '{db_path}' AS {attach_alias} (TYPE sqlite)")
         for n, table_name in enumerate(table_names, start=1):
             logger.info(f"Writing SQLite {n}/{n_tables} {table_name}")
             # Fetched outside the try/except: a missing Resource is a schema bug,

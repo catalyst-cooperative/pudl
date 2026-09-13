@@ -57,7 +57,7 @@ class PudlPathsResource(dg.ConfigurableResource):
 class FercXbrlRuntimeSettings(dg.ConfigurableResource):
     """Encodes runtime settings for the ferc_to_sqlite graphs."""
 
-    xbrl_num_workers: None | int = None
+    xbrl_num_workers: int | None = None
     xbrl_batch_size: int = 50
     xbrl_loglevel: str = "INFO"
 
@@ -366,20 +366,20 @@ default_resources: dict[str, Any] = {
 __all__ = [
     "DatastoreResource",
     "FercEqrArchiveResource",
-    "FercEqrDeploymentTargetConfig",
     "FercEqrDeploymentResource",
+    "FercEqrDeploymentTargetConfig",
     "FercXbrlRuntimeSettings",
     "GlobalDataConfigResource",
     "PudlPathsResource",
-    "ZulipNotificationResource",
     "ZenodoDoiSettingsResource",
+    "ZulipNotificationResource",
     "datastore_resource",
     "default_resources",
+    "ferc_xbrl_runtime_settings",
     "ferceqr_archive",
     "ferceqr_deployment_targets",
-    "ferc_xbrl_runtime_settings",
     "global_data_config_resource",
     "pudl_paths_resource",
-    "zulip_notification_resource",
     "zenodo_doi_settings_resource",
+    "zulip_notification_resource",
 ]

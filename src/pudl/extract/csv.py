@@ -1,7 +1,6 @@
 """Extractor for CSV data."""
 
 # This module name clashes with the Python standard library CSV module!
-# ruff: noqa: A005
 
 from typing import Any
 

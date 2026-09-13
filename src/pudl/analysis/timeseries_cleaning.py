@@ -830,7 +830,7 @@ def flag_global_outlier_neighbor(
     return ts.flag(mask, ImputationReasonCodes.GLOBAL_OUTLIER_NEIGHBOR)
 
 
-@functools.lru_cache(maxsize=2)  # noqa: B019
+@functools.lru_cache(maxsize=2)
 def rolling_median(ts: FlaggedTimeseries, window: int = 48) -> np.ndarray:
     """Rolling median of values.
 
@@ -1022,7 +1022,7 @@ def flag_double_delta(
     return ts.flag(mask, ImputationReasonCodes.DOUBLE_DELTA)
 
 
-@functools.lru_cache(maxsize=2)  # noqa: B019
+@functools.lru_cache(maxsize=2)
 def relative_median_prediction(ts: FlaggedTimeseries, **kwargs: Any) -> np.ndarray:
     """Values divided by their value predicted from medians.
 
