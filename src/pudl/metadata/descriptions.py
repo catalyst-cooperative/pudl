@@ -332,7 +332,7 @@ class ResourceDescriptionBuilder:
         return None
 
     @component
-    def summary(self, settings, defaults: "ResourceNameComponents") -> ResourceTrait:
+    def summary(self, settings, defaults: ResourceNameComponents) -> ResourceTrait:
         """Compute the summary component (first line) of the resource description.
 
         The summary is standardized based on table type, and if the table type is timeseries, the timeseries resolution.
@@ -425,7 +425,7 @@ class ResourceDescriptionBuilder:
         attr: str,
         lookup: dict[str, str],
         settings: dict,
-        defaults: "ResourceNameComponents",
+        defaults: ResourceNameComponents,
     ):
         """Compute a generic component of the resource description.
 

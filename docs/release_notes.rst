@@ -4,10 +4,41 @@ PUDL Release Notes
 .. _release-v2026.9.0:
 
 ---------------------------------------------------------------------------------------
-v2026.9.0 (2026-09-xx)
+v2026.9.0 (2026-09-11)
 ---------------------------------------------------------------------------------------
 
-This is the upcoming PUDL release.
+This is a regular monthly PUDL data release, primarily motivated by updating the
+EIA-860M monthly data through August 2026. The biggest change this month is that we've
+started publishing a `DuckDB <https://duckdb.org>`__ version of the PUDL database! We
+will be deprecating the old ``pudl.sqlite`` database in **January, 2027**.
+
+We also closed a gap where Pandera's Polars backend was silently skipping some of the
+schema validation checks declared in our metadata (thankfully they were being enforced
+independently elsewhere!). We've added several new tables (EIA-176 company
+characteristics, EIA-923 fuel stocks and energy storage, PHMSA distribution mains by
+install decade), and extended the new CEMS-derived operational characteristics analysis
+back to 2000. See below for all the details, and the linked PRs and issues for the full
+story.
+
+Output Formats & Distribution
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* **Added a fully processed ``pudl.duckdb`` database.** After the ETL completes we now
+  assemble all of the non-hourly PUDL tables into a single `DuckDB
+  <https://duckdb.org>`__ database named ``pudl.duckdb`` alongside ``pudl.sqlite``,
+  both built directly from the Parquet outputs. It preserves the full set of column
+  checks and primary key constraints. Foreign key constraints are currently omitted due
+  to a handful of column type conflicts outlined in issue :issue:`5552` being addressed
+  in PR :pr:`5554`. Both databases are published to S3, GCS, and Zenodo along with our
+  other outputs. See :doc:`data_access`. See PR :pr:`5538`.
+* **The fully processed ``pudl.sqlite`` database is deprecated.** PUDL's ETL no longer
+  writes SQLite directly; ``pudl.sqlite`` is now built from the Parquet outputs after
+  the ETL purely for backwards compatibility. **We will stop producing SQLite versions
+  of the fully processed PUDL data in 2027.** Please migrate to the Parquet outputs
+  or the new ``pudl.duckdb`` database. This deprecation does not affect the minimally
+  processed raw FERC data, which will continue to be distributed as SQLite for the time
+  being, but will likely transition at some point in the near future as well. See PR
+  :pr:`5538`.
 
 New Data
 ^^^^^^^^
@@ -15,16 +46,16 @@ New Data
 EIA-176
 ~~~~~~~
 
-* Added :ref:`core_eia176__yearly_company_characteristics` with company operation
-  type, ownership type, and company characteristic fields from EIA Form 176 Part 3
-  (Lines A-D). Includes ``alternative_fleet_size``,
-  ``customer_choice_residential_eligible``,
+* Added :ref:`core_eia176__yearly_company_characteristics` with company operation type,
+  ownership type, and company characteristic fields from EIA Form 176 Part 3 (Lines
+  A-D). Includes ``alternative_fleet_size``, ``customer_choice_residential_eligible``,
   ``customer_choice_residential_participating``, ``has_sales_or_acquisitions``, and
-  ``natural_gas_pump_price_dollars_per_mcf`` (2014-2016 only). National-level
-  adjustment records (operating_state FX, MX, BL, OO) are excluded. The raw
-  ``is_other_ownership`` and ``is_other_ownership_2`` fields (which never co-occur)
-  are merged into a single ``is_other_ownership`` boolean.
-  See :issue:`4697` and :pr:`5412`.
+  ``natural_gas_pump_price_dollars_per_mcf`` (2014-2016 only). National-level adjustment
+  records (operating_state FX, MX, BL, OO) are excluded. The raw ``is_other_ownership``
+  and ``is_other_ownership_2`` fields (which never co-occur) are merged into a single
+  ``is_other_ownership`` boolean. See :issue:`4697` and :pr:`5412`. Thank's to
+  :user:`MeadBarrel` for all the work on getting natural gas data integrated into PUDL,
+  and the ongoing support from :user:`switchbox-data`.
 
 EIA-923
 ~~~~~~~
@@ -34,11 +65,14 @@ EIA-923
   generating facilities, aggregated by census division or state. The wide monthly
   source columns are reshaped into tall monthly records and the reported thousand-unit
   quantities are converted to base units. See issue :issue:`5081` and PR :pr:`5431`.
+  Thanks to :user:`lazizbekravshanov` for this contribution!
 * Added :ref:`out_eia923__energy_storage` for reported EIA-923 energy storage
   operations, with :ref:`out_eia923__monthly_energy_storage` and
   :ref:`out_eia923__yearly_energy_storage` providing monthly and yearly aggregations.
   All three include plant and utility metadata. See issue :issue:`4311` and PR
-  :pr:`5489`.
+  :pr:`5489`. Shout out to :user:`giovannicozzolongo` for this.
+* Extracted the unprocessed ``raw_eia923__source_and_disposition`` table for further
+  future cleaning, see PR :pr:`5546`. Thanks to contributor :user:`giovannicozzolongo`!
 
 EPA CEMS
 ~~~~~~~~
@@ -52,27 +86,105 @@ EPA CEMS
   available for all reporting states rather than just California. The output is
   experimental and marked accordingly, since we are soliciting feedback from the
   community on the underlying methodology. See issue :issue:`5106` and PR :pr:`5190`.
-
-Expanded Data Coverage
-^^^^^^^^^^^^^^^^^^^^^^
-
-EIA-861
-~~~~~~~
-
-* Added early release data from 2025 for :doc:`EIA-861 <data_sources/eia861>`.
-  See issue :issue:`5492` and PR :pr:`5493`.
+* :ref:`out_epacems__yearly_operational_characteristics` now reports these estimates for
+  every calendar year with a full three-year trailing window of usable EPA CEMS data,
+  rather than only the most recent year, going back to 2000 (EPA CEMS's first three
+  reporting years, 1995-1997, are excluded due to known poor unit coverage). Also
+  recalibrated the associated dbt data validations against physically grounded bounds
+  (e.g. the 3.412 MMBtu/MWh thermodynamic floor on heat rates, and the exact trailing
+  window length as an upper bound on minimum up/down times) rather than thresholds fit
+  to a single year of data. See PR :pr:`5474`.
 
 PHMSA
 ~~~~~
-
 * Added the ``core_phmsagas__yearly_distribution_by_install_decade`` table, which
   reports :doc:`PHMSA <data_sources/phmsagas>` gas distribution mains miles and
   services by installation decade. See issue :issue:`5266` and PR :pr:`5443`.
 
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+EIA-191
+~~~~~~~
+* Updated :doc:`EIA-191 <data_sources/eia191>` data to include additional records
+  through June 2026. See PR :pr:`5572`.
+
+EIA-860M
+~~~~~~~~
+* Added :doc:`EIA-860M <data_sources/eia860>` data through July 2026. See
+  issue :issue:`5549` and PR :pr:`5547`.
+
+EIA-861
+~~~~~~~
+* Added early release data from 2025 for :doc:`EIA-861 <data_sources/eia861>`.
+  See issue :issue:`5492` and PR :pr:`5493`.
+
+EIA-930
+~~~~~~~
+* Updated :doc:`EIA-930 <data_sources/eia930>` data to include data published up
+  through the beginning of September 2026. See PR :pr:`5572`.
+
+EIA API Bulk Electricity Data
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+* Updated the EIA Bulk Electricity data to include data published up through the
+  beginning of June 2026. See PR :pr:`5572`.
+
+EPA CEMS
+~~~~~~~~
+* Updated the :doc:`EPA CEMS <data_sources/epacems>` data with additional records
+  through June 2026. See PR :pr:`5572`.
+
+EPA MATS
+~~~~~~~~
+* Updated the raw EPA MATS archive with additional records through 2026 Q2 (June
+  2026). This data is not yet deeply integrated into PUDL. See PR :pr:`5572`.
+
+NREL ATB
+~~~~~~~~
+* Updated the NREL ATB extractor and transformer to accommodate changes to the 2024
+  data and format. See issue :issue:`5467` and PR :pr:`5513`.
+* Added NREL ATB 2025 data. See PR :pr:`5569`.
+
+PHMSA
+~~~~~
+* Added 2025 distribution and transmission data for
+  :doc:`PHMSA <data_sources/phmsagas>`. See issue :issue:`5504` and :pr:`5548`.
+
 FERC EQR
 ~~~~~~~~
-
 * Added full 2026Q2 data for :doc:`FERC EQR <data_sources/ferceqr>`. See PR :pr:`5442`.
+
+FERC Form 2
+~~~~~~~~~~~
+* Updated the raw FERC Form 2 archive to include additional 2025 data. This data is
+  converted to SQLite, but not deeply integrated into PUDL. See PR :pr:`5572`.
+
+Vibrant Pattern Futures Resource Adequacy Renewable Energy (RARE) Power Dataset
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Added 2024 data for :doc:`RARE <data_sources/vcerare>`. See issue :issue:`5544` and
+  PR :pr:`5570`.
+
+New Data Tests & Validations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* The ``subcomponents_sum_to_total`` dbt test can now identify subcomponents and
+  totals by a combination of categorical columns (e.g. ``(cost_group, cost_type)``
+  tuples) rather than values from a single column, enabling validation of
+  calculations that cross more than one categorical column. Used this to complete
+  the totals validations for :ref:`core_rus12__yearly_plant_costs` and
+  :ref:`out_rus12__yearly_plant_costs`, adding maintenance, operations &
+  maintenance, fixed cost, and total power cost checks, and fixing several
+  existing checks that referenced non-existent cost categories. The test also
+  gained an opt-in ``minimum_total_coverage`` argument that catches totals
+  which silently match no records at all (e.g. a misspelled ``total_label`` or
+  a category renamed in a future data update), enabled for all of the plant
+  costs checks. See issues :issue:`5378,5154` and PR :pr:`5510`.
+* Calibrated per-year error thresholds for the heat-rate outlier checks on
+  :ref:`out_epacems__yearly_operational_characteristics`, since the multi-year
+  extension in PR :pr:`5474` introduced report years whose data quality, and thus
+  expected outlier rate, varies considerably over the 2000-2025 span. See PR
+  :pr:`5571`.
 
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -90,7 +202,7 @@ Bug Fixes & Data Cleaning
   ``google-cloud-storage`` API to recursively hold every object under the prefix and
   verify after the fact that none were missed. Manually re-applied the hold to 4,000+
   previously published versioned release objects that had been missed by the original
-  bug. See PR pr:`5477`.
+  bug. See PR :pr:`5477`.
 * Fixed EIA-176 extraction bug where ``raw_eia176__operation_types_and_sector_items``
   was always empty due to a mismatched page key. See :issue:`4697` and :pr:`5412`.
 * Recovered dbt data validation tests that were being silently dropped from several
@@ -98,6 +210,15 @@ Bug Fixes & Data Cleaning
   key instead of ``data_tests:``, meaning ``dbt_helper`` silently discarded the tests
   they contained instead of merging them into the generated ``schema.yml``. See PR
   :pr:`5458`.
+* Fixed ``allocate_gen_fuel.py`` silently dropping legitimate generation and fuel
+  data for generators transitioning between ``proposed``/``existing`` or
+  ``existing``/``retired`` status across a multi-year ETL run. Unified the slightly
+  different logics of these transitions into a single, shared, symmetric process. This
+  simplification exposed a bug in which one generator's status transition could silently
+  prevent data from another group of generators at the same plant from being allocated.
+  Added extensive unit tests an new dbt data quality tests validating that >=99.7% of
+  all reported generation and fuel survives allocation. Thanks to :user:`grgmiller` for
+  surfacing and starting this fix. See :issue:`5440` and PRs :pr:`5419,5511`.
 * Fixed several sources of non-deterministic row counts, where identical code and data
   produced different results on different machines (e.g. local macOS vs. nightly Linux
   builds) because several functions resolved ties among candidate values using
@@ -127,6 +248,31 @@ Bug Fixes & Data Cleaning
 * Changed ``subplant_id`` in :ref:`core_epa__assn_eia_epacamd_subplant_ids` to be
   1-indexed instead of 0-indexed within each ``plant_id_eia``, so the first subplant at
   a plant is now ``1`` rather than ``0``. See issue :issue:`5499` and PR :pr:`5541`.
+* Retired the interim output ``_core_phmsagas__yearly_distribution_by_install_decade``,
+  which was replaced by the cleaned and validated
+  :ref:`core_phmsagas__yearly_distribution_by_install_decade`. See :issue:`5504` and
+  :pr:`5548`.
+* Fixed the DuckDB examples in :doc:`data_access` and the per-table access snippets in
+  the data dictionary. Because our S3 bucket name contains dots, DuckDB's default
+  virtual-host addressing hit a TLS certificate mismatch; the examples now create an
+  anonymous path-style S3 secret (``CREATE SECRET (TYPE s3, PROVIDER config, REGION
+  'us-west-2', URL_STYLE 'path')``) before querying. See PR :pr:`5538`.
+* Added a data validation test that checks ``pudl.sqlite``, ``pudl.duckdb``, and the
+  Parquet outputs are mutually consistent: every table defined in ``PUDL_PACKAGE`` is
+  present in both databases, neither database has extra tables, and every table has the
+  same columns and the same row count in SQLite, DuckDB, and its source Parquet file.
+  See PR :pr:`5538`.
+* Closed a long-standing gap in which Pandera's Polars backend only checked column
+  presence and dtype for ``pl.LazyFrame`` assets, silently skipping every range, enum,
+  nullability, regex, and uniqueness check declared in our metadata for the vast
+  majority of PUDL tables. Content validation is now explicitly enabled for these
+  assets, checked one column at a time to keep memory bounded even on PUDL's largest
+  tables. Thankfully these schema checks were also being enforced through independent
+  mechanisms, so no data quality issues resulted from this gap. See PR :pr:`5432`.
+* Corrected the ``last_annual_meeting_date`` field in
+  :ref:`core_rus7__yearly_meeting_and_board` and
+  :ref:`core_rus12__yearly_meeting_and_board` from a ``datetime`` to a ``date`` type.
+  See PR :pr:`5518`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -139,6 +285,12 @@ Performance Improvements
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^
 
+* Added ``ferceqr_pipeline_diagnostics``, a metadata-only Dagster asset that
+  compiles the extraction stats and schema-check results already recorded for
+  every :doc:`FERC EQR <data_sources/ferceqr>` quarter into one wide table, so
+  anomalies like missing tables, rejected records, or primary-key violations
+  are visible across the whole backfill without opening each quarter's
+  materialization individually. See PR :pr:`5457`.
 * Reworked how the Google Batch jobs launched by the ``build-pudl``,
   ``deploy-pudl``, and ``build-deploy-ferceqr`` GitHub workflows are configured. The
   Batch config generator moved from ``devtools/`` into the package as the
@@ -148,6 +300,15 @@ Developer Experience
   so a shared Cloud Monitoring dashboard can filter resource-usage metrics by
   pipeline. VM sizes and the ETL's process and thread parallelism were tuned to
   match measured resource usage and stop oversubscribing the CPUs. See :pr:`5545`.
+* Branch builds (``build-pudl`` runs triggered via ``workflow_dispatch``) now skip
+  the S3 deployment by default and only deploy to GCS. S3 egress fees cost more than
+  a full ETL run, and the nightly build already exercises the real S3 deployment
+  every night. The ``build-pudl`` and ``deploy-pudl`` workflow-dispatch forms expose
+  ``deploy_to_gcs`` / ``deploy_to_s3`` checkboxes to override this per run, and when
+  neither target is enabled ``build-pudl`` skips triggering ``deploy-pudl``
+  altogether (e.g. a build run only to regenerate row counts). Nightly and stable
+  deployments are unchanged and still deploy to both. See issue :issue:`5557` and PR
+  :pr:`5558`.
 * Fixed several issues with how ``dbt_helper update-tables`` renders ``schema.yml``
   (:mod:`pudl.dbt_schema`): long ``description:`` fields are now wrapped into readable
   paragraph blocks and strings that need quoting prefer double quotes. This now matches
@@ -167,7 +328,7 @@ Developer Experience
   failures. A pytest collection hook enforces the ETL/no-ETL split. Also fixed a live
   Zulip notification firing from the test suite and tightened the dbt ``schema.yml``
   round-trip test. See issue :issue:`5508` and PR :pr:`5507`.
-* Do foreign key constraint validation with dbt instead of SQLite. Update our
+* Validate foreign key constraints with dbt instead of SQLite. Update our
   ``dbt_helper`` script to autogenerate FK constraint tests based on the PUDL metadata.
   Remove the SQLite based FK checking infrastructure. Also add sensible defaults for
   our row-count expectation checking test so we can remove boilerplate test specs.
@@ -181,6 +342,15 @@ Developer Experience
   corresponding GitHub-repo Zenodo software archive), which are also populated as
   structured ``related_identifiers`` for better DataCite/OpenAIRE indexing. See issue
   :issue:`3326` and PR :pr:`5484`.
+* Removed Alembic and the PUDL SQLite schema migrations. With PUDL's own tables no
+  longer written to SQLite during the ETL, there is no schema for Alembic to manage, so
+  ``alembic.ini``, the ``migrations/`` directory, and the ``alembic`` dependency have
+  been removed. See PR :pr:`5538`.
+* Replaced the ``pudl_engine`` pytest fixture (a SQLAlchemy engine) with
+  ``pudl_sqlite_connection`` alongside a ``pudl_duckdb_connection``. Both of which are
+  DuckDB connections. One dedicated to reading ``pudl.sqlite`` via DuckDB's ``sqlite``
+  extension, so tests query both build outputs through one API as PUDL moves toward
+  DuckDB. See PR :pr:`5538`.
 
 .. _release-v2026.8.0:
 

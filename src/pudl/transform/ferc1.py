@@ -144,14 +144,16 @@ def add_source_tables_to_xbrl_metadata(
             field["name"] for meta_list in table_meta.values() for field in meta_list
         ]
 
-    def extract_tables_to_fields(xbrl_meta: dict) -> dict[str : list[str]]:
+    def extract_tables_to_fields(xbrl_meta: dict) -> dict[str, list[str]]:
         """Compile a dictionary of table names (keys) to list of fields."""
         return {
             table_name: all_fields_in_table(table_meta)
             for table_name, table_meta in xbrl_meta.items()
         }
 
-    def label_source_tables(calc_component: dict, tables_to_fields: str) -> dict:
+    def label_source_tables(
+        calc_component: dict, tables_to_fields: dict[str, list[str]]
+    ) -> dict:
         """Add a ``source_tables`` element to the calculation component."""
         calc_component["source_tables"] = [
             other_table_name
@@ -2835,7 +2837,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         self,
         df: pd.DataFrame,
         source_ferc1: SourceFerc1,
-        params: WideToTidy | None = None,
+        params: WideToTidy | list[WideToTidy] | None = None,
     ) -> pd.DataFrame:
         """Reshape wide tables with FERC account columns to tidy format.
 
@@ -2854,7 +2856,11 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         later.
         """
         if not params:
-            params = self.params.wide_to_tidy.__getattribute__(source_ferc1.value)
+            params = (
+                self.params.wide_to_tidy.xbrl
+                if source_ferc1 == SourceFerc1.XBRL
+                else self.params.wide_to_tidy.dbf
+            )
 
         multiple_params = [params] if isinstance(params, WideToTidy) else params
         for single_params in multiple_params:
@@ -3757,7 +3763,7 @@ class SteamPlantsFuelTableTransformer(Ferc1AbstractTableTransformer):
         return df.drop(index=total_rows_idx)
 
     def drop_invalid_rows(
-        self, df: pd.DataFrame, params: InvalidRows | None = None
+        self, df: pd.DataFrame, params: list[InvalidRows] | None = None
     ) -> pd.DataFrame:
         """Drop invalid rows from the fuel table.
 

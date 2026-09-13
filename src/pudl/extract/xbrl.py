@@ -108,8 +108,8 @@ def convert_form(
         loglevel: Log level to pass to ``ferc_xbrl_extractor``.
     """
     output_path = pudl_paths.pudl_output
-    sqlite_path = pudl_paths.sqlite_db_path(f"{form}_xbrl")
-    duckdb_path = pudl_paths.duckdb_db_path(f"{form}_xbrl")
+    sqlite_path = pudl_paths.sqlite_path(f"{form}_xbrl")
+    duckdb_path = pudl_paths.duckdb_path(f"{form}_xbrl")
 
     taxonomy_archive = datastore.get_taxonomy(form)
     # Process XBRL filings for each year requested

@@ -29,6 +29,7 @@ on each generated check is the *exact* expected type object (using ``is``, not `
 """
 
 import io
+from types import SimpleNamespace
 
 import dagster as dg
 import geopandas as gpd  # noqa: ICN002
@@ -47,6 +48,7 @@ from pudl.dagster.asset_checks import (
     _validate_datapackage_unit_strings,
     asset_check_from_schema,
     group_mean_continuity_check,
+    summarize_check_failures,
 )
 from pudl.helpers import ParquetData
 from pudl.metadata.classes import PUDL_PACKAGE, Package, Resource
@@ -604,3 +606,33 @@ def test_pandera_schema_check_combines_schema_and_content_errors() -> None:
     assert any("value" in m and "100" in m for m in messages), (
         f"Expected a value-constraint content error, got: {messages}"
     )
+
+
+@pytest.mark.parametrize(
+    ("passed", "metadata", "expected"),
+    [
+        (True, {}, ""),
+        (False, {}, "FAILED (no detail available)"),
+        (
+            False,
+            {
+                "detailed_errors": dg.MetadataValue.json(
+                    [
+                        {
+                            "check": "multiple_fields_uniqueness",
+                            "error_message": "2 duplicate combinations",
+                            "failure_case_count": 2,
+                        }
+                    ]
+                )
+            },
+            "2x multiple_fields_uniqueness (2 duplicate combinations)",
+        ),
+    ],
+)
+def test_summarize_check_failures(passed, metadata, expected):
+    """A passing check summarizes to "", a failing one names the failure(s)."""
+    # SimpleNamespace stands in for AssetCheckEvaluation, which only needs to
+    # supply the two attributes summarize_check_failures actually reads.
+    evaluation = SimpleNamespace(passed=passed, metadata=metadata)
+    assert summarize_check_failures(evaluation) == expected  # type: ignore[bad-argument-type]

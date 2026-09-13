@@ -24,7 +24,7 @@ def _load_baseline_entries(
     else:
         text = run_git(["show", f"{ref}:{baseline_path}"])
     errors = json.loads(text)["errors"]
-    return {(e["path"], e["name"], e["description"]) for e in errors}
+    return {(e["path"], e["name"], e["concise_description"]) for e in errors}
 
 
 @click.command(

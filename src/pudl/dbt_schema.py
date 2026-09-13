@@ -230,7 +230,7 @@ class DbtTable(BaseModel):
     config: dict | None = None  # only for models
 
     @classmethod
-    def from_table_name(cls, table_name: str) -> "DbtTable":
+    def from_table_name(cls, table_name: str) -> DbtTable:
         """Construct configuration defining table from PUDL metadata."""
         resource = PUDL_PACKAGE.get_resource(table_name)
         return cls(
@@ -261,7 +261,7 @@ class DbtSchema(BaseModel):
     models: list[DbtTable] | None = None
 
     @classmethod
-    def from_table_name(cls, table_name: str) -> "DbtSchema":
+    def from_table_name(cls, table_name: str) -> DbtSchema:
         """Construct configuration defining table from PUDL metadata."""
         return cls(
             sources=[
@@ -272,7 +272,7 @@ class DbtSchema(BaseModel):
         )
 
     @classmethod
-    def from_yaml(cls, schema_path: Path) -> "DbtSchema":
+    def from_yaml(cls, schema_path: Path) -> DbtSchema:
         """Load a DbtSchema object from a YAML file."""
         with schema_path.open("r") as schema_yaml:
             return cls.model_validate(yaml.safe_load(schema_yaml))

@@ -19,7 +19,7 @@ def get_respondent_map_ferc714() -> pd.DataFrame:
     return pd.read_csv(RESP_ID_FERC_MAP_CSV).convert_dtypes()
 
 
-def glue() -> dict[str : pd.DataFrame]:
+def glue() -> dict[str, pd.DataFrame]:
     """Make the FERC 714 glue tables out of stored CSVs of association tables.
 
     This function was mirrored off of ferc1_eia.glue, but is much more

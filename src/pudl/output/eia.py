@@ -1007,7 +1007,7 @@ def _append_masked_units(
 def assign_single_gen_unit_ids(
     gens_df: pd.DataFrame,
     prime_mover_codes: list[str],
-    fuel_type_code_pudl: str = None,
+    fuel_type_code_pudl: str | None = None,
     label_prefix: str = "single",
 ) -> pd.DataFrame:
     """Assign a unique PUDL Unit ID to each generator of a given prime mover type.

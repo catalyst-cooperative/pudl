@@ -181,8 +181,15 @@ class ExcelExtractor(GenericExtractor):
         return df
 
     @staticmethod
-    def get_dtypes(page: str, **partition: PartitionSelection) -> dict:
-        """Provide custom dtypes for given page and partition."""
+    def get_dtypes(
+        page: str, **partition: PartitionSelection
+    ) -> dict | pd.api.extensions.ExtensionDtype:
+        """Provide custom dtypes for given page and partition.
+
+        May return either a mapping of column name to dtype, or a single dtype to
+        apply to every column, matching the ``dtype`` argument of
+        :func:`pandas.read_excel`.
+        """
         return {}
 
     def zipfile_resource_partitions(

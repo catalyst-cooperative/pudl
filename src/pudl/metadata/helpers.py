@@ -10,7 +10,9 @@ import pandas as pd
 from pudl.metadata.dtypes import PERIODS
 
 
-def format_errors(*errors: str, title: str = None, pydantic: bool = False) -> str:
+def format_errors(
+    *errors: str, title: str | None = None, pydantic: bool = False
+) -> str:
     """Format multiple errors into a single error.
 
     Args:
@@ -300,7 +302,7 @@ def most_frequent(x: pd.Series) -> Any:
     raise AggregationError("No value is most frequent.")
 
 
-def most_and_more_frequent(x: pd.Series, min_frequency: float = None) -> Any:
+def most_and_more_frequent(x: pd.Series, min_frequency: float | None = None) -> Any:
     """Return the most frequent value if more frequent than ``min_frequency``.
 
     The minimum frequency ignores null values, so for example, `1` in `[1, 1, 1, nan]`

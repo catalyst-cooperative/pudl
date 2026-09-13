@@ -383,7 +383,7 @@ A raw ``git diff .pyrefly-baseline.json`` after regenerating is nearly unreadabl
 fixing even one error, or bumping pyrefly's version, can shift line/column numbers on
 hundreds of unrelated entries without any error actually appearing or disappearing.
 
-Use ``pixi run pyrefly-baseline-diff`` (``src/pudl/scripts/pyrefly_baseline_diff.py``)
+Use ``pixi run pyrefly-diff-baseline`` (``src/pudl/scripts/pyrefly_diff_baseline.py``)
 instead. It diffs the baseline against ``HEAD`` by ``(file, error code, description)``
 rather than by line number, so the output only shows errors that were genuinely fixed or
 newly added:
@@ -391,7 +391,7 @@ newly added:
 .. code-block:: console
 
     $ pixi run pyrefly-update-baseline
-    $ pixi run pyrefly-baseline-diff
+    $ pixi run pyrefly-diff-baseline
 
 Run this every time you regenerate the baseline, before committing it. Confirm the
 "fixed" list matches what you intended to fix, and scrutinize the "newly baselined"

@@ -1,8 +1,8 @@
 #! /usr/bin/env python
 # /// script
-# requires-python = ">=3.13"
+# requires-python = ">=3.14"
 # dependencies = [
-#     "click>=8.4",
+#     "click>=8.5",
 # ]
 # ///
 """Generate a Google Batch Job configuration file.

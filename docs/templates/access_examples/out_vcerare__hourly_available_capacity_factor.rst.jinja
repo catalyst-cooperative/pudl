@@ -45,6 +45,10 @@
 
       .. code-block:: sql
 
+         INSTALL httpfs;
+         LOAD httpfs;
+         -- Path-style S3 addressing is required because our bucket name contains dots.
+         CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
          SELECT
              -- Select only a subset of columns to reduce network and memory usage
              report_year,
@@ -54,8 +58,8 @@
              state,
              place_name,
              capacity_factor_solar_pv
-         FROM 's3://pudl.catalyst.coop/nightly/{{ resource.name }}.parquet';
+         FROM 's3://pudl.catalyst.coop/nightly/{{ resource.name }}.parquet'
          WHERE
              -- Select data for only a single year and state to reduce network and memory usage
              report_year = 2022
-             AND state = "CO";
+             AND state = 'CO';

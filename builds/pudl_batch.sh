@@ -62,8 +62,17 @@ function trigger_deployment() {
             --repo catalyst-cooperative/pudl \
             --ref "${BUILD_REF}" \
             -f "git_tag=${GIT_TAG}" \
-            -f "deployment_environment=${DEPLOYMENT_ENVIRONMENT}" &&
+            -f "deployment_environment=${DEPLOYMENT_ENVIRONMENT}" \
+            -f "deploy_to_gcs=${DEPLOY_TO_GCS}" \
+            -f "deploy_to_s3=${DEPLOY_TO_S3}" &&
         set -x
+}
+
+function any_deployment_target_enabled() {
+    # If neither cloud storage target is enabled there's nothing for deploy-pudl
+    # to do (branch builds don't update git branches, redeploy the viewer, or
+    # trigger Zenodo), so we skip triggering it entirely.
+    [[ "${DEPLOY_TO_GCS}" == "true" || "${DEPLOY_TO_S3}" == "true" ]]
 }
 
 function stage_emoji() {
@@ -259,6 +268,10 @@ TRIGGER_DEPLOYMENT_DURATION=""
 
 # Set these variables *only* if they are not already set by the container or workflow:
 : "${PUDL_GCS_OUTPUT:=gs://builds.catalyst.coop/$BUILD_ID}"
+# Nightly/stable builds deploy to both cloud storage targets; branch builds set
+# these explicitly via the build-pudl workflow inputs.
+: "${DEPLOY_TO_GCS:=true}"
+: "${DEPLOY_TO_S3:=true}"
 # Keep the nightly Dagster config path repo-relative so the same pixi task commands
 # work both locally and inside the nightly build container.
 : "${DG_NIGHTLY_CONFIG:=src/pudl/package_data/settings/dg_nightly.yml}"
@@ -270,12 +283,16 @@ trap cleanup_on_exit EXIT
 
 # Check if there are any existing builds associated with the current commit
 if pixi run pudl_check_for_build "$GIT_TAG"; then
-    run_stage TRIGGER_DEPLOYMENT_STATUS TRIGGER_DEPLOYMENT_DURATION trigger_deployment
-    if any_stage_failed "$TRIGGER_DEPLOYMENT_STATUS"; then
-        echo "Found successful build, but failed to trigger deployment"
-        exit 1
+    if any_deployment_target_enabled; then
+        run_stage TRIGGER_DEPLOYMENT_STATUS TRIGGER_DEPLOYMENT_DURATION trigger_deployment
+        if any_stage_failed "$TRIGGER_DEPLOYMENT_STATUS"; then
+            echo "Found successful build, but failed to trigger deployment"
+            exit 1
+        fi
+        echo "Found a successful build and triggered a deployment"
+    else
+        echo "Found a successful build; skipping deployment (no GCS or S3 target enabled)"
     fi
-    echo "Found a successful build and triggered a deployment"
     exit 0
 fi
 
@@ -316,7 +333,11 @@ require_stage_success "$DATA_VALIDATION_STATUS"
 require_stage_success "$ROW_COUNT_VALIDATION_STATUS"
 require_stage_success "$SAVE_OUTPUTS_STATUS"
 
-run_stage TRIGGER_DEPLOYMENT_STATUS TRIGGER_DEPLOYMENT_DURATION trigger_deployment
+if any_deployment_target_enabled; then
+    run_stage TRIGGER_DEPLOYMENT_STATUS TRIGGER_DEPLOYMENT_DURATION trigger_deployment
+else
+    echo "Skipping deployment trigger: neither GCS nor S3 deployment is enabled."
+fi
 
 # Notify Zulip about entire pipeline's success or failure;
 if any_stage_failed \

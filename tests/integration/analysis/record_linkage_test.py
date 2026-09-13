@@ -48,14 +48,19 @@ def _randomly_modify_string(input_str: str, k: int = 5) -> str:
     num_edits = min(random.randrange(k) for i in range(10))
     for _ in range(num_edits):
         edit = edit_types[random.randrange(3)]
-        position = random.randrange(len(input_str) - 1)
-
+        # Positions must be computed against the current list length, which
+        # changes as "add"/"delete" edits accumulate.
         if edit == "add":
-            input_list.insert(position, random.choice(characters))
+            input_list.insert(
+                random.randrange(len(input_list) + 1), random.choice(characters)
+            )
+        elif not input_list:
+            # Nothing left to delete or substitute.
+            continue
         elif edit == "delete":
-            input_list.pop(position)
+            input_list.pop(random.randrange(len(input_list)))
         else:
-            input_list[position] = random.choice(characters)
+            input_list[random.randrange(len(input_list))] = random.choice(characters)
 
     return "".join(input_list)
 

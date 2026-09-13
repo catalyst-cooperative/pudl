@@ -240,7 +240,7 @@ class NumericalNormalizer(TransformStep):
         return Normalizer(**self.options)
 
 
-def _apply_cleaning_func(df, function_key: str = None):
+def _apply_cleaning_func(df, function_key: str):
     category_cols = df.select_dtypes(include="category").columns
     df[category_cols] = df[category_cols].astype("str")
     function_transforms = {

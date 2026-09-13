@@ -307,6 +307,28 @@ def _process_schema_errors(schema_errors: SchemaErrors) -> dict[str, Any]:
     }
 
 
+def summarize_check_failures(evaluation: dg.AssetCheckEvaluation) -> str:
+    """Return a short human-readable summary of a failed check, or "" if it passed.
+
+    Reads the ``detailed_errors`` metadata that :func:`_process_schema_errors`
+    attaches to a ``pandera_schema_check`` evaluation, so this only produces a
+    useful summary for that check -- other asset checks that don't populate
+    ``detailed_errors`` in this shape fall back to a generic failure message.
+    """
+    if evaluation.passed:
+        return ""
+    detailed_errors = evaluation.metadata.get("detailed_errors")
+    if not isinstance(detailed_errors, dg.JsonMetadataValue) or not isinstance(
+        detailed_errors.data, list
+    ):
+        return "FAILED (no detail available)"
+    parts = [
+        f"{error['failure_case_count']}x {error['check']} ({error['error_message']})"
+        for error in detailed_errors.data
+    ]
+    return "; ".join(parts)
+
+
 def group_mean_continuity_check(
     df: pd.DataFrame,
     thresholds: dict[str, float],

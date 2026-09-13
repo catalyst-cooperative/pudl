@@ -262,8 +262,11 @@ Skills are defined in `skills-lock.json`. If not already installed, run
 
 - **`dagster-expert`** — Dagster and `dg` CLI reference. Use when adding or modifying
   assets, resources, IO managers, jobs, sensors, or any other Dagster construct.
-- **`dignified-python`** — production Python coding standards (3.10-3.13). Use when
-  writing, reviewing, or refactoring Python code.
+- **`datapackage`** -- Frictionless datapackage reference. Use when interpreting or
+  modifying datapackage metadata and JSON descriptors.
+- **`pudl`** -- PUDL (Public Utility Data Liberation) public-facing metadata reference.
+  Use when accessing or interpreting PUDL's published data and metadata. Not for
+  internal ETL or Dagster development.
 
 ## Dagster architecture
 
@@ -432,8 +435,8 @@ Metadata describing tables, columns, and data sources lives in `pudl.metadata`.
 ## PUDL developer reference docs
 
 The following files under `docs/dev/` and `docs/methodology/` cover PUDL-specific
-concepts that are not in the dagster-expert or dignified-python skills. **Read the
-relevant file before working in that area** rather than guessing at conventions.
+concepts and conventions. **Read the relevant file before working in that area** rather
+than guessing at conventions.
 
 | File | When to read it |
 | ---- | --------------- |

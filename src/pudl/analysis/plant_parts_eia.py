@@ -477,7 +477,7 @@ class MakeMegaGenTbl:
         mcoe: pd.DataFrame,
         own_eia860: pd.DataFrame,
         slice_cols: list[str] = SUM_COLS,
-        validate_own_merge: str = "one_to_many",
+        validate_own_merge: pudl.helpers.MergeValidate = "one_to_many",
     ) -> pd.DataFrame:
         """Make the mega generators table with ownership integrated.
 

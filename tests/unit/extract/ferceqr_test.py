@@ -482,9 +482,8 @@ def test_extract_ferceqr_collects_and_attaches_summary_stats(tmp_path):
             context=context,
             ferceqr_archive=FercEqrArchiveResource(path=str(archive_dir)),
         )
-        stats = context.get_output_metadata("raw_ferceqr__extract_errors")[
-            "extraction_stats"
-        ].data
+        output_metadata = context.get_output_metadata("raw_ferceqr__extract_errors")
+        stats = output_metadata["extraction_stats"].data
 
     assert stats["total_filings"] == 4
     assert stats["corrupt_filings"] == 1
@@ -495,6 +494,16 @@ def test_extract_ferceqr_collects_and_attaches_summary_stats(tmp_path):
         "indexPub": 0,
     }
     assert stats["rejected_record_counts"] == {"TOO MANY COLUMNS": 1}
+
+    # The same numbers should also be surfaced as individual scalar metadata
+    # entries, so Dagster's UI can auto-plot each one's trend across quarters.
+    assert output_metadata["total_filings"].value == 4
+    assert output_metadata["corrupt_filings"].value == 1
+    assert output_metadata["table_file_count_ident"].value == 2
+    assert output_metadata["table_file_count_contracts"].value == 1
+    assert output_metadata["table_file_count_transactions"].value == 1
+    assert output_metadata["table_file_count_indexPub"].value == 0
+    assert output_metadata["rejected_records_too_many_columns"].value == 1
 
 
 def test_clear_raw_table_partition_removes_existing_output():

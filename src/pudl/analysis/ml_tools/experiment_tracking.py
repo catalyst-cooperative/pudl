@@ -103,7 +103,7 @@ class ExperimentTracker(BaseModel):
         experiment_config: ExperimentTrackerConfig,
         experiment_name: str,
         model_config: dict,
-    ) -> "ExperimentTracker":
+    ) -> ExperimentTracker:
         """Create experiment tracker for specified experiment."""
         run_id = ""
         if experiment_config.tracking_enabled:

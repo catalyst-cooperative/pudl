@@ -44,7 +44,7 @@ class FercForm(Enum):
 class FrozenBaseModel(BaseModel):
     """BaseModel with global configuration."""
 
-    model_config: ConfigDict = ConfigDict(frozen=True, extra="forbid")
+    model_config = ConfigDict(frozen=True, extra="forbid")
 
 
 class GenericDataConfig(FrozenBaseModel):
@@ -938,7 +938,7 @@ class GlobalDataConfig(BaseSettings):
     version: str | None = None
 
     @classmethod
-    def from_yaml(cls, path: str | Path) -> "GlobalDataConfig":
+    def from_yaml(cls, path: str | Path) -> GlobalDataConfig:
         """Create validated GlobalDataConfig from a local YAML file path.
 
         Args:
