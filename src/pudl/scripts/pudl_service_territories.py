@@ -115,9 +115,9 @@ def main(
     pudl_service_territories --entity-type utility
     """
     # Deferred to keep --help fast; see pudl/scripts/__init__.py for rationale.
-    import pudl  # noqa: PLC0415
-    from pudl.analysis.service_territory import compile_geoms  # noqa: PLC0415
-    from pudl.helpers import get_parquet_table  # noqa: PLC0415
+    import pudl
+    from pudl.analysis.service_territory import compile_geoms
+    from pudl.helpers import get_parquet_table
 
     pudl.logging_helpers.configure_root_logger(logfile=logfile, loglevel=loglevel)
 

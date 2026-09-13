@@ -5,7 +5,7 @@ from io import StringIO
 import pandas as pd
 import pytest
 
-import pudl.transform.eia923 as eia923
+from pudl.transform import eia923
 
 
 def test__yearly_to_monthly_records__normal_values():

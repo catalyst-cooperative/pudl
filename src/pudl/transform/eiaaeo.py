@@ -283,7 +283,6 @@ def core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology(
         assert 0.999 < ratio_close_additions_to_total <= 1.0, (
             f"planned + unplanned vs. total: {ratio_close_additions_to_total}"
         )
-        return
 
     sanitized = (
         filter_enrich_sanitize(

@@ -3,7 +3,6 @@
 import pandas as pd
 from dagster import AssetIn, AssetOut, Output, asset, multi_asset
 
-import pudl.transform.rus as rus
 from pudl import logging_helpers
 from pudl.helpers import make_changelog, multi_index_stack
 from pudl.metadata.enums import (
@@ -17,6 +16,7 @@ from pudl.metadata.enums import (
     UTILITY_PLANT_ITEM_RUS7,
 )
 from pudl.metadata.resources.rus12 import HARVESTED_CORE_TABLES_RUS7
+from pudl.transform import rus
 from pudl.transform.eia import harvest_entity_tables
 
 logger = logging_helpers.get_logger(__name__)

@@ -418,7 +418,7 @@ def validate(
     build_params = {
         "node_selection": node_selection,
         "node_exclusion": exclude,
-        "dbt_target": override_target if override_target else "etl-full",
+        "dbt_target": override_target or "etl-full",
     }
 
     if dry_run:
