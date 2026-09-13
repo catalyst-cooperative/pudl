@@ -74,7 +74,7 @@ def _compare_geo(local_path: Path, ref_upath: UPath, pdb: bool) -> bool:
             raise AssertionError(f"{n} of {len(local)} geometries differ")
     except AssertionError as e:
         if pdb:
-            breakpoint()
+            breakpoint()  # noqa: T100
         click.echo(
             f"MISMATCH\n{e}".replace("left", "local").replace("right", "reference")
         )
@@ -113,7 +113,7 @@ def cli(local_targets: tuple[Path], pdb: bool, reference_dir: str):
                 assert_frame_equal(local, reference, check_column_order=False)
             except AssertionError as e:
                 if pdb:
-                    breakpoint()
+                    breakpoint()  # noqa: T100
                 click.echo(
                     f"MISMATCH\n{e}".replace("left", "local").replace(
                         "right", "reference"
