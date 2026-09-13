@@ -507,10 +507,9 @@ line-ending = "auto"
 
 [tool.ruff.lint]
 # Configurations that apply to the `lint` subcommand.
-preview = true # Required for NPY201
-explicit-preview-rules = true # and ONLY NPY201
 select = [
     "A", # flake8-builtins
+    "ASYNC", # flake8-async
     "B", # flake8-bugbear
     "C", # Limit cyclomatic complexity using mccabe
     "C4", # flake8-comprehensions
@@ -518,53 +517,50 @@ select = [
     "E", # pycodestyle errors
     "EXE", # executable file issues
     "F", # pyflakes
+    "FA", # flake8-future-annotations
+    "FLY", # flynt: convert % and .format() to f-strings
+    "FURB", # refurb: general code quality/modernization
     "I", # isort
     "ICN", # flake8 import conventions
+    "INT", # flake8-gettext
+    "LOG", # flake8-logging
     "N", # pep8-naming
     "NPY", # NumPy specific checks
     "PD", # pandas checks
     "PGH", # pygrep-hooks
-    "PIE", # flake8-pie miscellaneous linting
     "PTH", # use pathlib
     "Q", # flake8-quotes
     "RET", # check return values
     "RSE", # unnecessary parenthises on raised exceptions
     "S", # flake8-bandit
     "SIM", # flake8-simplify
+    "T10", # flake8-debugger
+    "TID", # flake8-tidy-imports
     "UP", # pyupgrade (use modern python syntax)
     "W", # pycodestyle warnings
-    # These rules would be good, but will require more effort:
+
+    # Additional non-default rulesets to investigate enabling
     # "ANN", # identify missing type annotations
     # "ARG", # find unused arguments
     # "ERA", # eradicate: finds commented out code
     # "T20", # find print statements that should probably be logging
-    #
+
     # New rulesets that became part of Ruff's defaults as of v0.16. Enable these
     # one at a time, address (or ignore) the resulting violations in their own
     # commit, then move on to the next:
-    # "AIR", # Airflow
-    # "ASYNC", # flake8-async
+
+    # More difficult to address rulesets:
     # "BLE", # flake8-blind-except
-    # "COM", # flake8-commas
-    # "DJ", # flake8-django
     # "DTZ", # flake8-datetimez: datetime / timezone issues
-    # "FA", # flake8-future-annotations
-    # "FAST", # FastAPI
-    # "FLY", # flynt: convert % and .format() to f-strings
-    # "FURB", # refurb: general code quality/modernization
-    # "G", # flake8-logging-format
-    # "INT", # flake8-gettext
+    "G", # flake8-logging-format
     # "ISC", # flake8-implicit-str-concat
-    # "LOG", # flake8-logging
     # "PERF", # Perflint: performance issues
     # "PL", # Pylint (Convention/Error/Refactor/Warning)
     # "PT", # flake8-pytest-style
     # "PYI", # flake8-pyi: type stub conventions
     # "RUF", # Ruff-specific rules
     # "TC", # flake8-type-checking
-    # "TID", # flake8-tidy-imports
     # "TRY", # tryceratops: exception handling anti-patterns
-    # "T10", # flake8-debugger
 ]
 ignore = [
     "D401", # Require imperative mood in docstrings.
@@ -573,6 +569,7 @@ ignore = [
     "E203", # Space before ':' (black recommends to ignore)
     "E226", # Missing whitespace around arithmetic operator
     "E266", # Too many leading `#` before block comment
+    "G004", # Logging statement uses f-string
     "PD003", # Use of isna rather than isnull
     "PD004", # Use of notna rather than notnull
     "PD010", # Use of df.stack()
