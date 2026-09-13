@@ -267,7 +267,7 @@ def get_ratio_from_bf_and_allocated_by_boiler(
 
 
 @pytest.mark.parametrize(
-    "gf,bf",
+    ("gf", "bf"),
     [
         (GENERATION_FUEL_EIA923_BASE, BOILER_FUEL_EIA923_BASE),
         (GENERATION_FUEL_EIA923_EXTRA_ESC, BOILER_FUEL_EIA923_BASE),
@@ -644,7 +644,7 @@ def test_identify_newly_operating_generators_sweeps_whole_generator_year():
 
 
 PLANT_LEVEL_CASES = pytest.mark.parametrize(
-    "identify_fn,status,transition_date_col,transition_date",
+    ("identify_fn", "status", "transition_date_col", "transition_date"),
     [
         pytest.param(
             allocate_gen_fuel.identify_proposed_groups,
@@ -700,7 +700,7 @@ def test_identify_plants_excludes_phantom_null_months(
 
 
 @pytest.mark.parametrize(
-    "identify_fn,csv_text,expected_periods,expected_status",
+    ("identify_fn", "csv_text", "expected_periods", "expected_status"),
     [
         pytest.param(
             allocate_gen_fuel.identify_proposed_groups,
@@ -781,7 +781,7 @@ def test_identify_plants_mixed_status_same_year(
 
 
 @pytest.mark.parametrize(
-    "identify_fn,csv_text,expected_periods,expected_status",
+    ("identify_fn", "csv_text", "expected_periods", "expected_status"),
     [
         pytest.param(
             allocate_gen_fuel.identify_proposed_groups,
@@ -952,7 +952,7 @@ def test_remove_inactive_generators_composability_independent_transitions():
 
 
 @pytest.mark.parametrize(
-    "identify_fn,status,transition_date_col,transition_date,report_dates",
+    ("identify_fn", "status", "transition_date_col", "transition_date", "report_dates"),
     [
         pytest.param(
             allocate_gen_fuel.identify_proposed_groups,
@@ -1104,7 +1104,7 @@ def test_remove_inactive_generators_cross_group_transition_does_not_lose_data(
 
 @pytest.mark.parametrize("status", ["proposed", "retired"])
 @pytest.mark.parametrize(
-    "position_a,position_b",
+    ("position_a", "position_b"),
     [
         ("triggering", "triggering"),
         ("triggering", "fallback"),

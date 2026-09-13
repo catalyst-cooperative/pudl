@@ -34,7 +34,14 @@ def deploy_mocks(mocker):
 
 
 @pytest.mark.parametrize(
-    "deploy_type,environment,expect_viewer,expect_git,expect_zenodo,expect_hold",
+    (
+        "deploy_type",
+        "environment",
+        "expect_viewer",
+        "expect_git",
+        "expect_zenodo",
+        "expect_hold",
+    ),
     [
         (DeploymentType.NIGHTLY, "production", True, True, True, False),
         (DeploymentType.NIGHTLY, "staging", True, True, True, False),

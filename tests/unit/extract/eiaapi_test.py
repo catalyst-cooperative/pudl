@@ -10,7 +10,7 @@ import pytest
 import pudl.extract.eiaapi as bulk
 
 
-@pytest.fixture()
+@pytest.fixture
 def test_file_bytes() -> bytes:
     """Simulate raw ELEC.txt."""
     # actual subset of the bulk data file, but with data values truncated to only 2020 and 2021
@@ -24,7 +24,7 @@ def test_file_bytes() -> bytes:
     return test_file
 
 
-@pytest.fixture()
+@pytest.fixture
 def elec_txt_dataframe(test_file_bytes) -> pd.DataFrame:
     """Simulate raw pd.read_json('ELEC.txt')."""
     buffer = BytesIO(test_file_bytes)

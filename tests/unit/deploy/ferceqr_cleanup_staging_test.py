@@ -8,7 +8,8 @@ import yaml
 
 _SCRIPT = Path(__file__).parents[3] / "builds" / "ferceqr_cleanup_staging.py"
 _spec = importlib.util.spec_from_file_location("ferceqr_cleanup_staging", _SCRIPT)
-assert _spec is not None and _spec.loader is not None
+assert _spec is not None
+assert _spec.loader is not None
 cleanup = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(cleanup)
 

@@ -529,6 +529,7 @@ select = [
     "NPY", # NumPy specific checks
     "PD", # pandas checks
     "PGH", # pygrep-hooks
+    "PT", # flake8-pytest-style
     "PTH", # use pathlib
     "Q", # flake8-quotes
     "RET", # check return values
@@ -556,7 +557,6 @@ select = [
     # "ISC", # flake8-implicit-str-concat
     # "PERF", # Perflint: performance issues
     # "PL", # Pylint (Convention/Error/Refactor/Warning)
-    # "PT", # flake8-pytest-style
     # "PYI", # flake8-pyi: type stub conventions
     # "RUF", # Ruff-specific rules
     # "TC", # flake8-type-checking

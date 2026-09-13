@@ -119,7 +119,7 @@ def save_to_devtools_glue(missing_df: pd.DataFrame, test_dir: Path, file_name: s
 
 
 @pytest.mark.parametrize(
-    "ids_left,ids_right,id_cols,label_df",
+    ("ids_left", "ids_right", "id_cols", "label_df"),
     [
         pytest.param(
             "core_pudl__entity_utilities_pudl",
@@ -237,7 +237,7 @@ def test_for_fk_validation_and_unmapped_ids(
 
 
 @pytest.mark.parametrize(
-    "ids_left,ids_right,id_cols,drop",
+    ("ids_left", "ids_right", "id_cols", "drop"),
     [
         pytest.param(
             "core_pudl__assn_ferc1_pudl_plants",

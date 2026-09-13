@@ -227,7 +227,7 @@ def test___drop_duplicates__core_eia923__generation():
 
 
 @pytest.mark.parametrize(
-    "raw_values, expected_dates, spot_fixes",
+    ("raw_values", "expected_dates", "spot_fixes"),
     [
         pytest.param(
             ["012024"],
@@ -383,7 +383,7 @@ def test__clean_emissions_control_dates(raw_values, expected_dates, spot_fixes):
 
 
 @pytest.mark.parametrize(
-    "raw_values, match",
+    ("raw_values", "match"),
     [
         pytest.param(
             ["132025"],

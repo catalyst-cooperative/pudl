@@ -423,7 +423,7 @@ def test_publish_deposition_raises_on_404_when_not_actually_published(
 
 
 @pytest.mark.parametrize(
-    "env,publish,record_url,expected_substrings",
+    ("env", "publish", "record_url", "expected_substrings"),
     [
         (
             PRODUCTION,

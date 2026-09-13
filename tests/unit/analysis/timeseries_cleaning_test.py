@@ -89,7 +89,7 @@ def simulate_anomalies(
 
 
 @pytest.mark.parametrize(
-    "series_seed,anomalies_seed",
+    ("series_seed", "anomalies_seed"),
     [
         (16662093832, 741013840),
         (7088438834, 382046123),

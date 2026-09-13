@@ -59,7 +59,7 @@ def dummy_dbt_manifest(tmp_path):
 
 
 @pytest.mark.parametrize(
-    "dagster_selection,dbt_selection",
+    ("dagster_selection", "dbt_selection"),
     [
         ("key:core", "source:test.core"),
         ("+key:core", "source:test.core"),
