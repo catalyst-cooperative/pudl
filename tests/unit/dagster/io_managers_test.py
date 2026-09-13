@@ -6,7 +6,7 @@ from importlib.metadata import version
 from pathlib import Path
 
 import duckdb
-import geopandas as gpd  # noqa: ICN002
+import geopandas as gpd
 import pandas as pd
 import polars as pl
 import pyarrow.parquet as pq

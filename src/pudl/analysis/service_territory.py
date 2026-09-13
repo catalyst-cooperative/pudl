@@ -11,7 +11,7 @@ import pathlib
 from collections.abc import Iterable
 from typing import Literal
 
-import geopandas as gpd  # noqa: ICN002
+import geopandas as gpd
 import pandas as pd
 from dagster import AssetsDefinition, Field, asset
 from matplotlib import pyplot as plt
