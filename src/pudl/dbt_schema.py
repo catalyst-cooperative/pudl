@@ -6,6 +6,7 @@ format, then applying human-sourced patches to the auto-generated schemas.
 
 import re
 import textwrap
+from collections import UserString
 from collections.abc import Callable
 from pathlib import Path
 from typing import Annotated, Any
@@ -65,7 +66,7 @@ _NormalizedDataTests = Annotated[
 ]
 
 
-class _LiteralStr(str):
+class _LiteralStr(UserString):
     """Marker subclass telling the dumper to use YAML literal block style (``|``).
 
     Only used for ``description`` fields that we've re-wrapped ourselves, so

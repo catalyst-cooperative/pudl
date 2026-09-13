@@ -391,7 +391,7 @@ def try_aggfunc(
                 return func(x)
             except AggregationError as e:
                 e.args = (error.format(x=x, e=e),)
-                raise e
+                raise
 
     elif not raised and error is None:
 

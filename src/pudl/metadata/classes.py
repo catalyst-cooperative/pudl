@@ -2153,7 +2153,7 @@ class Resource(PudlMeta):
                             f"match primary key field '{key}'"
                         )
                     if len(matching) == 1:
-                        match = list(matching)[0]
+                        match = next(iter(matching))
                 if match:
                     matches[match] = key
                     remaining.remove(match)
@@ -2623,8 +2623,8 @@ class Resource(PudlMeta):
         self,
         dfs: dict[str, pd.DataFrame],
         aggregate: bool | None = None,
-        aggregate_kwargs: dict[str, Any] = {},
-        format_kwargs: dict[str, Any] = {},
+        aggregate_kwargs: dict[str, Any] | None = None,
+        format_kwargs: dict[str, Any] | None = None,
     ) -> tuple[pd.DataFrame, dict]:
         """Harvest from named dataframes.
 
@@ -2655,6 +2655,10 @@ class Resource(PudlMeta):
             data types matching the resource fields, alongside an aggregation
             report.
         """
+        if format_kwargs is None:
+            format_kwargs = {}
+        if aggregate_kwargs is None:
+            aggregate_kwargs = {}
         if aggregate is None:
             aggregate = self.harvest.harvest
         if self.harvest.harvest:

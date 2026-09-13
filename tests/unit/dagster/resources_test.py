@@ -47,7 +47,7 @@ def test_ferceqr_deployment_targets_resource_loads_config_values(tmp_path):
 @pytest.mark.parametrize(
     "path_fn",
     [
-        lambda p: str(p),
+        str,
         lambda p: p.as_uri(),
     ],
     ids=["filesystem_path", "file_uri"],

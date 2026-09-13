@@ -33,7 +33,7 @@ class Extractor(excel.ExcelExtractor):
         """Rename columns with location."""
         # for 2024 we began mapping the columns using the string names instead of
         # the numeric location.
-        if int(list(partition.values())[0]) >= 2024:
+        if int(next(iter(partition.values()))) >= 2024:
             df = super().process_raw(df, page, **partition)
         else:
             column_map_numeric = self._metadata.get_column_map(page, **partition)
@@ -58,7 +58,7 @@ class Extractor(excel.ExcelExtractor):
     def process_renamed(df: pd.DataFrame, page: str, **partition):
         """Adds report_year column if missing."""
         if "report_year" not in df.columns:
-            df["report_year"] = list(partition.values())[0]
+            df["report_year"] = next(iter(partition.values()))
         return df
 
     @staticmethod

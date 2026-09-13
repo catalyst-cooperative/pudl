@@ -1,5 +1,6 @@
 """A collection of denormalized FERC assets and helper functions."""
 
+import itertools
 import re
 from copy import deepcopy
 from dataclasses import dataclass
@@ -1520,7 +1521,7 @@ class Exploder:
                 "Exploding FERC tables requires tables with only one value column. Got: "
                 f"{set(value_cols)}"
             )
-        value_col = list(set(value_cols))[0]
+        value_col = next(iter(set(value_cols)))
         assert value_col is not None, "Exploded tables must have a value column."
         return value_col
 
@@ -2379,7 +2380,7 @@ class XbrlCalculationForestFerc1(BaseModel):
     def _get_path_weight(self, path: list[NodeId], graph: nx.DiGraph[NodeId]) -> float:
         """Multiply all weights along a path together."""
         leaf_weight = 1.0
-        for parent, child in zip(path, path[1:], strict=False):
+        for parent, child in itertools.pairwise(path):
             leaf_weight *= graph.get_edge_data(parent, child)["weight"]
         return leaf_weight
 

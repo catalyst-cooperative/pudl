@@ -83,7 +83,7 @@ class Extractor(excel.ExcelExtractor):
                 if c not in self._metadata.get_all_columns(page)
                 and c not in self.cols_added
             ]
-            str_part = str(list(partition.values())[0])
+            str_part = str(next(iter(partition.values())))
             if to_drop:
                 logger.info(
                     f"{page}/{str_part}: Dropping columns that are not mapped to this asset:"

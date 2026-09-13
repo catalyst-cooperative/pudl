@@ -116,7 +116,7 @@ def _extract(raw_zipfile) -> dict[str, pd.DataFrame]:
 
 
 def extract(
-    ds: Datastore, partition: dict[str, str] = {"data_set": "electricity"}
+    ds: Datastore, partition: dict[str, str] | None = None
 ) -> dict[str, pd.DataFrame]:
     """Extract metadata and timeseries from raw EIA bulk electricity data.
 
@@ -126,6 +126,8 @@ def extract(
     Returns:
         Dictionary of dataframes with keys 'metadata' and 'timeseries'
     """
+    if partition is None:
+        partition = {"data_set": "electricity"}
     raw_zipfile = ds.get_unique_resource("eiaapi", **partition)
     dfs = _extract(BytesIO(raw_zipfile))
     return dfs

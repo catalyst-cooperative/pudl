@@ -73,7 +73,7 @@ class TestUPathCacheIntegration:
         # Get a real resource from eia176
         ds = Datastore()
         descriptor = ds.get_datapackage_descriptor("eia176")
-        resource = list(descriptor.get_resources())[0]
+        resource = next(iter(descriptor.get_resources()))
 
         # Verify not in local cache initially
         assert not local_cache.contains(resource)
@@ -96,7 +96,7 @@ class TestUPathCacheIntegration:
         except Exception as e:
             if "Anonymous caller" in str(e) or "401" in str(e):
                 pytest.skip(f"Could not initialize writable GCS cache: {e}")
-            raise e
+            raise
 
         if cache.is_read_only():
             pytest.skip("Could not initialize writable GCS cache (mode fallback).")
@@ -152,7 +152,7 @@ class TestLayeredCacheIntegration:
         # Get a real resource from eia176
         ds = Datastore()
         descriptor = ds.get_datapackage_descriptor("eia176")
-        resource = list(descriptor.get_resources())[0]
+        resource = next(iter(descriptor.get_resources()))
 
         # Verify not in any writable layer initially
         assert not local_cache.contains(resource)

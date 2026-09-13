@@ -36,7 +36,7 @@ class Extractor(CsvExtractor):
         """Adds source column and report_year column if missing."""
         df = super().process_raw(df, page, **partition)
         if "report_year" not in df.columns:
-            df["report_year"] = int(list(partition.values())[0])
+            df["report_year"] = int(next(iter(partition.values())))
             self.cols_added.append("report_year")
         return df
 
