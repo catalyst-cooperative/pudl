@@ -509,12 +509,12 @@ def test_standardize_na_values():
                 "0.",
                 ".0",
                 "..",
-                pd.NA,
-                pd.NA,
-                pd.NA,
-                pd.NA,
-                pd.NA,
-                pd.NA,
+                np.nan,
+                np.nan,
+                np.nan,
+                np.nan,
+                np.nan,
+                np.nan,
             ]
         }
     )
@@ -705,8 +705,13 @@ def test_diff_wide_tables():
     assert empty_diff.changed.empty
 
     def assert_diff_equal(observed, expected):
-        observed_reshaped = observed.droplevel(level=0, axis="columns")
-        expected_reshaped = expected.set_index(observed_reshaped.index.names)
+        # Under pandas 3.0 the melted value columns infer as the default string dtype
+        # (missing values as nan) rather than object (missing values as None); normalize
+        # both sides to nullable string so the comparison is about content, not sentinel.
+        observed_reshaped = observed.droplevel(level=0, axis="columns").astype("string")
+        expected_reshaped = expected.set_index(observed_reshaped.index.names).astype(
+            "string"
+        )
         assert_frame_equal(observed_reshaped, expected_reshaped)
 
     diff_output = diff_wide_tables(primary_key=["u_id", "year"], old=old, new=new)
@@ -801,7 +806,7 @@ def test_standardize_percentages_ratio():
         date_df, mixed_cols=["mixed_col"], years_to_standardize=[1995, 1996, 1997]
     )
     standardized_expected = date_df
-    standardized_expected["mixed_col"] = [0.1, 0.1, 0.2, 0.1]
+    standardized_expected["mixed_col"] = pd.array([0.1, 0.1, 0.2, 0.1], dtype="Float64")
     assert_frame_equal(standardized, standardized_expected)
 
     year_df = pd.DataFrame(
@@ -815,7 +820,9 @@ def test_standardize_percentages_ratio():
         year_df, mixed_cols=["mixed_col"], years_to_standardize=[1995, 1996]
     )
     standardized_expected = year_df
-    standardized_expected["mixed_col"] = [0.1, 0.15, 1.0, 0.1]
+    standardized_expected["mixed_col"] = pd.array(
+        [0.1, 0.15, 1.0, 0.1], dtype="Float64"
+    )
     assert_frame_equal(standardized, standardized_expected)
 
     junk_df = pd.DataFrame(

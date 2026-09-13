@@ -222,7 +222,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/openpyxl-3.1.5-py314h035d240_4.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/openssl-3.6.4-h781a0a9_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/orc-2.3.0-h21090e2_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/pandas-2.3.3-py314ha0b5721_2.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/pandas-3.0.5-py314hb4ffadd_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/pandoc-3.11-ha770c72_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/pango-1.58.2-h7bb47b9_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/pcre2-10.47-h8b3dc9c_1.conda
@@ -872,7 +872,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/openpyxl-3.1.5-py314h22c0dbc_4.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/openssl-3.6.4-he6ad1d5_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/orc-2.3.0-hce1ac79_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/pandas-2.3.3-py314h91eeaa4_2.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/pandas-3.0.5-py314he6363bd_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/pandoc-3.11-h8af1aa0_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/pango-1.58.2-h03cb6a0_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/pcre2-10.47-he574923_1.conda
@@ -1872,7 +1872,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/openpyxl-3.1.5-py314he509078_4.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/openssl-3.6.4-h332eb6d_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/orc-2.3.0-hb9b210e_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-64/pandas-2.3.3-py314hc4308db_2.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-64/pandas-3.0.5-py314h99bb933_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/pandoc-3.11-h694c41f_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/pango-1.58.2-hc5a6962_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/pcre2-10.47-h31793e3_1.conda
@@ -2486,7 +2486,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/openpyxl-3.1.5-py314h1304abb_4.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/openssl-3.6.4-h55eecbc_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/orc-2.3.0-hd11884d_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/pandas-2.3.3-py314ha3d490a_2.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/pandas-3.0.5-py314he609de1_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/pandoc-3.11-hce30654_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/pango-1.58.2-hf9b25ef_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/pcre2-10.47-he63d830_1.conda
@@ -2785,7 +2785,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/openssl-3.6.4-h781a0a9_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/orc-2.3.0-h21090e2_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/p11-kit-0.26.5-h8d769aa_2.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/pandas-2.3.3-py314ha0b5721_2.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/pandas-3.0.5-py314hb4ffadd_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/pandoc-3.11-ha770c72_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/pango-1.58.2-h7bb47b9_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/pcre2-10.47-h8b3dc9c_1.conda
@@ -3484,7 +3484,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/openssl-3.6.4-he6ad1d5_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/orc-2.3.0-hce1ac79_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/p11-kit-0.26.5-h695657f_2.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/pandas-2.3.3-py314h91eeaa4_2.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/pandas-3.0.5-py314he6363bd_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/pandoc-3.11-h8af1aa0_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/pango-1.58.2-h03cb6a0_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/pcre2-10.47-he574923_1.conda
@@ -4526,7 +4526,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/openpyxl-3.1.5-py314he509078_4.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/openssl-3.6.4-h332eb6d_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/orc-2.3.0-hb9b210e_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-64/pandas-2.3.3-py314hc4308db_2.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-64/pandas-3.0.5-py314h99bb933_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/pandoc-3.11-h694c41f_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/pango-1.58.2-hc5a6962_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/pcre2-10.47-h31793e3_1.conda
@@ -5163,7 +5163,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/openpyxl-3.1.5-py314h1304abb_4.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/openssl-3.6.4-h55eecbc_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/orc-2.3.0-hd11884d_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/pandas-2.3.3-py314ha3d490a_2.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/pandas-3.0.5-py314he609de1_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/pandoc-3.11-hce30654_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/pango-1.58.2-hf9b25ef_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/pcre2-10.47-he63d830_1.conda
@@ -9089,59 +9089,64 @@ packages:
     - p11-kit >=0.26.5,<0.27.0a0
   size: 3945183
   timestamp: 1788196153960
-- conda: https://conda.anaconda.org/conda-forge/linux-64/pandas-2.3.3-py314ha0b5721_2.conda
-  sha256: 0a86a582b906d9cfd4d2c59180898fe9d714b55eea7ced71630a1fedae206c62
-  md5: fe3a5c8be07a7b82058bdeb39d33d93b
+- conda: https://conda.anaconda.org/conda-forge/linux-64/pandas-3.0.5-py314hb4ffadd_1.conda
+  sha256: b8197d816dfef2e237c45e875d7e37d125c1e12af819a911dcfd95c2cb98a010
+  md5: 15cd0f375b79b47c4048e44396e6e6f1
   depends:
-  - __glibc >=2.17,<3.0.a0
-  - libgcc >=14
-  - libstdcxx >=14
-  - numpy >=1.22.4
-  - numpy >=1.23,<3
-  - python >=3.14,<3.15.0a0
+  - python
+  - numpy >=1.26.0
   - python-dateutil >=2.8.2
-  - python-tzdata >=2022.7
+  - libstdcxx >=14
+  - libgcc >=14
+  - __glibc >=2.17,<3.0.a0
+  - numpy >=1.23,<3
   - python_abi 3.14.* *_cp314
-  - pytz >=2020.1
   constrains:
-  - pyarrow >=10.0.1
-  - numba >=0.56.4
-  - odfpy >=1.4.1
-  - xlsxwriter >=3.0.5
-  - tabulate >=0.9.0
-  - html5lib >=1.1
-  - lxml >=4.9.2
+  - adbc-driver-postgresql >=1.2.0
+  - adbc-driver-sqlite >=1.2.0
+  - beautifulsoup4 >=4.12.3
   - blosc >=1.21.3
-  - s3fs >=2022.11.0
-  - fsspec >=2022.11.0
-  - psycopg2 >=2.9.6
-  - pandas-gbq >=0.19.0
-  - openpyxl >=3.1.0
-  - qtpy >=2.3.0
-  - python-calamine >=0.1.7
-  - sqlalchemy >=2.0.0
+  - bottleneck >=1.4.2
+  - fastparquet >=2024.11.0
+  - fsspec >=2024.10.0
+  - gcsfs >=2024.10.0
+  - html5lib >=1.1
+  - hypothesis >=6.116.0
+  - jinja2 >=3.1.5
+  - lxml >=5.3.0
+  - matplotlib >=3.9.3
+  - numba >=0.60.0
+  - numexpr >=2.10.2
+  - odfpy >=1.4.1
+  - openpyxl >=3.1.5
+  - psycopg2 >=2.9.10
+  - pyarrow >=13.0.0
+  - pyiceberg >=0.8.1
+  - pymysql >=1.1.1
   - pyqt5 >=5.15.9
-  - bottleneck >=1.3.6
-  - zstandard >=0.19.0
-  - numexpr >=2.8.4
-  - tzdata >=2022.7
-  - scipy >=1.10.0
-  - gcsfs >=2022.11.0
+  - pyreadstat >=1.2.8
+  - pytables >=3.10.1
+  - pytest >=8.3.4
+  - pytest-xdist >=3.6.1
+  - python-calamine >=0.3.0
+  - pytz >=2024.2
   - pyxlsb >=1.0.10
-  - matplotlib >=3.6.3
-  - pytables >=3.8.0
-  - beautifulsoup4 >=4.11.2
-  - pyreadstat >=1.2.0
-  - fastparquet >=2022.12.0
+  - qtpy >=2.4.2
+  - scipy >=1.14.1
+  - s3fs >=2024.10.0
+  - sqlalchemy >=2.0.36
+  - tabulate >=0.9.0
+  - xarray >=2024.10.0
   - xlrd >=2.0.1
-  - xarray >=2022.12.0
+  - xlsxwriter >=3.2.0
+  - zstandard >=0.23.0
   license: BSD-3-Clause
   license_family: BSD
   purls:
   - pkg:pypi/pandas?source=hash-mapping
   run_exports: {}
-  size: 15178918
-  timestamp: 1764615084415
+  size: 15360863
+  timestamp: 1785276230218
 - conda: https://conda.anaconda.org/conda-forge/linux-64/pandoc-3.11-ha770c72_0.conda
   sha256: cb14839e33fbbb2163f259476091dd99f9e83fbb1690b789cd1e6e6a05d17db7
   md5: 2c71f77db75fa5e9dd64abb706c66788
@@ -14303,59 +14308,64 @@ packages:
     - p11-kit >=0.26.5,<0.27.0a0
   size: 5268102
   timestamp: 1788196126157
-- conda: https://conda.anaconda.org/conda-forge/linux-aarch64/pandas-2.3.3-py314h91eeaa4_2.conda
-  sha256: 990b6df647273e199cd06731b28b5f0819d8f58aefa89b8fba8b62cdcbf703d3
-  md5: b2dd1c4c086280a3a9b2a12f0431bc7c
+- conda: https://conda.anaconda.org/conda-forge/linux-aarch64/pandas-3.0.5-py314he6363bd_1.conda
+  sha256: 340d8d2dd47aaef41bf900b38b6fc114ef376559abc995a977ca48c29d6d2c97
+  md5: d95c780b73f559f4f728e913de7eb7aa
   depends:
-  - libgcc >=14
-  - libstdcxx >=14
-  - numpy >=1.22.4
-  - numpy >=1.23,<3
-  - python >=3.14,<3.15.0a0
-  - python >=3.14,<3.15.0a0 *_cp314
+  - python
+  - numpy >=1.26.0
   - python-dateutil >=2.8.2
-  - python-tzdata >=2022.7
+  - libstdcxx >=14
+  - libgcc >=14
+  - python 3.14.* *_cp314
+  - numpy >=1.23,<3
   - python_abi 3.14.* *_cp314
-  - pytz >=2020.1
   constrains:
-  - scipy >=1.10.0
-  - numba >=0.56.4
-  - odfpy >=1.4.1
-  - bottleneck >=1.3.6
-  - openpyxl >=3.1.0
-  - fastparquet >=2022.12.0
-  - s3fs >=2022.11.0
-  - fsspec >=2022.11.0
-  - tzdata >=2022.7
-  - pyreadstat >=1.2.0
-  - python-calamine >=0.1.7
-  - pyqt5 >=5.15.9
-  - gcsfs >=2022.11.0
-  - tabulate >=0.9.0
-  - sqlalchemy >=2.0.0
-  - xlsxwriter >=3.0.5
-  - zstandard >=0.19.0
-  - matplotlib >=3.6.3
-  - xarray >=2022.12.0
-  - pandas-gbq >=0.19.0
-  - psycopg2 >=2.9.6
-  - pyarrow >=10.0.1
+  - adbc-driver-postgresql >=1.2.0
+  - adbc-driver-sqlite >=1.2.0
+  - beautifulsoup4 >=4.12.3
   - blosc >=1.21.3
-  - pytables >=3.8.0
-  - numexpr >=2.8.4
-  - xlrd >=2.0.1
-  - qtpy >=2.3.0
-  - beautifulsoup4 >=4.11.2
+  - bottleneck >=1.4.2
+  - fastparquet >=2024.11.0
+  - fsspec >=2024.10.0
+  - gcsfs >=2024.10.0
   - html5lib >=1.1
+  - hypothesis >=6.116.0
+  - jinja2 >=3.1.5
+  - lxml >=5.3.0
+  - matplotlib >=3.9.3
+  - numba >=0.60.0
+  - numexpr >=2.10.2
+  - odfpy >=1.4.1
+  - openpyxl >=3.1.5
+  - psycopg2 >=2.9.10
+  - pyarrow >=13.0.0
+  - pyiceberg >=0.8.1
+  - pymysql >=1.1.1
+  - pyqt5 >=5.15.9
+  - pyreadstat >=1.2.8
+  - pytables >=3.10.1
+  - pytest >=8.3.4
+  - pytest-xdist >=3.6.1
+  - python-calamine >=0.3.0
+  - pytz >=2024.2
   - pyxlsb >=1.0.10
-  - lxml >=4.9.2
+  - qtpy >=2.4.2
+  - scipy >=1.14.1
+  - s3fs >=2024.10.0
+  - sqlalchemy >=2.0.36
+  - tabulate >=0.9.0
+  - xarray >=2024.10.0
+  - xlrd >=2.0.1
+  - xlsxwriter >=3.2.0
+  - zstandard >=0.23.0
   license: BSD-3-Clause
   license_family: BSD
   purls:
   - pkg:pypi/pandas?source=hash-mapping
   run_exports: {}
-  size: 14865608
-  timestamp: 1764615205473
+  size: 15190666
+  timestamp: 1785276250510
 - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/pandoc-3.11-h8af1aa0_0.conda
   sha256: 6d80ac027cb3d286c59c2da339276afd42b684fa6e3fe26c1bd69008e5471158
   md5: 185a9cfb4b0f95ece3fc35fc9c6e28a5
@@ -24695,58 +24705,63 @@ packages:
     - orc >=2.3.0,<2.3.1.0a0
   size: 594601
   timestamp: 1773230256637
-- conda: https://conda.anaconda.org/conda-forge/osx-64/pandas-2.3.3-py314hc4308db_2.conda
-  sha256: 66df07b283018490ca7e75fd869a4ad8e542e61bf916f17463c8ad022cce7ffd
-  md5: b082e18eb2696625aa09c80e0fbd1997
+- conda: https://conda.anaconda.org/conda-forge/osx-64/pandas-3.0.5-py314h99bb933_1.conda
+  sha256: 7910c507692b67567627edbed6ff0ce80bb800b704bd0b238729e4c64d9fbc4b
+  md5: 7c7abc0faf169efe0e103c62f2824857
   depends:
-  - __osx >=10.13
-  - libcxx >=19
-  - numpy >=1.22.4
-  - numpy >=1.23,<3
-  - python >=3.14,<3.15.0a0
+  - python
+  - numpy >=1.26.0
   - python-dateutil >=2.8.2
-  - python-tzdata >=2022.7
+  - libcxx >=19
+  - __osx >=11.0
+  - numpy >=1.23,<3
   - python_abi 3.14.* *_cp314
-  - pytz >=2020.1
   constrains:
-  - openpyxl >=3.1.0
-  - lxml >=4.9.2
-  - tzdata >=2022.7
+  - adbc-driver-postgresql >=1.2.0
+  - adbc-driver-sqlite >=1.2.0
+  - beautifulsoup4 >=4.12.3
   - blosc >=1.21.3
-  - pandas-gbq >=0.19.0
-  - pyarrow >=10.0.1
-  - odfpy >=1.4.1
-  - sqlalchemy >=2.0.0
-  - bottleneck >=1.3.6
-  - gcsfs >=2022.11.0
-  - beautifulsoup4 >=4.11.2
-  - fsspec >=2022.11.0
-  - numba >=0.56.4
-  - pyxlsb >=1.0.10
-  - scipy >=1.10.0
-  - pyqt5 >=5.15.9
-  - xarray >=2022.12.0
-  - qtpy >=2.3.0
-  - numexpr >=2.8.4
-  - tabulate >=0.9.0
-  - pyreadstat >=1.2.0
-  - zstandard >=0.19.0
+  - bottleneck >=1.4.2
+  - fastparquet >=2024.11.0
+  - fsspec >=2024.10.0
+  - gcsfs >=2024.10.0
   - html5lib >=1.1
-  - matplotlib >=3.6.3
-  - xlsxwriter >=3.0.5
-  - fastparquet >=2022.12.0
-  - python-calamine >=0.1.7
+  - hypothesis >=6.116.0
+  - jinja2 >=3.1.5
+  - lxml >=5.3.0
+  - matplotlib >=3.9.3
+  - numba >=0.60.0
+  - numexpr >=2.10.2
+  - odfpy >=1.4.1
+  - openpyxl >=3.1.5
+  - psycopg2 >=2.9.10
+  - pyarrow >=13.0.0
+  - pyiceberg >=0.8.1
+  - pymysql >=1.1.1
+  - pyqt5 >=5.15.9
+  - pyreadstat >=1.2.8
+  - pytables >=3.10.1
+  - pytest >=8.3.4
+  - pytest-xdist >=3.6.1
+  - python-calamine >=0.3.0
+  - pytz >=2024.2
+  - pyxlsb >=1.0.10
+  - qtpy >=2.4.2
+  - scipy >=1.14.1
+  - s3fs >=2024.10.0
+  - sqlalchemy >=2.0.36
+  - tabulate >=0.9.0
+  - xarray >=2024.10.0
   - xlrd >=2.0.1
-  - pytables >=3.8.0
-  - psycopg2 >=2.9.6
-  - s3fs >=2022.11.0
+  - xlsxwriter >=3.2.0
+  - zstandard >=0.23.0
   license: BSD-3-Clause
   license_family: BSD
   purls:
   - pkg:pypi/pandas?source=hash-mapping
   run_exports: {}
-  size: 14362288
-  timestamp: 1764615196689
+  size: 14639133
+  timestamp: 1785276464478
 - conda: https://conda.anaconda.org/conda-forge/osx-64/pandoc-3.11-h694c41f_0.conda
   sha256: 0ef2d60b6d9ae28d4e70fae3fbb716e751db77743b6f5d18dc298fe13e280827
   md5: 932c47502f555da85dcf6f562b3e36a5
@@ -28873,59 +28888,64 @@ packages:
     - orc >=2.3.0,<2.3.1.0a0
   size: 548180
   timestamp: 1773230270828
-- conda: https://conda.anaconda.org/conda-forge/osx-arm64/pandas-2.3.3-py314ha3d490a_2.conda
-  sha256: f71fc63904d80ef7bf4e882b420426e167e02cf68b9bd71ea6beb0a9d0c37430
-  md5: 6e2f31aca92c525a884c509738aca93a
+- conda: https://conda.anaconda.org/conda-forge/osx-arm64/pandas-3.0.5-py314he609de1_0.conda
+  sha256: 9db72f83b107fab7393e02c4005003c97c7a7aaffc33417e78aadb5a82056cd5
+  md5: b1dde16791eca59c8316d0ad1487bff0
   depends:
-  - __osx >=11.0
-  - libcxx >=19
-  - numpy >=1.22.4
-  - numpy >=1.23,<3
-  - python >=3.14,<3.15.0a0
-  - python >=3.14,<3.15.0a0 *_cp314
+  - python
+  - numpy >=1.26.0
   - python-dateutil >=2.8.2
-  - python-tzdata >=2022.7
+  - python 3.14.* *_cp314
+  - libcxx >=19
+  - __osx >=11.0
+  - numpy >=1.23,<3
   - python_abi 3.14.* *_cp314
-  - pytz >=2020.1
   constrains:
-  - odfpy >=1.4.1
-  - zstandard >=0.19.0
+  - adbc-driver-postgresql >=1.2.0
+  - adbc-driver-sqlite >=1.2.0
+  - beautifulsoup4 >=4.12.3
   - blosc >=1.21.3
+  - bottleneck >=1.4.2
+  - fastparquet >=2024.11.0
+  - fsspec >=2024.10.0
+  - gcsfs >=2024.10.0
   - html5lib >=1.1
-  - numexpr >=2.8.4
-  - gcsfs >=2022.11.0
-  - sqlalchemy >=2.0.0
-  - numba >=0.56.4
+  - hypothesis >=6.116.0
+  - jinja2 >=3.1.5
+  - lxml >=5.3.0
+  - matplotlib >=3.9.3
+  - numba >=0.60.0
+  - numexpr >=2.10.2
+  - odfpy >=1.4.1
+  - openpyxl >=3.1.5
+  - psycopg2 >=2.9.10
+  - pyarrow >=13.0.0
+  - pyiceberg >=0.8.1
+  - pymysql >=1.1.1
   - pyqt5 >=5.15.9
-  - fastparquet >=2022.12.0
-  - pandas-gbq >=0.19.0
-  - pytables >=3.8.0
-  - qtpy >=2.3.0
-  - fsspec >=2022.11.0
-  - s3fs >=2022.11.0
-  - pyreadstat >=1.2.0
+  - pyreadstat >=1.2.8
+  - pytables >=3.10.1
+  - pytest >=8.3.4
+  - pytest-xdist >=3.6.1
+  - python-calamine >=0.3.0
+  - pytz >=2024.2
   - pyxlsb >=1.0.10
-  - pyarrow >=10.0.1
-  - xlrd >=2.0.1
-  - xarray >=2022.12.0
-  - beautifulsoup4 >=4.11.2
+  - qtpy >=2.4.2
+  - scipy >=1.14.1
+  - s3fs >=2024.10.0
+  - sqlalchemy >=2.0.36
   - tabulate >=0.9.0
-  - psycopg2 >=2.9.6
-  - bottleneck >=1.3.6
-  - matplotlib >=3.6.3
-  - python-calamine >=0.1.7
-  - lxml >=4.9.2
-  - openpyxl >=3.1.0
-  - scipy >=1.10.0
-  - xlsxwriter >=3.0.5
-  - tzdata >=2022.7
+  - xarray >=2024.10.0
+  - xlrd >=2.0.1
+  - xlsxwriter >=3.2.0
+  - zstandard >=0.23.0
   license: BSD-3-Clause
   license_family: BSD
   purls:
   - pkg:pypi/pandas?source=hash-mapping
   run_exports: {}
-  size: 14130201
-  timestamp: 1764615862386
+  size: 14402418
+  timestamp: 1784821943837
 - conda: https://conda.anaconda.org/conda-forge/osx-arm64/pandoc-3.11-hce30654_0.conda
   sha256: 1520d26e93867d62aa105d6f50e279c446d4bcd79f8db8d5b6a8442b148e8389
   md5: a2f9df29541bc9c9ec08950fcedfea84

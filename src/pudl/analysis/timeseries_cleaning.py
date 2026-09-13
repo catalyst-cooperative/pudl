@@ -149,7 +149,7 @@ def _shift_utc(utc: pd.Series, utc_offset: pd.Series) -> pd.Series:
         >>> _shift_utc(s, [-7, -6])
         0   2019-12-31 17:00:00
         1   2019-12-31 18:00:00
-        dtype: datetime64[ns]
+        dtype: datetime64[us]
     """
     return utc + pd.to_timedelta(utc_offset, unit="hours")
 
@@ -226,14 +226,18 @@ class FlaggedTimeseries:
         flags: pd.DataFrame | None = None,
     ) -> FlaggedTimeseries:
         """Create a timeseries object from a dataframe."""
-        x = matrix.to_numpy()
-        flags = np.empty(x.shape, dtype=object) if flags is None else flags.to_numpy()
+        x = matrix.to_numpy(copy=True)
+        flags_array = (
+            np.empty(x.shape, dtype=object)
+            if flags is None
+            else flags.to_numpy(copy=True)
+        )
 
         return cls(
             x=x,
             index=matrix.index,
             columns=matrix.columns,
-            flags=flags,
+            flags=flags_array,
             uuid=uuid.uuid4(),
         )
 
@@ -1497,7 +1501,7 @@ def impute(
         ValueError: Zero values present. Replace with very small value.
     """
     imputer = {"tubal": impute_latc_tubal, "tnn": impute_latc_tnn}[method]
-    x = df.to_numpy()
+    x = df.to_numpy(copy=True)
     if (x == 0).any():
         raise ValueError("Zero values present. Replace with very small value.")
     tensor = fold_tensor(x, periods=periods)
@@ -1962,15 +1966,19 @@ def impute_timeseries_asset_factory(  # noqa: C901
             and a ``id_col`` column index (e.g. 101, ..., 329).
         """
         # Convert from datetime_utc to local datetime
-        aligned_df = utc_dataframe_to_aligned(
-            input_df.rename(
-                columns={
-                    value_col: "value_col",
-                    id_col: "id_col",
-                    simulation_group_col: "simulation_group",
-                }
-            )
+        renamed_df = input_df.rename(
+            columns={
+                value_col: "value_col",
+                id_col: "id_col",
+                simulation_group_col: "simulation_group",
+            }
         )
+        # timezone may arrive as a categorical; the pandera input schema for
+        # utc_dataframe_to_aligned expects a plain string column.
+        if "timezone" in renamed_df:
+            renamed_df["timezone"] = renamed_df["timezone"].astype("string")
+        # pandera validates/coerces the frame against UTCTimeseriesDataFrame at runtime.
+        aligned_df = utc_dataframe_to_aligned(renamed_df)  # type: ignore[bad-argument-type]
 
         # If no simulation group column is specified, create one with a monolithic group
         if simulation_group_col is None:

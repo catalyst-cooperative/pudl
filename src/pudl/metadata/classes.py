@@ -642,7 +642,7 @@ class Field(PudlMeta):
     Examples:
         >>> field = Field(name='x', type='string', description='X', constraints={'enum': ['x', 'y']})
         >>> field.to_pandas_dtype()
-        CategoricalDtype(categories=['x', 'y'], ordered=False, categories_dtype=object)
+        CategoricalDtype(categories=['x', 'y'], ordered=False, categories_dtype=str)
         >>> field.to_sql()
         Column('x', Enum('x', 'y'), CheckConstraint(...), table=None, comment='X')
         >>> field = Field.from_id('utility_id_eia')

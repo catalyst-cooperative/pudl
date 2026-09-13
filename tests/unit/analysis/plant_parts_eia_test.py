@@ -249,6 +249,8 @@ def test_make_mega_gen_tbl():
                 "generator_operating_date": "datetime64[us]",
                 "generator_operating_year": "Int64",
                 "utility_id_eia": "Int64",  # convert to pandas Int64 instead of numpy int64
+                # scaled by ownership fraction -> nullable Float64
+                "capacity_mw": "Float64",
             }
         )
         .set_index([[0, 1, 2, 3, 0, 1, 2, 3]])
@@ -400,12 +402,17 @@ def test_scale_by_ownership():
         "capacity_eoy_mw",
         "total_mmbtu",
     ]
+    # scale_by_ownership scales these columns by a fractional ownership share, so
+    # they come back as nullable Float64 regardless of the input dtype.
+    scaled_float = dict.fromkeys(scale_cols, "Float64")
+    out_ex1 = out_ex1.astype(scaled_float)
     out = (
         pudl.helpers.scale_by_ownership(
             gens=gens_mega_ex1, own_eia860=own_ex1, scale_cols=scale_cols
         )
         .reset_index(drop=True)
         .convert_dtypes()
+        .astype(scaled_float)
     )
 
     pd.testing.assert_frame_equal(out_ex1, out)

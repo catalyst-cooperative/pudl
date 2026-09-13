@@ -601,7 +601,7 @@ def add_backfilled_ba_code_column(df, by_cols: list[str]) -> pd.DataFrame:
     )
     ba_ids["balancing_authority_code_eia_bfilled"] = ba_ids.groupby(by_cols)[
         "balancing_authority_code_eia"
-    ].fillna(method="bfill")
+    ].bfill()
     ba_eia861_filled = df.merge(ba_ids, how="left")
 
     end_len = len(ba_eia861_filled)
@@ -764,7 +764,7 @@ def _tidy_class_dfs(
         rf"{class_list_regex}", n=1, expand=True
     ).set_names([class_type, None])
     # Now stack the customer classes into their own categorical column,
-    data_cols = data_cols.stack(level=0, dropna=False).reset_index()
+    data_cols = data_cols.stack(level=0, future_stack=True).reset_index()
     denorm_cols = _filter_non_class_cols(raw_df, class_list).reset_index()
     # Check to make sure that the idx_cols are actually valid primary key cols:
     # This is tricky, because NA values in the BA Code column creates actual duplicate
@@ -1133,9 +1133,19 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
         return no_dupes
 
     utils_88888 = df[df["utility_id_eia"] == 88888]
-    agg_utils_88888 = utils_88888.groupby(
-        idx_cols, group_keys=False, dropna=False
-    ).apply(sum_numeric_values_when_strings_match)
+    # NOTE: as of pandas 3.0 groupby(...).apply() no longer passes the grouping
+    # columns into the applied function, but sum_numeric_values_when_strings_match
+    # needs them. Iterate over the groups explicitly so each group frame still
+    # carries idx_cols.
+    combined_groups = [
+        sum_numeric_values_when_strings_match(group)
+        for _, group in utils_88888.groupby(idx_cols, dropna=False)
+    ]
+    agg_utils_88888 = (
+        pd.concat(combined_groups, ignore_index=True)
+        if combined_groups
+        else utils_88888
+    )
     recombined_df = pd.concat(
         [df[df["utility_id_eia"] != 88888], agg_utils_88888], ignore_index=True
     )
