@@ -187,10 +187,8 @@ Use to find Python type errors before committing. `pyrefly` uses its own error c
 
 For suppression syntax, see **Type error suppression** in the Code Style section.
 
-**Baseline policy**: PUDL is not yet enforcing full type-checking — pre-existing
-errors are recorded in `.pyrefly-baseline.json` and suppressed by
-`pixi run pyrefly-check`. You are not required to fix pre-existing errors in files
-you touch, but:
+**Baseline policy**: PUDL is not yet enforcing full type-checking — pre-existing errors
+are recorded in `.pyrefly-baseline.json` and suppressed by `pixi run pyrefly-check`.
 
 - Never introduce a *new* pyrefly error. Run `pixi run pyrefly-check` (or `pixi run -e
   dev pyrefly check <file>` for a quick look at one file) before committing.
@@ -198,14 +196,12 @@ you touch, but:
   its purpose as a ratchet against regressions. The only legitimate reason to regenerate
   it (`pyrefly check --baseline .pyrefly-baseline.json --update-baseline`) is to shrink
   it after fixing pre-existing errors, and only with explicit user approval.
-- If pyrefly flags pre-existing, simple errors in code you're already touching, fix them
+- If pyrefly flags pre-existing errors in code you're already editing, fix them
   opportunistically.
-
-The weekly baseline refresh (done alongside dependency updates) is: fix what you
-can, then run `pixi run pyrefly-prune-baseline` (drops stale entries for errors
-that no longer occur) followed by `pixi run pyrefly-update-baseline`, then
-`pixi run pyrefly-diff-baseline` to sanity-check the regenerated baseline before
-committing it.
+- The baseline is updated weekly. The process is: fix newly introduced errors that have
+  accumulated since the last baseline update, run `pixi run pyrefly-prune-baseline`
+  followed by `pixi run pyrefly-update-baseline`, then `pixi run pyrefly-diff-baseline`
+  to verify that the only changes are errors that have been fixed.
 
 ### jq
 

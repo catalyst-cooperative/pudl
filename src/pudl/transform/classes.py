@@ -870,8 +870,7 @@ def drop_invalid_rows(df: pd.DataFrame, params: InvalidRows) -> pd.DataFrame:
             items = params.required_valid_cols
         else:
             assert params.allowed_invalid_cols is not None, (
-                "allowed_invalid_cols must be set when required_valid_cols is not, "
-                "per the enclosing if-condition."
+                "allowed_invalid_cols must be set when required_valid_cols is not."
             )
             items = [col for col in df if col not in params.allowed_invalid_cols]
 
