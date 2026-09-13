@@ -863,7 +863,6 @@ def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.Da
     # For relative columns, take average weighted by fuel usage
     total_fuel: pd.Series = boiler_fuel_groups["fuel_consumed_units"].transform("sum")
     # division by zero -> NaN, so fill with 0 in those cases
-    print(f"Aggregate boilers: {duplicates.info()}")
     fuel_fraction = (
         duplicates["fuel_consumed_units"].div(total_fuel.to_numpy()).fillna(0.0)
     )
