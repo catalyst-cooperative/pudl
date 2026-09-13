@@ -91,7 +91,7 @@ expected_4 = pd.read_csv(
 
 
 @pytest.mark.parametrize(
-    "actual,expected",
+    ("actual", "expected"),
     [
         pytest.param(actual_1, expected_1, id="same_pk_does_combine"),
         pytest.param(actual_2, expected_2, id="no_88888_does_not_combine"),

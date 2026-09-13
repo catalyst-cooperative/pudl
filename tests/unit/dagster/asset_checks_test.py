@@ -82,7 +82,7 @@ def test_asset_checks_preserve_runtime_input_types(
 
 
 @pytest.mark.parametrize(
-    "column,threshold,n_outliers_allowed,expected_pass",
+    ("column", "threshold", "n_outliers_allowed", "expected_pass"),
     [
         # Test cases that should PASS
         ("stable_metric", 0.1, 0, True),

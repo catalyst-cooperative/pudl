@@ -25,12 +25,11 @@ def test_check_read_access_raises_for_missing_path(tmp_path: Path) -> None:
         str(tmp_path / "missing"), anon=False
     )
 
-    try:
+    with pytest.raises(
+        check_path_permissions.PathPermissionError,
+        match="not readable|does not exist",
+    ):
         check_path_permissions.check_read_access(missing_path)
-    except Exception as exc:  # noqa: BLE001
-        assert "not readable" in str(exc) or "does not exist" in str(exc)
-    else:  # pragma: no cover
-        raise AssertionError("Expected check_read_access to fail for missing path")
 
 
 def test_main_defaults_to_read_and_write(tmp_path: Path) -> None:
@@ -91,7 +90,7 @@ def test_main_json_distinguishes_delete_failures(monkeypatch, tmp_path: Path) ->
 
 
 @pytest.mark.parametrize(
-    "json_output,assertions",
+    ("json_output", "assertions"),
     [
         (False, {"check": "text", "expect_count": 1}),
         (

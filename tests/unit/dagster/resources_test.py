@@ -62,19 +62,19 @@ def test_ferceqr_deployment_target_config_accepts_local_path_formats(tmp_path, p
 
 
 @pytest.mark.parametrize(
-    "path",
+    ("path", "expected_match"),
     [
-        "https://example.com/ferceqr",
-        "s3://",
-        "gs://",
-        "file://relative/path",
-        "   ",
-        "relative/path",
+        ("https://example.com/ferceqr", "s3:// URL, gs:// URL"),
+        ("s3://", "s3:// or gs:// URL"),
+        ("gs://", "s3:// or gs:// URL"),
+        ("file://relative/path", "file:// URI with an absolute local path"),
+        ("   ", "cannot be empty"),
+        ("relative/path", "must be absolute filesystem paths"),
     ],
 )
-def test_ferceqr_deployment_target_config_rejects_invalid_paths(path):
+def test_ferceqr_deployment_target_config_rejects_invalid_paths(path, expected_match):
     """Deployment targets should reject unsupported URL schemes and empty bucket URLs."""
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match=expected_match):
         FercEqrDeploymentTargetConfig(path=path)
 
 
@@ -231,7 +231,7 @@ def test_zulip_notification_resource_sends_stream_message_successfully(
 
 
 @pytest.mark.parametrize(
-    "error,expected_msg",
+    ("error", "expected_msg"),
     [
         (HTTPError("bad gateway"), "bad gateway"),
         (HTTPError("Connection refused"), "Connection refused"),
