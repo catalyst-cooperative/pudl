@@ -26,8 +26,8 @@ def main(ctx: click.Context, name: str) -> None:
 
     """
     # Deferred to keep --help fast; see pudl/scripts/__init__.py for rationale.
-    from pudl.metadata.descriptions import ResourceDescriptionBuilder  # noqa: PLC0415
-    from pudl.metadata.resources import RESOURCE_METADATA  # noqa: PLC0415
+    from pudl.metadata.descriptions import ResourceDescriptionBuilder
+    from pudl.metadata.resources import RESOURCE_METADATA
 
     if name not in RESOURCE_METADATA:
         click.echo(f"No table {name}")

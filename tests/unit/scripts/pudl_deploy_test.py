@@ -108,7 +108,9 @@ def mock_deploy_dependencies(mocker, tmp_path):
     mocker.patch("pudl.scripts.pudl_deploy.trigger_zenodo_release")
     mocker.patch("pudl.scripts.pudl_deploy.set_gcs_temporary_hold")
     mocker.patch("pudl.scripts.pudl_deploy.send_zulip_message")
-    mocker.patch.dict(os.environ, {"GITHUB_TOKEN": "fake-token"})  # noqa: S106  # pragma: allowlist secret
+    mocker.patch.dict(
+        os.environ, {"GITHUB_TOKEN": "fake-token"}
+    )  # pragma: allowlist secret
     return fake_build_path
 
 
@@ -156,7 +158,7 @@ def test_main_sends_zulip_notification_when_build_resolution_fails(mocker):
     mocker.patch.dict(
         os.environ,
         {
-            "GITHUB_TOKEN": "fake-token",  # noqa: S106  # pragma: allowlist secret
+            "GITHUB_TOKEN": "fake-token",  # pragma: allowlist secret
             "ZULIP_API_KEY": "fake-key",  # pragma: allowlist secret
         },
     )
