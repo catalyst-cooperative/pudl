@@ -944,7 +944,7 @@ def clean_nerc(nerc_df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame:
         nerc_df["nerc_region"]
         .apply(lambda x: ([NERC_SPELLCHECK.get(i, i) for i in x]))
         .apply(lambda x: sorted(i if i in NERC_REGIONS else "UNK" for i in x))
-        .apply(lambda x: _remove_nerc_duplicates(x))
+        .apply(_remove_nerc_duplicates)
         .str.join("_")
     )
     return nerc_df
