@@ -395,10 +395,11 @@ def check_if_already_in_training(training_data, validated_connections):
     val_vals = validated_connections.record_id_eia_override_1.dropna().unique().tolist()
 
     not_in_training = [x for x in val_vals if x not in training_vals]
-    print(f"Total records: {len(val_vals)}")
-    print(f"Number of records not in training data: {len(not_in_training)}")
-    print(
-        f"Number of records already in training data: {len(val_vals - not_in_training)}"
+    logger.info(f"Total records: {len(val_vals)}")
+    logger.info(f"Number of records not in training data: {len(not_in_training)}")
+    logger.info(
+        "Number of records already in training data: "
+        f"{len(val_vals) - len(not_in_training)}"
     )
 
 

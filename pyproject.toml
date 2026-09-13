@@ -520,6 +520,7 @@ select = [
     "FA", # flake8-future-annotations
     "FLY", # flynt: convert % and .format() to f-strings
     "FURB", # refurb: general code quality/modernization
+    "G", # flake8-logging-format
     "I", # isort
     "ICN", # flake8 import conventions
     "INT", # flake8-gettext
@@ -535,6 +536,7 @@ select = [
     "S", # flake8-bandit
     "SIM", # flake8-simplify
     "T10", # flake8-debugger
+    "T20", # find print statements that should probably be logging
     "TID", # flake8-tidy-imports
     "UP", # pyupgrade (use modern python syntax)
     "W", # pycodestyle warnings
@@ -543,7 +545,6 @@ select = [
     # "ANN", # identify missing type annotations
     # "ARG", # find unused arguments
     # "ERA", # eradicate: finds commented out code
-    # "T20", # find print statements that should probably be logging
 
     # New rulesets that became part of Ruff's defaults as of v0.16. Enable these
     # one at a time, address (or ignore) the resulting violations in their own
@@ -552,7 +553,6 @@ select = [
     # More difficult to address rulesets:
     # "BLE", # flake8-blind-except
     # "DTZ", # flake8-datetimez: datetime / timezone issues
-    "G", # flake8-logging-format
     # "ISC", # flake8-implicit-str-concat
     # "PERF", # Perflint: performance issues
     # "PL", # Pylint (Convention/Error/Refactor/Warning)

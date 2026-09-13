@@ -79,7 +79,7 @@ def update_yaml_dois(yaml_file: Path, datasets: tuple[str, ...]) -> dict[str, di
     if updates:
         with Path(yaml_file).open("w") as f:
             yaml.dump(data, f)
-        print(f"\n✅ Updated {yaml_file} with {len(updates)} newer record versions")
+        logger.info(f"Updated {yaml_file} with {len(updates)} newer record versions")
 
     return updates
 

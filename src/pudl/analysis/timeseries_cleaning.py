@@ -640,10 +640,9 @@ def impute_latc_tnn(
         tol = np.linalg.norm((mat_hat - last_mat), "fro") / snorm
         last_mat = mat_hat.copy()
         it += 1
-        print(f"Iteration: {it}", end="\r")
+        logger.debug(f"Iteration: {it}")
         if tol < epsilon or it >= maxiter:
             break
-    print(f"Iteration: {it}")
     return tensor_hat
 
 
@@ -759,10 +758,9 @@ def impute_latc_tubal(  # noqa: C901
             temp1 = _ten2mat(_mat2ten(z, dim, 0) - t / rho, 2)
             _, phi = np.linalg.eigh(temp1 @ temp1.T)
             del temp1
-        print(f"Iteration: {it}", end="\r")
+        logger.debug(f"Iteration: {it}")
         if tol < epsilon or it >= maxiter:
             break
-    print(f"Iteration: {it}")
     return x
 
 
@@ -1505,7 +1503,7 @@ def impute(
     ends = [*range(0, n, int(np.ceil(n / blocks))), n]
     for i in range(blocks):
         if blocks > 1:
-            print(f"Block: {i}")
+            logger.debug(f"Block: {i}")
         idx = slice(None), slice(ends[i], ends[i + 1]), slice(None)
         tensor[idx] = imputer(tensor[idx], **kwargs)
     x = unfold_tensor(tensor, x.shape)
