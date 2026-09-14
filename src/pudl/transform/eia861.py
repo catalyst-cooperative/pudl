@@ -1141,7 +1141,7 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
     )
     # Guard against unexpectedly large data loss. The known drop counts per table
     # across all years (as of Aug 2025) are: BA: 1, OD: 16, Sales: 32, UD: 15, DP: 8.
-    # A threshold of 100 (~3× the historical max) catches genuine runaway cases
+    # A threshold of 100 (~3x the historical max) catches genuine runaway cases
     # without being sensitive to dataset size (full ETL vs. fast ETL subsets).
     len_diff = len(recombined_df) - len(df)
     if -len_diff > 100:

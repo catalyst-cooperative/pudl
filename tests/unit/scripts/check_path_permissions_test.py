@@ -27,7 +27,7 @@ def test_check_read_access_raises_for_missing_path(tmp_path: Path) -> None:
 
     with pytest.raises(
         check_path_permissions.PathPermissionError,
-        match="not readable|does not exist",
+        match=r"not readable|does not exist",
     ):
         check_path_permissions.check_read_access(missing_path)
 

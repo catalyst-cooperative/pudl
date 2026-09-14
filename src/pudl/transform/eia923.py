@@ -1089,7 +1089,7 @@ def _drop_duplicates__core_eia923__generation(
     # truly duplicate records from one plant (id 3405) from 2012 and 2013
     # and another (id 55088) from 2025 and 2026.
     # they are duplicate except for having different prime movers (which we
-    # very much don’t expect to be the primary key for this table)
+    # very much don't expect to be the primary key for this table)
     # we are going to find them... make sure they are the plant we expect... then
     # aggregate them and effectively drop their prime mover code bc that is
     # only column that differs in these records. We don't expect this table

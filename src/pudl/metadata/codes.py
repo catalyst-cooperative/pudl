@@ -750,7 +750,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
                 (
                     "RQ",
                     "requirement",
-                    "Requirements service. Requirements service is service which the supplier plans to provide on an ongoing basis (i.e., the supplier includes projects load for this service in its system resource planning). In addition, the reliability of requirement service must be the same as, or second only to, the supplier’s service to its own ultimate consumers.",
+                    "Requirements service. Requirements service is service which the supplier plans to provide on an ongoing basis (i.e., the supplier includes projects load for this service in its system resource planning). In addition, the reliability of requirement service must be the same as, or second only to, the supplier's service to its own ultimate consumers.",
                 ),
                 (
                     "SF",
@@ -2589,10 +2589,10 @@ YAD,alcoa_power_yadkin,"Alcoa Power Generating, Inc. - Yadkin Division",America/
                 (3, "Investments In Economic Development Projects"),
                 (4, "Other Investments"),
                 (5, "Special Funds"),
-                (6, "Cash – General"),
+                (6, "Cash - General"),
                 (7, "Special Deposits"),
                 (8, "Temporary Investments"),
-                (9, "Accounts & Notes Receivable – Net"),
+                (9, "Accounts & Notes Receivable - Net"),
                 (
                     10,
                     "Commitments to Invest Within 12 Months but not Actually Purchased",

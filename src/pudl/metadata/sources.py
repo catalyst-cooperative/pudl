@@ -346,7 +346,7 @@ SOURCES: dict[str, Any] = {
         "source_file_dict": {
             "respondents": (
                 "All entities in the contiguous United States that are listed in the "
-                "North American Electric Reliability Corporation’s (NERC) Compliance "
+                "North American Electric Reliability Corporation's (NERC) Compliance "
                 "Registry as a balancing authority."
             ),
             "source_format": "Comma separated values (CSV)",
