@@ -84,6 +84,8 @@ def _deploy_outputs(
         source_dir=source_dir,
         path_suffixes=plan.path_suffixes,
         immutable_suffixes=plan.immutable_suffixes,
+        upload_to_gcs=plan.upload_to_gcs,
+        upload_to_s3=plan.upload_to_s3,
     )
 
     if plan.redeploy_eel_hole:
@@ -150,11 +152,30 @@ def _deploy_outputs(
     ),
     show_default=True,
 )
+@click.option(
+    "--deploy-gcs/--no-deploy-gcs",
+    "deploy_to_gcs",
+    default=None,
+    help=(
+        "Force GCS upload on or off. If unset, defaults to on for every deploy type."
+    ),
+)
+@click.option(
+    "--deploy-s3/--no-deploy-s3",
+    "deploy_to_s3",
+    default=None,
+    help=(
+        "Force S3 upload on or off. If unset, defaults to on for nightly/stable "
+        "deploys and off for branch builds (S3 egress fees are large)."
+    ),
+)
 @click.pass_context
 def main(
     ctx: click.Context,
     git_tag: str,
     environment: Literal["staging", "production"],
+    deploy_to_gcs: bool | None,
+    deploy_to_s3: bool | None,
 ) -> None:
     """Deploy PUDL ETL outputs to cloud storage and external services.
 
@@ -197,6 +218,8 @@ def main(
             stage_results=stage_results,
             git_tag=git_tag,
             environment=environment,
+            deploy_to_gcs=deploy_to_gcs,
+            deploy_to_s3=deploy_to_s3,
         )
         # run_stage's default fail_hard=True re-raises on failure instead of
         # returning, so reaching this line means resolve_build succeeded.

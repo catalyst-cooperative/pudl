@@ -2,8 +2,8 @@
 
 .. note::
 
-   This table is partitioned into multiple Parquet files which can be treated
-   as a single Parquet dataset.
+   This table is partitioned into multiple Parquet files (one per quarter) which can be
+   treated as a single Parquet dataset.
 
 .. tab-set::
 
@@ -12,29 +12,81 @@
       .. code-block:: python
 
          import pandas as pd
-         # Select all Parquet files under this bucket prefix.
+         # Read a single quarterly Parquet file and select a subset of columns.
          df = pd.read_parquet(
-             "s3://pudl.catalyst.coop/ferceqr/{{ resource.name }}/",
+             "s3://pudl.catalyst.coop/ferceqr/{{ resource.name }}/2024q1.parquet",
              dtype_backend="pyarrow",
+             columns=[
+                 "seller_company_name",
+                 "customer_company_name",
+                 "product_name",
+                 "quantity",
+                 "units",
+                 "rate",
+                 "rate_units",
+                 "commencement_date_of_contract_term",
+                 "contract_termination_date",
+             ],
          )
+         df = df[
+             (df["seller_company_name"] == "Bonneville Power Administration")
+             & (df["product_name"] == "ENERGY")
+         ]
 
    .. tab-item:: polars
 
       .. code-block:: python
 
          import polars as pl
-         # Select all Parquet files under this bucket prefix.
-         df = pl.read_parquet(
-             "s3://pudl.catalyst.coop/ferceqr/{{ resource.name }}/",
-             storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+         df = (
+             # Use scan_parquet (lazy evaluation) so the filter is pushed down.
+             pl.scan_parquet(
+                 "s3://pudl.catalyst.coop/ferceqr/{{ resource.name }}/2024q1.parquet",
+                 storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+             )
+             .select(
+                 [
+                     "seller_company_name",
+                     "customer_company_name",
+                     "product_name",
+                     "quantity",
+                     "units",
+                     "rate",
+                     "rate_units",
+                     "commencement_date_of_contract_term",
+                     "contract_termination_date",
+                 ]
+             )
+             .filter(
+                 (pl.col("seller_company_name") == "Bonneville Power Administration")
+                 & (pl.col("product_name") == "ENERGY")
+             )
+             .collect()
          )
 
    .. tab-item:: SQL (DuckDB)
 
       .. code-block:: sql
 
-         -- Use a wildcard to select all parquet files with this bucket prefix.
-         SELECT * FROM 's3://pudl.catalyst.coop/ferceqr/{{ resource.name }}/*.parquet';
+         INSTALL httpfs;
+         LOAD httpfs;
+         -- Path-style S3 addressing is required because our bucket name contains dots.
+         CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
+         SELECT
+             -- Select a subset of columns to reduce network and memory usage
+             seller_company_name,
+             customer_company_name,
+             product_name,
+             quantity,
+             units,
+             rate,
+             rate_units,
+             commencement_date_of_contract_term,
+             contract_termination_date
+         -- Limit to 2024Q1 data by querying only a single Parquet file
+         FROM 's3://pudl.catalyst.coop/ferceqr/{{ resource.name }}/2024q1.parquet'
+         WHERE seller_company_name = 'Bonneville Power Administration'
+             AND product_name = 'ENERGY';
 
    .. tab-item:: R
 
@@ -43,8 +95,18 @@
          library(arrow)
          library(dplyr)
 
-         # Establish S3 connection
-         bucket <- s3_bucket("pudl.catalyst.coop/ferceqr/{{ resource.name }}")
-
-         # Read all parquet files in that prefix
-         df <- open_dataset(bucket) |> collect()
+         # Read a single quarterly Parquet file and filter to one seller.
+         df <- open_dataset(
+             "s3://pudl.catalyst.coop/ferceqr/{{ resource.name }}/2024q1.parquet",
+             format = "parquet"
+           ) |>
+           filter(
+             seller_company_name == "Bonneville Power Administration",
+             product_name == "ENERGY"
+           ) |>
+           select(
+             seller_company_name, customer_company_name, product_name,
+             quantity, units, rate, rate_units,
+             commencement_date_of_contract_term, contract_termination_date
+           ) |>
+           collect()

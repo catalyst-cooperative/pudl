@@ -922,7 +922,7 @@ SOURCES: dict[str, Any] = {
         },
         "working_partitions": {
             "years": list(
-                range(2021, 2025)
+                range(2021, 2026)
             ),  # see issue #3576 for why 2019 and 2020 are not working
         },
         "contributors": [
@@ -1128,7 +1128,7 @@ SOURCES: dict[str, Any] = {
         ),
         "license_raw": LICENSES["cc-by-4.0"],
         "license_pudl": LICENSES["cc-by-4.0"],
-        "working_partitions": {"years": sorted(set(range(2014, 2024)))},
+        "working_partitions": {"years": sorted(set(range(2014, 2025)))},
         "contributors": [
             CONTRIBUTORS["vibrant-clean-energy"],
             CONTRIBUTORS["catalyst-cooperative"],

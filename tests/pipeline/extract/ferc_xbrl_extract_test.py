@@ -47,8 +47,8 @@ def test_sqlite_duckdb_equivalence(
             )
             continue
         logger.info(f"Comparing {form} SQLite vs. DuckDB outputs...")
-        sqlite_path = pudl_test_paths.sqlite_db_path(f"{form}_xbrl")
-        duckdb_path = pudl_test_paths.duckdb_db_path(f"{form}_xbrl")
+        sqlite_path = pudl_test_paths.sqlite_path(f"{form}_xbrl")
+        duckdb_path = pudl_test_paths.duckdb_path(f"{form}_xbrl")
 
         with (
             duckdb.connect(sqlite_path) as sqlite_conn,

@@ -191,6 +191,8 @@ class Unstacker(BaseModel):
         ],
         core_metric_parameters=[
             "debt_fraction",
+            "debt_fraction_investment_tax_credit",
+            "debt_fraction_investment_and_production_tax_credit",
             "wacc_real",
             "wacc_nominal",
             "capital_recovery_factor",
@@ -206,6 +208,7 @@ class Unstacker(BaseModel):
         core_metric_parameters=[
             "capex_per_kw",
             "capacity_factor",
+            "round_trip_efficiency",
             "opex_fixed_per_kw",
             "levelized_cost_of_energy_per_mwh",
             "fuel_cost_per_mwh",
@@ -252,6 +255,8 @@ def _core_nrelatb__transform_start(raw_nrelatb__data):
         "gcc": "capex_grid_connection_per_kw",
         "interest_rate_nominal": "interest_rate_nominal",
         "debt_fraction": "debt_fraction",
+        "debt_fraction,_itc_only": "debt_fraction_investment_tax_credit",  # added in 2025
+        "debt_fraction,_itc+ptc": "debt_fraction_investment_and_production_tax_credit",  # added in 2025
         "inflation_rate": "inflation_rate",
         "calculated_interest_rate_real": "interest_rate_calculated_real",
         "fixed_o&m": "opex_fixed_per_kw",
@@ -275,6 +280,7 @@ def _core_nrelatb__transform_start(raw_nrelatb__data):
         "cfc": "capex_construction_finance_factor",
         "lcoe": "levelized_cost_of_energy_per_mwh",
         "heat_rate_penalty": "heat_rate_penalty",
+        "round-trip_efficiency": "round_trip_efficiency",  # added in 2025
     }
     rename_dict = {
         "core_metric_variable_year": "projection_year",
@@ -283,6 +289,12 @@ def _core_nrelatb__transform_start(raw_nrelatb__data):
     }
     nrelatb = (
         raw_nrelatb__data.replace([""], pd.NA)
+        .replace("*", pd.NA)
+        .assign(
+            cost_recovery_period_years=lambda x: pd.to_numeric(
+                x["cost_recovery_period_years"]
+            )
+        )
         .rename(columns=rename_dict)
         .pipe(
             helpers.fix_boolean_columns,
@@ -306,6 +318,64 @@ def _core_nrelatb__transform_start(raw_nrelatb__data):
         subset=nrelatb.columns.difference(["core_metric_key"])
     )
 
+    # In 2025, NREL introduced round-trip_efficiency as a new core_metric_parameter
+    # for storage technologies (batteries & pumped storage hydro). Unlike every other
+    # parameter for those technologies, these records are reported with both
+    # technology_description_detail_1 and _2 left blank, even though the underlying
+    # data is still split out per storage duration/class (one record per duration,
+    # all sharing the same value). Because detail_1/_2 are what normally distinguish
+    # those duration/class variants, these records collide on IDX_ALL. The
+    # duration/class info is still present in display_name though, and display_name
+    # maps 1:1 onto technology_description_detail_1/_2 elsewhere in the same
+    # report_year's data, so we backfill the missing detail columns from a lookup
+    # built off of those populated records. We restrict this to round-trip_efficiency
+    # records specifically (rather than any record with blank detail columns) so this
+    # can't unexpectedly backfill some other parameter - e.g. some technologies
+    # (like NaturalGas_FE) never populate detail_1/_2 at all, and we don't want to
+    # touch those.
+    detail_cols = [
+        "technology_description_detail_1",
+        "technology_description_detail_2",
+    ]
+    display_name_lookup = nrelatb.loc[
+        nrelatb.technology_description_detail_1.notna(),
+        ["report_year", "display_name", *detail_cols],
+    ].drop_duplicates()
+    # NREL's 2025 raw data never reports a populated-detail record for this
+    # particular display_name - backfill it manually, following the naming pattern
+    # used by the other National Class variants of this technology.
+    missing_display_name = pd.DataFrame(
+        [
+            {
+                "report_year": 2025,
+                "display_name": "Pumped Storage Hydropower One New Reservoir - National Class 2",
+                "technology_description_detail_1": "NatlClass2ONR",
+                "technology_description_detail_2": "Pumped Storage Hydropower One New Reservoir",
+            }
+        ]
+    ).astype({"report_year": nrelatb.report_year.dtype})
+    display_name_lookup = pd.concat(
+        [display_name_lookup, missing_display_name], ignore_index=True
+    )
+
+    nrelatb = nrelatb.merge(
+        display_name_lookup,
+        on=["report_year", "display_name"],
+        how="left",
+        suffixes=("", "_from_display_name"),
+        validate="m:1",
+    )
+    missing_detail_mask = (
+        (nrelatb.core_metric_parameter == "round_trip_efficiency")
+        & nrelatb.technology_description_detail_1.isna()
+        & nrelatb.technology_description_detail_2.isna()
+        & nrelatb.display_name.notna()
+    )
+    for col in detail_cols:
+        nrelatb.loc[missing_detail_mask, col] = nrelatb.loc[
+            missing_detail_mask, f"{col}_from_display_name"
+        ]
+    nrelatb = nrelatb.drop(columns=[f"{col}_from_display_name" for col in detail_cols])
     assert not any(nrelatb.duplicated(IDX_ALL)), (
         f"Duplicated: {nrelatb[nrelatb.duplicated(IDX_ALL)]}"
     )
@@ -328,7 +398,7 @@ def _core_nrelatb__transform_start(raw_nrelatb__data):
     )
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def core_nrelatb__yearly_projected_financial_cases(
     _core_nrelatb__transform_start,
 ) -> pd.DataFrame:
@@ -340,7 +410,7 @@ def core_nrelatb__yearly_projected_financial_cases(
     return df
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def core_nrelatb__yearly_projected_financial_cases_by_scenario(
     _core_nrelatb__transform_start,
 ) -> pd.DataFrame:
@@ -402,18 +472,21 @@ def broadcast_asterisk_cost_recovery_period_years(
 
     Most of the records in this unstacked table have values in the
     ``cost_recovery_period_years`` column, but before broadcasting, about 15% of the
-    table has an ``*`` in this column. This is a part of the tables primary key and
-    because we know ``*`` in a primary key effectively means wildcard, we want to
-    broadcast the records with an asterisk across the rest of the data. Unfortunately,
-    there are still ~5% of records w/ ``*`` that don't have associated records in the
-    rest of the data (the are left_only records in :func:`_broadcast_core_metric_parameters`)
-    so they end up with nulls in the ``cost_recovery_period_years`` column.
+    table has a null in this column, standing in for the ``*`` wildcard NREL uses in
+    the raw data (already converted to null upstream, in
+    :func:`_core_nrelatb__transform_start`). This is a part of the tables primary key
+    and because we know a wildcard in a primary key effectively means "applies to
+    everything", we want to broadcast these records across the rest of the data.
+    Unfortunately, there are still ~5% of records w/ a wildcard that don't have
+    associated records in the rest of the data (the are left_only records in
+    :func:`_broadcast_core_metric_parameters`) so they end up with nulls in the
+    ``cost_recovery_period_years`` column.
 
     Probably we could treat ``cost_recovery_period_years`` as a categorical column and/or
     figure out ways to fill in these nulls with the right set of merge keys.
 
     """
-    mask_broadcast = nrelatb_unstacked.cost_recovery_period_years == "*"
+    mask_broadcast = nrelatb_unstacked.cost_recovery_period_years.isna()
     idx_broadcast = [
         i for i in unstack_scenario.idx_unstacked if i != "cost_recovery_period_years"
     ]
@@ -464,7 +537,7 @@ def _broadcast_core_metric_parameters(
     return nrelatb_unstacked_broadcast
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def core_nrelatb__yearly_projected_cost_performance(
     _core_nrelatb__transform_start,
 ) -> pd.DataFrame:
@@ -496,14 +569,22 @@ def _core_nrelatb__yearly_units(
     return units
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def core_nrelatb__yearly_technology_status(
     _core_nrelatb__transform_start: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform a small table of statuses of different technology types."""
-    return transform_normalize(
-        _core_nrelatb__transform_start, Normalizer().technology_status
-    )
+    # Starting in 2025, round_trip_efficiency records for storage technologies
+    # never report real is_technology_mature/is_default values (NREL leaves them
+    # blank/zero for this parameter). Those records' technology_description_detail
+    # columns get backfilled in _core_nrelatb__transform_start to match the real
+    # per-technology records for the same idx, which would otherwise make them
+    # collide with the real status values on this table's primary key. Exclude them
+    # here since they carry no meaningful status info.
+    nrelatb = _core_nrelatb__transform_start.loc[
+        _core_nrelatb__transform_start.core_metric_parameter != "round_trip_efficiency"
+    ]
+    return transform_normalize(nrelatb, Normalizer().technology_status)
 
 
 @asset_check(asset=core_nrelatb__yearly_projected_cost_performance, blocking=True)

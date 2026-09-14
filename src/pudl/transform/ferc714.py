@@ -690,7 +690,7 @@ class RespondentId:
 
 
 @asset(
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     ins={
         "raw_csv": AssetIn(key="raw_ferc714_csv__respondent_id"),
         "raw_xbrl_duration": AssetIn(
@@ -1391,7 +1391,7 @@ class YearlyPlanningAreaDemandForecast:
         ),
     },
     required_resource_keys={"pudl_paths"},
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     compute_kind="pandas",
 )
 def core_ferc714__yearly_planning_area_demand_forecast(

@@ -400,7 +400,7 @@ class InitialDataset(State):
     we can do is try to get a fresh draft.
     """
 
-    def _get_or_create_draft(self) -> "_NewRecord":
+    def _get_or_create_draft(self) -> _NewRecord:
         """Get the existing draft for this dataset's concept, creating one if needed.
 
         Uses the new API to get or create the draft; ``new_record_version`` is
@@ -411,7 +411,7 @@ class InitialDataset(State):
         latest_record = self.zenodo_client.get_record(self.record_id)
         return self.zenodo_client.new_record_version(latest_record.id_)
 
-    def get_empty_draft(self) -> "EmptyDraft":
+    def get_empty_draft(self) -> EmptyDraft:
         """Get an empty draft for this dataset.
 
         Use new API to get any draft, then use legacy API to delete any files
@@ -427,7 +427,7 @@ class InitialDataset(State):
             self.zenodo_client.delete_deposition_file(new_rec_id, f.id_)
         return EmptyDraft(record_id=new_rec_id, zenodo_client=self.zenodo_client)
 
-    def get_existing_draft(self) -> "ContentComplete":
+    def get_existing_draft(self) -> ContentComplete:
         """Get the existing draft for this dataset, without touching its files.
 
         For updating just the metadata on a draft that already has its data files in
@@ -480,7 +480,7 @@ class EmptyDraft(State):
         openable_file.fs.get(openable_file.path, tmp_path)
         return tmp_path
 
-    def sync_directory(self, source_dir: str, ignore: tuple[str]) -> "ContentComplete":
+    def sync_directory(self, source_dir: str, ignore: tuple[str]) -> ContentComplete:
         """Upload every file in ``source_dir`` to the draft bucket.
 
         The method enumerates files (not subdirectories) via ``fsspec`` so the source
@@ -555,7 +555,7 @@ class ContentComplete(State):
         version_tag: str,
         docs_html_dir: Path,
         zenodo_json_path: Path,
-    ) -> "CompleteDraft":
+    ) -> CompleteDraft:
         """Build and set fresh deposition metadata for this release.
 
         * creators & keywords: ``.zenodo.json``

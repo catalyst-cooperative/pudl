@@ -319,43 +319,4 @@ def test_get_zipfile_resource_eventual_success(mocker):
     assert test_file.read().decode(encoding="utf-8") == file_contents
 
 
-def test_get_zipfile_resources_eventual_success(mocker):
-    file_contents = "aaa"
-    zipfile_bytes = io.BytesIO()
-    with zipfile.ZipFile(zipfile_bytes, "w") as a_zipfile:
-        a_zipfile.writestr("file_name", file_contents)
-
-    ds = datastore.Datastore()
-    ds.get_resources = mocker.MagicMock(
-        return_value=iter(
-            [
-                (
-                    PudlResourceKey("test_dataset", "test_doi", "test_name_0"),
-                    zipfile_bytes,
-                ),
-                (
-                    PudlResourceKey("test_dataset", "test_doi", "test_name_1"),
-                    zipfile_bytes,
-                ),
-            ]
-        )
-    )
-    mocker.patch(
-        "zipfile.ZipFile",
-        side_effect=[
-            zipfile.BadZipFile,
-            zipfile.BadZipFile,
-            zipfile.ZipFile(zipfile_bytes),
-            zipfile.BadZipFile,
-            zipfile.BadZipFile,
-            zipfile.ZipFile(zipfile_bytes),
-        ],
-    )
-    mocker.patch("time.sleep")
-    observed_zipfiles = ds.get_zipfile_resources("test_dataset")
-    for _key, observed_zipfile in observed_zipfiles:
-        with observed_zipfile.open("file_name") as test_file:
-            assert test_file.read().decode(encoding="utf-8") == file_contents
-
-
 # TODO: add unit tests for Datasource class as well

@@ -9156,9 +9156,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "NREL's financial assumption cases. There are two cases which effect project financial "
             "assumptions: R&D Only Case and Market + Policies Case. R&D Only includes only projected "
             "R&D improvements while Market + Policy case includes policy and tax incentives. "
-            "https://atb.nrel.gov/electricity/2024/financial_cases_&_methods"
+            "https://atb.nrel.gov/electricity/2024/financial_cases_&_methods. In 2025, NREL added "
+            "three new cases: R&D + TC, Exp, and Exp + TC. TC stands for tax credit and Exp stands "
+            "for expanded cost drivers such as changing market and supply chain conditions. "
+            "The expanded cost drivers cases is presented as a limited pilot in the 2025 ATB and "
+            "is included for PV, Land-Based and Distributed Wind, and Battery technologies. "
+            "https://atb.nlr.gov/electricity/2025/financial_cases_&_methods."
         ),
-        "constraints": {"enum": ["Market", "R&D"]},
+        "constraints": {"enum": ["Market", "R&D", "R&D + TC", "Exp", "Exp + TC"]},
     },
     "model_tax_credit_case_nrelatb": {
         "type": "string",

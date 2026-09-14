@@ -50,6 +50,11 @@ jobs:
       - name: Update pinned Docker base image
         run: |
           ./devtools/update_docker_pins.sh builds/Dockerfile .devcontainer/Dockerfile >> diff.md
+      - name: Update agent skills
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+        run: |
+          pixi run ./devtools/update_skills.sh >> diff.md
       - name: Make a PR to merge updated lockfiles
         # If we are relocking dependencies on a schedule or workflow_dispatch, we need
         # to make our own PR to check whether the updated environment actually solves
@@ -58,7 +63,7 @@ jobs:
         uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ steps.generate-token.outputs.token }}
-          commit-message: Update pixi lockfile, pre-commit hooks, dbt deps, and Docker base image
+          commit-message: Update pixi lockfile, pre-commit hooks, dbt deps, Docker base image, and agent skills
           title: Update pixi lockfile for week of ${{ env.TODAY }}
           body-path: diff.md
           branch: update-lockfiles
@@ -72,3 +77,4 @@ jobs:
             dbt/package-lock.yml
             builds/Dockerfile
             .devcontainer/Dockerfile
+            skills-lock.json

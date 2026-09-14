@@ -938,7 +938,7 @@ class GlobalDataConfig(BaseSettings):
     version: str | None = None
 
     @classmethod
-    def from_yaml(cls, path: str | Path) -> "GlobalDataConfig":
+    def from_yaml(cls, path: str | Path) -> GlobalDataConfig:
         """Create validated GlobalDataConfig from a local YAML file path.
 
         Args:

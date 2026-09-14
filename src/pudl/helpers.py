@@ -2312,7 +2312,7 @@ def get_parquet_table_polars(
     return pl.scan_parquet(parquet_path)
 
 
-def _fix_residual_dtypes(df: pd.DataFrame, resource: "Resource") -> pd.DataFrame:
+def _fix_residual_dtypes(df: pd.DataFrame, resource: Resource) -> pd.DataFrame:
     """Fix the two dtype gaps ``dtype_backend="numpy_nullable"`` can't get right.
 
     Integer and datetime columns already come back from a

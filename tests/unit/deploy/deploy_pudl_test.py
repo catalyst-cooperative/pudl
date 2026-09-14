@@ -331,6 +331,71 @@ def test_clear_deployment_path_skips_nonexistent_path():
     mock_fs.rm.assert_not_called()
 
 
+def test_upload_outputs_gcs_only_skips_s3(tmp_path):
+    """With ``upload_to_s3=False`` no S3 client is created and nothing hits S3."""
+    source_dir = tmp_path / "output"
+    source_dir.mkdir()
+    (source_dir / "table1.parquet").write_text("p1")
+
+    with (
+        patch("pudl.deploy.pudl.gcsfs.GCSFileSystem") as mock_gcs_cls,
+        patch("pudl.deploy.pudl.s3fs.S3FileSystem") as mock_s3_cls,
+    ):
+        mock_gcs = MagicMock()
+        mock_gcs.exists.return_value = False
+        mock_gcs_cls.return_value = mock_gcs
+
+        upload_outputs(
+            source_dir, ["staging/nightly", "staging/eel-hole"], upload_to_s3=False
+        )
+
+        mock_s3_cls.assert_not_called()
+        assert {c.args[1] for c in mock_gcs.put.call_args_list} == {
+            "gs://pudl.catalyst.coop/staging/nightly/",
+            "gs://pudl.catalyst.coop/staging/eel-hole/",
+        }
+
+
+def test_upload_outputs_raises_when_no_target_enabled(tmp_path):
+    """Disabling both destinations is a caller error, not a silent no-op."""
+    source_dir = tmp_path / "output"
+    source_dir.mkdir()
+    (source_dir / "table1.parquet").write_text("p1")
+    with pytest.raises(ValueError, match="neither GCS nor S3"):
+        upload_outputs(source_dir, ["nightly"], upload_to_gcs=False, upload_to_s3=False)
+
+
+@pytest.mark.parametrize(
+    "git_tag,expected_gcs,expected_s3",
+    [
+        ("nightly-2026-07-05", True, True),
+        ("v2026.7.0", True, True),
+        ("branch-2026-07-05-0600-abc123456-my-branch", True, False),
+    ],
+)
+def test_deployment_plan_upload_target_defaults(git_tag, expected_gcs, expected_s3):
+    """GCS defaults on everywhere; S3 defaults on except for branch builds."""
+    environment = "staging" if git_tag.startswith("branch-") else "production"
+    plan = DeploymentPlan(git_tag=git_tag, environment=environment)
+    assert plan.upload_to_gcs is expected_gcs
+    assert plan.upload_to_s3 is expected_s3
+
+
+def test_deployment_plan_upload_target_overrides():
+    """Explicit ``deploy_to_*`` flags override the per-deploy-type defaults."""
+    plan = DeploymentPlan(
+        git_tag="branch-2026-07-05-0600-abc123456-my-branch",
+        environment="staging",
+        deploy_to_s3=True,
+    )
+    assert plan.upload_to_s3 is True
+
+    plan = DeploymentPlan(
+        git_tag="nightly-2026-07-05", environment="production", deploy_to_gcs=False
+    )
+    assert plan.upload_to_gcs is False
+
+
 def test_upload_outputs_empty_directory(tmp_path):
     """Test that uploading from empty directory raises error."""
     source_dir = tmp_path / "output"

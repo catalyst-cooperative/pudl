@@ -1348,7 +1348,7 @@ def _core_eia923__fuel_receipts_costs(
     return frc_df
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def _core_eia923__monthly_cooling_system_information(
     raw_eia923__cooling_system_information: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -1689,7 +1689,7 @@ def _clean_emissions_control_dates(
     return pd.to_datetime(out)
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def _core_eia923__yearly_fgd_operation_maintenance(
     raw_eia923__fgd_operation_maintenance: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -1843,7 +1843,7 @@ def _core_eia923__energy_storage(
     return es_df
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def _core_eia923__yearly_fuel_stocks(
     raw_eia923__stocks: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -1901,7 +1901,7 @@ def _core_eia923__yearly_fuel_stocks(
     return df.reset_index(drop=True)
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def _core_eia923__yearly_byproduct_disposition(
     raw_eia923__byproduct_disposition: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -1989,7 +1989,7 @@ def disposition_continuity_check(bpd):
     )
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def _core_eia923__yearly_byproduct_expenses_and_revenues(
     raw_eia923__byproduct_expenses_and_revenues: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -2030,7 +2030,7 @@ def _core_eia923__yearly_byproduct_expenses_and_revenues(
     return df
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def _core_eia923__yearly_emissions_control(
     raw_eia923__emissions_control: pd.DataFrame,
 ) -> pd.DataFrame:

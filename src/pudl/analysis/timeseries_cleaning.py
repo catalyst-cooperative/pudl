@@ -224,7 +224,7 @@ class FlaggedTimeseries:
         cls,
         matrix: pd.DataFrame,
         flags: pd.DataFrame | None = None,
-    ) -> "FlaggedTimeseries":
+    ) -> FlaggedTimeseries:
         """Create a timeseries object from a dataframe."""
         x = matrix.to_numpy()
         flags = np.empty(x.shape, dtype=object) if flags is None else flags.to_numpy()
@@ -244,9 +244,7 @@ class FlaggedTimeseries:
             pd.DataFrame(self.flags, columns=self.columns, index=self.index),
         )
 
-    def flag(
-        self, mask: np.ndarray, flag: ImputationReasonCodes
-    ) -> "FlaggedTimeseries":
+    def flag(self, mask: np.ndarray, flag: ImputationReasonCodes) -> FlaggedTimeseries:
         """Flag values.
 
         Flags values (if not already flagged) and nulls flagged values.

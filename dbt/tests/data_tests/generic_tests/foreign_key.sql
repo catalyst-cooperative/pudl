@@ -33,9 +33,15 @@ SELECT
     )
 FROM {{ model }} AS child_rows
 ANTI JOIN {{ pk_table_name }} AS parent_rows
+-- Always compare the key columns as text. A comparison between mismatched types
+-- (e.g. integer child key vs. string parent key) throws a conversion error, and
+-- then the test can't report anything at all. This resulted in a handful of
+-- FK checks being silently skipped historically. Whether the FK column types
+-- agree is a schema question that belongs with the PUDL metadata, not in this
+-- data test. See https://github.com/catalyst-cooperative/pudl/pull/5554
 ON
     {% for fk_column_name, pk_column_name in zip(fk_column_names, pk_column_names) %}
-    child_rows.{{ fk_column_name }} = parent_rows.{{ pk_column_name }}
+    CAST(child_rows.{{ fk_column_name }} AS VARCHAR) = CAST(parent_rows.{{ pk_column_name }} AS VARCHAR)
     {% if not loop.last %} AND {% endif %}
     {% endfor %}
 WHERE

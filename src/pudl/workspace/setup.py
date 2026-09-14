@@ -19,8 +19,12 @@ class PudlPaths(BaseSettings):
     variables. Other paths of relevance are derived from these.
     """
 
-    pudl_input: Path | str
-    pudl_output: Path | str
+    # Annotated as plain ``Path`` (not ``Path | str``) because ``normalize_paths``
+    # below runs in ``mode="before"`` and coerces whatever is passed -- string,
+    # relative path, etc. -- into an absolute ``Path`` before validation. Callers
+    # can still pass strings; downstream code always sees a ``Path``.
+    pudl_input: Path
+    pudl_output: Path
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     @field_validator("pudl_input", "pudl_output", mode="before")
@@ -63,33 +67,18 @@ class PudlPaths(BaseSettings):
             path.mkdir()
         return self
 
-    @property
-    def pudl_db(self) -> str:
-        """Returns url of locally stored pudl sqlite database."""
-        return self.sqlite_db_uri("pudl")
-
-    def sqlite_db_uri(self, name: str) -> str:
-        """Returns url of locally stored pudl sqlite database with given name.
-
-        The name is expected to be the name of the database without the .sqlite
-        suffix. E.g. pudl, ferc1 and so on.
-        """
-        # SQLite URI has 3 slashes - 2 to separate URI scheme, 1 to separate creds
-        # sqlite://{credentials}/{db_path}
-        return f"sqlite:///{self.sqlite_db_path(name)}"
-
     def parquet_path(self, table_name: str | None = None) -> Path:
         """Return path to parquet file for given database and table."""
         if table_name is None:
             return self.pudl_output / "parquet"
         return self.pudl_output / "parquet" / f"{table_name}.parquet"
 
-    def sqlite_db_path(self, name: str) -> Path:
+    def sqlite_path(self, name: str) -> Path:
         """Return path to locally stored SQLite DB file."""
         return self.pudl_output / f"{name}.sqlite"
 
-    def duckdb_db_path(self, name: str) -> Path:
-        """Return path to locally stored SQLite DB file."""
+    def duckdb_path(self, name: str) -> Path:
+        """Return path to locally stored DuckDB file."""
         return self.pudl_output / f"{name}.duckdb"
 
     def output_file(self, filename: str) -> Path:
