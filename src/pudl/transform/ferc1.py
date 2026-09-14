@@ -6488,16 +6488,11 @@ class CashFlowsTableTransformer(Ferc1AbstractTableTransformer):
     ) -> pd.DataFrame:
         """Transform the metadata to reflect the transformed data.
 
-        This table's only XBRL Instant fact (``cash_and_cash_equivalents``) has no
-        native ``_starting_balance``/``_ending_balance`` suffix in the taxonomy. Those
-        suffixes are added on the data side, by
-        :meth:`Ferc1AbstractTableTransformer.unstack_balances_to_report_year_instant_xbrl`.
-
-        We duplicate the metadata for the one instant fact here and add the same
-        suffixes, *before* the standard rename pipeline in the parent class runs, so
-        that the existing ``rename_columns_ferc1.instant_xbrl`` entries for
-        ``cash_and_cash_equivalents_starting_balance``/``_ending_balance`` actually get
-        applied.
+        Replace the name of the balance column reported in the XBRL Instant table with
+        starting_balance / ending_balance since we pull those two values into their own
+        separate labeled rows, each of which should get the original metadata for the
+        Instant column. Mirrors the process found in
+        :meth:`DepreciationChangesTableTransformer.convert_xbrl_metadata_json_to_df`
         """
         new_xbrl_metadata_json = xbrl_metadata_json
         instant = pd.json_normalize(new_xbrl_metadata_json["instant"])
