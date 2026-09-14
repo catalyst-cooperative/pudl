@@ -1501,13 +1501,12 @@ class Exploder:
     @cached_property
     def value_col(self: Self) -> str:
         """Get the value column for the exploded tables."""
-        value_cols = []
-        for table_name in self.table_names:
-            value_cols.append(
-                pudl.transform.ferc1.FERC1_TFR_CLASSES[
-                    table_name
-                ]().params.reconcile_table_calculations.column_to_check
-            )
+        value_cols = [
+            pudl.transform.ferc1.FERC1_TFR_CLASSES[
+                table_name
+            ]().params.reconcile_table_calculations.column_to_check
+            for table_name in self.table_names
+        ]
         if len(set(value_cols)) != 1:
             raise ValueError(
                 "Exploding FERC tables requires tables with only one value column. Got: "

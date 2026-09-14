@@ -330,8 +330,9 @@ class WideToTidySourceFerc1(TransformParams):
             if isinstance(wide_to_tidy, WideToTidy):
                 value_types.append(wide_to_tidy.value_types)
             elif isinstance(wide_to_tidy, list):
-                for rly_wide_to_tidy in wide_to_tidy:
-                    value_types.append(rly_wide_to_tidy.value_types)
+                value_types.extend(
+                    rly_wide_to_tidy.value_types for rly_wide_to_tidy in wide_to_tidy
+                )
         # remove None's & flatten/dedupe
         value_types = [v for v in value_types if v is not None]
         flattened_values = []

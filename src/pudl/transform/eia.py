@@ -428,11 +428,10 @@ def _compile_all_entity_records(
             # create a copy of the df to muck with
             df = transformed_df.copy()
             # we know these columns must be in the dfs
-            cols = []
             # check whether the columns are in the specific table
-            for column in static_cols + annual_cols:
-                if column in df.columns:
-                    cols.append(column)
+            cols = [
+                column for column in static_cols + annual_cols if column in df.columns
+            ]
             df = df[(base_cols + cols)]
             df = df.dropna(subset=id_cols)
             # add a column with the table name so we know its origin
