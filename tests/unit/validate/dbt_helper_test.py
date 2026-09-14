@@ -1,6 +1,6 @@
-from collections import namedtuple
 from io import StringIO
 from pathlib import Path
+from typing import Any, NamedTuple
 
 import pandas as pd
 import pytest
@@ -26,7 +26,11 @@ from pudl.scripts.dbt_helper import (
 
 # Test helper machinery
 
-GivenExpect = namedtuple("GivenExpect", ["given", "expect"])
+
+class GivenExpect(NamedTuple):
+    given: Any
+    expect: Any
+
 
 TEMPLATE = {
     "data_col": "data",
