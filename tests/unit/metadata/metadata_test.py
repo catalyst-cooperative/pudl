@@ -937,9 +937,11 @@ def test_frictionless_data_package_resources_populated(tmp_path):
         if isinstance(expected_resource["description"], str):
             strings_to_find.append(expected_resource["description"])
         else:
-            for k in METADATA_OVERRIDE_KEYS:
-                if k in expected_resource["description"]:
-                    strings_to_find.append(expected_resource["description"][k])
+            strings_to_find.extend(
+                expected_resource["description"][k]
+                for k in METADATA_OVERRIDE_KEYS
+                if k in expected_resource["description"]
+            )
         assert any(
             resource.description.find(candidate) >= 0 for candidate in strings_to_find
         )

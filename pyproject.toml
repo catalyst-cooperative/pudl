@@ -527,6 +527,7 @@ extend-select = [
     "N", # pep8-naming
     "NPY", # NumPy specific checks
     "PD", # pandas checks
+    "PERF", # Perflint: performance issues
     "PGH", # pygrep-hooks
     "PT", # flake8-pytest-style
     "PTH", # use pathlib
@@ -545,14 +546,7 @@ extend-select = [
     # "ANN", # identify missing type annotations
     # "ARG", # find unused arguments
     # "ERA", # eradicate: finds commented out code
-
-    # New rulesets that became part of Ruff's defaults as of v0.16. Enable these
-    # one at a time, address (or ignore) the resulting violations in their own
-    # commit, then move on to the next:
-
-    # More difficult to address rulesets:
     # "ISC", # flake8-implicit-str-concat
-    # "PERF", # Perflint: performance issues
     # "PL", # Pylint (Convention/Error/Refactor/Warning)
     # "PYI", # flake8-pyi: type stub conventions
     # "RUF", # Ruff-specific rules
