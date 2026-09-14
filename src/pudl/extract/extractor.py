@@ -95,7 +95,7 @@ class GenericMetadata:
         partition_name = partition_names[0]
         partition_selection = partition[partition_name]
         if isinstance(partition_selection, list | tuple):
-            raise AssertionError(
+            raise TypeError(
                 f"Expecting exactly one non-container value for this partition attribute (found: {partition})"
             )
         return str(partition_selection)
@@ -132,7 +132,11 @@ class GenericExtractor(ABC):
     METADATA: GenericMetadata = None
     """Instance of metadata object to use with this extractor."""
 
-    BLACKLISTED_PAGES = []
+    # Not moved into __init__: subclasses set this instance attribute themselves,
+    # sometimes before calling super().__init__(), so a default set here would
+    # clobber their override. Never mutated in place (only fully reassigned by
+    # subclasses), so there's no actual mutable-default sharing risk.
+    BLACKLISTED_PAGES: list[str] = []  # noqa: RUF012
     """List of supported pages that should not be extracted."""
 
     def __init__(self, ds: Datastore):

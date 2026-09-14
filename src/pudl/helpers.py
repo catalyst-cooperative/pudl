@@ -930,12 +930,12 @@ def cleanstrings_series(
         col = (
             col.astype(str).str.strip().str.lower().str.replace(r"\s+", " ", regex=True)
         )
-        for k in str_map:
-            str_map[k] = [re.sub(r"\s+", " ", s.lower().strip()) for s in str_map[k]]
+        for k, v in str_map.items():
+            str_map[k] = [re.sub(r"\s+", " ", s.lower().strip()) for s in v]
 
-    for k in str_map:
-        if str_map[k]:
-            col = col.replace(str_map[k], k)
+    for k, v in str_map.items():
+        if v:
+            col = col.replace(v, k)
 
     if unmapped is not None:
         badstrings = np.setdiff1d(col.unique(), list(str_map.keys()))
