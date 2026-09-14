@@ -8,7 +8,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "additional_summary_text": (
                 "a company's operational and ownership characteristics. "
             ),
-            "additional_source_text": "(Part 3, Lines A–D)",
+            "additional_source_text": "(Part 3, Lines A-D)",
             "additional_details_text": (
                 "The natural_gas_pump_price_dollars_per_mcf field is reported only "
                 "for 2014-2016. National-level adjustment records identified by the EIA (operating_state in FX, MX, BL, OO) are "

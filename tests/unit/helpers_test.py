@@ -903,7 +903,7 @@ plant_id_eia,energy_source_code,report_date,fuel_cost_per_mmbtu,fuel_cost_per_mm
     ).round(2)
     pd.testing.assert_frame_equal(test_rolled, out, check_exact=False)
     # reorder the input df using sample to make sure this works
-    # no matter how the input df is sorted
+    # no matter how the input df is sorted
     out_reordered = pudl.helpers.generate_rolling_avg(
         test_rolled.sample(frac=1).drop(columns=["fuel_cost_per_mmbtu_rolling"]),
         group_cols=["plant_id_eia", "energy_source_code"],
