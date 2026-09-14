@@ -168,7 +168,7 @@ def _format_for_sql(x: Any, identifier: bool = False) -> str:  # noqa: C901
     elif isinstance(x, datetime.date):
         x = x.strftime("%Y-%m-%d")
     if not isinstance(x, str):
-        raise ValueError(f"Cannot format type {type(x)} for SQL")
+        raise TypeError(f"Cannot format type {type(x)} for SQL")
     # Single quotes (') are escaped by doubling them ('')
     x = x.replace("'", "''")
     return f"'{x}'"

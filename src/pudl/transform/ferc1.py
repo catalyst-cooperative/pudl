@@ -16,7 +16,7 @@ from abc import abstractmethod
 from collections import namedtuple
 from collections.abc import Mapping
 from functools import reduce
-from typing import Annotated, Any, Literal, Self
+from typing import Annotated, Any, ClassVar, Literal, Self
 
 import numpy as np
 import pandas as pd
@@ -398,7 +398,7 @@ def wide_to_tidy(df: pd.DataFrame, params: WideToTidy) -> pd.DataFrame:
 class MergeXbrlMetadata(TransformParams):
     """Parameters for merging in XBRL metadata."""
 
-    rename_columns: dict[str, str] = {}
+    rename_columns: dict[str, str] = {}  # noqa: RUF012
     """Dictionary to rename columns in the normalized metadata before merging.
 
     This dictionary will be passed as :func:`pd.DataFrame.rename` ``columns`` parameter.
@@ -427,7 +427,7 @@ class DropDuplicateRowsDbf(TransformParams):
     table_name: TableIdFerc1 | None = None
     """Name of table used to grab primary keys of PUDL table to check for duplicates."""
 
-    data_columns: list = []
+    data_columns: list = []  # noqa: RUF012
     """List of data column names to ensure primary key duplicates have the same data."""
 
 
@@ -557,7 +557,7 @@ class SelectDbfRowsByCategory(TransformParams):
     If True, :func:`select_dbf_rows_by_category` will find the list of categories that
     exist in the passed in ``processed_xbrl`` to select by.
     """
-    additional_categories: list[str] = []
+    additional_categories: list[str] = []  # noqa: RUF012
     """List of additional categories to select by.
 
     If ``select_by_xbrl_categories`` is ``True``, these categories will be added to the
@@ -809,8 +809,8 @@ def combine_axis_columns_xbrl(
 class AssignQuarterlyDataToYearlyDbf(TransformParams):
     """Parameters for transferring quarterly reported data to annual columns."""
 
-    quarterly_to_yearly_column_map: dict[str, str] = {}
-    quarterly_filed_years: list[int] = []
+    quarterly_to_yearly_column_map: dict[str, str] = {}  # noqa: RUF012
+    quarterly_filed_years: list[int] = []  # noqa: RUF012
 
 
 def assign_quarterly_data_to_yearly_dbf(
@@ -851,7 +851,7 @@ class AddColumnWithUniformValue(TransformParams):
 class AddColumnsWithUniformValues(TransformParams):
     """Parameters for adding columns to a table with a single value."""
 
-    columns_to_add: dict[str, AddColumnWithUniformValue] = {}
+    columns_to_add: dict[str, AddColumnWithUniformValue] = {}  # noqa: RUF012
     "Dictionary of column names (keys) with :class:`AddColumnWithUniformValue` (values)"
 
     @property
@@ -951,13 +951,13 @@ class GroupMetricChecks(TransformParams):
         Literal[
             "ungrouped", "table_name", "xbrl_factoid", "utility_id_ferc1", "report_year"
         ]
-    ] = [
+    ] = [  # noqa: RUF012
         "ungrouped",
         "report_year",
         "xbrl_factoid",
         "utility_id_ferc1",
     ]
-    metrics_to_check: list[str] = [
+    metrics_to_check: list[str] = [  # noqa: RUF012
         "error_frequency",
         "relative_error_magnitude",
         "null_calculated_value_frequency",
@@ -3965,8 +3965,8 @@ class PlantInServiceTableTransformer(Ferc1AbstractTableTransformer):
                 f"\n{null_balances}"
             )
         # Apply column weightings. Can this be done all at once in a vectorized way?
-        for col in column_weights:
-            df.loc[:, col] *= column_weights[col]
+        for col, weight in column_weights.items():
+            df.loc[:, col] *= weight
             df.loc[:, col] *= df["row_weight"]
 
         return df
@@ -5552,11 +5552,11 @@ class RetainedEarningsTableTransformer(Ferc1AbstractTableTransformer):
     table_id: TableIdFerc1 = TableIdFerc1.RETAINED_EARNINGS
     has_unique_record_ids: bool = False
 
-    current_year_types: set[str] = {
+    current_year_types: ClassVar[set[str]] = {
         "unappropriated_undistributed_subsidiary_earnings",
         "unappropriated_retained_earnings",
     }
-    previous_year_types: set[str] = {
+    previous_year_types: ClassVar[set[str]] = {
         "unappropriated_undistributed_subsidiary_earnings_previous_year",
         "unappropriated_retained_earnings_previous_year",
     }
