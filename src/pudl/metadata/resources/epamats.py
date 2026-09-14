@@ -6,8 +6,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_epamats__hourly_emissions": {
         "description": {
             "additional_summary_text": (
-                "hourly emissions of mercury (Hg), hydrogen chloride (HCl), and "
-                "hydrogen fluoride (HF) from coal- and oil-fired power plants."
+                "hourly emissions of mercury (Hg) and hydrogen chloride (HCl) "
+                "from coal- and oil-fired power plants."
             ),
             "usage_warnings": ["incomplete_id_coverage"],
             "additional_details_text": """The EPA Mercury and Air Toxics Standards
@@ -22,6 +22,11 @@ Only coal- and oil-fired units above a certain capacity threshold are required
 to comply with MATS, so not all plants that report to EIA have corresponding
 MATS monitoring data. The data covers roughly 2015 onward and is reported
 hourly.
+
+MATS does not require reporting of hourly hydrogen fluoride (HF) emissions, and the
+four HF columns are entirely null throughout the raw data, so they are dropped
+from this table. Only the mercury (Hg) and hydrogen chloride (HCl) columns
+contain data.
 
 Units in the MATS data are identified by their EPA emissions unit IDs, which
 may differ from EIA generator IDs. Use the core_epa__assn_eia_epacamd
@@ -73,7 +78,4 @@ crosswalk to connect MATS emissions units to EIA plant IDs and generators.
 """EPA MATS resource attributes by PUDL identifier (``resource.name``).
 
 Keys are in alphabetical order.
-
-See :func:`pudl.metadata.helpers.build_foreign_keys` for the expected format of
-``foreign_key_rules``.
 """

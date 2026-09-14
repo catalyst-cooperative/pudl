@@ -322,7 +322,11 @@ EPAMATS_MEASUREMENT_CODES: list[str] = [
     "Startup or Shutdown",
     "Unavailable",
 ]
-"""Valid emissions measurement codes for the EPA MATS hourly data."""
+"""Valid emissions measurement codes for the EPA MATS hourly data.
+
+"Unavailable" is entered by the respondent and does not mean the same thing as a
+missing/NA value.
+"""
 
 TECH_DESCRIPTIONS: set[str] = {
     "Conventional Hydroelectric",

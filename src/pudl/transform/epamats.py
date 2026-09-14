@@ -39,13 +39,6 @@ MEASUREMENT_CODE_COLS: list[str] = [
     "hf_mass_measurement_code",
 ]
 
-MISSING_PLACEHOLDER_COLUMNS: list[str] = ["gross_load_mw"]
-"""
-Numeric columns in which EPA reports -1 as a placeholder for unknown values.
-
-Across the raw MATS data (2015-2026), -1 appears only in gross load as a placeholder.
-"""
-
 HF_COLUMNS: list[str] = [
     "hf_output_rate_lb_per_mwh",
     "hf_input_rate_lb_per_mmbtu",
@@ -85,9 +78,8 @@ def _replace_missing_placeholders(lf: pl.LazyFrame) -> pl.LazyFrame:
     """Convert EPA's -1 placeholder for missing values into null.
 
     EPA hourly emissions data reports -1 when gross load is unknown, rather
-    than leaving it blank (see ``MISSING_PLACEHOLDER_COLUMNS``). Standardize
-    these as NA like other missing data so downstream users don't have to
-    special-case them.
+    than leaving it blank. Standardize these as NA like other missing data so
+    downstream users don't have to special-case them.
 
     Args:
         lf: MATS hourly data as a Polars LazyFrame.
@@ -96,21 +88,18 @@ def _replace_missing_placeholders(lf: pl.LazyFrame) -> pl.LazyFrame:
         The same data with -1 placeholders replaced by null.
     """
     return lf.with_columns(
-        [
-            pl.when(pl.col(col_name) == -1)
-            .then(None)
-            .otherwise(pl.col(col_name))
-            .alias(col_name)
-            for col_name in MISSING_PLACEHOLDER_COLUMNS
-        ]
+        pl.when(pl.col("gross_load_mw") == -1)
+        .then(None)
+        .otherwise(pl.col("gross_load_mw"))
+        .alias("gross_load_mw")
     )
 
 
 def _validate_and_drop_hf_columns(lf: pl.LazyFrame) -> pl.LazyFrame:
     """Assert all HF columns are null, then drop them from the data.
 
-    TODO: MATS does not require reporting of hydrogen fluoride (HF) emissions,
-    so all four HF columns are entirely null in the raw data. Rather than
+    MATS does not require reporting of hourly hydrogen fluoride (HF) emissions,
+    and currently all four HF columns are entirely null in the raw data. Rather than
     carrying them through the core table, we assert that they're empty and then
     drop them. If EPA ever starts reporting HF emissions, this assertion will
     fail loudly and we can decide whether to keep the columns.
