@@ -33,6 +33,11 @@ Performance Improvements
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^
 
+* Upgraded to Pyrefly 1.3.0 and adopted its new concise baseline format. Fixed a handful
+  of genuine typing gaps that the upgrade surfaced. Mostly this involved type narrowing
+  in places where an object that might be ``None`` was subject to a regex match, dict
+  lookup, or other operation that would fail on ``None``. See PR :pr:`5583`.
+
 .. _release-v2026.9.0:
 
 ---------------------------------------------------------------------------------------

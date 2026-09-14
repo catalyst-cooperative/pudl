@@ -187,22 +187,21 @@ Use to find Python type errors before committing. `pyrefly` uses its own error c
 
 For suppression syntax, see **Type error suppression** in the Code Style section.
 
-**Baseline policy**: PUDL is not yet enforcing full type-checking — pre-existing
-errors are recorded in `.pyrefly-baseline.json` and suppressed by
-`pixi run pyrefly-check`. You are not required to fix pre-existing errors in files
-you touch, but:
+**Baseline policy**: PUDL is not yet enforcing full type-checking — pre-existing errors
+are recorded in `.pyrefly-baseline.json` and suppressed by `pixi run pyrefly-check`.
 
-- Never introduce a *new* pyrefly error. Run `pixi run pyrefly-check` (or
-  `pixi run -e dev pyrefly check <file>` for a quick look at one file) before
-  committing, and confirm your change doesn't add anything beyond what's already
-  baselined.
-- Never edit or regenerate `.pyrefly-baseline.json` to absorb a new error — that
-  defeats its purpose as a ratchet against regressions. The only legitimate reason
-  to regenerate it (`pyrefly check --baseline .pyrefly-baseline.json
-  --update-baseline`) is to shrink it after fixing pre-existing errors, and only
-  with explicit user approval.
-- If pyrefly flags pre-existing errors in code you're already touching, feel free
-  to fix them opportunistically, but do not treat it as required scope creep.
+- Never introduce a *new* pyrefly error. Run `pixi run pyrefly-check` (or `pixi run -e
+  dev pyrefly check <file>` for a quick look at one file) before committing.
+- Never edit or regenerate `.pyrefly-baseline.json` to absorb a new error — that defeats
+  its purpose as a ratchet against regressions. The only legitimate reason to regenerate
+  it (`pyrefly check --baseline .pyrefly-baseline.json --update-baseline`) is to shrink
+  it after fixing pre-existing errors, and only with explicit user approval.
+- If pyrefly flags pre-existing errors in code you're already editing, fix them
+  opportunistically.
+- The baseline is updated weekly. The process is: fix newly introduced errors that have
+  accumulated since the last baseline update, run `pixi run pyrefly-prune-baseline`
+  followed by `pixi run pyrefly-update-baseline`, then `pixi run pyrefly-diff-baseline`
+  to verify that the only changes are errors that have been fixed.
 
 ### jq
 
@@ -372,9 +371,9 @@ rather than skipping.
 **Type error suppression**: suppress `pyrefly` errors with
 `# type: ignore[specific-code]`, using pyrefly's own error codes (e.g.
 `missing-argument`, `unresolved-attribute` — see the `pyrefly` entry in Preferred
-CLI tools). Only fall back to a bare `# type: ignore` if pyrefly gives no error
-code to target; a bare ignore also requires `# noqa: PGH003` to silence ruff's
-rule against untargeted ignores:
+CLI tools). Only fall back to a bare `# type: ignore` if pyrefly gives no error code to
+target; a bare ignore also requires `# noqa: PGH003` to silence ruff's rule against
+untargeted ignores:
 
 ```python
 result = some_dynamic_call()  # type: ignore  # noqa: PGH003

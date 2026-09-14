@@ -2458,7 +2458,13 @@ class XbrlCalculationForestFerc1(BaseModel):
         )
         for table, color in color_map.items():
             nodes = [node for node in graph.nodes if node.table_name == table]
-            nx.draw_networkx_nodes(nodes, pos, node_color=color, label=table)
+            nx.draw_networkx_nodes(
+                G=graph,
+                pos=pos,
+                nodelist=nodes,
+                node_color=color,
+                label=table,
+            )
         nx.draw_networkx_edges(graph, pos)
         # The labels are currently unwieldy
         # nx.draw_networkx_labels(nx_forest, pos)
