@@ -2289,8 +2289,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         if self.params.convert_units:  # noqa: SIM102
             # TODO: use from_unit -> to_unit map. but none of the $$ tables have this rn.
             if self.params.merge_xbrl_metadata.on:
-                # Exception is defined but never raised?
-                # No table currently exercises this path.
                 raise NotImplementedError(
                     "We haven't implemented a xbrl_factoid rename for the parameter "
                     "convert_units. Since you are trying to merge the metadata on this "
