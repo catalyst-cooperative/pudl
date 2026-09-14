@@ -600,9 +600,17 @@ filterwarnings = [
     "ignore:Specifying a partitions_def on an AssetCheckSpec is currently in preview",
     "ignore:No path_separator found in configuration:DeprecationWarning:alembic",
     "ignore:Extension type 'geoarrow.wkb' is not registered:UserWarning",
-    "ignore:invalid escape sequence:SyntaxWarning:stringcase",
-    "ignore:invalid escape sequence:SyntaxWarning:parsedatetime",
+    "ignore:.*invalid escape sequence:SyntaxWarning:stringcase",
+    "ignore:.*invalid escape sequence:SyntaxWarning:parsedatetime",
     "ignore:grpcio < 1.83.0 does not support Post-Quantum Cryptography:FutureWarning",
+    # pandas itself ignores this in its own test suite (see test_reductions.py) when
+    # None and NaN are both legitimate representations of missing data in a test's
+    # expected output; not something to "fix" by rewriting fixtures.
+    "ignore:Mismatched null-like values:FutureWarning",
+    # `sum_numeric_values_when_strings_match` needs the grouping columns inside the
+    # applied function (to detect NA-valued keys under dropna=False), so it can't
+    # opt into `include_groups=False` without a nontrivial rewrite.
+    "ignore:DataFrameGroupBy.apply operated on the grouping columns:FutureWarning:pudl.transform.eia861",
 ]
 
 # must not end with `--cov` since that will treat the first argument you pass

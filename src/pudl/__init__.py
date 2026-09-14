@@ -3,6 +3,7 @@
 import warnings
 from pathlib import Path
 
+import pandas as pd
 from dagster import PreviewWarning
 from upath import UPath
 
@@ -18,6 +19,12 @@ warnings.filterwarnings(
     message=r"grpcio < 1\.83\.0 does not support Post-Quantum Cryptography.*",
     category=FutureWarning,
 )
+
+# Everywhere we rely on fillna()'s implicit dtype downcasting we already follow it
+# with an explicit astype()/infer_objects() call, so opting into the future behavior
+# now doesn't change any results — it just stops pandas from silently downcasting
+# (and warning about it) in the interim.
+pd.set_option("future.no_silent_downcasting", True)
 
 configure_root_logger()
 
