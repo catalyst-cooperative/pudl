@@ -430,11 +430,14 @@ Module Contents
 
 
    .. py:attribute:: _match
+      :type:  re.Match[str] | None
       :value: None
 
 
 
    .. py:property:: match
+      :type: re.Match[str]
+
 
       Return the regex match for the resource name.
 

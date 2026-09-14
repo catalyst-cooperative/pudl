@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.classes &#8212; PUDL 2026.9.1.dev5 documentation</title>
+    <title>pudl.transform.classes &#8212; PUDL 2026.9.1.dev7 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../_static/documentation_options.js?v=ce26a6dd"></script>
+    <script src="../../../_static/documentation_options.js?v=47d74850"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev5 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev5 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev7 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev7 documentation - Home"/>
   
   
 </a></div>
@@ -1935,8 +1935,8 @@ window.runMermaid = runMermaid;</script>
     <span class="n">pre_drop_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">required_valid_cols</span> <span class="ow">or</span> <span class="n">params</span><span class="o">.</span><span class="n">allowed_invalid_cols</span><span class="p">:</span>
         <span class="c1"># check if the columns enumerated are actually in the df</span>
-        <span class="n">possible_cols</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">params</span><span class="o">.</span><span class="n">required_valid_cols</span> <span class="ow">or</span> <span class="p">[]</span> <span class="o">+</span> <span class="n">params</span><span class="o">.</span><span class="n">allowed_invalid_cols</span> <span class="ow">or</span> <span class="p">[]</span>
+        <span class="n">possible_cols</span> <span class="o">=</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">required_valid_cols</span> <span class="ow">or</span> <span class="p">[])</span> <span class="o">+</span> <span class="p">(</span>
+            <span class="n">params</span><span class="o">.</span><span class="n">allowed_invalid_cols</span> <span class="ow">or</span> <span class="p">[]</span>
         <span class="p">)</span>
         <span class="n">missing_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">possible_cols</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">missing_cols</span> <span class="ow">and</span> <span class="n">params</span><span class="o">.</span><span class="n">allowed_invalid_cols</span><span class="p">:</span>
@@ -1950,9 +1950,13 @@ window.runMermaid = runMermaid;</script>
                 <span class="sa">f</span><span class="s2">"dataframe: </span><span class="si">{</span><span class="n">missing_cols</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
         <span class="c1"># set filter items using either required_valid_cols or allowed_invalid_cols</span>
-        <span class="n">items</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">required_valid_cols</span> <span class="ow">or</span> <span class="p">[</span>
-            <span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">allowed_invalid_cols</span>
-        <span class="p">]</span>
+        <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">required_valid_cols</span><span class="p">:</span>
+            <span class="n">items</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">required_valid_cols</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">params</span><span class="o">.</span><span class="n">allowed_invalid_cols</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
+                <span class="s2">"allowed_invalid_cols must be set when required_valid_cols is not."</span>
+            <span class="p">)</span>
+            <span class="n">items</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">allowed_invalid_cols</span><span class="p">]</span>
 
     <span class="c1"># Filter to select the subset of COLUMNS we want to check for valid values:</span>
     <span class="n">cols_to_check</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
@@ -2558,7 +2562,7 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="nf">correct_units</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
-        <span class="n">params</span><span class="p">:</span> <span class="n">UnitCorrections</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">params</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">UnitCorrections</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Apply all specified unit corrections to the table in order.</span>
 

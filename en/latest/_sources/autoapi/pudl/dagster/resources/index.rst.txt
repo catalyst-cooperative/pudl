@@ -165,11 +165,11 @@ Module Contents
 
 
    .. py:attribute:: zenodo_dois
-      :type:  dagster.ResourceDependency[ZenodoDoiSettingsResource]
+      :type:  dagster.ResourceDependency[pudl.workspace.datastore.ZenodoDoiSettings]
 
 
    .. py:attribute:: pudl_paths
-      :type:  dagster.ResourceDependency[PudlPathsResource]
+      :type:  dagster.ResourceDependency[pudl.workspace.setup.PudlPaths]
 
 
    .. py:attribute:: cloud_cache_path

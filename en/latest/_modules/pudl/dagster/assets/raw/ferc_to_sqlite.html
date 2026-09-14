@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.dagster.assets.raw.ferc_to_sqlite &#8212; PUDL 2026.9.1.dev5 documentation</title>
+    <title>pudl.dagster.assets.raw.ferc_to_sqlite &#8212; PUDL 2026.9.1.dev7 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../../../_static/documentation_options.js?v=ce26a6dd"></script>
+    <script src="../../../../../_static/documentation_options.js?v=47d74850"></script>
     <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev5 documentation - Home"/>
-    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev5 documentation - Home"/>
+    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev7 documentation - Home"/>
+    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev7 documentation - Home"/>
   
   
 </a></div>
@@ -997,6 +997,11 @@ window.runMermaid = runMermaid;</script>
         <span class="bp">self</span><span class="o">.</span><span class="n">local_datapackage_path</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">missing_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span> <span class="o">==</span> <span class="s2">"xbrl"</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">local_duckdb_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">local_taxonomy_json_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">local_parquet_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="p">),</span> <span class="s2">"XBRL-specific paths must be set when data_format is xbrl."</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">local_duckdb_path</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">missing_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">local_taxonomy_json_path</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">missing_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
@@ -1055,6 +1060,12 @@ window.runMermaid = runMermaid;</script>
         <span class="n">nightly_path</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">nightly_sqlite_path</span>
         <span class="n">local_path</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">local_sqlite_path</span><span class="o">.</span><span class="n">parent</span>
     <span class="k">else</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">paths</span><span class="o">.</span><span class="n">nightly_parquet_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
+            <span class="s2">"nightly_parquet_path must be set when output_format is parquet."</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="n">paths</span><span class="o">.</span><span class="n">local_parquet_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
+            <span class="s2">"local_parquet_path must be set when output_format is parquet."</span>
+        <span class="p">)</span>
         <span class="n">nightly_path</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">nightly_parquet_path</span>
         <span class="n">local_path</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">local_parquet_path</span>
 
@@ -1091,6 +1102,13 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># DBF only produces sqlite and datapackage, so return</span>
     <span class="k">if</span> <span class="n">data_format</span> <span class="o">==</span> <span class="s2">"dbf"</span><span class="p">:</span>
         <span class="k">return</span>
+
+    <span class="k">assert</span> <span class="p">(</span>
+        <span class="n">paths</span><span class="o">.</span><span class="n">local_taxonomy_json_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="ow">and</span> <span class="n">paths</span><span class="o">.</span><span class="n">nightly_taxonomy_json_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="ow">and</span> <span class="n">paths</span><span class="o">.</span><span class="n">local_duckdb_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="ow">and</span> <span class="n">paths</span><span class="o">.</span><span class="n">nightly_duckdb_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="p">),</span> <span class="s2">"XBRL-specific paths must be set when data_format is xbrl."</span>
 
     <span class="c1"># Download taxonomy JSON</span>
     <span class="n">paths</span><span class="o">.</span><span class="n">local_taxonomy_json_path</span><span class="o">.</span><span class="n">write_bytes</span><span class="p">(</span>

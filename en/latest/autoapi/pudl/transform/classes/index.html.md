@@ -919,7 +919,7 @@ Method wrapper for nullifying outlying values.
 
 Method wrapper for columnwise unit conversions.
 
-#### correct_units(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), params: [UnitCorrections](#pudl.transform.classes.UnitCorrections) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### correct_units(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), params: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[UnitCorrections](#pudl.transform.classes.UnitCorrections)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Apply all specified unit corrections to the table in order.
 

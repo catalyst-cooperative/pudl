@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.dagster.io_managers &#8212; PUDL 2026.9.1.dev5 documentation</title>
+    <title>pudl.dagster.io_managers &#8212; PUDL 2026.9.1.dev7 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../_static/documentation_options.js?v=ce26a6dd"></script>
+    <script src="../../../_static/documentation_options.js?v=47d74850"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev5 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev5 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev7 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev7 documentation - Home"/>
   
   
 </a></div>
@@ -886,7 +886,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">ClassVar</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">ClassVar</span><span class="p">,</span> <span class="n">Literal</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dg</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span>
@@ -905,15 +905,15 @@ window.runMermaid = runMermaid;</script>
     <span class="n">get_xbrl_extractor_version</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.dagster.resources</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">GlobalDataConfigResource</span><span class="p">,</span>
-    <span class="n">PudlPathsResource</span><span class="p">,</span>
-    <span class="n">ZenodoDoiSettingsResource</span><span class="p">,</span>
     <span class="n">global_data_config_resource</span><span class="p">,</span>
     <span class="n">pudl_paths_resource</span><span class="p">,</span>
     <span class="n">zenodo_doi_settings_resource</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_parquet_table</span><span class="p">,</span> <span class="n">get_parquet_table_polars</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Resource</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">GlobalDataConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.workspace.datastore</span><span class="w"> </span><span class="kn">import</span> <span class="n">ZenodoDoiSettings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.workspace.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">PudlPaths</span>
 
 <div class="viewcode-block" id="logger">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.logger">[docs]</a>
@@ -962,7 +962,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="PudlParquetIOManager.pudl_paths">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.PudlParquetIOManager.pudl_paths">[docs]</a>
-    <span class="n">pudl_paths</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">ResourceDependency</span><span class="p">[</span><span class="n">PudlPathsResource</span><span class="p">]</span></div>
+    <span class="n">pudl_paths</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">ResourceDependency</span><span class="p">[</span><span class="n">PudlPaths</span><span class="p">]</span></div>
 
 
     <span class="nd">@staticmethod</span>
@@ -1072,15 +1072,15 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="FercSqliteIOManagerBase.global_data_config">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase.global_data_config">[docs]</a>
-    <span class="n">global_data_config</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">ResourceDependency</span><span class="p">[</span><span class="n">GlobalDataConfigResource</span><span class="p">]</span></div>
+    <span class="n">global_data_config</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">ResourceDependency</span><span class="p">[</span><span class="n">GlobalDataConfig</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="FercSqliteIOManagerBase.pudl_paths">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase.pudl_paths">[docs]</a>
-    <span class="n">pudl_paths</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">ResourceDependency</span><span class="p">[</span><span class="n">PudlPathsResource</span><span class="p">]</span></div>
+    <span class="n">pudl_paths</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">ResourceDependency</span><span class="p">[</span><span class="n">PudlPaths</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="FercSqliteIOManagerBase.zenodo_dois">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase.zenodo_dois">[docs]</a>
-    <span class="n">zenodo_dois</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">ResourceDependency</span><span class="p">[</span><span class="n">ZenodoDoiSettingsResource</span><span class="p">]</span></div>
+    <span class="n">zenodo_dois</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">ResourceDependency</span><span class="p">[</span><span class="n">ZenodoDoiSettings</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="FercSqliteIOManagerBase.dataset">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase.dataset">[docs]</a>
@@ -1088,7 +1088,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="FercSqliteIOManagerBase.data_format">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase.data_format">[docs]</a>
-    <span class="n">data_format</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></div>
+    <span class="n">data_format</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">"dbf"</span><span class="p">,</span> <span class="s2">"xbrl"</span><span class="p">]]</span></div>
 
 
 <div class="viewcode-block" id="FercSqliteIOManagerBase._engine">
@@ -1129,7 +1129,10 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="nf">engine</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sa</span><span class="o">.</span><span class="n">Engine</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return a cached SQLAlchemy engine for this FERC SQLite database."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">create_engine</span><span class="p">(</span><span class="sa">f</span><span class="s2">"sqlite:///</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">db_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="c1"># Pydantic explicitly permits mutating PrivateAttr fields on frozen</span>
+            <span class="c1"># models; pyrefly doesn't yet model that exception.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">create_engine</span><span class="p">(</span><span class="sa">f</span><span class="s2">"sqlite:///</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">db_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>  <span class="c1"># type: ignore[read-only]</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span></div>
 
 
@@ -1151,8 +1154,11 @@ window.runMermaid = runMermaid;</script>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">metadata</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">MetaData</span><span class="p">()</span>
             <span class="n">metadata</span><span class="o">.</span><span class="n">reflect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="n">metadata</span>
+            <span class="c1"># Pydantic explicitly permits mutating PrivateAttr fields on frozen</span>
+            <span class="c1"># models; pyrefly doesn't yet model that exception.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="n">metadata</span>  <span class="c1"># type: ignore[read-only]</span>
 
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span></div>
 
 
@@ -1181,6 +1187,9 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        """</span>
         <span class="n">zenodo_doi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zenodo_dois</span><span class="o">.</span><span class="n">get_doi</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">)</span>
 
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_data_config</span><span class="o">.</span><span class="n">ferc_to_sqlite</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
+            <span class="s2">"ferc_to_sqlite config must be set to read a FERC SQLite database."</span>
+        <span class="p">)</span>
         <span class="n">provenance</span> <span class="o">=</span> <span class="n">FercSqliteProvenance</span><span class="p">(</span>
             <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span>
             <span class="n">data_format</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_format</span><span class="p">,</span>
@@ -1254,7 +1263,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="FercDbfSqliteIOManager.data_format">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercDbfSqliteIOManager.data_format">[docs]</a>
-    <span class="n">data_format</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"dbf"</span></div>
+    <span class="n">data_format</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">"dbf"</span><span class="p">,</span> <span class="s2">"xbrl"</span><span class="p">]]</span> <span class="o">=</span> <span class="s2">"dbf"</span></div>
 
 
 <div class="viewcode-block" id="FercDbfSqliteIOManager._query">
@@ -1286,7 +1295,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="FercXbrlSqliteIOManager.data_format">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercXbrlSqliteIOManager.data_format">[docs]</a>
-    <span class="n">data_format</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"xbrl"</span></div>
+    <span class="n">data_format</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">"dbf"</span><span class="p">,</span> <span class="s2">"xbrl"</span><span class="p">]]</span> <span class="o">=</span> <span class="s2">"xbrl"</span></div>
 
 
     <span class="nd">@staticmethod</span>

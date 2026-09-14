@@ -110,9 +110,9 @@ Bases: [`dagster.ConfigurableResource`](https://docs.dagster.io/api/dagster/reso
 
 Dagster resource to interact with Zenodo archives.
 
-#### zenodo_dois *: dagster.ResourceDependency[[ZenodoDoiSettingsResource](#pudl.dagster.resources.ZenodoDoiSettingsResource)]*
+#### zenodo_dois *: dagster.ResourceDependency[[pudl.workspace.datastore.ZenodoDoiSettings](../../workspace/datastore/index.html.md#pudl.workspace.datastore.ZenodoDoiSettings)]*
 
-#### pudl_paths *: dagster.ResourceDependency[[PudlPathsResource](#pudl.dagster.resources.PudlPathsResource)]*
+#### pudl_paths *: dagster.ResourceDependency[[pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths)]*
 
 #### cloud_cache_path *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 's3://pudl.catalyst.coop/zenodo'*
 

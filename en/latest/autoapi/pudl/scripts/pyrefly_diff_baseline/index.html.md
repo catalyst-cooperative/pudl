@@ -1,12 +1,6 @@
 # pudl.scripts.pyrefly_diff_baseline
 
-Diff the pyrefly baseline against a git ref by content, not by line number.
-
-Raw JSON diffs of `.pyrefly-baseline.json` are dominated by line/column churn from
-ordinary code changes and pyrefly version bumps – a single `--update-baseline` run
-can touch hundreds of lines without any error actually appearing or disappearing. This
-diffs baseline entries by `(file, error code, description)` instead, so the output
-only shows errors that were genuinely fixed or newly introduced.
+Diff the pyrefly baseline against a git ref by content, not by raw JSON text.
 
 ## Functions
 
@@ -24,8 +18,12 @@ Load baseline error entries from a git ref, or the working tree if `ref` is None
 
 Diff a pyrefly baseline against a git ref by (file, code, description).
 
-Run this after `pyrefly check --baseline .pyrefly-baseline.json --update-baseline`
-to sanity-check the regenerated baseline before committing it: the “fixed” list
-should match what you intentionally fixed, and the “newly baselined” list should
-only contain pre-existing issues you’re deliberately deferring – not something
-your own change introduced.
+Run this after `pixi run pyrefly-prune-baseline` and `pixi run
+pyrefly-update-baseline` to sanity-check the regenerated baseline before committing
+it: the “fixed” list should match what you intentionally fixed, and the “newly
+baselined” list should only contain pre-existing issues you’re deliberately
+deferring – not something your own change introduced.
+
+A pyrefly version bump can also surface “newly baselined” entries that are purely
+description-text reformatting of an existing error rather than a real new one; check
+the file and error code before assuming it’s a regression.

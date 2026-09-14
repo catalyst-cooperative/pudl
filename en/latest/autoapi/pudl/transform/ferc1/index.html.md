@@ -515,7 +515,7 @@ Bases: [`pudl.transform.classes.TransformParams`](../classes/index.html.md#pudl.
 
 Parameters for [`combine_axis_columns_xbrl()`](#pudl.transform.ferc1.combine_axis_columns_xbrl).
 
-#### axis_columns_to_combine *: [list](https://docs.python.org/3/builtins/stdtypes.html#list) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
+#### axis_columns_to_combine *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
 List of axis columns to combine.
 

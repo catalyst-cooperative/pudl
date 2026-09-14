@@ -314,9 +314,9 @@ Resource name (aka table name).
 
 #### resource_name_pattern *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= '^(?P<layer>)_(?P<source>)_\_(?P<timeseries_resolution>|)(?:_|)(?P<table_type>|)(?:_|)(?:_|)(?P<slug>.\*)$'*
 
-#### \_match *= None*
+#### \_match *: [re.Match](https://docs.python.org/3/library/re.html#re.Match)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### *property* match
+#### *property* match *: [re.Match](https://docs.python.org/3/library/re.html#re.Match)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
 Return the regex match for the resource name.
 

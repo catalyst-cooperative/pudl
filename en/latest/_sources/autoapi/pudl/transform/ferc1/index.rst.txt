@@ -718,7 +718,7 @@ Module Contents
 
 
    .. py:attribute:: axis_columns_to_combine
-      :type:  list | None
+      :type:  list[str] | None
       :value: None
 
 
