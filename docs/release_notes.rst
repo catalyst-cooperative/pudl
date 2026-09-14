@@ -53,6 +53,11 @@ Bug Fixes & Data Cleaning
   own small logfile to the build outputs bucket. This created newer object path with the
   same commit confusing ``deploy-pudl`` causing deployment to fail. See :issue:`5579`
   and :pr:`5580`.
+* Fixed a broken metadata override in ``CashFlowsTableTransformer`` that left the
+  ``starting_balance``/``ending_balance`` rows for ``cash_and_cash_equivalents`` in
+  :ref:`core_ferc1__yearly_cash_flows_sched120` without ``row_type_xbrl``,
+  ``is_within_table_calc``, ``balance``, or ``ferc_account`` metadata. See
+  :issue:`5587` and :pr:`5588`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
