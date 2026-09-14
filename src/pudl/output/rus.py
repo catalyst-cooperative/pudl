@@ -51,7 +51,7 @@ out_rus7_assets = [
     out_rus_asset_factory(
         core_table_name=core_table_name,
         borrower_table_name="core_rus7__entity_borrowers",
-        io_manager_key="pudl_io_manager",
+        io_manager_key="parquet_io_manager",
     )
     for core_table_name in HARVESTED_CORE_TABLES_RUS7
 ]
@@ -60,7 +60,7 @@ out_rus12_assets = [
     out_rus_asset_factory(
         core_table_name=core_table_name,
         borrower_table_name="core_rus12__entity_borrowers",
-        io_manager_key="pudl_io_manager",
+        io_manager_key="parquet_io_manager",
     )
     for core_table_name in HARVESTED_CORE_TABLES_RUS12
 ]

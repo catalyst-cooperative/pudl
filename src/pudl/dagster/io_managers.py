@@ -410,9 +410,4 @@ default_io_managers: dict[str, Any] = {
     "ferc1_xbrl_sqlite_io_manager": ferc1_xbrl_sqlite_io_manager,
     "ferc714_xbrl_sqlite_io_manager": ferc714_xbrl_sqlite_io_manager,
     "parquet_io_manager": parquet_io_manager,
-    # PUDL assets historically wrote to both SQLite and Parquet via the
-    # "pudl_io_manager" key. The ETL now writes only Parquet, so this key is
-    # kept as an alias for the plain Parquet IO manager to avoid churning the
-    # io_manager_key on every asset.
-    "pudl_io_manager": parquet_io_manager,
 }
