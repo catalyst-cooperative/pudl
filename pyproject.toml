@@ -209,8 +209,26 @@ marimo = ">=0.23"
 cmd = "pyrefly check --baseline .pyrefly-baseline.json"
 description = "Type-check with pyrefly against the tracked baseline"
 
+# pyrefly's minimal baseline format doesn't deduplicate identical entries
+# (path, name, concise_description). Deduplicate it with jq ourselves.
 [tool.pixi.feature.dev.tasks.pyrefly-update-baseline]
-cmd = "pyrefly check --baseline .pyrefly-baseline.json --update-baseline"
+cmd = """
+bash -c '
+    pyrefly check --baseline .pyrefly-baseline.json --update-baseline
+    status=$?
+    jq ".errors |= unique" .pyrefly-baseline.json > .pyrefly-baseline.json.tmp \
+        && mv .pyrefly-baseline.json.tmp .pyrefly-baseline.json
+    exit "$status"
+'
+"""
+description = "Regenerate and deduplicate .pyrefly-baseline.json, absorbing any existing errors."
+
+[tool.pixi.feature.dev.tasks.pyrefly-prune-baseline]
+cmd = "pyrefly check --baseline .pyrefly-baseline.json --prune-baseline"
+description = """
+Drop stale baseline entries (errors that no longer occur) without recording new \
+ones. Run before pyrefly-update-baseline as part of the weekly baseline refresh.
+"""
 
 [tool.pixi.feature.dev.tasks.pyrefly-diff-baseline]
 cmd = "pyrefly_diff_baseline"
@@ -740,6 +758,8 @@ project-excludes = ["devtools/**", "notebooks/**", "docs/_build/**"]
 python-version = "3.14"
 python-platform = "linux"
 python-interpreter-path = ".pixi/envs/dev/bin/python3"
+baseline-matching-mode = "concise-description"
+baseline-format = "minimal"
 
 # pandas/polars dataframe methods have enormous overload sets that vary with pyrefly and
 # pandas-stubs versions, routinely flagging correct, idiomatic dataframe code (e.g.
