@@ -668,14 +668,15 @@ class Field(PudlMeta):
 
     @field_validator("constraints")
     @classmethod
-    def _check_constraints(cls, value, info: ValidationInfo):  # noqa: C901
+    def _check_constraints(cls, value, info: ValidationInfo):
         if "type" not in info.data:
             return value
         dtype = info.data["type"]
-        errors = []
-        for key in ("min_length", "max_length", "pattern"):
-            if getattr(value, key) is not None and dtype != "string":
-                errors.append(f"{key} not supported by {dtype} field")
+        errors = [
+            f"{key} not supported by {dtype} field"
+            for key in ("min_length", "max_length", "pattern")
+            if getattr(value, key) is not None and dtype != "string"
+        ]
         for key in ("minimum", "maximum"):
             x = getattr(value, key)
             if x is not None:
@@ -684,9 +685,11 @@ class Field(PudlMeta):
                 elif not isinstance(x, CONSTRAINT_DTYPES[dtype]):
                     errors.append(f"{key} not {dtype}")
         if value.enum:
-            for x in value.enum:
-                if not isinstance(x, CONSTRAINT_DTYPES[dtype]):
-                    errors.append(f"enum value {x} not {dtype}")
+            errors.extend(
+                f"enum value {x} not {dtype}"
+                for x in value.enum
+                if not isinstance(x, CONSTRAINT_DTYPES[dtype])
+            )
         if errors:
             raise ValueError(format_errors(*errors, pydantic=True))
         return value
@@ -2029,8 +2032,7 @@ class Resource(PudlMeta):
         if self.schema.primary_key:
             constraints.append(sa.PrimaryKeyConstraint(*self.schema.primary_key))
         if include_foreign_keys:
-            for key in self.schema.foreign_keys:
-                constraints.append(key.to_sql())
+            constraints.extend(key.to_sql() for key in self.schema.foreign_keys)
         return sa.Table(
             self.name, metadata, *columns, *constraints, comment=self.description
         )
@@ -3100,10 +3102,9 @@ class CodeMetadata(PudlMeta):
             code_ids: A list of Code PUDL identifiers, keys to entries in the
                 CODE_METADATA dictionary.
         """
-        encoder_list = []
-        for name in code_ids:
-            if name in CODE_METADATA:
-                encoder_list.append(Encoder.from_code_id(name))
+        encoder_list = [
+            Encoder.from_code_id(name) for name in code_ids if name in CODE_METADATA
+        ]
         return cls(encoder_list=encoder_list)
 
     def to_rst(

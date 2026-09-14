@@ -691,12 +691,9 @@ class UnitCorrections(TransformParams):
         This constraint is imposed so that the same unit conversion definitions can be
         re-used both for unit corrections and normal columnwise unit conversions.
         """
-        new_conversions = []
-        for uc in params:
-            new_conversions.append(
-                UnitConversion(multiplier=uc.multiplier, adder=uc.adder)
-            )
-        return new_conversions
+        return [
+            UnitConversion(multiplier=uc.multiplier, adder=uc.adder) for uc in params
+        ]
 
     @model_validator(mode="after")
     def distinct_domains(self: Self):
