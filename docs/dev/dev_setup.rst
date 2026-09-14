@@ -359,12 +359,13 @@ records existing type errors, and ``pixi run pyrefly-check`` only fails on error
 already in the baseline*. This makes it possible to catch newly introduced type errors
 without requiring the whole codebase to be error-free first.
 
-Regenerate it after fixing pre-existing errors, or after a pyrefly version bump:
+Update the baseline after fixing pre-existing errors, or after a pyrefly version bump,
+by running the following commands:
 
 .. code-block:: console
 
     $ pixi run pyrefly-prune-baseline    # drop stale entries, for a clean diff
-    $ pixi run pyrefly-update-baseline   # record current errors (also dedupes)
+    $ pixi run pyrefly-update-baseline   # record and deduplicate present errors
     $ pixi run pyrefly-diff-baseline     # sanity-check the result before committing
 
 ``pyrefly-diff-baseline`` compares by ``(file, error code, description)`` so version
