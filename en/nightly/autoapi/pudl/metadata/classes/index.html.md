@@ -4,19 +4,19 @@ Metadata data classes.
 
 ## Attributes
 
-| [`logger`](#pudl.metadata.classes.logger)           |                                                                                                                       |
-|-------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|
-| [`String`](#pudl.metadata.classes.String)           | Non-empty [`str`](https://docs.python.org/3/library/stdtypes.html#str) with no trailing or leading whitespace.        |
-| [`SnakeCase`](#pudl.metadata.classes.SnakeCase)        | Snake-case variable name [`str`](https://docs.python.org/3/library/stdtypes.html#str) (e.g. 'pudl', 'entity_eia860'). |
-| [`PositiveInt`](#pudl.metadata.classes.PositiveInt)      | Positive [`int`](https://docs.python.org/3/library/functions.html#int).                                               |
-| [`PositiveFloat`](#pudl.metadata.classes.PositiveFloat)    | Positive [`float`](https://docs.python.org/3/library/functions.html#float).                                           |
-| [`T`](#pudl.metadata.classes.T)                |                                                                                                                       |
-| [`StrictList`](#pudl.metadata.classes.StrictList)       | Non-empty [`list`](https://docs.python.org/3/library/stdtypes.html#list).                                             |
-| [`FieldNamespace`](#pudl.metadata.classes.FieldNamespace)   | Canonical field namespace identifiers used by PUDL resources.                                                         |
-| [`FIELD_NAMESPACES`](#pudl.metadata.classes.FIELD_NAMESPACES) | All valid PUDL field namespace identifiers.                                                                           |
-| [`EtlGroup`](#pudl.metadata.classes.EtlGroup)         | Canonical ETL group identifiers used by PUDL resources.                                                               |
-| [`ETL_GROUPS`](#pudl.metadata.classes.ETL_GROUPS)       | All valid PUDL ETL group identifiers.                                                                                 |
-| [`PUDL_PACKAGE`](#pudl.metadata.classes.PUDL_PACKAGE)     | Define a global PUDL package object for use across the entire codebase.                                               |
+| [`logger`](#pudl.metadata.classes.logger)           |                                                                                                                        |
+|-------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|
+| [`String`](#pudl.metadata.classes.String)           | Non-empty [`str`](https://docs.python.org/3/builtins/stdtypes.html#str) with no trailing or leading whitespace.        |
+| [`SnakeCase`](#pudl.metadata.classes.SnakeCase)        | Snake-case variable name [`str`](https://docs.python.org/3/builtins/stdtypes.html#str) (e.g. 'pudl', 'entity_eia860'). |
+| [`PositiveInt`](#pudl.metadata.classes.PositiveInt)      | Positive [`int`](https://docs.python.org/3/builtins/functions.html#int).                                               |
+| [`PositiveFloat`](#pudl.metadata.classes.PositiveFloat)    | Positive [`float`](https://docs.python.org/3/builtins/functions.html#float).                                           |
+| [`T`](#pudl.metadata.classes.T)                |                                                                                                                        |
+| [`StrictList`](#pudl.metadata.classes.StrictList)       | Non-empty [`list`](https://docs.python.org/3/builtins/stdtypes.html#list).                                             |
+| [`FieldNamespace`](#pudl.metadata.classes.FieldNamespace)   | Canonical field namespace identifiers used by PUDL resources.                                                          |
+| [`FIELD_NAMESPACES`](#pudl.metadata.classes.FIELD_NAMESPACES) | All valid PUDL field namespace identifiers.                                                                            |
+| [`EtlGroup`](#pudl.metadata.classes.EtlGroup)         | Canonical ETL group identifiers used by PUDL resources.                                                                |
+| [`ETL_GROUPS`](#pudl.metadata.classes.ETL_GROUPS)       | All valid PUDL ETL group identifiers.                                                                                  |
+| [`PUDL_PACKAGE`](#pudl.metadata.classes.PUDL_PACKAGE)     | Define a global PUDL package object for use across the entire codebase.                                                |
 
 ## Classes
 
@@ -51,7 +51,7 @@ Metadata data classes.
 
 ### pudl.metadata.classes.logger
 
-### pudl.metadata.classes.\_unique(\*args: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)) → [list](https://docs.python.org/3/library/stdtypes.html#list)
+### pudl.metadata.classes.\_unique(\*args: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)
 
 Return a list of all unique values, in order of first appearance.
 
@@ -67,7 +67,7 @@ Return a list of all unique values, in order of first appearance.
 [{'x': 0, 'y': 1}, {'z': 2}]
 ```
 
-### pudl.metadata.classes.\_format_for_sql(x: Any, identifier: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+### pudl.metadata.classes.\_format_for_sql(x: Any, identifier: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Format value for use in raw SQL(ite).
 
@@ -101,38 +101,38 @@ Format value for use in raw SQL(ite).
 "'2020-01-02 03:04:05'"
 ```
 
-### pudl.metadata.classes.\_get_jinja_environment(template_dir: pydantic.DirectoryPath | [None](https://docs.python.org/3/library/constants.html#None) = None)
+### pudl.metadata.classes.\_get_jinja_environment(template_dir: pydantic.DirectoryPath | [None](https://docs.python.org/3/builtins/constants.html#None) = None)
 
 ### pudl.metadata.classes.String
 
-Non-empty [`str`](https://docs.python.org/3/library/stdtypes.html#str) with no trailing or leading whitespace.
+Non-empty [`str`](https://docs.python.org/3/builtins/stdtypes.html#str) with no trailing or leading whitespace.
 
 ### pudl.metadata.classes.SnakeCase
 
-Snake-case variable name [`str`](https://docs.python.org/3/library/stdtypes.html#str) (e.g. ‘pudl’, ‘entity_eia860’).
+Snake-case variable name [`str`](https://docs.python.org/3/builtins/stdtypes.html#str) (e.g. ‘pudl’, ‘entity_eia860’).
 
 ### pudl.metadata.classes.PositiveInt
 
-Positive [`int`](https://docs.python.org/3/library/functions.html#int).
+Positive [`int`](https://docs.python.org/3/builtins/functions.html#int).
 
 ### pudl.metadata.classes.PositiveFloat
 
-Positive [`float`](https://docs.python.org/3/library/functions.html#float).
+Positive [`float`](https://docs.python.org/3/builtins/functions.html#float).
 
 ### pudl.metadata.classes.T
 
 ### pudl.metadata.classes.StrictList
 
-Non-empty [`list`](https://docs.python.org/3/library/stdtypes.html#list).
+Non-empty [`list`](https://docs.python.org/3/builtins/stdtypes.html#list).
 
-Allows [`list`](https://docs.python.org/3/library/stdtypes.html#list), [`tuple`](https://docs.python.org/3/library/stdtypes.html#tuple), [`set`](https://docs.python.org/3/library/stdtypes.html#set), [`frozenset`](https://docs.python.org/3/library/stdtypes.html#frozenset),
-[`collections.deque`](https://docs.python.org/3/library/collections.html#collections.deque), or generators and casts to a [`list`](https://docs.python.org/3/library/stdtypes.html#list).
+Allows [`list`](https://docs.python.org/3/builtins/stdtypes.html#list), [`tuple`](https://docs.python.org/3/builtins/stdtypes.html#tuple), [`set`](https://docs.python.org/3/builtins/stdtypes.html#set), [`frozenset`](https://docs.python.org/3/builtins/stdtypes.html#frozenset),
+[`collections.deque`](https://docs.python.org/3/library/collections.html#collections.deque), or generators and casts to a [`list`](https://docs.python.org/3/builtins/stdtypes.html#list).
 
 ### pudl.metadata.classes.FieldNamespace
 
 Canonical field namespace identifiers used by PUDL resources.
 
-### pudl.metadata.classes.FIELD_NAMESPACES *: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[FieldNamespace](#pudl.metadata.classes.FieldNamespace), ...]*
+### pudl.metadata.classes.FIELD_NAMESPACES *: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[FieldNamespace](#pudl.metadata.classes.FieldNamespace), ...]*
 
 All valid PUDL field namespace identifiers.
 
@@ -140,15 +140,15 @@ All valid PUDL field namespace identifiers.
 
 Canonical ETL group identifiers used by PUDL resources.
 
-### pudl.metadata.classes.ETL_GROUPS *: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[EtlGroup](#pudl.metadata.classes.EtlGroup), ...]*
+### pudl.metadata.classes.ETL_GROUPS *: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[EtlGroup](#pudl.metadata.classes.EtlGroup), ...]*
 
 All valid PUDL ETL group identifiers.
 
-### pudl.metadata.classes.\_check_unique(value: [list](https://docs.python.org/3/library/stdtypes.html#list) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [list](https://docs.python.org/3/library/stdtypes.html#list) | [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.metadata.classes.\_check_unique(value: [list](https://docs.python.org/3/builtins/stdtypes.html#list) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [list](https://docs.python.org/3/builtins/stdtypes.html#list) | [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Check that input list has unique values.
 
-### pudl.metadata.classes.\_sort_deterministically(value: [list](https://docs.python.org/3/library/stdtypes.html#list) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [list](https://docs.python.org/3/library/stdtypes.html#list) | [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.metadata.classes.\_sort_deterministically(value: [list](https://docs.python.org/3/builtins/stdtypes.html#list) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [list](https://docs.python.org/3/builtins/stdtypes.html#list) | [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Sort an enum constraint’s values into a deterministic order.
 
@@ -174,19 +174,19 @@ See [https://specs.frictionlessdata.io/table-schema/#constraints](https://specs.
 
 #### unique *: pydantic.StrictBool* *= False*
 
-#### min_length *: [PositiveInt](#pudl.metadata.classes.PositiveInt) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### min_length *: [PositiveInt](#pudl.metadata.classes.PositiveInt) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### max_length *: [PositiveInt](#pudl.metadata.classes.PositiveInt) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### max_length *: [PositiveInt](#pudl.metadata.classes.PositiveInt) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### minimum *: pydantic.StrictInt | pydantic.StrictFloat | [datetime.date](https://docs.python.org/3/library/datetime.html#datetime.date) | [datetime.datetime](https://docs.python.org/3/library/datetime.html#datetime.datetime) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### minimum *: pydantic.StrictInt | pydantic.StrictFloat | [datetime.date](https://docs.python.org/3/library/datetime.html#datetime.date) | [datetime.datetime](https://docs.python.org/3/library/datetime.html#datetime.datetime) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### maximum *: pydantic.StrictInt | pydantic.StrictFloat | [datetime.date](https://docs.python.org/3/library/datetime.html#datetime.date) | [datetime.datetime](https://docs.python.org/3/library/datetime.html#datetime.datetime) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### maximum *: pydantic.StrictInt | pydantic.StrictFloat | [datetime.date](https://docs.python.org/3/library/datetime.html#datetime.date) | [datetime.datetime](https://docs.python.org/3/library/datetime.html#datetime.datetime) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### pattern *: [re.Pattern](https://docs.python.org/3/library/re.html#re.Pattern) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### pattern *: [re.Pattern](https://docs.python.org/3/library/re.html#re.Pattern) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### enum *: Annotated[[StrictList](#pudl.metadata.classes.StrictList)[[String](#pudl.metadata.classes.String)], AfterValidator([\_check_unique](#pudl.metadata.classes.Schema._check_unique)), AfterValidator(\_sort_deterministically)] | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### enum *: Annotated[[StrictList](#pudl.metadata.classes.StrictList)[[String](#pudl.metadata.classes.String)], AfterValidator([\_check_unique](#pudl.metadata.classes.Schema._check_unique)), AfterValidator(\_sort_deterministically)] | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### requires_content_validation() → [bool](https://docs.python.org/3/library/functions.html#bool)
+#### requires_content_validation() → [bool](https://docs.python.org/3/builtins/functions.html#bool)
 
 Whether checking these constraints requires reading actual field values.
 
@@ -199,7 +199,7 @@ automatically instead of being silently skipped.
 
 #### *classmethod* \_check_max(value, info: [pydantic.ValidationInfo](https://pydantic.dev/docs/validation/latest/api/pydantic-core/pydantic_core_schema/#pydantic_core.core_schema.ValidationInfo))
 
-#### to_pandera_checks(use_pandas_backend: [bool](https://docs.python.org/3/library/functions.html#bool)) → [list](https://docs.python.org/3/library/stdtypes.html#list)[pandera.polars.Check]
+#### to_pandera_checks(use_pandas_backend: [bool](https://docs.python.org/3/builtins/functions.html#bool)) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[pandera.polars.Check]
 
 Convert these constraints to pandera Column checks.
 
@@ -264,14 +264,14 @@ also appear in this dataframe, which will be loaded into the PUDL DB as a static
 table. The `code` column is a natural primary key and must contain no duplicate
 values.
 
-#### ignored_codes *: [list](https://docs.python.org/3/library/stdtypes.html#list)[pydantic.StrictInt | [str](https://docs.python.org/3/library/stdtypes.html#str)]* *= []*
+#### ignored_codes *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[pydantic.StrictInt | [str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= []*
 
 A list of non-standard codes which appear in the data, and will be set to NA.
 
 These codes may be the result of data entry errors, and we are unable to map them to
 the appropriate canonical code. They are discarded from the raw input data.
 
-#### code_fixes *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[pydantic.StrictInt | [String](#pudl.metadata.classes.String), pydantic.StrictInt | [String](#pudl.metadata.classes.String)]*
+#### code_fixes *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[pydantic.StrictInt | [String](#pudl.metadata.classes.String), pydantic.StrictInt | [String](#pudl.metadata.classes.String)]*
 
 A dictionary mapping non-standard codes to canonical, standardized codes.
 
@@ -279,7 +279,7 @@ The intended meanings of some non-standard codes are clear, and therefore they c
 be mapped to the standardized, canonical codes with confidence. Sometimes these are
 the result of data entry errors or changes in the standard codes over time.
 
-#### name *: [String](#pudl.metadata.classes.String) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### name *: [String](#pudl.metadata.classes.String) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
 The name of the code.
 
@@ -307,23 +307,23 @@ Check that there’s no overlap between the ignored and fixable codes.
 
 Check that every fixed code is also one of the good codes.
 
-#### *property* code_map *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str) | pandas._libs.missing.NAType]*
+#### *property* code_map *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str) | pandas._libs.missing.NAType]*
 
 A mapping of all known codes to their standardized values, or NA.
 
-#### encode(col: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), dtype: [type](#pudl.metadata.classes.Field.type) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
+#### encode(col: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), dtype: [type](#pudl.metadata.classes.Field.type) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
 
 Apply the stored code mapping to an input Series.
 
-#### *static* dict_from_id(x: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)
+#### *static* dict_from_id(x: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)
 
 Look up the encoder by coding table name in the metadata.
 
-#### *classmethod* from_id(x: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [Encoder](#pudl.metadata.classes.Encoder)
+#### *classmethod* from_id(x: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [Encoder](#pudl.metadata.classes.Encoder)
 
 Construct an Encoder based on `Resource.name` of a coding table.
 
-#### *classmethod* from_code_id(x: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [Encoder](#pudl.metadata.classes.Encoder)
+#### *classmethod* from_code_id(x: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [Encoder](#pudl.metadata.classes.Encoder)
 
 Construct an Encoder by looking up name of coding table in codes metadata.
 
@@ -333,7 +333,7 @@ Output dataframe to a csv for use in jinja template.
 
 Then output to an RST file.
 
-#### generate_encodable_data(size: [int](https://docs.python.org/3/library/functions.html#int) = 10) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
+#### generate_encodable_data(size: [int](https://docs.python.org/3/builtins/functions.html#int) = 10) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
 
 Produce a series of data which can be encoded by this encoder.
 
@@ -364,29 +364,29 @@ Column('x', Enum('x', 'y'), CheckConstraint(...), table=None, comment='X')
 
 #### type *: Literal['string', 'number', 'integer', 'boolean', 'date', 'datetime', 'year', 'geometry']*
 
-#### title *: [String](#pudl.metadata.classes.String) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### title *: [String](#pudl.metadata.classes.String) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
 #### format_ *: Literal['default']* *= None*
 
 #### description *: [String](#pudl.metadata.classes.String)*
 
-#### unit *: [String](#pudl.metadata.classes.String) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### unit *: [String](#pudl.metadata.classes.String) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
 #### constraints *: [FieldConstraints](#pudl.metadata.classes.FieldConstraints)*
 
 #### harvest *: [FieldHarvest](#pudl.metadata.classes.FieldHarvest)*
 
-#### encoder *: [Encoder](#pudl.metadata.classes.Encoder) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### encoder *: [Encoder](#pudl.metadata.classes.Encoder) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
 #### *classmethod* \_check_constraints(value, info: [pydantic.ValidationInfo](https://pydantic.dev/docs/validation/latest/api/pydantic-core/pydantic_core_schema/#pydantic_core.core_schema.ValidationInfo))
 
 #### *classmethod* \_check_encoder(value, info: [pydantic.ValidationInfo](https://pydantic.dev/docs/validation/latest/api/pydantic-core/pydantic_core_schema/#pydantic_core.core_schema.ValidationInfo))
 
-#### *static* dict_from_id(x: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)
+#### *static* dict_from_id(x: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)
 
 Construct dictionary from PUDL identifier (Field.name).
 
-#### *classmethod* from_id(x: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [Field](#pudl.metadata.classes.Field)
+#### *classmethod* from_id(x: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [Field](#pudl.metadata.classes.Field)
 
 Construct from PUDL identifier (Field.name).
 
@@ -405,7 +405,7 @@ metadata, which permanently pins the physical dtype: any later attempt to scan
 that file with a different schema or even slightly different `Enum` fails
 instead of being coerced. `Categorical` round-trips through Parquet fine.
 
-#### to_pandas_dtype() → [str](https://docs.python.org/3/library/stdtypes.html#str) | [pandas.CategoricalDtype](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.CategoricalDtype.html#pandas.CategoricalDtype)
+#### to_pandas_dtype() → [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [pandas.CategoricalDtype](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.CategoricalDtype.html#pandas.CategoricalDtype)
 
 Return Pandas data type.
 
@@ -421,15 +421,15 @@ Return PyArrow data type.
 
 Return a PyArrow Field appropriate to the field.
 
-#### to_sql(dialect: Literal['sqlite', 'duckdb'] = 'sqlite', check_types: [bool](https://docs.python.org/3/library/functions.html#bool) = True, check_values: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → sqlalchemy.Column
+#### to_sql(dialect: Literal['sqlite', 'duckdb'] = 'sqlite', check_types: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True, check_values: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True) → sqlalchemy.Column
 
 Return equivalent SQL column for the given dialect.
 
-#### \_to_sql_sqlite(check_types: [bool](https://docs.python.org/3/library/functions.html#bool) = True, check_values: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → sqlalchemy.Column
+#### \_to_sql_sqlite(check_types: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True, check_values: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True) → sqlalchemy.Column
 
 Return equivalent SQL column for the SQLite dialect.
 
-#### \_to_sql_duckdb(check_values: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → sqlalchemy.Column
+#### \_to_sql_duckdb(check_values: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True) → sqlalchemy.Column
 
 Return equivalent SQL column for the DuckDB dialect.
 
@@ -439,7 +439,7 @@ structurally can’t hold a string value. The `TYPEOF`/`DATETIME`/`GLOB`
 checks built for SQLite exist specifically to compensate for SQLite’s
 dynamic typing, and have no analog under DuckDB’s native column types.
 
-#### encode(col: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), dtype: [type](#pudl.metadata.classes.Field.type) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
+#### encode(col: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), dtype: [type](#pudl.metadata.classes.Field.type) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
 
 Recode the Field if it has an associated encoder.
 
@@ -452,7 +452,7 @@ Builds a typed frictionless Field via `Field.from_descriptor()` so that the
 PUDL’s `geometry` type has no frictionless equivalent and falls back to
 `"string"` with a custom `"geometry_format": "wkt"` annotation.
 
-#### to_pandera_column(use_pandas_backend: [bool](https://docs.python.org/3/library/functions.html#bool)) → pandera.polars.Column | pandera.pandas.Column
+#### to_pandera_column(use_pandas_backend: [bool](https://docs.python.org/3/builtins/functions.html#bool)) → pandera.polars.Column | pandera.pandas.Column
 
 Encode this field def as a Pandera column.
 
@@ -482,7 +482,7 @@ See [https://specs.frictionlessdata.io/table-schema/#foreign-keys](https://specs
 
 #### *classmethod* \_check_fields_equal_length(value, info: [pydantic.ValidationInfo](https://pydantic.dev/docs/validation/latest/api/pydantic-core/pydantic_core_schema/#pydantic_core.core_schema.ValidationInfo))
 
-#### is_simple() → [bool](https://docs.python.org/3/library/functions.html#bool)
+#### is_simple() → [bool](https://docs.python.org/3/builtins/functions.html#bool)
 
 Indicate whether the FK relationship contains a single column.
 
@@ -490,7 +490,7 @@ Indicate whether the FK relationship contains a single column.
 
 Return equivalent SQL Foreign Key.
 
-#### to_frictionless() → [dict](https://docs.python.org/3/library/stdtypes.html#dict)
+#### to_frictionless() → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)
 
 Convert to a frictionless foreign key descriptor dict.
 
@@ -504,13 +504,13 @@ See [https://specs.frictionlessdata.io/table-schema](https://specs.frictionlessd
 
 #### fields *: [StrictList](#pudl.metadata.classes.StrictList)[[Field](#pudl.metadata.classes.Field)]*
 
-#### missing_values *: [list](https://docs.python.org/3/library/stdtypes.html#list)[pydantic.StrictStr]* *= ['']*
+#### missing_values *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[pydantic.StrictStr]* *= ['']*
 
-#### primary_key *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[SnakeCase](#pudl.metadata.classes.SnakeCase)]* *= []*
+#### primary_key *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[SnakeCase](#pudl.metadata.classes.SnakeCase)]* *= []*
 
-#### foreign_keys *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[ForeignKey](#pudl.metadata.classes.ForeignKey)]* *= []*
+#### foreign_keys *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[ForeignKey](#pudl.metadata.classes.ForeignKey)]* *= []*
 
-#### pk_check_chunk_field *: [SnakeCase](#pudl.metadata.classes.SnakeCase) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### pk_check_chunk_field *: [SnakeCase](#pudl.metadata.classes.SnakeCase) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
 Primary-key column to chunk primary-key uniqueness checks by, if any.
 
@@ -519,7 +519,7 @@ chunked by exact distinct value. See `Resource._chunk_filters`.
 
 #### \_check_unique
 
-#### *classmethod* \_check_field_names_unique(fields: [list](https://docs.python.org/3/library/stdtypes.html#list)[[Field](#pudl.metadata.classes.Field)])
+#### *classmethod* \_check_field_names_unique(fields: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[Field](#pudl.metadata.classes.Field)])
 
 #### *classmethod* \_check_pk_check_chunk_field_in_primary_key(pk_check_chunk_field, info: [pydantic.ValidationInfo](https://pydantic.dev/docs/validation/latest/api/pydantic-core/pydantic_core_schema/#pydantic_core.core_schema.ValidationInfo))
 
@@ -551,11 +551,11 @@ See [https://specs.frictionlessdata.io/data-package/#licenses](https://specs.fri
 
 #### path *: [pydantic.AnyHttpUrl](https://pydantic.dev/docs/validation/latest/api/pydantic/networks/#pydantic.networks.AnyHttpUrl)*
 
-#### *static* dict_from_id(x: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)
+#### *static* dict_from_id(x: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)
 
 Construct dictionary from PUDL identifier.
 
-#### *classmethod* from_id(x: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [License](#pudl.metadata.classes.License)
+#### *classmethod* from_id(x: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [License](#pudl.metadata.classes.License)
 
 Construct from PUDL identifier.
 
@@ -569,25 +569,25 @@ See [https://specs.frictionlessdata.io/data-package/#contributors](https://specs
 
 #### title *: [String](#pudl.metadata.classes.String)*
 
-#### path *: [pydantic.AnyHttpUrl](https://pydantic.dev/docs/validation/latest/api/pydantic/networks/#pydantic.networks.AnyHttpUrl) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### path *: [pydantic.AnyHttpUrl](https://pydantic.dev/docs/validation/latest/api/pydantic/networks/#pydantic.networks.AnyHttpUrl) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### email *: pydantic.EmailStr | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### email *: pydantic.EmailStr | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### roles *: [list](https://docs.python.org/3/library/stdtypes.html#list)[Literal['author', 'contributor', 'maintainer', 'publisher', 'wrangler']]* *= ['contributor']*
+#### roles *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[Literal['author', 'contributor', 'maintainer', 'publisher', 'wrangler']]* *= ['contributor']*
 
 #### zenodo_role *: Literal['contact person', 'data collector', 'data curator', 'data manager', 'distributor', 'editor', 'hosting institution', 'other', 'producer', 'project leader', 'project member', 'registration agency', 'registration authority', 'related person', 'researcher', 'rights holder', 'sponsor', 'supervisor', 'work package leader']* *= 'project member'*
 
-#### organization *: [String](#pudl.metadata.classes.String) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### organization *: [String](#pudl.metadata.classes.String) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### orcid *: [String](#pudl.metadata.classes.String) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### orcid *: [String](#pudl.metadata.classes.String) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### name *: [String](#pudl.metadata.classes.String) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### name *: [String](#pudl.metadata.classes.String) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### *static* dict_from_id(x: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)
+#### *static* dict_from_id(x: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)
 
 Construct dictionary from PUDL identifier.
 
-#### *classmethod* from_id(x: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [Contributor](#pudl.metadata.classes.Contributor)
+#### *classmethod* from_id(x: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [Contributor](#pudl.metadata.classes.Contributor)
 
 Construct from PUDL identifier.
 
@@ -620,45 +620,45 @@ See [https://specs.frictionlessdata.io/data-package/#sources](https://specs.fric
 
 #### description *: [String](#pudl.metadata.classes.String)*
 
-#### keywords *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= []*
+#### keywords *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= []*
 
 #### path *: [pydantic.AnyHttpUrl](https://pydantic.dev/docs/validation/latest/api/pydantic/networks/#pydantic.networks.AnyHttpUrl)*
 
-#### contributors *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[Contributor](#pudl.metadata.classes.Contributor)]* *= None*
+#### contributors *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[Contributor](#pudl.metadata.classes.Contributor)]* *= None*
 
 #### license_raw *: [License](#pudl.metadata.classes.License)*
 
 #### license_pudl *: [License](#pudl.metadata.classes.License)*
 
-#### concept_doi *: [pudl.workspace.datastore.ZenodoDoi](../../workspace/datastore/index.html.md#pudl.workspace.datastore.ZenodoDoi) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### concept_doi *: [pudl.workspace.datastore.ZenodoDoi](../../workspace/datastore/index.html.md#pudl.workspace.datastore.ZenodoDoi) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### working_partitions *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[SnakeCase](#pudl.metadata.classes.SnakeCase), Any]*
+#### working_partitions *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[SnakeCase](#pudl.metadata.classes.SnakeCase), Any]*
 
-#### source_file_dict *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[SnakeCase](#pudl.metadata.classes.SnakeCase), Any]*
+#### source_file_dict *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[SnakeCase](#pudl.metadata.classes.SnakeCase), Any]*
 
-#### email *: pydantic.EmailStr | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### email *: pydantic.EmailStr | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### get_resource_ids() → [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]
+#### get_resource_ids() → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]
 
 Compile list of resource IDs associated with this data source.
 
-#### get_temporal_partitions() → [list](https://docs.python.org/3/library/stdtypes.html#list)
+#### get_temporal_partitions() → [list](https://docs.python.org/3/builtins/stdtypes.html#list)
 
 Return a list of temporal partitions encoding the time span covered by the data source.
 
-#### get_temporal_coverage(partitions: [dict](https://docs.python.org/3/library/stdtypes.html#dict) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+#### get_temporal_coverage(partitions: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Return a string describing the time span covered by the data source.
 
-#### add_datastore_metadata(datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [None](https://docs.python.org/3/library/constants.html#None)
+#### add_datastore_metadata(datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Get source file metadata from the datastore.
 
-#### to_rst(docs_dir: pydantic.DirectoryPath, source_resources: [list](https://docs.python.org/3/library/stdtypes.html#list)[[Resource](#pudl.metadata.classes.Resource)], extra_resources: [list](https://docs.python.org/3/library/stdtypes.html#list)[[Resource](#pudl.metadata.classes.Resource)], output_path: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [None](https://docs.python.org/3/library/constants.html#None)
+#### to_rst(docs_dir: pydantic.DirectoryPath, source_resources: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[Resource](#pudl.metadata.classes.Resource)], extra_resources: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[Resource](#pudl.metadata.classes.Resource)], output_path: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Output a representation of the data source in RST for documentation.
 
-#### to_frictionless() → [dict](https://docs.python.org/3/library/stdtypes.html#dict)
+#### to_frictionless() → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)
 
 Serialize to a frictionless data source descriptor.
 
@@ -668,11 +668,11 @@ standard source fields.  PUDL-specific fields (`name`,
 `license_pudl`, `contributors`) are included as extensions and
 are preserved by the frictionless library.
 
-#### *static* dict_from_id(x: [str](https://docs.python.org/3/library/stdtypes.html#str), sources: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)
+#### *static* dict_from_id(x: [str](https://docs.python.org/3/builtins/stdtypes.html#str), sources: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)
 
 Look up the source by source name in the metadata.
 
-#### *classmethod* from_id(x: [str](https://docs.python.org/3/library/stdtypes.html#str), sources: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any] = SOURCES) → [DataSource](#pudl.metadata.classes.DataSource)
+#### *classmethod* from_id(x: [str](https://docs.python.org/3/builtins/stdtypes.html#str), sources: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any] = SOURCES) → [DataSource](#pudl.metadata.classes.DataSource)
 
 Construct Source by source name in the metadata.
 
@@ -724,17 +724,17 @@ Bases: [`PudlMeta`](#pudl.metadata.classes.PudlMeta)
 
 Container to describe what foreign key rules look like.
 
-#### field_id_lists *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]]* *= None*
+#### field_id_lists *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]]* *= None*
 
-#### exclude_ids *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= None*
+#### exclude_ids *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= None*
 
-#### field_ids *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= None*
+#### field_ids *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= None*
 
-#### primary_key_ids *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= None*
+#### primary_key_ids *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= None*
 
 #### foreign_key_rules *: [PudlResourceDescriptor.PudlSchemaDescriptor.PudlForeignKeyRules](#pudl.metadata.classes.PudlResourceDescriptor.PudlSchemaDescriptor.PudlForeignKeyRules)*
 
-#### pk_check_chunk_field *: [SnakeCase](#pudl.metadata.classes.SnakeCase) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### pk_check_chunk_field *: [SnakeCase](#pudl.metadata.classes.SnakeCase) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
 #### *class* PudlCodeMetadata(/, \*\*data: Any)
 
@@ -750,17 +750,17 @@ The DataFrame we use to represent code/label/description associations.
 
 #### code *: pandera.pandas.typing.Series[Any]*
 
-#### label *: pandera.pandas.typing.Series[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [None](https://docs.python.org/3/library/constants.html#None)*
+#### label *: pandera.pandas.typing.Series[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [None](https://docs.python.org/3/builtins/constants.html#None)*
 
-#### description *: pandera.pandas.typing.Series[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+#### description *: pandera.pandas.typing.Series[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
-#### operational_status *: pandera.pandas.typing.Series[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [None](https://docs.python.org/3/library/constants.html#None)*
+#### operational_status *: pandera.pandas.typing.Series[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [None](https://docs.python.org/3/builtins/constants.html#None)*
 
 #### df *: pandera.pandas.typing.DataFrame[[PudlResourceDescriptor.PudlCodeMetadata.CodeDataFrame](#pudl.metadata.classes.PudlResourceDescriptor.PudlCodeMetadata.CodeDataFrame)]*
 
-#### code_fixes *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)*
+#### code_fixes *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)*
 
-#### ignored_codes *: [list](https://docs.python.org/3/library/stdtypes.html#list)* *= []*
+#### ignored_codes *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)* *= []*
 
 #### model_config
 
@@ -781,14 +781,14 @@ unset.  You must specify [`PudlResourceDescriptor.description`](#pudl.metadata.c
 dictionary, but you do not have to put anything in it so long as the resource id
 follows the standard pattern.
 
-#### table_type_code *: Literal['assn', 'codes', 'entity', 'scd', 'timeseries', 'forensics'] | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### table_type_code *: Literal['assn', 'codes', 'entity', 'scd', 'timeseries', 'forensics'] | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
 Indicates the type of asset stored in this resource.
 
 If None or otherwise left unset, will be filled in with a default type parsed
 from the resource id string.
 
-#### timeseries_resolution_code *: Literal['quarterly', 'yearly', 'monthly', 'hourly'] | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### timeseries_resolution_code *: Literal['quarterly', 'yearly', 'monthly', 'hourly'] | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
 If this resource has
 [`table_type_code`](#pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.table_type_code)
@@ -797,13 +797,13 @@ timeseries, indicates the temporal resolution, otherwise None.  If
 timeseries and this value is None or otherwise left unset, will be filled in
 with a default resolution parsed from the resource id string.
 
-#### layer_code *: Literal['raw', '_core', 'core', 'out', 'out_narrow', 'test'] | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### layer_code *: Literal['raw', '_core', 'core', 'out', 'out_narrow', 'test'] | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
 Indicates the degree of processing applied to the data in this resource.  If
 None or otherwise left unset, will be filled in with a default layer parsed from
 the resource id string.
 
-#### source_code *: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### source_code *: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
 Indicates the source we wish to display for this resource; distinct from
 [`PudlResourceDescriptor.source_ids`](#pudl.metadata.classes.PudlResourceDescriptor.source_ids) because here we want the majority
@@ -814,7 +814,7 @@ used for this resource.  If set, should be a known data source shortcode like
 left unset, will be filled in with a default source parsed from the resource id
 string.
 
-#### usage_warnings *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str) | [dict](https://docs.python.org/3/library/stdtypes.html#dict)] | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### usage_warnings *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str) | [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)] | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
 List of string keys (for common warnings; see [`warnings`](https://docs.python.org/3/library/warnings.html#module-warnings)) and dicts (for
 custom warnings) stating necessary precautions for using this resource.
@@ -853,7 +853,7 @@ warnings.
 If None or otherwise left unset, will be filled in with auto warnings only. If
 no auto warnings apply, hides the Usage Warnings section entirely.
 
-#### availability_offset *: [int](https://docs.python.org/3/library/functions.html#int)* *= 0*
+#### availability_offset *: [int](https://docs.python.org/3/builtins/functions.html#int)* *= 0*
 
 Partition offset of most recent data available from that claimed by the data
 source.
@@ -866,7 +866,7 @@ monthly output tables receive data from the new year as soon as it is
 added to the source, the annual output tables aren’t updated until the
 following year.
 
-#### availability_text *: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### availability_text *: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
 Most recent data available. If None or otherwise left unset, will be
 filled in with the most recent partition listed in the row counts file
@@ -878,7 +878,7 @@ partitions.
 Generally only set when a discontinued table does not use temporal partitioning
 in the row counts file, but we still know when its freshest data was from.
 
-#### additional_summary_text *: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### additional_summary_text *: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
 A brief (~one-line) description of the contents of this resource.
 If None or otherwise left unset, will be left blank.
@@ -897,14 +897,14 @@ appropriate for this resource:
   value should be a complete sentence summarizing the contents of this resource
   at a similar level of detail.
 
-#### additional_layer_text *: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### additional_layer_text *: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
 Unusual details about this resource’s level of processing that don’t fall
 into the normal definition of raw/core/_core/out/etc.  If None or otherwise left
 unset, will be left blank.  This should only be set in truly obscure situations.
 If set, should be a complete sentence.
 
-#### additional_source_text *: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### additional_source_text *: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
 A brief refinement on the source data for this table, such as indicating the
 Schedule or other section number.  If None or otherwise left unset, will be left
@@ -912,7 +912,7 @@ blank.  If set, should make sense when displayed directly after the title of a
 datasource (see `source_descriptions`);
 parentheticals work best here.
 
-#### additional_primary_key_text *: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### additional_primary_key_text *: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
 For resources with no primary key, a brief summary of what each row contains,
 and perhaps why a primary key doesn’t make sense for this table.  If None or
@@ -924,7 +924,7 @@ primary key is available,
 [`additional_primary_key_text`](#pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.additional_primary_key_text)
 will appear after the comma-delimited list of primary key columns.
 
-#### additional_details_text *: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### additional_details_text *: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
 All other information about this resource’s construction and intended use,
 including guidelines and recommendations for best results.  If None or otherwise
@@ -936,25 +936,25 @@ the Additional Details section of the preview.
 
 May also include more-detailed explanations of listed usage warnings.
 
-#### title *: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### title *: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### description *: [PudlResourceDescriptor.PudlDescriptionComponents](#pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents) | [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### description *: [PudlResourceDescriptor.PudlDescriptionComponents](#pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents) | [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
 #### schema_ *: [PudlResourceDescriptor.PudlSchemaDescriptor](#pudl.metadata.classes.PudlResourceDescriptor.PudlSchemaDescriptor)* *= None*
 
-#### encoder *: [PudlResourceDescriptor.PudlCodeMetadata](#pudl.metadata.classes.PudlResourceDescriptor.PudlCodeMetadata) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### encoder *: [PudlResourceDescriptor.PudlCodeMetadata](#pudl.metadata.classes.PudlResourceDescriptor.PudlCodeMetadata) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### source_ids *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= None*
+#### source_ids *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= None*
 
-#### etl_group_id *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= None*
+#### etl_group_id *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= None*
 
-#### field_namespace_id *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= None*
+#### field_namespace_id *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= None*
 
-#### create_database_schema *: [bool](https://docs.python.org/3/library/functions.html#bool)* *= True*
+#### create_database_schema *: [bool](https://docs.python.org/3/builtins/functions.html#bool)* *= True*
 
-#### path *: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### path *: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### extrapaths *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### extrapaths *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
 ### *class* pudl.metadata.classes.Resource(/, \*\*data: Any)
 
@@ -1101,7 +1101,7 @@ except for `year` fields which can be integer.
 
 #### name *: [SnakeCase](#pudl.metadata.classes.SnakeCase)*
 
-#### title *: [String](#pudl.metadata.classes.String) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### title *: [String](#pudl.metadata.classes.String) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
 #### description *: [String](#pudl.metadata.classes.String)*
 
@@ -1109,31 +1109,31 @@ except for `year` fields which can be integer.
 
 #### schema *: [Schema](#pudl.metadata.classes.Schema)*
 
-#### format_ *: [String](#pudl.metadata.classes.String) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### format_ *: [String](#pudl.metadata.classes.String) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### mediatype *: [String](#pudl.metadata.classes.String) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### mediatype *: [String](#pudl.metadata.classes.String) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### dialect *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)] | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### dialect *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### contributors *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[Contributor](#pudl.metadata.classes.Contributor)]* *= []*
+#### contributors *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[Contributor](#pudl.metadata.classes.Contributor)]* *= []*
 
-#### licenses *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[License](#pudl.metadata.classes.License)]* *= []*
+#### licenses *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[License](#pudl.metadata.classes.License)]* *= []*
 
-#### sources *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[DataSource](#pudl.metadata.classes.DataSource)]* *= []*
+#### sources *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[DataSource](#pudl.metadata.classes.DataSource)]* *= []*
 
-#### keywords *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[String](#pudl.metadata.classes.String)]* *= []*
+#### keywords *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[String](#pudl.metadata.classes.String)]* *= []*
 
-#### encoder *: [Encoder](#pudl.metadata.classes.Encoder) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### encoder *: [Encoder](#pudl.metadata.classes.Encoder) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### path *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= None*
+#### path *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= None*
 
-#### extrapaths *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### extrapaths *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### field_namespace *: [FieldNamespace](#pudl.metadata.classes.FieldNamespace) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### field_namespace *: [FieldNamespace](#pudl.metadata.classes.FieldNamespace) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### etl_group *: [EtlGroup](#pudl.metadata.classes.EtlGroup) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### etl_group *: [EtlGroup](#pudl.metadata.classes.EtlGroup) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### create_database_schema *: [bool](https://docs.python.org/3/library/functions.html#bool)* *= True*
+#### create_database_schema *: [bool](https://docs.python.org/3/builtins/functions.html#bool)* *= True*
 
 #### \_check_unique
 
@@ -1151,11 +1151,11 @@ in the docs, only in the .rst files the hyperlinks.
 
 #### *classmethod* \_check_harvest_primary_key(value, info: [pydantic.ValidationInfo](https://pydantic.dev/docs/validation/latest/api/pydantic-core/pydantic_core_schema/#pydantic_core.core_schema.ValidationInfo))
 
-#### *static* dict_from_id(resource_id: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)
+#### *static* dict_from_id(resource_id: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)
 
 Construct dictionary from PUDL identifier (resource.name).
 
-#### *static* \_resolve_references_from_resource_descriptor(resource_id: [str](https://docs.python.org/3/library/stdtypes.html#str), descriptor: [PudlResourceDescriptor](#pudl.metadata.classes.PudlResourceDescriptor)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)
+#### *static* \_resolve_references_from_resource_descriptor(resource_id: [str](https://docs.python.org/3/builtins/stdtypes.html#str), descriptor: [PudlResourceDescriptor](#pudl.metadata.classes.PudlResourceDescriptor)) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)
 
 Partially constructs a Resource-shaped dict from a PudlResourceDescriptor.
 
@@ -1172,7 +1172,7 @@ Partially constructs a Resource-shaped dict from a PudlResourceDescriptor.
 
 **Does not compute** resource description text and field encoders.
 
-#### *static* dict_from_resource_descriptor(resource_id: [str](https://docs.python.org/3/library/stdtypes.html#str), descriptor: [PudlResourceDescriptor](#pudl.metadata.classes.PudlResourceDescriptor)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)
+#### *static* dict_from_resource_descriptor(resource_id: [str](https://docs.python.org/3/builtins/stdtypes.html#str), descriptor: [PudlResourceDescriptor](#pudl.metadata.classes.PudlResourceDescriptor)) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)
 
 Get a Resource-shaped dict from a PudlResourceDescriptor.
 
@@ -1188,19 +1188,19 @@ Get a Resource-shaped dict from a PudlResourceDescriptor.
 * schema.foreign_keys: Foreign keys are fetched by resource name.
 * description: Full description text block is rendered from its component parts.
 
-#### *classmethod* from_id(x: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [Resource](#pudl.metadata.classes.Resource)
+#### *classmethod* from_id(x: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [Resource](#pudl.metadata.classes.Resource)
 
 Construct from PUDL identifier (resource.name).
 
-#### get_field(name: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [Field](#pudl.metadata.classes.Field)
+#### get_field(name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [Field](#pudl.metadata.classes.Field)
 
 Return field with the given name if it’s part of the Resources.
 
-#### get_field_names() → [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]
+#### get_field_names() → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]
 
 Return a list of all the field names in the resource schema.
 
-#### to_sql(metadata: sqlalchemy.MetaData | [None](https://docs.python.org/3/library/constants.html#None) = None, dialect: Literal['sqlite', 'duckdb'] = 'sqlite', check_types: [bool](https://docs.python.org/3/library/functions.html#bool) = True, check_values: [bool](https://docs.python.org/3/library/functions.html#bool) = True, include_foreign_keys: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → sqlalchemy.Table
+#### to_sql(metadata: sqlalchemy.MetaData | [None](https://docs.python.org/3/builtins/constants.html#None) = None, dialect: Literal['sqlite', 'duckdb'] = 'sqlite', check_types: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True, check_values: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True, include_foreign_keys: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True) → sqlalchemy.Table
 
 Return equivalent SQL Table.
 
@@ -1230,19 +1230,19 @@ Convert to a Frictionless Resource.
 
 Construct a PyArrow schema for the resource.
 
-#### to_duckdb_dtypes(conn: [duckdb.DuckDBPyConnection](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyConnection)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), duckdb.sqltypes.DuckDBPyType]
+#### to_duckdb_dtypes(conn: [duckdb.DuckDBPyConnection](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyConnection)) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), duckdb.sqltypes.DuckDBPyType]
 
 Return Polars data type of each field by field name.
 
-#### to_polars_dtypes() → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), polars.DataType]
+#### to_polars_dtypes() → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), polars.DataType]
 
 Return Polars data type of each field by field name.
 
-#### to_pandas_dtypes() → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str) | [pandas.CategoricalDtype](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.CategoricalDtype.html#pandas.CategoricalDtype)]
+#### to_pandas_dtypes() → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [pandas.CategoricalDtype](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.CategoricalDtype.html#pandas.CategoricalDtype)]
 
 Return Pandas data type of each field by field name.
 
-#### match_primary_key(names: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)] | [None](https://docs.python.org/3/library/constants.html#None)
+#### match_primary_key(names: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Match primary key fields to input field names.
 
@@ -1252,10 +1252,10 @@ in which case periodic names may also match a basename with a smaller period.
 * **Parameters:**
   **names** – Field names.
 * **Raises:**
-  * [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – Field names are not unique.
-  * [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – Multiple field names match primary key field.
+  * [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – Field names are not unique.
+  * [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – Multiple field names match primary key field.
 * **Returns:**
-  The name matching each primary key field (if any) as a [`dict`](https://docs.python.org/3/library/stdtypes.html#dict),
+  The name matching each primary key field (if any) as a [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict),
   or `None` if not all primary key fields have a match.
 
 ### Examples
@@ -1293,7 +1293,7 @@ Traceback (most recent call last):
 ValueError: ... {'x_month', 'x_date'} match primary key field 'x_year'
 ```
 
-#### format_df(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame)
+#### format_df(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame)
 
 Format a dataframe according to the resources’s table schema.
 
@@ -1315,7 +1315,7 @@ Format a dataframe according to the resources’s table schema.
 
 Drop columns not in the DB schema and enforce specified types.
 
-#### check_primary_key(data: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame) | polars.LazyFrame) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[pandera.errors.SchemaError](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.errors.SchemaError.html#pandera.errors.SchemaError)]
+#### check_primary_key(data: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame) | polars.LazyFrame) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[pandera.errors.SchemaError](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.errors.SchemaError.html#pandera.errors.SchemaError)]
 
 Validate this resource’s primary key for uniqueness and non-nullness.
 
@@ -1339,7 +1339,7 @@ ignored for pandas/geopandas, which are already fully loaded into memory.
   List of [`pandera.errors.SchemaError`](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.errors.SchemaError.html#pandera.errors.SchemaError) for each primary key violation
   found (empty if none).
 
-#### \_check_primary_key_pandas(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame)) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[pandera.errors.SchemaError](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.errors.SchemaError.html#pandera.errors.SchemaError)]
+#### \_check_primary_key_pandas(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame)) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[pandera.errors.SchemaError](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.errors.SchemaError.html#pandera.errors.SchemaError)]
 
 Check a pandas DataFrame for primary key uniqueness and non-nullness.
 
@@ -1352,7 +1352,7 @@ memory.
   List of [`pandera.errors.SchemaError`](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.errors.SchemaError.html#pandera.errors.SchemaError) for each primary key violation
   found (empty if none).
 
-#### \_check_primary_key_polars(lf: polars.LazyFrame) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[pandera.errors.SchemaError](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.errors.SchemaError.html#pandera.errors.SchemaError)]
+#### \_check_primary_key_polars(lf: polars.LazyFrame) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[pandera.errors.SchemaError](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.errors.SchemaError.html#pandera.errors.SchemaError)]
 
 Validate LazyFrame primary-key is unique and non-null.
 
@@ -1368,11 +1368,11 @@ date/datetime column, by exact distinct value otherwise.
   List of [`pandera.errors.SchemaError`](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.errors.SchemaError.html#pandera.errors.SchemaError) for each primary key violation
   found (empty if none).
 
-#### *static* \_find_null_primary_keys(lf: polars.LazyFrame, primary_key: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → polars.DataFrame
+#### *static* \_find_null_primary_keys(lf: polars.LazyFrame, primary_key: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → polars.DataFrame
 
 Return rows where any primary-key column is null.
 
-#### *static* \_find_duplicate_primary_keys(lf: polars.LazyFrame, primary_key: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → polars.DataFrame
+#### *static* \_find_duplicate_primary_keys(lf: polars.LazyFrame, primary_key: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → polars.DataFrame
 
 Return the primary-key combinations that appear more than once in `lf`.
 
@@ -1387,7 +1387,7 @@ versus ~109GB and 152s for pandera’s built-in check on the same data.
 * **Returns:**
   DataFrame of primary-key combinations that appear more than once in `lf`.
 
-#### *static* \_chunk_filters(lf: polars.LazyFrame, pk_check_chunk_field: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [list](https://docs.python.org/3/library/stdtypes.html#list)[polars.Expr]
+#### *static* \_chunk_filters(lf: polars.LazyFrame, pk_check_chunk_field: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[polars.Expr]
 
 Build filter expressions that partition `lf` by `pk_check_chunk_field`.
 
@@ -1430,7 +1430,7 @@ Build a SchemaError describing duplicate primary-key combinations.
 
 Build a SchemaError describing null primary-key values.
 
-#### aggregate_df(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), raised: [bool](https://docs.python.org/3/library/functions.html#bool) = False, error: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [dict](https://docs.python.org/3/library/stdtypes.html#dict)]
+#### aggregate_df(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), raised: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, error: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)]
 
 Aggregate dataframe by primary key.
 
@@ -1467,14 +1467,14 @@ Each `stats` (dict) contains the following:
     and `e` is the original error.
     If provided, the returned value is reported instead of `e`.
 * **Raises:**
-  [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – A primary key is required for aggregating.
+  [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – A primary key is required for aggregating.
 * **Returns:**
   The aggregated dataframe indexed by primary key fields,
   and an aggregation report (descripted above)
   that includes all aggregation errors and whether the result
   meets the resource’s and fields’ tolerance.
 
-#### \_build_aggregation_report(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), errors: [dict](https://docs.python.org/3/library/stdtypes.html#dict)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)
+#### \_build_aggregation_report(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), errors: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)
 
 Build report from aggregation errors.
 
@@ -1484,7 +1484,7 @@ Build report from aggregation errors.
 * **Returns:**
   Aggregation report, as described in [`aggregate_df()`](#pudl.metadata.classes.Resource.aggregate_df).
 
-#### harvest_dfs(dfs: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)], aggregate: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, aggregate_kwargs: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any] = {}, format_kwargs: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any] = {}) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [dict](https://docs.python.org/3/library/stdtypes.html#dict)]
+#### harvest_dfs(dfs: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)], aggregate: [bool](https://docs.python.org/3/builtins/functions.html#bool) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, aggregate_kwargs: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any] = {}, format_kwargs: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any] = {}) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)]
 
 Harvest from named dataframes.
 
@@ -1514,7 +1514,7 @@ If `aggregate=True`, rows are indexed by primary key fields.
   data types matching the resource fields, alongside an aggregation
   report.
 
-#### to_rst(docs_dir: pydantic.DirectoryPath, path: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [None](https://docs.python.org/3/library/constants.html#None)
+#### to_rst(docs_dir: pydantic.DirectoryPath, path: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Output to an RST file.
 
@@ -1558,23 +1558,23 @@ in the order in which they need to be loaded into a database.
 
 #### name *: [String](#pudl.metadata.classes.String)*
 
-#### title *: [String](#pudl.metadata.classes.String) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### title *: [String](#pudl.metadata.classes.String) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### description *: [String](#pudl.metadata.classes.String) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### description *: [String](#pudl.metadata.classes.String) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### version *: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### version *: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### keywords *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[String](#pudl.metadata.classes.String)]* *= []*
+#### keywords *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[String](#pudl.metadata.classes.String)]* *= []*
 
 #### homepage *: [pydantic.AnyHttpUrl](https://pydantic.dev/docs/validation/latest/api/pydantic/networks/#pydantic.networks.AnyHttpUrl)*
 
 #### created *: [datetime.datetime](https://docs.python.org/3/library/datetime.html#datetime.datetime)*
 
-#### contributors *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[Contributor](#pudl.metadata.classes.Contributor)]* *= []*
+#### contributors *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[Contributor](#pudl.metadata.classes.Contributor)]* *= []*
 
-#### sources *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[DataSource](#pudl.metadata.classes.DataSource)]* *= []*
+#### sources *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[DataSource](#pudl.metadata.classes.DataSource)]* *= []*
 
-#### licenses *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[License](#pudl.metadata.classes.License)]* *= []*
+#### licenses *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[License](#pudl.metadata.classes.License)]* *= []*
 
 #### resources *: [StrictList](#pudl.metadata.classes.StrictList)[[Resource](#pudl.metadata.classes.Resource)]*
 
@@ -1582,9 +1582,9 @@ in the order in which they need to be loaded into a database.
 
 Configuration for the model, should be a dictionary conforming to [ConfigDict][pydantic.config.ConfigDict].
 
-#### *classmethod* \_check_foreign_keys(resources: [list](https://docs.python.org/3/library/stdtypes.html#list)[[Resource](#pudl.metadata.classes.Resource)])
+#### *classmethod* \_check_foreign_keys(resources: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[Resource](#pudl.metadata.classes.Resource)])
 
-#### *static* \_compile_from_resources(resources: [list](https://docs.python.org/3/library/stdtypes.html#list)[[Resource](#pudl.metadata.classes.Resource)]) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [list](https://docs.python.org/3/library/stdtypes.html#list)[Any]]
+#### *static* \_compile_from_resources(resources: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[Resource](#pudl.metadata.classes.Resource)]) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [list](https://docs.python.org/3/builtins/stdtypes.html#list)[Any]]
 
 Compile deduplicated contributors, licenses, keywords, and sources from resources.
 
@@ -1601,7 +1601,7 @@ Package out of a collection of Resources, we want the Package to reflect the
 union of all the analogous values found in the Resources, but we don’t want
 any duplicates. We may also get values directly from the Package inputs.
 
-#### *classmethod* from_resource_ids(resource_ids: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str)] = tuple(sorted(RESOURCE_METADATA)), resolve_foreign_keys: [bool](https://docs.python.org/3/library/functions.html#bool) = False, excluded_etl_groups: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str)] = (), title: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, description: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, version: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [Package](#pudl.metadata.classes.Package)
+#### *classmethod* from_resource_ids(resource_ids: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] = tuple(sorted(RESOURCE_METADATA)), resolve_foreign_keys: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, excluded_etl_groups: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] = (), title: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, description: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, version: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [Package](#pudl.metadata.classes.Package)
 
 Construct a collection of Resources from PUDL identifiers (resource.name).
 
@@ -1624,7 +1624,7 @@ the full collection of PUDL tables.
   * **description** – Human-readable description of the package.
   * **version** – Version string for the package.
 
-#### *static* get_etl_group_tables(etl_group: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str)]
+#### *static* get_etl_group_tables(etl_group: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]
 
 Get a sorted tuple of table names for an etl_group.
 
@@ -1633,15 +1633,15 @@ Get a sorted tuple of table names for an etl_group.
 * **Returns:**
   A sorted tuple of table names for the etl_group.
 
-#### get_resource(name: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [Resource](#pudl.metadata.classes.Resource)
+#### get_resource(name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [Resource](#pudl.metadata.classes.Resource)
 
 Return the resource with the given name if it is in the Package.
 
-#### to_rst(docs_dir: pydantic.DirectoryPath, path: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [None](https://docs.python.org/3/library/constants.html#None)
+#### to_rst(docs_dir: pydantic.DirectoryPath, path: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Output to an RST file.
 
-#### to_sql(dialect: Literal['sqlite', 'duckdb'] = 'sqlite', check_types: [bool](https://docs.python.org/3/library/functions.html#bool) = True, check_values: [bool](https://docs.python.org/3/library/functions.html#bool) = True, include_foreign_keys: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → sqlalchemy.MetaData
+#### to_sql(dialect: Literal['sqlite', 'duckdb'] = 'sqlite', check_types: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True, check_values: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True, include_foreign_keys: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True) → sqlalchemy.MetaData
 
 Return equivalent SQL MetaData.
 
@@ -1665,14 +1665,14 @@ sorted.
 * **Returns:**
   A sorted list of resources.
 
-#### *property* encoders *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[SnakeCase](#pudl.metadata.classes.SnakeCase), [Encoder](#pudl.metadata.classes.Encoder)]*
+#### *property* encoders *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[SnakeCase](#pudl.metadata.classes.SnakeCase), [Encoder](#pudl.metadata.classes.Encoder)]*
 
 Compile a mapping of field names to their encoders, if they exist.
 
 This dictionary will be used many times, so it makes sense to build it once
 when the Package is instantiated so it can be reused.
 
-#### encode(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), copy: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### encode(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), copy: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Clean up all coded columns in a dataframe based on PUDL coding tables.
 
@@ -1686,7 +1686,7 @@ and keep an eye out for spooky data changes showing up in unexpected places.
 * **Returns:**
   A dataframe with clean code columns.
 
-#### to_frictionless(exclude_pattern: [str](https://docs.python.org/3/library/stdtypes.html#str) | [re.Pattern](https://docs.python.org/3/library/re.html#re.Pattern)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [None](https://docs.python.org/3/library/constants.html#None) = None, include_pattern: [str](https://docs.python.org/3/library/stdtypes.html#str) | [re.Pattern](https://docs.python.org/3/library/re.html#re.Pattern)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [None](https://docs.python.org/3/library/constants.html#None) = None) → frictionless.Package
+#### to_frictionless(exclude_pattern: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [re.Pattern](https://docs.python.org/3/library/re.html#re.Pattern)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None, include_pattern: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [re.Pattern](https://docs.python.org/3/library/re.html#re.Pattern)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → frictionless.Package
 
 Convert to a Frictionless Datapackage.
 
@@ -1717,9 +1717,9 @@ A list of Encoders for standardizing and documenting categorical codes.
 
 Used to export static coding metadata to PUDL documentation automatically
 
-#### encoder_list *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[Encoder](#pudl.metadata.classes.Encoder)]* *= []*
+#### encoder_list *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[Encoder](#pudl.metadata.classes.Encoder)]* *= []*
 
-#### *classmethod* from_code_ids(code_ids: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [CodeMetadata](#pudl.metadata.classes.CodeMetadata)
+#### *classmethod* from_code_ids(code_ids: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [CodeMetadata](#pudl.metadata.classes.CodeMetadata)
 
 Construct a list of encoders from code dictionaries.
 
@@ -1727,6 +1727,6 @@ Construct a list of encoders from code dictionaries.
   **code_ids** – A list of Code PUDL identifiers, keys to entries in the
   CODE_METADATA dictionary.
 
-#### to_rst(top_dir: pydantic.DirectoryPath, csv_subdir: pydantic.DirectoryPath, rst_path: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [None](https://docs.python.org/3/library/constants.html#None)
+#### to_rst(top_dir: pydantic.DirectoryPath, csv_subdir: pydantic.DirectoryPath, rst_path: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Iterate through encoders and output to an RST file.

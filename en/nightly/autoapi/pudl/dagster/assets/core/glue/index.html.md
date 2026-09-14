@@ -219,7 +219,7 @@ stable. A compound key should discourage that behavior.
   **crosswalk_with_ids** – crosswalk with `global_subplant_id`, as from
   [`_subplant_ids_from_prepped_crosswalk()`](#pudl.dagster.assets.core.glue._subplant_ids_from_prepped_crosswalk)
 * **Raises:**
-  [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – if crosswalk_with_ids has a MultiIndex
+  [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – if crosswalk_with_ids has a MultiIndex
 * **Returns:**
   `subplant_id`
 * **Return type:**
@@ -273,7 +273,7 @@ function. This function will only properly work when applied to a single
   a dataframe containing the output of
   [`make_subplant_ids()`](#pudl.dagster.assets.core.glue.make_subplant_ids)
 
-### pudl.dagster.assets.core.glue.connect_ids(subplant_crosswalk: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), id_to_update: [str](https://docs.python.org/3/library/stdtypes.html#str), connecting_id: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.dagster.assets.core.glue.connect_ids(subplant_crosswalk: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), id_to_update: [str](https://docs.python.org/3/builtins/stdtypes.html#str), connecting_id: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Corrects an id value if it is connected by an id value in another column.
 

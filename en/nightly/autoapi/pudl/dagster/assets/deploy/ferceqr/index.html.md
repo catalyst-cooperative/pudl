@@ -60,7 +60,7 @@ and runs `killall dagster-daemon` as soon as it appears. Any buffered log
 output written before the sentinel but not yet flushed will be lost when the
 daemon process is killed, making errors invisible in the log.
 
-### pudl.dagster.assets.deploy.ferceqr.\_clear_status_files(pudl_paths: [pudl.workspace.setup.PudlPaths](../../../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths)) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.dagster.assets.deploy.ferceqr.\_clear_status_files(pudl_paths: [pudl.workspace.setup.PudlPaths](../../../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths)) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Remove any stale FERC EQR status files from the output directory.
 
@@ -83,7 +83,7 @@ random component to avoid collisions during concurrent development runs.
 
 If `BUILD_ID` is not set (local/testing), a random short suffix is used alone.
 
-### pudl.dagster.assets.deploy.ferceqr.\_deploy_to_staging(ferceqr_deployment: [pudl.dagster.resources.FercEqrDeploymentResource](../../../resources/index.html.md#pudl.dagster.resources.FercEqrDeploymentResource), source_partitions: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], datapackage_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [list](https://docs.python.org/3/library/stdtypes.html#list)[upath.UPath]
+### pudl.dagster.assets.deploy.ferceqr.\_deploy_to_staging(ferceqr_deployment: [pudl.dagster.resources.FercEqrDeploymentResource](../../../resources/index.html.md#pudl.dagster.resources.FercEqrDeploymentResource), source_partitions: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], datapackage_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[upath.UPath]
 
 Copy EQR outputs to a staging location under each target, return staging paths.
 
@@ -98,7 +98,7 @@ file on the local filesystem (written to `pudl_output` by the caller).
 Returns the list of staging `UPath` objects so the caller can atomically
 promote them via rename.
 
-### pudl.dagster.assets.deploy.ferceqr.\_promote_staging(staging_targets: [list](https://docs.python.org/3/library/stdtypes.html#list)[upath.UPath], resolved_targets: [list](https://docs.python.org/3/library/stdtypes.html#list)[upath.UPath]) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.dagster.assets.deploy.ferceqr.\_promote_staging(staging_targets: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[upath.UPath], resolved_targets: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[upath.UPath]) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Atomically promote staging directories to their final destination paths.
 
@@ -109,7 +109,7 @@ original, so the metadata (owner, timestamps, storage class) is preserved and no
 data re-upload occurs. On local filesystems the rename is a fast inode-level
 operation.
 
-### pudl.dagster.assets.deploy.ferceqr.\_remove_staging(staging_dir: upath.UPath) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.dagster.assets.deploy.ferceqr.\_remove_staging(staging_dir: upath.UPath) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Remove a staging directory and all its contents.
 
@@ -121,7 +121,7 @@ Uses `fs.rm(path, recursive=True)` instead of `rmdir()` because cloud
 storage (GCS, S3) uses virtual prefixes rather than real directories and
 `rmdir()` would raise `NotADirectoryError`.
 
-### pudl.dagster.assets.deploy.ferceqr.\_parse_step_key(step_key: [str](https://docs.python.org/3/library/stdtypes.html#str), source_partition: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)]
+### pudl.dagster.assets.deploy.ferceqr.\_parse_step_key(step_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str), source_partition: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]
 
 Extract asset and partition from a step key like `asset_name[partition]`.
 
@@ -131,18 +131,18 @@ safety net for unexpected non-bracketed step keys (e.g. system steps). In that c
 the raw step key is used as the asset label so the status table remains
 comprehensible, and `source_partition or "UNKNOWN"` avoids `None` as a dict key.
 
-### pudl.dagster.assets.deploy.ferceqr.\_validate_partitions(raw: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]
+### pudl.dagster.assets.deploy.ferceqr.\_validate_partitions(raw: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]
 
 Validate and parse the source partitions JSON from run tags.
 
 Also verifies that each partition is one of the allowed working partitions
 defined for the `ferceqr` data source in `pudl.metadata.sources`.
 
-### pudl.dagster.assets.deploy.ferceqr.\_markdown_step_status_table(asset_partition_statuses: [StepStatusTable](#pudl.dagster.assets.deploy.ferceqr.StepStatusTable), partitions: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [None](https://docs.python.org/3/library/constants.html#None)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+### pudl.dagster.assets.deploy.ferceqr.\_markdown_step_status_table(asset_partition_statuses: [StepStatusTable](#pudl.dagster.assets.deploy.ferceqr.StepStatusTable), partitions: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [None](https://docs.python.org/3/builtins/constants.html#None)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Format terminal step statuses as an asset-by-partition Markdown table.
 
-### pudl.dagster.assets.deploy.ferceqr.\_gather_step_statuses(context: [dagster.AssetExecutionContext](https://docs.dagster.io/api/dagster/execution/#dagster.AssetExecutionContext), source_run_id: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[StepStatusTable](#pudl.dagster.assets.deploy.ferceqr.StepStatusTable), [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)]
+### pudl.dagster.assets.deploy.ferceqr.\_gather_step_statuses(context: [dagster.AssetExecutionContext](https://docs.dagster.io/api/dagster/execution/#dagster.AssetExecutionContext), source_run_id: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[StepStatusTable](#pudl.dagster.assets.deploy.ferceqr.StepStatusTable), [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)]
 
 Collect step statuses and total elapsed time across all source runs.
 
@@ -150,15 +150,15 @@ The elapsed time is computed from the earliest `start_time` to the latest
 `end_time` across all source runs (backfill or single). Returns
 `(statuses, formatted_duration)`.
 
-### pudl.dagster.assets.deploy.ferceqr.\_markdown_logfile_list(build_id: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+### pudl.dagster.assets.deploy.ferceqr.\_markdown_logfile_list(build_id: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Return pointer to logs to send in Zulip message.
 
-### pudl.dagster.assets.deploy.ferceqr.\_compute_deploy_duration(context: [dagster.AssetExecutionContext](https://docs.dagster.io/api/dagster/execution/#dagster.AssetExecutionContext)) → [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.dagster.assets.deploy.ferceqr.\_compute_deploy_duration(context: [dagster.AssetExecutionContext](https://docs.dagster.io/api/dagster/execution/#dagster.AssetExecutionContext)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Return elapsed time since the current run started, or None on failure.
 
-### pudl.dagster.assets.deploy.ferceqr.build_ferceqr_notification(context: [dagster.AssetExecutionContext](https://docs.dagster.io/api/dagster/execution/#dagster.AssetExecutionContext), outcome: Literal['SUCCESS', 'FAILURE']) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+### pudl.dagster.assets.deploy.ferceqr.build_ferceqr_notification(context: [dagster.AssetExecutionContext](https://docs.dagster.io/api/dagster/execution/#dagster.AssetExecutionContext), outcome: Literal['SUCCESS', 'FAILURE']) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Build a Markdown notification string for FERC EQR deployment outcomes.
 

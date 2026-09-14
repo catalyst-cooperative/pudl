@@ -53,15 +53,15 @@ A single BA data repair entry for one target year.
 
 Configuration for the model, should be a dictionary conforming to [ConfigDict][pydantic.config.ConfigDict].
 
-#### id *: [int](https://docs.python.org/3/library/functions.html#int)*
+#### id *: [int](https://docs.python.org/3/builtins/functions.html#int)*
 
-#### source_year *: [int](https://docs.python.org/3/library/functions.html#int)*
+#### source_year *: [int](https://docs.python.org/3/builtins/functions.html#int)*
 
-#### exclude_states *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= []*
+#### exclude_states *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= []*
 
 ### *class* pudl.output.ferc714.BaFixMap
 
-Bases: [`pydantic.RootModel`](https://pydantic.dev/docs/validation/latest/api/pydantic/root_model/#pydantic.root_model.RootModel)[[`dict`](https://docs.python.org/3/library/stdtypes.html#dict)[[`int`](https://docs.python.org/3/library/functions.html#int), [`list`](https://docs.python.org/3/library/stdtypes.html#list)[[`BaFix`](#pudl.output.ferc714.BaFix)]]]
+Bases: [`pydantic.RootModel`](https://pydantic.dev/docs/validation/latest/api/pydantic/root_model/#pydantic.root_model.RootModel)[[`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)[[`int`](https://docs.python.org/3/builtins/functions.html#int), [`list`](https://docs.python.org/3/builtins/stdtypes.html#list)[[`BaFix`](#pudl.output.ferc714.BaFix)]]]
 
 Validated mapping of target years to lists of [`BaFix`](#pudl.output.ferc714.BaFix) repair entries.
 
@@ -111,7 +111,7 @@ To add a new fix: identify the target year(s), the affected BA’s
 `balancing_authority_id_eia`, and a `source_year` whose data is correct. If certain
 states should be excluded from the copy, add `exclude_states`.
 
-### pudl.output.ferc714.UTILITIES *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]*
+### pudl.output.ferc714.UTILITIES *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]]*
 
 Balancing authorities to treat as utilities in associations from EIA 861.
 
@@ -126,7 +126,7 @@ The changes are applied locally to EIA 861 tables.
 * `replace` (Optional[bool]): Whether to remove rows where `id` is a utility in
   `core_eia861__assn_balancing_authority`. Applies only if `reassign=True`.
 
-### pudl.output.ferc714.categorize_eia_code(eia_codes: [list](https://docs.python.org/3/library/stdtypes.html#list)[[int](https://docs.python.org/3/library/functions.html#int)], ba_ids: [list](https://docs.python.org/3/library/stdtypes.html#list)[[int](https://docs.python.org/3/library/functions.html#int)], util_ids: [list](https://docs.python.org/3/library/stdtypes.html#list)[[int](https://docs.python.org/3/library/functions.html#int)], priority: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'balancing_authority') → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.output.ferc714.categorize_eia_code(eia_codes: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[int](https://docs.python.org/3/builtins/functions.html#int)], ba_ids: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[int](https://docs.python.org/3/builtins/functions.html#int)], util_ids: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[int](https://docs.python.org/3/builtins/functions.html#int)], priority: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'balancing_authority') → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Categorize FERC 714 `eia_codes` as either balancing authority or utility IDs.
 
@@ -171,7 +171,7 @@ priority with all utility IDs
 * **Return type:**
   A DataFrame containing 2 columns
 
-### pudl.output.ferc714.\_apply_exclude_states(ref: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), fix: [BaFix](#pudl.output.ferc714.BaFix), target_year: [int](https://docs.python.org/3/library/functions.html#int)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.output.ferc714.\_apply_exclude_states(ref: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), fix: [BaFix](#pudl.output.ferc714.BaFix), target_year: [int](https://docs.python.org/3/builtins/functions.html#int)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Filter source rows by exclude_states, raising if all rows are eliminated.
 

@@ -16,11 +16,11 @@ only shows errors that were genuinely fixed or newly introduced.
 
 ## Module Contents
 
-### pudl.scripts.pyrefly_diff_baseline.\_load_baseline_entries(ref: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None), baseline_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [set](https://docs.python.org/3/library/stdtypes.html#set)[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)]]
+### pudl.scripts.pyrefly_diff_baseline.\_load_baseline_entries(ref: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None), baseline_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]]
 
 Load baseline error entries from a git ref, or the working tree if `ref` is None.
 
-### pudl.scripts.pyrefly_diff_baseline.main(ref: [str](https://docs.python.org/3/library/stdtypes.html#str), baseline_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.scripts.pyrefly_diff_baseline.main(ref: [str](https://docs.python.org/3/builtins/stdtypes.html#str), baseline_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Diff a pyrefly baseline against a git ref by (file, code, description).
 

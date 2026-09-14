@@ -41,14 +41,14 @@ this, a long-running extraction has no visible sign of progress in the logs.
 
 The four raw table types present in each FERC EQR filing.
 
-### pudl.extract.ferceqr.\_ALL_TABLE_TYPES *: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[FercEqrTableType](#pudl.extract.ferceqr.FercEqrTableType), ...]*
+### pudl.extract.ferceqr.\_ALL_TABLE_TYPES *: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[FercEqrTableType](#pudl.extract.ferceqr.FercEqrTableType), ...]*
 
 Canonical list of all [`FercEqrTableType`](#pudl.extract.ferceqr.FercEqrTableType) values, in extraction order.
 
 `ident` is extracted first so its CID can be attached to the other tables; see
 [`_extract_ident()`](#pudl.extract.ferceqr._extract_ident).
 
-### pudl.extract.ferceqr.\_get_csv(base_path: upath.UPath, year_quarter: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [collections.abc.Generator](https://docs.python.org/3/library/collections.abc.html#collections.abc.Generator)[[zipfile.ZipFile](https://docs.python.org/3/library/zipfile.html#zipfile.ZipFile)]
+### pudl.extract.ferceqr.\_get_csv(base_path: upath.UPath, year_quarter: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [collections.abc.Generator](https://docs.python.org/3/library/collections.abc.html#collections.abc.Generator)[[zipfile.ZipFile](https://docs.python.org/3/library/zipfile.html#zipfile.ZipFile)]
 
 Download CSV to a tempmorary directory to avoid reading into memory.
 
@@ -76,9 +76,9 @@ has a chance to occur.
 
 Strip characters from an extracted CSV’s filename that would confuse duckdb.
 
-### pudl.extract.ferceqr.\_get_table_name(table_type: [FercEqrTableType](#pudl.extract.ferceqr.FercEqrTableType), year_quarter: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+### pudl.extract.ferceqr.\_get_table_name(table_type: [FercEqrTableType](#pudl.extract.ferceqr.FercEqrTableType), year_quarter: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
-### pudl.extract.ferceqr.\_clear_raw_table_partition(table_type: [FercEqrTableType](#pudl.extract.ferceqr.FercEqrTableType), year_quarter: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.extract.ferceqr.\_clear_raw_table_partition(table_type: [FercEqrTableType](#pudl.extract.ferceqr.FercEqrTableType), year_quarter: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Delete any existing per-filing parquet output for one raw table+quarter.
 
@@ -89,7 +89,7 @@ duplicate filings for the same company and quarter. This is unlikely to be an
 issue in the production builds, but is a problem for local development and
 testing.
 
-### pudl.extract.ferceqr.\_extract_ident(ident_csv: [str](https://docs.python.org/3/library/stdtypes.html#str), year_quarter: [str](https://docs.python.org/3/library/stdtypes.html#str), filing_name: [str](https://docs.python.org/3/library/stdtypes.html#str), duckdb_connection: [duckdb.DuckDBPyConnection](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyConnection)) → [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.extract.ferceqr.\_extract_ident(ident_csv: [str](https://docs.python.org/3/builtins/stdtypes.html#str), year_quarter: [str](https://docs.python.org/3/builtins/stdtypes.html#str), filing_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), duckdb_connection: [duckdb.DuckDBPyConnection](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyConnection)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Extract data from ident csv, write to parquet, and return CID from table.
 
@@ -102,7 +102,7 @@ a CID column in all other tables.
   `raw_ferceqr__ident` parquet is written for this filing. A CSV that fails
   to parse at all instead raises `duckdb.Error`, left to the caller.
 
-### pudl.extract.ferceqr.\_extract_other_table(table_type: [FercEqrTableType](#pudl.extract.ferceqr.FercEqrTableType), csv_path: [str](https://docs.python.org/3/library/stdtypes.html#str) | [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), year_quarter: [str](https://docs.python.org/3/library/stdtypes.html#str), cid: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None), filing_name: [str](https://docs.python.org/3/library/stdtypes.html#str), duckdb_connection: [duckdb.DuckDBPyConnection](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyConnection))
+### pudl.extract.ferceqr.\_extract_other_table(table_type: [FercEqrTableType](#pudl.extract.ferceqr.FercEqrTableType), csv_path: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), year_quarter: [str](https://docs.python.org/3/builtins/stdtypes.html#str), cid: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None), filing_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), duckdb_connection: [duckdb.DuckDBPyConnection](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyConnection))
 
 Extract data from a table other than ident and add year_quarter and CID columns.
 
@@ -111,7 +111,7 @@ or present but unpareable) – the table is still worth extracting, just
 without a company_identifier to attach, so a real SQL NULL is used rather
 than the literal string `"None"`.
 
-### pudl.extract.ferceqr.\_resolve_cid(ident_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), year_quarter: [str](https://docs.python.org/3/library/stdtypes.html#str), filing_name: [str](https://docs.python.org/3/library/stdtypes.html#str), duckdb_connection: [duckdb.DuckDBPyConnection](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyConnection)) → [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.extract.ferceqr.\_resolve_cid(ident_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), year_quarter: [str](https://docs.python.org/3/builtins/stdtypes.html#str), filing_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), duckdb_connection: [duckdb.DuckDBPyConnection](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyConnection)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Extract one filing’s ident table and return its CID, or `None`.
 
@@ -119,7 +119,7 @@ Warns (but does not raise) if the identity CSV fails to parse entirely or
 parses with no rows – either way the rest of the filing is still worth
 extracting, just with a null company_identifier.
 
-### pudl.extract.ferceqr.\_csvs_to_parquet(csv_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), year_quarter: [str](https://docs.python.org/3/library/stdtypes.html#str), filing_name: [str](https://docs.python.org/3/library/stdtypes.html#str), duckdb_connection: [duckdb.DuckDBPyConnection](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyConnection)) → [frozenset](https://docs.python.org/3/library/stdtypes.html#frozenset)[[FercEqrTableType](#pudl.extract.ferceqr.FercEqrTableType)]
+### pudl.extract.ferceqr.\_csvs_to_parquet(csv_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), year_quarter: [str](https://docs.python.org/3/builtins/stdtypes.html#str), filing_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), duckdb_connection: [duckdb.DuckDBPyConnection](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyConnection)) → [frozenset](https://docs.python.org/3/builtins/stdtypes.html#frozenset)[[FercEqrTableType](#pudl.extract.ferceqr.FercEqrTableType)]
 
 Mirror CSVs in filing to a parquet file.
 
@@ -152,7 +152,7 @@ loaded into their own parquet files for later inspection.
   filing, regardless of whether it was successfully parsed. Used by the
   caller to tally how many filings in the quarter included each table.
 
-### pudl.extract.ferceqr.\_get_rejected_record_counts(duckdb_connection: [duckdb.DuckDBPyConnection](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyConnection)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [int](https://docs.python.org/3/library/functions.html#int)]
+### pudl.extract.ferceqr.\_get_rejected_record_counts(duckdb_connection: [duckdb.DuckDBPyConnection](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyConnection)) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [int](https://docs.python.org/3/builtins/functions.html#int)]
 
 Count rejected CSV records by DuckDB’s reason for rejecting them.
 
@@ -169,7 +169,7 @@ column count from unescaped quotes within a field.
   reason, e.g. `{"INVALID ENCODING": 12, "MISSING COLUMNS": 4}`. Error
   types with no rejected records are simply absent from the dict.
 
-### pudl.extract.ferceqr.\_save_extract_errors(year_quarter: [str](https://docs.python.org/3/library/stdtypes.html#str), duckdb_connection: [duckdb.DuckDBPyConnection](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyConnection)) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.extract.ferceqr.\_save_extract_errors(year_quarter: [str](https://docs.python.org/3/builtins/stdtypes.html#str), duckdb_connection: [duckdb.DuckDBPyConnection](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyConnection)) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Persist DuckDB’s CSV parsing errors for the quarter to parquet.
 

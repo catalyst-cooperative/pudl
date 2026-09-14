@@ -9,7 +9,7 @@ Tiny CLI for showing table descriptions without building the full docs.
 
 ## Module Contents
 
-### pudl.scripts.resource_description.main(ctx: click.Context, name: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.scripts.resource_description.main(ctx: click.Context, name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Compute and display the description components for a resource.
 

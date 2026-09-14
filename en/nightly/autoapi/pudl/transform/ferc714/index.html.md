@@ -83,7 +83,7 @@ which the timezone associated with reporting changed dropped.
 
 Mapping between standardized time offset codes and canonical timezones.
 
-### pudl.transform.ferc714.EIA_CODE_FIXES *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['combined', 'csv', 'xbrl'], [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[int](https://docs.python.org/3/library/functions.html#int) | [str](https://docs.python.org/3/library/stdtypes.html#str), [int](https://docs.python.org/3/library/functions.html#int)]]*
+### pudl.transform.ferc714.EIA_CODE_FIXES *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[Literal['combined', 'csv', 'xbrl'], [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[int](https://docs.python.org/3/builtins/functions.html#int) | [str](https://docs.python.org/3/builtins/stdtypes.html#str), [int](https://docs.python.org/3/builtins/functions.html#int)]]*
 
 Overrides of FERC 714 respondent IDs with wrong or missing EIA Codes.
 
@@ -102,7 +102,7 @@ together.
 
 ### pudl.transform.ferc714.RENAME_COLS
 
-### pudl.transform.ferc714.\_pre_process_csv(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), table_name: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.transform.ferc714.\_pre_process_csv(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 A simple transform function for processing the CSV raw data.
 
@@ -127,7 +127,7 @@ these PUDL-assigned ID’s can be accessed in the database tables
   an augmented version of the input `df` with a new column that replaces
   the natively reported respondent ID with the PUDL-assigned respondent ID.
 
-### pudl.transform.ferc714.\_filter_for_freshest_data_xbrl(raw_xbrl: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), table_name: [str](https://docs.python.org/3/library/stdtypes.html#str), instant_or_duration: Literal['instant', 'duration'], pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
+### pudl.transform.ferc714.\_filter_for_freshest_data_xbrl(raw_xbrl: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), instant_or_duration: Literal['instant', 'duration'], pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/builtins/constants.html#None) = None)
 
 Wrapper around filter_for_freshest_data_xbrl.
 
@@ -147,7 +147,7 @@ will also have the XBRL ID’s and vice versa. This will enable users to find
 the full timeseries of a respondent that given either source ID (instead of
 using the source ID to find the PUDL-derived ID and then finding the records).
 
-### pudl.transform.ferc714.assign_report_day(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), date_col: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.transform.ferc714.assign_report_day(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), date_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Add a report_day column.
 
@@ -297,7 +297,7 @@ Almost all of the records have a start_date that == the end_date
 which I’m assuming means the record spans the duration of one day
 there are a small handful of records which seem to span a full year.
 
-#### *static* merge_instant_and_duration_tables_xbrl(instant_xbrl: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), duration_xbrl: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), table_name: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### *static* merge_instant_and_duration_tables_xbrl(instant_xbrl: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), duration_xbrl: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Merge XBRL instant and duration tables, reshaping instant as needed.
 

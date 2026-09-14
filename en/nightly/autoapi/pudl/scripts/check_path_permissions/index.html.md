@@ -51,7 +51,7 @@ Named permission-check stages used by the CLI and its reports.
 
 #### DELETE *= 'delete'*
 
-### *exception* pudl.scripts.check_path_permissions.PathPermissionError(message: [str](https://docs.python.org/3/library/stdtypes.html#str))
+### *exception* pudl.scripts.check_path_permissions.PathPermissionError(message: [str](https://docs.python.org/3/builtins/stdtypes.html#str))
 
 Bases: `click.ClickException`
 
@@ -59,9 +59,9 @@ Permission check failure annotated with the stage that failed.
 
 #### check *: [PermissionCheck](#pudl.scripts.check_path_permissions.PermissionCheck)*
 
-#### message *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### message *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### \_\_post_init_\_() → [None](https://docs.python.org/3/library/constants.html#None)
+#### \_\_post_init_\_() → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Initialize the underlying Click exception message.
 
@@ -69,41 +69,41 @@ Initialize the underlying Click exception message.
 
 Structured result for a single permission check.
 
-#### requested *: [bool](https://docs.python.org/3/library/functions.html#bool)*
+#### requested *: [bool](https://docs.python.org/3/builtins/functions.html#bool)*
 
-#### success *: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### success *: [bool](https://docs.python.org/3/builtins/functions.html#bool) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### messages *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= []*
+#### messages *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= []*
 
-#### errors *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= []*
+#### errors *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= []*
 
 ### *class* pudl.scripts.check_path_permissions.PathReport
 
 Structured result for all permission checks against one path.
 
-#### path *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### path *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### resolved_path *: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)*
+#### resolved_path *: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)*
 
-#### anon *: [bool](https://docs.python.org/3/library/functions.html#bool)*
+#### anon *: [bool](https://docs.python.org/3/builtins/functions.html#bool)*
 
-#### checks *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[PermissionCheck](#pudl.scripts.check_path_permissions.PermissionCheck), [CheckReport](#pudl.scripts.check_path_permissions.CheckReport)]*
+#### checks *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[PermissionCheck](#pudl.scripts.check_path_permissions.PermissionCheck), [CheckReport](#pudl.scripts.check_path_permissions.CheckReport)]*
 
-#### success *: [bool](https://docs.python.org/3/library/functions.html#bool)* *= False*
+#### success *: [bool](https://docs.python.org/3/builtins/functions.html#bool)* *= False*
 
 ### *class* pudl.scripts.check_path_permissions.PathCheckReport
 
 Top-level report for a CLI invocation across one or more paths.
 
-#### paths *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+#### paths *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
-#### anon *: [bool](https://docs.python.org/3/library/functions.html#bool)*
+#### anon *: [bool](https://docs.python.org/3/builtins/functions.html#bool)*
 
-#### results *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[PathReport](#pudl.scripts.check_path_permissions.PathReport)]*
+#### results *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[PathReport](#pudl.scripts.check_path_permissions.PathReport)]*
 
-#### success *: [bool](https://docs.python.org/3/library/functions.html#bool)* *= False*
+#### success *: [bool](https://docs.python.org/3/builtins/functions.html#bool)* *= False*
 
-### pudl.scripts.check_path_permissions.\_get_ferceqr_deployment_paths(anon: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [list](https://docs.python.org/3/library/stdtypes.html#list)[upath.UPath]
+### pudl.scripts.check_path_permissions.\_get_ferceqr_deployment_paths(anon: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[upath.UPath]
 
 Return resolved FERC EQR deployment targets as fully configured UPath objects.
 
@@ -114,7 +114,7 @@ if needed).
 * **Parameters:**
   **anon** – Whether to force anonymous access for `gs://` or `s3://` targets.
 
-### pudl.scripts.check_path_permissions.\_build_upath(path: [str](https://docs.python.org/3/library/stdtypes.html#str), anon: [bool](https://docs.python.org/3/library/functions.html#bool), storage_options: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any] | [None](https://docs.python.org/3/library/constants.html#None) = None) → upath.UPath
+### pudl.scripts.check_path_permissions.\_build_upath(path: [str](https://docs.python.org/3/builtins/stdtypes.html#str), anon: [bool](https://docs.python.org/3/builtins/functions.html#bool), storage_options: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any] | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → upath.UPath
 
 Return a `UPath` with anon and any per-target options baked in.
 
@@ -122,34 +122,34 @@ Return a `UPath` with anon and any per-target options baked in.
 
 Temporarily silence noisy storage-backend exception logging.
 
-### pudl.scripts.check_path_permissions.\_ensure_directory_like_path(path: upath.UPath) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.scripts.check_path_permissions.\_ensure_directory_like_path(path: upath.UPath) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Raise if the provided path points at an existing file/object.
 
-### pudl.scripts.check_path_permissions.check_read_access(path: upath.UPath) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.scripts.check_path_permissions.check_read_access(path: upath.UPath) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Raise if the given path cannot be read as a directory-like location.
 
-### pudl.scripts.check_path_permissions.check_write_access(path: upath.UPath) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.scripts.check_path_permissions.check_write_access(path: upath.UPath) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Raise if a canary file cannot be written, read back, and deleted.
 
-### pudl.scripts.check_path_permissions.\_record_check_output(, check_name: [PermissionCheck](#pudl.scripts.check_path_permissions.PermissionCheck), message: [str](https://docs.python.org/3/library/stdtypes.html#str), json_output: [bool](https://docs.python.org/3/library/functions.html#bool), summary: [PathReport](#pudl.scripts.check_path_permissions.PathReport), is_error: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.scripts.check_path_permissions.\_record_check_output(, check_name: [PermissionCheck](#pudl.scripts.check_path_permissions.PermissionCheck), message: [str](https://docs.python.org/3/builtins/stdtypes.html#str), json_output: [bool](https://docs.python.org/3/builtins/functions.html#bool), summary: [PathReport](#pudl.scripts.check_path_permissions.PathReport), is_error: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Record a result message in the summary and optionally print it.
 
-### pudl.scripts.check_path_permissions.\_record_check_outcome(, check_name: [PermissionCheck](#pudl.scripts.check_path_permissions.PermissionCheck), success: [bool](https://docs.python.org/3/library/functions.html#bool), message: [str](https://docs.python.org/3/library/stdtypes.html#str), json_output: [bool](https://docs.python.org/3/library/functions.html#bool), summary: [PathReport](#pudl.scripts.check_path_permissions.PathReport)) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.scripts.check_path_permissions.\_record_check_outcome(, check_name: [PermissionCheck](#pudl.scripts.check_path_permissions.PermissionCheck), success: [bool](https://docs.python.org/3/builtins/functions.html#bool), message: [str](https://docs.python.org/3/builtins/stdtypes.html#str), json_output: [bool](https://docs.python.org/3/builtins/functions.html#bool), summary: [PathReport](#pudl.scripts.check_path_permissions.PathReport)) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Set the check outcome and record the message in one step.
 
-### pudl.scripts.check_path_permissions.\_run_check(, action: [PermissionCheck](#pudl.scripts.check_path_permissions.PermissionCheck), resolved_path: upath.UPath, json_output: [bool](https://docs.python.org/3/library/functions.html#bool), summary: [PathReport](#pudl.scripts.check_path_permissions.PathReport)) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.scripts.check_path_permissions.\_run_check(, action: [PermissionCheck](#pudl.scripts.check_path_permissions.PermissionCheck), resolved_path: upath.UPath, json_output: [bool](https://docs.python.org/3/builtins/functions.html#bool), summary: [PathReport](#pudl.scripts.check_path_permissions.PathReport)) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Run a single permission check and update the structured summary.
 
-### pudl.scripts.check_path_permissions.\_check_single_path(, path: upath.UPath, read_requested: [bool](https://docs.python.org/3/library/functions.html#bool), write_requested: [bool](https://docs.python.org/3/library/functions.html#bool), json_output: [bool](https://docs.python.org/3/library/functions.html#bool), anon: [bool](https://docs.python.org/3/library/functions.html#bool)) → [PathReport](#pudl.scripts.check_path_permissions.PathReport)
+### pudl.scripts.check_path_permissions.\_check_single_path(, path: upath.UPath, read_requested: [bool](https://docs.python.org/3/builtins/functions.html#bool), write_requested: [bool](https://docs.python.org/3/builtins/functions.html#bool), json_output: [bool](https://docs.python.org/3/builtins/functions.html#bool), anon: [bool](https://docs.python.org/3/builtins/functions.html#bool)) → [PathReport](#pudl.scripts.check_path_permissions.PathReport)
 
 Run the requested checks for one path and return a structured summary.
 
-### pudl.scripts.check_path_permissions.main(ctx: click.Context, paths: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), ...], read_requested: [bool](https://docs.python.org/3/library/functions.html#bool), write_requested: [bool](https://docs.python.org/3/library/functions.html#bool), json_output: [bool](https://docs.python.org/3/library/functions.html#bool), anon: [bool](https://docs.python.org/3/library/functions.html#bool), check_ferceqr_deployment_paths: [bool](https://docs.python.org/3/library/functions.html#bool)) → [int](https://docs.python.org/3/library/functions.html#int)
+### pudl.scripts.check_path_permissions.main(ctx: click.Context, paths: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), ...], read_requested: [bool](https://docs.python.org/3/builtins/functions.html#bool), write_requested: [bool](https://docs.python.org/3/builtins/functions.html#bool), json_output: [bool](https://docs.python.org/3/builtins/functions.html#bool), anon: [bool](https://docs.python.org/3/builtins/functions.html#bool), check_ferceqr_deployment_paths: [bool](https://docs.python.org/3/builtins/functions.html#bool)) → [int](https://docs.python.org/3/builtins/functions.html#int)
 
 Check path permissions using UPath for local filesystems and cloud buckets.

@@ -15,4 +15,4 @@ Table definitions for the FERC EQR data group.
 
 ### pudl.metadata.resources.ferceqr.PARTITIONS
 
-### pudl.metadata.resources.ferceqr.RESOURCE_METADATA *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]*
+### pudl.metadata.resources.ferceqr.RESOURCE_METADATA *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]]*

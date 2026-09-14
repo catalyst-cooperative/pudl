@@ -55,17 +55,17 @@ Helper class to get paths to various FERC paths both local and remote.
 
 #### nightly_sqlite_path *: upath.UPath*
 
-#### local_duckdb_path *: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### local_duckdb_path *: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### nightly_duckdb_path *: upath.UPath | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### nightly_duckdb_path *: upath.UPath | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### local_taxonomy_json_path *: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### local_taxonomy_json_path *: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### nightly_taxonomy_json_path *: upath.UPath | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### nightly_taxonomy_json_path *: upath.UPath | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### local_parquet_path *: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### local_parquet_path *: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### nightly_parquet_path *: upath.UPath | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### nightly_parquet_path *: upath.UPath | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
 #### delete_local_outputs()
 
@@ -79,7 +79,7 @@ Initialize class based on `dataset` and `data_format`.
 
 Download nightly zipfile containing sqlite or parquet outputs and extract to local cache.
 
-### pudl.dagster.assets.raw.ferc_to_sqlite.\_download_nightly_outputs(data_format: Literal['dbf', 'xbrl'], paths: [FercPaths](#pudl.dagster.assets.raw.ferc_to_sqlite.FercPaths)) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.dagster.assets.raw.ferc_to_sqlite.\_download_nightly_outputs(data_format: Literal['dbf', 'xbrl'], paths: [FercPaths](#pudl.dagster.assets.raw.ferc_to_sqlite.FercPaths)) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Download `ferc_to_sqlite` outputs from s3.
 
@@ -88,7 +88,7 @@ provided `dataset` and `data_format`. For the ‘DBF’ format, this includes th
 SQLite db and a datapackage JSON file, while ‘XBRL’ will include both of these
 plus a DuckDB file, parquet files, and the taxonomy JSON file.
 
-### pudl.dagster.assets.raw.ferc_to_sqlite.\_check_for_cached_db_w_compatible_provenance(dataset: [pudl.settings.FercForm](../../../../settings/index.html.md#pudl.settings.FercForm), data_format: Literal['dbf', 'xbrl'], zenodo_doi: [str](https://docs.python.org/3/library/stdtypes.html#str), paths: [FercPaths](#pudl.dagster.assets.raw.ferc_to_sqlite.FercPaths), ferc_to_sqlite: [pudl.settings.FercToSqliteDataConfig](../../../../settings/index.html.md#pudl.settings.FercToSqliteDataConfig)) → [pudl.dagster.provenance.FercSqliteProvenanceRecord](../../../provenance/index.html.md#pudl.dagster.provenance.FercSqliteProvenanceRecord) | [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.dagster.assets.raw.ferc_to_sqlite.\_check_for_cached_db_w_compatible_provenance(dataset: [pudl.settings.FercForm](../../../../settings/index.html.md#pudl.settings.FercForm), data_format: Literal['dbf', 'xbrl'], zenodo_doi: [str](https://docs.python.org/3/builtins/stdtypes.html#str), paths: [FercPaths](#pudl.dagster.assets.raw.ferc_to_sqlite.FercPaths), ferc_to_sqlite: [pudl.settings.FercToSqliteDataConfig](../../../../settings/index.html.md#pudl.settings.FercToSqliteDataConfig)) → [pudl.dagster.provenance.FercSqliteProvenanceRecord](../../../provenance/index.html.md#pudl.dagster.provenance.FercSqliteProvenanceRecord) | [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Check to see if there is a compatible outputs either locally, or in nightly builds.
 
@@ -108,7 +108,7 @@ this function will immediately return `None`, triggering the normal extraction.
 * **Returns:**
   Compatible `FercSqliteProvenanceRecord` if one is found, otherwise `None`.
 
-### pudl.dagster.assets.raw.ferc_to_sqlite.ferc_to_sqlite_asset_factory(, dataset: [pudl.settings.FercForm](../../../../settings/index.html.md#pudl.settings.FercForm), data_format: Literal['dbf', 'xbrl'], extract_function: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[dagster.AssetExecutionContext](https://docs.dagster.io/api/dagster/execution/#dagster.AssetExecutionContext)], [None](https://docs.python.org/3/library/constants.html#None)], op_tags: [dict](https://docs.python.org/3/library/stdtypes.html#dict) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
+### pudl.dagster.assets.raw.ferc_to_sqlite.ferc_to_sqlite_asset_factory(, dataset: [pudl.settings.FercForm](../../../../settings/index.html.md#pudl.settings.FercForm), data_format: Literal['dbf', 'xbrl'], extract_function: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[dagster.AssetExecutionContext](https://docs.dagster.io/api/dagster/execution/#dagster.AssetExecutionContext)], [None](https://docs.python.org/3/builtins/constants.html#None)], op_tags: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
 
 Create a FERC-to-SQLite prerequisite asset for a specific FERC dataset.
 

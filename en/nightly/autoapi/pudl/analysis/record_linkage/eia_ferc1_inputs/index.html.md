@@ -46,11 +46,11 @@ Class to prepare inputs for linking FERC1 and EIA.
 
 #### train_eia *= None*
 
-#### get_plant_parts_eia_true(clobber: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### get_plant_parts_eia_true(clobber: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Get the EIA plant-parts with only the unique granularities.
 
-#### get_plants_ferc1(clobber: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### get_plants_ferc1(clobber: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Prepare FERC1 plants data for record linkage with EIA plant-parts.
 
@@ -84,15 +84,15 @@ that we have in our training data.
   * **dataset_id_col** – Identifying column name. Either `record_id_eia` for
     `plant_parts_eia_true` or `record_id_ferc1` for `plants_ferc1`.
 
-#### get_train_eia(clobber: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### get_train_eia(clobber: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Get the known training data from EIA.
 
-#### get_train_ferc1(clobber: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### get_train_ferc1(clobber: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Get the known training data from FERC1.
 
-#### execute(clobber: [bool](https://docs.python.org/3/library/functions.html#bool) = False)
+#### execute(clobber: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False)
 
 Compile all the inputs.
 

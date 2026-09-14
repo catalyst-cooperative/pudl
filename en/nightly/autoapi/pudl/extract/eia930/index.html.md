@@ -41,7 +41,7 @@ Raw interchange page.
 
 Raw subregion page - only exists after 2018h2.
 
-### pudl.extract.eia930.extract_page(datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore), page: [str](https://docs.python.org/3/library/stdtypes.html#str), half_years: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData)
+### pudl.extract.eia930.extract_page(datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore), page: [str](https://docs.python.org/3/builtins/stdtypes.html#str), half_years: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData)
 
 Pull data for a page across many half-years into a Parquet file.
 
@@ -55,7 +55,7 @@ together and expanding the schema to fit all the columns we see.
 * **Returns:**
   ParquetData pointing to parquet file with raw table data.
 
-### pudl.extract.eia930.extract_half_year_page(con: [duckdb.DuckDBPyConnection](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyConnection), datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore), half_year: [str](https://docs.python.org/3/library/stdtypes.html#str), page: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+### pudl.extract.eia930.extract_half_year_page(con: [duckdb.DuckDBPyConnection](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyConnection), datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore), half_year: [str](https://docs.python.org/3/builtins/stdtypes.html#str), page: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Extract data from a single CSV.
 

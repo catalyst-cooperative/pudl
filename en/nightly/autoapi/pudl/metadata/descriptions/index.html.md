@@ -31,23 +31,23 @@ Mechanisms and constants for setting standard resource descriptions.
 
 ## Module Contents
 
-### pudl.metadata.descriptions.LAYER_DESCRIPTIONS *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)*
+### pudl.metadata.descriptions.LAYER_DESCRIPTIONS *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)*
 
 Standard descriptive text to appear in the Processing section of resource descriptions.
 
-### pudl.metadata.descriptions.SOURCE_DESCRIPTIONS *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)*
+### pudl.metadata.descriptions.SOURCE_DESCRIPTIONS *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)*
 
 Standard descriptive text to appear in the Source section of resource descriptions.
 
 ### *class* pudl.metadata.descriptions.TableTypeFragments
 
-Bases: [`tuple`](https://docs.python.org/3/library/stdtypes.html#tuple)
+Bases: [`tuple`](https://docs.python.org/3/builtins/stdtypes.html#tuple)
 
 #### subject
 
 #### conjunction
 
-### pudl.metadata.descriptions.TABLE_TYPE_FRAGMENTS *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [TableTypeFragments](#pudl.metadata.descriptions.TableTypeFragments)]*
+### pudl.metadata.descriptions.TABLE_TYPE_FRAGMENTS *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [TableTypeFragments](#pudl.metadata.descriptions.TableTypeFragments)]*
 
 Standard descriptive text to appear in the Summary (first line) of resource descriptions.
 
@@ -68,15 +68,15 @@ the system will apply both fragments from the corresponding `table_type_fragment
 
 ### pudl.metadata.descriptions.NONE_TABLETYPE_FRAGMENTS
 
-### pudl.metadata.descriptions.TIMESERIES_RESOLUTION_FRAGMENTS *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)*
+### pudl.metadata.descriptions.TIMESERIES_RESOLUTION_FRAGMENTS *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)*
 
 More standard descriptive text to appear in the Summary (first line) of resource descriptions, for timeseries resources.
 
-### pudl.metadata.descriptions.half_year_offset(partition: [str](https://docs.python.org/3/library/stdtypes.html#str), offset: [int](https://docs.python.org/3/library/functions.html#int)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+### pudl.metadata.descriptions.half_year_offset(partition: [str](https://docs.python.org/3/builtins/stdtypes.html#str), offset: [int](https://docs.python.org/3/builtins/functions.html#int)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Offset a half_year partition by the specified number of half_years.
 
-### pudl.metadata.descriptions.PARTITION_OFFSETS *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)]*
+### pudl.metadata.descriptions.PARTITION_OFFSETS *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)]*
 
 Lookup table for computing offsets of temporal partitions.
 
@@ -105,13 +105,13 @@ Keeps the categorical information for one facet of a resource together with its 
   one of the values from the dictionaries above, or a more complex string composed of multiple
   pieces of standardized and manually-provided text.
 
-#### type *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### type *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
 Category code for this aspect of the resource.
 
 Primarily used for debugging descriptions; not shown to users.
 
-#### description *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### description *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
 Text to be included in the rendered resource description.
 
@@ -146,7 +146,7 @@ which include the description text along with any types/categories extracted alo
 This object serves as the input to the resource_description template, which assembles the components into a static text block
 appropriate for including in a data dictionary, datapackage export, or sqlachemy operation.
 
-#### resource_id *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### resource_id *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
 #### summary *: [ResourceTrait](#pudl.metadata.descriptions.ResourceTrait)*
 
@@ -160,9 +160,9 @@ appropriate for including in a data dictionary, datapackage export, or sqlachemy
 
 #### details *: [ResourceTrait](#pudl.metadata.descriptions.ResourceTrait)*
 
-#### usage_warnings *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[ResourceTrait](#pudl.metadata.descriptions.ResourceTrait)]*
+#### usage_warnings *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[ResourceTrait](#pudl.metadata.descriptions.ResourceTrait)]*
 
-#### summarize() → [str](https://docs.python.org/3/library/stdtypes.html#str)
+#### summarize() → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Show all computed description components, including type/category information.
 
@@ -172,11 +172,11 @@ This is suitable for low-overhead previews and debugging.
 
 Render all description components into the full static description text block using the resource_description template.
 
-### pudl.metadata.descriptions.component(fn: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[..., [ResourceTrait](#pudl.metadata.descriptions.ResourceTrait) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[ResourceTrait](#pudl.metadata.descriptions.ResourceTrait)]]) → [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[..., [ResourceTrait](#pudl.metadata.descriptions.ResourceTrait) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[ResourceTrait](#pudl.metadata.descriptions.ResourceTrait)]]
+### pudl.metadata.descriptions.component(fn: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[..., [ResourceTrait](#pudl.metadata.descriptions.ResourceTrait) | [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[ResourceTrait](#pudl.metadata.descriptions.ResourceTrait)]]) → [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[..., [ResourceTrait](#pudl.metadata.descriptions.ResourceTrait) | [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[ResourceTrait](#pudl.metadata.descriptions.ResourceTrait)]]
 
 Decorator for functions which resolve a description component.
 
-### *class* pudl.metadata.descriptions.ResourceDescriptionBuilder(resource_id: [str](https://docs.python.org/3/library/stdtypes.html#str), settings: [dict](https://docs.python.org/3/library/stdtypes.html#dict))
+### *class* pudl.metadata.descriptions.ResourceDescriptionBuilder(resource_id: [str](https://docs.python.org/3/builtins/stdtypes.html#str), settings: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict))
 
 Generate the static text of a resource description from its decomposed parts.
 
@@ -206,11 +206,11 @@ This class computes “final” description components from all available inputs
 
 Compute and store all description components from manually-specified settings and automatic sources.
 
-#### *static* offset_source_availability(source, offset: [int](https://docs.python.org/3/library/functions.html#int)) → [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)
+#### *static* offset_source_availability(source, offset: [int](https://docs.python.org/3/builtins/functions.html#int)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Compute an availability date from the most recent available partition for a DataSource, offset by some number of partition-length units.
 
-#### *static* compute_rowcounts_availability(resource_id) → [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)
+#### *static* compute_rowcounts_availability(resource_id) → [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Compute an availability date from the most recent available partition for a resource, according to the row counts file.
 
@@ -241,7 +241,7 @@ partitions, use the most recent source partition, optionally offset by
 Otherwise, use “Unknown” and set `ResourceTrait.type`=``False`` to
 permit display logics to hide this component.
 
-#### \_generic_component(attr: [str](https://docs.python.org/3/library/stdtypes.html#str), lookup: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)], settings: [dict](https://docs.python.org/3/library/stdtypes.html#dict), defaults: [ResourceNameComponents](#pudl.metadata.descriptions.ResourceNameComponents))
+#### \_generic_component(attr: [str](https://docs.python.org/3/builtins/stdtypes.html#str), lookup: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)], settings: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict), defaults: [ResourceNameComponents](#pudl.metadata.descriptions.ResourceNameComponents))
 
 Compute a generic component of the resource description.
 
@@ -300,19 +300,19 @@ Bases: [`DescriptionMeta`](#pudl.metadata.descriptions.DescriptionMeta)
 
 Extract basic information from the name of a resource.
 
-#### name *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### name *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
 Resource name (aka table name).
 
-#### layer_options *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= ''*
+#### layer_options *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= ''*
 
-#### source_options *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= ''*
+#### source_options *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= ''*
 
-#### timeseries_resolution_options *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= ''*
+#### timeseries_resolution_options *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= ''*
 
-#### table_type_options *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= ''*
+#### table_type_options *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= ''*
 
-#### resource_name_pattern *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= '^(?P<layer>)_(?P<source>)_\_(?P<timeseries_resolution>|)(?:_|)(?P<table_type>|)(?:_|)(?:_|)(?P<slug>.\*)$'*
+#### resource_name_pattern *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= '^(?P<layer>)_(?P<source>)_\_(?P<timeseries_resolution>|)(?:_|)(?P<table_type>|)(?:_|)(?:_|)(?P<slug>.\*)$'*
 
 #### \_match *= None*
 

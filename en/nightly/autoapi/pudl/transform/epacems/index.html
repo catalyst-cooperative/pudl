@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
-    <title>pudl.transform.epacems &#8212; PUDL 2026.9.1.dev3 documentation</title>
+    <title>pudl.transform.epacems &#8212; PUDL 2026.9.1.dev4 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../../_static/documentation_options.js?v=8f45930b"></script>
+    <script src="../../../../_static/documentation_options.js?v=6766d2bb"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev3 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev3 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev4 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev4 documentation - Home"/>
   
   
 </a></div>
@@ -980,7 +980,7 @@ table.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pudl.transform.epacems._validate_crosswalk_uniqueness">
-<span class="sig-prename descclassname"><span class="pre">pudl.transform.epacems.</span></span><span class="sig-name descname"><span class="pre">_validate_crosswalk_uniqueness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">crosswalk_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">polars.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/transform/epacems.html#_validate_crosswalk_uniqueness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.epacems._validate_crosswalk_uniqueness" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pudl.transform.epacems.</span></span><span class="sig-name descname"><span class="pre">_validate_crosswalk_uniqueness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">crosswalk_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">polars.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/transform/epacems.html#_validate_crosswalk_uniqueness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.epacems._validate_crosswalk_uniqueness" title="Link to this definition">#</a></dt>
 <dd><p>Validate that crosswalk has unique plant_id_eia values per EPA plant/unit.</p>
 <p>This validation is done separately to avoid materializing the LazyFrame during
 transformation.</p>
@@ -990,7 +990,7 @@ transformation.</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AssertionError" title="(in Python v3.14)"><strong>AssertionError</strong></a> – If crosswalk has multiple plant_id_eia values for a single EPA</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#AssertionError" title="(in Python v3.14)"><strong>AssertionError</strong></a> – If crosswalk has multiple plant_id_eia values for a single EPA</p></li>
 <li><p><strong>identifier.</strong> – </p></li>
 </ul>
 </dd>

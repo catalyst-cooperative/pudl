@@ -31,7 +31,7 @@ this is a configurable value, which can be found in the dagster UI.
 
 ### pudl.analysis.ml_tools.experiment_tracking.logger
 
-### pudl.analysis.ml_tools.experiment_tracking.\_flatten_model_config(model_config: [dict](https://docs.python.org/3/library/stdtypes.html#dict)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)
+### pudl.analysis.ml_tools.experiment_tracking.\_flatten_model_config(model_config: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)
 
 Take nested dictionary defining model config and flatten for logging purposes.
 
@@ -67,13 +67,13 @@ Bases: [`dagster.Config`](https://docs.dagster.io/api/dagster/config/#dagster.Co
 
 Dagster config to setup experiment tracking with mlflow.
 
-#### tracking_uri *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= 'sqlite:///Instance of pathlib.Path/experiments.sqlite'*
+#### tracking_uri *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 'sqlite:///Instance of pathlib.Path/experiments.sqlite'*
 
-#### tracking_enabled *: [bool](https://docs.python.org/3/library/functions.html#bool)* *= False*
+#### tracking_enabled *: [bool](https://docs.python.org/3/builtins/functions.html#bool)* *= False*
 
-#### run_context *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= 'production'*
+#### run_context *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 'production'*
 
-#### artifact_location *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= ''*
+#### artifact_location *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= ''*
 
 ### *class* pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker(/, \*\*data: Any)
 
@@ -101,11 +101,11 @@ seamlessly integrate the results with those from PUDL runs.
 
 #### tracker_config *: [ExperimentTrackerConfig](#pudl.analysis.ml_tools.experiment_tracking.ExperimentTrackerConfig)*
 
-#### run_id *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### run_id *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### experiment_name *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### experiment_name *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### *classmethod* create_experiment_tracker(experiment_config: [ExperimentTrackerConfig](#pudl.analysis.ml_tools.experiment_tracking.ExperimentTrackerConfig), experiment_name: [str](https://docs.python.org/3/library/stdtypes.html#str), model_config: [dict](https://docs.python.org/3/library/stdtypes.html#dict)) → [ExperimentTracker](#pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker)
+#### *classmethod* create_experiment_tracker(experiment_config: [ExperimentTrackerConfig](#pudl.analysis.ml_tools.experiment_tracking.ExperimentTrackerConfig), experiment_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), model_config: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)) → [ExperimentTracker](#pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker)
 
 Create experiment tracker for specified experiment.
 
@@ -119,7 +119,7 @@ Perform MLflow logging statement inside ExperimentTracker run.
   ExperimentTracker to only execute logging if tracking is enabled
   in configuration.
 
-#### *static* get_or_create_experiment(experiment_name: [str](https://docs.python.org/3/library/stdtypes.html#str), artifact_location: [str](https://docs.python.org/3/library/stdtypes.html#str) = '') → [str](https://docs.python.org/3/library/stdtypes.html#str)
+#### *static* get_or_create_experiment(experiment_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), artifact_location: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = '') → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Retrieve the ID of an existing MLflow experiment or create a new one if it doesn’t exist.
 
@@ -130,6 +130,6 @@ with the provided name and returns its ID.
 * **Returns:**
   ID of the existing or newly created MLflow experiment.
 
-### pudl.analysis.ml_tools.experiment_tracking.experiment_tracker_factory(experiment_name: [str](https://docs.python.org/3/library/stdtypes.html#str), model_config: [dict](https://docs.python.org/3/library/stdtypes.html#dict)) → [ExperimentTracker](#pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker)
+### pudl.analysis.ml_tools.experiment_tracking.experiment_tracker_factory(experiment_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), model_config: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)) → [ExperimentTracker](#pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker)
 
 Use config to create an experiment tracker.

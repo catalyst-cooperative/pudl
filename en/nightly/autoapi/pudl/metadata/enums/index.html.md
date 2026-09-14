@@ -74,17 +74,17 @@ Enumerations of valid field values.
 
 ## Module Contents
 
-### pudl.metadata.enums.IMPUTATION_CODES *: [set](https://docs.python.org/3/library/stdtypes.html#set)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+### pudl.metadata.enums.IMPUTATION_CODES *: [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
-### pudl.metadata.enums.COUNTRY_CODES_ISO3166 *: [set](https://docs.python.org/3/library/stdtypes.html#set)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+### pudl.metadata.enums.COUNTRY_CODES_ISO3166 *: [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
-### pudl.metadata.enums.SUBDIVISION_CODES_ISO3166 *: [set](https://docs.python.org/3/library/stdtypes.html#set)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+### pudl.metadata.enums.SUBDIVISION_CODES_ISO3166 *: [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
-### pudl.metadata.enums.EPACEMS_STATES *: [set](https://docs.python.org/3/library/stdtypes.html#set)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+### pudl.metadata.enums.EPACEMS_STATES *: [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
-### pudl.metadata.enums.DIVISION_CODES_US_CENSUS *: [set](https://docs.python.org/3/library/stdtypes.html#set)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+### pudl.metadata.enums.DIVISION_CODES_US_CENSUS *: [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
-### pudl.metadata.enums.APPROXIMATE_TIMEZONES *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)]*
+### pudl.metadata.enums.APPROXIMATE_TIMEZONES *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
 Mapping of political subdivision code to the most common timezone in that area.
 
@@ -95,23 +95,23 @@ For states that are split, we chose the timezone with a larger population. List 
 timezones in pytz.common_timezones Canada:
 [https://en.wikipedia.org/wiki/Time_in_Canada#IANA_time_zone_database](https://en.wikipedia.org/wiki/Time_in_Canada#IANA_time_zone_database)
 
-### pudl.metadata.enums.EIA191_STORAGE_REGIONS *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= ['alaska', 'east region', 'midwest region', 'mountain region', 'pacific region', 'south central region']*
+### pudl.metadata.enums.EIA191_STORAGE_REGIONS *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= ['alaska', 'east region', 'midwest region', 'mountain region', 'pacific region', 'south central region']*
 
 EIA storage regions for underground natural gas storage fields (Form 191).
 
-### pudl.metadata.enums.NERC_REGIONS *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= ['BASN', 'CALN', 'CALS', 'DSW', 'ASCC', 'ISONE', 'ERCOT', 'NORW', 'NYISO', 'PJM', 'ROCK',...*
+### pudl.metadata.enums.NERC_REGIONS *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= ['BASN', 'CALN', 'CALS', 'DSW', 'ASCC', 'ISONE', 'ERCOT', 'NORW', 'NYISO', 'PJM', 'ROCK',...*
 
 North American Reliability Corporation (NERC) regions.
 
 See [https://www.eia.gov/electricity/data/eia411/#tabs_NERC-3](https://www.eia.gov/electricity/data/eia411/#tabs_NERC-3).
 
-### pudl.metadata.enums.US_TIMEZONES *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= ['America/Anchorage', 'America/Chicago', 'America/Denver', 'America/Los_Angeles',...*
+### pudl.metadata.enums.US_TIMEZONES *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= ['America/Anchorage', 'America/Chicago', 'America/Denver', 'America/Los_Angeles',...*
 
 ### pudl.metadata.enums.GENERATION_ENERGY_SOURCES_EIA930 *= ['coal', 'gas', 'hydro', 'nuclear', 'oil', 'other', 'solar', 'unknown', 'wind',...*
 
 Energy sources used to categorize generation in the EIA 930 data.
 
-### pudl.metadata.enums.ELECTRICITY_MARKET_MODULE_REGIONS *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= ['florida_reliability_coordinating_council', 'midcontinent_central', 'midcontinent_east',...*
+### pudl.metadata.enums.ELECTRICITY_MARKET_MODULE_REGIONS *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= ['florida_reliability_coordinating_council', 'midcontinent_central', 'midcontinent_east',...*
 
 Regions that the EIA uses in their Electricity Market Module analysis.
 
@@ -132,53 +132,53 @@ Subregions are based on regional pricing zones.
 
 [https://www.eia.gov/outlooks/aeo/assumptions/pdf/EMM_Assumptions.pdf](https://www.eia.gov/outlooks/aeo/assumptions/pdf/EMM_Assumptions.pdf)
 
-### pudl.metadata.enums.CUSTOMER_CLASSES *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= ['commercial', 'industrial', 'direct_connection', 'other', 'residential', 'total',...*
+### pudl.metadata.enums.CUSTOMER_CLASSES *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= ['commercial', 'industrial', 'direct_connection', 'other', 'residential', 'total',...*
 
-### pudl.metadata.enums.CUSTOMER_CLASSES_EIA176 *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= ['commercial', 'electric_power', 'industrial', 'other', 'residential', 'vehicle_fuel']*
+### pudl.metadata.enums.CUSTOMER_CLASSES_EIA176 *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= ['commercial', 'electric_power', 'industrial', 'other', 'residential', 'vehicle_fuel']*
 
-### pudl.metadata.enums.SUPPLY_TYPES_EIA176 *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= ['natural_gas_production', 'synthetic_gas_production', 'underground_storage_withdrawals',...*
+### pudl.metadata.enums.SUPPLY_TYPES_EIA176 *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= ['natural_gas_production', 'synthetic_gas_production', 'underground_storage_withdrawals',...*
 
-### pudl.metadata.enums.TECH_CLASSES *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= ['backup', 'chp_cogen', 'combustion_turbine', 'fuel_cell', 'hydro', 'internal_combustion',...*
+### pudl.metadata.enums.TECH_CLASSES *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= ['backup', 'chp_cogen', 'combustion_turbine', 'fuel_cell', 'hydro', 'internal_combustion',...*
 
-### pudl.metadata.enums.REVENUE_CLASSES_EIA861 *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= ['credits_or_adjustments', 'delivery_customers', 'other', 'retail_sales', 'sales_for_resale',...*
+### pudl.metadata.enums.REVENUE_CLASSES_EIA861 *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= ['credits_or_adjustments', 'delivery_customers', 'other', 'retail_sales', 'sales_for_resale',...*
 
-### pudl.metadata.enums.REVENUE_CLASSES_EIA176 *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= ['sales', 'transport']*
+### pudl.metadata.enums.REVENUE_CLASSES_EIA176 *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= ['sales', 'transport']*
 
-### pudl.metadata.enums.SUPPLEMENTAL_GASEOUS_FUEL_TYPES_EIA176 *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= ['air_injection', 'biomass', 'biomass_gas', 'blast_furnace_gas', 'coke_oven_gas', 'gas_holders',...*
+### pudl.metadata.enums.SUPPLEMENTAL_GASEOUS_FUEL_TYPES_EIA176 *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= ['air_injection', 'biomass', 'biomass_gas', 'blast_furnace_gas', 'coke_oven_gas', 'gas_holders',...*
 
-### pudl.metadata.enums.OTHER_DISPOSITION_TYPES_EIA176 *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= ['line_pressure', 'other', 'vented_flared', 'plant_fuel', 'plant_thermal_reduction',...*
+### pudl.metadata.enums.OTHER_DISPOSITION_TYPES_EIA176 *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= ['line_pressure', 'other', 'vented_flared', 'plant_fuel', 'plant_thermal_reduction',...*
 
-### pudl.metadata.enums.RELIABILITY_STANDARDS *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= ['ieee_standard', 'other_standard']*
+### pudl.metadata.enums.RELIABILITY_STANDARDS *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= ['ieee_standard', 'other_standard']*
 
-### pudl.metadata.enums.FUEL_CLASSES *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= ['gas', 'oil', 'other', 'renewable', 'water', 'wind', 'wood']*
+### pudl.metadata.enums.FUEL_CLASSES *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= ['gas', 'oil', 'other', 'renewable', 'water', 'wind', 'wood']*
 
-### pudl.metadata.enums.RTO_CLASSES *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= ['caiso', 'ercot', 'isone', 'miso', 'nyiso', 'other', 'pjm', 'spp']*
+### pudl.metadata.enums.RTO_CLASSES *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= ['caiso', 'ercot', 'isone', 'miso', 'nyiso', 'other', 'pjm', 'spp']*
 
-### pudl.metadata.enums.EPACEMS_MEASUREMENT_CODES *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= ['Calculated', 'LME', 'Measured', 'Measured and Substitute', 'Other', 'Substitute']*
+### pudl.metadata.enums.EPACEMS_MEASUREMENT_CODES *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= ['Calculated', 'LME', 'Measured', 'Measured and Substitute', 'Other', 'Substitute']*
 
 Valid emissions measurement codes for the EPA CEMS hourly data.
 
-### pudl.metadata.enums.TECH_DESCRIPTIONS *: [set](https://docs.python.org/3/library/stdtypes.html#set)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+### pudl.metadata.enums.TECH_DESCRIPTIONS *: [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
 Valid technology descriptions from the EIA plant parts list.
 
-### pudl.metadata.enums.PLANT_PARTS *: [set](https://docs.python.org/3/library/stdtypes.html#set)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+### pudl.metadata.enums.PLANT_PARTS *: [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
 The plant parts in the EIA plant parts list.
 
-### pudl.metadata.enums.TECH_DESCRIPTIONS_NRELATB *: [set](https://docs.python.org/3/library/stdtypes.html#set)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+### pudl.metadata.enums.TECH_DESCRIPTIONS_NRELATB *: [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
 NREL ATB technology descriptions.
 
-### pudl.metadata.enums.TECH_DESCRIPTIONS_EIAAEO *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= ['coal', 'combined_cycle', 'combustion_turbine_diesel', 'distributed_generation',...*
+### pudl.metadata.enums.TECH_DESCRIPTIONS_EIAAEO *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= ['coal', 'combined_cycle', 'combustion_turbine_diesel', 'distributed_generation',...*
 
 Types of generation technology reported in EIA AEO.
 
-### pudl.metadata.enums.FUEL_TYPES_EIAAEO *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= ['coal', 'distillate_fuel_oil', 'residual_fuel_oil', 'petroleum', 'natural_gas',...*
+### pudl.metadata.enums.FUEL_TYPES_EIAAEO *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= ['coal', 'distillate_fuel_oil', 'residual_fuel_oil', 'petroleum', 'natural_gas',...*
 
 Type of fuel used for generation reported in EIA AEO.
 
-### pudl.metadata.enums.MODEL_CASES_EIAAEO *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= ['aeo2022', 'aeo2023', 'alternative_electricity', 'alternative_transportation',...*
+### pudl.metadata.enums.MODEL_CASES_EIAAEO *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= ['aeo2022', 'aeo2023', 'alternative_electricity', 'alternative_transportation',...*
 
 Modeling cases for EIA AEO 2023.
 
@@ -188,38 +188,38 @@ EIA’s browser ([https://www.eia.gov/outlooks/aeo/data/browser/#/](https://www.
 data API also include the AEO2022 Reference case, which is not listed on the case
 descriptions page.
 
-### pudl.metadata.enums.ENERGY_USE_TYPES_EIAAEO *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= ['biofuels_heat_and_coproducts', 'byproduct_hydrogen', 'coal', 'coal_subtotal',...*
+### pudl.metadata.enums.ENERGY_USE_TYPES_EIAAEO *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= ['biofuels_heat_and_coproducts', 'byproduct_hydrogen', 'coal', 'coal_subtotal',...*
 
 Energy use types from Table 2 of EIA AEO 2023-2025.
 
 These are from the series titles, not the display titles in the EIA’s data browser tool,
 which may show different text.
 
-### pudl.metadata.enums.ENERGY_SOURCE_TYPES_FERC1 *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= ['steam_generation', 'net_energy_generation', 'sources_of_energy', 'nuclear_generation',...*
+### pudl.metadata.enums.ENERGY_SOURCE_TYPES_FERC1 *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= ['steam_generation', 'net_energy_generation', 'sources_of_energy', 'nuclear_generation',...*
 
 Energy source types for FERC Form 1 data.
 
-### pudl.metadata.enums.ENERGY_DISPOSITION_TYPES_FERC1 *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= ['megawatt_hours_sold_non_requirements_sales', 'disposition_of_energy',...*
+### pudl.metadata.enums.ENERGY_DISPOSITION_TYPES_FERC1 *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= ['megawatt_hours_sold_non_requirements_sales', 'disposition_of_energy',...*
 
 Energy disposition types for FERC Form 1 data.
 
-### pudl.metadata.enums.UTILITY_PLANT_ASSET_TYPES_FERC1 *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= ['abandonment_of_leases',...*
+### pudl.metadata.enums.UTILITY_PLANT_ASSET_TYPES_FERC1 *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= ['abandonment_of_leases',...*
 
 Utility plant asset types for FERC Form 1 data.
 
-### pudl.metadata.enums.LIABILITY_TYPES_FERC1 *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= ['accounts_payable', 'accounts_payable_to_associated_companies',...*
+### pudl.metadata.enums.LIABILITY_TYPES_FERC1 *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= ['accounts_payable', 'accounts_payable_to_associated_companies',...*
 
 Liability types for FERC Form 1 data.
 
-### pudl.metadata.enums.ASSET_TYPES_FERC1 *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= ['accounts_receivable_from_associated_companies', 'accrued_utility_revenues',...*
+### pudl.metadata.enums.ASSET_TYPES_FERC1 *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= ['accounts_receivable_from_associated_companies', 'accrued_utility_revenues',...*
 
 Asset types for FERC Form 1 data.
 
-### pudl.metadata.enums.INCOME_TYPES_FERC1 *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= ['accretion_expense', 'allowance_for_borrowed_funds_used_during_construction_credit',...*
+### pudl.metadata.enums.INCOME_TYPES_FERC1 *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= ['accretion_expense', 'allowance_for_borrowed_funds_used_during_construction_credit',...*
 
 Income types for FERC Form 1 data.
 
-### pudl.metadata.enums.FUNCTIONAL_STATUS_CODES_CENSUS *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= ['A', 'B', 'C', 'E', 'F', 'G', 'I', 'L', 'M', 'N', 'S', 'T']*
+### pudl.metadata.enums.FUNCTIONAL_STATUS_CODES_CENSUS *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= ['A', 'B', 'C', 'E', 'F', 'G', 'I', 'L', 'M', 'N', 'S', 'T']*
 
 Functional status codes for Census geographic entities.
 
@@ -239,23 +239,23 @@ Functional status codes for Census geographic entities.
 
 ### pudl.metadata.enums.DAMAGE_SUB_TYPES_PHMSAGAS *= ['deteriorated_facility', 'dug_after_expiry', 'failed_clearance',...*
 
-### pudl.metadata.enums.ASSET_TYPES_RUS7 *: [set](https://docs.python.org/3/library/stdtypes.html#set)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+### pudl.metadata.enums.ASSET_TYPES_RUS7 *: [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
-### pudl.metadata.enums.LIABILITY_TYPES_RUS7 *: [set](https://docs.python.org/3/library/stdtypes.html#set)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+### pudl.metadata.enums.LIABILITY_TYPES_RUS7 *: [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
-### pudl.metadata.enums.ASSET_TYPES_RUS12 *: [set](https://docs.python.org/3/library/stdtypes.html#set)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+### pudl.metadata.enums.ASSET_TYPES_RUS12 *: [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
-### pudl.metadata.enums.LIABILITY_TYPES_RUS12 *: [set](https://docs.python.org/3/library/stdtypes.html#set)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+### pudl.metadata.enums.LIABILITY_TYPES_RUS12 *: [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
-### pudl.metadata.enums.PRIME_MOVER_TYPES_RUS12 *: [set](https://docs.python.org/3/library/stdtypes.html#set)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+### pudl.metadata.enums.PRIME_MOVER_TYPES_RUS12 *: [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
-### pudl.metadata.enums.RENEWABLE_FUEL_TYPES_RUS12 *: [set](https://docs.python.org/3/library/stdtypes.html#set)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+### pudl.metadata.enums.RENEWABLE_FUEL_TYPES_RUS12 *: [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
-### pudl.metadata.enums.PLANT_TYPE_RUS12 *: [set](https://docs.python.org/3/library/stdtypes.html#set)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+### pudl.metadata.enums.PLANT_TYPE_RUS12 *: [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
-### pudl.metadata.enums.SOURCE_OF_ENERGY_RUS12 *: [set](https://docs.python.org/3/library/stdtypes.html#set)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+### pudl.metadata.enums.SOURCE_OF_ENERGY_RUS12 *: [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
-### pudl.metadata.enums.PLANT_COST_TYPES_RUS12 *: [set](https://docs.python.org/3/library/stdtypes.html#set)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+### pudl.metadata.enums.PLANT_COST_TYPES_RUS12 *: [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
 ### pudl.metadata.enums.LOAN_STATUS_TYPES_RUS7 *= ['loan_default', 'loan_delinquency']*
 

@@ -75,7 +75,7 @@ in the Zenodo web UI:
 
 </details>
 
-### pudl.deploy.zenodo_metadata.load_zenodo_json(path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)], [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]]
+### pudl.deploy.zenodo_metadata.load_zenodo_json(path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)], [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]]
 
 Read creators and keywords out of `.zenodo.json`.
 
@@ -85,7 +85,7 @@ Read creators and keywords out of `.zenodo.json`.
   A `(creators, keywords)` tuple. `creators` entries are already in the
   shape the Zenodo deposit API expects (`name`, `affiliation`, `orcid`).
 
-### pudl.deploy.zenodo_metadata.get_data_license_id() → [str](https://docs.python.org/3/library/stdtypes.html#str)
+### pudl.deploy.zenodo_metadata.get_data_license_id() → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Get the Zenodo license ID for the PUDL data release.
 
@@ -98,7 +98,7 @@ since that key (e.g. `"cc-by-4.0"`) is the ID Zenodo’s API expects.
 * **Returns:**
   The Zenodo license ID, e.g. `"cc-by-4.0"`.
 
-### pudl.deploy.zenodo_metadata.get_latest_release_tag(repo_root: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+### pudl.deploy.zenodo_metadata.get_latest_release_tag(repo_root: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Get the most recently released PUDL version tag reachable from `HEAD`.
 
@@ -111,7 +111,7 @@ notes for.
 * **Returns:**
   The most recent reachable release tag, e.g. `"v2026.8.0"`.
 
-### pudl.deploy.zenodo_metadata.verify_git_tag_checked_out(tag: [str](https://docs.python.org/3/library/stdtypes.html#str), repo_root: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.deploy.zenodo_metadata.verify_git_tag_checked_out(tag: [str](https://docs.python.org/3/builtins/stdtypes.html#str), repo_root: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Raise if the working tree at `repo_root` isn’t exactly the given git tag.
 
@@ -125,10 +125,10 @@ notes text, a different author/keyword list, etc.
   * **tag** – The expected git tag, e.g. `"v2026.8.0"`.
   * **repo_root** – Path to the repo’s working tree to check.
 * **Raises:**
-  [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – If `tag` can’t be resolved, or doesn’t point at the working
+  [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – If `tag` can’t be resolved, or doesn’t point at the working
   tree’s current `HEAD`.
 
-### pudl.deploy.zenodo_metadata.render_release_notes_html(docs_html_dir: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), version_tag: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+### pudl.deploy.zenodo_metadata.render_release_notes_html(docs_html_dir: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), version_tag: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Extract one version’s section out of the built release notes HTML.
 
@@ -150,9 +150,9 @@ the docs site.
 * **Returns:**
   An HTML fragment containing just that version’s release notes.
 * **Raises:**
-  [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – If the given version’s section can’t be found.
+  [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – If the given version’s section can’t be found.
 
-### pudl.deploy.zenodo_metadata.build_related_resources(version_tag: [str](https://docs.python.org/3/library/stdtypes.html#str), github_archive_doi_url: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)]]
+### pudl.deploy.zenodo_metadata.build_related_resources(version_tag: [str](https://docs.python.org/3/builtins/stdtypes.html#str), github_archive_doi_url: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)]]
 
 Build the “Other Resources” description footer and matching related_identifiers.
 

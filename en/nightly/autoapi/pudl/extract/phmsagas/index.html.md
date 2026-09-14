@@ -36,7 +36,7 @@ Instance of metadata object to use with this extractor.
 
 #### cols_added *= []*
 
-#### load_source(page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### load_source(page: [str](https://docs.python.org/3/builtins/stdtypes.html#str), \*\*partition) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Run same load_source and then replace all periods w/ n’s.
 
@@ -51,7 +51,7 @@ raw source. These trailing spaces effectively get removed in
 [`pudl.helpers.simplify_columns()`](../../helpers/index.html.md#pudl.helpers.simplify_columns) and then we have duplicate column names.
 This method runs the parent adds \_n#’s to these trailing space column names.
 
-#### process_renamed(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition)
+#### process_renamed(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), page: [str](https://docs.python.org/3/builtins/stdtypes.html#str), \*\*partition)
 
 Drop columns that get mapped to other assets and columns with unstructured data.
 

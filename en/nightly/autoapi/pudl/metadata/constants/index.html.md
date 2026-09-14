@@ -12,11 +12,11 @@ Metadata and operational constants.
 
 ## Module Contents
 
-### pudl.metadata.constants.LICENSES *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)]]*
+### pudl.metadata.constants.LICENSES *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]]*
 
 License attributes.
 
-### pudl.metadata.constants.CONTRIBUTORS *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [dict](https://docs.python.org/3/library/stdtypes.html#dict)]*
+### pudl.metadata.constants.CONTRIBUTORS *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)]*
 
 PUDL Contributors for attribution.
 
@@ -24,7 +24,7 @@ See the Data Package spec [https://specs.frictionlessdata.io/data-package/#metad
 For `zenodo_role` see the Zenodo documentation
 [https://developers.zenodo.org/#representation](https://developers.zenodo.org/#representation).
 
-### pudl.metadata.constants.KEYWORDS *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]]*
+### pudl.metadata.constants.KEYWORDS *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]]*
 
 ### pudl.metadata.constants.XBRL_TABLES *= ['corporate_officer_certification_001_duration', 'corporate_officer_certification_001_instant',...*
 

@@ -15,7 +15,7 @@ Create output tables for RUS-7 and RUS-12.
 
 ## Module Contents
 
-### pudl.output.rus.out_rus_asset_factory(core_table_name: [str](https://docs.python.org/3/library/stdtypes.html#str), borrower_table_name: [str](https://docs.python.org/3/library/stdtypes.html#str), io_manager_key: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
+### pudl.output.rus.out_rus_asset_factory(core_table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), borrower_table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), io_manager_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
 
 An asset factory for finished RUS output tables.
 

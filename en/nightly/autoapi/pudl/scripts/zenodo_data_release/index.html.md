@@ -245,27 +245,27 @@ The names of fields explicitly set during instantiation.
 
 Values of private attributes set on the model instance.
 
-#### upload_type *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= 'dataset'*
+#### upload_type *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 'dataset'*
 
-#### title *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### title *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### access_right *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### access_right *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### creators *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)]*
+#### creators *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)]*
 
-#### keywords *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= []*
+#### keywords *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= []*
 
-#### license *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= 'cc-by-4.0'*
+#### license *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 'cc-by-4.0'*
 
-#### language *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= 'eng'*
+#### language *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 'eng'*
 
-#### version *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= ''*
+#### version *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= ''*
 
-#### publication_date *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= ''*
+#### publication_date *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= ''*
 
-#### description *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= ''*
+#### description *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= ''*
 
-#### related_identifiers *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)]* *= []*
+#### related_identifiers *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)]* *= []*
 
 ### *class* pudl.scripts.zenodo_data_release.\_LegacyDeposition(/, \*\*data: Any)
 
@@ -353,15 +353,15 @@ The names of fields explicitly set during instantiation.
 
 Values of private attributes set on the model instance.
 
-#### id_ *: [int](https://docs.python.org/3/library/functions.html#int)* *= None*
+#### id_ *: [int](https://docs.python.org/3/builtins/functions.html#int)* *= None*
 
-#### conceptrecid *: [int](https://docs.python.org/3/library/functions.html#int)*
+#### conceptrecid *: [int](https://docs.python.org/3/builtins/functions.html#int)*
 
 #### links *: [\_LegacyLinks](#pudl.scripts.zenodo_data_release._LegacyLinks)*
 
 #### metadata *: [\_LegacyMetadata](#pudl.scripts.zenodo_data_release._LegacyMetadata)*
 
-#### submitted *: [bool](https://docs.python.org/3/library/functions.html#bool)* *= False*
+#### submitted *: [bool](https://docs.python.org/3/builtins/functions.html#bool)* *= False*
 
 ### *class* pudl.scripts.zenodo_data_release.\_NewFile(/, \*\*data: Any)
 
@@ -449,7 +449,7 @@ The names of fields explicitly set during instantiation.
 
 Values of private attributes set on the model instance.
 
-#### id_ *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= None*
+#### id_ *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= None*
 
 ### *class* pudl.scripts.zenodo_data_release.\_NewRecord(/, \*\*data: Any)
 
@@ -537,13 +537,13 @@ The names of fields explicitly set during instantiation.
 
 Values of private attributes set on the model instance.
 
-#### id_ *: [int](https://docs.python.org/3/library/functions.html#int)* *= None*
+#### id_ *: [int](https://docs.python.org/3/builtins/functions.html#int)* *= None*
 
-#### doi *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= ''*
+#### doi *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= ''*
 
-#### files *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[\_NewFile](#pudl.scripts.zenodo_data_release._NewFile)]* *= []*
+#### files *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[\_NewFile](#pudl.scripts.zenodo_data_release._NewFile)]* *= []*
 
-### *class* pudl.scripts.zenodo_data_release.ZenodoClient(env: [str](https://docs.python.org/3/library/stdtypes.html#str))
+### *class* pudl.scripts.zenodo_data_release.ZenodoClient(env: [str](https://docs.python.org/3/builtins/stdtypes.html#str))
 
 Thin wrapper over Zenodo REST API.
 
@@ -557,7 +557,7 @@ need some of the unreleased new API endpoints too:
 
 #### env
 
-#### retry_request(, method, url, max_tries: [int](https://docs.python.org/3/library/functions.html#int) = 6, request_timeout: [float](https://docs.python.org/3/library/functions.html#float) | [None](https://docs.python.org/3/library/constants.html#None) = None, data_factory: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[], IO[[bytes](https://docs.python.org/3/library/stdtypes.html#bytes)]] | [None](https://docs.python.org/3/library/constants.html#None) = None, \*\*kwargs) → requests.Response
+#### retry_request(, method, url, max_tries: [int](https://docs.python.org/3/builtins/functions.html#int) = 6, request_timeout: [float](https://docs.python.org/3/builtins/functions.html#float) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, data_factory: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[], IO[[bytes](https://docs.python.org/3/builtins/stdtypes.html#bytes)]] | [None](https://docs.python.org/3/builtins/constants.html#None) = None, \*\*kwargs) → requests.Response
 
 Retry calls to `requests.request` with exponential backoff.
 
@@ -575,42 +575,42 @@ Retry calls to `requests.request` with exponential backoff.
   The `requests.Response` produced by the successful attempt.
 * **Raises:**
   * **requests.RequestException** – If all attempts fail with a requests error.
-  * [**OSError**](https://docs.python.org/3/library/exceptions.html#OSError) – If reading from disk fails when preparing a payload.
-  * [**RuntimeError**](https://docs.python.org/3/library/exceptions.html#RuntimeError) – If no response object is produced (should be rare).
+  * [**OSError**](https://docs.python.org/3/builtins/exceptions.html#OSError) – If reading from disk fails when preparing a payload.
+  * [**RuntimeError**](https://docs.python.org/3/builtins/exceptions.html#RuntimeError) – If no response object is produced (should be rare).
 
-#### get_deposition(deposition_id: [int](https://docs.python.org/3/library/functions.html#int)) → [\_LegacyDeposition](#pudl.scripts.zenodo_data_release._LegacyDeposition)
+#### get_deposition(deposition_id: [int](https://docs.python.org/3/builtins/functions.html#int)) → [\_LegacyDeposition](#pudl.scripts.zenodo_data_release._LegacyDeposition)
 
 LEGACY API: Get JSON describing a deposition.
 
 Depositions can be published *or* unpublished.
 
-#### get_record(record_id: [int](https://docs.python.org/3/library/functions.html#int)) → [\_NewRecord](#pudl.scripts.zenodo_data_release._NewRecord)
+#### get_record(record_id: [int](https://docs.python.org/3/builtins/functions.html#int)) → [\_NewRecord](#pudl.scripts.zenodo_data_release._NewRecord)
 
 NEW API: Get JSON describing a record.
 
 All records are published records.
 
-#### new_record_version(record_id: [int](https://docs.python.org/3/library/functions.html#int)) → [\_NewRecord](#pudl.scripts.zenodo_data_release._NewRecord)
+#### new_record_version(record_id: [int](https://docs.python.org/3/builtins/functions.html#int)) → [\_NewRecord](#pudl.scripts.zenodo_data_release._NewRecord)
 
 NEW API: get or create the draft associated with a record ID.
 
 Finds the latest record in the concept that record_id points to, and
 makes a new version unless one exists already.
 
-#### update_deposition_metadata(deposition_id: [int](https://docs.python.org/3/library/functions.html#int), metadata: [\_LegacyMetadata](#pudl.scripts.zenodo_data_release._LegacyMetadata)) → [\_LegacyDeposition](#pudl.scripts.zenodo_data_release._LegacyDeposition)
+#### update_deposition_metadata(deposition_id: [int](https://docs.python.org/3/builtins/functions.html#int), metadata: [\_LegacyMetadata](#pudl.scripts.zenodo_data_release._LegacyMetadata)) → [\_LegacyDeposition](#pudl.scripts.zenodo_data_release._LegacyDeposition)
 
 LEGACY API: Update deposition metadata.
 
 Replaces the existing metadata completely - so make sure to pass in complete
 metadata. You cannot update metadata fields one at a time.
 
-#### delete_deposition_file(deposition_id: [int](https://docs.python.org/3/library/functions.html#int), file_id) → requests.Response
+#### delete_deposition_file(deposition_id: [int](https://docs.python.org/3/builtins/functions.html#int), file_id) → requests.Response
 
 LEGACY API: Delete file from deposition.
 
 Note: file_id is not always the file name.
 
-#### create_bucket_file(bucket_url: [pydantic.AnyHttpUrl](https://pydantic.dev/docs/validation/latest/api/pydantic/networks/#pydantic.networks.AnyHttpUrl), file_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), max_tries: [int](https://docs.python.org/3/library/functions.html#int) = 6) → requests.Response
+#### create_bucket_file(bucket_url: [pydantic.AnyHttpUrl](https://pydantic.dev/docs/validation/latest/api/pydantic/networks/#pydantic.networks.AnyHttpUrl), file_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), max_tries: [int](https://docs.python.org/3/builtins/functions.html#int) = 6) → requests.Response
 
 LEGACY API: Upload a file to a deposition’s file bucket.
 
@@ -624,10 +624,10 @@ because it allows for files >100MB.
 * **Returns:**
   The `requests.Response` from the successful upload attempt.
 * **Raises:**
-  * [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – If `file_path` is empty.
+  * [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – If `file_path` is empty.
   * **requests.RequestException** – If all upload attempts fail.
 
-#### publish_deposition(deposition_id: [int](https://docs.python.org/3/library/functions.html#int)) → [\_LegacyDeposition](#pudl.scripts.zenodo_data_release._LegacyDeposition)
+#### publish_deposition(deposition_id: [int](https://docs.python.org/3/builtins/functions.html#int)) → [\_LegacyDeposition](#pudl.scripts.zenodo_data_release._LegacyDeposition)
 
 LEGACY API: publish deposition.
 
@@ -638,7 +638,7 @@ longer has a pending publish action – even though the publish itself
 succeeded. Rather than fail on that specific 404, check whether the
 deposition is actually already published before giving up.
 
-### pudl.scripts.zenodo_data_release.get_github_archive_doi_url(zenodo_client: [ZenodoClient](#pudl.scripts.zenodo_data_release.ZenodoClient)) → [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.scripts.zenodo_data_release.get_github_archive_doi_url(zenodo_client: [ZenodoClient](#pudl.scripts.zenodo_data_release.ZenodoClient)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Look up the DOI of the latest GitHub-repo Zenodo software archive.
 
@@ -654,7 +654,7 @@ Provides an abstraction layer that hides Zenodo’s data model from the caller.
 Subclasses + their limited method definitions provide a way to avoid calling the
 operations in the wrong order.
 
-#### record_id *: [int](https://docs.python.org/3/library/functions.html#int)*
+#### record_id *: [int](https://docs.python.org/3/builtins/functions.html#int)*
 
 #### zenodo_client *: [ZenodoClient](#pudl.scripts.zenodo_data_release.ZenodoClient)*
 
@@ -713,7 +713,7 @@ where it came from.
 * **Returns:**
   A `Path` pointing to a readable local copy of `openable_file`.
 
-#### sync_directory(source_dir: [str](https://docs.python.org/3/library/stdtypes.html#str), ignore: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [ContentComplete](#pudl.scripts.zenodo_data_release.ContentComplete)
+#### sync_directory(source_dir: [str](https://docs.python.org/3/builtins/stdtypes.html#str), ignore: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [ContentComplete](#pudl.scripts.zenodo_data_release.ContentComplete)
 
 Upload every file in `source_dir` to the draft bucket.
 
@@ -737,7 +737,7 @@ Bases: [`State`](#pudl.scripts.zenodo_data_release.State)
 
 Now that we’ve uploaded all the data, we need to update metadata.
 
-#### update_metadata(version_tag: [str](https://docs.python.org/3/library/stdtypes.html#str), docs_html_dir: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), zenodo_json_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [CompleteDraft](#pudl.scripts.zenodo_data_release.CompleteDraft)
+#### update_metadata(version_tag: [str](https://docs.python.org/3/builtins/stdtypes.html#str), docs_html_dir: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), zenodo_json_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [CompleteDraft](#pudl.scripts.zenodo_data_release.CompleteDraft)
 
 Build and set fresh deposition metadata for this release.
 
@@ -761,7 +761,7 @@ Bases: [`State`](#pudl.scripts.zenodo_data_release.State)
 
 Now that we’ve uploaded all the data, we can publish.
 
-#### publish() → [None](https://docs.python.org/3/library/constants.html#None)
+#### publish() → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Publish the draft.
 
@@ -769,7 +769,7 @@ Publish the draft.
 
 A URL for viewing this draft.
 
-### pudl.scripts.zenodo_data_release.build_zenodo_release_zulip_message(env: [str](https://docs.python.org/3/library/stdtypes.html#str), publish: [bool](https://docs.python.org/3/library/functions.html#bool), succeeded: [bool](https://docs.python.org/3/library/functions.html#bool), record_url: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+### pudl.scripts.zenodo_data_release.build_zenodo_release_zulip_message(env: [str](https://docs.python.org/3/builtins/stdtypes.html#str), publish: [bool](https://docs.python.org/3/builtins/functions.html#bool), succeeded: [bool](https://docs.python.org/3/builtins/functions.html#bool), record_url: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Build a markdown Zulip message summarizing a Zenodo release attempt.
 
@@ -778,6 +778,6 @@ visible, so a misconfigured run is obvious at a glance, and links to the
 resulting record when the release succeeded – the live record if `publish`
 was requested, otherwise the draft awaiting manual review.
 
-### pudl.scripts.zenodo_data_release.main(env: [str](https://docs.python.org/3/library/stdtypes.html#str), source_dir: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None), publish: [bool](https://docs.python.org/3/library/functions.html#bool), ignore: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str)], metadata_only: [bool](https://docs.python.org/3/library/functions.html#bool), pudl_version: [str](https://docs.python.org/3/library/stdtypes.html#str), docs_html_dir: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path) | [None](https://docs.python.org/3/library/constants.html#None), skip_git_check: [bool](https://docs.python.org/3/library/functions.html#bool)) → [int](https://docs.python.org/3/library/functions.html#int)
+### pudl.scripts.zenodo_data_release.main(env: [str](https://docs.python.org/3/builtins/stdtypes.html#str), source_dir: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None), publish: [bool](https://docs.python.org/3/builtins/functions.html#bool), ignore: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], metadata_only: [bool](https://docs.python.org/3/builtins/functions.html#bool), pudl_version: [str](https://docs.python.org/3/builtins/stdtypes.html#str), docs_html_dir: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path) | [None](https://docs.python.org/3/builtins/constants.html#None), skip_git_check: [bool](https://docs.python.org/3/builtins/functions.html#bool)) → [int](https://docs.python.org/3/builtins/functions.html#int)
 
 Publish a new PUDL data release to Zenodo.

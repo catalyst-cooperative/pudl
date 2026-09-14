@@ -241,15 +241,15 @@ A sentinel value for dealing with null or zero values.
    sentinel values. We avoid any negative values because there are instances of
    negative original values - especially negative net generation.
 
-### pudl.analysis.allocate_gen_fuel.allocate_gen_fuel_asset_factory(freq: [AllocationFrequency](#pudl.analysis.allocate_gen_fuel.AllocationFrequency), io_manager_key: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)]
+### pudl.analysis.allocate_gen_fuel.allocate_gen_fuel_asset_factory(freq: [AllocationFrequency](#pudl.analysis.allocate_gen_fuel.AllocationFrequency), io_manager_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)]
 
 Build yearly and monthly net generation & fuel consumption allocation assets.
 
-### pudl.analysis.allocate_gen_fuel.ALLOCATION_FREQUENCIES *: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[AllocationFrequency](#pudl.analysis.allocate_gen_fuel.AllocationFrequency), ...]* *= ('YS', 'MS')*
+### pudl.analysis.allocate_gen_fuel.ALLOCATION_FREQUENCIES *: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[AllocationFrequency](#pudl.analysis.allocate_gen_fuel.AllocationFrequency), ...]* *= ('YS', 'MS')*
 
 ### pudl.analysis.allocate_gen_fuel.allocate_gen_fuel_assets
 
-### pudl.analysis.allocate_gen_fuel.allocate_gen_fuel_by_generator_energy_source(gf: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), bf: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), gen: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), bga: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), gens: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), freq: [AllocationFrequency](#pudl.analysis.allocate_gen_fuel.AllocationFrequency), debug: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.analysis.allocate_gen_fuel.allocate_gen_fuel_by_generator_energy_source(gf: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), bf: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), gen: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), bga: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), gens: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), freq: [AllocationFrequency](#pudl.analysis.allocate_gen_fuel.AllocationFrequency), debug: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Allocate net gen from gen_fuel table to the generator/energy_source_code level.
 
@@ -277,7 +277,7 @@ net generation from the [core_eia923_\_monthly_generation_fuel](../../../../data
   * **freq** – Frequency at which the tables are aggregated temporally.
   * **debug** – If True, return additional debugging information.
 
-### pudl.analysis.allocate_gen_fuel.select_input_data(gf: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), bf: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), gen: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), bga: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), gens: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]
+### pudl.analysis.allocate_gen_fuel.select_input_data(gf: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), bf: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), gen: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), bga: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), gens: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]
 
 Select only the subset of input data needed for the allocation.
 
@@ -286,7 +286,7 @@ restricting the dates to those which are available in all inputs. Otherwise we e
 up with a bunch of NA values since the generators table has up to a year of more
 recent data from the EIA-860M.
 
-### pudl.analysis.allocate_gen_fuel.standardize_input_frequency(bf: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), gens: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), gen: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), freq: [AllocationFrequency](#pudl.analysis.allocate_gen_fuel.AllocationFrequency)) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]
+### pudl.analysis.allocate_gen_fuel.standardize_input_frequency(bf: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), gens: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), gen: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), freq: [AllocationFrequency](#pudl.analysis.allocate_gen_fuel.AllocationFrequency)) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]
 
 Standardize the frequency of the input tables.
 
@@ -324,7 +324,7 @@ to scale generators by their owners’ ownership fraction.
     `capacity_mw` and `utility_id_eia`
   * **own_eia860** – `core_eia860__scd_ownership` table.
 
-### pudl.analysis.allocate_gen_fuel.agg_by_generator(net_gen_fuel_alloc: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), by_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] = IDX_GENS, sum_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] = DATA_COLUMNS) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.analysis.allocate_gen_fuel.agg_by_generator(net_gen_fuel_alloc: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), by_cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] = IDX_GENS, sum_cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] = DATA_COLUMNS) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Aggregate the allocated gen fuel data to the generator level.
 
@@ -334,7 +334,7 @@ Aggregate the allocated gen fuel data to the generator level.
   * **sum_cols** – Data columns from that are being aggregated via a
     `pandas.groupby.sum()`
 
-### pudl.analysis.allocate_gen_fuel.stack_generators(gens: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), cat_col: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'energy_source_code_num', stacked_col: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'energy_source_code') → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.analysis.allocate_gen_fuel.stack_generators(gens: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), cat_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'energy_source_code_num', stacked_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'energy_source_code') → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Stack the generator table with a set of columns.
 
@@ -476,7 +476,7 @@ be associated via `_allocate_unassociated_records()`.
   `gen_assoc` filtered down to existing generators, unassociated plants, and
   the retiring/retired/newly-operating/proposed categories described above.
 
-### pudl.analysis.allocate_gen_fuel.\_TRANSITION_DATE_COL *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['retired', 'proposed'], [str](https://docs.python.org/3/library/stdtypes.html#str)]*
+### pudl.analysis.allocate_gen_fuel.\_TRANSITION_DATE_COL *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[Literal['retired', 'proposed'], [str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
 The column recording a generator’s actual transition date, keyed by `operational_status`.
 
@@ -571,7 +571,7 @@ before the end of `report_year`.
   * **report_year** – the calendar year each row’s `transition_date` is being
     checked against.
 * **Raises:**
-  [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – if `operational_status` is not `"retired"` or `"proposed"`.
+  [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – if `operational_status` is not `"retired"` or `"proposed"`.
 * **Returns:**
   A boolean series, True for rows whose `transition_date` falls within
   `report_year`.
@@ -650,7 +650,7 @@ See [`_identify_entirely_transitioned_groups()`](#pudl.analysis.allocate_gen_fue
   group-years that reported anomalous gf-table generation, filtered to
   months with non-null gf-table generation.
 
-### pudl.analysis.allocate_gen_fuel.\_allocate_unassociated_pm_records(gen_assoc: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), idx_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], col_w_unexpected_codes: Literal['energy_source_code', 'prime_mover_code'], data_columns: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.analysis.allocate_gen_fuel.\_allocate_unassociated_pm_records(gen_assoc: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), idx_cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], col_w_unexpected_codes: Literal['energy_source_code', 'prime_mover_code'], data_columns: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Associate unassociated [core_eia923_\_monthly_boiler_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-boiler-fuel) table records on idx_cols.
 
@@ -730,7 +730,7 @@ the `fuel_consumed_mmbtu_gf_tbl`.
 * **Parameters:**
   **gen_pm_fuel** – output of [`prep_allocation_fraction()`](#pudl.analysis.allocate_gen_fuel.prep_allocation_fraction).
 
-### pudl.analysis.allocate_gen_fuel.remove_aggregated_sentinel_value(col: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), scalar: [float](https://docs.python.org/3/library/functions.html#float) = 20.0) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
+### pudl.analysis.allocate_gen_fuel.remove_aggregated_sentinel_value(col: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), scalar: [float](https://docs.python.org/3/builtins/functions.html#float) = 20.0) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
 
 Replace the post-aggregation sentinel values in a column with zero.
 
@@ -743,7 +743,7 @@ df. Sometimes the allocation process creates duplicate keys. This function
 identifies when this happens, and aggregates the data on these keys to remove the
 duplicates.
 
-### pudl.analysis.allocate_gen_fuel.distribute_annually_reported_data_to_months_if_annual(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), key_columns: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], data_column_name: [str](https://docs.python.org/3/library/stdtypes.html#str), freq: [AllocationFrequency](#pudl.analysis.allocate_gen_fuel.AllocationFrequency)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.analysis.allocate_gen_fuel.distribute_annually_reported_data_to_months_if_annual(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), key_columns: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], data_column_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), freq: [AllocationFrequency](#pudl.analysis.allocate_gen_fuel.AllocationFrequency)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Allocates annually-reported data from the gen or bf table to each month.
 
@@ -832,7 +832,7 @@ each generator. So if boiler “1” was associated with generator A (25 MW) and
 B (75 MW), 25% of the fuel consumption would be allocated to generator A and 75% would
 be allocated to generator B.
 
-### pudl.analysis.allocate_gen_fuel.\_warn_if_missing_pms(gens: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.analysis.allocate_gen_fuel.\_warn_if_missing_pms(gens: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Log warning if there are too many null `prime_mover_code` s.
 
@@ -857,7 +857,7 @@ process, and so can’t be migrated to dbt.
   The subset of `IDX_PM_ESC` groups whose `frac` values don’t sum to 1
   (empty if none are bad). Any bad groups are also logged as a warning.
 
-### pudl.analysis.allocate_gen_fuel.test_gen_fuel_allocation(gen: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), net_gen_alloc: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), ratio: [float](https://docs.python.org/3/library/functions.html#float) = 0.05) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.analysis.allocate_gen_fuel.test_gen_fuel_allocation(gen: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), net_gen_alloc: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), ratio: [float](https://docs.python.org/3/builtins/functions.html#float) = 0.05) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Does the allocated MWh differ from the granular [core_eia923_\_monthly_generation](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation)?
 

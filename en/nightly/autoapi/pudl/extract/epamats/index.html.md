@@ -54,7 +54,7 @@ Bases: [`pydantic.BaseModel`](https://pydantic.dev/docs/validation/latest/api/py
 
 Represents a MATS partition identifying a unique quarterly resource file.
 
-#### year_quarter *: Annotated[[str](https://docs.python.org/3/library/stdtypes.html#str), StringConstraints(strict=True, pattern='^(19|20)\\\\d{2}[q][1-4]$')]*
+#### year_quarter *: Annotated[[str](https://docs.python.org/3/builtins/stdtypes.html#str), StringConstraints(strict=True, pattern='^(19|20)\\\\d{2}[q][1-4]$')]*
 
 #### *property* year
 

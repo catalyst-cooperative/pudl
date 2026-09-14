@@ -164,19 +164,19 @@ Invalid plant names which appear in multiple plant tables.
 
 ### pudl.transform.params.ferc1.PLANT_STATUS
 
-### pudl.transform.params.ferc1.FUEL_CATEGORIES *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [set](https://docs.python.org/3/library/stdtypes.html#set)[[str](https://docs.python.org/3/library/stdtypes.html#str)]]*
+### pudl.transform.params.ferc1.FUEL_CATEGORIES *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]]*
 
 A mapping a canonical fuel name to a set of strings which are used to represent that
 fuel in the FERC Form 1 Reporting.
 
 Case is ignored, as all fuel strings are converted to lower case in the data set.
 
-### pudl.transform.params.ferc1.FUEL_UNIT_CATEGORIES *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [set](https://docs.python.org/3/library/stdtypes.html#set)[[str](https://docs.python.org/3/library/stdtypes.html#str)]]*
+### pudl.transform.params.ferc1.FUEL_UNIT_CATEGORIES *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]]*
 
 A mapping of canonical fuel units (keys) to sets of strings representing those fuel
 units (values)
 
-### pudl.transform.params.ferc1.PLANT_TYPE_CATEGORIES *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [set](https://docs.python.org/3/library/stdtypes.html#set)[[str](https://docs.python.org/3/library/stdtypes.html#str)]]*
+### pudl.transform.params.ferc1.PLANT_TYPE_CATEGORIES *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]]*
 
 A mapping from canonical plant kinds (keys) to the associated freeform strings
 (values) identified as being associated with that kind of plant in the FERC Form 1 raw
@@ -187,7 +187,7 @@ classified as these do not indicate if they are solar thermal or photovoltaic. V
 on Steam (e.g. “steam 72” and “steam and gas”) were classified based on additional
 research of the plants on the Internet.
 
-### pudl.transform.params.ferc1.PLANT_TYPE_CATEGORIES_HYDRO *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [set](https://docs.python.org/3/library/stdtypes.html#set)[[str](https://docs.python.org/3/library/stdtypes.html#str)]]*
+### pudl.transform.params.ferc1.PLANT_TYPE_CATEGORIES_HYDRO *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]]*
 
 A mapping from canonical plant kinds (keys) to the associated freeform strings
 (values) identified as being associated with that kind of plant in the FERC Form 1 Hydro
@@ -198,7 +198,7 @@ languaged used to refer to hydro vs. other types of plants. For example: “conv
 in the context of a hydro plant means that it is conventional hydro-electric. In the
 context of the steam table, however, it’s unclear what conventional means.
 
-### pudl.transform.params.ferc1.CONSTRUCTION_TYPE_CATEGORIES *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [set](https://docs.python.org/3/library/stdtypes.html#set)[[str](https://docs.python.org/3/library/stdtypes.html#str)]]*
+### pudl.transform.params.ferc1.CONSTRUCTION_TYPE_CATEGORIES *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]]*
 
 A dictionary of construction types (keys) and lists of construction type strings
 associated with each type (values) from FERC Form 1.

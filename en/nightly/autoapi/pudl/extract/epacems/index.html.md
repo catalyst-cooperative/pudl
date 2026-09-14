@@ -61,7 +61,7 @@ Bases: [`pydantic.BaseModel`](https://pydantic.dev/docs/validation/latest/api/py
 
 Represents EpaCems partition identifying unique resource file.
 
-#### year_quarter *: Annotated[[str](https://docs.python.org/3/library/stdtypes.html#str), StringConstraints(strict=True, pattern='^(19|20)\\\\d{2}[q][1-4]$')]*
+#### year_quarter *: Annotated[[str](https://docs.python.org/3/builtins/stdtypes.html#str), StringConstraints(strict=True, pattern='^(19|20)\\\\d{2}[q][1-4]$')]*
 
 #### *property* year
 
@@ -93,7 +93,7 @@ rename columns for a quarterly CSV file.
 
 Constructs dataframe from a zipfile for a given (year_quarter) partition.
 
-### pudl.extract.epacems.extract_quarter(context, year_quarter: [str](https://docs.python.org/3/library/stdtypes.html#str)) → polars.LazyFrame
+### pudl.extract.epacems.extract_quarter(context, year_quarter: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → polars.LazyFrame
 
 Extract a single quarter of EPA CEMS data return it as a lazy polars DataFrame.
 

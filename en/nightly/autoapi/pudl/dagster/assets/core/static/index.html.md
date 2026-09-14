@@ -25,7 +25,7 @@ than an external extract step, and keep source-specific extract logic elsewhere.
 
 ### pudl.dagster.assets.core.static.logger
 
-### pudl.dagster.assets.core.static.\_read_static_encoding_tables(etl_group: Literal['static_eia', 'static_ferc1', 'static_rus']) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]
+### pudl.dagster.assets.core.static.\_read_static_encoding_tables(etl_group: Literal['static_eia', 'static_ferc1', 'static_rus']) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]
 
 Build dataframes of static tables from a data source for use as foreign keys.
 

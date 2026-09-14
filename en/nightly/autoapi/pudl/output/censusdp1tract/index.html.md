@@ -28,9 +28,9 @@ Bases: `TypedDict`
 
 Simple class defining the expected structure of the layer processing params.
 
-#### plural *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### plural *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### rename *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)]*
+#### rename *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
 ### pudl.output.censusdp1tract.census_asset_factory(layer: Literal['state', 'county', 'tract']) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
 

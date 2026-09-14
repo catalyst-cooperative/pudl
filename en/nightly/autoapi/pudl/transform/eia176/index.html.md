@@ -57,7 +57,7 @@ Module to perform data cleaning functions on EIA176 data tables.
 
 ### pudl.transform.eia176.MAX_NATIONAL_ADJUSTMENT_RECORDS *= 28*
 
-### pudl.transform.eia176.\_core_eia176_\_numeric_data(raw_eia176_\_numeric_data: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[dagster.Output](https://docs.dagster.io/api/dagster/ops/#dagster.Output), [dagster.Output](https://docs.dagster.io/api/dagster/ops/#dagster.Output)]
+### pudl.transform.eia176.\_core_eia176_\_numeric_data(raw_eia176_\_numeric_data: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[dagster.Output](https://docs.dagster.io/api/dagster/ops/#dagster.Output), [dagster.Output](https://docs.dagster.io/api/dagster/ops/#dagster.Output)]
 
 Process EIA 176 custom report data into company and aggregate outputs.
 
@@ -67,7 +67,7 @@ and return two wide tables with primary keys and one column per variable.
 One table with data for each year and company, one with state- and US-level
 aggregates per year.
 
-### pudl.transform.eia176.get_wide_table(long_table: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), primary_key: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.transform.eia176.get_wide_table(long_table: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), primary_key: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Take a ‘long’ or entity-attribute-value table and return a wide table with one column per attribute/variable.
 
@@ -75,7 +75,7 @@ Take a ‘long’ or entity-attribute-value table and return a wide table with o
 
 Map subdivision names and codes to canonical two-letter codes.
 
-### pudl.transform.eia176.normalize_continuation_line_location_codes(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), core_pudl_\_codes_subdivisions: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), column: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.transform.eia176.normalize_continuation_line_location_codes(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), core_pudl_\_codes_subdivisions: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), column: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Validate and normalize EIA-176 continuation line location codes.
 
@@ -89,7 +89,7 @@ values are raw EIA `REF_CODE` values, not standardized ISO country codes.
 
 Classify EIA-176 continuation codes as subnational or national/other codes.
 
-### pudl.transform.eia176.\_find_continuation_line_total_mismatches(detail_records: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), \_core_eia176_\_yearly_company_data: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), company_total_column: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.transform.eia176.\_find_continuation_line_total_mismatches(detail_records: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), \_core_eia176_\_yearly_company_data: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), company_total_column: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Compare detailed continuation line totals with reported company-level totals.
 
@@ -126,7 +126,7 @@ Processing:
   * **core_pudl_\_codes_subdivisions** – Mapping from `subdivision_name` to
     `subdivision_code` used to normalize `operating_state`.
 * **Raises:**
-  [**AssertionError**](https://docs.python.org/3/library/exceptions.html#AssertionError) – If component volumes don’t sum to totals, or if rows with
+  [**AssertionError**](https://docs.python.org/3/builtins/exceptions.html#AssertionError) – If component volumes don’t sum to totals, or if rows with
   unknown `operating_state` contain non-zero values.
 
 ### Notes
@@ -155,7 +155,7 @@ Produce detailed annual gas disposition to other uses (EIA-176, Line 18.4).
 
 Produce company-level natural and supplemental gas supply (EIA176, Lines 1.0-7.0).
 
-### pudl.transform.eia176.\_compare_eia176_continuation_line_total(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), raw_eia176_\_continuation_text_lines: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), , line: [int](https://docs.python.org/3/library/functions.html#int), value_col: [str](https://docs.python.org/3/library/stdtypes.html#str), continuation_col: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.transform.eia176.\_compare_eia176_continuation_line_total(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), raw_eia176_\_continuation_text_lines: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), , line: [int](https://docs.python.org/3/builtins/functions.html#int), value_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str), continuation_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Compare a wide EIA-176 value column against summed continuation-line values.
 
@@ -199,7 +199,7 @@ Processing:
   * **\_core_eia176_\_yearly_company_data** – Wide company-level EIA-176 data; provides
     numeric and boolean company fields.
 
-### pudl.transform.eia176.\_normalize_operating_states(core_pudl_\_codes_subdivisions, df, column: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'operating_state')
+### pudl.transform.eia176.\_normalize_operating_states(core_pudl_\_codes_subdivisions, df, column: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'operating_state')
 
 Map full state names to their postal abbreviations.
 

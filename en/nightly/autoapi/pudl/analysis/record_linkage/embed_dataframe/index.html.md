@@ -60,7 +60,7 @@ TransformStep’s can be combined to vectorize one or more columns.
 This class defines a very simple interface for TransformStep’s, which essentially
 says that a TransformStep should take configuration and implement the method as_transformer.
 
-#### name *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### name *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
 #### *abstractmethod* as_transformer() → [sklearn.base.BaseEstimator](https://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html#sklearn.base.BaseEstimator)
 
@@ -72,11 +72,11 @@ Bases: [`pydantic.BaseModel`](https://pydantic.dev/docs/validation/latest/api/py
 
 Define a set of transformations to apply to one or more columns.
 
-#### transform_steps *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[TransformStep](#pudl.analysis.record_linkage.embed_dataframe.TransformStep)]*
+#### transform_steps *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[TransformStep](#pudl.analysis.record_linkage.embed_dataframe.TransformStep)]*
 
-#### weight *: [float](https://docs.python.org/3/library/functions.html#float)* *= 1.0*
+#### weight *: [float](https://docs.python.org/3/builtins/functions.html#float)* *= 1.0*
 
-#### columns *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+#### columns *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
 #### as_pipeline()
 
@@ -86,15 +86,15 @@ Return [`sklearn.pipeline.Pipeline`](https://scikit-learn.org/stable/modules/gen
 
 Return config dict formatted for logging to mlflow.
 
-### pudl.analysis.record_linkage.embed_dataframe.log_dataframe_embedder_config(embedder_name: [str](https://docs.python.org/3/library/stdtypes.html#str), vectorizers: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [ColumnVectorizer](#pudl.analysis.record_linkage.embed_dataframe.ColumnVectorizer)], experiment_tracker: [pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker](../../ml_tools/experiment_tracking/index.html.md#pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker))
+### pudl.analysis.record_linkage.embed_dataframe.log_dataframe_embedder_config(embedder_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), vectorizers: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [ColumnVectorizer](#pudl.analysis.record_linkage.embed_dataframe.ColumnVectorizer)], experiment_tracker: [pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker](../../ml_tools/experiment_tracking/index.html.md#pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker))
 
 Log embedder config to mlflow experiment.
 
-### pudl.analysis.record_linkage.embed_dataframe.dataframe_embedder_factory(name_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str), vectorizers: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [ColumnVectorizer](#pudl.analysis.record_linkage.embed_dataframe.ColumnVectorizer)])
+### pudl.analysis.record_linkage.embed_dataframe.dataframe_embedder_factory(name_prefix: [str](https://docs.python.org/3/builtins/stdtypes.html#str), vectorizers: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [ColumnVectorizer](#pudl.analysis.record_linkage.embed_dataframe.ColumnVectorizer)])
 
 Return a configured op graph to embed an input dataframe.
 
-### pudl.analysis.record_linkage.embed_dataframe.dataframe_cleaner_factory(name_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str), vectorizers: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [ColumnVectorizer](#pudl.analysis.record_linkage.embed_dataframe.ColumnVectorizer)])
+### pudl.analysis.record_linkage.embed_dataframe.dataframe_cleaner_factory(name_prefix: [str](https://docs.python.org/3/builtins/stdtypes.html#str), vectorizers: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [ColumnVectorizer](#pudl.analysis.record_linkage.embed_dataframe.ColumnVectorizer)])
 
 Return a configured op graph to clean an input dataframe.
 
@@ -104,9 +104,9 @@ Bases: [`TransformStep`](#pudl.analysis.record_linkage.embed_dataframe.Transform
 
 Implement TransformStep for [`sklearn.feature_extraction.text.TfidfVectorizer`](https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html#sklearn.feature_extraction.text.TfidfVectorizer).
 
-#### name *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= 'tfidf_vectorizer'*
+#### name *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 'tfidf_vectorizer'*
 
-#### options *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)*
+#### options *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)*
 
 #### as_transformer()
 
@@ -118,9 +118,9 @@ Bases: [`TransformStep`](#pudl.analysis.record_linkage.embed_dataframe.Transform
 
 Implement TransformStep for [`sklearn.preprocessing.OneHotEncoder`](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder.html#sklearn.preprocessing.OneHotEncoder).
 
-#### name *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= 'one_hot_encoder_vectorizer'*
+#### name *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 'one_hot_encoder_vectorizer'*
 
-#### options *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)*
+#### options *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)*
 
 #### as_transformer()
 
@@ -132,9 +132,9 @@ Bases: [`TransformStep`](#pudl.analysis.record_linkage.embed_dataframe.Transform
 
 Implement ColumnTransformation for MinMaxScaler.
 
-#### name *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= 'numerical_vectorizer'*
+#### name *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 'numerical_vectorizer'*
 
-#### options *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)*
+#### options *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)*
 
 #### as_transformer()
 
@@ -146,15 +146,15 @@ Bases: [`TransformStep`](#pudl.analysis.record_linkage.embed_dataframe.Transform
 
 Implement ColumnTransformation for Normalizer.
 
-#### name *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= 'numerical_normalizer'*
+#### name *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 'numerical_normalizer'*
 
-#### options *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)*
+#### options *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)*
 
 #### as_transformer()
 
 Return configured NormalizerConfig.
 
-### pudl.analysis.record_linkage.embed_dataframe.\_apply_cleaning_func(df, function_key: [str](https://docs.python.org/3/library/stdtypes.html#str))
+### pudl.analysis.record_linkage.embed_dataframe.\_apply_cleaning_func(df, function_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str))
 
 ### *class* pudl.analysis.record_linkage.embed_dataframe.ColumnCleaner(/, \*\*data: Any)
 
@@ -162,9 +162,9 @@ Bases: [`TransformStep`](#pudl.analysis.record_linkage.embed_dataframe.Transform
 
 Implement ColumnTransformation for cleaning functions.
 
-#### name *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= 'column_cleaner'*
+#### name *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 'column_cleaner'*
 
-#### cleaning_function *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### cleaning_function *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
 #### as_transformer()
 
@@ -176,11 +176,11 @@ Bases: [`TransformStep`](#pudl.analysis.record_linkage.embed_dataframe.Transform
 
 Implement ColumnTransformation for CompanyNameCleaner.
 
-#### name *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= 'name_cleaner'*
+#### name *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 'name_cleaner'*
 
 #### company_cleaner *: [pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner](../name_cleaner/index.html.md#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner)*
 
-#### return_as_dframe *: [bool](https://docs.python.org/3/library/functions.html#bool)* *= False*
+#### return_as_dframe *: [bool](https://docs.python.org/3/builtins/functions.html#bool)* *= False*
 
 #### as_transformer()
 
@@ -192,28 +192,28 @@ Bases: [`TransformStep`](#pudl.analysis.record_linkage.embed_dataframe.Transform
 
 Fill missing fuel types from another column.
 
-#### name *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= 'fuel_type_filler'*
+#### name *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 'fuel_type_filler'*
 
-#### fuel_type_col *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= 'fuel_type_code_pudl'*
+#### fuel_type_col *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 'fuel_type_code_pudl'*
 
-#### name_col *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= 'plant_name'*
+#### name_col *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 'plant_name'*
 
 #### as_transformer()
 
 Return configured FuelTypeFiller.
 
-### pudl.analysis.record_linkage.embed_dataframe.\_extract_keyword_from_column(ser: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), keyword_list: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
+### pudl.analysis.record_linkage.embed_dataframe.\_extract_keyword_from_column(ser: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), keyword_list: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
 
 Extract keywords contained in a Pandas series with a regular expression.
 
-### pudl.analysis.record_linkage.embed_dataframe.\_fill_fuel_type_from_name(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), fuel_type_col: [str](https://docs.python.org/3/library/stdtypes.html#str), name_col: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.analysis.record_linkage.embed_dataframe.\_fill_fuel_type_from_name(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), fuel_type_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str), name_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Impute missing fuel type data from a name column.
 
 If a missing fuel type code is contained in the plant name,
 fill in the fuel type code PUDL for that record. E.g. “Washington Hydro”
 
-### pudl.analysis.record_linkage.embed_dataframe.\_apply_string_similarity_func(df, function_key: [str](https://docs.python.org/3/library/stdtypes.html#str), col1: [str](https://docs.python.org/3/library/stdtypes.html#str), col2: [str](https://docs.python.org/3/library/stdtypes.html#str))
+### pudl.analysis.record_linkage.embed_dataframe.\_apply_string_similarity_func(df, function_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str), col1: [str](https://docs.python.org/3/builtins/stdtypes.html#str), col2: [str](https://docs.python.org/3/builtins/stdtypes.html#str))
 
 ### *class* pudl.analysis.record_linkage.embed_dataframe.StringSimilarityScorer(/, \*\*data: Any)
 
@@ -221,19 +221,19 @@ Bases: [`TransformStep`](#pudl.analysis.record_linkage.embed_dataframe.Transform
 
 Vectorize two string columns with Jaro Winkler similarity.
 
-#### name *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= 'string_sim'*
+#### name *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 'string_sim'*
 
-#### metric *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### metric *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### col1 *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### col1 *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### col2 *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### col2 *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
 #### as_transformer()
 
 Return configured Jaro Winkler similarity function.
 
-### pudl.analysis.record_linkage.embed_dataframe.\_apply_numeric_similarity_func(df, function_key: [str](https://docs.python.org/3/library/stdtypes.html#str), col1: [str](https://docs.python.org/3/library/stdtypes.html#str), col2: [str](https://docs.python.org/3/library/stdtypes.html#str), scale: [float](https://docs.python.org/3/library/functions.html#float), offset: [float](https://docs.python.org/3/library/functions.html#float), origin: [float](https://docs.python.org/3/library/functions.html#float), missing_value: [float](https://docs.python.org/3/library/functions.html#float), label: [str](https://docs.python.org/3/library/stdtypes.html#str))
+### pudl.analysis.record_linkage.embed_dataframe.\_apply_numeric_similarity_func(df, function_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str), col1: [str](https://docs.python.org/3/builtins/stdtypes.html#str), col2: [str](https://docs.python.org/3/builtins/stdtypes.html#str), scale: [float](https://docs.python.org/3/builtins/functions.html#float), offset: [float](https://docs.python.org/3/builtins/functions.html#float), origin: [float](https://docs.python.org/3/builtins/functions.html#float), missing_value: [float](https://docs.python.org/3/builtins/functions.html#float), label: [str](https://docs.python.org/3/builtins/stdtypes.html#str))
 
 ### *class* pudl.analysis.record_linkage.embed_dataframe.NumericSimilarityScorer(/, \*\*data: Any)
 
@@ -263,23 +263,23 @@ comparing in ElasticSearch, a full-text search tool.
   * **missing_value** – The value if one or both records have a missing value on the
     compared field. Default 0.
 
-#### name *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= 'numeric_sim'*
+#### name *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 'numeric_sim'*
 
-#### col1 *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### col1 *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### col2 *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### col2 *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### output_name *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### output_name *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### method *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= 'linear'*
+#### method *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 'linear'*
 
-#### scale *: [float](https://docs.python.org/3/library/functions.html#float)* *= 1.0*
+#### scale *: [float](https://docs.python.org/3/builtins/functions.html#float)* *= 1.0*
 
-#### offset *: [float](https://docs.python.org/3/library/functions.html#float)* *= 0.0*
+#### offset *: [float](https://docs.python.org/3/builtins/functions.html#float)* *= 0.0*
 
-#### origin *: [float](https://docs.python.org/3/library/functions.html#float)* *= 0.0*
+#### origin *: [float](https://docs.python.org/3/builtins/functions.html#float)* *= 0.0*
 
-#### missing_value *: [float](https://docs.python.org/3/library/functions.html#float)* *= 0.0*
+#### missing_value *: [float](https://docs.python.org/3/builtins/functions.html#float)* *= 0.0*
 
 #### as_transformer()
 

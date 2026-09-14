@@ -55,26 +55,26 @@ for this analysis regardless of what’s actually present in the EPA CEMS data
 config, so the earliest feasible `report_year` in production (a 3-year /
 12-quarter trailing window) is 2000, not 1997.
 
-### pudl.analysis.operational_characteristics.\_get_heat_rate_analysis_config(context: [dagster.AssetExecutionContext](https://docs.dagster.io/api/dagster/execution/#dagster.AssetExecutionContext)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [int](https://docs.python.org/3/library/functions.html#int)]
+### pudl.analysis.operational_characteristics.\_get_heat_rate_analysis_config(context: [dagster.AssetExecutionContext](https://docs.dagster.io/api/dagster/execution/#dagster.AssetExecutionContext)) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [int](https://docs.python.org/3/builtins/functions.html#int)]
 
 Extract heat rate analysis settings from Dagster asset config.
 
-### pudl.analysis.operational_characteristics.\_year_quarter_to_ordinal(year_quarter: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [int](https://docs.python.org/3/library/functions.html#int)
+### pudl.analysis.operational_characteristics.\_year_quarter_to_ordinal(year_quarter: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [int](https://docs.python.org/3/builtins/functions.html#int)
 
 Convert a `YYYYqN` string into a zero-based quarter ordinal.
 
-### pudl.analysis.operational_characteristics.\_ordinal_to_quarter_start(ordinal: [int](https://docs.python.org/3/library/functions.html#int)) → [pandas.Timestamp](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Timestamp.html#pandas.Timestamp)
+### pudl.analysis.operational_characteristics.\_ordinal_to_quarter_start(ordinal: [int](https://docs.python.org/3/builtins/functions.html#int)) → [pandas.Timestamp](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Timestamp.html#pandas.Timestamp)
 
 Convert a zero-based quarter ordinal into its first UTC timestamp.
 
 `operating_datetime_utc` is stored as a timezone-naive timestamp (already in
 UTC), so this deliberately returns a naive `Timestamp` to compare against it.
 
-### pudl.analysis.operational_characteristics.\_ordinal_to_year_quarter(ordinal: [int](https://docs.python.org/3/library/functions.html#int)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+### pudl.analysis.operational_characteristics.\_ordinal_to_year_quarter(ordinal: [int](https://docs.python.org/3/builtins/functions.html#int)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Convert a zero-based quarter ordinal into its `YYYYqN` string.
 
-### pudl.analysis.operational_characteristics.\_missing_required_quarters(year_quarters: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], target_year_quarter: [str](https://docs.python.org/3/library/stdtypes.html#str), num_quarters: [int](https://docs.python.org/3/library/functions.html#int)) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]
+### pudl.analysis.operational_characteristics.\_missing_required_quarters(year_quarters: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], target_year_quarter: [str](https://docs.python.org/3/builtins/stdtypes.html#str), num_quarters: [int](https://docs.python.org/3/builtins/functions.html#int)) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]
 
 List quarters in the trailing window ending at `target_year_quarter`.
 
@@ -85,7 +85,7 @@ duplicates – it does not require the list to be contiguous, so a
 trailing window can have gaps even in a config that otherwise looks
 reasonable.
 
-### pudl.analysis.operational_characteristics.\_select_target_year_quarters(year_quarters: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], num_quarters: [int](https://docs.python.org/3/library/functions.html#int)) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]
+### pudl.analysis.operational_characteristics.\_select_target_year_quarters(year_quarters: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], num_quarters: [int](https://docs.python.org/3/builtins/functions.html#int)) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]
 
 Choose the EPA CEMS year-quarters that each end a full analysis window.
 
@@ -121,12 +121,12 @@ to Q4, because the loaded data only covers that specific quarter.
   `num_quarters`-long window. Normally every entry ends in `q4`; in
   the single-quarter fast-ETL case the one entry is the loaded quarter.
 * **Raises:**
-  [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – if no configured year-quarter is at or after
+  [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – if no configured year-quarter is at or after
   [`EARLIEST_USABLE_YEAR_QUARTER`](#pudl.analysis.operational_characteristics.EARLIEST_USABLE_YEAR_QUARTER), or if no candidate
   year-quarter has its full trailing window available – e.g.
   `num_quarters` is larger than the usable EPA CEMS history.
 
-### pudl.analysis.operational_characteristics.filter_cems_for_heat_rate_analysis(core_epacems_\_hourly_emissions: polars.LazyFrame, final_year_quarter: [str](https://docs.python.org/3/library/stdtypes.html#str), num_quarters: [int](https://docs.python.org/3/library/functions.html#int), states: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [None](https://docs.python.org/3/library/constants.html#None) = None) → polars.LazyFrame
+### pudl.analysis.operational_characteristics.filter_cems_for_heat_rate_analysis(core_epacems_\_hourly_emissions: polars.LazyFrame, final_year_quarter: [str](https://docs.python.org/3/builtins/stdtypes.html#str), num_quarters: [int](https://docs.python.org/3/builtins/functions.html#int), states: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → polars.LazyFrame
 
 Filter hourly EPA CEMS records to the configured analysis window.
 
@@ -141,7 +141,7 @@ Filter hourly EPA CEMS records to the configured analysis window.
 * **Returns:**
   Hourly EPA CEMS records filtered to the requested quarters and states.
 
-### pudl.analysis.operational_characteristics.\_add_run_id_expr(unit_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], state_col: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None) → polars.Expr
+### pudl.analysis.operational_characteristics.\_add_run_id_expr(unit_cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], state_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → polars.Expr
 
 Build an expression assigning run IDs to consecutive hourly observations.
 
@@ -149,7 +149,7 @@ Assumes the frame is already sorted by `unit_cols` (and, implicitly,
 `operating_datetime_utc`), since it relies on `.shift()` to compare each row
 to its immediate predecessor.
 
-### pudl.analysis.operational_characteristics.assign_groupwise_load_factor_bins(cems_working: polars.LazyFrame, unit_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], load_factor_col: [str](https://docs.python.org/3/library/stdtypes.html#str)) → polars.DataFrame
+### pudl.analysis.operational_characteristics.assign_groupwise_load_factor_bins(cems_working: polars.LazyFrame, unit_cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], load_factor_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → polars.DataFrame
 
 Fully vectorized, per-unit equal-width load-factor binning.
 
@@ -170,7 +170,7 @@ first (right-closed) bin rather than outside every bin – matching pandas’
 `_bins_to_cuts` behavior of shifting only `bins[0]`, not redistributing
 the padding across all ten bins.
 
-### pudl.analysis.operational_characteristics.summarize_ramp_rates(cems_with_stable_bins: polars.DataFrame, unit_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], generation_col: [str](https://docs.python.org/3/library/stdtypes.html#str)) → polars.DataFrame
+### pudl.analysis.operational_characteristics.summarize_ramp_rates(cems_with_stable_bins: polars.DataFrame, unit_cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], generation_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → polars.DataFrame
 
 Summarize per-unit ramp rates using the steepest 5% of observed ramp-up/down.
 
@@ -179,7 +179,7 @@ and uses 20 equal-count (quantile) bins. Only the bottom and top bins (the steep
 5% of downward and upward ramps, respectively) are actually used, via
 `head`/`tail` on the sorted values rather than an explicit bin column.
 
-### pudl.analysis.operational_characteristics.handle_adjustment_in_cems(cems: polars.LazyFrame, unit_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], adjusted: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[polars.LazyFrame, [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)]]
+### pudl.analysis.operational_characteristics.handle_adjustment_in_cems(cems: polars.LazyFrame, unit_cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], adjusted: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[polars.LazyFrame, [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]]
 
 Filter CEMS data, computing derived columns if not adjusted.
 
@@ -194,7 +194,7 @@ TODO: Consider simplification or use of a dataclass or other lightweight data
 structure. Implement changes when we implement
 add_adjusted_net_generation_to_cems below.
 
-### pudl.analysis.operational_characteristics.prep_output_df(cems: polars.DataFrame, unit_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], max_load_col: [str](https://docs.python.org/3/library/stdtypes.html#str)) → polars.DataFrame
+### pudl.analysis.operational_characteristics.prep_output_df(cems: polars.DataFrame, unit_cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], max_load_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → polars.DataFrame
 
 Set up aggregated output dataframe with empty calculated columns.
 
@@ -203,7 +203,7 @@ factors to bin (e.g. constant-load units) – those come back all-null except fo
 identifying columns and max load. Downstream steps merge their real values on top
 of this shell, so every unit is guaranteed to appear in the final output.
 
-### pudl.analysis.operational_characteristics.compute_minimum_stable_bin(binned_cems: polars.DataFrame, unit_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], min_stable_consecutive_hours: [int](https://docs.python.org/3/library/functions.html#int)) → polars.DataFrame
+### pudl.analysis.operational_characteristics.compute_minimum_stable_bin(binned_cems: polars.DataFrame, unit_cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], min_stable_consecutive_hours: [int](https://docs.python.org/3/builtins/functions.html#int)) → polars.DataFrame
 
 Given a certain consecutive hour threshold, find runs with stable behavior.
 
@@ -219,11 +219,11 @@ Once we know how long all the runs are, we find all of the runs that are longer
 than `min_stable_consecutive_hours` and we find the `load_factor_bin` which
 corresponds to the lowest `load_factor_bin` to get the minimum stable bin.
 
-### pudl.analysis.operational_characteristics.compute_heat_rate_at_max_load(heat_rate_input: polars.DataFrame, unit_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], heat_rate_col: [str](https://docs.python.org/3/library/stdtypes.html#str)) → polars.DataFrame
+### pudl.analysis.operational_characteristics.compute_heat_rate_at_max_load(heat_rate_input: polars.DataFrame, unit_cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], heat_rate_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → polars.DataFrame
 
 Compute the heat rate at the maximum load (by bin).
 
-### pudl.analysis.operational_characteristics.compute_min_stable_heat_rates(heat_rate_input: polars.DataFrame, min_stable_bins: polars.DataFrame, unit_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], heat_rate_col: [str](https://docs.python.org/3/library/stdtypes.html#str)) → polars.DataFrame
+### pudl.analysis.operational_characteristics.compute_min_stable_heat_rates(heat_rate_input: polars.DataFrame, min_stable_bins: polars.DataFrame, unit_cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], heat_rate_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → polars.DataFrame
 
 Compute the heat rate for the minimum stable run.
 
@@ -231,7 +231,7 @@ Compute the heat rate for the minimum stable run.
 
 Filter out records below the minimum stable bin.
 
-### pudl.analysis.operational_characteristics.calculate_min_up_or_down_times(output: polars.DataFrame, cems_with_stable_bins: polars.DataFrame, unit_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], up_or_down: Literal['up', 'down']) → polars.DataFrame
+### pudl.analysis.operational_characteristics.calculate_min_up_or_down_times(output: polars.DataFrame, cems_with_stable_bins: polars.DataFrame, unit_cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], up_or_down: Literal['up', 'down']) → polars.DataFrame
 
 Calculate minimum up or down times.
 
@@ -240,7 +240,7 @@ the `min_stable_bin` (calculated in [`compute_minimum_stable_bin()`](#pudl.analy
 considered “down” when there is no load_factor_bin (which is equivalent to having no
 load during that hour).
 
-### pudl.analysis.operational_characteristics.estimate_operational_characteristics_by_unit(cems: polars.LazyFrame, min_stable_consecutive_hours: [int](https://docs.python.org/3/library/functions.html#int), adjusted: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → polars.DataFrame
+### pudl.analysis.operational_characteristics.estimate_operational_characteristics_by_unit(cems: polars.LazyFrame, min_stable_consecutive_hours: [int](https://docs.python.org/3/builtins/functions.html#int), adjusted: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → polars.DataFrame
 
 Estimate operational characteristics for every EPA CEMS plant-unit pair.
 

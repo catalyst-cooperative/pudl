@@ -21,7 +21,7 @@ Table definitions for the FERC Form 1 data group.
 
 ### pudl.metadata.resources.ferc1.TABLE_DESCRIPTIONS
 
-### pudl.metadata.resources.ferc1.RESOURCE_METADATA *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]*
+### pudl.metadata.resources.ferc1.RESOURCE_METADATA *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]]*
 
 FERC Form 1 resource attributes by PUDL identifier (`resource.name`).
 

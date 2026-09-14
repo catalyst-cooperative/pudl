@@ -19,7 +19,7 @@ Revert the filled nulls from string columns.
 
 Revert the filled nulls from float columns.
 
-### pudl.analysis.fuel_by_plant.fuel_by_plant_ferc1(fuel_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), fuel_categories: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], thresh: [float](https://docs.python.org/3/library/functions.html#float) = 0.5) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.analysis.fuel_by_plant.fuel_by_plant_ferc1(fuel_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), fuel_categories: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], thresh: [float](https://docs.python.org/3/builtins/functions.html#float) = 0.5) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Calculates useful FERC Form 1 fuel metrics on a per plant-year basis.
 
@@ -54,5 +54,5 @@ plant-year record and given a string label.
   content and fuel costs for each fuel in that year, and a column that labels the
   plant’s primary fuel for that year.
 * **Raises:**
-  [**AssertionError**](https://docs.python.org/3/library/exceptions.html#AssertionError) – If the DataFrame input does not have the columns required to
+  [**AssertionError**](https://docs.python.org/3/builtins/exceptions.html#AssertionError) – If the DataFrame input does not have the columns required to
   run the function.
