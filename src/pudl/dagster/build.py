@@ -79,8 +79,6 @@ def _build_interactive_resources(
             pudl_paths=pudl_paths,
         ),
         "parquet_io_manager": PudlParquetIOManager(pudl_paths=pudl_paths),
-        # "pudl_io_manager" is kept as an alias for the plain Parquet IO manager.
-        "pudl_io_manager": PudlParquetIOManager(pudl_paths=pudl_paths),
         "ferc1_dbf_sqlite_io_manager": FercDbfSqliteIOManager(
             global_data_config=global_data_config,
             pudl_paths=pudl_paths,

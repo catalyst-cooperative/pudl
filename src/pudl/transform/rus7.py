@@ -676,9 +676,9 @@ _CORE_RUS7_TABLES = [f"_{t}" for t in HARVESTED_CORE_TABLES_RUS7]
         for table_name in ["_core_rus7__scd_borrowers"] + _CORE_RUS7_TABLES
     },
     outs={
-        "core_rus7__entity_borrowers": AssetOut(io_manager_key="pudl_io_manager"),
+        "core_rus7__entity_borrowers": AssetOut(io_manager_key="parquet_io_manager"),
         "_core_rus7__forensics_entity_resolution_borrowers": AssetOut(
-            io_manager_key="pudl_io_manager"
+            io_manager_key="parquet_io_manager"
         ),
     },
 )
@@ -714,7 +714,7 @@ finished_rus_assets = [
     rus.finished_rus_asset_factory(
         table_name=_core_table_name.removeprefix("_"),
         _core_table_name=_core_table_name,
-        io_manager_key="pudl_io_manager",
+        io_manager_key="parquet_io_manager",
     )
     for _core_table_name in _CORE_RUS7_TABLES
 ]
