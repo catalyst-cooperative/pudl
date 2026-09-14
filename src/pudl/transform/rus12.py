@@ -559,7 +559,7 @@ def _core_rus12__yearly_plant_operations(
     null_partly_owned_mask = df.report_date.dt.year.isin([2006, 2007, 2008])
 
     # From _OR_PowerSupply Plant File Documentation.rtf in 2021 archive
-    # TO FOCUS ONLY ON DATA FOR THE BORROWERS’ SHARE OF THE PLANTS
+    # TO FOCUS ONLY ON DATA FOR THE BORROWERS' SHARE OF THE PLANTS
     # FullOwnershipScope    BorrowerShared
     # FALSE                 TRUE
     # TRUE                  FALSE
