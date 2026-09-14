@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.eia861 &#8212; PUDL 2026.9.1.dev4 documentation</title>
+    <title>pudl.transform.eia861 &#8212; PUDL 2026.9.1.dev5 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../_static/documentation_options.js?v=6766d2bb"></script>
+    <script src="../../../_static/documentation_options.js?v=ce26a6dd"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev4 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev4 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev5 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev5 documentation - Home"/>
   
   
 </a></div>
@@ -2096,7 +2096,7 @@ window.runMermaid = runMermaid;</script>
 <span class="c1">###############################################################################</span>
 <span class="c1"># EIA Form 861 Table Transform Functions</span>
 <span class="c1">###############################################################################</span>
-<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">)</span>
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span><span class="p">)</span>
 <div class="viewcode-block" id="core_eia861__yearly_service_territory">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/eia861/index.html#pudl.transform.eia861.core_eia861__yearly_service_territory">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">core_eia861__yearly_service_territory</span><span class="p">(</span>
@@ -2212,7 +2212,7 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">)</span>
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span><span class="p">)</span>
 <div class="viewcode-block" id="core_eia861__yearly_sales">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/eia861/index.html#pudl.transform.eia861.core_eia861__yearly_sales">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">core_eia861__yearly_sales</span><span class="p">(</span><span class="n">raw_eia861__sales</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
@@ -2299,7 +2299,7 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">)</span>
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span><span class="p">)</span>
 <div class="viewcode-block" id="core_eia861__yearly_short_form">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/eia861/index.html#pudl.transform.eia861.core_eia861__yearly_short_form">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">core_eia861__yearly_short_form</span><span class="p">(</span>
@@ -2356,7 +2356,7 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">)</span>
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span><span class="p">)</span>
 <div class="viewcode-block" id="core_eia861__yearly_advanced_metering_infrastructure">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/eia861/index.html#pudl.transform.eia861.core_eia861__yearly_advanced_metering_infrastructure">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">core_eia861__yearly_advanced_metering_infrastructure</span><span class="p">(</span>
@@ -2408,10 +2408,10 @@ window.runMermaid = runMermaid;</script>
 <span class="nd">@multi_asset</span><span class="p">(</span>
     <span class="n">outs</span><span class="o">=</span><span class="p">{</span>
         <span class="s2">"core_eia861__yearly_demand_response"</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(</span>
-            <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span>
+            <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span>
         <span class="p">),</span>
         <span class="s2">"core_eia861__yearly_demand_response_water_heater"</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(</span>
-            <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span>
+            <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span>
         <span class="p">),</span>
     <span class="p">},</span>
 <span class="p">)</span>
@@ -2500,13 +2500,13 @@ window.runMermaid = runMermaid;</script>
 <span class="nd">@multi_asset</span><span class="p">(</span>
     <span class="n">outs</span><span class="o">=</span><span class="p">{</span>
         <span class="s2">"core_eia861__yearly_demand_side_management_sales"</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(</span>
-            <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span>
+            <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span>
         <span class="p">),</span>
         <span class="s2">"core_eia861__yearly_demand_side_management_ee_dr"</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(</span>
-            <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span>
+            <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span>
         <span class="p">),</span>
         <span class="s2">"core_eia861__yearly_demand_side_management_misc"</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(</span>
-            <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span>
+            <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span>
         <span class="p">),</span>
     <span class="p">},</span>
 <span class="p">)</span>
@@ -2673,13 +2673,13 @@ window.runMermaid = runMermaid;</script>
 <span class="nd">@multi_asset</span><span class="p">(</span>
     <span class="n">outs</span><span class="o">=</span><span class="p">{</span>
         <span class="s2">"core_eia861__yearly_distributed_generation_tech"</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(</span>
-            <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span>
+            <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span>
         <span class="p">),</span>
         <span class="s2">"core_eia861__yearly_distributed_generation_fuel"</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(</span>
-            <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span>
+            <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span>
         <span class="p">),</span>
         <span class="s2">"core_eia861__yearly_distributed_generation_misc"</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(</span>
-            <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span>
+            <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span>
         <span class="p">),</span>
     <span class="p">},</span>
 <span class="p">)</span>
@@ -2870,7 +2870,7 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">)</span>
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span><span class="p">)</span>
 <div class="viewcode-block" id="core_eia861__yearly_distribution_systems">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/eia861/index.html#pudl.transform.eia861.core_eia861__yearly_distribution_systems">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">core_eia861__yearly_distribution_systems</span><span class="p">(</span>
@@ -2897,7 +2897,7 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">)</span>
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span><span class="p">)</span>
 <div class="viewcode-block" id="core_eia861__yearly_dynamic_pricing">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/eia861/index.html#pudl.transform.eia861.core_eia861__yearly_dynamic_pricing">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">core_eia861__yearly_dynamic_pricing</span><span class="p">(</span>
@@ -2969,7 +2969,7 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">)</span>
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span><span class="p">)</span>
 <div class="viewcode-block" id="core_eia861__yearly_energy_efficiency">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/eia861/index.html#pudl.transform.eia861.core_eia861__yearly_energy_efficiency">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">core_eia861__yearly_energy_efficiency</span><span class="p">(</span>
@@ -3039,7 +3039,7 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">)</span>
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span><span class="p">)</span>
 <div class="viewcode-block" id="core_eia861__yearly_green_pricing">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/eia861/index.html#pudl.transform.eia861.core_eia861__yearly_green_pricing">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">core_eia861__yearly_green_pricing</span><span class="p">(</span>
@@ -3086,7 +3086,7 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">)</span>
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span><span class="p">)</span>
 <div class="viewcode-block" id="core_eia861__yearly_mergers">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/eia861/index.html#pudl.transform.eia861.core_eia861__yearly_mergers">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">core_eia861__yearly_mergers</span><span class="p">(</span><span class="n">raw_eia861__mergers</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
@@ -3110,10 +3110,10 @@ window.runMermaid = runMermaid;</script>
 <span class="nd">@multi_asset</span><span class="p">(</span>
     <span class="n">outs</span><span class="o">=</span><span class="p">{</span>
         <span class="s2">"core_eia861__yearly_net_metering_customer_fuel_class"</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(</span>
-            <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span>
+            <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span>
         <span class="p">),</span>
         <span class="s2">"core_eia861__yearly_net_metering_misc"</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(</span>
-            <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span>
+            <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span>
         <span class="p">),</span>
     <span class="p">},</span>
 <span class="p">)</span>
@@ -3204,10 +3204,10 @@ window.runMermaid = runMermaid;</script>
 <span class="nd">@multi_asset</span><span class="p">(</span>
     <span class="n">outs</span><span class="o">=</span><span class="p">{</span>
         <span class="s2">"core_eia861__yearly_non_net_metering_customer_fuel_class"</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(</span>
-            <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span>
+            <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span>
         <span class="p">),</span>
         <span class="s2">"core_eia861__yearly_non_net_metering_misc"</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(</span>
-            <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span>
+            <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span>
         <span class="p">),</span>
     <span class="p">},</span>
 <span class="p">)</span>
@@ -3319,10 +3319,10 @@ window.runMermaid = runMermaid;</script>
 <span class="nd">@multi_asset</span><span class="p">(</span>
     <span class="n">outs</span><span class="o">=</span><span class="p">{</span>
         <span class="s2">"core_eia861__yearly_operational_data_revenue"</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(</span>
-            <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span>
+            <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span>
         <span class="p">),</span>
         <span class="s2">"core_eia861__yearly_operational_data_misc"</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(</span>
-            <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span>
+            <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span>
         <span class="p">),</span>
     <span class="p">},</span>
 <span class="p">)</span>
@@ -3416,7 +3416,7 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">)</span>
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span><span class="p">)</span>
 <div class="viewcode-block" id="core_eia861__yearly_reliability">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/eia861/index.html#pudl.transform.eia861.core_eia861__yearly_reliability">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">core_eia861__yearly_reliability</span><span class="p">(</span>
@@ -3484,13 +3484,13 @@ window.runMermaid = runMermaid;</script>
 <span class="nd">@multi_asset</span><span class="p">(</span>
     <span class="n">outs</span><span class="o">=</span><span class="p">{</span>
         <span class="s2">"core_eia861__yearly_utility_data_nerc"</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(</span>
-            <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span>
+            <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span>
         <span class="p">),</span>
         <span class="s2">"core_eia861__yearly_utility_data_rto"</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(</span>
-            <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span>
+            <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span>
         <span class="p">),</span>
         <span class="s2">"core_eia861__yearly_utility_data_misc"</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(</span>
-            <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span>
+            <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span>
         <span class="p">),</span>
     <span class="p">},</span>
 <span class="p">)</span>
@@ -3665,7 +3665,7 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">"core_eia861__yearly_utility_data_nerc"</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(),</span>
         <span class="s2">"core_eia861__yearly_utility_data_rto"</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(),</span>
     <span class="p">},</span>
-    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">,</span>
+    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span><span class="p">,</span>
 <span class="p">)</span>
 <div class="viewcode-block" id="core_eia861__assn_utility">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/eia861/index.html#pudl.transform.eia861.core_eia861__assn_utility">[docs]</a>
@@ -3709,7 +3709,7 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">"core_eia861__yearly_utility_data_nerc"</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(),</span>
         <span class="s2">"core_eia861__yearly_utility_data_rto"</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(),</span>
     <span class="p">},</span>
-    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">,</span>
+    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span><span class="p">,</span>
 <span class="p">)</span>
 <div class="viewcode-block" id="core_eia861__assn_balancing_authority">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/eia861/index.html#pudl.transform.eia861.core_eia861__assn_balancing_authority">[docs]</a>
@@ -3809,7 +3809,7 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">)</span>
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span><span class="p">)</span>
 <div class="viewcode-block" id="core_eia861__yearly_balancing_authority">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/eia861/index.html#pudl.transform.eia861.core_eia861__yearly_balancing_authority">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">core_eia861__yearly_balancing_authority</span><span class="p">(</span>

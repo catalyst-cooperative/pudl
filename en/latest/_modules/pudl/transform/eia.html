@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.eia &#8212; PUDL 2026.9.1.dev4 documentation</title>
+    <title>pudl.transform.eia &#8212; PUDL 2026.9.1.dev5 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../_static/documentation_options.js?v=6766d2bb"></script>
+    <script src="../../../_static/documentation_options.js?v=ce26a6dd"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev4 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev4 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev5 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev5 documentation - Home"/>
   
   
 </a></div>
@@ -1621,7 +1621,7 @@ window.runMermaid = runMermaid;</script>
         <span class="p">),</span>
     <span class="p">},</span>
     <span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">"global_data_config"</span><span class="p">},</span>
-    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">,</span>
+    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span><span class="p">,</span>
 <span class="p">)</span>
 <div class="viewcode-block" id="core_eia860__assn_boiler_generator">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/eia/index.html#pudl.transform.eia.core_eia860__assn_boiler_generator">[docs]</a>
@@ -2261,7 +2261,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="harvested_entities">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/eia/index.html#pudl.transform.eia.harvested_entities">[docs]</a>
 <span class="n">harvested_entities</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="n">harvested_entity_asset_factory</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">)</span>
+    <span class="n">harvested_entity_asset_factory</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">entity</span> <span class="ow">in</span> <span class="n">EiaEntity</span>
 <span class="p">]</span></div>
 
@@ -2305,7 +2305,7 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/eia/index.html#pudl.transform.eia.finished_eia_assets">[docs]</a>
 <span class="n">finished_eia_assets</span> <span class="o">=</span> <span class="p">[</span>
     <span class="n">finished_eia_asset_factory</span><span class="p">(</span>
-        <span class="n">table_name</span><span class="p">,</span> <span class="n">_core_table_name</span><span class="p">,</span> <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span>
+        <span class="n">table_name</span><span class="p">,</span> <span class="n">_core_table_name</span><span class="p">,</span> <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span>
     <span class="p">)</span>
     <span class="k">for</span> <span class="n">table_name</span><span class="p">,</span> <span class="n">_core_table_name</span> <span class="ow">in</span> <span class="p">{</span>
         <span class="s2">"core_eia923__monthly_boiler_fuel"</span><span class="p">:</span> <span class="s2">"_core_eia923__boiler_fuel"</span><span class="p">,</span>
