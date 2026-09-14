@@ -1381,7 +1381,7 @@ STANDARD_INDUSTRIAL_CLASSIFICATION: pd.DataFrame = pd.read_csv(
 "6189","Office of Structured Finance","ASSET-BACKED SECURITIES"
 "6199","Office of Finance or Office of Crypto Assets","FINANCE SERVICES"
 "6200","Office of Crypto Assets","SECURITY & COMMODITY BROKERS, DEALERS, EXCHANGES & SERVICES"
-"6211","Office of Finance or Office of Crypto Assets","SECURITY BROKERS, DEALERS & FLOTATION COMPANIES"
+"6211","Office of Finance or Office of Crypto Assets","SECURITY BROKERS, DEALERS & FLOTATION COMPANIES"
 "6221","Office of Crypto Assets","COMMODITY CONTRACTS BROKERS & DEALERS"
 "6282","Office of Finance","INVESTMENT ADVICE"
 "6311","Office of Finance","LIFE INSURANCE"
