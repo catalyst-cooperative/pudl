@@ -37,7 +37,7 @@ def test_source_filename_multipart_partition(extractor):
 
 def test_source_filename_multiple_selections(extractor):
     multiple_selections = {"year": [PARTITION_SELECTION, 2024]}
-    with pytest.raises(AssertionError):
+    with pytest.raises(TypeError):
         extractor.source_filename(PAGE, **multiple_selections)
 
 

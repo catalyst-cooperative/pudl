@@ -229,7 +229,7 @@ def test_ferc_dbf_io_manager_requires_provenance_metadata(mocker):
         instance=instance,
     )
 
-    with pytest.raises(RuntimeError, match="No Dagster provenance metadata"):
+    with pytest.raises(TypeError, match="No Dagster provenance metadata"):
         manager.load_input(context)
 
     query.assert_not_called()

@@ -69,7 +69,7 @@ database online `here <https://data.catalyst.coop/ferc1_dbf/>`__.
 import json
 from itertools import chain
 from pathlib import Path
-from typing import Any, NotRequired, TypedDict
+from typing import Any, ClassVar, NotRequired, TypedDict
 
 import pandas as pd
 import sqlalchemy as sa
@@ -292,7 +292,7 @@ class Ferc1DbfExtractor(FercDbfExtractor):
         """
         self.add_missing_respondents()
 
-    PUDL_RIDS: dict[int, str] = {
+    PUDL_RIDS: ClassVar[dict[int, str]] = {
         514: "AEP Texas",
         519: "Upper Michigan Energy Resources Company",
         522: "Luning Energy Holdings LLC, Invenergy Investments",

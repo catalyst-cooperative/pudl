@@ -141,16 +141,16 @@ def merge_descriptions(left: dict[str, Any], right: dict[str, Any]) -> dict[str,
     """Merge two description dictionaries."""
     result = {}
     result.update(left)
-    for key in right:
+    for key, value in right.items():
         if key in result:
             if key == "usage_warnings":
-                result[key] = result[key] + right[key]
+                result[key] = result[key] + value
             elif key == "additional_details_text":
-                result[key] = f"{result[key]}\n\n{right[key]}"
+                result[key] = f"{result[key]}\n\n{value}"
             else:
-                result[key] = f"{result[key]} {right[key]}"
+                result[key] = f"{result[key]} {value}"
         else:
-            result[key] = right[key]
+            result[key] = value
     return result
 
 

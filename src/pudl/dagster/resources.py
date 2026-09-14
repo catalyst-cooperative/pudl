@@ -143,7 +143,10 @@ class FercEqrDeploymentTargetConfig(dg.Config):
     """
 
     path: str
-    storage_options: dict[str, Any] = {}
+    # Pydantic fields, not shared class state: pydantic deep-copies mutable
+    # defaults per instance, so RUF012's mutable-default-sharing concern
+    # doesn't apply.
+    storage_options: dict[str, Any] = {}  # noqa: RUF012
     append_build_id: bool = False
 
     @field_validator("path")
@@ -206,7 +209,8 @@ class FercEqrDeploymentResource(dg.ConfigurableResource):
     targets nor a deployment config path are provided, deployment is skipped.
     """
 
-    deployment_targets: list[FercEqrDeploymentTargetConfig] = []
+    # Pydantic field, not shared class state: see noqa comment above.
+    deployment_targets: list[FercEqrDeploymentTargetConfig] = []  # noqa: RUF012
     deployment_config_path: str | None = None
 
     @classmethod
