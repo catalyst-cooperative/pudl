@@ -221,6 +221,7 @@ bash -c '
     exit "$status"
 '
 """
+description = "Regenerate and deduplicate .pyrefly-baseline.json, absorbing any existing errors."
 
 [tool.pixi.feature.dev.tasks.pyrefly-prune-baseline]
 cmd = "pyrefly check --baseline .pyrefly-baseline.json --prune-baseline"
