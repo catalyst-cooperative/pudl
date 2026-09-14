@@ -508,6 +508,7 @@ class MakeMegaGenTbl:
         gens_mega = (
             self.get_gens_mega_table(mcoe)
             .pipe(self.label_operating_gens)
+            .pipe(self.label_operator_utility)
             .pipe(
                 pudl.helpers.scale_by_ownership,
                 own_eia860,
@@ -589,6 +590,32 @@ class MakeMegaGenTbl:
             "generators as non-operative."
         )
         return gen_df
+
+    def label_operator_utility(self, gen_df: pd.DataFrame) -> pd.DataFrame:
+        """Preserve the operator utility's IDs before ownership is integrated.
+
+        The ``utility_id_eia`` and ``utility_id_pudl`` columns of the generators
+        table identify the utility that operates each generator. Once
+        :func:`pudl.helpers.scale_by_ownership` runs, those columns describe each
+        generator's owners instead, so we stash the operator's IDs in dedicated
+        columns first. Jointly owned generators typically have a single operator
+        and several owners, and knowing who operates a generator makes it
+        possible to reconcile ownership-scaled generation with the utility-level
+        data reported in EIA-861.
+        See https://github.com/catalyst-cooperative/pudl/issues/5550
+
+        Args:
+            gen_df: annual table of all generators from EIA, with the operator
+                utility's ``utility_id_eia`` and ``utility_id_pudl``.
+
+        Returns:
+            The same table with ``operator_utility_id_eia`` and
+            ``operator_utility_id_pudl`` columns added.
+        """
+        return gen_df.assign(
+            operator_utility_id_eia=gen_df["utility_id_eia"],
+            operator_utility_id_pudl=gen_df["utility_id_pudl"],
+        )
 
 
 class MakePlantParts:

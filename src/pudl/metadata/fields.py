@@ -5621,6 +5621,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "The EIA utility Identification number for the operator utility."
         ),
     },
+    "operator_utility_id_pudl": {
+        "type": "integer",
+        "description": (
+            "A manually assigned PUDL utility ID for the operator utility. May not be "
+            "stable over time."
+        ),
+    },
     "operator_id_phmsa": {
         "type": "integer",
         "description": (
@@ -11927,6 +11934,23 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                 "The number of generators associated with each ``record_id_eia``."
             )
         }
+    },
+    "out_eia__yearly_generators_by_ownership": {
+        "utility_id_eia": {
+            "description": (
+                "The EIA utility Identification number for the utility that owns the "
+                "share of the generator described by this record. Generators that are "
+                "absent from the EIA ownership table are assumed to be owned outright "
+                "by their operator, so for those records this is the operator utility."
+            )
+        },
+        "utility_id_pudl": {
+            "description": (
+                "A manually assigned PUDL utility ID for the owner utility. May not be "
+                "stable over time."
+            )
+        },
+        "utility_name_eia": {"description": "The name of the owner utility."},
     },
     "out_eia860__yearly_ownership": {
         "utility_id_pudl": {
