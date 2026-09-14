@@ -564,13 +564,12 @@ class ResourceNameComponents(DescriptionMeta):
 
     resource_name_pattern: str = rf"^(?P<layer>{layer_options})_(?P<source>{source_options})__(?P<timeseries_resolution>{timeseries_resolution_options}|)(?:_|)(?P<table_type>{table_type_options}|)(?:_|)(?:_|)(?P<slug>.*)$"
 
-    _match = None
+    _match: re.Match[str] | None = None
 
     @property
-    def match(self):
+    def match(self) -> re.Match[str]:
         """Return the regex match for the resource name."""
-        if self._match is None:
-            self._match = re.match(self.resource_name_pattern, self.name)
+        assert self._match is not None, "table_name_check should have set this."
         return self._match
 
     @property
@@ -608,8 +607,10 @@ class ResourceNameComponents(DescriptionMeta):
     @model_validator(mode="after")
     def table_name_check(self: Self):
         """Check the expected pattern of the resource name."""
-        if not self.match:  # pragma: no cover
+        match = re.match(self.resource_name_pattern, self.name)
+        if match is None:  # pragma: no cover
             raise ValueError(
                 f"Resource name not formatted as expected. Resource name found: {self.name}.\nExpected resource name pattern: {self.resource_name_pattern}"
             )
+        self._match = match
         return self

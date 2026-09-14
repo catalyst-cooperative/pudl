@@ -125,7 +125,7 @@ def _transform_aggs(raw_agg: pd.DataFrame) -> pd.DataFrame:
 
 
 @asset(
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     compute_kind="Python",
 )
 def core_gridpathratoolkit__assn_generator_aggregation_group(

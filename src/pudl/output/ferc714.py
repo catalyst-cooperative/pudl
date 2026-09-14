@@ -798,7 +798,7 @@ def _out_ferc714__categorized_respondents(
         ),
     },
     compute_kind="pandas",
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
 )
 def out_ferc714__respondents_with_fips(
     context,
@@ -940,7 +940,7 @@ def out_ferc714__georeferenced_respondents(
 
 
 @asset(
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     op_tags={"memory-use": "high"},
     compute_kind="pandas",
 )

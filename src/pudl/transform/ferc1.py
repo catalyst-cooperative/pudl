@@ -713,7 +713,7 @@ def unstack_balances_to_report_year_instant_xbrl(
 class CombineAxisColumnsXbrl(TransformParams):
     """Parameters for :func:`combine_axis_columns_xbrl`."""
 
-    axis_columns_to_combine: list | None = None
+    axis_columns_to_combine: list[str] | None = None
     """List of axis columns to combine."""
 
     new_axis_column_name: str | None = None
@@ -776,6 +776,14 @@ def combine_axis_columns_xbrl(
         | valueB                  |
         +-------------------------+
     """
+    assert params.axis_columns_to_combine, (
+        "combine_axis_columns_xbrl should only be called when "
+        "axis_columns_to_combine is set."
+    )
+    assert params.new_axis_column_name, (
+        "combine_axis_columns_xbrl should only be called when "
+        "new_axis_column_name is set."
+    )
     # First, make sure that the new_axis_column_name param as the word axis in it
     if not params.new_axis_column_name.endswith("_axis"):
         raise ValueError(
@@ -6647,7 +6655,7 @@ _FERC1_PLANT_TABLES = frozenset(
 def ferc1_transform_asset_factory(
     table_name: str,
     tfr_class: Ferc1AbstractTableTransformer,
-    io_manager_key: str = "pudl_io_manager",
+    io_manager_key: str = "parquet_io_manager",
     convert_dtypes: bool = True,
     generic: bool = False,
     op_tags: dict[str, Any] | None = None,

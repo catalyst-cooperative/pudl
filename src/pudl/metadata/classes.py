@@ -2792,9 +2792,9 @@ class Package(PudlMeta):
     @lru_cache
     def from_resource_ids(
         cls,
-        resource_ids: tuple[str] = tuple(sorted(RESOURCE_METADATA)),
+        resource_ids: tuple[str, ...] = tuple(sorted(RESOURCE_METADATA)),
         resolve_foreign_keys: bool = False,
-        excluded_etl_groups: tuple[str] = (),
+        excluded_etl_groups: tuple[str, ...] = (),
         title: str | None = None,
         description: str | None = None,
         version: str | None = None,
