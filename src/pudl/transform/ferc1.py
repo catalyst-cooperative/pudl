@@ -14,10 +14,9 @@ import itertools
 import json
 import re
 from abc import abstractmethod
-from collections import namedtuple
 from collections.abc import Mapping
 from functools import reduce
-from typing import Annotated, Any, ClassVar, Literal, Self
+from typing import Annotated, Any, ClassVar, Literal, NamedTuple, Self
 
 import numpy as np
 import pandas as pd
@@ -3613,7 +3612,12 @@ class SteamPlantsFuelTableTransformer(Ferc1AbstractTableTransformer):
         """
         df = df.copy()
 
-        FuelFix = namedtuple("FuelFix", ["fuel", "from_unit", "to_unit", "mult"])
+        class FuelFix(NamedTuple):
+            fuel: str
+            from_unit: str
+            to_unit: str
+            mult: float
+
         fuel_fixes = [
             # US average coal heat content is 19.85 mmbtu/short ton
             FuelFix("coal", "mmbtu", "ton", (1.0 / 19.85)),
@@ -3647,7 +3651,10 @@ class SteamPlantsFuelTableTransformer(Ferc1AbstractTableTransformer):
             df.loc[(fuel_mask & unit_mask), "fuel_units"] = fix.to_unit
 
         # Set all remaining non-standard units and affected columns to NA.
-        FuelAllowedUnits = namedtuple("FuelAllowedUnits", ["fuel", "allowed_units"])
+        class FuelAllowedUnits(NamedTuple):
+            fuel: str
+            allowed_units: tuple[str, ...]
+
         fuel_allowed_units = [
             FuelAllowedUnits("coal", ("ton",)),
             FuelAllowedUnits("oil", ("bbl",)),

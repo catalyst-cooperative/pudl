@@ -531,6 +531,7 @@ extend-select = [
     "PGH", # pygrep-hooks
     "PT", # flake8-pytest-style
     "PTH", # use pathlib
+    "PYI", # flake8-pyi: type stub conventions
     "Q", # flake8-quotes
     "RET", # check return values
     "RSE", # unnecessary parenthises on raised exceptions
@@ -545,10 +546,8 @@ extend-select = [
     # Additional non-default rulesets to investigate enabling
     # "ANN", # identify missing type annotations
     # "ARG", # find unused arguments
-    # "ERA", # eradicate: finds commented out code
     # "ISC", # flake8-implicit-str-concat
     # "PL", # Pylint (Convention/Error/Refactor/Warning)
-    # "PYI", # flake8-pyi: type stub conventions
     # "RUF", # Ruff-specific rules
     # "TC", # flake8-type-checking
     # "TRY", # tryceratops: exception handling anti-patterns

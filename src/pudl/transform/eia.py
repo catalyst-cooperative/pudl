@@ -17,8 +17,8 @@ found in :func:`pudl.transform.eia._boiler_generator_assn`.
 """
 
 import importlib.resources
-from collections import namedtuple
 from enum import StrEnum, auto
+from typing import NamedTuple
 
 import networkx as nx
 import numpy as np
@@ -1200,9 +1200,13 @@ def fix_balancing_authority_codes_with_state(
             how="left",
             validate="m:1",
         )
-        BACodeFix = namedtuple(
-            "BACodeFix", ["ba_code_found", "ba_code_fix", "ba_name_fix", "states"]
-        )
+
+        class BACodeFix(NamedTuple):
+            ba_code_found: str
+            ba_code_fix: str
+            ba_name_fix: str
+            states: list[str]
+
         fixes = [
             BACodeFix(
                 "PACE",
