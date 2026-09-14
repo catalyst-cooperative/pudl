@@ -507,10 +507,11 @@ line-ending = "auto"
 
 [tool.ruff.lint]
 # Configurations that apply to the `lint` subcommand.
-select = [
+extend-select = [
     "A", # flake8-builtins
     "ASYNC", # flake8-async
     "B", # flake8-bugbear
+    "BLE", # flake8-blind-except
     "C", # Limit cyclomatic complexity using mccabe
     "C4", # flake8-comprehensions
     "D", # pydocstyle errors
@@ -552,8 +553,6 @@ select = [
     # commit, then move on to the next:
 
     # More difficult to address rulesets:
-    # "BLE", # flake8-blind-except
-    # "DTZ", # flake8-datetimez: datetime / timezone issues
     # "ISC", # flake8-implicit-str-concat
     # "PERF", # Perflint: performance issues
     # "PL", # Pylint (Convention/Error/Refactor/Warning)
@@ -563,8 +562,10 @@ select = [
     # "TRY", # tryceratops: exception handling anti-patterns
 ]
 ignore = [
+    "BLE001", # TODO: Avoid Blind except: use specific exception types
     "D401", # Require imperative mood in docstrings.
     "D417",
+    "DTZ", # TODO: Use UTC/TZ flake8-datetimez: datetime / timezone issues
     "E501", # Overlong lines.
     "E203", # Space before ':' (black recommends to ignore)
     "E226", # Missing whitespace around arithmetic operator
