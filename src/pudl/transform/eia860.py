@@ -965,7 +965,7 @@ def _core_eia860__boilers(
 
     # Get list of True columns
     b_df["agg"] = b_df[mercury_boolean_cols].apply(
-        lambda row: row[(row)].index.to_list(), axis=1
+        lambda row: row[row.eq(True)].index.to_list(), axis=1
     )
 
     # Split list into columns
