@@ -1075,7 +1075,7 @@ class PlantPart:
         # we don't want the plant_id_eia to be part of the plant name, but all
         # of the other parts should have their id column in the new plant name
         if self.part_name != "plant":
-            col = [x for x in self.id_cols if x != "plant_id_eia"][0]
+            col = next(x for x in self.id_cols if x != "plant_id_eia")
             part_df.loc[part_df[col].notnull(), "plant_name_ppe"] = (
                 part_df["plant_name_ppe"] + " " + part_df[col].astype(str)
             )
@@ -1135,7 +1135,7 @@ class TrueGranLabeler:
         combos = (
             parts_to_gens.sort_values(["gen_id"])
             .groupby(["record_id_eia"])["gen_id"]
-            .apply(lambda x: ",".join(x))
+            .apply(",".join)
             .rename("gens_combo")
         )
         parts_to_gens = parts_to_gens.merge(
@@ -1493,7 +1493,7 @@ def match_to_single_plant_part(
     multi_gran_df: pd.DataFrame,
     ppe: pd.DataFrame,
     part_name: PLANT_PARTS_LITERAL = "plant_gen",
-    cols_to_keep: list[str] = [],
+    cols_to_keep: list[str] | None = None,
     one_to_many: bool = False,
 ) -> pd.DataFrame:
     """Match data with a variety of granularities to a single plant-part.
@@ -1539,6 +1539,8 @@ def match_to_single_plant_part(
         up/down.
     """
     # select only the plant-part records that we are trying to scale to
+    if cols_to_keep is None:
+        cols_to_keep = []
     ppe_part_df = ppe[ppe.plant_part == part_name]
     # convert the date to year start - this is necessary because the
     # depreciation data is often reported as EOY and the ppe is always SOY

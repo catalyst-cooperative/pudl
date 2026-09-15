@@ -146,12 +146,12 @@ def _find_parquet_asset_keys(assets) -> list[dg.AssetKey]:
     keys: list[dg.AssetKey] = []
     for asset_def in assets:
         if isinstance(asset_def, dg.AssetsDefinition):
-            for spec in asset_def.specs:
-                if (
-                    asset_def.get_io_manager_key_for_asset_key(spec.key)
-                    in _PARQUET_IO_MANAGER_KEYS
-                ):
-                    keys.append(spec.key)
+            keys.extend(
+                spec.key
+                for spec in asset_def.specs
+                if asset_def.get_io_manager_key_for_asset_key(spec.key)
+                in _PARQUET_IO_MANAGER_KEYS
+            )
         elif (
             isinstance(asset_def, dg.AssetSpec)
             and asset_def.metadata.get("dagster/io_manager_key")

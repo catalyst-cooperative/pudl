@@ -142,7 +142,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "operational_consumption_other_detail": {
         "description": (
-            "Free-text detail describing the operator’s specified 'other purposes' for operational natural-gas consumption, corresponding to the volume reported in operational_consumption_other_mcf."
+            "Free-text detail describing the operator's specified 'other purposes' for operational natural-gas consumption, corresponding to the volume reported in operational_consumption_other_mcf."
         ),
         "type": "string",
     },
@@ -428,7 +428,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": (
             "Costs that have not been included in any program category, but could be "
-            "meaningfully identified with operating the company’s DSM programs (e.g., "
+            "meaningfully identified with operating the company's DSM programs (e.g., "
             "Administrative, Marketing, Monitoring & Evaluation, Company-Earned "
             "Incentives, Other)."
         ),
@@ -1865,7 +1865,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Number of customers with direct load control: a A demand response "
             "activity by which the program sponsor remotely shuts down or cycles a "
-            "customer’s electrical equipment (e.g. air conditioner, water heater) on "
+            "customer's electrical equipment (e.g. air conditioner, water heater) on "
             "short notice."
         ),
         "unit": "count",
@@ -6963,7 +6963,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": (
             "The name of the company if a respondent's demand-side management "
-            "activities are reported on Schedule 6 of another company’s form."
+            "activities are reported on Schedule 6 of another company's form."
         ),
     },
     "reporting_frequency_code": {
@@ -8798,9 +8798,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "num_water_heaters": {
         "type": "integer",
         "description": (
-            "The number of grid-enabled water heaters added to the respondent’s "
+            "The number of grid-enabled water heaters added to the respondent's "
             "program this year - if the respondent has DSM program for grid-enabled "
-            "water heaters (as defined by DOE’s Office of Energy Efficiency and "
+            "water heaters (as defined by DOE's Office of Energy Efficiency and "
             "Renewable Energy)."
         ),
         "unit": "count",
@@ -9519,7 +9519,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "(Seller) An identifier (e.g., “FS1”, “FS2”) used to designate a record"
             " containing Seller identification information. One record for each"
             " seller company must be included in an EQR for a given quarter."
-            " (Agent) – An identifier (i.e., “FA1”) used to designate a record"
+            " (Agent) - An identifier (i.e., “FA1”) used to designate a record"
             " containing Agent identification information. One record with the FA1"
             " identifier must be included in an EQR for a given quarter."
         ),
@@ -9541,10 +9541,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "contact_name": {
         "type": "string",
         "description": (
-            "(Seller) – The name of the contact for the company authorized to make"
-            " sales as indicated in the company’s FERC tariff(s) or that is required to"
+            "(Seller) - The name of the contact for the company authorized to make"
+            " sales as indicated in the company's FERC tariff(s) or that is required to"
             " file the EQR under section 220 of the Federal Power Act."
-            " (Agent) – Name of the person who prepared the filing"
+            " (Agent) - Name of the person who prepared the filing"
         ),
     },
     "contact_address": {
@@ -9603,7 +9603,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": (
             "The name of the company that is authorized to make sales as indicated"
-            " in the company’s FERC tariff(s) or that is required to file the EQR"
+            " in the company's FERC tariff(s) or that is required to file the EQR"
             " under section 220 of the Federal Power Act. This name must match the"
             " name provided as seller_company_name in the core_ferceqr__quarterly_identity"
             " table. There are a handful of cases in which this requirement is violated, so any"
@@ -9775,7 +9775,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             " CR-PD: Transmission capacity reassignments reported in Pacific Daylight time."
             " CR-PP: Transmission capacity reassignments reported in Pacific Prevailing time."
             " CR-PS: Transmission capacity reassignments reported in Pacific Standard time."
-            " MB: Energy, capacity or ancillary services sold under the seller’s FERC-approved market-based rate tariff."
+            " MB: Energy, capacity or ancillary services sold under the seller's FERC-approved market-based rate tariff."
             " T: The product is sold under a FERC-approved transmission tariff."
             " NPU: The product is sold by a non-public utility that is required to file the"
             " EQR under section 220 of the Federal Power Act."
@@ -11990,10 +11990,10 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                 " EMERGENCY ENERGY: Contractual provisions to supply energy or capacity to another entity during critical situations."
                 " ENERGY: A quantity of electricity that is sold or transmitted over a period of time."
                 " ENERGY IMBALANCE: Service provided when a difference occurs between the scheduled and the actual delivery of energy to a load obligation (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
-                " EXCHANGE: Transaction whereby the receiver accepts delivery of energy for a supplier’s account and returns energy at times, rates, and in amounts as mutually agreed if the receiver is not an RTO/ISO."
+                " EXCHANGE: Transaction whereby the receiver accepts delivery of energy for a supplier's account and returns energy at times, rates, and in amounts as mutually agreed if the receiver is not an RTO/ISO."
                 " FUEL CHARGE: Charge based on the cost or amount of fuel used for generation."
-                " GENERATOR IMBALANCE: Service provided when a difference occurs between the output of a generator located in the Transmission Provider’s Control Area and a delivery schedule from that generator to (1) another Control Area or (2) a load within the Transmission Provider’s Control Area over a single hour (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
-                " GRANDFATHERED BUNDLED: Services provided for bundled transmission, ancillary services and energy under contracts effective prior to Order No. 888’s OATTs."
+                " GENERATOR IMBALANCE: Service provided when a difference occurs between the output of a generator located in the Transmission Provider's Control Area and a delivery schedule from that generator to (1) another Control Area or (2) a load within the Transmission Provider's Control Area over a single hour (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
+                " GRANDFATHERED BUNDLED: Services provided for bundled transmission, ancillary services and energy under contracts effective prior to Order No. 888's OATTs."
                 " INTERCONNECTION AGREEMENT: Contract that provides the terms and conditions for a generator, distribution system owner, transmission owner, transmission provider, or transmission system to physically connect to a transmission system or distribution system."
                 " MEMBERSHIP AGREEMENT: Agreement to participate and be subject to rules of a system operator."
                 " MUST RUN AGREEMENT: An agreement that requires a unit to run."
@@ -12007,7 +12007,7 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                 " REAL POWER TRANSMISSION LOSS: The loss of energy, resulting from transporting power over a transmission system."
                 " REASSIGNMENT AGREEMENT: Transmission capacity reassignment agreement."
                 " REGULATION & FREQUENCY RESPONSE: Service providing for continuous balancing of resources (generation and interchange) with load, and for maintaining scheduled interconnection frequency by committing on-line generation where output is raised or lowered and by other non-generation resources capable of providing this service as necessary to follow the moment-by-moment changes in load (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
-                " REQUIREMENTS SERVICE: Firm, load-following power supply necessary to serve a specified share of customer’s aggregate load during the term of the agreement. Requirements service may include some or all of the energy, capacity and ancillary service products."
+                " REQUIREMENTS SERVICE: Firm, load-following power supply necessary to serve a specified share of customer's aggregate load during the term of the agreement. Requirements service may include some or all of the energy, capacity and ancillary service products."
                 " SCHEDULE SYSTEM CONTROL & DISPATCH: Scheduling, confirming and implementing an interchange schedule with other Balancing Authorities, including intermediary Balancing Authorities providing transmission service, and ensuring operational security during the interchange transaction (Ancillary Service)."
                 " SPINNING RESERVE: Unloaded synchronized generating capacity that is immediately responsive to system frequency and that is capable of being loaded in a short time period or non-generation resources capable of providing this service (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
                 " SUPPLEMENTAL RESERVE: Service needed to serve load in the event of a system contingency, available with greater delay than SPINNING RESERVE. This service may be provided by generating units that are on-line but unloaded, by quick-start generation, or by interruptible load or other non-generation resources capable of providing this service (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
@@ -12066,17 +12066,17 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                 " CUSTOMER CHARGE: Fixed contractual charges assessed on a per customer basis that could include billing service."
                 " ENERGY: A quantity of electricity that is sold or transmitted over a period of time."
                 " ENERGY IMBALANCE: Service provided when a difference occurs between the scheduled and the actual delivery of energy to a load obligation (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
-                " EXCHANGE: Transaction whereby the receiver accepts delivery of energy for a supplier’s account and returns energy at times, rates, and in amounts as mutually agreed if the receiver is not an RTO/ISO."
+                " EXCHANGE: Transaction whereby the receiver accepts delivery of energy for a supplier's account and returns energy at times, rates, and in amounts as mutually agreed if the receiver is not an RTO/ISO."
                 " FUEL CHARGE: Charge based on the cost or amount of fuel used for generation."
-                " GENERATOR IMBALANCE: Service provided when a difference occurs between the output of a generator located in the Transmission Provider’s Control Area and a delivery schedule from that generator to (1) another Control Area or (2) a load within the Transmission Provider’s Control Area over a single hour (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
-                " GRANDFATHERED BUNDLED: Services provided for bundled transmission, ancillary services and energy under contracts effective prior to Order No. 888’s OATTs."
+                " GENERATOR IMBALANCE: Service provided when a difference occurs between the output of a generator located in the Transmission Provider's Control Area and a delivery schedule from that generator to (1) another Control Area or (2) a load within the Transmission Provider's Control Area over a single hour (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
+                " GRANDFATHERED BUNDLED: Services provided for bundled transmission, ancillary services and energy under contracts effective prior to Order No. 888's OATTs."
                 " NEGOTIATED-RATE TRANSMISSION: Transmission performed under a negotiated rate contract (applies only to merchant transmission companies)."
                 " OTHER: Product name not otherwise included."
                 " PRIMARY FREQUENCY RESPONSE: Service provided as a stand-by resource to support autonomous, pre-programmed changes in output to rapidly arrest large changes in frequency until dispatched resources can take over."
                 " REACTIVE SUPPLY & VOLTAGE CONTROL: Production or absorption of reactive power to maintain voltage levels on transmission systems (Ancillary Service)."
                 " REAL POWER TRANSMISSION LOSS: The loss of energy, resulting from transporting power over a transmission system."
                 " REGULATION & FREQUENCY RESPONSE: Service providing for continuous balancing of resources (generation and interchange) with load, and for maintaining scheduled interconnection frequency by committing on-line generation where output is raised or lowered and by other non-generation resources capable of providing this service as necessary to follow the moment-by-moment changes in load (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
-                " REQUIREMENTS SERVICE: Firm, load-following power supply necessary to serve a specified share of customer’s aggregate load during the term of the agreement. Requirements service may include some or all of the energy, capacity and ancillary service products."
+                " REQUIREMENTS SERVICE: Firm, load-following power supply necessary to serve a specified share of customer's aggregate load during the term of the agreement. Requirements service may include some or all of the energy, capacity and ancillary service products."
                 " SCHEDULE SYSTEM CONTROL & DISPATCH: Scheduling, confirming and implementing an interchange schedule with other Balancing Authorities, including intermediary Balancing Authorities providing transmission service, and ensuring operational security during the interchange transaction (Ancillary Service)."
                 " SPINNING RESERVE: Unloaded synchronized generating capacity that is immediately responsive to system frequency and that is capable of being loaded in a short time period or non-generation resources capable of providing this service (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
                 " SUPPLEMENTAL RESERVE: Service needed to serve load in the event of a system contingency, available with greater delay than SPINNING RESERVE. This service may be provided by generating units that are on-line but unloaded, by quick-start generation, or by interruptible load or other non-generation resources capable of providing this service (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."

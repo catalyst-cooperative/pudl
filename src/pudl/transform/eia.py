@@ -17,8 +17,8 @@ found in :func:`pudl.transform.eia._boiler_generator_assn`.
 """
 
 import importlib.resources
-from collections import namedtuple
 from enum import StrEnum, auto
+from typing import NamedTuple
 
 import networkx as nx
 import numpy as np
@@ -428,11 +428,10 @@ def _compile_all_entity_records(
             # create a copy of the df to muck with
             df = transformed_df.copy()
             # we know these columns must be in the dfs
-            cols = []
             # check whether the columns are in the specific table
-            for column in static_cols + annual_cols:
-                if column in df.columns:
-                    cols.append(column)
+            cols = [
+                column for column in static_cols + annual_cols if column in df.columns
+            ]
             df = df[(base_cols + cols)]
             df = df.dropna(subset=id_cols)
             # add a column with the table name so we know its origin
@@ -486,7 +485,7 @@ def _manage_strictness(col: str, special_case_strictness: dict[str, float]) -> f
 def harvest_entity_tables(  # noqa: C901
     entity: EiaEntity,
     clean_dfs: dict[str, pd.DataFrame],
-    special_case_strictness: dict[str, float] = {},
+    special_case_strictness: dict[str, float] | None = None,
     debug: bool = False,
 ) -> tuple:
     """Compile consistent records for various entities.
@@ -539,6 +538,8 @@ def harvest_entity_tables(  # noqa: C901
         * Determine how to treat mostly static records
     """
     # we know these columns must be in the dfs
+    if special_case_strictness is None:
+        special_case_strictness = {}
     id_cols = ENTITIES[entity.value]["id_cols"]
     static_cols = ENTITIES[entity.value]["static_cols"]
     annual_cols = ENTITIES[entity.value]["annual_cols"]
@@ -1199,9 +1200,13 @@ def fix_balancing_authority_codes_with_state(
             how="left",
             validate="m:1",
         )
-        BACodeFix = namedtuple(
-            "BACodeFix", ["ba_code_found", "ba_code_fix", "ba_name_fix", "states"]
-        )
+
+        class BACodeFix(NamedTuple):
+            ba_code_found: str
+            ba_code_fix: str
+            ba_name_fix: str
+            states: list[str]
+
         fixes = [
             BACodeFix(
                 "PACE",
@@ -1302,9 +1307,9 @@ def harvested_entity_asset_factory(
         # Take all of the column inputs and make them into one big forensics changelog
         # table
         logger.debug("Concatenating all of the column inputs for {entity.value}")
-        out_all = pd.concat(
-            [df for harvested_col_name, df in _col_dfs.items()], axis="index"
-        ).reset_index(drop=True)
+        out_all = pd.concat(list(_col_dfs.values()), axis="index").reset_index(
+            drop=True
+        )
         logger.debug("Making changelog out of all forensics inputs for {entity.value}")
         forensics = make_changelog(out_all, ENTITIES[entity.value]["id_cols"])
 

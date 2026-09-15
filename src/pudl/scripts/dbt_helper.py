@@ -3,9 +3,9 @@
 import json
 import re
 import sys
-from collections import namedtuple
 from dataclasses import dataclass
 from pathlib import Path
+from typing import NamedTuple
 
 import click
 import duckdb
@@ -38,7 +38,11 @@ def insert_data_source(parent_dir: Path, table_name: str) -> Path:
     return parent_dir / data_source / table_name
 
 
-UpdateResult = namedtuple("UpdateResult", ["success", "message"])
+class UpdateResult(NamedTuple):
+    """Outcome of updating a table's dbt row count test."""
+
+    success: bool
+    message: str
 
 
 def _get_row_count_csv_path() -> Path:
@@ -418,7 +422,7 @@ def validate(
     build_params = {
         "node_selection": node_selection,
         "node_exclusion": exclude,
-        "dbt_target": override_target if override_target else "etl-full",
+        "dbt_target": override_target or "etl-full",
     }
 
     if dry_run:

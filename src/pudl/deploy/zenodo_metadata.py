@@ -254,11 +254,15 @@ def build_related_resources(
     gcs_path = f"{GCS_BUCKET_URL}/{version_tag}/"
 
     items = [
-        f'<li><a href="{data_dictionary_url}">PUDL {version_tag} '
-        "Data Dictionary</a></li>",
+        (
+            f'<li><a href="{data_dictionary_url}">PUDL {version_tag} '
+            "Data Dictionary</a></li>"
+        ),
         f'<li><a href="{docs_url}">PUDL {version_tag} Documentation</a></li>',
-        f'<li><a href="{AWS_OPEN_DATA_REGISTRY_URL}">PUDL in the AWS Open Data '
-        "Registry</a></li>",
+        (
+            f'<li><a href="{AWS_OPEN_DATA_REGISTRY_URL}">PUDL in the AWS Open Data '
+            "Registry</a></li>"
+        ),
         f"<li>PUDL {version_tag} in a free, public AWS S3 bucket: {s3_path}</li>",
         f"<li>PUDL {version_tag} in a requester-pays GCS bucket: {gcs_path}</li>",
     ]

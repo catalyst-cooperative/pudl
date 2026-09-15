@@ -100,7 +100,7 @@ def test_sensor_skips_runs_without_backfill_tag(mocker, sensor_fn):
 
 
 @pytest.mark.parametrize(
-    "sensor_fn, backfill_statuses, skip_text",
+    ("sensor_fn", "backfill_statuses", "skip_text"),
     [
         (
             sensors.ferceqr_success_sensor,
@@ -137,7 +137,7 @@ def test_sensor_skips_while_backfill_running(
 
 
 @pytest.mark.parametrize(
-    "sensor_fn, backfill_statuses, expected_run_key_prefix, expected_asset",
+    ("sensor_fn", "backfill_statuses", "expected_run_key_prefix", "expected_asset"),
     [
         (
             sensors.ferceqr_success_sensor,
@@ -341,7 +341,7 @@ def test_build_message_includes_asset_partition_status_table(mocker):
 
 
 @pytest.mark.parametrize(
-    "build_id,expected_pattern",
+    ("build_id", "expected_pattern"),
     [
         ("build-abc123", "/._staging_build-abc123"),
         (None, "._staging_"),

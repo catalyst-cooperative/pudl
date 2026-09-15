@@ -640,10 +640,9 @@ def impute_latc_tnn(
         tol = np.linalg.norm((mat_hat - last_mat), "fro") / snorm
         last_mat = mat_hat.copy()
         it += 1
-        print(f"Iteration: {it}", end="\r")
+        logger.debug(f"Iteration: {it}")
         if tol < epsilon or it >= maxiter:
             break
-    print(f"Iteration: {it}")
     return tensor_hat
 
 
@@ -759,10 +758,9 @@ def impute_latc_tubal(  # noqa: C901
             temp1 = _ten2mat(_mat2ten(z, dim, 0) - t / rho, 2)
             _, phi = np.linalg.eigh(temp1 @ temp1.T)
             del temp1
-        print(f"Iteration: {it}", end="\r")
+        logger.debug(f"Iteration: {it}")
         if tol < epsilon or it >= maxiter:
             break
-    print(f"Iteration: {it}")
     return x
 
 
@@ -830,7 +828,7 @@ def flag_global_outlier_neighbor(
     return ts.flag(mask, ImputationReasonCodes.GLOBAL_OUTLIER_NEIGHBOR)
 
 
-@functools.lru_cache(maxsize=2)  # noqa: B019
+@functools.lru_cache(maxsize=2)
 def rolling_median(ts: FlaggedTimeseries, window: int = 48) -> np.ndarray:
     """Rolling median of values.
 
@@ -1022,7 +1020,7 @@ def flag_double_delta(
     return ts.flag(mask, ImputationReasonCodes.DOUBLE_DELTA)
 
 
-@functools.lru_cache(maxsize=2)  # noqa: B019
+@functools.lru_cache(maxsize=2)
 def relative_median_prediction(ts: FlaggedTimeseries, **kwargs: Any) -> np.ndarray:
     """Values divided by their value predicted from medians.
 
@@ -1505,7 +1503,7 @@ def impute(
     ends = [*range(0, n, int(np.ceil(n / blocks))), n]
     for i in range(blocks):
         if blocks > 1:
-            print(f"Block: {i}")
+            logger.debug(f"Block: {i}")
         idx = slice(None), slice(ends[i], ends[i + 1]), slice(None)
         tensor[idx] = imputer(tensor[idx], **kwargs)
     x = unfold_tensor(tensor, x.shape)
@@ -1878,7 +1876,7 @@ def impute_timeseries_asset_factory(  # noqa: C901
     simulation_group_col: str | None = None,
     output_io_manager_key: str = "parquet_io_manager",
     op_tags: dict[str, Any] | None = None,
-    settings: ImputeTimeseriesSettings = ImputeTimeseriesSettings(),
+    settings: ImputeTimeseriesSettings | None = None,
 ) -> pd.DataFrame:
     """Produces assets to impute values for a given timeseries table/column.
 
@@ -1928,6 +1926,7 @@ def impute_timeseries_asset_factory(  # noqa: C901
     # if `output_asset_name` starts with an underscore
     asset_prefix = re.sub(r"^__", "_", f"_{output_asset_name}")
     op_tags = op_tags or {}
+    settings = settings if settings is not None else ImputeTimeseriesSettings()
 
     # Asset names
     timeseries_matrix_asset = f"{asset_prefix}_timeseries_matrix"

@@ -461,7 +461,7 @@ MULTICOL_NODROP_EXPECTED = pd.DataFrame(
 
 
 @pytest.mark.parametrize(
-    "func,drop,df,expected,param_model,param_dict",
+    ("func", "drop", "df", "expected", "param_model", "param_dict"),
     [
         pytest.param(
             fill_values,
@@ -496,7 +496,7 @@ def test_multicol_transform_factory(func, drop, df, expected, param_model, param
 # TransformParams parameter model unit tests
 #####################################################################################
 @pytest.mark.parametrize(
-    "unit_corrections,expectation",
+    ("unit_corrections", "expectation"),
     [
         pytest.param(
             {
@@ -558,7 +558,7 @@ def test_unit_corrections_distinct_domains(unit_corrections, expectation):
 
 
 @pytest.mark.parametrize(
-    "invalid_rows,expectation",
+    ("invalid_rows", "expectation"),
     [
         pytest.param(
             {"invalid_values": [0, pd.NA], "required_valid_cols": ["a", "b"]},
@@ -620,7 +620,8 @@ def test_invalid_row_validation(invalid_rows, expectation):
 # These transform functions take and return single columns.
 #####################################################################################
 @pytest.mark.parametrize(
-    "series,expected,params", [(STRING_DATA.raw, STRING_DATA.norm, FERC1_STRING_NORM)]
+    ("series", "expected", "params"),
+    [(STRING_DATA.raw, STRING_DATA.norm, FERC1_STRING_NORM)],
 )
 def test_normalize_strings(series: pd.Series, expected: pd.Series, params) -> None:
     """Test our string normalization function in isolation."""
@@ -629,7 +630,7 @@ def test_normalize_strings(series: pd.Series, expected: pd.Series, params) -> No
 
 
 @pytest.mark.parametrize(
-    "series,expected,params",
+    ("series", "expected", "params"),
     [
         (STRING_DATA.norm, STRING_DATA.cat, "inline_animal_cats"),
         (STRING_DATA.norm, STRING_DATA.cat, "serialized_animal_cats"),
@@ -658,7 +659,7 @@ def test_string_categories_params(serialized_animal_cats) -> None:
 
 
 @pytest.mark.parametrize(
-    "series,expected,params",
+    ("series", "expected", "params"),
     [
         pytest.param(
             NUMERIC_DATA.year,
@@ -681,7 +682,7 @@ def test_nullify_outliers(series, expected, params):
 
 
 @pytest.mark.parametrize(
-    "series,expected,params",
+    ("series", "expected", "params"),
     [
         pytest.param(
             NUMERIC_DATA.capacity_kw,
@@ -762,11 +763,11 @@ def unit_corrections_are_homogeneous(
     """
     cat_cols = {uc.cat_col for uc in corrections}
     assert len(cat_cols) == 1  # nosec: B101
-    cat_col = list(cat_cols)[0]
+    cat_col = next(iter(cat_cols))
 
     data_cols = {uc.data_col for uc in corrections}
     assert len(data_cols) == 1  # nosec: B101
-    data_col = list(data_cols)[0]
+    data_col = next(iter(data_cols))
 
     categories = list({uc.cat_val for uc in corrections})
 
@@ -858,7 +859,7 @@ def scramble_units(
 
 
 @pytest.mark.parametrize(
-    "corrections,expectation",
+    ("corrections", "expectation"),
     [
         pytest.param(
             TEST_FUEL_UNIT_CORRECTIONS,
@@ -917,7 +918,7 @@ def test_correct_units(corrections, expectation):
 
 
 @pytest.mark.parametrize(
-    "df,expected,params",
+    ("df", "expected", "params"),
     [
         pytest.param(
             NUMERIC_DATA,
@@ -957,7 +958,7 @@ def test_drop_invalid_rows(df, expected, params):
 
 
 @pytest.mark.parametrize(
-    "df,expected,params,errors",
+    ("df", "expected", "params", "errors"),
     [
         pytest.param(
             MIXED_TYPE_DATA, SPOT_FIXED_MIXED_TYPE_DATA, SPOT_PARAMS, does_not_raise()
@@ -975,7 +976,9 @@ def test_drop_invalid_rows(df, expected, params):
                     ],
                 },
             ],
-            pytest.raises(ValueError),
+            # Raised by pandas' own dtype coercion (astype), so the message
+            # isn't ours to pin down.
+            pytest.raises(ValueError),  # noqa: PT011
         ),
         pytest.param(
             MIXED_TYPE_DATA,
@@ -990,7 +993,7 @@ def test_drop_invalid_rows(df, expected, params):
                     ],
                 },
             ],
-            pytest.raises(ValueError),
+            pytest.raises(ValueError, match="expects a unique set of idx_col"),
         ),
     ],
 )

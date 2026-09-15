@@ -16,7 +16,7 @@ from typing import Annotated, Any, Literal, Self, TypeVar, get_args
 import duckdb
 import duckdb.sqltypes
 import frictionless
-import geopandas as gpd  # noqa: ICN002
+import geopandas as gpd
 import jinja2
 import numpy as np
 import pandas as pd
@@ -168,7 +168,7 @@ def _format_for_sql(x: Any, identifier: bool = False) -> str:  # noqa: C901
     elif isinstance(x, datetime.date):
         x = x.strftime("%Y-%m-%d")
     if not isinstance(x, str):
-        raise ValueError(f"Cannot format type {type(x)} for SQL")
+        raise TypeError(f"Cannot format type {type(x)} for SQL")
     # Single quotes (') are escaped by doubling them ('')
     x = x.replace("'", "''")
     return f"'{x}'"
@@ -666,14 +666,15 @@ class Field(PudlMeta):
 
     @field_validator("constraints")
     @classmethod
-    def _check_constraints(cls, value, info: ValidationInfo):  # noqa: C901
+    def _check_constraints(cls, value, info: ValidationInfo):
         if "type" not in info.data:
             return value
         dtype = info.data["type"]
-        errors = []
-        for key in ("min_length", "max_length", "pattern"):
-            if getattr(value, key) is not None and dtype != "string":
-                errors.append(f"{key} not supported by {dtype} field")
+        errors = [
+            f"{key} not supported by {dtype} field"
+            for key in ("min_length", "max_length", "pattern")
+            if getattr(value, key) is not None and dtype != "string"
+        ]
         for key in ("minimum", "maximum"):
             x = getattr(value, key)
             if x is not None:
@@ -682,9 +683,11 @@ class Field(PudlMeta):
                 elif not isinstance(x, CONSTRAINT_DTYPES[dtype]):
                     errors.append(f"{key} not {dtype}")
         if value.enum:
-            for x in value.enum:
-                if not isinstance(x, CONSTRAINT_DTYPES[dtype]):
-                    errors.append(f"enum value {x} not {dtype}")
+            errors.extend(
+                f"enum value {x} not {dtype}"
+                for x in value.enum
+                if not isinstance(x, CONSTRAINT_DTYPES[dtype])
+            )
         if errors:
             raise ValueError(format_errors(*errors, pydantic=True))
         return value
@@ -746,7 +749,7 @@ class Field(PudlMeta):
             return pd.CategoricalDtype(self.constraints.enum)
         return FIELD_DTYPES_PANDAS[self.type]
 
-    def to_sqlite_dtype(self) -> type:  # noqa: A003
+    def to_sqlite_dtype(self) -> type:
         """Return SQLAlchemy data type."""
         if self.constraints.enum:
             return sa.Enum(*self.constraints.enum)
@@ -936,7 +939,7 @@ class Field(PudlMeta):
             autoincrement=False,
         )
 
-    def encode(self, col: pd.Series, dtype: type | None = None) -> pd.Series:  # noqa: A003
+    def encode(self, col: pd.Series, dtype: type | None = None) -> pd.Series:
         """Recode the Field if it has an associated encoder."""
         return self.encoder.encode(col, dtype=dtype) if self.encoder else col
 
@@ -1911,7 +1914,7 @@ class Resource(PudlMeta):
         return obj
 
     @staticmethod
-    def dict_from_resource_descriptor(  # noqa: C901
+    def dict_from_resource_descriptor(
         resource_id: str,
         descriptor: PudlResourceDescriptor,
     ) -> dict:
@@ -2027,8 +2030,7 @@ class Resource(PudlMeta):
         if self.schema.primary_key:
             constraints.append(sa.PrimaryKeyConstraint(*self.schema.primary_key))
         if include_foreign_keys:
-            for key in self.schema.foreign_keys:
-                constraints.append(key.to_sql())
+            constraints.extend(key.to_sql() for key in self.schema.foreign_keys)
         return sa.Table(
             self.name, metadata, *columns, *constraints, comment=self.description
         )
@@ -2151,7 +2153,7 @@ class Resource(PudlMeta):
                             f"match primary key field '{key}'"
                         )
                     if len(matching) == 1:
-                        match = list(matching)[0]
+                        match = next(iter(matching))
                 if match:
                     matches[match] = key
                     remaining.remove(match)
@@ -2621,8 +2623,8 @@ class Resource(PudlMeta):
         self,
         dfs: dict[str, pd.DataFrame],
         aggregate: bool | None = None,
-        aggregate_kwargs: dict[str, Any] = {},
-        format_kwargs: dict[str, Any] = {},
+        aggregate_kwargs: dict[str, Any] | None = None,
+        format_kwargs: dict[str, Any] | None = None,
     ) -> tuple[pd.DataFrame, dict]:
         """Harvest from named dataframes.
 
@@ -2653,6 +2655,10 @@ class Resource(PudlMeta):
             data types matching the resource fields, alongside an aggregation
             report.
         """
+        if format_kwargs is None:
+            format_kwargs = {}
+        if aggregate_kwargs is None:
+            aggregate_kwargs = {}
         if aggregate is None:
             aggregate = self.harvest.harvest
         if self.harvest.harvest:
@@ -3094,10 +3100,9 @@ class CodeMetadata(PudlMeta):
             code_ids: A list of Code PUDL identifiers, keys to entries in the
                 CODE_METADATA dictionary.
         """
-        encoder_list = []
-        for name in code_ids:
-            if name in CODE_METADATA:
-                encoder_list.append(Encoder.from_code_id(name))
+        encoder_list = [
+            Encoder.from_code_id(name) for name in code_ids if name in CODE_METADATA
+        ]
         return cls(encoder_list=encoder_list)
 
     def to_rst(

@@ -388,7 +388,9 @@ def _save_extract_errors(
 )
 def extract_ferceqr(
     context: dg.AssetExecutionContext,
-    ferceqr_archive: FercEqrArchiveResource = FercEqrArchiveResource(),
+    # Dagster resource-injection convention: a default instance lets this asset
+    # be materialized directly (e.g. in tests) without wiring up Definitions.
+    ferceqr_archive: FercEqrArchiveResource = FercEqrArchiveResource(),  # noqa: B008
 ):
     """Extract year quarter from CSVs and load to parquet files.
 

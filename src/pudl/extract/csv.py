@@ -1,7 +1,6 @@
 """Extractor for CSV data."""
 
 # This module name clashes with the Python standard library CSV module!
-# ruff: noqa: A005
 
 from typing import Any
 
@@ -19,7 +18,9 @@ class CsvExtractor(GenericExtractor):
     The extraction logic is invoked by calling extract() method of this class.
     """
 
-    READ_CSV_KWARGS: dict[str, Any] = {}
+    # Not moved into __init__: subclasses set this instance attribute themselves before
+    # calling super().__init__(), so a default set here would clobber their override.
+    READ_CSV_KWARGS: dict[str, Any] = {}  # noqa: RUF012
     """Keyword arguments that are passed to :meth:`pandas.read_csv`.
 
     These allow customization of the CSV parsing process. For example, you can specify

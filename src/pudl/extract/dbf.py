@@ -486,31 +486,29 @@ class FercDbfExtractor:
 
     def to_frictionless(self):
         """Create a frictionless DataPackage describing the DBF DB and write to a JSON file."""
-        resources = []
-
-        for table in self.sqlite_meta.sorted_tables:
-            resources.append(
-                frictionless.Resource(
-                    path=self.DATABASE_NAME,
-                    name=table.name,
-                    title=table.name,
-                    description=table.description,
-                    profile="tabular-data-resource",
-                    format="sqlite",
-                    mediatype="application/vnd.sqlite3",
-                    schema=frictionless.Schema(
-                        fields=[
-                            frictionless.Field.from_descriptor(
-                                {
-                                    "name": c.name,
-                                    "type": self._clean_frictionless_types(str(c.type)),
-                                }
-                            )
-                            for c in table.columns
-                        ]
-                    ),
-                )
+        resources = [
+            frictionless.Resource(
+                path=self.DATABASE_NAME,
+                name=table.name,
+                title=table.name,
+                description=table.description,
+                profile="tabular-data-resource",
+                format="sqlite",
+                mediatype="application/vnd.sqlite3",
+                schema=frictionless.Schema(
+                    fields=[
+                        frictionless.Field.from_descriptor(
+                            {
+                                "name": c.name,
+                                "type": self._clean_frictionless_types(str(c.type)),
+                            }
+                        )
+                        for c in table.columns
+                    ]
+                ),
             )
+            for table in self.sqlite_meta.sorted_tables
+        ]
 
         package = frictionless.Package(
             name=self.datapackage_path.stem,

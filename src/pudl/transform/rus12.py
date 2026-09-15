@@ -3,7 +3,6 @@
 import pandas as pd
 from dagster import AssetIn, AssetOut, Output, asset, multi_asset
 
-import pudl.transform.rus as rus
 from pudl import logging_helpers
 from pudl.helpers import cleanstrings_snake, make_changelog, multi_index_stack
 from pudl.metadata.enums import (
@@ -14,6 +13,7 @@ from pudl.metadata.enums import (
     UTILITY_PLANT_GROUP_RUS12,
 )
 from pudl.metadata.resource_helpers import HARVESTED_CORE_TABLES_RUS12
+from pudl.transform import rus
 from pudl.transform.eia import harvest_entity_tables
 
 logger = logging_helpers.get_logger(__name__)
@@ -559,7 +559,7 @@ def _core_rus12__yearly_plant_operations(
     null_partly_owned_mask = df.report_date.dt.year.isin([2006, 2007, 2008])
 
     # From _OR_PowerSupply Plant File Documentation.rtf in 2021 archive
-    # TO FOCUS ONLY ON DATA FOR THE BORROWERS’ SHARE OF THE PLANTS
+    # TO FOCUS ONLY ON DATA FOR THE BORROWERS' SHARE OF THE PLANTS
     # FullOwnershipScope    BorrowerShared
     # FALSE                 TRUE
     # TRUE                  FALSE
@@ -937,16 +937,14 @@ def core_rus12__entity_borrowers(context, **clean_dfs):
     # always produces entity (aka static) as annual (aka scd) tables.
     # as well as a helpful-for-debugging dictionary of dfs for all
     # values columns we are harvesting
-    entity_df, annual_df, _col_dfs = harvest_entity_tables(
+    entity_df, _annual_df, _col_dfs = harvest_entity_tables(
         entity,
         clean_dfs,
         special_case_strictness=special_case_strictness,
         debug=True,
     )
 
-    out_all = pd.concat(
-        [df for harvested_col_name, df in _col_dfs.items()], axis="index"
-    ).reset_index(drop=True)
+    out_all = pd.concat(list(_col_dfs.values()), axis="index").reset_index(drop=True)
     forensics = make_changelog(out_all, ["borrower_id_rus"])
     return entity_df, forensics
 
@@ -959,5 +957,5 @@ finished_rus_assets = [
     )
     for _core_table_name in _CORE_RUS12_TABLES
     # Don't attempt to core-ify this table
-    if _core_table_name not in ["_core_rus12__scd_borrowers"]
+    if _core_table_name != "_core_rus12__scd_borrowers"
 ]

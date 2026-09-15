@@ -1,5 +1,5 @@
 import pandas as pd
-from pytest import fixture, raises
+import pytest
 
 from pudl.transform.eia176 import (
     _core_eia176__numeric_data,
@@ -121,7 +121,7 @@ COMPANY_4 = [
 DROP_COLS = ["form_line_numbers", "unit_type", "line"]
 
 
-@fixture
+@pytest.fixture
 def df():
     df = pd.DataFrame(columns=COLUMN_NAMES)
     df.loc[0] = COMPANY_1
@@ -274,7 +274,7 @@ def test_normalize_continuation_line_location_codes_rejects_unknown():
     )
     df = pd.DataFrame({"reference_state": ["not a code"]})
 
-    with raises(
+    with pytest.raises(
         ValueError,
         match=r"Unknown reference_state values: \['not a code'\]",
     ):

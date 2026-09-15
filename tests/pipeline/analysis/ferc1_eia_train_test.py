@@ -41,7 +41,14 @@ def eia_ferc1_training_data() -> pd.DataFrame:
 
 
 @pytest.mark.parametrize(
-    "verified,report_year,record_id_eia_override_1,record_id_ferc1,utility_id_pudl_ferc1,expectation",
+    (
+        "verified",
+        "report_year",
+        "record_id_eia_override_1",
+        "record_id_ferc1",
+        "utility_id_pudl_ferc1",
+        "expectation",
+    ),
     [
         # This param will need to be updated with data from new years in order to pass
         # None of these parameters represent real matches. They mimic real matches by

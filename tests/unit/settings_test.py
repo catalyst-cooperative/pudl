@@ -47,17 +47,18 @@ class TestGenericDataConfig:
 
         In this case, the required ``data_source`` parameter is missing.
         """
+        working_partitions = {"years": [2001]}
+        working_tables = ["table"]
+
+        # The ValidationError is raised while evaluating the class body itself
+        # (constructing the default DataSource value), not on instantiation.
         with pytest.raises(ValidationError):
-            working_partitions = {"years": [2001]}
-            working_tables = ["table"]
 
             class Test(GenericDataConfig):
                 data_source: DataSource = DataSource(  # type: ignore[invalid-attribute-override, missing-argument]
                     working_partitions=working_partitions,
                     working_tables=working_tables,  # type: ignore[unknown-argument]
                 )
-
-            Test()
 
 
 class TestFerc1DataConfig:
@@ -379,13 +380,13 @@ class TestGlobalConfig:
 
     def test_immutability(self: Self):
         """Test immutability config is working correctly."""
+        data_config = PudlDataConfig()
         with pytest.raises(ValidationError):
-            data_config = PudlDataConfig()
             data_config.eia = EiaDataConfig()
 
+        eia_data_config = EiaDataConfig()
         with pytest.raises(ValidationError):
-            data_config = EiaDataConfig()
-            data_config.eia860 = Eia860DataConfig()
+            eia_data_config.eia860 = Eia860DataConfig()
 
 
 class TestGlobalDataConfigResource:
@@ -490,14 +491,14 @@ def test_datastore_resource_loads_local_cache(tmp_path) -> None:
             },
         ) as datastore:
             assert isinstance(datastore, Datastore)
-            assert datastore._cache.num_layers() == 2  # noqa: SLF001
+            assert datastore._cache.num_layers() == 2
 
-            local_cache, cloud_cache = datastore._cache._caches  # noqa: SLF001
+            local_cache, cloud_cache = datastore._cache._caches
             assert isinstance(local_cache, UPathCache)
             assert isinstance(cloud_cache, UPathCache)
-            assert local_cache._protocol == "file"  # noqa: SLF001
-            assert cloud_cache._protocol == "s3"  # noqa: SLF001
-            assert local_cache._base_path.path == str(pudl_paths.pudl_input)  # noqa: SLF001
+            assert local_cache._protocol == "file"
+            assert cloud_cache._protocol == "s3"
+            assert local_cache._base_path.path == str(pudl_paths.pudl_input)
 
 
 def test_datastore_resource_loads_cloud_cache_only(tmp_path) -> None:
@@ -524,11 +525,11 @@ def test_datastore_resource_loads_cloud_cache_only(tmp_path) -> None:
             },
         ) as datastore:
             assert isinstance(datastore, Datastore)
-            assert datastore._cache.num_layers() == 1  # noqa: SLF001
+            assert datastore._cache.num_layers() == 1
 
-            cloud_cache = datastore._cache._caches[0]  # noqa: SLF001
+            cloud_cache = datastore._cache._caches[0]
             assert isinstance(cloud_cache, UPathCache)
-            assert cloud_cache._protocol == "s3"  # noqa: SLF001
+            assert cloud_cache._protocol == "s3"
 
 
 def _all_settings_instances() -> list[BaseModel]:

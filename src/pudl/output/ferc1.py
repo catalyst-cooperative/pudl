@@ -1,6 +1,7 @@
 """A collection of denormalized FERC assets and helper functions."""
 
 import importlib
+import itertools
 import re
 from copy import deepcopy
 from dataclasses import dataclass
@@ -1223,8 +1224,8 @@ class Exploder:
         metadata_xbrl_ferc1: pd.DataFrame,
         calculation_components_xbrl_ferc1: pd.DataFrame,
         seed_nodes: list[NodeId],
-        tags: pd.DataFrame = pd.DataFrame(),
-        group_metric_checks: GroupMetricChecks = GroupMetricChecks(),
+        tags: pd.DataFrame | None = None,
+        group_metric_checks: GroupMetricChecks | None = None,
         off_by_facts: list[OffByFactoid] | None = None,
     ):
         """Instantiate an Exploder class.
@@ -1239,11 +1240,15 @@ class Exploder:
         """
         self.table_names: list[str] = table_names
         self.root_table: str = root_table
-        self.group_metric_checks = group_metric_checks
         self.metadata_xbrl_ferc1 = metadata_xbrl_ferc1
         self.calculation_components_xbrl_ferc1 = calculation_components_xbrl_ferc1
         self.seed_nodes = seed_nodes
-        self.tags = tags
+        self.tags = tags if tags is not None else pd.DataFrame()
+        self.group_metric_checks = (
+            group_metric_checks
+            if group_metric_checks is not None
+            else GroupMetricChecks()
+        )
         self.off_by_facts = off_by_facts
 
     @cached_property
@@ -1496,19 +1501,18 @@ class Exploder:
     @cached_property
     def value_col(self: Self) -> str:
         """Get the value column for the exploded tables."""
-        value_cols = []
-        for table_name in self.table_names:
-            value_cols.append(
-                pudl.transform.ferc1.FERC1_TFR_CLASSES[
-                    table_name
-                ]().params.reconcile_table_calculations.column_to_check
-            )
+        value_cols = [
+            pudl.transform.ferc1.FERC1_TFR_CLASSES[
+                table_name
+            ]().params.reconcile_table_calculations.column_to_check
+            for table_name in self.table_names
+        ]
         if len(set(value_cols)) != 1:
             raise ValueError(
                 "Exploding FERC tables requires tables with only one value column. Got: "
                 f"{set(value_cols)}"
             )
-        value_col = list(set(value_cols))[0]
+        value_col = next(iter(set(value_cols)))
         return value_col
 
     @property
@@ -2352,7 +2356,7 @@ class XbrlCalculationForestFerc1(BaseModel):
     def _get_path_weight(self, path: list[NodeId], graph: nx.DiGraph) -> float:
         """Multiply all weights along a path together."""
         leaf_weight = 1.0
-        for parent, child in zip(path, path[1:], strict=False):
+        for parent, child in itertools.pairwise(path):
             leaf_weight *= graph.get_edge_data(parent, child)["weight"]
         return leaf_weight
 

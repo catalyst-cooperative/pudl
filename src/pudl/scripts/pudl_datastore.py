@@ -18,12 +18,14 @@ _KNOWN_DATASETS = sorted(ZenodoDoiSettings.model_fields)
 
 def _print_partitions(dstore: Datastore, datasets: list[str]) -> None:
     """Print known partition keys and values for each of the datasets."""
-    from pudl.workspace.datastore import ZenodoFetcher  # noqa: PLC0415
+    from pudl.workspace.datastore import ZenodoFetcher
 
     for single_ds in datasets:
         partitions = dstore.get_datapackage_descriptor(single_ds).get_partitions()
 
-        print(f"\nPartitions for {single_ds} ({ZenodoFetcher().get_doi(single_ds)}):")
+        click.echo(
+            f"\nPartitions for {single_ds} ({ZenodoFetcher().get_doi(single_ds)}):"
+        )
         for partition_key in sorted(partitions):
             # try-except required because ferc2 has parts with heterogenous types
             # that therefore can't be sorted: [1, 2, None]
@@ -31,9 +33,9 @@ def _print_partitions(dstore: Datastore, datasets: list[str]) -> None:
                 parts = sorted(partitions[partition_key])
             except TypeError:
                 parts = partitions[partition_key]
-            print(f"  {partition_key}: {', '.join(str(x) for x in parts)}")
+            click.echo(f"  {partition_key}: {', '.join(str(x) for x in parts)}")
         if not partitions:
-            print("  -- no known partitions --")
+            click.echo("  -- no known partitions --")
 
 
 def _parse_key_values(
@@ -174,13 +176,13 @@ def main(
     pudl_datastore --all
     """
     # Deferred to keep --help fast; see pudl/scripts/__init__.py for rationale.
-    import pudl  # noqa: PLC0415
-    from pudl.workspace.datastore import (  # noqa: PLC0415
+    import pudl
+    from pudl.workspace.datastore import (
         Datastore,
         fetch_resources,
         validate_cache,
     )
-    from pudl.workspace.setup import PudlPaths  # noqa: PLC0415
+    from pudl.workspace.setup import PudlPaths
 
     logger = pudl.logging_helpers.get_logger(__name__)
     pudl.logging_helpers.configure_root_logger(

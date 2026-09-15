@@ -42,7 +42,7 @@ def materialize_asset(asset_name: str, output_file: Path) -> None:
     if isinstance(asset_value, pd.DataFrame):
         asset_value.to_parquet(output_file, engine="pyarrow")
     else:
-        raise RuntimeError(f"Value for {asset_name} is not a pandas DataFrame!")
+        raise TypeError(f"Value for {asset_name} is not a pandas DataFrame!")
 
 
 @click.command(help=__doc__)
