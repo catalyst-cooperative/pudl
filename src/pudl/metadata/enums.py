@@ -316,6 +316,18 @@ EPACEMS_MEASUREMENT_CODES: list[str] = [
 ]
 """Valid emissions measurement codes for the EPA CEMS hourly data."""
 
+EPAMATS_MEASUREMENT_CODES: list[str] = [
+    "Manually Calculated",
+    "Measured",
+    "Startup or Shutdown",
+    "Unavailable",
+]
+"""Valid emissions measurement codes for the EPA MATS hourly data.
+
+"Unavailable" is entered by the respondent and does not mean the same thing as a
+missing/NA value.
+"""
+
 TECH_DESCRIPTIONS: set[str] = {
     "Conventional Hydroelectric",
     "Conventional Steam Coal",
