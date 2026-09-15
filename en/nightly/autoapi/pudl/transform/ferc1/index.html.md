@@ -515,7 +515,7 @@ Bases: [`pudl.transform.classes.TransformParams`](../classes/index.html.md#pudl.
 
 Parameters for [`combine_axis_columns_xbrl()`](#pudl.transform.ferc1.combine_axis_columns_xbrl).
 
-#### axis_columns_to_combine *: [list](https://docs.python.org/3/builtins/stdtypes.html#list) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
+#### axis_columns_to_combine *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
 List of axis columns to combine.
 
@@ -3244,7 +3244,7 @@ and will break the pk expectations.
 
 ### pudl.transform.ferc1.\_FERC1_PLANT_TABLES
 
-### pudl.transform.ferc1.ferc1_transform_asset_factory(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), tfr_class: [Ferc1AbstractTableTransformer](#pudl.transform.ferc1.Ferc1AbstractTableTransformer), io_manager_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'pudl_io_manager', convert_dtypes: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True, generic: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, op_tags: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any] | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
+### pudl.transform.ferc1.ferc1_transform_asset_factory(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), tfr_class: [Ferc1AbstractTableTransformer](#pudl.transform.ferc1.Ferc1AbstractTableTransformer), io_manager_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'parquet_io_manager', convert_dtypes: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True, generic: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, op_tags: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any] | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
 
 Create an asset that pulls in raw ferc Form 1 assets and applies transformations.
 

@@ -374,13 +374,11 @@ Module Contents
 
 
    .. py:attribute:: DATABASE_NAME
-      :value: None
-
+      :type:  str
 
 
    .. py:attribute:: DATASET
-      :value: None
-
+      :type:  str
 
 
    .. py:attribute:: data_config

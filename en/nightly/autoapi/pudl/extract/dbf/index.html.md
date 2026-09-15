@@ -275,9 +275,9 @@ respondent_ids).
 
 The extraction logic is invoked by calling execute() method of this class.
 
-#### DATABASE_NAME *= None*
+#### DATABASE_NAME *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### DATASET *= None*
+#### DATASET *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
 #### data_config *: [pudl.settings.FercDbfToSqliteDataConfig](../../settings/index.html.md#pudl.settings.FercDbfToSqliteDataConfig)*
 

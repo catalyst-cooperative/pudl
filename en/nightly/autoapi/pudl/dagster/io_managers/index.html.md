@@ -62,7 +62,7 @@ Bases: [`dagster.ConfigurableIOManager`](https://docs.dagster.io/api/dagster/io-
 
 IOManager that writes pudl tables to pyarrow parquet files.
 
-#### pudl_paths *: dagster.ResourceDependency[[pudl.dagster.resources.PudlPathsResource](../resources/index.html.md#pudl.dagster.resources.PudlPathsResource)]*
+#### pudl_paths *: dagster.ResourceDependency[[pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths)]*
 
 #### *static* \_record_parquet_file_metadata(context: [dagster.OutputContext](https://docs.dagster.io/api/dagster/io-managers/#dagster.OutputContext), parquet_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
@@ -100,15 +100,15 @@ this base class owns three shared responsibilities:
 2. lazily reflecting and caching SQLAlchemy metadata once the database exists
 3. checking Dagster provenance metadata before each read
 
-#### global_data_config *: dagster.ResourceDependency[[pudl.dagster.resources.GlobalDataConfigResource](../resources/index.html.md#pudl.dagster.resources.GlobalDataConfigResource)]*
+#### global_data_config *: dagster.ResourceDependency[[pudl.settings.GlobalDataConfig](../../settings/index.html.md#pudl.settings.GlobalDataConfig)]*
 
-#### pudl_paths *: dagster.ResourceDependency[[pudl.dagster.resources.PudlPathsResource](../resources/index.html.md#pudl.dagster.resources.PudlPathsResource)]*
+#### pudl_paths *: dagster.ResourceDependency[[pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths)]*
 
-#### zenodo_dois *: dagster.ResourceDependency[[pudl.dagster.resources.ZenodoDoiSettingsResource](../resources/index.html.md#pudl.dagster.resources.ZenodoDoiSettingsResource)]*
+#### zenodo_dois *: dagster.ResourceDependency[[pudl.workspace.datastore.ZenodoDoiSettings](../../workspace/datastore/index.html.md#pudl.workspace.datastore.ZenodoDoiSettings)]*
 
 #### dataset *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### data_format *: ClassVar[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
+#### data_format *: ClassVar[Literal['dbf', 'xbrl']]*
 
 #### \_engine *: sqlalchemy.Engine | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
@@ -171,7 +171,7 @@ IO manager for reading tables from FERC DBF SQLite databases.
 
 Instantiate with `dataset` (`ferc1`, `ferc714`, etc.)
 
-#### data_format *: ClassVar[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= 'dbf'*
+#### data_format *: ClassVar[Literal['dbf', 'xbrl']]* *= 'dbf'*
 
 #### \_query(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), years: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[int](https://docs.python.org/3/builtins/functions.html#int)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
@@ -185,7 +185,7 @@ IO manager for reading tables from a FERC XBRL SQLite database.
 
 Instantiate with `dataset` (`ferc1`, `ferc714`, etc.).
 
-#### data_format *: ClassVar[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= 'xbrl'*
+#### data_format *: ClassVar[Literal['dbf', 'xbrl']]* *= 'xbrl'*
 
 #### *static* refine_report_year(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), xbrl_years: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[int](https://docs.python.org/3/builtins/functions.html#int)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 

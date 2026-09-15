@@ -22,6 +22,11 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
 
 ### Developer Experience
 
+* Upgraded to Pyrefly 1.3.0 and adopted its new concise baseline format. Fixed a handful
+  of genuine typing gaps that the upgrade surfaced. Mostly this involved type narrowing
+  in places where an object that might be `None` was subject to a regex match, dict
+  lookup, or other operation that would fail on `None`. See PR [#5583](https://github.com/catalyst-cooperative/pudl/pull/5583).
+
 <a id="release-v2026-9-0"></a>
 
 ## v2026.9.0 (2026-09-11)
@@ -358,6 +363,12 @@ story.
   DuckDB connections. One dedicated to reading `pudl.sqlite` via DuckDB’s `sqlite`
   extension, so tests query both build outputs through one API as PUDL moves toward
   DuckDB. See PR [#5538](https://github.com/catalyst-cooperative/pudl/pull/5538).
+
+### New Data Tests & Validations
+
+* Add validation tests for `core_rus12__yearly_sources_and_distribution`
+  and `out_rus12__yearly_sources_and_distribution`. See issue [#5368](https://github.com/catalyst-cooperative/pudl/issues/5368),
+  PR [#5479](https://github.com/catalyst-cooperative/pudl/pull/5479), and PR [#5564](https://github.com/catalyst-cooperative/pudl/pull/5564).
 
 <a id="release-v2026-8-0"></a>
 

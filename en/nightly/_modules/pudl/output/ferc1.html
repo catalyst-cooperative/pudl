@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.output.ferc1 &#8212; PUDL 2026.9.1.dev4 documentation</title>
+    <title>pudl.output.ferc1 &#8212; PUDL 2026.9.1.dev7 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../_static/documentation_options.js?v=6766d2bb"></script>
+    <script src="../../../_static/documentation_options.js?v=47d74850"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev4 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev4 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev7 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev7 documentation - Home"/>
   
   
 </a></div>
@@ -1131,7 +1131,7 @@ window.runMermaid = runMermaid;</script>
 
     <span class="nd">@asset</span><span class="p">(</span>
         <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"out_ferc1__</span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
-        <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">,</span>
+        <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span><span class="p">,</span>
         <span class="n">compute_kind</span><span class="o">=</span><span class="s2">"Python"</span><span class="p">,</span>
         <span class="n">ins</span><span class="o">=</span><span class="n">ins</span><span class="p">,</span>
     <span class="p">)</span>
@@ -1234,7 +1234,7 @@ window.runMermaid = runMermaid;</script>
 
 
 <span class="nd">@asset</span><span class="p">(</span>
-    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">,</span>
+    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span><span class="p">,</span>
     <span class="n">compute_kind</span><span class="o">=</span><span class="s2">"Python"</span><span class="p">,</span>
     <span class="n">op_tags</span><span class="o">=</span><span class="p">{</span><span class="s2">"dagster/priority"</span><span class="p">:</span> <span class="mi">10</span><span class="p">},</span>
 <span class="p">)</span>
@@ -1297,7 +1297,7 @@ window.runMermaid = runMermaid;</script>
 
 
 <span class="nd">@asset</span><span class="p">(</span>
-    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">,</span>
+    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span><span class="p">,</span>
     <span class="n">compute_kind</span><span class="o">=</span><span class="s2">"Python"</span><span class="p">,</span>
     <span class="n">op_tags</span><span class="o">=</span><span class="p">{</span><span class="s2">"dagster/priority"</span><span class="p">:</span> <span class="mi">10</span><span class="p">},</span>
 <span class="p">)</span>
@@ -1341,7 +1341,7 @@ window.runMermaid = runMermaid;</script>
 
 
 <span class="nd">@asset</span><span class="p">(</span>
-    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">,</span>
+    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span><span class="p">,</span>
     <span class="n">compute_kind</span><span class="o">=</span><span class="s2">"Python"</span><span class="p">,</span>
     <span class="n">op_tags</span><span class="o">=</span><span class="p">{</span><span class="s2">"dagster/priority"</span><span class="p">:</span> <span class="mi">10</span><span class="p">},</span>
 <span class="p">)</span>
@@ -1379,7 +1379,7 @@ window.runMermaid = runMermaid;</script>
 
 
 <span class="nd">@asset</span><span class="p">(</span>
-    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">,</span>
+    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span><span class="p">,</span>
     <span class="n">compute_kind</span><span class="o">=</span><span class="s2">"Python"</span><span class="p">,</span>
     <span class="n">op_tags</span><span class="o">=</span><span class="p">{</span><span class="s2">"dagster/priority"</span><span class="p">:</span> <span class="mi">10</span><span class="p">},</span>
 <span class="p">)</span>
@@ -1417,7 +1417,7 @@ window.runMermaid = runMermaid;</script>
 
 
 <span class="nd">@asset</span><span class="p">(</span>
-    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">,</span>
+    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span><span class="p">,</span>
     <span class="n">compute_kind</span><span class="o">=</span><span class="s2">"Python"</span><span class="p">,</span>
     <span class="n">op_tags</span><span class="o">=</span><span class="p">{</span><span class="s2">"dagster/priority"</span><span class="p">:</span> <span class="mi">10</span><span class="p">},</span>
 <span class="p">)</span>
@@ -1466,7 +1466,7 @@ window.runMermaid = runMermaid;</script>
 
 
 <span class="nd">@asset</span><span class="p">(</span>
-    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">,</span>
+    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span><span class="p">,</span>
     <span class="n">compute_kind</span><span class="o">=</span><span class="s2">"Python"</span><span class="p">,</span>
     <span class="n">op_tags</span><span class="o">=</span><span class="p">{</span><span class="s2">"dagster/priority"</span><span class="p">:</span> <span class="mi">10</span><span class="p">},</span>
 <span class="p">)</span>
@@ -1523,7 +1523,7 @@ window.runMermaid = runMermaid;</script>
 
 
 <span class="nd">@asset</span><span class="p">(</span>
-    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">,</span>
+    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span><span class="p">,</span>
     <span class="n">config_schema</span><span class="o">=</span><span class="p">{</span>
         <span class="s2">"thresh"</span><span class="p">:</span> <span class="n">Field</span><span class="p">(</span>
             <span class="nb">float</span><span class="p">,</span>
@@ -2095,7 +2095,7 @@ window.runMermaid = runMermaid;</script>
             <span class="p">),</span>
         <span class="p">],</span>
         <span class="s2">"off_by_facts"</span><span class="p">:</span> <span class="p">[],</span>
-        <span class="s2">"io_manager_key"</span><span class="p">:</span> <span class="s2">"pudl_io_manager"</span><span class="p">,</span>
+        <span class="s2">"io_manager_key"</span><span class="p">:</span> <span class="s2">"parquet_io_manager"</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="p">{</span>
         <span class="s2">"root_table"</span><span class="p">:</span> <span class="s2">"core_ferc1__yearly_balance_sheet_assets_sched110"</span><span class="p">,</span>
@@ -2155,7 +2155,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span>
             <span class="p">),</span>
         <span class="p">],</span>
-        <span class="s2">"io_manager_key"</span><span class="p">:</span> <span class="s2">"pudl_io_manager"</span><span class="p">,</span>
+        <span class="s2">"io_manager_key"</span><span class="p">:</span> <span class="s2">"parquet_io_manager"</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="p">{</span>
         <span class="s2">"root_table"</span><span class="p">:</span> <span class="s2">"core_ferc1__yearly_balance_sheet_liabilities_sched110"</span><span class="p">,</span>
@@ -2176,7 +2176,7 @@ window.runMermaid = runMermaid;</script>
             <span class="p">)</span>
         <span class="p">],</span>
         <span class="s2">"off_by_facts"</span><span class="p">:</span> <span class="p">[],</span>
-        <span class="s2">"io_manager_key"</span><span class="p">:</span> <span class="s2">"pudl_io_manager"</span><span class="p">,</span>
+        <span class="s2">"io_manager_key"</span><span class="p">:</span> <span class="s2">"parquet_io_manager"</span><span class="p">,</span>
     <span class="p">},</span>
 <span class="p">]</span></div>
 
@@ -3646,7 +3646,13 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span>
         <span class="k">for</span> <span class="n">table</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="n">color_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">nodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">node</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span> <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">table_name</span> <span class="o">==</span> <span class="n">table</span><span class="p">]</span>
-            <span class="n">nx</span><span class="o">.</span><span class="n">draw_networkx_nodes</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">node_color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">table</span><span class="p">)</span>
+            <span class="n">nx</span><span class="o">.</span><span class="n">draw_networkx_nodes</span><span class="p">(</span>
+                <span class="n">G</span><span class="o">=</span><span class="n">graph</span><span class="p">,</span>
+                <span class="n">pos</span><span class="o">=</span><span class="n">pos</span><span class="p">,</span>
+                <span class="n">nodelist</span><span class="o">=</span><span class="n">nodes</span><span class="p">,</span>
+                <span class="n">node_color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="n">table</span><span class="p">,</span>
+            <span class="p">)</span>
         <span class="n">nx</span><span class="o">.</span><span class="n">draw_networkx_edges</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">pos</span><span class="p">)</span>
         <span class="c1"># The labels are currently unwieldy</span>
         <span class="c1"># nx.draw_networkx_labels(nx_forest, pos)</span>
@@ -4044,7 +4050,7 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">,</span> <span class="n">compute_kind</span><span class="o">=</span><span class="s2">"Python"</span><span class="p">)</span>
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span><span class="p">,</span> <span class="n">compute_kind</span><span class="o">=</span><span class="s2">"Python"</span><span class="p">)</span>
 <div class="viewcode-block" id="out_ferc1__yearly_rate_base">
 <a class="viewcode-back" href="../../../autoapi/pudl/output/ferc1/index.html#pudl.output.ferc1.out_ferc1__yearly_rate_base">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">out_ferc1__yearly_rate_base</span><span class="p">(</span>

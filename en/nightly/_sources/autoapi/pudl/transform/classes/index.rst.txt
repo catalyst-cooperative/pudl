@@ -1174,7 +1174,7 @@ Module Contents
 
 
 
-   .. py:method:: correct_units(df: pandas.DataFrame, params: UnitCorrections | None = None) -> pandas.DataFrame
+   .. py:method:: correct_units(df: pandas.DataFrame, params: list[UnitCorrections] | None = None) -> pandas.DataFrame
 
       Apply all specified unit corrections to the table in order.
 

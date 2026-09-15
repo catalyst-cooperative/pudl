@@ -718,7 +718,7 @@ Module Contents
 
 
    .. py:attribute:: axis_columns_to_combine
-      :type:  list | None
+      :type:  list[str] | None
       :value: None
 
 
@@ -4160,7 +4160,7 @@ Module Contents
 
 .. py:data:: _FERC1_PLANT_TABLES
 
-.. py:function:: ferc1_transform_asset_factory(table_name: str, tfr_class: Ferc1AbstractTableTransformer, io_manager_key: str = 'pudl_io_manager', convert_dtypes: bool = True, generic: bool = False, op_tags: dict[str, Any] | None = None) -> dagster.AssetsDefinition
+.. py:function:: ferc1_transform_asset_factory(table_name: str, tfr_class: Ferc1AbstractTableTransformer, io_manager_key: str = 'parquet_io_manager', convert_dtypes: bool = True, generic: bool = False, op_tags: dict[str, Any] | None = None) -> dagster.AssetsDefinition
 
    Create an asset that pulls in raw ferc Form 1 assets and applies transformations.
 

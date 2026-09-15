@@ -7252,7 +7252,7 @@ Bases: [`dagster.ConfigurableIOManager`](https://docs.dagster.io/api/dagster/io-
 
 IOManager that writes pudl tables to pyarrow parquet files.
 
-#### pudl_paths *: dagster.ResourceDependency[[pudl.dagster.resources.PudlPathsResource](autoapi/pudl/dagster/resources/index.html.md#pudl.dagster.resources.PudlPathsResource)]*
+#### pudl_paths *: dagster.ResourceDependency[[pudl.workspace.setup.PudlPaths](autoapi/pudl/workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths)]*
 
 #### *static* \_record_parquet_file_metadata(context: [dagster.OutputContext](https://docs.dagster.io/api/dagster/io-managers/#dagster.OutputContext), parquet_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
@@ -7290,15 +7290,15 @@ this base class owns three shared responsibilities:
 2. lazily reflecting and caching SQLAlchemy metadata once the database exists
 3. checking Dagster provenance metadata before each read
 
-#### global_data_config *: dagster.ResourceDependency[[pudl.dagster.resources.GlobalDataConfigResource](autoapi/pudl/dagster/resources/index.html.md#pudl.dagster.resources.GlobalDataConfigResource)]*
+#### global_data_config *: dagster.ResourceDependency[[pudl.settings.GlobalDataConfig](autoapi/pudl/settings/index.html.md#pudl.settings.GlobalDataConfig)]*
 
-#### pudl_paths *: dagster.ResourceDependency[[pudl.dagster.resources.PudlPathsResource](autoapi/pudl/dagster/resources/index.html.md#pudl.dagster.resources.PudlPathsResource)]*
+#### pudl_paths *: dagster.ResourceDependency[[pudl.workspace.setup.PudlPaths](autoapi/pudl/workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths)]*
 
-#### zenodo_dois *: dagster.ResourceDependency[[pudl.dagster.resources.ZenodoDoiSettingsResource](autoapi/pudl/dagster/resources/index.html.md#pudl.dagster.resources.ZenodoDoiSettingsResource)]*
+#### zenodo_dois *: dagster.ResourceDependency[[pudl.workspace.datastore.ZenodoDoiSettings](autoapi/pudl/workspace/datastore/index.html.md#pudl.workspace.datastore.ZenodoDoiSettings)]*
 
 #### dataset *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### data_format *: ClassVar[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
+#### data_format *: ClassVar[Literal['dbf', 'xbrl']]*
 
 #### \_engine *: sqlalchemy.Engine | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
@@ -7361,7 +7361,7 @@ IO manager for reading tables from FERC DBF SQLite databases.
 
 Instantiate with `dataset` (`ferc1`, `ferc714`, etc.)
 
-#### data_format *: ClassVar[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= 'dbf'*
+#### data_format *: ClassVar[Literal['dbf', 'xbrl']]* *= 'dbf'*
 
 #### \_query(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), years: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[int](https://docs.python.org/3/builtins/functions.html#int)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
@@ -7375,7 +7375,7 @@ IO manager for reading tables from a FERC XBRL SQLite database.
 
 Instantiate with `dataset` (`ferc1`, `ferc714`, etc.).
 
-#### data_format *: ClassVar[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= 'xbrl'*
+#### data_format *: ClassVar[Literal['dbf', 'xbrl']]* *= 'xbrl'*
 
 #### *static* refine_report_year(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), xbrl_years: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[int](https://docs.python.org/3/builtins/functions.html#int)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
@@ -7713,9 +7713,9 @@ Bases: [`dagster.ConfigurableResource`](https://docs.dagster.io/api/dagster/reso
 
 Dagster resource to interact with Zenodo archives.
 
-#### zenodo_dois *: dagster.ResourceDependency[[ZenodoDoiSettingsResource](autoapi/pudl/dagster/resources/index.html.md#pudl.dagster.resources.ZenodoDoiSettingsResource)]*
+#### zenodo_dois *: dagster.ResourceDependency[[pudl.workspace.datastore.ZenodoDoiSettings](autoapi/pudl/workspace/datastore/index.html.md#pudl.workspace.datastore.ZenodoDoiSettings)]*
 
-#### pudl_paths *: dagster.ResourceDependency[[PudlPathsResource](autoapi/pudl/dagster/resources/index.html.md#pudl.dagster.resources.PudlPathsResource)]*
+#### pudl_paths *: dagster.ResourceDependency[[pudl.workspace.setup.PudlPaths](autoapi/pudl/workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths)]*
 
 #### cloud_cache_path *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 's3://pudl.catalyst.coop/zenodo'*
 
@@ -9286,9 +9286,9 @@ respondent_ids).
 
 The extraction logic is invoked by calling execute() method of this class.
 
-#### DATABASE_NAME *= None*
+#### DATABASE_NAME *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### DATASET *= None*
+#### DATASET *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
 #### data_config *: [pudl.settings.FercDbfToSqliteDataConfig](autoapi/pudl/settings/index.html.md#pudl.settings.FercDbfToSqliteDataConfig)*
 
@@ -15512,7 +15512,7 @@ Package out of a collection of Resources, we want the Package to reflect the
 union of all the analogous values found in the Resources, but we don’t want
 any duplicates. We may also get values directly from the Package inputs.
 
-#### *classmethod* from_resource_ids(resource_ids: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] = tuple(sorted(RESOURCE_METADATA)), resolve_foreign_keys: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, excluded_etl_groups: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] = (), title: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, description: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, version: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [Package](autoapi/pudl/metadata/classes/index.html.md#pudl.metadata.classes.Package)
+#### *classmethod* from_resource_ids(resource_ids: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), ...] = tuple(sorted(RESOURCE_METADATA)), resolve_foreign_keys: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, excluded_etl_groups: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), ...] = (), title: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, description: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, version: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [Package](autoapi/pudl/metadata/classes/index.html.md#pudl.metadata.classes.Package)
 
 Construct a collection of Resources from PUDL identifiers (resource.name).
 
@@ -16029,9 +16029,9 @@ Resource name (aka table name).
 
 #### resource_name_pattern *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= '^(?P<layer>)_(?P<source>)_\_(?P<timeseries_resolution>|)(?:_|)(?P<table_type>|)(?:_|)(?:_|)(?P<slug>.\*)$'*
 
-#### \_match *= None*
+#### \_match *: [re.Match](https://docs.python.org/3/library/re.html#re.Match)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### *property* match
+#### *property* match *: [re.Match](https://docs.python.org/3/library/re.html#re.Match)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
 Return the regex match for the resource name.
 
@@ -21539,13 +21539,7 @@ pudl_service_territories –entity-type utility
 
 # pudl.scripts.pyrefly_diff_baseline
 
-Diff the pyrefly baseline against a git ref by content, not by line number.
-
-Raw JSON diffs of `.pyrefly-baseline.json` are dominated by line/column churn from
-ordinary code changes and pyrefly version bumps – a single `--update-baseline` run
-can touch hundreds of lines without any error actually appearing or disappearing. This
-diffs baseline entries by `(file, error code, description)` instead, so the output
-only shows errors that were genuinely fixed or newly introduced.
+Diff the pyrefly baseline against a git ref by content, not by raw JSON text.
 
 ## Functions
 
@@ -21563,11 +21557,15 @@ Load baseline error entries from a git ref, or the working tree if `ref` is None
 
 Diff a pyrefly baseline against a git ref by (file, code, description).
 
-Run this after `pyrefly check --baseline .pyrefly-baseline.json --update-baseline`
-to sanity-check the regenerated baseline before committing it: the “fixed” list
-should match what you intentionally fixed, and the “newly baselined” list should
-only contain pre-existing issues you’re deliberately deferring – not something
-your own change introduced.
+Run this after `pixi run pyrefly-prune-baseline` and `pixi run
+pyrefly-update-baseline` to sanity-check the regenerated baseline before committing
+it: the “fixed” list should match what you intentionally fixed, and the “newly
+baselined” list should only contain pre-existing issues you’re deliberately
+deferring – not something your own change introduced.
+
+A pyrefly version bump can also surface “newly baselined” entries that are purely
+description-text reformatting of an existing error rather than a real new one; check
+the file and error code before assuming it’s a regression.
 
 
 # autoapi/pudl/scripts/resource_description/index.html.md
@@ -24318,7 +24316,7 @@ Method wrapper for nullifying outlying values.
 
 Method wrapper for columnwise unit conversions.
 
-#### correct_units(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), params: [UnitCorrections](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.UnitCorrections) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### correct_units(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), params: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[UnitCorrections](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.UnitCorrections)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Apply all specified unit corrections to the table in order.
 
@@ -27499,7 +27497,7 @@ Bases: [`pudl.transform.classes.TransformParams`](autoapi/pudl/transform/classes
 
 Parameters for [`combine_axis_columns_xbrl()`](autoapi/pudl/transform/ferc1/index.html.md#pudl.transform.ferc1.combine_axis_columns_xbrl).
 
-#### axis_columns_to_combine *: [list](https://docs.python.org/3/builtins/stdtypes.html#list) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
+#### axis_columns_to_combine *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
 List of axis columns to combine.
 
@@ -30228,7 +30226,7 @@ and will break the pk expectations.
 
 ### pudl.transform.ferc1.\_FERC1_PLANT_TABLES
 
-### pudl.transform.ferc1.ferc1_transform_asset_factory(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), tfr_class: [Ferc1AbstractTableTransformer](autoapi/pudl/transform/ferc1/index.html.md#pudl.transform.ferc1.Ferc1AbstractTableTransformer), io_manager_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'pudl_io_manager', convert_dtypes: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True, generic: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, op_tags: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any] | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
+### pudl.transform.ferc1.ferc1_transform_asset_factory(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), tfr_class: [Ferc1AbstractTableTransformer](autoapi/pudl/transform/ferc1/index.html.md#pudl.transform.ferc1.Ferc1AbstractTableTransformer), io_manager_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'parquet_io_manager', convert_dtypes: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True, generic: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, op_tags: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any] | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
 
 Create an asset that pulls in raw ferc Form 1 assets and applies transformations.
 
@@ -77091,8 +77089,8 @@ the code they touch.
 
 #### Running the checks
 
-For now `pyrefly` is a dev-only dependency, so always run it through the `dev` pixi
-environment:
+Currently `pyrefly` is a dev-only dependency, so always run it through the `dev`
+pixi environment:
 
 ```console
 $ pixi run pyrefly-check                                  # whole project, against the baseline
@@ -77107,48 +77105,29 @@ installed globally for editor or language-server integration).
 #### The baseline
 
 PUDL isn’t enforcing full type-checking project-wide yet, so `.pyrefly-baseline.json`
-records every pre-existing type error as of when it was last regenerated, and
-`pixi run pyrefly-check` only fails on errors *not already in the baseline*. This
-makes it possible to catch newly introduced type errors in code you’re touching without
-requiring the whole codebase to be error-free first.
+records existing type errors, and `pixi run pyrefly-check` only fails on errors *not
+already in the baseline*. This makes it possible to catch newly introduced type errors
+without requiring the whole codebase to be error-free first.
 
-Regenerate the baseline when:
-
-* You’ve fixed one or more pre-existing errors, to shrink the baseline and prevent them
-  from regressing.
-* pyrefly’s own version has been bumped, since a newer version’s stricter (or simply
-  different) checks can surface errors in files you never touched.
+Update the baseline after fixing pre-existing errors, or after a pyrefly version bump,
+by running the following commands:
 
 ```console
-$ pixi run pyrefly-update-baseline
+$ pixi run pyrefly-prune-baseline    # drop stale entries, for a clean diff
+$ pixi run pyrefly-update-baseline   # record and deduplicate present errors
+$ pixi run pyrefly-diff-baseline     # sanity-check the result before committing
 ```
+
+`pyrefly-diff-baseline` compares by `(file, error code, description)` so version
+bumps and code motion don’t drown out real changes. Check its “fixed” and “newly
+baselined” lists before committing: “newly baselined” should only ever contain
+pre-existing issues you’re knowingly deferring (e.g. surfaced by a version bump,
+possibly just reformatted error text), never something your own change introduced.
 
 Never hand-edit `.pyrefly-baseline.json`, and never regenerate it just to make a
 *newly introduced* error in your own change disappear – that defeats its purpose as a
-ratchet against regressions. Fix the error instead, or check with the team if you think
-it should legitimately be deferred.
-
-#### Reviewing a baseline regeneration
-
-A raw `git diff .pyrefly-baseline.json` after regenerating is nearly unreadable:
-fixing even one error, or bumping pyrefly’s version, can shift line/column numbers on
-hundreds of unrelated entries without any error actually appearing or disappearing.
-
-Use `pixi run pyrefly-diff-baseline` (`src/pudl/scripts/pyrefly_diff_baseline.py`)
-instead. It diffs the baseline against `HEAD` by `(file, error code, description)`
-rather than by line number, so the output only shows errors that were genuinely fixed or
-newly added:
-
-```console
-$ pixi run pyrefly-update-baseline
-$ pixi run pyrefly-diff-baseline
-```
-
-Run this every time you regenerate the baseline, before committing it. Confirm the
-“fixed” list matches what you intended to fix, and scrutinize the “newly baselined”
-list carefully – it should only ever contain pre-existing issues you’re knowingly
-deferring (e.g. ones surfaced by a version bump), never something your own change
-introduced.
+ratchet against regressions. Fix the error instead, unless you’re confident that it
+should be deferred.
 
 ### Linting Within Your Editor
 
@@ -77157,6 +77136,7 @@ and formatting tools can be run automatically in the background while you write 
 documentation. Popular editors that work with the above tools include:
 
 * [Visual Studio Code](https://code.visualstudio.com/), from Microsoft (free, but…)
+* [Zed](https://zed.dev/), (fast and modern, with good AI support, written in Rust)
 * [NeoVim](https://neovim.io/), (free and open source; for diehard Unix lovers)
 * [PyCharm](https://www.jetbrains.com/pycharm/) (paid).
 * [Sublime Text](https://www.sublimetext.com/) (paid).
@@ -81154,6 +81134,11 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
 
 ### Developer Experience
 
+* Upgraded to Pyrefly 1.3.0 and adopted its new concise baseline format. Fixed a handful
+  of genuine typing gaps that the upgrade surfaced. Mostly this involved type narrowing
+  in places where an object that might be `None` was subject to a regex match, dict
+  lookup, or other operation that would fail on `None`. See PR [#5583](https://github.com/catalyst-cooperative/pudl/pull/5583).
+
 <a id="release-v2026-9-0"></a>
 
 ## v2026.9.0 (2026-09-11)
@@ -81490,6 +81475,12 @@ story.
   DuckDB connections. One dedicated to reading `pudl.sqlite` via DuckDB’s `sqlite`
   extension, so tests query both build outputs through one API as PUDL moves toward
   DuckDB. See PR [#5538](https://github.com/catalyst-cooperative/pudl/pull/5538).
+
+### New Data Tests & Validations
+
+* Add validation tests for `core_rus12__yearly_sources_and_distribution`
+  and `out_rus12__yearly_sources_and_distribution`. See issue [#5368](https://github.com/catalyst-cooperative/pudl/issues/5368),
+  PR [#5479](https://github.com/catalyst-cooperative/pudl/pull/5479), and PR [#5564](https://github.com/catalyst-cooperative/pudl/pull/5564).
 
 <a id="release-v2026-8-0"></a>
 
