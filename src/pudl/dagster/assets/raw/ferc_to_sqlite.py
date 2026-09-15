@@ -79,11 +79,15 @@ class FercPaths:
         self.local_datapackage_path.unlink(missing_ok=True)
 
         if self.data_format == "xbrl":
-            assert (
-                self.local_duckdb_path is not None
-                and self.local_taxonomy_json_path is not None
-                and self.local_parquet_path is not None
-            ), "XBRL-specific paths must be set when data_format is xbrl."
+            assert self.local_duckdb_path is not None, (
+                "XBRL specific DuckDB path must be set when data_format is xbrl."
+            )
+            assert self.local_taxonomy_json_path is not None, (
+                "XBRL specific taxonomy JSON path must be set when data_format is xbrl."
+            )
+            assert self.local_parquet_path is not None, (
+                "XBRL specific Parquet path must be set when data_format is xbrl."
+            )
             self.local_duckdb_path.unlink(missing_ok=True)
             self.local_taxonomy_json_path.unlink(missing_ok=True)
 
@@ -175,12 +179,18 @@ def _download_nightly_outputs(
     if data_format == "dbf":
         return
 
-    assert (
-        paths.local_taxonomy_json_path is not None
-        and paths.nightly_taxonomy_json_path is not None
-        and paths.local_duckdb_path is not None
-        and paths.nightly_duckdb_path is not None
-    ), "XBRL-specific paths must be set when data_format is xbrl."
+    assert paths.local_taxonomy_json_path is not None, (
+        "Local XBRL taxonomy JSON path must be set when data_format is xbrl."
+    )
+    assert paths.nightly_taxonomy_json_path is not None, (
+        "Nightly XBRL taxonomy JSON path must be set when data_format is xbrl."
+    )
+    assert paths.local_duckdb_path is not None, (
+        "Local XBRL DuckDB path must be set when data_format is xbrl."
+    )
+    assert paths.nightly_duckdb_path is not None, (
+        "Nightly XBRL DuckDB path must be set when data_format is xbrl."
+    )
 
     # Download taxonomy JSON
     paths.local_taxonomy_json_path.write_bytes(
