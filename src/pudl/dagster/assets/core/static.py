@@ -52,7 +52,7 @@ def _read_static_encoding_tables(
 
 @dg.multi_asset(
     outs={
-        table_name: dg.AssetOut(io_manager_key="pudl_io_manager", is_required=False)
+        table_name: dg.AssetOut(io_manager_key="parquet_io_manager", is_required=False)
         for table_name in Package.get_etl_group_tables("static_pudl")
     },
     can_subset=True,
@@ -81,7 +81,7 @@ def static_pudl_tables(context):
 
 @dg.multi_asset(
     outs={
-        table_name: dg.AssetOut(io_manager_key="pudl_io_manager", is_required=False)
+        table_name: dg.AssetOut(io_manager_key="parquet_io_manager", is_required=False)
         for table_name in Package.get_etl_group_tables("static_eia")
     },
     can_subset=True,
@@ -105,7 +105,7 @@ def static_eia_tables(context):
 
 @dg.multi_asset(
     outs={
-        table_name: dg.AssetOut(io_manager_key="pudl_io_manager", is_required=False)
+        table_name: dg.AssetOut(io_manager_key="parquet_io_manager", is_required=False)
         for table_name in Package.get_etl_group_tables("static_ferc1")
     },
     can_subset=True,
@@ -135,7 +135,7 @@ def static_ferc1_tables(context):
 
 @dg.multi_asset(
     outs={
-        table_name: dg.AssetOut(io_manager_key="pudl_io_manager", is_required=False)
+        table_name: dg.AssetOut(io_manager_key="parquet_io_manager", is_required=False)
         for table_name in Package.get_etl_group_tables("static_rus")
     },
     can_subset=True,

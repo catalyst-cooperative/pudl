@@ -14,7 +14,7 @@ For the underlying Dagster concept, see https://docs.dagster.io/guides/build/io-
 import hashlib
 import re
 from pathlib import Path
-from typing import Any, ClassVar
+from typing import Any, ClassVar, Literal
 
 import dagster as dg
 import geopandas
@@ -33,15 +33,15 @@ from pudl.dagster.provenance import (
     get_xbrl_extractor_version,
 )
 from pudl.dagster.resources import (
-    GlobalDataConfigResource,
-    PudlPathsResource,
-    ZenodoDoiSettingsResource,
     global_data_config_resource,
     pudl_paths_resource,
     zenodo_doi_settings_resource,
 )
 from pudl.helpers import get_parquet_table, get_parquet_table_polars
 from pudl.metadata.classes import Resource
+from pudl.settings import GlobalDataConfig
+from pudl.workspace.datastore import ZenodoDoiSettings
+from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -77,7 +77,7 @@ def get_table_name_from_context(context: InputContext | OutputContext) -> str:
 class PudlParquetIOManager(dg.ConfigurableIOManager):
     """IOManager that writes pudl tables to pyarrow parquet files."""
 
-    pudl_paths: dg.ResourceDependency[PudlPathsResource]
+    pudl_paths: dg.ResourceDependency[PudlPaths]
 
     @staticmethod
     def _record_parquet_file_metadata(
@@ -169,11 +169,11 @@ class FercSqliteIOManagerBase(dg.ConfigurableIOManager):
     3. checking Dagster provenance metadata before each read
     """
 
-    global_data_config: dg.ResourceDependency[GlobalDataConfigResource]
-    pudl_paths: dg.ResourceDependency[PudlPathsResource]
-    zenodo_dois: dg.ResourceDependency[ZenodoDoiSettingsResource]
+    global_data_config: dg.ResourceDependency[GlobalDataConfig]
+    pudl_paths: dg.ResourceDependency[PudlPaths]
+    zenodo_dois: dg.ResourceDependency[ZenodoDoiSettings]
     dataset: str
-    data_format: ClassVar[str]
+    data_format: ClassVar[Literal["dbf", "xbrl"]]
 
     _engine: sa.Engine | None = PrivateAttr(default=None)
     _metadata: sa.MetaData | None = PrivateAttr(default=None)
@@ -196,7 +196,10 @@ class FercSqliteIOManagerBase(dg.ConfigurableIOManager):
     def engine(self) -> sa.Engine:
         """Return a cached SQLAlchemy engine for this FERC SQLite database."""
         if self._engine is None:
-            self._engine = sa.create_engine(f"sqlite:///{self.db_path}")
+            # Pydantic explicitly permits mutating PrivateAttr fields on frozen
+            # models; pyrefly doesn't yet model that exception.
+            self._engine = sa.create_engine(f"sqlite:///{self.db_path}")  # type: ignore[read-only]
+        assert self._engine is not None
         return self._engine
 
     @property
@@ -215,8 +218,11 @@ class FercSqliteIOManagerBase(dg.ConfigurableIOManager):
         if self._metadata is None:
             metadata = sa.MetaData()
             metadata.reflect(self.engine)
-            self._metadata = metadata
+            # Pydantic explicitly permits mutating PrivateAttr fields on frozen
+            # models; pyrefly doesn't yet model that exception.
+            self._metadata = metadata  # type: ignore[read-only]
 
+        assert self._metadata is not None
         return self._metadata
 
     def _get_sqlalchemy_table(self, table_name: str) -> sa.Table:
@@ -239,6 +245,9 @@ class FercSqliteIOManagerBase(dg.ConfigurableIOManager):
         """
         zenodo_doi = self.zenodo_dois.get_doi(self.dataset)
 
+        assert self.global_data_config.ferc_to_sqlite is not None, (
+            "ferc_to_sqlite config must be set to read a FERC SQLite database."
+        )
         provenance = FercSqliteProvenance(
             dataset=self.dataset,
             data_format=self.data_format,
@@ -297,7 +306,7 @@ class FercDbfSqliteIOManager(FercSqliteIOManagerBase):
     Instantiate with ``dataset`` (``ferc1``, ``ferc714``, etc.)
     """
 
-    data_format: ClassVar[str] = "dbf"
+    data_format: ClassVar[Literal["dbf", "xbrl"]] = "dbf"
 
     def _query(self, table_name: str, years: list[int]) -> pd.DataFrame:
         """Execute the year-filtered read against the FERC DBF SQLite database."""
@@ -320,7 +329,7 @@ class FercXbrlSqliteIOManager(FercSqliteIOManagerBase):
     Instantiate with ``dataset`` (``ferc1``, ``ferc714``, etc.).
     """
 
-    data_format: ClassVar[str] = "xbrl"
+    data_format: ClassVar[Literal["dbf", "xbrl"]] = "xbrl"
 
     @staticmethod
     def refine_report_year(df: pd.DataFrame, xbrl_years: list[int]) -> pd.DataFrame:
@@ -410,9 +419,4 @@ default_io_managers: dict[str, Any] = {
     "ferc1_xbrl_sqlite_io_manager": ferc1_xbrl_sqlite_io_manager,
     "ferc714_xbrl_sqlite_io_manager": ferc714_xbrl_sqlite_io_manager,
     "parquet_io_manager": parquet_io_manager,
-    # PUDL assets historically wrote to both SQLite and Parquet via the
-    # "pudl_io_manager" key. The ETL now writes only Parquet, so this key is
-    # kept as an alias for the plain Parquet IO manager to avoid churning the
-    # io_manager_key on every asset.
-    "pudl_io_manager": parquet_io_manager,
 }

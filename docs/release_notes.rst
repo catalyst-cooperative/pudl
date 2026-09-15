@@ -33,6 +33,11 @@ Performance Improvements
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^
 
+* Upgraded to Pyrefly 1.3.0 and adopted its new concise baseline format. Fixed a handful
+  of genuine typing gaps that the upgrade surfaced. Mostly this involved type narrowing
+  in places where an object that might be ``None`` was subject to a regex match, dict
+  lookup, or other operation that would fail on ``None``. See PR :pr:`5583`.
+
 .. _release-v2026.9.0:
 
 ---------------------------------------------------------------------------------------
@@ -388,6 +393,14 @@ Developer Experience
   DuckDB connections. One dedicated to reading ``pudl.sqlite`` via DuckDB's ``sqlite``
   extension, so tests query both build outputs through one API as PUDL moves toward
   DuckDB. See PR :pr:`5538`.
+
+
+New Data Tests & Validations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Add validation tests for ``core_rus12__yearly_sources_and_distribution``
+  and ``out_rus12__yearly_sources_and_distribution``. See issue :issue:`5368`,
+  PR :pr:`5479`, and PR :pr:`5564`.
 
 .. _release-v2026.8.0:
 
