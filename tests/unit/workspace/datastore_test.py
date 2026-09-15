@@ -190,9 +190,11 @@ class TestZenodoFetcher:
     }
     PROD_EPACEMS_DOI = datastore.ZenodoDoiSettings().epacems
     # last numeric part of doi
-    PROD_EPACEMS_ZEN_ID = re.search(
-        r"^10\.(5072|5281)/zenodo\.(\d+)$", PROD_EPACEMS_DOI
-    ).group(2)
+    _epacems_doi_match = re.search(r"^10\.(5072|5281)/zenodo\.(\d+)$", PROD_EPACEMS_DOI)
+    assert _epacems_doi_match is not None, (
+        f"Unexpected EPACEMS DOI format: {PROD_EPACEMS_DOI!r}"
+    )
+    PROD_EPACEMS_ZEN_ID = _epacems_doi_match.group(2)
 
     @pytest.fixture(autouse=True)
     def setup(self):

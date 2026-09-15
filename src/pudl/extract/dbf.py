@@ -428,8 +428,8 @@ class FercDbfExtractor:
     The extraction logic is invoked by calling execute() method of this class.
     """
 
-    DATABASE_NAME = None
-    DATASET = None
+    DATABASE_NAME: str
+    DATASET: str
 
     def __init__(
         self,

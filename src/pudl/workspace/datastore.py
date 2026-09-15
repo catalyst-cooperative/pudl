@@ -110,11 +110,12 @@ class DatapackageDescriptor:
         return all(matches)
 
     def _match_from_partition(self, parts: dict[str, str], k: str, v: str | list[str]):
+        value = parts.get(k)
         if isinstance(
-            parts.get(k), list
+            value, list
         ):  # If partitions are list, match whole list if it contains desired element
-            return any(str(part).lower() == str(v).lower() for part in parts.get(k))
-        return str(parts.get(k)).lower() == str(v).lower()
+            return any(str(part).lower() == str(v).lower() for part in value)
+        return str(value).lower() == str(v).lower()
 
     def get_resources(
         self: Self, name: str | None = None, **filters: Any
