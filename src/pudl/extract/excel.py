@@ -15,7 +15,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 
 class ExcelMetadata(GenericMetadata):
-    """Load Excel metadata from Python package data.
+    """Load Excel metadata from files under src/pudl/package_data.
 
     Excel sheet files may contain many different tables. When we load those
     into dataframes, metadata tells us how to do this. Metadata generally informs
@@ -23,8 +23,8 @@ class ExcelMetadata(GenericMetadata):
     and it informs us how to translate excel column names into standardized
     column names.
 
-    When metadata object is instantiated, it is given ${dataset} name and it
-    will attempt to load csv files from pudl.package_data.${dataset} package.
+    When metadata object is instantiated, it is given a ${dataset} name and it will
+    attempt to load csv files from src/pudl/package_data/${dataset}.
 
     It expects the following kinds of files:
 
@@ -52,21 +52,21 @@ class ExcelMetadata(GenericMetadata):
     # and for all (year, page) -> column map
 
     def __init__(self, dataset_name: str):
-        """Create Metadata object and load metadata from python package.
+        """Create Metadata object and load metadata from files on disk.
 
         Args:
-            dataset_name: Name of the package/dataset to load the metadata from.
-            Files will be loaded from pudl.package_data.${dataset_name}
+            dataset_name: Name of the dataset to load the metadata from. Files will be
+                loaded from src/pudl/package_data/${dataset_name}
         """
         super().__init__(dataset_name)
-        self._skiprows = self._load_csv(self._pkg, "skiprows.csv")
-        self._skipfooter = self._load_csv(self._pkg, "skipfooter.csv")
-        self._sheet_name = self._load_csv(self._pkg, "page_map.csv")
-        self._file_name = self._load_csv(self._pkg, "file_map.csv")
+        self._skiprows = self._load_csv(self._path, "skiprows.csv")
+        self._skipfooter = self._load_csv(self._path, "skipfooter.csv")
+        self._sheet_name = self._load_csv(self._path, "page_map.csv")
+        self._file_name = self._load_csv(self._path, "file_map.csv")
         # Most excel extracted datasets do not have a page to part map. If they
         # don't, assign null.
         try:
-            self._page_part_map = self._load_csv(self._pkg, "page_part_map.csv")
+            self._page_part_map = self._load_csv(self._path, "page_part_map.csv")
         except FileNotFoundError:
             self._page_part_map = pd.DataFrame()
 
