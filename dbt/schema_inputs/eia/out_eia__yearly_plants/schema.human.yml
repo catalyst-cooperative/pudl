@@ -47,7 +47,6 @@ sources:
                     >= 2007
           - check_row_counts_per_partition:
               arguments:
-                table_name: out_eia__yearly_plants
                 partition_expr: EXTRACT(YEAR FROM report_date)
           - expect_date_frequency_ratio:
               arguments:

@@ -28,14 +28,13 @@ desire and the potential implications of using a co-located set of plant infrast
 as an id.
 """
 
-import importlib.resources
-
 import pandas as pd
 import sqlalchemy as sa
 from dagster import AssetIn, Definitions, JobDefinition, asset, define_asset_job
 
 import pudl.helpers
 import pudl.logging_helpers
+from pudl import PUDL_PACKAGE_DATA_PATH
 from pudl.dagster.io_managers import (
     ferc1_dbf_sqlite_io_manager,
     ferc1_xbrl_sqlite_io_manager,
@@ -49,7 +48,11 @@ from pudl.extract.ferc1 import raw_ferc1_assets, raw_ferc1_xbrl__metadata_json
 from pudl.helpers import get_parquet_table, simplify_strings
 from pudl.metadata.classes import Package
 from pudl.metadata.dtypes import apply_pudl_dtypes
-from pudl.transform.classes import StringNormalization, normalize_strings_multicol
+from pudl.transform.classes import (
+    InvalidRows,
+    StringNormalization,
+    normalize_strings_multicol,
+)
 from pudl.transform.ferc1 import (
     Ferc1AbstractTableTransformer,
     TableIdFerc1,
@@ -60,19 +63,13 @@ from pudl.transform.params.ferc1 import FERC1_STRING_NORM
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
-PUDL_ID_MAP_XLSX = (
-    importlib.resources.files("pudl.package_data.glue") / "pudl_id_mapping.xlsx"
-)
+PUDL_ID_MAP_XLSX = PUDL_PACKAGE_DATA_PATH / "glue" / "pudl_id_mapping.xlsx"
 """Path to the PUDL ID mapping sheet with the plant map."""
 
-UTIL_ID_PUDL_MAP_CSV = (
-    importlib.resources.files("pudl.package_data.glue") / "utility_id_pudl.csv"
-)
+UTIL_ID_PUDL_MAP_CSV = PUDL_PACKAGE_DATA_PATH / "glue" / "utility_id_pudl.csv"
 """Path to the PUDL utility ID mapping CSV."""
 
-UTIL_ID_FERC_MAP_CSV = (
-    importlib.resources.files("pudl.package_data.glue") / "utility_id_ferc1.csv"
-)
+UTIL_ID_FERC_MAP_CSV = PUDL_PACKAGE_DATA_PATH / "glue" / "utility_id_ferc1.csv"
 """Path to the PUDL-assign FERC1 utility ID mapping CSV."""
 
 MIN_PLANT_CAPACITY_MW: float = 5.0
@@ -240,7 +237,9 @@ class GenericPlantFerc1TableTransformer(Ferc1AbstractTableTransformer):
             .assign(plant_table=self.table_id.value)
         )
 
-    def drop_invalid_rows(self, df):
+    def drop_invalid_rows(
+        self, df: pd.DataFrame, params: list[InvalidRows] | None = None
+    ) -> pd.DataFrame:
         """Add required valid columns before running standard drop_invalid_rows.
 
         This parent classes' method drops the whole df if all of the
@@ -248,11 +247,11 @@ class GenericPlantFerc1TableTransformer(Ferc1AbstractTableTransformer):
         in empty required columns because we know that the real ETL adds columns during
         the full transform step.
         """
+        if params is None:
+            params = self.params.drop_invalid_rows
         # ensure the required columns are actually in the df
         list_of_lists_of_required_valid_cols = [
-            param.required_valid_cols
-            for param in self.params.drop_invalid_rows
-            if param.required_valid_cols
+            param.required_valid_cols for param in params if param.required_valid_cols
         ]
         required_valid_cols = pudl.helpers.dedupe_n_flatten_list_of_lists(
             list_of_lists_of_required_valid_cols
@@ -266,7 +265,7 @@ class GenericPlantFerc1TableTransformer(Ferc1AbstractTableTransformer):
                     f"{missing_required_cols}"
                 )
                 df.loc[:, list(missing_required_cols)] = pd.NA
-        return super().drop_invalid_rows(df)
+        return super().drop_invalid_rows(df, params)
 
 
 def get_plants_ferc1_raw_job() -> JobDefinition:

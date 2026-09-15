@@ -1,8 +1,8 @@
 """Generic functionality for extractors."""
 
-import importlib.resources
 from abc import ABC, abstractmethod
 from collections import defaultdict
+from pathlib import Path
 from typing import Any
 
 import pandas as pd
@@ -20,6 +20,7 @@ from dagster import (
 
 import pudl.helpers
 import pudl.logging_helpers
+from pudl import PUDL_PACKAGE_DATA_PATH
 from pudl.workspace.datastore import Datastore
 
 StrInt = str | int
@@ -29,10 +30,10 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 
 class GenericMetadata:
-    """Load generic metadata from Python package data.
+    """Load generic metadata from files under src/pudl/package_data.
 
-    When metadata object is instantiated, it is given ${dataset} name and it
-    will attempt to load csv files from pudl.package_data.${dataset} package.
+    When metadata object is instantiated, it is given a ${dataset} name and it will
+    attempt to load csv files from src/pudl/package_data/${dataset}.
 
     It expects the following kinds of files:
 
@@ -42,26 +43,24 @@ class GenericMetadata:
     """
 
     def __init__(self, dataset_name: str):
-        """Create Metadata object and load metadata from python package.
+        """Create Metadata object and load metadata from files on disk.
 
         Args:
-            dataset_name: Name of the package/dataset to load the metadata from.
-            Files will be loaded from pudl.package_data.${dataset_name}
+            dataset_name: Name of the dataset to load the metadata from. Files will be
+                loaded from src/pudl/package_data/${dataset_name}
         """
         self._dataset_name = dataset_name
-        self._pkg = f"pudl.package_data.{dataset_name}"
-        column_map_pkg = self._pkg + ".column_maps"
-        self._column_map = self._load_column_maps(column_map_pkg)
+        self._path = PUDL_PACKAGE_DATA_PATH / dataset_name
+        column_map_path = self._path / "column_maps"
+        self._column_map = self._load_column_maps(column_map_path)
 
     def get_dataset_name(self) -> str:
         """Returns the name of the dataset described by this metadata."""
         return self._dataset_name
 
-    def _load_csv(self, package: str, filename: str) -> pd.DataFrame:
-        """Load metadata from a filename that is found in a package."""
-        df = pd.read_csv(
-            importlib.resources.files(package) / filename, index_col=0, comment="#"
-        )
+    def _load_csv(self, package_path: Path, filename: str) -> pd.DataFrame:
+        """Load metadata from a filename that is found in a package directory."""
+        df = pd.read_csv(package_path / filename, index_col=0, comment="#")
         # we are assigning the index which contains the partitions as a sting dtype.
         # many of the partitions are years which are reasonably interpreted as ints,
         # but some are dates or other actual strings. We force the partitions to be
@@ -69,17 +68,17 @@ class GenericMetadata:
         df.index = df.index.astype(pd.StringDtype())
         return df
 
-    def _load_column_maps(self, column_map_pkg: str) -> dict:
+    def _load_column_maps(self, column_map_path: Path) -> dict:
         """Create a dictionary of all column mapping CSVs to use in get_column_map()."""
         column_dict = {}
-        for res_path in importlib.resources.files(column_map_pkg).iterdir():
+        for res_path in column_map_path.iterdir():
             # res_path is expected to end with ${page}.csv
             if res_path.suffix == ".csv":
                 try:
-                    column_map = self._load_csv(column_map_pkg, res_path.name)
+                    column_map = self._load_csv(column_map_path, res_path.name)
                 except pd.errors.ParserError as e:
                     raise AssertionError(
-                        f"Expected well-formed column map file at {column_map_pkg} {res_path.name}"
+                        f"Expected well-formed column map file at {column_map_path} {res_path.name}"
                     ) from e
                 column_dict[res_path.stem] = column_map
         return column_dict

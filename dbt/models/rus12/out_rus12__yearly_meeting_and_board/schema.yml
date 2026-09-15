@@ -4,6 +4,13 @@ sources:
     tables:
       - name: out_rus12__yearly_meeting_and_board
         data_tests:
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - borrower_id_rus
+                pk_table_name: source('pudl', 'core_rus12__entity_borrowers')
+                pk_column_names:
+                  - borrower_id_rus
           - expect_columns_not_all_null
           - dbt_utils.expression_is_true:
               arguments:
@@ -22,7 +29,6 @@ sources:
               description: AZ0028 reports 8 members but 14 present in 2006.
           - check_row_counts_per_partition:
               arguments:
-                table_name: out_rus12__yearly_meeting_and_board
                 partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: report_date

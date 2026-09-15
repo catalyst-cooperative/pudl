@@ -51,12 +51,12 @@ pudl:
       years: [2020, 2025]
       eia860m: true
     eia860m:
-      year_months: ["2026-05", "2026-06"]
+      year_months: ["2026-06", "2026-07"]
     eia861:
       # These years must overlap with FERC-714 to allow assets that depend on both to
       # be materialized. If you modify this list, be sure to update the matching
       # pudl_service_territories commands in
-      # tests/integration/scripts/console_scripts_test.py
+      # tests/pipeline/scripts/console_scripts_test.py
       years: [2020, 2025]
     eia930:
       half_years: ["2026half1"]
@@ -73,9 +73,9 @@ pudl:
     # We only use q1 for epamats etl_fast even if later quarters are available.
     year_quarters: ["2025q1"]
   phmsagas:
-    years: [2024]
+    years: [2025]
   nrelatb:
-    years: [2024]
+    years: [2025]
   gridpathratoolkit:
     technology_types: ["wind"]
     processing_levels: ["extended"]
@@ -90,10 +90,10 @@ pudl:
         "raw_sec10k__exhibit_21_company_ownership",
       ]
   vcerare:
-    years: [2023]
+    years: [2024]
     fips: True
   censuspep:
-    years: [2023, 2015, 2009]
+    years: [2024, 2015, 2009]
   rus7:
     years: [2019, 2020, 2021]
   rus12:

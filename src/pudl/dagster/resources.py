@@ -99,15 +99,15 @@ class ZenodoDoiSettingsResource(dg.ConfigurableResource):
 class DatastoreResource(dg.ConfigurableResource):
     """Dagster resource to interact with Zenodo archives."""
 
-    zenodo_dois: dg.ResourceDependency[ZenodoDoiSettingsResource]
-    pudl_paths: dg.ResourceDependency[PudlPathsResource]
+    zenodo_dois: dg.ResourceDependency[ZenodoDoiSettings]
+    pudl_paths: dg.ResourceDependency[PudlPaths]
     cloud_cache_path: str = "s3://pudl.catalyst.coop/zenodo"
     use_local_cache: bool = True
 
     def create_resource(self, context) -> Datastore:
         """Create a configured datastore runtime object."""
         del context  # Required by Dagster's hook signature; intentionally unused here.
-        ds_kwargs = {
+        ds_kwargs: dict[str, Any] = {
             "cloud_cache_path": self.cloud_cache_path,
             "zenodo_dois": self.zenodo_dois,
         }
@@ -210,9 +210,7 @@ class FercEqrDeploymentResource(dg.ConfigurableResource):
     deployment_config_path: str | None = None
 
     @classmethod
-    def from_yaml(
-        cls, deployment_config_path: str | Path
-    ) -> "FercEqrDeploymentResource":
+    def from_yaml(cls, deployment_config_path: str | Path) -> FercEqrDeploymentResource:
         """Create a FERC EQR deployment resource from a YAML config file."""
         yaml_data = yaml.safe_load(Path(deployment_config_path).read_text()) or {}
         resource = cls.model_validate(yaml_data)

@@ -3,10 +3,7 @@ sources:
     tables:
       - name: out_censusdp1tract__counties
         data_tests:
-          - check_row_counts_per_partition:
-              arguments:
-                table_name: out_censusdp1tract__counties
-                partition_expr: null
+          - check_row_counts_per_partition
         columns:
           - name: county_id_fips
             data_tests:

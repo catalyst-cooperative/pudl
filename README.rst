@@ -100,17 +100,21 @@ the `docs <https://docs.catalyst.coop/pudl/en/nightly/#raw-data-archives>`__.
 Data Pipeline
 ^^^^^^^^^^^^^
 The data pipeline (this repo) ingests raw data from the archives, cleans and integrates
-it, and writes the resulting tables to `SQLite <https://sqlite.org>`__ and `Apache
-Parquet <https://parquet.apache.org/>`__ files, with some accompanying metadata stored as
-JSON.  Each release of the PUDL software contains a set of DOIs indicating which
-versions of the raw inputs it processes. This helps ensure that the outputs are
-replicable. You can read more about our ETL (extract, transform, load) process in the
-`PUDL documentation <https://docs.catalyst.coop/pudl/en/nightly/#the-etl-process>`__.
+it, and writes the resulting tables to `Apache Parquet <https://parquet.apache.org/>`__
+files, with some accompanying metadata stored as JSON. The fully processed data is also
+packaged into a single `DuckDB <https://duckdb.org>`__ database and, for backwards
+compatibility, a `SQLite <https://sqlite.org>`__ database. Note that the ``pudl.sqlite``
+output is **deprecated** and will no longer be produced starting in 2027 — new work
+should use the Parquet outputs or ``pudl.duckdb``. Each release of the PUDL software
+contains a set of DOIs indicating which versions of the raw inputs it processes. This
+helps ensure that the outputs are replicable. You can read more about our ETL (extract,
+transform, load) process in the `PUDL documentation
+<https://docs.catalyst.coop/pudl/en/nightly/#the-etl-process>`__.
 
 Data Warehouse
 ^^^^^^^^^^^^^^
-The SQLite, Parquet, and JSON outputs from the data pipeline, sometimes called "PUDL
-outputs", are updated each night by an automated build process, and periodically
+The Parquet, DuckDB, SQLite, and JSON outputs from the data pipeline, sometimes called
+"PUDL outputs", are updated each night by an automated build process, and periodically
 archived so that users can access the data without having to install and run our data
 processing system. These outputs contain hundreds of tables and comprise a small
 file-based data warehouse that can be used for a variety of energy system analyses.
@@ -232,7 +236,8 @@ This is a partial list of organizations that have used PUDL in their work.
 If your organization uses PUDL we'd love to list you here! Please open a
 pull request or email us at `hello@catalyst.coop <mailto:hello@catalyst.coop>`__!
 
-* `RMI <https://rmi.org>`__ via both their `Utility Transition Hub <https://utilitytransitionhub.rmi.org/>`__ and `Optimus financial modeling tool <https://utilitytransitionhub.rmi.org/optimus/>`__
+* `RMI <https://rmi.org>`__ via both their `Utility Transition Hub <https://utilitytransitionhub.rmi.org/>`__
+  and `Optimus financial modeling tool <https://utilitytransitionhub.rmi.org/optimus/>`__
 * `The ZERO Lab at Princeton University <https://zero.lab.princeton.edu>`__
 * `PyPSA-USA <https://github.com/PyPSA/pypsa-usa>`__ an open source power systems model.
 * `Energy Innovation <https://energyinnovation.org>`__

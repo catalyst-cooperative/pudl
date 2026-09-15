@@ -1,6 +1,5 @@
 """A collection of denormalized FERC assets and helper functions."""
 
-import importlib
 import re
 from copy import deepcopy
 from dataclasses import dataclass
@@ -35,6 +34,7 @@ import pudl.analysis.fuel_by_plant
 import pudl.helpers
 import pudl.logging_helpers
 import pudl.transform.ferc1
+from pudl import PUDL_PACKAGE_DATA_PATH
 from pudl.transform.ferc1 import (
     GroupMetricChecks,
     GroupMetricTolerances,
@@ -245,7 +245,7 @@ def ferc1_output_asset_factory(table_name: str) -> AssetsDefinition:
 
     @asset(
         name=f"out_ferc1__{table_name}",
-        io_manager_key="pudl_io_manager",
+        io_manager_key="parquet_io_manager",
         compute_kind="Python",
         ins=ins,
     )
@@ -341,7 +341,7 @@ def _out_ferc1__yearly_plants_utilities(
 
 
 @asset(
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     compute_kind="Python",
     op_tags={"dagster/priority": 10},
 )
@@ -401,7 +401,7 @@ def out_ferc1__yearly_steam_plants_sched402(
 
 
 @asset(
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     compute_kind="Python",
     op_tags={"dagster/priority": 10},
 )
@@ -442,7 +442,7 @@ def out_ferc1__yearly_small_plants_sched410(
 
 
 @asset(
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     compute_kind="Python",
     op_tags={"dagster/priority": 10},
 )
@@ -477,7 +477,7 @@ def out_ferc1__yearly_hydroelectric_plants_sched406(
 
 
 @asset(
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     compute_kind="Python",
     op_tags={"dagster/priority": 10},
 )
@@ -512,7 +512,7 @@ def out_ferc1__yearly_pumped_storage_plants_sched408(
 
 
 @asset(
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     compute_kind="Python",
     op_tags={"dagster/priority": 10},
 )
@@ -558,7 +558,7 @@ def out_ferc1__yearly_steam_plants_fuel_sched402(
 
 
 @asset(
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     compute_kind="Python",
     op_tags={"dagster/priority": 10},
 )
@@ -612,7 +612,7 @@ def out_ferc1__yearly_all_plants(
 
 
 @asset(
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     config_schema={
         "thresh": Field(
             float,
@@ -943,7 +943,7 @@ def _get_tags(
     file_name: str, _core_ferc1__table_dimensions: pd.DataFrame
 ) -> pd.DataFrame:
     """Grab tags from a stored CSV file and apply :func:`make_xbrl_factoid_dimensions_explicit`."""
-    tags_csv = importlib.resources.files("pudl.package_data.ferc1") / file_name
+    tags_csv = PUDL_PACKAGE_DATA_PATH / "ferc1" / file_name
     tags_df = (
         pd.read_csv(tags_csv)
         .drop_duplicates()
@@ -966,10 +966,7 @@ def _aggregatable_dimension_tags(
     # add in the rest from the table_dims
     # merge it into _out_ferc1__detailed_tags
     aggregatable_col = f"aggregatable_{dimension}"
-    tags_csv = (
-        importlib.resources.files("pudl.package_data.ferc1")
-        / f"xbrl_factoid_{dimension}_tags.csv"
-    )
+    tags_csv = PUDL_PACKAGE_DATA_PATH / "ferc1" / f"xbrl_factoid_{dimension}_tags.csv"
     dimensions = ["utility_type", "plant_function", "plant_status"]
     idx = list(NodeId._fields)
     tags_df = (
@@ -1110,7 +1107,7 @@ EXPLOSION_ARGS = [
             ),
         ],
         "off_by_facts": [],
-        "io_manager_key": "pudl_io_manager",
+        "io_manager_key": "parquet_io_manager",
     },
     {
         "root_table": "core_ferc1__yearly_balance_sheet_assets_sched110",
@@ -1170,7 +1167,7 @@ EXPLOSION_ARGS = [
                 pd.NA,
             ),
         ],
-        "io_manager_key": "pudl_io_manager",
+        "io_manager_key": "parquet_io_manager",
     },
     {
         "root_table": "core_ferc1__yearly_balance_sheet_liabilities_sched110",
@@ -1191,7 +1188,7 @@ EXPLOSION_ARGS = [
             )
         ],
         "off_by_facts": [],
-        "io_manager_key": "pudl_io_manager",
+        "io_manager_key": "parquet_io_manager",
     },
 ]
 
@@ -1225,7 +1222,7 @@ class Exploder:
         seed_nodes: list[NodeId],
         tags: pd.DataFrame = pd.DataFrame(),
         group_metric_checks: GroupMetricChecks = GroupMetricChecks(),
-        off_by_facts: list[OffByFactoid] = None,
+        off_by_facts: list[OffByFactoid] | None = None,
     ):
         """Instantiate an Exploder class.
 
@@ -1454,7 +1451,7 @@ class Exploder:
         return exploded_metadata
 
     @cached_property
-    def calculation_forest(self: Self) -> "XbrlCalculationForestFerc1":
+    def calculation_forest(self: Self) -> XbrlCalculationForestFerc1:
         """Construct a calculation forest based on class attributes."""
         return XbrlCalculationForestFerc1(
             exploded_calcs=self.exploded_calcs,
@@ -2377,7 +2374,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         # Construct a dataframe that links the leaf node IDs to their root nodes:
         leaves = self.forest_leaves
         roots = self.forest_roots
-        leaf_to_root_map = {
+        leaf_to_root_map: dict[NodeId, NodeId] = {
             leaf: root
             for leaf in leaves
             for root in roots
@@ -2458,7 +2455,13 @@ class XbrlCalculationForestFerc1(BaseModel):
         )
         for table, color in color_map.items():
             nodes = [node for node in graph.nodes if node.table_name == table]
-            nx.draw_networkx_nodes(nodes, pos, node_color=color, label=table)
+            nx.draw_networkx_nodes(
+                G=graph,
+                pos=pos,
+                nodelist=nodes,
+                node_color=color,
+                label=table,
+            )
         nx.draw_networkx_edges(graph, pos)
         # The labels are currently unwieldy
         # nx.draw_networkx_labels(nx_forest, pos)
@@ -2812,7 +2815,7 @@ _tag_checks = [
 ] + [make_check_correction_tags(spec) for spec in check_specs_detailed_tables_tags]
 
 
-@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
+@asset(io_manager_key="parquet_io_manager", compute_kind="Python")
 def out_ferc1__yearly_rate_base(
     out_ferc1__yearly_detailed_balance_sheet_assets: pd.DataFrame,
     out_ferc1__yearly_detailed_balance_sheet_liabilities: pd.DataFrame,

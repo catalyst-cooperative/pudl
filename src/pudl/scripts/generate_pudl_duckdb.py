@@ -24,14 +24,14 @@ def main() -> int:
         "nightly": "s3://pudl.catalyst.coop/nightly",
         "stable": "s3://pudl.catalyst.coop/stable",
     }
-    with duckdb.connect(str(PudlPaths().duckdb_db_path("pudl"))) as conn:
+    with duckdb.connect(str(PudlPaths().duckdb_path("pudl"))) as conn:
         # Create local / nightly schema's
         [
             conn.sql(f"CREATE SCHEMA IF NOT EXISTS {schema}")
             for schema in schema_path_map
         ]
 
-    with duckdb.connect(str(PudlPaths().duckdb_db_path("pudl"))) as conn:
+    with duckdb.connect(str(PudlPaths().duckdb_path("pudl"))) as conn:
         # Create views to non-eqr tables
         [
             conn.sql(

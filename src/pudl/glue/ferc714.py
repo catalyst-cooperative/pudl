@@ -1,16 +1,13 @@
 """Extract and transform glue tables between FERC Form 714's CSV and XBRL raw sources."""
 
-import importlib.resources
-
 import pandas as pd
 
 import pudl.logging_helpers
+from pudl import PUDL_PACKAGE_DATA_PATH
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
-RESP_ID_FERC_MAP_CSV = (
-    importlib.resources.files("pudl.package_data.glue") / "respondent_id_ferc714.csv"
-)
+RESP_ID_FERC_MAP_CSV = PUDL_PACKAGE_DATA_PATH / "glue" / "respondent_id_ferc714.csv"
 """Path to the PUDL ID mapping sheet with the plant map."""
 
 
@@ -19,7 +16,7 @@ def get_respondent_map_ferc714() -> pd.DataFrame:
     return pd.read_csv(RESP_ID_FERC_MAP_CSV).convert_dtypes()
 
 
-def glue() -> dict[str : pd.DataFrame]:
+def glue() -> dict[str, pd.DataFrame]:
     """Make the FERC 714 glue tables out of stored CSVs of association tables.
 
     This function was mirrored off of ferc1_eia.glue, but is much more

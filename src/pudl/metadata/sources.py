@@ -228,7 +228,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "year_months": [
                 str(q).lower()
-                for q in pd.period_range(start="2015-07", end="2026-06", freq="M")
+                for q in pd.period_range(start="2015-07", end="2026-07", freq="M")
             ],
         },
         "keywords": sorted(
@@ -826,7 +826,7 @@ SOURCES: dict[str, Any] = {
         ],
         "working_partitions": {
             "year_quarters": _year_quarter_range(
-                start_quarter="2013q3", end_quarter="2026q1"
+                start_quarter="2013q3", end_quarter="2026q2"
             ),
         },
         "license_raw": LICENSES["us-govt"],
@@ -922,7 +922,7 @@ SOURCES: dict[str, Any] = {
         },
         "working_partitions": {
             "years": list(
-                range(2021, 2025)
+                range(2021, 2026)
             ),  # see issue #3576 for why 2019 and 2020 are not working
         },
         "contributors": [
@@ -956,7 +956,7 @@ SOURCES: dict[str, Any] = {
             "and installation dates."
         ),
         "concept_doi": "10.5281/zenodo.7683351",
-        "working_partitions": {"years": sorted(set(range(1970, 2025)))},
+        "working_partitions": {"years": sorted(set(range(1970, 2026)))},
         "keywords": sorted(set(KEYWORDS["phmsa"] + KEYWORDS["us_govt"])),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
@@ -1128,7 +1128,7 @@ SOURCES: dict[str, Any] = {
         ),
         "license_raw": LICENSES["cc-by-4.0"],
         "license_pudl": LICENSES["cc-by-4.0"],
-        "working_partitions": {"years": sorted(set(range(2014, 2024)))},
+        "working_partitions": {"years": sorted(set(range(2014, 2025)))},
         "contributors": [
             CONTRIBUTORS["vibrant-clean-energy"],
             CONTRIBUTORS["catalyst-cooperative"],

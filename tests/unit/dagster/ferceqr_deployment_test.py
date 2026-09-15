@@ -95,6 +95,7 @@ def test_sensor_skips_runs_without_backfill_tag(mocker, sensor_fn):
     result = sensor_fn._run_status_sensor_fn(context)
 
     assert isinstance(result, dg.SkipReason)
+    assert result.skip_message is not None
     assert "no backfill" in result.skip_message or "backfill" in result.skip_message
 
 
@@ -131,6 +132,7 @@ def test_sensor_skips_while_backfill_running(
     result = sensor_fn._run_status_sensor_fn(context)
 
     assert isinstance(result, dg.SkipReason)
+    assert result.skip_message is not None
     assert skip_text in result.skip_message
 
 

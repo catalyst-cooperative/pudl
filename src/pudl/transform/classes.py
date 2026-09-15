@@ -571,7 +571,7 @@ class UnitConversion(TransformParams):
             )
         return self
 
-    def inverse(self) -> "UnitConversion":
+    def inverse(self) -> UnitConversion:
         """Construct a :class:`UnitConversion` that is the inverse of self.
 
         Allows a unit conversion to be undone. This is currently used in the context of
@@ -851,8 +851,8 @@ def drop_invalid_rows(df: pd.DataFrame, params: InvalidRows) -> pd.DataFrame:
     pre_drop_len = len(df)
     if params.required_valid_cols or params.allowed_invalid_cols:
         # check if the columns enumerated are actually in the df
-        possible_cols = (
-            params.required_valid_cols or [] + params.allowed_invalid_cols or []
+        possible_cols = (params.required_valid_cols or []) + (
+            params.allowed_invalid_cols or []
         )
         missing_cols = [col for col in possible_cols if col not in df]
         if missing_cols and params.allowed_invalid_cols:
@@ -866,9 +866,13 @@ def drop_invalid_rows(df: pd.DataFrame, params: InvalidRows) -> pd.DataFrame:
                 f"dataframe: {missing_cols}"
             )
         # set filter items using either required_valid_cols or allowed_invalid_cols
-        items = params.required_valid_cols or [
-            col for col in df if col not in params.allowed_invalid_cols
-        ]
+        if params.required_valid_cols:
+            items = params.required_valid_cols
+        else:
+            assert params.allowed_invalid_cols is not None, (
+                "allowed_invalid_cols must be set when required_valid_cols is not."
+            )
+            items = [col for col in df if col not in params.allowed_invalid_cols]
 
     # Filter to select the subset of COLUMNS we want to check for valid values:
     cols_to_check = df.filter(
@@ -1026,7 +1030,7 @@ class TableTransformParams(TransformParams):
     spot_fix_values: list[SpotFixes] = []
 
     @classmethod
-    def from_dict(cls, params: dict[str, Any]) -> "TableTransformParams":
+    def from_dict(cls, params: dict[str, Any]) -> TableTransformParams:
         """Construct ``TableTransformParams`` from a dictionary of keyword arguments.
 
         Typically these will be the table-level dictionaries defined in the dataset-
@@ -1036,7 +1040,7 @@ class TableTransformParams(TransformParams):
         return cls(**params)
 
     @classmethod
-    def from_id(cls, table_id: enum.Enum) -> "TableTransformParams":
+    def from_id(cls, table_id: enum.Enum) -> TableTransformParams:
         """A factory method that looks up transform parameters based on table_id.
 
         This is a shortcut, which allows us to constitute the parameter models based on
@@ -1349,7 +1353,7 @@ class AbstractTableTransformer(ABC):
     def correct_units(
         self,
         df: pd.DataFrame,
-        params: UnitCorrections | None = None,
+        params: list[UnitCorrections] | None = None,
     ) -> pd.DataFrame:
         """Apply all specified unit corrections to the table in order.
 

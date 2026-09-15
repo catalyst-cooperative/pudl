@@ -2,7 +2,8 @@
 
 import json
 import re
-from typing import Any
+from datetime import date
+from typing import Any, Literal
 
 import duckdb.sqltypes
 import frictionless
@@ -14,12 +15,14 @@ import polars as pl
 import pyarrow as pa
 import pytest
 import sqlalchemy as sa
+from pandera.errors import SchemaErrors
 from shapely import Point
 
 from pudl.metadata.classes import (
     PUDL_PACKAGE,
     DataSource,
     Field,
+    FieldConstraints,
     Package,
     PudlResourceDescriptor,
     Resource,
@@ -160,6 +163,138 @@ def test_datetime_field_sql_check_constraint_accepts_real_values(
         engine.dispose()
 
 
+def test_field_to_sql_duckdb_pattern_uses_regexp_full_match() -> None:
+    """DuckDB has no bare REGEXP keyword; Field.to_sql() must emit regexp_full_match().
+
+    Regression test: unlike SQLite, DuckDB's parser rejects ``col REGEXP pattern``
+    outright (a ``Parser Error``, not a runtime failure), so this has to be caught
+    at CHECK-constraint-construction time, not just when a bad value is inserted.
+    """
+    field = Field(
+        name="code",
+        type="string",
+        description="A code.",
+        constraints=FieldConstraints(pattern="^[A-Z]{2}$"),
+    )
+    metadata = sa.MetaData()
+    sa.Table("t", metadata, field.to_sql(dialect="duckdb"))
+    engine = sa.create_engine("duckdb:///:memory:")
+    try:
+        metadata.create_all(engine)  # would raise a Parser Error for bare REGEXP
+        with engine.begin() as conn:
+            conn.execute(sa.text("INSERT INTO t (code) VALUES ('AB')"))
+            with pytest.raises(sa.exc.DBAPIError, match="CHECK constraint failed"):
+                conn.execute(sa.text("INSERT INTO t (code) VALUES ('abc')"))
+    finally:
+        engine.dispose()
+
+
+def test_field_to_sql_duckdb_integer_primary_key_has_no_autoincrement() -> None:
+    """An integer primary key should not become SERIAL under the duckdb dialect.
+
+    Regression test: SQLAlchemy's postgres-derived DDL compiler (which
+    duckdb-engine's dialect is built on) upgrades an Integer primary-key column to
+    SERIAL unless autoincrement is explicitly disabled -- DuckDB has no SERIAL
+    keyword, so this would otherwise break schema creation for every table with a
+    single-column integer primary key.
+    """
+    resource = Resource(
+        name="widgets",
+        schema={
+            "fields": [{"name": "id", "type": "integer", "description": "id"}],
+            "primary_key": ["id"],
+        },
+        description="Widgets",
+    )
+    metadata = sa.MetaData()
+    resource.to_sql(metadata, dialect="duckdb")
+    engine = sa.create_engine("duckdb:///:memory:")
+    try:
+        metadata.create_all(engine)  # would raise if SERIAL were emitted
+    finally:
+        engine.dispose()
+
+
+@pytest.mark.parametrize("dialect", ["sqlite", "duckdb"])
+def test_resource_to_sql_excludes_foreign_keys_when_requested(
+    dialect: Literal["sqlite", "duckdb"],
+) -> None:
+    """include_foreign_keys=False should omit FK constraints under any dialect."""
+    parent = Resource(
+        name="parent",
+        schema={
+            "fields": [{"name": "id", "type": "integer", "description": "id"}],
+            "primary_key": ["id"],
+        },
+        description="Parent",
+    )
+    child = Resource(
+        name="child",
+        schema={
+            "fields": [
+                {"name": "id", "type": "integer", "description": "id"},
+                {"name": "parent_id", "type": "integer", "description": "parent_id"},
+            ],
+            "primary_key": ["id"],
+            "foreign_keys": [
+                {
+                    "fields": ["parent_id"],
+                    "reference": {"resource": "parent", "fields": ["id"]},
+                }
+            ],
+        },
+        description="Child",
+    )
+
+    metadata = sa.MetaData()
+    parent.to_sql(metadata, dialect=dialect, include_foreign_keys=False)
+    table = child.to_sql(metadata, dialect=dialect, include_foreign_keys=False)
+    assert list(table.foreign_keys) == []
+
+    metadata_with_fk = sa.MetaData()
+    parent.to_sql(metadata_with_fk, dialect=dialect)
+    table_with_fk = child.to_sql(metadata_with_fk, dialect=dialect)
+    assert list(table_with_fk.foreign_keys) != []
+
+
+def test_field_to_sql_duckdb_same_name_different_enum_values_get_distinct_types() -> (
+    None
+):
+    """Two fields sharing a name but not their enum values must not share a type.
+
+    Regression test: PUDL reuses field names like "plant_type" across many resources
+    without sharing the same values. Each table should be constrained to their
+    *own* "plant_type", e.g. you shouldn't be able to put "steam" in a hydro table.
+    """
+    hydro_plant_type = Field(
+        name="plant_type",
+        type="string",
+        description="Type of plant.",
+        constraints=FieldConstraints(enum=["hydro", "storage"]),
+    )
+    fossil_plant_type = Field(
+        name="plant_type",
+        type="string",
+        description="Type of plant.",
+        constraints=FieldConstraints(enum=["combined_cycle", "steam"]),
+    )
+
+    metadata = sa.MetaData()
+    sa.Table("hydro_plants", metadata, hydro_plant_type.to_sql(dialect="duckdb"))
+    sa.Table("fossil_plants", metadata, fossil_plant_type.to_sql(dialect="duckdb"))
+
+    engine = sa.create_engine("duckdb:///:memory:")
+    try:
+        metadata.create_all(engine)
+        with engine.begin() as conn:
+            conn.execute(sa.text("INSERT INTO hydro_plants VALUES ('hydro')"))
+            conn.execute(sa.text("INSERT INTO fossil_plants VALUES ('combined_cycle')"))
+            with pytest.raises(sa.exc.DBAPIError):
+                conn.execute(sa.text("INSERT INTO hydro_plants VALUES ('steam')"))
+    finally:
+        engine.dispose()
+
+
 def test_encoders() -> None:
     """All Encoders work on the kinds of values they're supposed to."""
     failures = []
@@ -188,6 +323,360 @@ def test_field_definitions() -> None:
         raise AssertionError(
             f"{len(failures)} field(s) are invalid:\n" + "\n".join(failures)
         )
+
+
+def test_enum_constraint_order_is_deterministic() -> None:
+    """An enum constraint's value order must not depend on set-iteration order.
+
+    Some enum constraints (e.g. ``EPACEMS_STATES`` in ``pudl.metadata.enums``) are
+    built from a Python ``set``, whose iteration order depends on per-process hash
+    randomization rather than the values themselves -- so ``list(some_set)`` can
+    differ between two runs of the same code. ``FieldConstraints``' deterministic-
+    sort validator makes the order a pure function of the values themselves,
+    independent of the input list/set's construction order or process.
+    """
+    field = Field(
+        name="_test_field",
+        type="string",
+        description="Test field.",
+        constraints={"enum": {"z", "a", "m", "b"}},
+    )
+    assert field.constraints.enum == ["a", "b", "m", "z"]
+
+
+@pytest.mark.parametrize(
+    ("constraints", "expected"),
+    [
+        ({}, False),
+        ({"required": True}, True),
+        ({"unique": True}, True),
+        ({"minimum": 0}, True),
+        ({"maximum": 100}, True),
+        ({"min_length": 1}, True),
+        ({"max_length": 10}, True),
+        ({"pattern": r"^[a-z]+$"}, True),
+        ({"enum": ["a", "b"]}, True),
+    ],
+    ids=[
+        "no_constraints",
+        "required",
+        "unique",
+        "minimum",
+        "maximum",
+        "min_length",
+        "max_length",
+        "pattern",
+        "enum",
+    ],
+)
+def test_field_constraints_requires_content_validation(constraints, expected) -> None:
+    """Each individual content constraint should independently flip the result.
+
+    ``requires_content_validation`` compares each constraint field against its
+    default; asserting only on combinations that set several at once wouldn't
+    catch a future edit that broke the comparison for one particular field,
+    since the others would still make the check pass. Each constraint is
+    exercised alone, plus the all-defaults case, so every field is
+    independently load-bearing.
+    """
+    assert FieldConstraints(**constraints).requires_content_validation() == expected
+
+
+def test_field_constraints_requires_content_validation_covers_new_fields() -> None:
+    """A newly added constraint field is automatically treated as content-requiring.
+
+    ``requires_content_validation`` derives the set of fields it checks from
+    ``FieldConstraints.model_fields`` rather than a hand-maintained list, so a
+    constraint type added to ``FieldConstraints`` is picked up automatically
+    instead of being silently ignored. This subclass stands in for that future
+    field.
+    """
+
+    class _FieldConstraintsWithNewField(FieldConstraints):
+        new_constraint: str | None = None
+
+    defaults = _FieldConstraintsWithNewField()
+    assert defaults.requires_content_validation() is False
+
+    with_new_field_set = _FieldConstraintsWithNewField(new_constraint="x")
+    assert with_new_field_set.requires_content_validation() is True
+
+
+def _pk_violation_resource() -> Resource:
+    return Resource(
+        name="_test__check_primary_key",
+        description="Synthetic resource for check_primary_key tests.",
+        schema={
+            "fields": [
+                {"name": "id", "type": "integer", "description": "Primary key."}
+            ],
+            "primary_key": ["id"],
+        },
+    )
+
+
+def _pandas_pk_violation_data() -> pd.DataFrame:
+    """A single-column PK with both a duplicate (1, 1) and a null value."""
+    return pd.DataFrame({"id": pd.array([1, 1, None], dtype="Int64")})
+
+
+def _polars_pk_violation_data() -> pl.LazyFrame:
+    """A single-column PK with both a duplicate (1, 1) and a null value."""
+    return pl.LazyFrame({"id": [1, 1, None]})
+
+
+@pytest.mark.parametrize(
+    "make_data",
+    [_pandas_pk_violation_data, _polars_pk_violation_data],
+    ids=["pandas", "polars"],
+)
+def test_check_primary_key_reports_duplicates_and_nulls(make_data) -> None:
+    """check_primary_key should report every violation type, for either backend.
+
+    Regression test: the pandas path used to raise on the first problem it
+    found (duplicates), so a caller fixing that would only discover the
+    null-value problem on a second run.
+    """
+    errors = _pk_violation_resource().check_primary_key(make_data())
+    messages = " ".join(str(error).lower() for error in errors)
+    assert "duplicate" in messages
+    assert "null" in messages
+
+
+def test_enforce_schema_raises_combining_primary_key_violations() -> None:
+    """enforce_schema is the caller that wants a hard failure on any PK violation.
+
+    It combines every SchemaError ``check_primary_key`` returns into one
+    ``ValueError`` rather than raising on the first, so both duplicate and null
+    violations are visible in a single run instead of requiring a fix-and-rerun
+    cycle to discover the second one.
+    """
+    resource = _pk_violation_resource()
+    df = _pandas_pk_violation_data()
+    with pytest.raises(ValueError, match=r"(?s)duplicate primary keys.*[Nn]ull") as exc:
+        resource.enforce_schema(df)
+    assert "duplicate primary keys" in str(exc.value)
+    assert "null" in str(exc.value).lower()
+
+
+@pytest.mark.parametrize(
+    "make_data",
+    [_pandas_pk_violation_data, _polars_pk_violation_data],
+    ids=["pandas", "polars"],
+)
+def test_check_primary_key_errors_are_schema_errors_compatible(make_data) -> None:
+    """Every backend's SchemaErrors must survive being wrapped in a real SchemaErrors.
+
+    Regression test: pandera's backends unconditionally read attributes like
+    ``schema``/``check_output`` off of a SchemaError the moment it's collected
+    into a SchemaErrors, not just when displayed later (see
+    ``failure_cases_metadata`` in ``pandera/backends/{pandas,polars}/base.py``).
+    A manually-built duplicate-PK SchemaError once left both of those ``None``
+    for the polars backend, crashing with an opaque ``AttributeError`` -- as
+    first surfaced by a real duplicate-primary-key partition of
+    ``core_ferceqr__quarterly_index_pub``. Constructing a real SchemaErrors
+    here -- not just checking ``len(errors) > 0`` -- is what catches that; a
+    bare list of errors is not enough, since the crash only happens once
+    they're collected into a SchemaErrors.
+    """
+    data = make_data()
+    errors = _pk_violation_resource().check_primary_key(data)
+    schema_errors = SchemaErrors(
+        schema=errors[0].schema, schema_errors=errors, data=data
+    )
+    message = str(schema_errors).lower()
+    assert "duplicate" in message
+    assert "null" in message
+
+
+# ---------------------------------------------------------------------------
+# Tests for chunked primary-key uniqueness checking (Resource.check_primary_key's
+# polars path)
+# ---------------------------------------------------------------------------
+#
+# The polars path never uses pandera's built-in composite-uniqueness check
+# (too memory-hungry, see polars-comment.md); it always uses its own
+# group-by/count-based `Resource._find_duplicate_primary_keys`, optionally run
+# once per chunk instead of once on the whole table via the resource's declared
+# `schema.pk_check_chunk_field` (which tables need this, if any, is decided
+# per-resource -- see `pudl.metadata.resources.epacems`/`vcerare` for PUDL's few
+# oversized tables that set it). Chunking is only correct because the chunking
+# column is itself part of the primary key -- two rows with an identical
+# composite key necessarily share the same value of it, so duplicates can never
+# span chunk boundaries, whether the column is date/datetime (chunked by
+# calendar year -- always annual, no other granularity is supported) or
+# anything else (chunked by exact distinct value). These tests go through the
+# public `check_primary_key` dispatcher rather than the private
+# `_check_primary_key_polars`/`_chunk_filters` helpers directly, with synthetic
+# resources, independent of which real tables are currently enumerated.
+
+
+def _temporal_pk_resource(chunked: bool = False) -> Resource:
+    return Resource(
+        name="_test__temporal_pk_chunking",
+        description="Synthetic resource with a temporal primary key.",
+        schema={
+            "fields": [
+                {"name": "event_date", "type": "date", "description": "Event date."},
+                {"name": "unit_id", "type": "integer", "description": "Unit ID."},
+            ],
+            "primary_key": ["event_date", "unit_id"],
+            "pk_check_chunk_field": "event_date" if chunked else None,
+        },
+    )
+
+
+def _categorical_pk_resource(chunked: bool = False) -> Resource:
+    return Resource(
+        name="_test__categorical_pk_chunking",
+        description="Synthetic resource with a string primary-key column.",
+        schema={
+            "fields": [
+                {"name": "filer_id", "type": "string", "description": "Filer ID."},
+                {
+                    "name": "record_id",
+                    "type": "integer",
+                    "description": "Record ID.",
+                },
+            ],
+            "primary_key": ["filer_id", "record_id"],
+            "pk_check_chunk_field": "filer_id" if chunked else None,
+        },
+    )
+
+
+@pytest.mark.parametrize(
+    ("resource_fn", "data", "expect_violation"),
+    [
+        (
+            _temporal_pk_resource,
+            {
+                "event_date": [
+                    date(2020, 1, 1),
+                    date(2020, 1, 2),
+                    date(2021, 1, 1),
+                    date(2021, 1, 2),
+                ],
+                # unit_id repeats across years -- fine, since event_date differs.
+                "unit_id": [1, 2, 1, 2],
+            },
+            False,
+        ),
+        (
+            _temporal_pk_resource,
+            {
+                "event_date": [date(2020, 1, 1), date(2020, 1, 1), date(2021, 1, 1)],
+                "unit_id": [1, 1, 1],
+            },
+            True,
+        ),
+        (
+            _categorical_pk_resource,
+            {
+                "filer_id": ["A", "A", "B", "B"],
+                # record_id repeats across filers -- fine, since filer_id differs.
+                "record_id": [1, 2, 1, 2],
+            },
+            False,
+        ),
+        (
+            _categorical_pk_resource,
+            {
+                "filer_id": ["A", "A", "B"],
+                "record_id": [1, 1, 1],
+            },
+            True,
+        ),
+    ],
+    ids=[
+        "temporal_valid",
+        "temporal_duplicate",
+        "categorical_valid",
+        "categorical_duplicate",
+    ],
+)
+@pytest.mark.parametrize("chunked", [False, True], ids=["unchunked", "chunked"])
+def test_check_primary_key_polars_detects_violations(
+    resource_fn, data, expect_violation, chunked
+) -> None:
+    """Repeated non-key values are not false positives; true duplicates are caught.
+
+    Parametrized over ``chunked`` so that every case runs both with and without
+    ``schema.pk_check_chunk_field`` set on the synthetic resource, on the exact
+    same input data -- chunking must never change the answer
+    ``check_primary_key`` gives, only how it gets there. Goes through the
+    public ``check_primary_key`` dispatcher, the same entry point every real
+    caller uses, rather than the private ``_check_primary_key_polars``.
+    """
+    errors = resource_fn(chunked=chunked).check_primary_key(pl.LazyFrame(data))
+    assert bool(errors) == expect_violation
+
+
+def test_check_primary_key_chunks_temporal_field_by_calendar_year(mocker) -> None:
+    """A date/datetime ``pk_check_chunk_field`` partitions rows by calendar year.
+
+    Chunking a temporal field is always annual -- no other granularity is
+    supported (see ``Resource._chunk_filters``). Spies on the private
+    ``Resource._chunk_filters`` rather than calling it directly, so the test
+    still goes through the public ``check_primary_key`` entry point (chunking
+    is otherwise invisible from the outside, since it's only an internal
+    performance detail -- the spy is what makes "we're peeking at an
+    implementation detail here" explicit rather than incidental).
+    """
+    spy = mocker.spy(Resource, "_chunk_filters")
+    lf = pl.LazyFrame(
+        {
+            "event_date": [date(2020, 1, 1), date(2020, 6, 1), date(2021, 3, 1)],
+            "unit_id": [1, 2, 1],
+        }
+    )
+    _temporal_pk_resource(chunked=True).check_primary_key(lf)
+
+    spy.assert_called_once_with(mocker.ANY, "event_date")
+    filters = spy.spy_return
+    assert len(filters) == 2  # 2020 and 2021
+    row_counts = sorted(lf.filter(f).select(pl.len()).collect().item() for f in filters)
+    assert row_counts == [1, 2]
+
+
+def test_check_primary_key_chunks_categorical_field_by_value(mocker) -> None:
+    """A non-temporal ``pk_check_chunk_field`` partitions rows by exact value.
+
+    See ``test_check_primary_key_chunks_temporal_field_by_calendar_year`` for
+    why this spies on ``Resource._chunk_filters`` rather than calling it
+    directly.
+    """
+    spy = mocker.spy(Resource, "_chunk_filters")
+    lf = pl.LazyFrame({"filer_id": ["A", "A", "B"], "record_id": [1, 2, 1]})
+    _categorical_pk_resource(chunked=True).check_primary_key(lf)
+
+    spy.assert_called_once_with(mocker.ANY, "filer_id")
+    filters = spy.spy_return
+    assert len(filters) == 2  # "A" and "B"
+    counts_by_value = {}
+    for f in filters:
+        chunk = lf.filter(f).collect()
+        counts_by_value[chunk["filer_id"][0]] = chunk.height
+    assert counts_by_value == {"A": 2, "B": 1}
+
+
+def test_check_primary_key_polars_no_primary_key() -> None:
+    """Resources without a primary key are trivially valid.
+
+    Goes through the public ``check_primary_key`` dispatcher rather than
+    ``_check_primary_key_polars`` directly: the "no primary key" guard lives
+    only in the dispatcher (``_check_primary_key_polars`` assumes a non-empty
+    ``primary_key`` -- an empty one breaks ``pl.any_horizontal`` in the null
+    check), so calling the private method directly here would test a
+    combination that never happens in practice.
+    """
+    resource = Resource(
+        name="_test__no_pk",
+        description="Synthetic resource without a primary key.",
+        schema={"fields": [{"name": "x", "type": "integer", "description": "X."}]},
+    )
+    lf = pl.LazyFrame({"x": [1, 1, 1]})
+    assert resource.check_primary_key(lf) == []
 
 
 def test_field_unit_strings() -> None:
@@ -818,7 +1307,7 @@ def test_get_pudl_dtypes_global_type() -> None:
     [
         ("pandas", "Int64"),
         ("polars", pl.Int64),
-        ("sqlite", sa.Integer),
+        ("sqlite", sa.BigInteger),
         ("duckdb", duckdb.sqltypes.BIGINT),
         ("pyarrow", pa.int64()),
     ],

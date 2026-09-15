@@ -22,7 +22,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 @dg.multi_asset(
     outs={
-        table_name: dg.AssetOut(io_manager_key="pudl_io_manager", is_required=False)
+        table_name: dg.AssetOut(io_manager_key="parquet_io_manager", is_required=False)
         for table_name in Package.get_etl_group_tables("glue")
         #  do not load core_epa__assn_eia_epacamd glue assets bc they are stand-alone assets below.
         if "core_epa__assn_eia_epacamd" not in table_name
@@ -93,7 +93,7 @@ def raw_pudl__assn_eia_epacamd(context) -> pd.DataFrame:
 
 
 @dg.asset(
-    required_resource_keys={"global_data_config"}, io_manager_key="pudl_io_manager"
+    required_resource_keys={"global_data_config"}, io_manager_key="parquet_io_manager"
 )
 def core_epa__assn_eia_epacamd(
     context,
@@ -297,7 +297,7 @@ def correct_epa_eia_plant_id_mapping(df: pd.DataFrame) -> pd.DataFrame:
 ##############################
 
 
-@dg.asset(io_manager_key="pudl_io_manager")
+@dg.asset(io_manager_key="parquet_io_manager")
 def core_epa__assn_eia_epacamd_subplant_ids(
     _core_epa__assn_eia_epacamd_unique: pd.DataFrame,
     core_eia860__scd_generators: pd.DataFrame,
@@ -369,6 +369,9 @@ def core_epa__assn_eia_epacamd_subplant_ids(
         .reset_index(drop=True)
         .pipe(manually_update_subplant_id)
     )
+    # the subplant_ids are currently zero-indexed, which results in less intuitive
+    # alignments between subplant_ids and generator_ids. Increment all subplant_ids by 1
+    subplant_ids_updated["subplant_id"] = subplant_ids_updated["subplant_id"] + 1
     # check for duplicates in sudo-PKs. These are not the actual PKs because there are
     # some nulls in generator_id, so this won't be checked during the db construction
     if (

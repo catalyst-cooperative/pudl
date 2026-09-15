@@ -743,7 +743,9 @@ def test_rename_columns():
     """Test column rename function in isolation."""
 
 
-def unit_corrections_are_homogeneous(corrections: list[UnitCorrections]) -> ():
+def unit_corrections_are_homogeneous(
+    corrections: list[UnitCorrections],
+) -> tuple[str, str, list[str]]:
     """Check that all unit corrections apply to same data and category columns.
 
     Assuming the list of unit corrections are homogeneous, return the names of the

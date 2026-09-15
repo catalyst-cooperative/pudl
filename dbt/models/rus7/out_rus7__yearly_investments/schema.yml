@@ -4,10 +4,23 @@ sources:
     tables:
       - name: out_rus7__yearly_investments
         data_tests:
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - investment_type_code
+                pk_table_name: source('pudl', 'core_rus__codes_investment_types')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - borrower_id_rus
+                pk_table_name: source('pudl', 'core_rus7__entity_borrowers')
+                pk_column_names:
+                  - borrower_id_rus
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
               arguments:
-                table_name: out_rus7__yearly_investments
                 partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: report_date

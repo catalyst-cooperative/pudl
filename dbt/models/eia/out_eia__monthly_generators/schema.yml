@@ -4,6 +4,190 @@ sources:
     tables:
       - name: out_eia__monthly_generators
         data_tests:
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - balancing_authority_code_eia
+                pk_table_name: source('pudl', 'core_eia__codes_balancing_authorities')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - operational_status_code
+                pk_table_name: source('pudl', 'core_eia__codes_operational_status')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - data_maturity
+                pk_table_name: source('pudl', 'core_pudl__codes_data_maturities')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - energy_source_code_1
+                pk_table_name: source('pudl', 'core_eia__codes_energy_sources')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - energy_source_code_2
+                pk_table_name: source('pudl', 'core_eia__codes_energy_sources')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - energy_source_code_3
+                pk_table_name: source('pudl', 'core_eia__codes_energy_sources')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - energy_source_code_4
+                pk_table_name: source('pudl', 'core_eia__codes_energy_sources')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - energy_source_code_5
+                pk_table_name: source('pudl', 'core_eia__codes_energy_sources')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - energy_source_code_6
+                pk_table_name: source('pudl', 'core_eia__codes_energy_sources')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - startup_source_code_1
+                pk_table_name: source('pudl', 'core_eia__codes_energy_sources')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - startup_source_code_2
+                pk_table_name: source('pudl', 'core_eia__codes_energy_sources')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - startup_source_code_3
+                pk_table_name: source('pudl', 'core_eia__codes_energy_sources')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - startup_source_code_4
+                pk_table_name: source('pudl', 'core_eia__codes_energy_sources')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - planned_energy_source_code_1
+                pk_table_name: source('pudl', 'core_eia__codes_energy_sources')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - energy_source_1_transport_1
+                pk_table_name: source('pudl', 'core_eia__codes_fuel_transportation_modes')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - energy_source_1_transport_2
+                pk_table_name: source('pudl', 'core_eia__codes_fuel_transportation_modes')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - energy_source_1_transport_3
+                pk_table_name: source('pudl', 'core_eia__codes_fuel_transportation_modes')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - energy_source_2_transport_1
+                pk_table_name: source('pudl', 'core_eia__codes_fuel_transportation_modes')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - energy_source_2_transport_2
+                pk_table_name: source('pudl', 'core_eia__codes_fuel_transportation_modes')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - energy_source_2_transport_3
+                pk_table_name: source('pudl', 'core_eia__codes_fuel_transportation_modes')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - plant_id_eia
+                  - generator_id
+                pk_table_name: source('pudl', 'core_eia__entity_generators')
+                pk_column_names:
+                  - plant_id_eia
+                  - generator_id
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - prime_mover_code
+                pk_table_name: source('pudl', 'core_eia__codes_prime_movers')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - planned_new_prime_mover_code
+                pk_table_name: source('pudl', 'core_eia__codes_prime_movers')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - utility_id_eia
+                pk_table_name: source('pudl', 'core_eia__entity_utilities')
+                pk_column_names:
+                  - utility_id_eia
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - plant_id_pudl
+                pk_table_name: source('pudl', 'core_pudl__entity_plants_pudl')
+                pk_column_names:
+                  - plant_id_pudl
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - utility_id_pudl
+                pk_table_name: source('pudl', 'core_pudl__entity_utilities_pudl')
+                pk_column_names:
+                  - utility_id_pudl
           - expect_columns_not_all_null:
               arguments:
                 ignore_eia860m_nulls: true
@@ -66,7 +250,6 @@ sources:
           - test_idle_capacity
           - check_row_counts_per_partition:
               arguments:
-                table_name: out_eia__monthly_generators
                 partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: plant_id_eia

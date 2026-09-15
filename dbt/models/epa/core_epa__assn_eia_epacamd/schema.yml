@@ -4,10 +4,27 @@ sources:
     tables:
       - name: core_epa__assn_eia_epacamd
         data_tests:
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - plant_id_eia
+                  - boiler_id
+                pk_table_name: source('pudl', 'core_eia__entity_boilers')
+                pk_column_names:
+                  - plant_id_eia
+                  - boiler_id
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - plant_id_eia
+                  - generator_id
+                pk_table_name: source('pudl', 'core_eia__entity_generators')
+                pk_column_names:
+                  - plant_id_eia
+                  - generator_id
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
               arguments:
-                table_name: core_epa__assn_eia_epacamd
                 partition_expr: report_year
         columns:
           - name: report_year

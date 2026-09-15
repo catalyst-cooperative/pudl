@@ -3,7 +3,6 @@
 import os
 
 import pytest
-import sqlalchemy as sa
 
 from pudl.extract.dbf import FercDbfReader
 from pudl.extract.ferc1 import Ferc1DbfExtractor
@@ -14,12 +13,6 @@ from pudl.logging_helpers import get_logger
 from pudl.settings import GlobalDataConfig
 
 logger = get_logger(__name__)
-
-
-def test_ferc1_dbf2sqlite(ferc1_engine_dbf):
-    """Attempt to access the DBF based FERC 1 SQLite DB fixture."""
-    assert isinstance(ferc1_engine_dbf, sa.Engine)
-    assert "f1_respondent_id" in sa.inspect(ferc1_engine_dbf).get_table_names()
 
 
 @pytest.mark.parametrize(

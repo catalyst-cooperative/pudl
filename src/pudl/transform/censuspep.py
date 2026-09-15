@@ -1,10 +1,9 @@
 """Transform Census PEP FIPS codes data."""
 
-import importlib
-
 import pandas as pd
 from dagster import asset
 
+from pudl import PUDL_PACKAGE_DATA_PATH
 from pudl.metadata import dfs
 
 
@@ -36,7 +35,7 @@ def _core_censuspep__yearly_geocodes(raw_censuspep__geocodes):
     the counties to match the fips_level from PEP.
     """
     territories_and_fixes = pd.read_csv(
-        importlib.resources.files("pudl.package_data.censuspep") / "territories.csv",
+        PUDL_PACKAGE_DATA_PATH / "censuspep" / "territories.csv",
         dtype=pd.StringDtype(),
     ).astype({"report_year": pd.Int64Dtype()})
     geocodes = pd.concat([raw_censuspep__geocodes, territories_and_fixes])

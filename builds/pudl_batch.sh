@@ -62,8 +62,17 @@ function trigger_deployment() {
             --repo catalyst-cooperative/pudl \
             --ref "${BUILD_REF}" \
             -f "git_tag=${GIT_TAG}" \
-            -f "deployment_environment=${DEPLOYMENT_ENVIRONMENT}" &&
+            -f "deployment_environment=${DEPLOYMENT_ENVIRONMENT}" \
+            -f "deploy_to_gcs=${DEPLOY_TO_GCS}" \
+            -f "deploy_to_s3=${DEPLOY_TO_S3}" &&
         set -x
+}
+
+function any_deployment_target_enabled() {
+    # If neither cloud storage target is enabled there's nothing for deploy-pudl
+    # to do (branch builds don't update git branches, redeploy the viewer, or
+    # trigger Zenodo), so we skip triggering it entirely.
+    [[ "${DEPLOY_TO_GCS}" == "true" || "${DEPLOY_TO_S3}" == "true" ]]
 }
 
 function stage_emoji() {
@@ -196,6 +205,7 @@ function notify_zulip() {
     message+="| Run PUDL Dagster Job | $(stage_emoji "$DAGSTER_STATUS") | \`[${DAGSTER_DURATION:---:--:--}]\` |${nl}"
     message+="| Unit Tests | $(stage_emoji "$UNIT_TEST_STATUS") | \`[${UNIT_TEST_DURATION:---:--:--}]\` |${nl}"
     message+="| Integration Tests | $(stage_emoji "$INTEGRATION_TEST_STATUS") | \`[${INTEGRATION_TEST_DURATION:---:--:--}]\` |${nl}"
+    message+="| Pipeline Tests | $(stage_emoji "$PIPELINE_TEST_STATUS") | \`[${PIPELINE_TEST_DURATION:---:--:--}]\` |${nl}"
     message+="| Data Validations (FKs/dbt) | $(stage_emoji "$DATA_VALIDATION_STATUS") | \`[${DATA_VALIDATION_DURATION:---:--:--}]\` |${nl}"
     message+="| Row Count Checks (dbt) | $(stage_emoji "$ROW_COUNT_VALIDATION_STATUS") | \`[${ROW_COUNT_VALIDATION_DURATION:---:--:--}]\` |${nl}"
     message+="| Save Build Outputs | $(stage_emoji "$SAVE_OUTPUTS_STATUS") | \`[${SAVE_OUTPUTS_DURATION:---:--:--}]\` |${nl}"
@@ -208,7 +218,10 @@ function notify_zulip() {
 function cleanup_on_exit() {
     local exit_code=$?
 
-    if [[ -n "${LOGFILE:-}" && -f "$LOGFILE" && -n "${PUDL_GCS_OUTPUT:-}" ]]; then
+    # Skipped builds must not write anything to PUDL_GCS_OUTPUT: doing so creates
+    # a near-empty object path for this build_id that deploy-pudl can mistake for
+    # the actual (older) successful build's outputs, breaking deployment. See #5579.
+    if [[ "${BUILD_SKIPPED:-false}" != "true" && -n "${LOGFILE:-}" && -f "$LOGFILE" && -n "${PUDL_GCS_OUTPUT:-}" ]]; then
         gcloud storage --quiet cp "$LOGFILE" "${PUDL_GCS_OUTPUT}/${BUILD_ID}.log" || true
     fi
 
@@ -218,6 +231,7 @@ function cleanup_on_exit() {
         "$DAGSTER_STATUS" \
         "$UNIT_TEST_STATUS" \
         "$INTEGRATION_TEST_STATUS" \
+        "$PIPELINE_TEST_STATUS" \
         "$DATA_VALIDATION_STATUS" \
         "$ROW_COUNT_VALIDATION_STATUS" \
         "$SAVE_OUTPUTS_STATUS"; then
@@ -240,14 +254,19 @@ BUILD_START_EPOCH_SECONDS=$(date +%s)
 DAGSTER_STATUS="$STAGE_SKIPPED"
 UNIT_TEST_STATUS="$STAGE_SKIPPED"
 INTEGRATION_TEST_STATUS="$STAGE_SKIPPED"
+PIPELINE_TEST_STATUS="$STAGE_SKIPPED"
 DATA_VALIDATION_STATUS="$STAGE_SKIPPED"
 ROW_COUNT_VALIDATION_STATUS="$STAGE_SKIPPED"
 SAVE_OUTPUTS_STATUS="$STAGE_SKIPPED"
 TRIGGER_DEPLOYMENT_STATUS="$STAGE_SKIPPED"
 
+# Set to true when we find an existing successful build for this commit and skip the ETL.
+BUILD_SKIPPED=false
+
 DAGSTER_DURATION=""
 UNIT_TEST_DURATION=""
 INTEGRATION_TEST_DURATION=""
+PIPELINE_TEST_DURATION=""
 DATA_VALIDATION_DURATION=""
 ROW_COUNT_VALIDATION_DURATION=""
 SAVE_OUTPUTS_DURATION=""
@@ -255,6 +274,10 @@ TRIGGER_DEPLOYMENT_DURATION=""
 
 # Set these variables *only* if they are not already set by the container or workflow:
 : "${PUDL_GCS_OUTPUT:=gs://builds.catalyst.coop/$BUILD_ID}"
+# Nightly/stable builds deploy to both cloud storage targets; branch builds set
+# these explicitly via the build-pudl workflow inputs.
+: "${DEPLOY_TO_GCS:=true}"
+: "${DEPLOY_TO_S3:=true}"
 # Keep the nightly Dagster config path repo-relative so the same pixi task commands
 # work both locally and inside the nightly build container.
 : "${DG_NIGHTLY_CONFIG:=src/pudl/package_data/settings/dg_nightly.yml}"
@@ -266,12 +289,17 @@ trap cleanup_on_exit EXIT
 
 # Check if there are any existing builds associated with the current commit
 if pixi run pudl_check_for_build "$GIT_TAG"; then
-    run_stage TRIGGER_DEPLOYMENT_STATUS TRIGGER_DEPLOYMENT_DURATION trigger_deployment
-    if any_stage_failed "$TRIGGER_DEPLOYMENT_STATUS"; then
-        echo "Found successful build, but failed to trigger deployment"
-        exit 1
+    BUILD_SKIPPED=true
+    if any_deployment_target_enabled; then
+        run_stage TRIGGER_DEPLOYMENT_STATUS TRIGGER_DEPLOYMENT_DURATION trigger_deployment
+        if any_stage_failed "$TRIGGER_DEPLOYMENT_STATUS"; then
+            echo "Found successful build, but failed to trigger deployment"
+            exit 1
+        fi
+        echo "Found a successful build and triggered a deployment"
+    else
+        echo "Found a successful build; skipping deployment (no GCS or S3 target enabled)"
     fi
-    echo "Found a successful build and triggered a deployment"
     exit 0
 fi
 
@@ -285,6 +313,7 @@ fi
 run_stage DAGSTER_STATUS DAGSTER_DURATION run_dagster
 run_stage UNIT_TEST_STATUS UNIT_TEST_DURATION pixi run pytest-unit-nightly
 run_stage INTEGRATION_TEST_STATUS INTEGRATION_TEST_DURATION pixi run pytest-integration-nightly
+run_stage PIPELINE_TEST_STATUS PIPELINE_TEST_DURATION pixi run pytest-pipeline-nightly
 run_stage DATA_VALIDATION_STATUS DATA_VALIDATION_DURATION pixi run pytest-validate-nightly
 run_stage ROW_COUNT_VALIDATION_STATUS ROW_COUNT_VALIDATION_DURATION pixi run pytest-validate-row-counts-nightly
 
@@ -292,6 +321,7 @@ if ! any_stage_failed \
     "$DAGSTER_STATUS" \
     "$UNIT_TEST_STATUS" \
     "$INTEGRATION_TEST_STATUS" \
+    "$PIPELINE_TEST_STATUS" \
     "$DATA_VALIDATION_STATUS" \
     "$ROW_COUNT_VALIDATION_STATUS"; then
     touch "$PUDL_OUTPUT/success"
@@ -305,17 +335,23 @@ run_stage SAVE_OUTPUTS_STATUS SAVE_OUTPUTS_DURATION save_outputs_to_gcs
 require_stage_success "$DAGSTER_STATUS"
 require_stage_success "$UNIT_TEST_STATUS"
 require_stage_success "$INTEGRATION_TEST_STATUS"
+require_stage_success "$PIPELINE_TEST_STATUS"
 require_stage_success "$DATA_VALIDATION_STATUS"
 require_stage_success "$ROW_COUNT_VALIDATION_STATUS"
 require_stage_success "$SAVE_OUTPUTS_STATUS"
 
-run_stage TRIGGER_DEPLOYMENT_STATUS TRIGGER_DEPLOYMENT_DURATION trigger_deployment
+if any_deployment_target_enabled; then
+    run_stage TRIGGER_DEPLOYMENT_STATUS TRIGGER_DEPLOYMENT_DURATION trigger_deployment
+else
+    echo "Skipping deployment trigger: neither GCS nor S3 deployment is enabled."
+fi
 
 # Notify Zulip about entire pipeline's success or failure;
 if any_stage_failed \
     "$DAGSTER_STATUS" \
     "$UNIT_TEST_STATUS" \
     "$INTEGRATION_TEST_STATUS" \
+    "$PIPELINE_TEST_STATUS" \
     "$DATA_VALIDATION_STATUS" \
     "$ROW_COUNT_VALIDATION_STATUS" \
     "$SAVE_OUTPUTS_STATUS" \

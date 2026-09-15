@@ -4,13 +4,23 @@ sources:
     tables:
       - name: _core_phmsagas__yearly_distribution_filings
         data_tests:
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - report_id
+                  - report_date
+                  - operator_id_phmsa
+                pk_table_name: source('pudl', 'core_phmsagas__yearly_distribution_operators')
+                pk_column_names:
+                  - report_id
+                  - report_date
+                  - operator_id_phmsa
           - expect_columns_not_all_null:
               arguments:
                 row_conditions:
                   filing_correction_date: EXTRACT(year FROM report_date) BETWEEN 1990 AND 1999
           - check_row_counts_per_partition:
               arguments:
-                table_name: _core_phmsagas__yearly_distribution_filings
                 partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: report_id

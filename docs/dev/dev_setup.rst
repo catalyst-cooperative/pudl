@@ -338,8 +338,8 @@ the code they touch.
 Running the checks
 ~~~~~~~~~~~~~~~~~~
 
-For now ``pyrefly`` is a dev-only dependency, so always run it through the ``dev`` pixi
-environment:
+Currently ``pyrefly`` is a dev-only dependency, so always run it through the ``dev``
+pixi environment:
 
 .. code-block:: console
 
@@ -355,49 +355,29 @@ The baseline
 ~~~~~~~~~~~~
 
 PUDL isn't enforcing full type-checking project-wide yet, so ``.pyrefly-baseline.json``
-records every pre-existing type error as of when it was last regenerated, and
-``pixi run pyrefly-check`` only fails on errors *not already in the baseline*. This
-makes it possible to catch newly introduced type errors in code you're touching without
-requiring the whole codebase to be error-free first.
+records existing type errors, and ``pixi run pyrefly-check`` only fails on errors *not
+already in the baseline*. This makes it possible to catch newly introduced type errors
+without requiring the whole codebase to be error-free first.
 
-Regenerate the baseline when:
-
-* You've fixed one or more pre-existing errors, to shrink the baseline and prevent them
-  from regressing.
-* pyrefly's own version has been bumped, since a newer version's stricter (or simply
-  different) checks can surface errors in files you never touched.
+Update the baseline after fixing pre-existing errors, or after a pyrefly version bump,
+by running the following commands:
 
 .. code-block:: console
 
-    $ pixi run pyrefly-update-baseline
+    $ pixi run pyrefly-prune-baseline    # drop stale entries, for a clean diff
+    $ pixi run pyrefly-update-baseline   # record and deduplicate present errors
+    $ pixi run pyrefly-diff-baseline     # sanity-check the result before committing
+
+``pyrefly-diff-baseline`` compares by ``(file, error code, description)`` so version
+bumps and code motion don't drown out real changes. Check its "fixed" and "newly
+baselined" lists before committing: "newly baselined" should only ever contain
+pre-existing issues you're knowingly deferring (e.g. surfaced by a version bump,
+possibly just reformatted error text), never something your own change introduced.
 
 Never hand-edit ``.pyrefly-baseline.json``, and never regenerate it just to make a
 *newly introduced* error in your own change disappear -- that defeats its purpose as a
-ratchet against regressions. Fix the error instead, or check with the team if you think
-it should legitimately be deferred.
-
-Reviewing a baseline regeneration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-A raw ``git diff .pyrefly-baseline.json`` after regenerating is nearly unreadable:
-fixing even one error, or bumping pyrefly's version, can shift line/column numbers on
-hundreds of unrelated entries without any error actually appearing or disappearing.
-
-Use ``pixi run pyrefly-baseline-diff`` (``src/pudl/scripts/pyrefly_baseline_diff.py``)
-instead. It diffs the baseline against ``HEAD`` by ``(file, error code, description)``
-rather than by line number, so the output only shows errors that were genuinely fixed or
-newly added:
-
-.. code-block:: console
-
-    $ pixi run pyrefly-update-baseline
-    $ pixi run pyrefly-baseline-diff
-
-Run this every time you regenerate the baseline, before committing it. Confirm the
-"fixed" list matches what you intended to fix, and scrutinize the "newly baselined"
-list carefully -- it should only ever contain pre-existing issues you're knowingly
-deferring (e.g. ones surfaced by a version bump), never something your own change
-introduced.
+ratchet against regressions. Fix the error instead, unless you're confident that it
+should be deferred.
 
 Linting Within Your Editor
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -406,6 +386,7 @@ and formatting tools can be run automatically in the background while you write 
 documentation. Popular editors that work with the above tools include:
 
 * `Visual Studio Code <https://code.visualstudio.com/>`__, from Microsoft (free, but...)
+* `Zed <https://zed.dev/>`__, (fast and modern, with good AI support, written in Rust)
 * `NeoVim <https://neovim.io/>`__, (free and open source; for diehard Unix lovers)
 * `PyCharm <https://www.jetbrains.com/pycharm/>`__ (paid).
 * `Sublime Text <https://www.sublimetext.com/>`__ (paid).

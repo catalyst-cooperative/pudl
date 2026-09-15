@@ -1,12 +1,21 @@
 """Unit tests for the :mod:`pudl.helpers` module."""
 
+from datetime import date, datetime
 from io import StringIO
 
+import duckdb
+import geopandas as gpd  # noqa: ICN002
 import numpy as np
 import pandas as pd
+import polars as pl
+import pyarrow as pa
+import pyarrow.parquet as pq
 import pytest
+from geopandas.testing import assert_geodataframe_equal
 from pandas.testing import assert_frame_equal, assert_series_equal
 from pandas.tseries.offsets import BYearEnd
+from polars.testing import assert_frame_equal as assert_pl_frame_equal
+from shapely.geometry import Point
 
 import pudl.helpers
 from pudl.helpers import (
@@ -24,7 +33,9 @@ from pudl.helpers import (
     expand_timeseries,
     flatten_list,
     get_parquet_table,
+    get_parquet_table_polars,
     normalize_year_fragments,
+    persist_table_as_parquet,
     remove_leading_zeros_from_numeric_strings,
     retry,
     standardize_na_values,
@@ -32,6 +43,8 @@ from pudl.helpers import (
     standardize_phone_column,
     zero_pad_numeric_string,
 )
+from pudl.metadata.classes import Resource
+from pudl.workspace.setup import PudlPaths
 
 MONTHLY_GEN_FUEL = pd.DataFrame(
     {
@@ -1196,3 +1209,357 @@ def test_get_parquet_table_subset_applies_resource_override(mocker, tmp_path):
     result = get_parquet_table(resource_name, columns=subset)
     assert str(result["customers"].dtype) == "float64"
     assert result["customers"].tolist() == [1.5]
+
+
+# Shared by the golden-behavior dtype tests below. Covers every PUDL field-type
+# family, each with a null, as plain Python objects so the same dict works for
+# both pd.DataFrame and pl.LazyFrame.
+_MULTI_TYPE_FIELDS = [
+    {"name": "id", "type": "integer", "description": "Primary key."},
+    {"name": "value", "type": "number", "description": "A float value."},
+    {"name": "flag", "type": "boolean", "description": "A boolean flag."},
+    {"name": "name", "type": "string", "description": "A string field."},
+    {"name": "observed_on", "type": "date", "description": "A date."},
+    {"name": "recorded_at", "type": "datetime", "description": "A datetime."},
+    {
+        "name": "code",
+        "type": "string",
+        "description": "Enum-constrained code.",
+        "constraints": {"enum": ["a", "b", "c"]},
+    },
+]
+_MULTI_TYPE_DATA = {
+    "id": [1, 2, 3],
+    "value": [1.5, None, 3.5],
+    "flag": [True, False, None],
+    "name": ["x", None, "z"],
+    "observed_on": [date(2020, 1, 1), date(2020, 2, 1), None],
+    "recorded_at": [datetime(2020, 1, 1), None, datetime(2020, 3, 1, 12, 0, 0)],
+    "code": ["a", "b", None],
+}
+
+
+def _make_multi_type_resource(name: str) -> Resource:
+    """Build a synthetic Resource covering every PUDL field-type family."""
+    return Resource(
+        name=name,
+        description="Synthetic resource covering every PUDL field-type family.",
+        schema={"fields": _MULTI_TYPE_FIELDS, "primary_key": ["id"]},
+    )
+
+
+def _make_test_pudl_paths(tmp_path) -> PudlPaths:
+    """Build a :class:`PudlPaths` rooted at a pytest ``tmp_path``."""
+    return PudlPaths(pudl_input=tmp_path / "input", pudl_output=tmp_path / "output")
+
+
+def test_get_parquet_table_full_read_dtypes(mocker, tmp_path):
+    """Golden-behavior test: a full-column read must reproduce what was written."""
+    resource = _make_multi_type_resource("_test__get_parquet_table_full_read_dtypes")
+    written_df = resource.enforce_schema(pd.DataFrame(_MULTI_TYPE_DATA))
+
+    paths = _make_test_pudl_paths(tmp_path)
+    parquet_path = paths.parquet_path(resource.name)
+    parquet_path.parent.mkdir(parents=True, exist_ok=True)
+    written_df.to_parquet(parquet_path, index=False, schema=resource.to_pyarrow())
+
+    mocker.patch("pudl.metadata.classes.Resource.from_id", return_value=resource)
+
+    result = get_parquet_table(resource.name, paths=paths)
+    assert_frame_equal(result, written_df)
+
+
+_GEOSPATIAL_FIELDS = [
+    {"name": "id", "type": "integer", "description": "Primary key."},
+    {"name": "name", "type": "string", "description": "A string field."},
+    {"name": "geometry", "type": "geometry", "description": "A geometry field."},
+]
+_GEOSPATIAL_DATA = {
+    "id": [1, 2, 3],
+    "name": ["x", None, "z"],
+    "geometry": [Point(0, 0), Point(1, 1), None],
+}
+
+
+def test_get_parquet_table_geospatial_full_read_dtypes(mocker, tmp_path):
+    """Golden-behavior test: the geospatial/GeoParquet read path round-trips too.
+
+    ``get_parquet_table`` has a separate ``is_geospatial`` branch (``gpd.read_parquet``
+    plus a full ``enforce_schema`` re-cast, rather than ``pd.read_parquet`` with
+    ``dtype_backend="numpy_nullable"``) that the plain multi-type test above never
+    exercises, since none of its fields are geometry-typed. Writes using
+    ``GeoDataFrame.to_parquet`` directly (not ``resource.to_pyarrow()``-constrained),
+    matching how ``PudlParquetIOManager.handle_output`` actually writes geometry
+    columns as native GeoParquet.
+    """
+    resource = Resource(
+        name="_test__get_parquet_table_geospatial_full_read_dtypes",
+        description="Synthetic resource covering the geospatial read path.",
+        schema={"fields": _GEOSPATIAL_FIELDS, "primary_key": ["id"]},
+    )
+    written_gdf = resource.enforce_schema(gpd.GeoDataFrame(_GEOSPATIAL_DATA))
+    assert isinstance(written_gdf, gpd.GeoDataFrame)
+
+    paths = _make_test_pudl_paths(tmp_path)
+    parquet_path = paths.parquet_path(resource.name)
+    parquet_path.parent.mkdir(parents=True, exist_ok=True)
+    written_gdf.to_parquet(parquet_path, index=False)
+
+    mocker.patch("pudl.metadata.classes.Resource.from_id", return_value=resource)
+
+    result = get_parquet_table(resource.name, paths=paths)
+    assert isinstance(result, gpd.GeoDataFrame)
+    assert_geodataframe_equal(result, written_gdf)
+
+
+def test_get_parquet_table_polars_full_read_dtypes(mocker, tmp_path):
+    """Golden-behavior test: same as above, for the Polars LazyFrame path."""
+    resource = _make_multi_type_resource(
+        "_test__get_parquet_table_polars_full_read_dtypes"
+    )
+    # Pre-existing pyrefly complaint, same as the identical cast() call in
+    # PudlParquetIOManager.handle_output.
+    written_lf = pl.LazyFrame(_MULTI_TYPE_DATA).cast(
+        resource.to_polars_dtypes()  # type: ignore[bad-argument-type]
+    )
+
+    paths = _make_test_pudl_paths(tmp_path)
+    parquet_path = paths.parquet_path(resource.name)
+    parquet_path.parent.mkdir(parents=True, exist_ok=True)
+    written_lf.sink_parquet(parquet_path, engine="streaming")
+
+    mocker.patch("pudl.metadata.classes.Resource.from_id", return_value=resource)
+
+    result = get_parquet_table_polars(resource.name, paths=paths)
+    assert_pl_frame_equal(result.collect(), written_lf.collect())
+
+
+# "c" is declared but never observed in a row, so these check whether an unused
+# category survives -- not just whether observed values round-trip.
+_CATEGORY_RESOURCE_FIELDS = [
+    {"name": "id", "type": "integer", "description": "Primary key."},
+    {
+        "name": "code",
+        "type": "string",
+        "description": "Enum-constrained code.",
+        "constraints": {"enum": ["a", "b", "c"]},
+    },
+]
+_CATEGORY_IDS = [1, 2, 3]
+_CATEGORY_VALUES = ["a", "b", None]
+
+
+def _make_category_resource(name: str) -> Resource:
+    return Resource(
+        name=name,
+        description="Synthetic resource with one enum-constrained column.",
+        schema={"fields": _CATEGORY_RESOURCE_FIELDS, "primary_key": ["id"]},
+    )
+
+
+def _pandas_categorical_writer(resource: Resource, path) -> None:
+    """Write "code" the way ``PudlParquetIOManager`` writes a pandas-sourced asset:
+    ``enforce_schema`` casts it to a ``pd.CategoricalDtype`` declaring all three
+    categories, whether or not "c" is observed, then ``to_parquet`` with the resource's
+    PyArrow schema.
+    """
+    df = resource.enforce_schema(
+        pd.DataFrame({"id": _CATEGORY_IDS, "code": _CATEGORY_VALUES})
+    )
+    df.to_parquet(path, index=False, schema=resource.to_pyarrow())
+
+
+def _polars_categorical_writer(resource: Resource, path) -> None:
+    """Write "code" the way ``PudlParquetIOManager`` writes a polars-sourced asset.
+
+    ``Field.to_polars_dtype`` always casts enum-constrained fields to ``pl.Categorical``,
+    never ``pl.Enum``: an Enum's declared category list (and its order) gets pinned into
+    the Parquet file's schema, so reading it back with an even slightly different Enum
+    schema raises instead of coercing. Because plain ``Categorical`` has no declared
+    category list at all, there's no way for this writer to mark "c" valid-but-unobserved
+    -- unlike the pandas writer above.
+    """
+    pl.LazyFrame({"id": _CATEGORY_IDS, "code": _CATEGORY_VALUES}).cast(
+        resource.to_polars_dtypes()  # type: ignore[bad-argument-type]
+    ).sink_parquet(path)
+
+
+def _read_pandas_categories(result: pd.DataFrame) -> set[str]:
+    return set(result["code"].dtype.categories)  # type: ignore[missing-attribute]
+
+
+def _read_polars_categories(result: pl.LazyFrame) -> set[str]:
+    return set(result.collect()["code"].drop_nulls().unique().to_list())
+
+
+@pytest.mark.parametrize(
+    ("writer_id", "write_table"),
+    [
+        ("pandas_categorical", _pandas_categorical_writer),
+        ("polars_categorical", _polars_categorical_writer),
+    ],
+)
+@pytest.mark.parametrize(
+    ("reader_id", "read_table", "read_categories"),
+    [
+        ("pandas", get_parquet_table, _read_pandas_categories),
+        ("polars", get_parquet_table_polars, _read_polars_categories),
+    ],
+)
+def test_categorical_parquet_roundtrip_matrix(
+    mocker,
+    tmp_path,
+    writer_id,
+    write_table,
+    reader_id,
+    read_table,
+    read_categories,
+):
+    """Verify cross-backend behavior for constrained categorical columns.
+
+    Covers the two writers used by ``PudlParquetIOManager.handle_output`` (pandas,
+    polars -- it has no DuckDB branch) crossed with the two general-purpose readers,
+    ``get_parquet_table`` and ``get_parquet_table_polars``, both of which are agnostic
+    to which of the two writers actually produced the file. DuckDB-written categorical
+    (ENUM) columns are deliberately excluded here: ``persist_table_as_parquet``'s DuckDB
+    branch writes into a different, per-table-subdirectory layout used only by
+    partitioned ferceqr/eia930 assets, which get read back via ``lf_from_parquet``/
+    ``df_from_parquet``/``duckdb_relation_from_parquet`` -- plain passthrough wrappers
+    with no dtype reconciliation logic of their own to test. Its writer contract (does
+    an unused category survive at the physical Parquet level) is covered separately by
+    ``test_persist_table_as_parquet_duckdb_enum_written_as_dictionary``.
+
+    Not symmetric between the two writers here. Pandas' ``Categorical`` writer encodes
+    every declared category in the physical dictionary page, whether or not "c" is
+    referenced by any row; the polars ``Categorical`` writer never declares an unused
+    category in the first place, so it has nothing extra to lose. On the read side,
+    pandas' dictionary reconstruction always recovers everything physically present in
+    the file, while polars' generic (non-Polars-authored) dictionary decoding compacts
+    away any category not actually referenced by an observed row.
+    """
+    expected = {
+        ("pandas_categorical", "pandas"): {"a", "b", "c"},
+        ("pandas_categorical", "polars"): {"a", "b"},
+        ("polars_categorical", "pandas"): {"a", "b"},
+        ("polars_categorical", "polars"): {"a", "b"},
+    }[(writer_id, reader_id)]
+
+    resource = _make_category_resource(
+        f"_test__categorical_roundtrip_{writer_id}_{reader_id}"
+    )
+    paths = _make_test_pudl_paths(tmp_path)
+    parquet_path = paths.parquet_path(resource.name)
+    parquet_path.parent.mkdir(parents=True, exist_ok=True)
+    write_table(resource, parquet_path)
+
+    mocker.patch("pudl.metadata.classes.Resource.from_id", return_value=resource)
+
+    result = read_table(resource.name, paths=paths)
+    assert read_categories(result) == expected
+
+
+def test_get_parquet_table_geospatial_recasts_categories_from_metadata(
+    mocker, tmp_path
+):
+    """The geospatial ``get_parquet_table`` branch is metadata-driven, not dictionary-driven.
+
+    Unlike the non-geospatial full-read branch (which deliberately trusts whatever
+    categories are physically present in the Parquet dictionary page, see
+    ``test_categorical_parquet_roundtrip_matrix``), the geospatial branch runs every
+    column through ``resource.enforce_schema``, which re-casts "code" to the
+    ``pd.CategoricalDtype`` declared in PUDL metadata regardless of what's in the file.
+
+    Proven here by writing "code" as a plain, untyped string column with no category
+    declaration at all -- physically, "c" never appears anywhere in the file. If the
+    geospatial branch recovers it anyway, that value can only be coming from metadata.
+    """
+    resource = Resource(
+        name="_test__geospatial_categorical_recast",
+        description="Synthetic resource combining a geometry and enum-constrained column.",
+        schema={
+            "fields": [
+                *_CATEGORY_RESOURCE_FIELDS,
+                {"name": "geometry", "type": "geometry", "description": "A geometry."},
+            ],
+            "primary_key": ["id"],
+        },
+    )
+    gdf = gpd.GeoDataFrame(
+        {
+            "id": _CATEGORY_IDS,
+            "code": _CATEGORY_VALUES,
+            "geometry": [Point(0, 0), Point(1, 1), None],
+        }
+    )
+
+    paths = _make_test_pudl_paths(tmp_path)
+    parquet_path = paths.parquet_path(resource.name)
+    parquet_path.parent.mkdir(parents=True, exist_ok=True)
+    gdf.to_parquet(parquet_path, index=False)
+
+    mocker.patch("pudl.metadata.classes.Resource.from_id", return_value=resource)
+
+    result = get_parquet_table(resource.name, paths=paths)
+    assert (
+        set(result["code"].dtype.categories)  # type: ignore[missing-attribute]
+        == {"a", "b", "c"}
+    )
+
+
+def test_persist_table_as_parquet_duckdb_enum_written_as_dictionary(
+    tmp_path, monkeypatch
+):
+    """A DuckDB relation's ENUM columns should round-trip as Categorical, not String.
+
+    DuckDB's own ``.to_parquet()`` writer flattens ENUM columns down to plain Arrow
+    ``string`` in the file's schema -- it still dictionary-encodes them at the Parquet
+    page level, but users get no schema-level indication it is a categorical column.
+    Instead we write DuckDB relations out using pyarrow in ``persist_table_as_parquet``
+    which preserves the ``dictionary<...>`` type. Values not contained in the ENUM
+    cannot be written because DuckDB's ENUM type rejects them at insert time.
+
+    Categories that never appear in any row survive into the file's dictionary. This has
+    to be checked by reading the dictionary-encoded column with pyarrow, not by
+    inspecting Polars' ``Categorical`` reconstruction: like the pandas-written case in
+    ``test_categorical_parquet_roundtrip_matrix``, Polars compacts away any category not
+    actually referenced by a row when reading a dictionary it didn't author itself.
+    """
+    monkeypatch.setenv("PUDL_OUTPUT", str(tmp_path / "output"))
+    monkeypatch.setenv("PUDL_INPUT", str(tmp_path / "input"))
+
+    con = duckdb.connect()
+    con.execute("CREATE TYPE test_enum AS ENUM ('a', 'b', 'c')")
+    con.execute("CREATE TABLE t (code test_enum, value INTEGER)")
+    con.execute("INSERT INTO t VALUES ('a', 1), ('b', 2), ('a', 3)")
+    with pytest.raises(duckdb.ConversionException):
+        con.execute("INSERT INTO t VALUES ('not_in_enum', 4)")
+    rel = con.table("t")
+
+    parquet_data = persist_table_as_parquet(
+        rel, table_name="_test__duckdb_enum_dictionary"
+    )
+
+    schema = pq.read_schema(parquet_data.parquet_path)
+    assert pa.types.is_dictionary(schema.field("code").type)
+
+    written_col = pq.read_table(parquet_data.parquet_path)["code"].combine_chunks()
+    assert written_col.dictionary.to_pylist() == ["a", "b", "c"]
+
+    # Pandas' dictionary reconstruction recovers everything physically present in the
+    # file, including "c" -- same as the pandas-written case in
+    # test_categorical_parquet_roundtrip_matrix.
+    pandas_result = pd.read_parquet(
+        parquet_data.parquet_path, dtype_backend="numpy_nullable"
+    )
+    assert set(pandas_result["code"].dtype.categories) == {  # type: ignore[missing-attribute]
+        "a",
+        "b",
+        "c",
+    }
+
+    # Polars compacts away any category not actually referenced by a row when reading a
+    # dictionary it didn't author itself -- "c" does not survive here, unlike pandas.
+    polars_result = pl.read_parquet(parquet_data.parquet_path)
+    assert polars_result["code"].dtype == pl.Categorical
+    assert polars_result["code"].to_list() == ["a", "b", "a"]
+    assert set(polars_result["code"].unique().to_list()) == {"a", "b"}

@@ -1,6 +1,5 @@
 """Tests for settings validation."""
 
-import importlib.resources
 import inspect
 import os
 from typing import Self
@@ -13,6 +12,7 @@ from pandas import json_normalize
 from pydantic import BaseModel, ValidationError
 
 import pudl.settings as _settings_module
+from pudl import PUDL_SETTINGS_PATH
 from pudl.dagster.resources import (
     DatastoreResource,
     GlobalDataConfigResource,
@@ -324,10 +324,8 @@ class TestGridPathRaToolkitDataConfig:
 
     def test_fast_profile_gridpath_parts_not_empty(self: Self):
         """Ensure packaged fast data config yields GridPath parts used by Dagster assets."""
-        with importlib.resources.as_file(
-            importlib.resources.files("pudl.package_data.settings") / "etl_fast.yml"
-        ) as path:
-            global_data_config: GlobalDataConfig = GlobalDataConfig.from_yaml(path)
+        path = PUDL_SETTINGS_PATH / "etl_fast.yml"
+        global_data_config: GlobalDataConfig = GlobalDataConfig.from_yaml(path)
         assert global_data_config.pudl is not None
 
         gridpath_data_config: GridPathRaToolkitDataConfig | None = (
@@ -401,12 +399,10 @@ class TestGlobalDataConfigResource:
 
     def test_loads_from_file(self: Self):
         """Test that data config is loaded from the shared global data config file."""
-        with importlib.resources.as_file(
-            importlib.resources.files("pudl.package_data.settings") / "etl_fast.yml"
-        ) as path:
-            init_context: UnboundInitResourceContext = build_init_resource_context(
-                config={"global_data_config_path": str(path)}
-            )
+        path = PUDL_SETTINGS_PATH / "etl_fast.yml"
+        init_context: UnboundInitResourceContext = build_init_resource_context(
+            config={"global_data_config_path": str(path)}
+        )
 
         loaded_data_config: GlobalDataConfig = (
             GlobalDataConfigResource.from_resource_context(init_context)
@@ -597,7 +593,6 @@ def test_partitions_with_json_normalize(global_data_config: GlobalDataConfig):
         )
 
 
-@pytest.mark.slow
 def test_partitions_for_datasource_table(
     global_data_config: GlobalDataConfig,
     pudl_test_paths: PudlPaths,

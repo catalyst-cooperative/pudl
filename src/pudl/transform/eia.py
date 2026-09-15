@@ -16,7 +16,6 @@ provided by the EIA 860, and expands on it using several methods which can be
 found in :func:`pudl.transform.eia._boiler_generator_assn`.
 """
 
-import importlib.resources
 from collections import namedtuple
 from enum import StrEnum, auto
 
@@ -35,6 +34,7 @@ from dagster import (
 )
 
 import pudl.logging_helpers
+from pudl import PUDL_PACKAGE_DATA_PATH
 from pudl.helpers import convert_cols_dtypes, make_changelog
 from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.metadata.dtypes import apply_pudl_dtypes, get_pudl_dtypes
@@ -384,8 +384,7 @@ def _add_additional_epacems_plants(plants_entity: pd.DataFrame) -> pd.DataFrame:
     # SQL would call this whole process an upsert
     # See also: https://github.com/pandas-dev/pandas/issues/22812
     cems_df = pd.read_csv(
-        importlib.resources.files("pudl.package_data.epacems")
-        / "additional_epacems_plants.csv",
+        PUDL_PACKAGE_DATA_PATH / "epacems" / "additional_epacems_plants.csv",
         index_col=["plant_id_eia"],
         usecols=["plant_id_eia", "plant_name_eia", "state", "latitude", "longitude"],
     )
@@ -701,7 +700,7 @@ def harvest_entity_tables(  # noqa: C901
         ),
     },
     required_resource_keys={"global_data_config"},
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
 )
 def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:
     """Creates a set of more complete boiler generator associations.
@@ -1321,7 +1320,7 @@ def harvested_entity_asset_factory(
 
 
 harvested_entities = [
-    harvested_entity_asset_factory(entity, io_manager_key="pudl_io_manager")
+    harvested_entity_asset_factory(entity, io_manager_key="parquet_io_manager")
     for entity in EiaEntity
 ]
 
@@ -1359,7 +1358,7 @@ def finished_eia_asset_factory(
 
 finished_eia_assets = [
     finished_eia_asset_factory(
-        table_name, _core_table_name, io_manager_key="pudl_io_manager"
+        table_name, _core_table_name, io_manager_key="parquet_io_manager"
     )
     for table_name, _core_table_name in {
         "core_eia923__monthly_boiler_fuel": "_core_eia923__boiler_fuel",

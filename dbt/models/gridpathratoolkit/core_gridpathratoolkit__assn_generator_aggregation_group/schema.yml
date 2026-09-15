@@ -4,11 +4,17 @@ sources:
     tables:
       - name: core_gridpathratoolkit__assn_generator_aggregation_group
         data_tests:
-          - expect_columns_not_all_null
-          - check_row_counts_per_partition:
+          - foreign_key:
               arguments:
-                table_name: core_gridpathratoolkit__assn_generator_aggregation_group
-                partition_expr: null
+                fk_column_names:
+                  - plant_id_eia
+                  - generator_id
+                pk_table_name: source('pudl', 'core_eia__entity_generators')
+                pk_column_names:
+                  - plant_id_eia
+                  - generator_id
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition
         columns:
           - name: plant_id_eia
           - name: generator_id

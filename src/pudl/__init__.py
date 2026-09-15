@@ -13,6 +13,11 @@ warnings.filterwarnings(
     message=r"Specifying a partitions_def on an AssetCheckSpec is currently in preview.*",
     category=PreviewWarning,
 )
+warnings.filterwarnings(
+    action="ignore",
+    message=r"grpcio < 1\.83\.0 does not support Post-Quantum Cryptography.*",
+    category=FutureWarning,
+)
 
 configure_root_logger()
 
@@ -21,8 +26,10 @@ configure_root_logger()
 # different environments.
 PUDL_ROOT_PATH: Path = Path(__file__).resolve().parents[2]
 """Resolved absolute path to the repository root."""
-PUDL_SETTINGS_PATH: Path = PUDL_ROOT_PATH / "src/pudl/package_data/settings"
+PUDL_PACKAGE_DATA_PATH: Path = PUDL_ROOT_PATH / "src/pudl/package_data"
 """Resolved absolute path to the package_data directory."""
+PUDL_SETTINGS_PATH: Path = PUDL_PACKAGE_DATA_PATH / "settings"
+"""Resolved absolute path to the package_data/settings directory."""
 PUDL_DBT_PATH: Path = PUDL_ROOT_PATH / "dbt"
 """Resolved absolute path to the dbt directory."""
 PUDL_DOCS_PATH: Path = PUDL_ROOT_PATH / "docs"

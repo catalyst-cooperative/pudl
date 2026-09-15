@@ -4,11 +4,15 @@ sources:
     tables:
       - name: core_eia__codes_balancing_authority_subregions
         data_tests:
-          - expect_columns_not_all_null
-          - check_row_counts_per_partition:
+          - foreign_key:
               arguments:
-                table_name: core_eia__codes_balancing_authority_subregions
-                partition_expr: null
+                fk_column_names:
+                  - balancing_authority_code_eia
+                pk_table_name: source('pudl', 'core_eia__codes_balancing_authorities')
+                pk_column_names:
+                  - code
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition
         columns:
           - name: balancing_authority_code_eia
           - name: balancing_authority_subregion_code_eia

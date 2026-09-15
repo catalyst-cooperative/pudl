@@ -37,7 +37,6 @@ from pudl.dagster.resources import (
 )
 from pudl.extract.ferc1 import raw_ferc1_xbrl__metadata_json
 from pudl.extract.ferc714 import raw_ferc714_xbrl__metadata_json
-from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.settings import GlobalDataConfig
 from pudl.workspace.datastore import Datastore, ZenodoDoiSettings
 from pudl.workspace.setup import PudlPaths
@@ -131,6 +130,11 @@ def pytest_collection_finish(session) -> None:
     ``PudlPaths()`` directly (rather than via the fixture) would then silently resolve
     to the wrong directory.  Run unit and integration tests in separate invocations.
     """
+    # Under pytest-xdist, this hook runs once on the controller process and again,
+    # redundantly, inside every worker subprocess (each worker re-collects its own
+    # shard of items). `config.workerinput` only exists on worker configs, so this
+    # skips the check there -- otherwise every worker would independently detect the
+    # same violations and call `pytest.exit`, producing duplicate/garbled output.
     if hasattr(session.config, "workerinput"):
         return
 
@@ -149,6 +153,95 @@ def pytest_collection_finish(session) -> None:
             "Run them in separate pytest invocations.",
             returncode=4,
         )
+
+
+_PIPELINE_FIXTURE_HOMES = ("tests/pipeline/", "tests/validate/")
+# The FERC EQR batch pipeline is a separate Dagster job, exercised end-to-end by its
+# own self-contained fixtures rather than `prebuilt_outputs`. It belongs under
+# tests/pipeline/ on cost grounds (it's slow, and not meant to run outside a
+# dedicated job), but it's exempt from the "must use prebuilt_outputs" check below.
+_FERCEQR_TEST_PATH = "tests/pipeline/ferceqr_test.py"
+
+
+def _slow_tests_in_fast_tiers(items) -> list[str]:
+    """Return nodeids of ETL-dependent tests hiding in a supposedly fast tier.
+
+    Every fixture that actually runs the Dagster pipeline (``pudl_sqlite_connection``,
+    ``pudl_duckdb_connection``, ``ferc1_engine_dbf``, ``ferc1_engine_xbrl``,
+    ``ferc714_engine_xbrl``, ``asset_value_loader``, and the FERC IO-manager/taxonomy-
+    metadata fixtures built on top of them) depends, directly or transitively, on
+    ``prebuilt_outputs``. Checking for that one fixture in each item's full
+    (transitive) fixture closure is therefore sufficient to catch all of them, without
+    having to enumerate every fixture name by hand.
+
+    A test outside tests/pipeline/ and tests/validate/ that requests one of these
+    fixtures would silently make its (supposedly fast) tier slow.
+    """
+    return [
+        item.nodeid
+        for item in items
+        if "prebuilt_outputs" in getattr(item, "fixturenames", ())
+        and not item.nodeid.startswith(_PIPELINE_FIXTURE_HOMES)
+    ]
+
+
+def _fast_tests_in_slow_tiers(items) -> list[str]:
+    """Return nodeids of tests/pipeline/ or tests/validate/ tests that don't need the ETL.
+
+    The reverse of ``_slow_tests_in_fast_tiers``: a test living in the slow tier that
+    doesn't actually depend on ``prebuilt_outputs`` should just run in
+    tests/integration/ instead, where it's collected far more often.
+    """
+    return [
+        item.nodeid
+        for item in items
+        if item.nodeid.startswith(_PIPELINE_FIXTURE_HOMES)
+        and not item.nodeid.startswith(_FERCEQR_TEST_PATH)
+        and "prebuilt_outputs" not in getattr(item, "fixturenames", ())
+    ]
+
+
+def pytest_collection_modifyitems(session: pytest.Session, items: list) -> None:
+    """Enforce that tests/pipeline/ and tests/validate/ line up with ETL dependence.
+
+    tests/unit/ and tests/integration/ are meant to run without a full ETL build. A test
+    that sneaks a ``prebuilt_outputs`` dependency into either directory would silently
+    make those tests very slow. Conversely, a test placed under tests/pipeline/ or
+    tests/validate/ that doesn't need ``prebuilt_outputs`` is just running less often
+    than it could.
+    """
+    # Under pytest-xdist, this hook runs once on the controller process and again,
+    # redundantly, inside every worker subprocess (each worker re-collects its own
+    # shard of items). `config.workerinput` only exists on worker configs, so this
+    # skips the check there -- otherwise every worker would independently detect the
+    # same violations and call `pytest.exit`, producing duplicate/garbled output.
+    if hasattr(session.config, "workerinput"):
+        return
+
+    messages = []
+
+    slow_tests_in_fast_tiers = _slow_tests_in_fast_tiers(items)
+    if slow_tests_in_fast_tiers:
+        violation_list = "\n".join(f"  {nodeid}" for nodeid in slow_tests_in_fast_tiers)
+        messages.append(
+            "Found tests outside tests/pipeline/ and tests/validate/ that depend "
+            f"on prebuilt_outputs (directly or transitively):\n{violation_list}\n"
+            "Move them to tests/pipeline/, or remove the Dagster ETL fixture "
+            "dependency if it isn't actually required."
+        )
+
+    fast_tests_in_slow_tiers = _fast_tests_in_slow_tiers(items)
+    if fast_tests_in_slow_tiers:
+        violation_list = "\n".join(f"  {nodeid}" for nodeid in fast_tests_in_slow_tiers)
+        messages.append(
+            "Found tests in tests/pipeline/ or tests/validate/ that don't depend on "
+            f"prebuilt_outputs (directly or transitively):\n{violation_list}\n"
+            "Move them to tests/integration/, or add the Dagster ETL fixture "
+            "dependency if it's actually required."
+        )
+
+    if messages:
+        pytest.exit("\n\n".join(messages), returncode=4)
 
 
 ################################################################################
@@ -519,7 +612,11 @@ def ferc1_engine_dbf(
 ) -> Generator[sa.Engine]:
     """Return the SQLAlchemy engine for the prebuilt FERC Form 1 DBF database.
 
-    Disposes the engine at session teardown -- see ``pudl_engine`` for why.
+    Disposes the engine at session teardown so its pooled sqlite3 connections are
+    closed explicitly, rather than left for the interpreter to garbage collect at
+    shutdown -- by then pytest's warnings-catching context has already exited, so
+    the ``ignore:unclosed database`` filter in ``pyproject.toml`` no longer
+    applies, and the resulting ``ResourceWarning`` prints raw to stderr.
     """
     engine = _initialize_ferc_engine(
         ferc1_dbf_io_manager,
@@ -551,15 +648,6 @@ def prebuilt_outputs(
     logger.info(
         f"Prebuilding PUDL outputs in temporary directory: {pudl_test_paths.pudl_output}"
     )
-    logger.info(
-        f"Initializing empty pudl.sqlite with current schema at {pudl_test_paths.pudl_db}."
-    )
-    md = PUDL_PACKAGE.to_sql()
-    pudl_engine = sa.create_engine(pudl_test_paths.pudl_db)
-    try:
-        md.create_all(pudl_engine)
-    finally:
-        pudl_engine.dispose()
 
     _pudl_etl(dg_config_path, pudl_test_paths, dagster_home)
     _assert_prebuilt_ferc_sqlite_dbs(pudl_test_paths)
@@ -572,7 +660,7 @@ def ferc1_engine_xbrl(
 ) -> Generator[sa.Engine]:
     """Return the SQLAlchemy engine for the prebuilt FERC Form 1 XBRL database.
 
-    Disposes the engine at session teardown -- see ``pudl_engine`` for why.
+    Disposes the engine at session teardown -- see ``ferc1_engine_dbf`` for why.
     """
     engine = _initialize_ferc_engine(
         ferc1_xbrl_io_manager,
@@ -611,7 +699,7 @@ def ferc714_engine_xbrl(
 ) -> Generator[sa.Engine]:
     """Return the SQLAlchemy engine for the prebuilt FERC Form 714 XBRL database.
 
-    Disposes the engine at session teardown -- see ``pudl_engine`` for why.
+    Disposes the engine at session teardown -- see ``ferc1_engine_dbf`` for why.
     """
     engine = _initialize_ferc_engine(
         ferc714_xbrl_io_manager,
@@ -645,20 +733,45 @@ def ferc714_xbrl_taxonomy_metadata(
 
 
 @pytest.fixture(scope="session")
-def pudl_engine(prebuilt_outputs, pudl_test_paths: PudlPaths) -> Generator[sa.Engine]:
-    """Return the SQLAlchemy engine for the prepared PUDL integration database.
+def pudl_sqlite_connection(
+    prebuilt_outputs, pudl_test_paths: PudlPaths
+) -> Generator[duckdb.DuckDBPyConnection]:
+    """Return a DuckDB connection with the prepared PUDL SQLite database attached.
 
-    Disposes the engine at session teardown so its pooled sqlite3 connections are
-    closed explicitly, rather than left for the interpreter to garbage collect at
-    shutdown -- by then pytest's warnings-catching context has already exited, so
-    the ``ignore:unclosed database`` filter in ``pyproject.toml`` no longer
-    applies, and the resulting ``ResourceWarning`` prints raw to stderr.
+    Uses DuckDB's ``sqlite`` extension to read ``pudl.sqlite`` rather than
+    SQLAlchemy, so tests can query the SQLite and DuckDB build outputs through one
+    identical API as PUDL moves toward DuckDB. The attached database is set as the
+    default schema via ``USE``, so tables can be referenced unqualified. Attached
+    read-only since tests should never mutate the shared build output.
     """
-    engine = sa.create_engine(pudl_test_paths.pudl_db)
+    conn = duckdb.connect()
+    conn.execute(
+        f"ATTACH '{pudl_test_paths.sqlite_path('pudl')}' AS pudl "
+        "(TYPE sqlite, READ_ONLY); USE pudl;"
+    )
     try:
-        yield engine
+        yield conn
     finally:
-        engine.dispose()
+        conn.close()
+
+
+@pytest.fixture(scope="session")
+def pudl_duckdb_connection(
+    prebuilt_outputs, pudl_test_paths: PudlPaths
+) -> Generator[duckdb.DuckDBPyConnection]:
+    """Return a read-only DuckDB connection to the prepared PUDL DuckDB database.
+
+    Uses DuckDB's native Python API directly rather than SQLAlchemy: pudl.duckdb is
+    meant to be opened this way by downstream users, and it's how the rest of the
+    codebase treats DuckDB (see ``pudl.dagster.assets.output.databases``, where
+    SQLAlchemy is used only to create the empty schema, never to read or write rows).
+    Opened read-only since tests should never mutate the shared build output.
+    """
+    conn = duckdb.connect(str(pudl_test_paths.duckdb_path("pudl")), read_only=True)
+    try:
+        yield conn
+    finally:
+        conn.close()
 
 
 @pytest.fixture(scope="session", autouse=True)

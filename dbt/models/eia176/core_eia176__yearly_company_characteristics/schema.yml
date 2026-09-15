@@ -12,7 +12,6 @@ sources:
                   natural_gas_pump_price_dollars_per_mcf: report_year BETWEEN 2014 AND 2016
           - check_row_counts_per_partition:
               arguments:
-                table_name: core_eia176__yearly_company_characteristics
                 partition_expr: report_year
           - dbt_utils.expression_is_true:
               arguments:

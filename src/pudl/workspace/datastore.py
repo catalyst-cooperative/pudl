@@ -1,7 +1,6 @@
 """Datastore manages file retrieval for PUDL datasets."""
 
 import hashlib
-import importlib.resources
 import io
 import json
 import re
@@ -9,7 +8,6 @@ import zipfile
 from collections import defaultdict
 from collections.abc import Iterator
 from importlib.metadata import version
-from importlib.resources.abc import Traversable
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Annotated, Any, Self
@@ -24,6 +22,7 @@ from upath import UPath
 from urllib3.util.retry import Retry
 
 import pudl.logging_helpers
+from pudl import PUDL_SETTINGS_PATH
 from pudl.helpers import retry
 from pudl.workspace import resource_cache
 from pudl.workspace.resource_cache import PudlResourceKey, UPathCache
@@ -38,11 +37,9 @@ ZenodoDoi = Annotated[
 ]
 
 
-def get_zenodo_dois_path() -> Traversable:
+def get_zenodo_dois_path() -> Path:
     """Return the canonical packaged Zenodo DOI settings path."""
-    return importlib.resources.files("pudl.package_data.settings").joinpath(
-        "zenodo_dois.yml"
-    )
+    return PUDL_SETTINGS_PATH / "zenodo_dois.yml"
 
 
 class ChecksumMismatchError(ValueError):
@@ -109,17 +106,16 @@ class DatapackageDescriptor:
         matches = [self._match_from_partition(parts, k, v) for k, v in filters.items()]
         return all(matches)
 
-    def _match_from_partition(
-        self, parts: dict[str, str], k: str, v: str | list[str, str]
-    ):
+    def _match_from_partition(self, parts: dict[str, str], k: str, v: str | list[str]):
+        value = parts.get(k)
         if isinstance(
-            parts.get(k), list
+            value, list
         ):  # If partitions are list, match whole list if it contains desired element
-            return any(str(part).lower() == str(v).lower() for part in parts.get(k))
-        return str(parts.get(k)).lower() == str(v).lower()
+            return any(str(part).lower() == str(v).lower() for part in value)
+        return str(value).lower() == str(v).lower()
 
     def get_resources(
-        self: Self, name: str = None, **filters: Any
+        self: Self, name: str | None = None, **filters: Any
     ) -> Iterator[PudlResourceKey]:
         """Returns series of PudlResourceKey identifiers for matching resources.
 
@@ -137,7 +133,7 @@ class DatapackageDescriptor:
                     dataset=self.dataset, doi=self.doi, name=res["name"]
                 )
 
-    def get_partitions(self, name: str = None) -> dict[str, set[str]]:
+    def get_partitions(self, name: str | None = None) -> dict[str, set[str]]:
         """Return mapping of known partition keys to their allowed known values."""
         partitions: dict[str, set[str]] = defaultdict(set)
         for res in self.datapackage_json["resources"]:
@@ -242,7 +238,7 @@ class ZenodoDoiSettings(BaseSettings):
         return dict(self)[dataset]
 
     @classmethod
-    def from_yaml(cls, path: str | Path) -> "ZenodoDoiSettings":
+    def from_yaml(cls, path: str | Path) -> ZenodoDoiSettings:
         """Create a ZenodoDoiSettings instance from a YAML file path.
 
         Args:
@@ -554,16 +550,6 @@ class Datastore:
             return zipfile.ZipFile(resource)
 
         return retry(retryable, retry_on=(zipfile.BadZipFile))
-
-    def get_zipfile_resources(
-        self, dataset: str, **filters: Any
-    ) -> Iterator[tuple[PudlResourceKey, zipfile.ZipFile]]:
-        """Iterates over resources that match filters and opens each as ZipFile."""
-        for resource_key, content in self.get_resources(dataset, **filters):
-            yield (
-                resource_key,
-                retry(zipfile.ZipFile, retry_on=(zipfile.BadZipFile), file=content),
-            )
 
     def get_zipfile_file_names(self, zip_file: zipfile.ZipFile):
         """Given a zipfile, return a list of the file names in it."""

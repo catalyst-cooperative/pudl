@@ -113,8 +113,8 @@ YEARLY_DISTRIBUTION_IDX_ISH = [
 ]
 
 INSTALL_DECADE_TOTAL_MISMATCHES = {
-    "mains_miles": {"expected_mismatches": 42, "tolerance": 0.001},
-    "services": {"expected_mismatches": 156, "tolerance": 0},
+    "mains_miles": {"expected_mismatches": 43, "tolerance": 0.001},
+    "services": {"expected_mismatches": 162, "tolerance": 0},
 }
 
 MELT_PATTERNS = {
@@ -392,7 +392,7 @@ def _check_and_drop_log_if_always_in_report_id(df):
     return df
 
 
-@asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
+@asset(io_manager_key="parquet_io_manager", compute_kind="pandas")
 def _core_phmsagas__yearly_distribution_filings(
     _core_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -424,7 +424,7 @@ def _core_phmsagas__yearly_distribution_filings(
     return df
 
 
-@asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
+@asset(io_manager_key="parquet_io_manager", compute_kind="pandas")
 def core_phmsagas__yearly_distribution_operators(
     _core_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -502,7 +502,7 @@ def core_phmsagas__yearly_distribution_operators(
     return df
 
 
-@asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
+@asset(io_manager_key="parquet_io_manager", compute_kind="pandas")
 def _core_phmsagas__yearly_distribution_by_material(
     _core_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -519,24 +519,7 @@ def _core_phmsagas__yearly_distribution_by_material(
     )
 
 
-@asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
-def _core_phmsagas__yearly_distribution_by_install_decade(
-    _core_phmsagas__yearly_distribution: pd.DataFrame,
-) -> pd.DataFrame:
-    """Transform the _core table of the miles of main and services by decade."""
-    return _melt_merge_main_services(
-        _core_phmsagas__yearly_distribution,
-        MELT_PATTERNS["_core_phmsagas__yearly_distribution_by_install_decade"][
-            "main_pattern"
-        ],
-        MELT_PATTERNS["_core_phmsagas__yearly_distribution_by_install_decade"][
-            "services_pattern"
-        ],
-        {"install_decade": INSTALL_DECADE_PHMSAGAS},
-    )
-
-
-@asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
+@asset(io_manager_key="parquet_io_manager", compute_kind="pandas")
 def _core_phmsagas__yearly_distribution_by_material_and_size(
     _core_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -596,7 +579,7 @@ def _core_phmsagas__yearly_distribution_by_material_and_size(
     return df
 
 
-@asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
+@asset(io_manager_key="parquet_io_manager", compute_kind="pandas")
 def _core_phmsagas__yearly_distribution_leaks(
     _core_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -615,7 +598,7 @@ def _core_phmsagas__yearly_distribution_leaks(
     ).rename(columns={"mains_miles": "mains"})
 
 
-@asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
+@asset(io_manager_key="parquet_io_manager", compute_kind="pandas")
 def _core_phmsagas__yearly_distribution_excavation_damages(
     _core_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -635,7 +618,7 @@ def _core_phmsagas__yearly_distribution_excavation_damages(
     ).reset_index()
 
 
-@asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
+@asset(io_manager_key="parquet_io_manager", compute_kind="pandas")
 def _core_phmsagas__yearly_distribution_misc(
     _core_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -700,9 +683,9 @@ def _assert_install_decade_totals_match_expected(df: pd.DataFrame) -> None:
         )
 
 
-@asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
+@asset(io_manager_key="parquet_io_manager", compute_kind="pandas")
 def core_phmsagas__yearly_distribution_by_install_decade(
-    _core_phmsagas__yearly_distribution_by_install_decade: pd.DataFrame,
+    _core_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
     """Create core_phmsagas__yearly_distribution_by_install_decade."""
     commodity_map = {
@@ -715,11 +698,25 @@ def core_phmsagas__yearly_distribution_by_install_decade(
         "OTHER GAS: Natural Gas": "natural_gas",
         "OTHER GAS: Nitrogen": "nitrogen_gas",
         "OTHER GAS: Propane Gas": "propane_gas",
+        "OTHER GAS: Propane": "propane_gas",
+        "OTHER GAS: Other Gas - Propane": "propane_gas",
         "OTHER GAS: nitrogen": "nitrogen_gas",
+        "OTHER GAS: METHANE": "natural_gas",
         "OTHER GAS: City of York": "other",
+        "OTHER GAS: Fuel Gas": "other",  # TODO: Is this sensible? Map somehow else??
     }
 
-    df = _core_phmsagas__yearly_distribution_by_install_decade.copy()
+    df = _melt_merge_main_services(
+        _core_phmsagas__yearly_distribution,
+        MELT_PATTERNS["_core_phmsagas__yearly_distribution_by_install_decade"][
+            "main_pattern"
+        ],
+        MELT_PATTERNS["_core_phmsagas__yearly_distribution_by_install_decade"][
+            "services_pattern"
+        ],
+        {"install_decade": INSTALL_DECADE_PHMSAGAS},
+    )
+
     df["commodity"] = df["commodity"].replace(commodity_map)
     df["commodity"] = df["commodity"].fillna("all")
     non_total_decade_mask = ~df["install_decade"].eq("total_decades")

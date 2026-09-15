@@ -77,6 +77,6 @@ jobs:
           # backend by default. It runs on every PR push and was consuming the
           # majority of the repo's shared 10GB cache quota (8.2 of 12.8GB
           # measured on 2026-07-07), evicting the Zenodo/FERC caches
-          # ci-integration depends on. This is a correctness smoke test, not
+          # ci-pipeline depends on. This is a correctness smoke test, not
           # a performance-sensitive build, so disable caching entirely.
           noCache: true

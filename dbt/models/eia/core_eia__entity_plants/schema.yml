@@ -5,10 +5,7 @@ sources:
       - name: core_eia__entity_plants
         data_tests:
           - expect_columns_not_all_null
-          - check_row_counts_per_partition:
-              arguments:
-                table_name: core_eia__entity_plants
-                partition_expr: null
+          - check_row_counts_per_partition
         columns:
           - name: plant_id_eia
           - name: plant_name_eia
