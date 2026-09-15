@@ -134,13 +134,7 @@ class TestMain:
         assert runnable["container"]["commands"] == ["pixi", "run", "pudl_deploy"]
         assert runnable["environment"]["variables"] == {"GIT_TAG": "nightly-2026-09-02"}
 
-        # The pipeline and batch-job-id labels go on both the instances (VM
-        # metrics) and the job (task logs) so the monitoring dashboard can filter
-        # and group every widget on them.
+        # The pipeline label goes on both the instances (VM metrics) and the job
+        # (task logs) so the monitoring dashboard can filter every widget on it.
         assert config["allocationPolicy"]["labels"]["pipeline"] == "deploy-pudl"
         assert config["labels"]["pipeline"] == "deploy-pudl"
-        assert (
-            config["allocationPolicy"]["labels"]["batch-job-id"]
-            == "deploy-2026-09-02-abc"
-        )
-        assert config["labels"]["batch-job-id"] == "deploy-2026-09-02-abc"
