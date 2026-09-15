@@ -55,7 +55,7 @@ Developer Experience
 - [ ] Close out the [PUDL Release Notes](https://docs.catalyst.coop/pudl/en/nightly/release_notes.html) with an overview of the changes in this release. Check [PRs merged since the last release](https://github.com/catalyst-cooperative/pudl/pulls?q=is%3Apr+is%3Amerged+merged%3A%3EYYYY-MM-DD) to make sure all changes since the last release are listed somewhere in the notes.
 - [ ] Merge those changes into `main`
 - [ ] Verify that all `stable` commits are on `main` with `git fetch && git log origin/main..origin/stable`
-- [ ] Kick off a `workflow_dispatch` build on `main` and verify that it has succeeds ([monitor here](https://console.cloud.google.com/monitoring/dashboards/builder/992bbe3f-17e6-49c4-a9e8-8f1925d4ec24)).
+- [ ] Kick off a `workflow_dispatch` build on `main` and verify that it has succeeded ([monitor here](https://console.cloud.google.com/monitoring/dashboards/builder/992bbe3f-17e6-49c4-a9e8-8f1925d4ec24)).
 - [ ] If that build fails, make a new PR fixing the issues and goto "Merge those changes into `main`" above.
 - [ ] Tag the release commit: `git tag -as -m "PUDL vYYYY.M.x" vYYYY.M.x`
 - [ ] Push the release tag to `main`: `git push origin vYYYY.M.x` (this will kick off `release.yml` and `deploy-pudl.yml`)
