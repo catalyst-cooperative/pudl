@@ -12,6 +12,11 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
 
 ### Expanded Data Coverage
 
+#### EIA-860
+
+* Added final release data from 2025 for [EIA-860](data_sources/eia860.html.md). See
+  issue [#5589](https://github.com/catalyst-cooperative/pudl/issues/5589) and PR [#5591](https://github.com/catalyst-cooperative/pudl/pull/5591).
+
 ### Documentation
 
 * Fixed dbt macro argument documentation in `dbt/macros/schema.yml` and
