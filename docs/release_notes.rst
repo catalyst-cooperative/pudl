@@ -24,7 +24,9 @@ Documentation
 * Fixed dbt macro argument documentation in ``dbt/macros/schema.yml`` and
   ``dbt/tests/data_tests/generic_tests/schema.yml`` to match dbt 1.12's stricter
   validation of macro ``arguments:`` blocks against their jinja signatures, clearing a
-  long list of spurious ``dbt parse`` warnings. See PR :pr:`5593`.
+  long list of spurious ``dbt parse`` warnings. Also standardized on the long-form
+  ``string`` type name (rather than ``str``) throughout, since both are accepted by
+  dbt but were used inconsistently. See PR :pr:`5593`.
 
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^

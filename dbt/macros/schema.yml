@@ -17,7 +17,7 @@ macros:
         type: string
         description: The table or model to check.
       - name: group_by_columns
-        type: list[str]
+        type: list[string]
         description: Columns identifying the entity within which subcomponents should sum to the total, e.g. [borrower_id_rus, report_date, plant_name_rus].
       - name: categorical_column
         type: any
@@ -47,7 +47,7 @@ macros:
     description: Render a SQL condition matching one subcomponent or total label for subcomponents_sum_to_total_check.
     arguments:
       - name: categorical_columns
-        type: list[str]
+        type: list[string]
         description: The categorical column(s) identifying subcomponent and total records.
       - name: label
         type: any
@@ -56,7 +56,7 @@ macros:
     description: Render a SQL condition matching any of the given subcomponent labels for subcomponents_sum_to_total_check. ORs together one subcomponent_one_label_condition per label.
     arguments:
       - name: categorical_columns
-        type: list[str]
+        type: list[string]
         description: The categorical column(s) identifying subcomponent and total records.
       - name: labels
         type: list[any]

@@ -40,13 +40,13 @@ macros:
         type: relation
         description: The child model (table) the test is applied to.
       - name: fk_column_names
-        type: list[str]
+        type: list[string]
         description: Ordered list of child key columns.
       - name: pk_table_name
         type: string
         description: Parent relation to validate against, typically from ref().
       - name: pk_column_names
-        type: list[str]
+        type: list[string]
         description: Ordered list of parent key columns.
 
   - name: test_expect_column_fraction_with_condition
@@ -127,7 +127,7 @@ macros:
         type: string
         description: The name of the table to compare columns with
       - name: compare_cols
-        type: list[str]
+        type: list[string]
         description: >
           A list of column names present in both tables. The test will succeed only if
           all combinations of column values present in at least one row in the
@@ -145,10 +145,10 @@ macros:
         type: relation
         description: The model (table) the test is applied to.
       - name: exclude_columns
-        type: list[str]
+        type: list[string]
         description: List of column names to exclude from the null check (optional, default empty list).
       - name: row_conditions
-        type: dict[str, string]
+        type: dict[string, string]
         description: >
           Dictionary mapping column names to SQL row conditions. For each column, the null
           check will only be applied to rows matching the condition (optional, default
@@ -314,10 +314,10 @@ macros:
         type: relation
         description: The model (table) the test is applied to.
       - name: sum_columns
-        type: list[str]
+        type: list[string]
         description: The columns whose sum should match the value in the total column.
       - name: total_column
-        type: str
+        type: string
         description: The column containing the intended total value.
       - name: discrepancy_threshold
         type: float
@@ -340,13 +340,13 @@ macros:
         type: relation
         description: The model (table) the test is applied to.
       - name: column_a
-        type: str
+        type: string
         description: First column to compare.
       - name: column_b
-        type: str
+        type: string
         description: Second column to compare.
       - name: row_condition
-        type: str
+        type: string
         description: Filter to select a subset of rows to compare.
       - name: atol
         type: float
