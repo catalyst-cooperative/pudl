@@ -1933,7 +1933,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         added to the values dictionary, which doesn't make sense, since "seeds" is
         defined after exploded_calcs in the model.
         """
-        all_nodes = self.exploded_calcs.set_index(self.parent_cols).index
+        all_nodes = set(self.exploded_calcs.set_index(self.parent_cols).index)
         bad_seeds = [seed for seed in self.seeds if seed not in all_nodes]
         if bad_seeds:
             raise ValueError(f"Seeds missing from exploded_calcs index: {bad_seeds=}")

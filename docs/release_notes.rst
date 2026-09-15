@@ -60,6 +60,10 @@ Performance Improvements
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^
 
+* Switched to using quieter, more compact ``pytest`` output instead of logging 1000s of
+  tests to the terminal. Fast ETL in pipeline tests still log. Make ``pixi.lock``
+  drift checking in pre-commit hooks more robust. Fix open SQLite database warnings
+  coming from FERC SQLite IO Manager. See PR :pr:`5573`.
 * Replaced all remaining uses of ``importlib.resources`` with direct ``pathlib.Path``
   access to files under ``src/pudl/package_data``, since PUDL is only ever run from a
   git checkout and no longer needs to support being installed as a distributable
