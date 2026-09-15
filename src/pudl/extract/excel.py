@@ -59,14 +59,14 @@ class ExcelMetadata(GenericMetadata):
             Files will be loaded from pudl.package_data.${dataset_name}
         """
         super().__init__(dataset_name)
-        self._skiprows = self._load_csv(self._pkg, "skiprows.csv")
-        self._skipfooter = self._load_csv(self._pkg, "skipfooter.csv")
-        self._sheet_name = self._load_csv(self._pkg, "page_map.csv")
-        self._file_name = self._load_csv(self._pkg, "file_map.csv")
+        self._skiprows = self._load_csv(self._path, "skiprows.csv")
+        self._skipfooter = self._load_csv(self._path, "skipfooter.csv")
+        self._sheet_name = self._load_csv(self._path, "page_map.csv")
+        self._file_name = self._load_csv(self._path, "file_map.csv")
         # Most excel extracted datasets do not have a page to part map. If they
         # don't, assign null.
         try:
-            self._page_part_map = self._load_csv(self._pkg, "page_part_map.csv")
+            self._page_part_map = self._load_csv(self._path, "page_part_map.csv")
         except FileNotFoundError:
             self._page_part_map = pd.DataFrame()
 

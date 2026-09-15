@@ -28,14 +28,13 @@ desire and the potential implications of using a co-located set of plant infrast
 as an id.
 """
 
-import importlib.resources
-
 import pandas as pd
 import sqlalchemy as sa
 from dagster import AssetIn, Definitions, JobDefinition, asset, define_asset_job
 
 import pudl.helpers
 import pudl.logging_helpers
+from pudl import PUDL_PACKAGE_DATA_PATH
 from pudl.dagster.io_managers import (
     ferc1_dbf_sqlite_io_manager,
     ferc1_xbrl_sqlite_io_manager,
@@ -64,19 +63,13 @@ from pudl.transform.params.ferc1 import FERC1_STRING_NORM
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
-PUDL_ID_MAP_XLSX = (
-    importlib.resources.files("pudl.package_data.glue") / "pudl_id_mapping.xlsx"
-)
+PUDL_ID_MAP_XLSX = PUDL_PACKAGE_DATA_PATH / "glue" / "pudl_id_mapping.xlsx"
 """Path to the PUDL ID mapping sheet with the plant map."""
 
-UTIL_ID_PUDL_MAP_CSV = (
-    importlib.resources.files("pudl.package_data.glue") / "utility_id_pudl.csv"
-)
+UTIL_ID_PUDL_MAP_CSV = PUDL_PACKAGE_DATA_PATH / "glue" / "utility_id_pudl.csv"
 """Path to the PUDL utility ID mapping CSV."""
 
-UTIL_ID_FERC_MAP_CSV = (
-    importlib.resources.files("pudl.package_data.glue") / "utility_id_ferc1.csv"
-)
+UTIL_ID_FERC_MAP_CSV = PUDL_PACKAGE_DATA_PATH / "glue" / "utility_id_ferc1.csv"
 """Path to the PUDL-assign FERC1 utility ID mapping CSV."""
 
 MIN_PLANT_CAPACITY_MW: float = 5.0

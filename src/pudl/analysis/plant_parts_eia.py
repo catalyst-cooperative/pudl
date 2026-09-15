@@ -165,7 +165,6 @@ from this module directly in a notebook or script like this:
 
 from collections import OrderedDict
 from copy import deepcopy
-from importlib import resources
 from pathlib import Path
 from typing import Any, Literal
 
@@ -175,6 +174,7 @@ from dagster import AssetIn, AssetKey, AssetsDefinition, asset
 
 import pudl.helpers
 import pudl.logging_helpers
+from pudl import PUDL_PACKAGE_DATA_PATH
 from pudl.metadata.classes import Resource
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -651,9 +651,9 @@ class MakePlantParts:
         self.plant_parts_eia = self.add_one_to_many(
             plant_parts_eia=concatenated_plant_parts,
             part_name="plant_match_ferc1",
-            path_to_one_to_many=resources.files("pudl.package_data.glue").joinpath(
-                "eia_ferc1_one_to_many.csv",
-            ),
+            path_to_one_to_many=PUDL_PACKAGE_DATA_PATH
+            / "glue"
+            / "eia_ferc1_one_to_many.csv",
         )
         self.plant_parts_eia = TrueGranLabeler().execute(self.plant_parts_eia)
         # clean up, add additional columns
@@ -697,8 +697,7 @@ class MakePlantParts:
         """
         # Read in csv.
         try:
-            with resources.as_file(path_to_one_to_many) as override_source:
-                one_to_many = pd.read_csv(override_source)
+            one_to_many = pd.read_csv(path_to_one_to_many)
         except FileNotFoundError:
             return plant_parts_eia
 

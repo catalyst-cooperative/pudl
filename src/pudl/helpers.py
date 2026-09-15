@@ -7,7 +7,6 @@ should probably live here. There are lost of transform type functions in here th
 with cleaning and restructuring dataframes.
 """
 
-import importlib.resources
 import itertools
 import os
 import pathlib
@@ -38,6 +37,7 @@ from pandas._libs.missing import NAType
 from pydantic import BaseModel, Field
 
 import pudl.logging_helpers
+from pudl import PUDL_PACKAGE_DATA_PATH
 from pudl.metadata.dtypes import apply_pudl_dtypes, get_pudl_dtypes
 from pudl.workspace.setup import PudlPaths
 
@@ -1883,8 +1883,7 @@ def get_eia_ferc_acct_map() -> pd.DataFrame:
             'prime_mover_code', 'ferc_acct_name']``
     """
     eia_ferc_acct_map = pd.read_csv(
-        importlib.resources.files("pudl.package_data.glue")
-        / "ferc_acct_to_pm_tech_map.csv"
+        PUDL_PACKAGE_DATA_PATH / "glue" / "ferc_acct_to_pm_tech_map.csv"
     )
     return eia_ferc_acct_map
 

@@ -15,7 +15,6 @@ functions that will read those new/updated/validated matches from the spreadshee
 validate them, and incorporate them into the existing training data.
 """
 
-import importlib.resources
 import pathlib
 from typing import Literal
 
@@ -23,6 +22,7 @@ import numpy as np
 import pandas as pd
 
 import pudl.logging_helpers
+from pudl import PUDL_PACKAGE_DATA_PATH
 
 # Create a logger to output any messages we might have...
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -696,7 +696,7 @@ def validate_and_add_to_training(
             from different utilities.
         one_to_many: If True, will also validate and save a CSV of one_to_many matches.
     """
-    glue_resource_path = importlib.resources.files("pudl.package_data.glue")
+    glue_resource_path = PUDL_PACKAGE_DATA_PATH / "glue"
     path_to_current_training = glue_resource_path / "eia_ferc1_train.csv"
     path_to_new_training = input_dir_path
     current_training_df = pd.read_csv(path_to_current_training)

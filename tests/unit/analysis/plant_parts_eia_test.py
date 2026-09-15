@@ -1,11 +1,10 @@
 """Tests for timeseries anomalies detection and imputation."""
 
-from importlib import resources
-
 import pandas as pd
 
 import pudl.analysis.plant_parts_eia
 import pudl.helpers
+from pudl import PUDL_PACKAGE_DATA_PATH
 
 GENS_MEGA = pd.DataFrame(
     {
@@ -645,9 +644,7 @@ def test_one_to_many():
         }
     )
 
-    path_to_one_to_many = resources.files("pudl.package_data.test").joinpath(
-        "test_one_to_many.csv",
-    )
+    path_to_one_to_many = PUDL_PACKAGE_DATA_PATH / "test" / "test_one_to_many.csv"
 
     parts_compiler = pudl.analysis.plant_parts_eia.MakePlantParts()
 

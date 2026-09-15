@@ -1,7 +1,6 @@
 """Generalized DBF extractor for FERC data."""
 
 import csv
-import importlib.resources
 import json
 import warnings
 import zipfile
@@ -21,6 +20,7 @@ from dbfread import DBF, FieldParser
 from sqlalchemy.engine.base import Engine
 
 import pudl.logging_helpers
+from pudl import PUDL_PACKAGE_DATA_PATH
 from pudl.metadata.classes import DataSource
 from pudl.settings import FercDbfToSqliteDataConfig, FercToSqliteDataConfig
 from pudl.workspace.datastore import Datastore
@@ -335,10 +335,7 @@ class FercDbfReader:
 
     def _open_csv_resource(self: Self, base_filename: str) -> csv.DictReader:
         """Open the given resource file as :class:`csv.DictReader`."""
-        csv_path = (
-            importlib.resources.files(f"pudl.package_data.{self.dataset}")
-            / base_filename
-        )
+        csv_path = PUDL_PACKAGE_DATA_PATH / self.dataset / base_filename
         return csv.DictReader(csv_path.open())
 
     @lru_cache  # noqa: B019

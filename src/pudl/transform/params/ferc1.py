@@ -5,11 +5,13 @@ used to control the various data transformations. The definitions of those model
 found in :mod:`pudl.transform.classes` and :mod:`pudl.transform.ferc1`
 """
 
-import importlib
 from datetime import date
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
+
+from pudl import PUDL_PACKAGE_DATA_PATH
 
 ##############################################################################
 # Unit converstion parameters
@@ -332,9 +334,8 @@ PLANT_STATUS = {
     }
 }
 
-FUEL_CATEGORIES: dict[str, set[str]] = {
-    "categories": importlib.resources.files("pudl.package_data.ferc1")
-    / "fuel_categories.yaml"
+FUEL_CATEGORIES: dict[str, Path] = {
+    "categories": PUDL_PACKAGE_DATA_PATH / "ferc1" / "fuel_categories.yaml"
 }
 """A mapping a canonical fuel name to a set of strings which are used to represent that
 fuel in the FERC Form 1 Reporting.
@@ -342,16 +343,14 @@ fuel in the FERC Form 1 Reporting.
 Case is ignored, as all fuel strings are converted to lower case in the data set.
 """
 
-FUEL_UNIT_CATEGORIES: dict[str, set[str]] = {
-    "categories": importlib.resources.files("pudl.package_data.ferc1")
-    / "fuel_unit_categories.yaml"
+FUEL_UNIT_CATEGORIES: dict[str, Path] = {
+    "categories": PUDL_PACKAGE_DATA_PATH / "ferc1" / "fuel_unit_categories.yaml"
 }
 """A mapping of canonical fuel units (keys) to sets of strings representing those fuel
 units (values)"""
 
-PLANT_TYPE_CATEGORIES: dict[str, set[str]] = {
-    "categories": importlib.resources.files("pudl.package_data.ferc1")
-    / "plant_type_categories.yaml"
+PLANT_TYPE_CATEGORIES: dict[str, Path] = {
+    "categories": PUDL_PACKAGE_DATA_PATH / "ferc1" / "plant_type_categories.yaml"
 }
 """A mapping from canonical plant kinds (keys) to the associated freeform strings
 (values) identified as being associated with that kind of plant in the FERC Form 1 raw
@@ -471,9 +470,8 @@ in the context of a hydro plant means that it is conventional hydro-electric. In
 context of the steam table, however, it's unclear what conventional means.
 """
 
-CONSTRUCTION_TYPE_CATEGORIES: dict[str, set[str]] = {
-    "categories": importlib.resources.files("pudl.package_data.ferc1")
-    / "construction_type_categories.yaml"
+CONSTRUCTION_TYPE_CATEGORIES: dict[str, Path] = {
+    "categories": PUDL_PACKAGE_DATA_PATH / "ferc1" / "construction_type_categories.yaml"
 }
 """A dictionary of construction types (keys) and lists of construction type strings
 associated with each type (values) from FERC Form 1.

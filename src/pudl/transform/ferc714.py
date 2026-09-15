@@ -12,7 +12,6 @@ Any of the methods or functions that only apply to either of the raw data source
 should include a raw datasource suffix.
 """
 
-import importlib
 import re
 from typing import Literal
 
@@ -21,6 +20,7 @@ import pandas as pd
 from dagster import AssetIn, asset
 
 import pudl.logging_helpers
+from pudl import PUDL_PACKAGE_DATA_PATH
 from pudl.extract.ferc714 import TABLE_NAME_MAP_FERC714
 from pudl.settings import Ferc714DataConfig
 from pudl.transform.classes import (
@@ -397,8 +397,7 @@ def _assign_respondent_id_ferc714(
         the natively reported respondent ID with the PUDL-assigned respondent ID.
     """
     respondent_map_ferc714 = pd.read_csv(
-        importlib.resources.files("pudl.package_data.glue")
-        / "respondent_id_ferc714.csv"
+        PUDL_PACKAGE_DATA_PATH / "glue" / "respondent_id_ferc714.csv"
     ).convert_dtypes()
     # use the source utility ID column to get a unique map and for merging
     resp_id_col = f"respondent_id_ferc714_{source}"
@@ -451,8 +450,7 @@ def _fillna_respondent_id_ferc714_source(
     using the source ID to find the PUDL-derived ID and then finding the records).
     """
     respondent_map_ferc714 = pd.read_csv(
-        importlib.resources.files("pudl.package_data.glue")
-        / "respondent_id_ferc714.csv"
+        PUDL_PACKAGE_DATA_PATH / "glue" / "respondent_id_ferc714.csv"
     ).convert_dtypes()
     # use the source utility ID column to get a unique map and for merging
     resp_id_col = f"respondent_id_ferc714_{source}"
