@@ -2032,6 +2032,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     If ``None``, the calculations have not been instantiated. If the table has been
     instantiated but is an empty table, then there are no calculations for that table.
     """
+    pudl_paths: PudlPaths | None = None
+    """Object providing access to PUDL input/output directory paths."""
 
     def __init__(
         self,
@@ -2690,6 +2692,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     # raw_xbrl_duration_dfs rather than a dictionary.
     def preprocess_xbrl(self, raw_xbrl_dfs: dict[str, pd.DataFrame]) -> pd.DataFrame:
         """Pre-process XBRL inputs into one dataframe. Grab freshest data and concat by default."""
+        assert self.pudl_paths is not None, (
+            "pudl_paths must be set to preprocess XBRL data."
+        )
         raw_xbrls = {
             table_name: filter_for_freshest_data_xbrl(
                 df,
@@ -3227,6 +3232,9 @@ class IdentificationCertificationTableTransformer(Ferc1AbstractTableTransformer)
 
     def preprocess_xbrl(self, raw_xbrl_dfs: dict[str, pd.DataFrame]) -> pd.DataFrame:
         """Pre-process XBRL inputs into one dataframe. Grab freshest data and concat by default."""
+        assert self.pudl_paths is not None, (
+            "pudl_paths must be set to preprocess XBRL data."
+        )
         raw_xbrls = {
             table_name: filter_for_freshest_data_xbrl(
                 df,
@@ -6042,7 +6050,6 @@ class DepreciationChangesTableTransformer(Ferc1AbstractTableTransformer):
         new_xbrl_metadata_json["instant"] = json.loads(
             instant.to_json(orient="records")
         )
-        self.xbrl_metadata_json = new_xbrl_metadata_json
         tbl_meta = super().convert_xbrl_metadata_json_to_df(new_xbrl_metadata_json)
         return tbl_meta
 
