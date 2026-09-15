@@ -1,7 +1,10 @@
 """Unit tests for the :mod:`pudl.helpers` module."""
 
+import zipfile
+from contextlib import contextmanager
 from datetime import date, datetime
 from io import StringIO
+from pathlib import Path
 
 import duckdb
 import geopandas as gpd  # noqa: ICN002
@@ -29,6 +32,7 @@ from pudl.helpers import (
     dedupe_and_drop_nas,
     dedupe_on_category,
     diff_wide_tables,
+    duckdb_extract_zipped_csv,
     env_var_is_true,
     expand_timeseries,
     flatten_list,
@@ -1506,6 +1510,120 @@ def test_get_parquet_table_geospatial_recasts_categories_from_metadata(
     )
 
 
+@contextmanager
+def _fake_zipfile_resource(zip_path: Path):
+    """Stand in for Datastore.get_zipfile_resource, opening a zip file already on disk."""
+    with zipfile.ZipFile(zip_path) as zf:
+        yield zf
+
+
+def _make_test_zip(zip_path: Path) -> None:
+    """Build a zip with a wanted CSV, an unwanted CSV, and __MACOSX/ junk.
+
+    Mirrors the real-world shape that motivated filtering zip members in
+    duckdb_extract_zipped_csv: archives that bundle files nobody asked to read.
+    """
+    with zipfile.ZipFile(zip_path, "w") as zf:
+        zf.writestr("2020/wanted.csv", ",Adams_Washington\n1,10.5\n2,11.5\n")
+        zf.writestr("2020/unwanted.csv", "should,never,be,read\n")
+        zf.writestr("__MACOSX/2020/._wanted.csv", "resource fork junk")
+
+
+def test_duckdb_extract_zipped_csv_only_extracts_requested_pages(tmp_path, mocker):
+    """Only the requested pages should be extracted, not every member of the zip."""
+    zip_path = tmp_path / "archive.zip"
+    _make_test_zip(zip_path)
+
+    datastore = mocker.Mock()
+    datastore.get_zipfile_resource.return_value = _fake_zipfile_resource(zip_path)
+    extractall_spy = mocker.spy(zipfile.ZipFile, "extractall")
+
+    results = list(
+        duckdb_extract_zipped_csv(
+            dataset="test",
+            partitions={"year": 2020},
+            pages=["wanted.csv"],
+            datasore=datastore,
+            zip_path=Path("2020/"),
+        )
+    )
+
+    assert [page for page, _ in results] == ["wanted.csv"]
+    assert extractall_spy.call_args.kwargs["members"] == ["2020/wanted.csv"]
+
+
+def test_duckdb_extract_zipped_csv_applies_explicit_column_types(tmp_path, mocker):
+    """When column_types is given, it should drive the relation's names/types.
+
+    This mirrors how extract_vcerare avoids DuckDB's CSV auto-detection: the schema
+    passed to column_types is derived from the raw header, not from DuckDB sniffing.
+    """
+    zip_path = tmp_path / "archive.zip"
+    _make_test_zip(zip_path)
+
+    datastore = mocker.Mock()
+    datastore.get_zipfile_resource.return_value = _fake_zipfile_resource(zip_path)
+
+    def column_types(header_row: list[str]) -> dict[str, str]:
+        return {"hour_of_year": "BIGINT"} | {
+            col.lower(): "DOUBLE" for col in header_row[1:]
+        }
+
+    # The relation must be consumed while duckdb_extract_zipped_csv's generator is
+    # still suspended at its yield -- once fully iterated, the with-block it's
+    # defined in closes the underlying DuckDB connection.
+    results = []
+    for page, relation in duckdb_extract_zipped_csv(
+        dataset="test",
+        partitions={"year": 2020},
+        pages=["wanted.csv"],
+        datasore=datastore,
+        zip_path=Path("2020/"),
+        column_types=column_types,
+    ):
+        results.append(
+            (
+                page,
+                relation.columns,
+                [str(t) for t in relation.types],
+                relation.fetchall(),
+            )
+        )
+
+    [(page, columns, types, rows)] = results
+    assert page == "wanted.csv"
+    assert columns == ["hour_of_year", "adams_washington"]
+    assert types == ["BIGINT", "DOUBLE"]
+    assert rows == [(1, 10.5), (2, 11.5)]
+
+
+def test_duckdb_extract_zipped_csv_without_column_types_uses_auto_detect(
+    tmp_path, mocker
+):
+    """Omitting column_types should fall back to DuckDB's normal auto-detection."""
+    zip_path = tmp_path / "archive.zip"
+    _make_test_zip(zip_path)
+
+    datastore = mocker.Mock()
+    datastore.get_zipfile_resource.return_value = _fake_zipfile_resource(zip_path)
+
+    results = []
+    for page, relation in duckdb_extract_zipped_csv(
+        dataset="test",
+        partitions={"year": 2020},
+        pages=["wanted.csv"],
+        datasore=datastore,
+        zip_path=Path("2020/"),
+    ):
+        results.append((page, relation.columns, relation.fetchall()))
+
+    [(page, columns, rows)] = results
+    assert page == "wanted.csv"
+    # DuckDB names the blank header cell "column0" when auto-detecting.
+    assert columns == ["column0", "Adams_Washington"]
+    assert rows == [(1, 10.5), (2, 11.5)]
+
+
 def test_persist_table_as_parquet_duckdb_enum_written_as_dictionary(
     tmp_path, monkeypatch
 ):
@@ -1563,3 +1681,91 @@ def test_persist_table_as_parquet_duckdb_enum_written_as_dictionary(
     assert polars_result["code"].dtype == pl.Categorical
     assert polars_result["code"].to_list() == ["a", "b", "a"]
     assert set(polars_result["code"].unique().to_list()) == {"a", "b"}
+
+
+def test_persist_table_as_parquet_native_writer_round_trips_non_enum_relation(
+    tmp_path, monkeypatch
+):
+    """``use_native_duckdb_writer=True`` should write correct data for ENUM-free relations.
+
+    There's nothing for the native writer to lose here, so its output should match the
+    source data (and not carry a dictionary/Categorical type, unlike the default
+    Arrow-based writer).
+    """
+    monkeypatch.setenv("PUDL_OUTPUT", str(tmp_path / "output"))
+    monkeypatch.setenv("PUDL_INPUT", str(tmp_path / "input"))
+
+    con = duckdb.connect()
+    con.execute("CREATE TABLE t (name VARCHAR, value DOUBLE)")
+    con.execute("INSERT INTO t VALUES ('a', 1.0), ('b', 2.0), ('a', 3.0)")
+    rel = con.table("t")
+
+    parquet_data = persist_table_as_parquet(
+        rel,
+        table_name="_test__duckdb_native_writer",
+        use_native_duckdb_writer=True,
+    )
+
+    schema = pq.read_schema(parquet_data.parquet_path)
+    assert not pa.types.is_dictionary(schema.field("name").type)
+
+    pandas_result = pd.read_parquet(parquet_data.parquet_path)
+    assert pandas_result["name"].tolist() == ["a", "b", "a"]
+    assert pandas_result["value"].tolist() == [1.0, 2.0, 3.0]
+
+    polars_result = pl.read_parquet(parquet_data.parquet_path)
+    assert polars_result["name"].dtype == pl.String
+    assert polars_result["name"].to_list() == ["a", "b", "a"]
+
+
+def test_persist_table_as_parquet_native_writer_rejects_enum_relation(
+    tmp_path, monkeypatch
+):
+    """``use_native_duckdb_writer=True`` should raise, not silently drop, ENUM columns."""
+    monkeypatch.setenv("PUDL_OUTPUT", str(tmp_path / "output"))
+    monkeypatch.setenv("PUDL_INPUT", str(tmp_path / "input"))
+
+    con = duckdb.connect()
+    con.execute("CREATE TYPE test_enum AS ENUM ('a', 'b')")
+    con.execute("CREATE TABLE t (code test_enum, value INTEGER)")
+    con.execute("INSERT INTO t VALUES ('a', 1)")
+    rel = con.table("t")
+
+    with pytest.raises(ValueError, match="ENUM"):
+        persist_table_as_parquet(
+            rel,
+            table_name="_test__duckdb_native_writer_enum",
+            use_native_duckdb_writer=True,
+        )
+
+
+def test_persist_table_as_parquet_native_writer_allow_enum_columns_flattens_to_string(
+    tmp_path, monkeypatch
+):
+    """``allow_enum_columns=True`` should skip the guard and flatten ENUM to string.
+
+    Intended for forensic/debugging outputs (e.g. FERC EQR's extract-errors table)
+    that aren't held to the distributed tables' cross-backend-Categorical
+    consistency expectation.
+    """
+    monkeypatch.setenv("PUDL_OUTPUT", str(tmp_path / "output"))
+    monkeypatch.setenv("PUDL_INPUT", str(tmp_path / "input"))
+
+    con = duckdb.connect()
+    con.execute("CREATE TYPE test_enum AS ENUM ('a', 'b')")
+    con.execute("CREATE TABLE t (code test_enum, value INTEGER)")
+    con.execute("INSERT INTO t VALUES ('a', 1), ('b', 2)")
+    rel = con.table("t")
+
+    parquet_data = persist_table_as_parquet(
+        rel,
+        table_name="_test__duckdb_native_writer_enum_allowed",
+        use_native_duckdb_writer=True,
+        allow_enum_columns=True,
+    )
+
+    schema = pq.read_schema(parquet_data.parquet_path)
+    assert not pa.types.is_dictionary(schema.field("code").type)
+
+    pandas_result = pd.read_parquet(parquet_data.parquet_path)
+    assert pandas_result["code"].tolist() == ["a", "b"]
