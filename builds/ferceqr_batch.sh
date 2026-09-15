@@ -19,6 +19,23 @@ function write_aws_credentials() {
     set -x
 }
 
+function log_vm_labels() {
+    # Diagnostic: print the labels actually attached to this VM instance, to
+    # confirm Batch propagated `batch-job-id`/`pipeline` from allocationPolicy.
+    # Cloud Monitoring only enriches VM metrics with these (as
+    # metadata.user_labels) after its scraper polls the instance, which a
+    # short-lived Batch VM can miss -- the job-level labels on the task logs are
+    # the reliable path. Best-effort; needs compute.instances.get on the VM SA.
+    local meta="http://metadata.google.internal/computeMetadata/v1/instance"
+    local name zone
+    name="$(curl -s -H "Metadata-Flavor: Google" "${meta}/name" 2>/dev/null)" || return 0
+    zone="$(curl -s -H "Metadata-Flavor: Google" "${meta}/zone" 2>/dev/null | awk -F/ '{print $NF}')" || return 0
+    echo "VM instance: ${name} (${zone})"
+    gcloud compute instances describe "$name" --zone "$zone" \
+        --format='value(labels)' 2>/dev/null ||
+        echo "Could not read VM instance labels (missing compute.instances.get?)."
+}
+
 function validate_partition_range_inputs() {
     if [[ -n "${FERCEQR_START_PARTITION:-}" || -n "${FERCEQR_END_PARTITION:-}" ]]; then
         if [[ -z "${FERCEQR_START_PARTITION:-}" || -z "${FERCEQR_END_PARTITION:-}" ]]; then
@@ -30,13 +47,43 @@ function validate_partition_range_inputs() {
 
 function run_ferceqr_etl() {
     echo "Running FERC EQR ETL"
-    # Launch dagster-daemon in the background (handles the backfill queue)
-    dagster-daemon run &
 
-    # Kick off the ferceqr job asynchronously
-    BACKFILL_ARGS=(job backfill --noprompt --job ferceqr)
+    # Run one long-lived gRPC code server and point the daemon and backfill at
+    # it via --grpc-socket. Otherwise the daemon spins up a *managed* code
+    # server that it must heartbeat every 20s (a hardcoded Dagster constant);
+    # under the CPU pressure of the ETL those pings slip and the server is torn
+    # down and rebuilt every ~30-60s for the whole run. Started without
+    # --heartbeat, this server just runs until we kill it. A UDS socket (rather
+    # than a TCP port) avoids any chance of colliding with another local Dagster
+    # instance. (issue #5318)
+    local grpc_socket="${DAGSTER_HOME}/ferceqr-code-server.sock"
+    rm -f "$grpc_socket"
+    # --max-workers well above max_concurrent_runs: every run launch and every
+    # run worker's code bootstrap goes through this server's thread pool along
+    # with the daemon's polling. The default (min(32, ncpu + 4)) leaves too few
+    # free threads at 16 concurrent runs, so launches queue and runs pile up in
+    # STARTING. Threads are cheap; over-provision. (issue #5318)
+    dagster api grpc --socket "$grpc_socket" --module-name pudl.definitions \
+        --max-workers 64 &
+    dagster_grpc_server_pid=$!
+    if ! timeout 300 bash -c \
+        "until dagster api grpc-health-check --socket '${grpc_socket}' 2>/dev/null; do sleep 2; done"; then
+        echo "ERROR: Dagster gRPC code server never became healthy." >&2
+        touch "$PUDL_OUTPUT/FERCEQR_FAILURE"
+        return 1
+    fi
+
+    # Launch dagster-daemon in the background (handles the backfill queue)
+    dagster-daemon run --grpc-socket "$grpc_socket" &
+
+    # Kick off the ferceqr job asynchronously. The ferceqr partition set is
+    # ordered newest-quarter-first (see pudl.dagster.partitions), so every
+    # backfill -- full or ranged -- processes the large recent quarters up front.
+    BACKFILL_ARGS=(job backfill --noprompt --job ferceqr --grpc-socket "$grpc_socket")
     if [[ -n "${FERCEQR_START_PARTITION:-}" ]]; then
-        BACKFILL_ARGS+=(--from "$FERCEQR_START_PARTITION" --to "$FERCEQR_END_PARTITION")
+        # The workflow names the range chronologically; --from/--to index into
+        # the newest-first partition list, so --from is the later quarter.
+        BACKFILL_ARGS+=(--from "$FERCEQR_END_PARTITION" --to "$FERCEQR_START_PARTITION")
     fi
     dagster "${BACKFILL_ARGS[@]}"
 
@@ -59,6 +106,8 @@ function run_ferceqr_etl() {
     fi
 
     killall dagster-daemon
+    kill "${dagster_grpc_server_pid:-}" 2>/dev/null || true
+    rm -f "$grpc_socket"
 }
 
 function send_zulip_notification() {
@@ -76,8 +125,8 @@ function send_zulip_notification() {
         -d "type=stream" \
         -d "to=pudl-deployments" \
         -d "topic=build-deploy-ferceqr" \
-        -d "content=${message}" \
-        || echo "Warning: Zulip notification failed." >&2
+        -d "content=${message}" ||
+        echo "Warning: Zulip notification failed." >&2
     set -x
 }
 
@@ -89,6 +138,12 @@ function cleanup_on_exit() {
         send_zulip_notification \
             ":x: Pre-flight checks failed for FERC EQR build \`${BUILD_ID}\` — the Dagster job did not run."
     fi
+
+    # Stop the standalone Dagster gRPC code server if it is still running
+    # (e.g. after a build timeout, where run_ferceqr_etl never reached its end).
+    killall dagster-daemon 2>/dev/null || true
+    pkill -f "dagster api grpc" 2>/dev/null || true
+    rm -f "${DAGSTER_HOME}/ferceqr-code-server.sock"
 
     # If the deployment timed out or failed mid-upload, clean up any partial
     # staging directories on deployment targets so they don't accumulate.
@@ -115,8 +170,8 @@ function remove_staging_dirs() {
     if [[ -z "${PUDL_FERCEQR_DEPLOYMENT_CONFIG_PATH:-}" ]]; then
         return 0
     fi
-    python3 "${PUDL_ROOT_PATH}/builds/ferceqr_cleanup_staging.py" 2>&1 \
-        || echo "Warning: staging directory cleanup failed." >&2
+    python3 "${PUDL_ROOT_PATH}/builds/ferceqr_cleanup_staging.py" 2>&1 ||
+        echo "Warning: staging directory cleanup failed." >&2
 }
 
 ########################################################################################
@@ -132,8 +187,17 @@ ferceqr_etl_started=false
 FERCEQR_BUILD_TIMEOUT_HOURS="${FERCEQR_BUILD_TIMEOUT_HOURS:-8}"
 FERCEQR_BUILD_TIMEOUT_SECONDS=$((FERCEQR_BUILD_TIMEOUT_HOURS * 3600))
 
-# Select the FERC EQR-specific dagster configuration.
-cp "${DAGSTER_HOME}/dagster-ferceqr.yaml" "${DAGSTER_HOME}/dagster.yaml"
+# Select the FERC EQR-specific dagster configuration from the repo copy.
+cp "${PUDL_ROOT_PATH}/builds/dagster-ferceqr.yaml" "${DAGSTER_HOME}/dagster.yaml"
+
+# Cap each DuckDB connection so the concurrent partition runs don't collectively
+# oversubscribe the VM's cores. 2 threads x 12 pooled extracts = 24 <= 32.
+# When a quarter's working set exceeds memory_limit DuckDB spills to
+# temp_directory rather than failing.
+export PUDL_DUCKDB_THREADS=2
+export PUDL_DUCKDB_MEMORY_LIMIT=4GB
+export PUDL_DUCKDB_TEMP_DIRECTORY="${PUDL_OUTPUT}/duckdb_tmp"
+mkdir -p "$PUDL_DUCKDB_TEMP_DIRECTORY"
 
 LOGFILE="${PUDL_OUTPUT}/${BUILD_ID}.log"
 
@@ -152,21 +216,41 @@ if [[ -z "${PUDL_FERCEQR_DEPLOYMENT_CONFIG_PATH:-}" ]]; then
 fi
 
 if ! {
-    validate_partition_range_inputs && \
-    authenticate_gcp && \
-    check_path_permissions --read "$PUDL_FERCEQR_ARCHIVE_PATH" && \
-    check_path_permissions --write --check-ferceqr-deployment-paths "$GCS_LOGS_BUCKET" && \
-    python -c "from dagster import DagsterInstance; DagsterInstance.get()"
+    validate_partition_range_inputs &&
+        authenticate_gcp &&
+        check_path_permissions --read "$PUDL_FERCEQR_ARCHIVE_PATH" &&
+        check_path_permissions --write --check-ferceqr-deployment-paths "$GCS_LOGS_BUCKET" &&
+        python -c "from dagster import DagsterInstance; DagsterInstance.get()"
 }; then
     exit 1
 fi
 
 ferceqr_etl_started=true
+
+log_vm_labels
+
+# Set the cross-run limit for the `ferceqr_extract` concurrency pool (see the
+# pool= tag on the extract multi_asset and the `concurrency` block in
+# dagster-ferceqr.yaml). Done here rather than in dagster.yaml because 1.13's
+# YAML only supports a pool-wide default_limit, not a per-pool value. Idempotent.
+dagster instance concurrency set ferceqr_extract 18
+
 run_ferceqr_etl
 
 # Check if build was successful and return appropriate return value
 if [ ! -f "${PUDL_OUTPUT}/FERCEQR_SUCCESS" ]; then
     echo "FERC EQR Build failed!"
+    # Surface kernel OOM kills: a run worker that is SIGKILLed leaves no
+    # RUN_FAILURE and no traceback in the Dagster logs, so without this the only
+    # symptom is missing partitions at deploy time. Best-effort -- dmesg may be
+    # unreadable depending on container capabilities.
+    if command -v dmesg >/dev/null 2>&1; then
+        oom_lines="$(dmesg -T 2>/dev/null | grep -iE 'out of memory|oom-kill|killed process' | tail -n 20)"
+        if [[ -n "$oom_lines" ]]; then
+            echo "Kernel OOM-killer activity detected during this build:"
+            echo "$oom_lines"
+        fi
+    fi
     exit 1
 fi
 
