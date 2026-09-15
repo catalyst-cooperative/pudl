@@ -9,7 +9,6 @@ transformations.
 """
 
 import enum
-import importlib.resources
 import itertools
 import json
 import re
@@ -29,6 +28,7 @@ from pydantic import BaseModel, Field, field_validator
 import pudl.helpers
 import pudl.logging_helpers
 import pudl.metadata.classes
+from pudl import PUDL_PACKAGE_DATA_PATH
 from pudl.extract.ferc1 import TABLE_NAME_MAP_FERC1
 from pudl.helpers import (
     assert_cols_areclose,
@@ -1831,9 +1831,7 @@ def update_dbf_to_xbrl_map(ferc1_engine: sa.Engine) -> pd.DataFrame:
     idx_cols = ["sched_table_name", "row_number", "report_year"]
     all_rows = get_ferc1_dbf_rows_to_map(ferc1_engine).set_index(idx_cols)
     mapped_rows = (
-        pd.read_csv(
-            importlib.resources.files("pudl.package_data.ferc1") / "dbf_to_xbrl.csv"
-        )
+        pd.read_csv(PUDL_PACKAGE_DATA_PATH / "ferc1" / "dbf_to_xbrl.csv")
         .set_index(idx_cols)
         .drop(["row_literal"], axis="columns")
     )
@@ -1856,7 +1854,7 @@ def read_dbf_to_xbrl_map(dbf_table_names: list[str]) -> pd.DataFrame:
         DataFrame with columns ``[sched_table_name, report_year, row_number, row_type, xbrl_factoid]``
     """
     row_map = pd.read_csv(
-        importlib.resources.files("pudl.package_data.ferc1") / "dbf_to_xbrl.csv",
+        PUDL_PACKAGE_DATA_PATH / "ferc1" / "dbf_to_xbrl.csv",
         usecols=[
             "sched_table_name",
             "report_year",
@@ -1996,12 +1994,8 @@ def get_data_cols_raw_xbrl(
 
 def read_xbrl_calculation_fixes() -> pd.DataFrame:
     """Read in the table of calculation fixes."""
-    source = importlib.resources.files("pudl.package_data.ferc1").joinpath(
-        "xbrl_calculation_component_fixes.csv"
-    )
-    with importlib.resources.as_file(source) as file:
-        calc_fixes = pd.read_csv(file)
-    return calc_fixes
+    source = PUDL_PACKAGE_DATA_PATH / "ferc1" / "xbrl_calculation_component_fixes.csv"
+    return pd.read_csv(source)
 
 
 ################################################################################

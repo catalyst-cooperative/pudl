@@ -29,7 +29,6 @@ are the connections we keep as the matches between FERC1 plant records and EIA
 plant-parts.
 """
 
-import importlib
 from typing import Literal
 
 import jellyfish
@@ -40,6 +39,7 @@ from dagster import Out, graph, op
 from splink import DuckDBAPI, Linker, SettingsCreator
 
 import pudl.logging_helpers
+from pudl import PUDL_PACKAGE_DATA_PATH
 from pudl.analysis.ml_tools import experiment_tracking, models
 from pudl.analysis.record_linkage import embed_dataframe, name_cleaner
 from pudl.analysis.record_linkage.eia_ferc1_inputs import (
@@ -736,7 +736,7 @@ def add_null_overrides(connects_ferc1_eia):
     logger.info("Overriding specified record_id_ferc1 values with NA record_id_eia")
     # Get record_id_ferc1 values that should be overridden to have no EIA match
     null_overrides = pd.read_csv(
-        importlib.resources.files("pudl.package_data.glue") / "eia_ferc1_null.csv"
+        PUDL_PACKAGE_DATA_PATH / "glue" / "eia_ferc1_null.csv"
     ).pipe(
         restrict_train_connections_on_date_range,
         id_col="record_id_ferc1",

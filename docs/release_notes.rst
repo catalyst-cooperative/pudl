@@ -33,6 +33,12 @@ Performance Improvements
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^
 
+* Replaced all remaining uses of ``importlib.resources`` with direct ``pathlib.Path``
+  access to files under ``src/pudl/package_data``, since PUDL is only ever run from a
+  git checkout and no longer needs to support being installed as a distributable
+  package. Also removed the now-unneeded dummy ``__init__.py`` files that made
+  ``package_data`` subdirectories importable, which incidentally stops Sphinx from
+  generating documentation pages for these non-code directories. See PR :pr:`5592`.
 * Upgraded to Pyrefly 1.3.0 and adopted its new concise baseline format. Fixed a handful
   of genuine typing gaps that the upgrade surfaced. Mostly this involved type narrowing
   in places where an object that might be ``None`` was subject to a regex match, dict
