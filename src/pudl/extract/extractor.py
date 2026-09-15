@@ -30,10 +30,10 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 
 class GenericMetadata:
-    """Load generic metadata from Python package data.
+    """Load generic metadata from files under src/pudl/package_data.
 
-    When metadata object is instantiated, it is given ${dataset} name and it
-    will attempt to load csv files from pudl.package_data.${dataset} package.
+    When metadata object is instantiated, it is given a ${dataset} name and it will
+    attempt to load csv files from src/pudl/package_data/${dataset}.
 
     It expects the following kinds of files:
 
@@ -43,11 +43,11 @@ class GenericMetadata:
     """
 
     def __init__(self, dataset_name: str):
-        """Create Metadata object and load metadata from python package.
+        """Create Metadata object and load metadata from files on disk.
 
         Args:
-            dataset_name: Name of the package/dataset to load the metadata from.
-            Files will be loaded from src/pudl/package_data/${dataset_name}
+            dataset_name: Name of the dataset to load the metadata from. Files will be
+                loaded from src/pudl/package_data/${dataset_name}
         """
         self._dataset_name = dataset_name
         self._path = PUDL_PACKAGE_DATA_PATH / dataset_name
