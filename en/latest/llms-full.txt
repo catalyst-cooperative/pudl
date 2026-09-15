@@ -1869,7 +1869,7 @@ three things:
 1. **Collects configuration.** It walks the graph’s op tree, harvesting default
    config values from each op’s [`Config`](https://docs.dagster.io/api/dagster/config/#dagster.Config) subclass. If
    `config_from_yaml=True`, it also merges overrides from
-   `pudl.package_data.settings.pudl_models.yml`. The merged config is stored
+   `src/pudl/package_data/settings/pudl_models.yml`. The merged config is stored
    in the module-level `MODEL_CONFIGURATION` dict, which
    `get_ml_models_config()` later folds into the
    default job config so Dagster knows the defaults at launch time.
@@ -2671,7 +2671,7 @@ the validation stage of.
   * **plant_parts_eia** – the master unit list table.
   * **part_name** – should always be “plant_match_ferc1”.
   * **path_to_one_to_many** – a Path to the one_to_many csv file in
-    [`pudl.package_data.glue`](autoapi/pudl/package_data/glue/index.html.md#module-pudl.package_data.glue).
+    `src/pudl/package_data/glue`.
 * **Returns:**
   The EIA plant parts table with one-to-many matches aggregated as plant
   parts.
@@ -10500,9 +10500,9 @@ Load excel metadata CSV files form a python data package.
 
 ## Classes
 
-| [`ExcelMetadata`](autoapi/pudl/extract/excel/index.html.md#pudl.extract.excel.ExcelMetadata)   | Load Excel metadata from Python package data.                |
-|------------------------------------------------------------------|--------------------------------------------------------------|
-| [`ExcelExtractor`](autoapi/pudl/extract/excel/index.html.md#pudl.extract.excel.ExcelExtractor)  | Logic for extracting `pd.DataFrame` from Excel spreadsheets. |
+| [`ExcelMetadata`](autoapi/pudl/extract/excel/index.html.md#pudl.extract.excel.ExcelMetadata)   | Load Excel metadata from files under src/pudl/package_data.   |
+|------------------------------------------------------------------|---------------------------------------------------------------|
+| [`ExcelExtractor`](autoapi/pudl/extract/excel/index.html.md#pudl.extract.excel.ExcelExtractor)  | Logic for extracting `pd.DataFrame` from Excel spreadsheets.  |
 
 ## Module Contents
 
@@ -10512,7 +10512,7 @@ Load excel metadata CSV files form a python data package.
 
 Bases: [`pudl.extract.extractor.GenericMetadata`](autoapi/pudl/extract/extractor/index.html.md#pudl.extract.extractor.GenericMetadata)
 
-Load Excel metadata from Python package data.
+Load Excel metadata from files under src/pudl/package_data.
 
 Excel sheet files may contain many different tables. When we load those
 into dataframes, metadata tells us how to do this. Metadata generally informs
@@ -10520,8 +10520,8 @@ us about the position of a given page in the file (which sheet and which row)
 and it informs us how to translate excel column names into standardized
 column names.
 
-When metadata object is instantiated, it is given ${dataset} name and it
-will attempt to load csv files from pudl.package_data.${dataset} package.
+When metadata object is instantiated, it is given a ${dataset} name and it will
+attempt to load csv files from src/pudl/package_data/${dataset}.
 
 It expects the following kinds of files:
 
@@ -10694,9 +10694,9 @@ Generic functionality for extractors.
 
 ## Classes
 
-| [`GenericMetadata`](autoapi/pudl/extract/extractor/index.html.md#pudl.extract.extractor.GenericMetadata)   | Load generic metadata from Python package data.   |
-|--------------------------------------------------------------------|---------------------------------------------------|
-| [`GenericExtractor`](autoapi/pudl/extract/extractor/index.html.md#pudl.extract.extractor.GenericExtractor)  | Generic extractor base class.                     |
+| [`GenericMetadata`](autoapi/pudl/extract/extractor/index.html.md#pudl.extract.extractor.GenericMetadata)   | Load generic metadata from files under src/pudl/package_data.   |
+|--------------------------------------------------------------------|-----------------------------------------------------------------|
+| [`GenericExtractor`](autoapi/pudl/extract/extractor/index.html.md#pudl.extract.extractor.GenericExtractor)  | Generic extractor base class.                                   |
 
 ## Functions
 
@@ -10717,10 +10717,10 @@ Generic functionality for extractors.
 
 ### *class* pudl.extract.extractor.GenericMetadata(dataset_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str))
 
-Load generic metadata from Python package data.
+Load generic metadata from files under src/pudl/package_data.
 
-When metadata object is instantiated, it is given ${dataset} name and it
-will attempt to load csv files from pudl.package_data.${dataset} package.
+When metadata object is instantiated, it is given a ${dataset} name and it will
+attempt to load csv files from src/pudl/package_data/${dataset}.
 
 It expects the following kinds of files:
 
@@ -10730,7 +10730,7 @@ It expects the following kinds of files:
 
 #### \_dataset_name
 
-#### \_pkg
+#### \_path
 
 #### \_column_map
 
@@ -10738,11 +10738,11 @@ It expects the following kinds of files:
 
 Returns the name of the dataset described by this metadata.
 
-#### \_load_csv(package: [str](https://docs.python.org/3/builtins/stdtypes.html#str), filename: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### \_load_csv(package_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), filename: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
-Load metadata from a filename that is found in a package.
+Load metadata from a filename that is found in a package directory.
 
-#### \_load_column_maps(column_map_pkg: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)
+#### \_load_column_maps(column_map_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)
 
 Create a dictionary of all column mapping CSVs to use in get_column_map().
 
@@ -13756,7 +13756,6 @@ The Public Utility Data Liberation (PUDL) Project.
 * [pudl.logging_helpers](autoapi/pudl/logging_helpers/index.html.md)
 * [pudl.metadata](autoapi/pudl/metadata/index.html.md)
 * [pudl.output](autoapi/pudl/output/index.html.md)
-* [pudl.package_data](autoapi/pudl/package_data/index.html.md)
 * [pudl.scripts](autoapi/pudl/scripts/index.html.md)
 * [pudl.settings](autoapi/pudl/settings/index.html.md)
 * [pudl.transform](autoapi/pudl/transform/index.html.md)
@@ -13765,24 +13764,25 @@ The Public Utility Data Liberation (PUDL) Project.
 
 ## Attributes
 
-| [`PUDL_ROOT_PATH`](autoapi/pudl/index.html.md#pudl.PUDL_ROOT_PATH)                | Resolved absolute path to the repository root.        |
-|--------------------------------------------------------------------------------|-------------------------------------------------------|
-| [`PUDL_SETTINGS_PATH`](autoapi/pudl/index.html.md#pudl.PUDL_SETTINGS_PATH)            | Resolved absolute path to the package_data directory. |
-| [`PUDL_DBT_PATH`](autoapi/pudl/index.html.md#pudl.PUDL_DBT_PATH)                 | Resolved absolute path to the dbt directory.          |
-| [`PUDL_DOCS_PATH`](autoapi/pudl/index.html.md#pudl.PUDL_DOCS_PATH)                | Resolved absolute path to the docs directory.         |
-| [`PUDL_NIGHTLY_BUILDS_BASE_PATH`](autoapi/pudl/index.html.md#pudl.PUDL_NIGHTLY_BUILDS_BASE_PATH) | Base path to PUDL nightly builds outputs.             |
-| [`PUDL_EEL_HOLE_BASE_PATH`](autoapi/pudl/index.html.md#pudl.PUDL_EEL_HOLE_BASE_PATH)       | Base path to eel-hole s3 outputs.                     |
-| [`__author__`](autoapi/pudl/index.html.md#pudl.__author__)                    |                                                       |
-| [`__contact__`](autoapi/pudl/index.html.md#pudl.__contact__)                   |                                                       |
-| [`__maintainer__`](autoapi/pudl/index.html.md#pudl.__maintainer__)                |                                                       |
-| [`__license__`](autoapi/pudl/index.html.md#pudl.__license__)                   |                                                       |
-| [`__maintainer_email__`](autoapi/pudl/index.html.md#pudl.__maintainer_email__)          |                                                       |
-| [`__version__`](autoapi/pudl/index.html.md#pudl.__version__)                   |                                                       |
-| [`__docformat__`](autoapi/pudl/index.html.md#pudl.__docformat__)                 |                                                       |
-| [`__description__`](autoapi/pudl/index.html.md#pudl.__description__)               |                                                       |
-| [`__long_description__`](autoapi/pudl/index.html.md#pudl.__long_description__)          |                                                       |
-| [`__projecturl__`](autoapi/pudl/index.html.md#pudl.__projecturl__)                |                                                       |
-| [`__downloadurl__`](autoapi/pudl/index.html.md#pudl.__downloadurl__)               |                                                       |
+| [`PUDL_ROOT_PATH`](autoapi/pudl/index.html.md#pudl.PUDL_ROOT_PATH)                | Resolved absolute path to the repository root.                 |
+|--------------------------------------------------------------------------------|----------------------------------------------------------------|
+| [`PUDL_PACKAGE_DATA_PATH`](autoapi/pudl/index.html.md#pudl.PUDL_PACKAGE_DATA_PATH)        | Resolved absolute path to the package_data directory.          |
+| [`PUDL_SETTINGS_PATH`](autoapi/pudl/index.html.md#pudl.PUDL_SETTINGS_PATH)            | Resolved absolute path to the package_data/settings directory. |
+| [`PUDL_DBT_PATH`](autoapi/pudl/index.html.md#pudl.PUDL_DBT_PATH)                 | Resolved absolute path to the dbt directory.                   |
+| [`PUDL_DOCS_PATH`](autoapi/pudl/index.html.md#pudl.PUDL_DOCS_PATH)                | Resolved absolute path to the docs directory.                  |
+| [`PUDL_NIGHTLY_BUILDS_BASE_PATH`](autoapi/pudl/index.html.md#pudl.PUDL_NIGHTLY_BUILDS_BASE_PATH) | Base path to PUDL nightly builds outputs.                      |
+| [`PUDL_EEL_HOLE_BASE_PATH`](autoapi/pudl/index.html.md#pudl.PUDL_EEL_HOLE_BASE_PATH)       | Base path to eel-hole s3 outputs.                              |
+| [`__author__`](autoapi/pudl/index.html.md#pudl.__author__)                    |                                                                |
+| [`__contact__`](autoapi/pudl/index.html.md#pudl.__contact__)                   |                                                                |
+| [`__maintainer__`](autoapi/pudl/index.html.md#pudl.__maintainer__)                |                                                                |
+| [`__license__`](autoapi/pudl/index.html.md#pudl.__license__)                   |                                                                |
+| [`__maintainer_email__`](autoapi/pudl/index.html.md#pudl.__maintainer_email__)          |                                                                |
+| [`__version__`](autoapi/pudl/index.html.md#pudl.__version__)                   |                                                                |
+| [`__docformat__`](autoapi/pudl/index.html.md#pudl.__docformat__)                 |                                                                |
+| [`__description__`](autoapi/pudl/index.html.md#pudl.__description__)               |                                                                |
+| [`__long_description__`](autoapi/pudl/index.html.md#pudl.__long_description__)          |                                                                |
+| [`__projecturl__`](autoapi/pudl/index.html.md#pudl.__projecturl__)                |                                                                |
+| [`__downloadurl__`](autoapi/pudl/index.html.md#pudl.__downloadurl__)               |                                                                |
 
 ## Functions
 
@@ -13808,9 +13808,13 @@ Configure the root catalystcoop logger.
 
 Resolved absolute path to the repository root.
 
-### pudl.PUDL_SETTINGS_PATH *: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)*
+### pudl.PUDL_PACKAGE_DATA_PATH *: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)*
 
 Resolved absolute path to the package_data directory.
+
+### pudl.PUDL_SETTINGS_PATH *: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)*
+
+Resolved absolute path to the package_data/settings directory.
 
 ### pudl.PUDL_DBT_PATH *: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)*
 
@@ -20196,303 +20200,6 @@ and then fills in the last new company name value with the current company name.
 ### pudl.output.sec10k.out_sec10k_\_parents_and_subsidiaries(core_sec10k_\_quarterly_exhibit_21_company_ownership: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), out_sec10k_\_quarterly_company_information: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), core_sec10k_\_assn_exhibit_21_subsidiaries_and_filers: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), core_sec10k_\_assn_exhibit_21_subsidiaries_and_eia_utilities: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), core_eia_\_entity_utilities: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Denormalized output table linking SEC 10-K company ownership to EIA Utilities.
-
-
-# autoapi/pudl/package_data/censuspep/column_maps/index.html.md
-
-# pudl.package_data.censuspep.column_maps
-
-Metadata linking semantic meaning of Census PEP FIPS codes spreadsheet columns across years.
-
-
-# autoapi/pudl/package_data/censuspep/index.html.md
-
-# pudl.package_data.censuspep
-
-Excel spreadsheet extraction maps for Census PEP FIPS codes, plus territories to add.
-
-## Submodules
-
-* [pudl.package_data.censuspep.column_maps](autoapi/pudl/package_data/censuspep/column_maps/index.html.md)
-
-
-# autoapi/pudl/package_data/eia176/column_maps/index.html.md
-
-# pudl.package_data.eia176.column_maps
-
-Metadata linking semantic meaning of EIA 176 CSV file columns across years.
-
-
-# autoapi/pudl/package_data/eia176/index.html.md
-
-# pudl.package_data.eia176
-
-CSV file extraction maps for EIA 176.
-
-## Submodules
-
-* [pudl.package_data.eia176.column_maps](autoapi/pudl/package_data/eia176/column_maps/index.html.md)
-
-
-# autoapi/pudl/package_data/eia191/column_maps/index.html.md
-
-# pudl.package_data.eia191.column_maps
-
-Metadata linking semantic meaning of EIA 191 CSV file columns across years.
-
-
-# autoapi/pudl/package_data/eia191/index.html.md
-
-# pudl.package_data.eia191
-
-CSV file extraction maps for EIA 191.
-
-## Submodules
-
-* [pudl.package_data.eia191.column_maps](autoapi/pudl/package_data/eia191/column_maps/index.html.md)
-
-
-# autoapi/pudl/package_data/eia757a/column_maps/index.html.md
-
-# pudl.package_data.eia757a.column_maps
-
-Metadata linking semantic meaning of EIA 757a CSV file columns across years.
-
-
-# autoapi/pudl/package_data/eia757a/index.html.md
-
-# pudl.package_data.eia757a
-
-CSV file extraction maps for EIA 757a.
-
-## Submodules
-
-* [pudl.package_data.eia757a.column_maps](autoapi/pudl/package_data/eia757a/column_maps/index.html.md)
-
-
-# autoapi/pudl/package_data/eia860/column_maps/index.html.md
-
-# pudl.package_data.eia860.column_maps
-
-Metadata linking semantic meaning of EIA 860 spreadsheet columns across years.
-
-
-# autoapi/pudl/package_data/eia860/index.html.md
-
-# pudl.package_data.eia860
-
-Excel spreadsheet extraction maps for EIA 860.
-
-## Submodules
-
-* [pudl.package_data.eia860.column_maps](autoapi/pudl/package_data/eia860/column_maps/index.html.md)
-
-
-# autoapi/pudl/package_data/eia860m/column_maps/index.html.md
-
-# pudl.package_data.eia860m.column_maps
-
-Metadata linking semantic meaning of EIA 860M spreadsheet columns across years.
-
-
-# autoapi/pudl/package_data/eia860m/index.html.md
-
-# pudl.package_data.eia860m
-
-Excel spreadsheet extraction maps for EIA 860M.
-
-## Submodules
-
-* [pudl.package_data.eia860m.column_maps](autoapi/pudl/package_data/eia860m/column_maps/index.html.md)
-
-
-# autoapi/pudl/package_data/eia861/column_maps/index.html.md
-
-# pudl.package_data.eia861.column_maps
-
-Metadata linking semantic meaning of EIA 861 spreadsheet columns across years.
-
-
-# autoapi/pudl/package_data/eia861/index.html.md
-
-# pudl.package_data.eia861
-
-Excel spreadsheet extraction maps for EIA 861.
-
-## Submodules
-
-* [pudl.package_data.eia861.column_maps](autoapi/pudl/package_data/eia861/column_maps/index.html.md)
-
-
-# autoapi/pudl/package_data/eia923/column_maps/index.html.md
-
-# pudl.package_data.eia923.column_maps
-
-Metadata linking semantic meaning of EIA 923 spreadsheet columns across years.
-
-
-# autoapi/pudl/package_data/eia923/index.html.md
-
-# pudl.package_data.eia923
-
-Excel spreadsheet extraction maps for EIA 923.
-
-## Submodules
-
-* [pudl.package_data.eia923.column_maps](autoapi/pudl/package_data/eia923/column_maps/index.html.md)
-
-
-# autoapi/pudl/package_data/eia930/column_maps/index.html.md
-
-# pudl.package_data.eia930.column_maps
-
-Metadata linking semantic meaning of EIA 930 CSV file columns across years.
-
-
-# autoapi/pudl/package_data/eia930/index.html.md
-
-# pudl.package_data.eia930
-
-CSV file extraction maps for EIA 930.
-
-## Submodules
-
-* [pudl.package_data.eia930.column_maps](autoapi/pudl/package_data/eia930/column_maps/index.html.md)
-
-
-# autoapi/pudl/package_data/epacems/index.html.md
-
-# pudl.package_data.epacems
-
-Additional data required for integration of the EPA CEMS hourly data.
-
-
-# autoapi/pudl/package_data/ferc1/index.html.md
-
-# pudl.package_data.ferc1
-
-Metadata required for extracting data from the FERC Form 1.
-
-## Submodules
-
-* [pudl.package_data.ferc1.row_maps](autoapi/pudl/package_data/ferc1/row_maps/index.html.md)
-
-
-# autoapi/pudl/package_data/ferc1/row_maps/index.html.md
-
-# pudl.package_data.ferc1.row_maps
-
-Metadata linking the semantic meaning of FERC 1 row numbers across years.
-
-
-# autoapi/pudl/package_data/glue/index.html.md
-
-# pudl.package_data.glue
-
-Importable (dummy) package to enable distribution of PUDL metadata structures.
-
-
-# autoapi/pudl/package_data/index.html.md
-
-# pudl.package_data
-
-Importable (dummy) package to include PUDL metadata structures.
-
-## Submodules
-
-* [pudl.package_data.censuspep](autoapi/pudl/package_data/censuspep/index.html.md)
-* [pudl.package_data.eia176](autoapi/pudl/package_data/eia176/index.html.md)
-* [pudl.package_data.eia191](autoapi/pudl/package_data/eia191/index.html.md)
-* [pudl.package_data.eia757a](autoapi/pudl/package_data/eia757a/index.html.md)
-* [pudl.package_data.eia860](autoapi/pudl/package_data/eia860/index.html.md)
-* [pudl.package_data.eia860m](autoapi/pudl/package_data/eia860m/index.html.md)
-* [pudl.package_data.eia861](autoapi/pudl/package_data/eia861/index.html.md)
-* [pudl.package_data.eia923](autoapi/pudl/package_data/eia923/index.html.md)
-* [pudl.package_data.eia930](autoapi/pudl/package_data/eia930/index.html.md)
-* [pudl.package_data.epacems](autoapi/pudl/package_data/epacems/index.html.md)
-* [pudl.package_data.ferc1](autoapi/pudl/package_data/ferc1/index.html.md)
-* [pudl.package_data.glue](autoapi/pudl/package_data/glue/index.html.md)
-* [pudl.package_data.phmsagas](autoapi/pudl/package_data/phmsagas/index.html.md)
-* [pudl.package_data.rus12](autoapi/pudl/package_data/rus12/index.html.md)
-* [pudl.package_data.rus7](autoapi/pudl/package_data/rus7/index.html.md)
-* [pudl.package_data.settings](autoapi/pudl/package_data/settings/index.html.md)
-* [pudl.package_data.test](autoapi/pudl/package_data/test/index.html.md)
-* [pudl.package_data.vcerare](autoapi/pudl/package_data/vcerare/index.html.md)
-
-
-# autoapi/pudl/package_data/phmsagas/column_maps/index.html.md
-
-# pudl.package_data.phmsagas.column_maps
-
-Metadata linking semantic meaning of PHMSA spreadsheet columns across years.
-
-
-# autoapi/pudl/package_data/phmsagas/index.html.md
-
-# pudl.package_data.phmsagas
-
-Excel spreadsheet extraction maps for PHMSA gas data.
-
-## Submodules
-
-* [pudl.package_data.phmsagas.column_maps](autoapi/pudl/package_data/phmsagas/column_maps/index.html.md)
-
-
-# autoapi/pudl/package_data/rus12/column_maps/index.html.md
-
-# pudl.package_data.rus12.column_maps
-
-Metadata linking semantic meaning of RUS 12 spreadsheet columns across years.
-
-
-# autoapi/pudl/package_data/rus12/index.html.md
-
-# pudl.package_data.rus12
-
-Excel spreadsheet extraction maps for RUS 12 data.
-
-## Submodules
-
-* [pudl.package_data.rus12.column_maps](autoapi/pudl/package_data/rus12/column_maps/index.html.md)
-
-
-# autoapi/pudl/package_data/rus7/index.html.md
-
-# pudl.package_data.rus7
-
-CSV extraction maps for RUS 7 data.
-
-
-# autoapi/pudl/package_data/settings/index.html.md
-
-# pudl.package_data.settings
-
-Importable (dummy) package to enable distribution of PUDL metadata structures.
-
-
-# autoapi/pudl/package_data/test/column_maps/index.html.md
-
-# pudl.package_data.test.column_maps
-
-Metadata linking semantic meaning of Testing spreadsheet columns across years.
-
-
-# autoapi/pudl/package_data/test/index.html.md
-
-# pudl.package_data.test
-
-Excel spreadsheet extraction maps for testing.
-
-## Submodules
-
-* [pudl.package_data.test.column_maps](autoapi/pudl/package_data/test/column_maps/index.html.md)
-
-
-# autoapi/pudl/package_data/vcerare/index.html.md
-
-# pudl.package_data.vcerare
-
-CSV file extraction maps for VCE RARE Power Dataset.
 
 
 # autoapi/pudl/scripts/auto_match_utilities/index.html.md
@@ -31748,19 +31455,19 @@ Invalid plant names which appear in multiple plant tables.
 
 ### pudl.transform.params.ferc1.PLANT_STATUS
 
-### pudl.transform.params.ferc1.FUEL_CATEGORIES *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]]*
+### pudl.transform.params.ferc1.FUEL_CATEGORIES *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)]*
 
 A mapping a canonical fuel name to a set of strings which are used to represent that
 fuel in the FERC Form 1 Reporting.
 
 Case is ignored, as all fuel strings are converted to lower case in the data set.
 
-### pudl.transform.params.ferc1.FUEL_UNIT_CATEGORIES *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]]*
+### pudl.transform.params.ferc1.FUEL_UNIT_CATEGORIES *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)]*
 
 A mapping of canonical fuel units (keys) to sets of strings representing those fuel
 units (values)
 
-### pudl.transform.params.ferc1.PLANT_TYPE_CATEGORIES *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]]*
+### pudl.transform.params.ferc1.PLANT_TYPE_CATEGORIES *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)]*
 
 A mapping from canonical plant kinds (keys) to the associated freeform strings
 (values) identified as being associated with that kind of plant in the FERC Form 1 raw
@@ -31782,7 +31489,7 @@ languaged used to refer to hydro vs. other types of plants. For example: “conv
 in the context of a hydro plant means that it is conventional hydro-electric. In the
 context of the steam table, however, it’s unclear what conventional means.
 
-### pudl.transform.params.ferc1.CONSTRUCTION_TYPE_CATEGORIES *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]]*
+### pudl.transform.params.ferc1.CONSTRUCTION_TYPE_CATEGORIES *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)]*
 
 A dictionary of construction types (keys) and lists of construction type strings
 associated with each type (values) from FERC Form 1.
@@ -33252,10 +32959,10 @@ Datastore manages file retrieval for PUDL datasets.
 
 ## Functions
 
-| [`get_zenodo_dois_path`](autoapi/pudl/workspace/datastore/index.html.md#pudl.workspace.datastore.get_zenodo_dois_path)(→ importlib.resources.abc.Traversable)   | Return the canonical packaged Zenodo DOI settings path.      |
-|----------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------|
-| [`validate_cache`](autoapi/pudl/workspace/datastore/index.html.md#pudl.workspace.datastore.validate_cache)(→ None)                                        | Validate elements in the datastore cache.                    |
-| [`fetch_resources`](autoapi/pudl/workspace/datastore/index.html.md#pudl.workspace.datastore.fetch_resources)(→ None)                                       | Retrieve all matching resources and store them in the cache. |
+| [`get_zenodo_dois_path`](autoapi/pudl/workspace/datastore/index.html.md#pudl.workspace.datastore.get_zenodo_dois_path)(→ pathlib.Path)   | Return the canonical packaged Zenodo DOI settings path.      |
+|-----------------------------------------------------------------------------------------|--------------------------------------------------------------|
+| [`validate_cache`](autoapi/pudl/workspace/datastore/index.html.md#pudl.workspace.datastore.validate_cache)(→ None)                 | Validate elements in the datastore cache.                    |
+| [`fetch_resources`](autoapi/pudl/workspace/datastore/index.html.md#pudl.workspace.datastore.fetch_resources)(→ None)                | Retrieve all matching resources and store them in the cache. |
 
 ## Module Contents
 
@@ -33263,7 +32970,7 @@ Datastore manages file retrieval for PUDL datasets.
 
 ### pudl.workspace.datastore.ZenodoDoi
 
-### pudl.workspace.datastore.get_zenodo_dois_path() → [importlib.resources.abc.Traversable](https://docs.python.org/3/library/importlib.resources.abc.html#importlib.resources.abc.Traversable)
+### pudl.workspace.datastore.get_zenodo_dois_path() → [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)
 
 Return the canonical packaged Zenodo DOI settings path.
 
@@ -73766,7 +73473,7 @@ estimate historical hourly electricity demand by state for 2006-2020.
 The format of the company identifiers (CIDs) used in the CSV data (2006-2020) and the
 XBRL data (2021+) differs. To link respondents between both data formats, we manually
 map the IDs from both datasets and create a `respondent_id_ferc714` in
-`pudl.package_data.glue.respondent_id_ferc714.csv`.
+`src/pudl/package_data/glue/respondent_id_ferc714.csv`.
 
 This CSV builds on the [migrated data](https://www.ferc.gov/filing-forms/eforms-refresh/migrated-data-downloads) provided
 by FERC during the transition from CSV to XBRL data, which notes that:
@@ -77280,8 +76987,9 @@ DOI to point to the latest dataset by running:
 pixi run update_zenodo_dois dataset_name
 ```
 
-Verify that this updated the record in `pudl.package_data.settings.zenodo_dois.yml`
-to refer to the new raw input archives as expected.
+Verify that this updated the record in
+`src/pudl/package_data/settings/zenodo_dois.yml` to refer to the new raw input
+archives as expected.
 
 **1.3)** In [`pudl.metadata.sources.SOURCES`](autoapi/pudl/metadata/sources/index.html.md#pudl.metadata.sources.SOURCES), update the `working_partitions`
 to reflect the years, months, or quarters of data that are available for each dataset
@@ -81130,10 +80838,31 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
 
 ### Bug Fixes & Data Cleaning
 
+* Fixed `allocate_gen_fuel.py` silently dropping legitimate generation and fuel
+  data for generators transitioning between `proposed`/`existing` or
+  `existing`/`retired` status across a multi-year ETL run. Unified the slightly
+  different logics of these transitions into a single, shared, symmetric process. This
+  simplification exposed a bug in which one generator’s status transition could silently
+  prevent data from another group of generators at the same plant from being allocated.
+  Added extensive unit tests and new dbt data quality tests validating that >=99.7% of
+  all reported generation and fuel survives allocation. Thanks to [@grgmiller](https://github.com/sponsors/grgmiller) for
+  surfacing the issue and initiating the fix. See [#5440](https://github.com/catalyst-cooperative/pudl/issues/5440) and PRs [#5419](https://github.com/catalyst-cooperative/pudl/pull/5419), [#5511](https://github.com/catalyst-cooperative/pudl/pull/5511).
+* Fixed a bug where a skipped nightly/release build (i.e. one that found good build
+  outputs for its commit and kicked off the `deploy-pudl.yml` workflow) uploaded its
+  own small logfile to the build outputs bucket. This created newer object path with the
+  same commit confusing `deploy-pudl` causing deployment to fail. See [#5579](https://github.com/catalyst-cooperative/pudl/issues/5579)
+  and [#5580](https://github.com/catalyst-cooperative/pudl/pull/5580).
+
 ### Performance Improvements
 
 ### Developer Experience
 
+* Replaced all remaining uses of `importlib.resources` with direct `pathlib.Path`
+  access to files under `src/pudl/package_data`, since PUDL is only ever run from a
+  git checkout and no longer needs to support being installed as a distributable
+  package. Also removed the now-unneeded dummy `__init__.py` files that made
+  `package_data` subdirectories importable, which incidentally stops Sphinx from
+  generating documentation pages for these non-code directories. See PR [#5592](https://github.com/catalyst-cooperative/pudl/pull/5592).
 * Upgraded to Pyrefly 1.3.0 and adopted its new concise baseline format. Fixed a handful
   of genuine typing gaps that the upgrade surfaced. Mostly this involved type narrowing
   in places where an object that might be `None` was subject to a regex match, dict
@@ -81336,15 +81065,6 @@ story.
   key instead of `data_tests:`, meaning `dbt_helper` silently discarded the tests
   they contained instead of merging them into the generated `schema.yml`. See PR
   [#5458](https://github.com/catalyst-cooperative/pudl/pull/5458).
-* Fixed `allocate_gen_fuel.py` silently dropping legitimate generation and fuel
-  data for generators transitioning between `proposed`/`existing` or
-  `existing`/`retired` status across a multi-year ETL run. Unified the slightly
-  different logics of these transitions into a single, shared, symmetric process. This
-  simplification exposed a bug in which one generator’s status transition could silently
-  prevent data from another group of generators at the same plant from being allocated.
-  Added extensive unit tests an new dbt data quality tests validating that >=99.7% of
-  all reported generation and fuel survives allocation. Thanks to [@grgmiller](https://github.com/sponsors/grgmiller) for
-  surfacing and starting this fix. See [#5440](https://github.com/catalyst-cooperative/pudl/issues/5440) and PRs [#5419](https://github.com/catalyst-cooperative/pudl/pull/5419), [#5511](https://github.com/catalyst-cooperative/pudl/pull/5511).
 * Fixed several sources of non-deterministic row counts, where identical code and data
   produced different results on different machines (e.g. local macOS vs. nightly Linux
   builds) because several functions resolved ties among candidate values using

@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.eia &#8212; PUDL 2026.9.1.dev7 documentation</title>
+    <title>pudl.transform.eia &#8212; PUDL 2026.9.1.dev9 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../_static/documentation_options.js?v=47d74850"></script>
+    <script src="../../../_static/documentation_options.js?v=4ce0cd71"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev7 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev7 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev9 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev9 documentation - Home"/>
   
   
 </a></div>
@@ -888,7 +888,6 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">found in :func:`pudl.transform.eia._boiler_generator_assn`.</span>
 <span class="sd">"""</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">importlib.resources</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">namedtuple</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">StrEnum</span><span class="p">,</span> <span class="n">auto</span>
 
@@ -907,6 +906,7 @@ window.runMermaid = runMermaid;</script>
 <span class="p">)</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pudl.logging_helpers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl</span><span class="w"> </span><span class="kn">import</span> <span class="n">PUDL_PACKAGE_DATA_PATH</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">convert_cols_dtypes</span><span class="p">,</span> <span class="n">make_changelog</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">PUDL_PACKAGE</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.dtypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">get_pudl_dtypes</span>
@@ -1294,8 +1294,7 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># SQL would call this whole process an upsert</span>
     <span class="c1"># See also: https://github.com/pandas-dev/pandas/issues/22812</span>
     <span class="n">cems_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
-        <span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s2">"pudl.package_data.epacems"</span><span class="p">)</span>
-        <span class="o">/</span> <span class="s2">"additional_epacems_plants.csv"</span><span class="p">,</span>
+        <span class="n">PUDL_PACKAGE_DATA_PATH</span> <span class="o">/</span> <span class="s2">"epacems"</span> <span class="o">/</span> <span class="s2">"additional_epacems_plants.csv"</span><span class="p">,</span>
         <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">],</span>
         <span class="n">usecols</span><span class="o">=</span><span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"plant_name_eia"</span><span class="p">,</span> <span class="s2">"state"</span><span class="p">,</span> <span class="s2">"latitude"</span><span class="p">,</span> <span class="s2">"longitude"</span><span class="p">],</span>
     <span class="p">)</span>

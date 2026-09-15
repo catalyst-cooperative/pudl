@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="release_notes.html.md" />
-    <title>PUDL Release Notes &#8212; PUDL 2026.9.1.dev7 documentation</title>
+    <title>PUDL Release Notes &#8212; PUDL 2026.9.1.dev9 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="_static/documentation_options.js?v=47d74850"></script>
+    <script src="_static/documentation_options.js?v=4ce0cd71"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev7 documentation - Home"/>
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev7 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev9 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev9 documentation - Home"/>
   
   
 </a></div>
@@ -532,6 +532,22 @@
 </section>
 <section id="bug-fixes-data-cleaning">
 <h3>Bug Fixes &amp; Data Cleaning<a class="headerlink" href="#bug-fixes-data-cleaning" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Fixed <code class="docutils literal notranslate"><span class="pre">allocate_gen_fuel.py</span></code> silently dropping legitimate generation and fuel
+data for generators transitioning between <code class="docutils literal notranslate"><span class="pre">proposed</span></code>/<code class="docutils literal notranslate"><span class="pre">existing</span></code> or
+<code class="docutils literal notranslate"><span class="pre">existing</span></code>/<code class="docutils literal notranslate"><span class="pre">retired</span></code> status across a multi-year ETL run. Unified the slightly
+different logics of these transitions into a single, shared, symmetric process. This
+simplification exposed a bug in which one generator’s status transition could silently
+prevent data from another group of generators at the same plant from being allocated.
+Added extensive unit tests and new dbt data quality tests validating that &gt;=99.7% of
+all reported generation and fuel survives allocation. Thanks to <a class="reference external" href="https://github.com/sponsors/grgmiller">&#64;grgmiller</a> for
+surfacing the issue and initiating the fix. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/5440">#5440</a> and PRs <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5419">#5419</a>, <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5511">#5511</a>.</p></li>
+<li><p>Fixed a bug where a skipped nightly/release build (i.e. one that found good build
+outputs for its commit and kicked off the <code class="docutils literal notranslate"><span class="pre">deploy-pudl.yml</span></code> workflow) uploaded its
+own small logfile to the build outputs bucket. This created newer object path with the
+same commit confusing <code class="docutils literal notranslate"><span class="pre">deploy-pudl</span></code> causing deployment to fail. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/5579">#5579</a>
+and <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5580">#5580</a>.</p></li>
+</ul>
 </section>
 <section id="performance-improvements">
 <h3>Performance Improvements<a class="headerlink" href="#performance-improvements" title="Link to this heading">#</a></h3>
@@ -539,6 +555,12 @@
 <section id="developer-experience">
 <h3>Developer Experience<a class="headerlink" href="#developer-experience" title="Link to this heading">#</a></h3>
 <ul class="simple">
+<li><p>Replaced all remaining uses of <code class="docutils literal notranslate"><span class="pre">importlib.resources</span></code> with direct <code class="docutils literal notranslate"><span class="pre">pathlib.Path</span></code>
+access to files under <code class="docutils literal notranslate"><span class="pre">src/pudl/package_data</span></code>, since PUDL is only ever run from a
+git checkout and no longer needs to support being installed as a distributable
+package. Also removed the now-unneeded dummy <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> files that made
+<code class="docutils literal notranslate"><span class="pre">package_data</span></code> subdirectories importable, which incidentally stops Sphinx from
+generating documentation pages for these non-code directories. See PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5592">#5592</a>.</p></li>
 <li><p>Upgraded to Pyrefly 1.3.0 and adopted its new concise baseline format. Fixed a handful
 of genuine typing gaps that the upgrade surfaced. Mostly this involved type narrowing
 in places where an object that might be <code class="docutils literal notranslate"><span class="pre">None</span></code> was subject to a regex match, dict
@@ -778,15 +800,6 @@ tables as their source <code class="docutils literal notranslate"><span class="p
 key instead of <code class="docutils literal notranslate"><span class="pre">data_tests:</span></code>, meaning <code class="docutils literal notranslate"><span class="pre">dbt_helper</span></code> silently discarded the tests
 they contained instead of merging them into the generated <code class="docutils literal notranslate"><span class="pre">schema.yml</span></code>. See PR
 <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5458">#5458</a>.</p></li>
-<li><p>Fixed <code class="docutils literal notranslate"><span class="pre">allocate_gen_fuel.py</span></code> silently dropping legitimate generation and fuel
-data for generators transitioning between <code class="docutils literal notranslate"><span class="pre">proposed</span></code>/<code class="docutils literal notranslate"><span class="pre">existing</span></code> or
-<code class="docutils literal notranslate"><span class="pre">existing</span></code>/<code class="docutils literal notranslate"><span class="pre">retired</span></code> status across a multi-year ETL run. Unified the slightly
-different logics of these transitions into a single, shared, symmetric process. This
-simplification exposed a bug in which one generator’s status transition could silently
-prevent data from another group of generators at the same plant from being allocated.
-Added extensive unit tests an new dbt data quality tests validating that &gt;=99.7% of
-all reported generation and fuel survives allocation. Thanks to <a class="reference external" href="https://github.com/sponsors/grgmiller">&#64;grgmiller</a> for
-surfacing and starting this fix. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/5440">#5440</a> and PRs <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5419">#5419</a>, <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5511">#5511</a>.</p></li>
 <li><p>Fixed several sources of non-deterministic row counts, where identical code and data
 produced different results on different machines (e.g. local macOS vs. nightly Linux
 builds) because several functions resolved ties among candidate values using

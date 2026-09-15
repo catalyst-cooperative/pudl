@@ -9,9 +9,9 @@ Load excel metadata CSV files form a python data package.
 
 ## Classes
 
-| [`ExcelMetadata`](#pudl.extract.excel.ExcelMetadata)   | Load Excel metadata from Python package data.                |
-|------------------------------------------------------------------|--------------------------------------------------------------|
-| [`ExcelExtractor`](#pudl.extract.excel.ExcelExtractor)  | Logic for extracting `pd.DataFrame` from Excel spreadsheets. |
+| [`ExcelMetadata`](#pudl.extract.excel.ExcelMetadata)   | Load Excel metadata from files under src/pudl/package_data.   |
+|------------------------------------------------------------------|---------------------------------------------------------------|
+| [`ExcelExtractor`](#pudl.extract.excel.ExcelExtractor)  | Logic for extracting `pd.DataFrame` from Excel spreadsheets.  |
 
 ## Module Contents
 
@@ -21,7 +21,7 @@ Load excel metadata CSV files form a python data package.
 
 Bases: [`pudl.extract.extractor.GenericMetadata`](../extractor/index.html.md#pudl.extract.extractor.GenericMetadata)
 
-Load Excel metadata from Python package data.
+Load Excel metadata from files under src/pudl/package_data.
 
 Excel sheet files may contain many different tables. When we load those
 into dataframes, metadata tells us how to do this. Metadata generally informs
@@ -29,8 +29,8 @@ us about the position of a given page in the file (which sheet and which row)
 and it informs us how to translate excel column names into standardized
 column names.
 
-When metadata object is instantiated, it is given ${dataset} name and it
-will attempt to load csv files from pudl.package_data.${dataset} package.
+When metadata object is instantiated, it is given a ${dataset} name and it will
+attempt to load csv files from src/pudl/package_data/${dataset}.
 
 It expects the following kinds of files:
 

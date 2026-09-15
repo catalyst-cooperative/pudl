@@ -27,7 +27,6 @@ Submodules
    /autoapi/pudl/logging_helpers/index
    /autoapi/pudl/metadata/index
    /autoapi/pudl/output/index
-   /autoapi/pudl/package_data/index
    /autoapi/pudl/scripts/index
    /autoapi/pudl/settings/index
    /autoapi/pudl/transform/index
@@ -41,6 +40,7 @@ Attributes
 .. autoapisummary::
 
    pudl.PUDL_ROOT_PATH
+   pudl.PUDL_PACKAGE_DATA_PATH
    pudl.PUDL_SETTINGS_PATH
    pudl.PUDL_DBT_PATH
    pudl.PUDL_DOCS_PATH
@@ -88,10 +88,15 @@ Package Contents
 
    Resolved absolute path to the repository root.
 
-.. py:data:: PUDL_SETTINGS_PATH
+.. py:data:: PUDL_PACKAGE_DATA_PATH
    :type:  pathlib.Path
 
    Resolved absolute path to the package_data directory.
+
+.. py:data:: PUDL_SETTINGS_PATH
+   :type:  pathlib.Path
+
+   Resolved absolute path to the package_data/settings directory.
 
 .. py:data:: PUDL_DBT_PATH
    :type:  pathlib.Path

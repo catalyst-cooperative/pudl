@@ -176,7 +176,7 @@ Module Contents
 .. py:data:: PLANT_STATUS
 
 .. py:data:: FUEL_CATEGORIES
-   :type:  dict[str, set[str]]
+   :type:  dict[str, pathlib.Path]
 
    A mapping a canonical fuel name to a set of strings which are used to represent that
    fuel in the FERC Form 1 Reporting.
@@ -184,13 +184,13 @@ Module Contents
    Case is ignored, as all fuel strings are converted to lower case in the data set.
 
 .. py:data:: FUEL_UNIT_CATEGORIES
-   :type:  dict[str, set[str]]
+   :type:  dict[str, pathlib.Path]
 
    A mapping of canonical fuel units (keys) to sets of strings representing those fuel
    units (values)
 
 .. py:data:: PLANT_TYPE_CATEGORIES
-   :type:  dict[str, set[str]]
+   :type:  dict[str, pathlib.Path]
 
    A mapping from canonical plant kinds (keys) to the associated freeform strings
    (values) identified as being associated with that kind of plant in the FERC Form 1 raw
@@ -214,7 +214,7 @@ Module Contents
    context of the steam table, however, it's unclear what conventional means.
 
 .. py:data:: CONSTRUCTION_TYPE_CATEGORIES
-   :type:  dict[str, set[str]]
+   :type:  dict[str, pathlib.Path]
 
    A dictionary of construction types (keys) and lists of construction type strings
    associated with each type (values) from FERC Form 1.

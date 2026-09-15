@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.analysis.plant_parts_eia &#8212; PUDL 2026.9.1.dev7 documentation</title>
+    <title>pudl.analysis.plant_parts_eia &#8212; PUDL 2026.9.1.dev9 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../_static/documentation_options.js?v=47d74850"></script>
+    <script src="../../../_static/documentation_options.js?v=4ce0cd71"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev7 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev7 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev9 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev9 documentation - Home"/>
   
   
 </a></div>
@@ -1037,7 +1037,6 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">OrderedDict</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">importlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">resources</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span>
 
@@ -1047,6 +1046,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pudl.helpers</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pudl.logging_helpers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl</span><span class="w"> </span><span class="kn">import</span> <span class="n">PUDL_PACKAGE_DATA_PATH</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Resource</span>
 
 <div class="viewcode-block" id="logger">
@@ -1596,9 +1596,9 @@ window.runMermaid = runMermaid;</script>
         <span class="bp">self</span><span class="o">.</span><span class="n">plant_parts_eia</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_one_to_many</span><span class="p">(</span>
             <span class="n">plant_parts_eia</span><span class="o">=</span><span class="n">concatenated_plant_parts</span><span class="p">,</span>
             <span class="n">part_name</span><span class="o">=</span><span class="s2">"plant_match_ferc1"</span><span class="p">,</span>
-            <span class="n">path_to_one_to_many</span><span class="o">=</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s2">"pudl.package_data.glue"</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span>
-                <span class="s2">"eia_ferc1_one_to_many.csv"</span><span class="p">,</span>
-            <span class="p">),</span>
+            <span class="n">path_to_one_to_many</span><span class="o">=</span><span class="n">PUDL_PACKAGE_DATA_PATH</span>
+            <span class="o">/</span> <span class="s2">"glue"</span>
+            <span class="o">/</span> <span class="s2">"eia_ferc1_one_to_many.csv"</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">plant_parts_eia</span> <span class="o">=</span> <span class="n">TrueGranLabeler</span><span class="p">()</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plant_parts_eia</span><span class="p">)</span>
         <span class="c1"># clean up, add additional columns</span>
@@ -1637,7 +1637,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            plant_parts_eia: the master unit list table.</span>
 <span class="sd">            part_name: should always be "plant_match_ferc1".</span>
 <span class="sd">            path_to_one_to_many: a Path to the one_to_many csv file in</span>
-<span class="sd">                :mod:`pudl.package_data.glue`.</span>
+<span class="sd">                ``src/pudl/package_data/glue``.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The EIA plant parts table with one-to-many matches aggregated as plant</span>
@@ -1645,8 +1645,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        """</span>
         <span class="c1"># Read in csv.</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">with</span> <span class="n">resources</span><span class="o">.</span><span class="n">as_file</span><span class="p">(</span><span class="n">path_to_one_to_many</span><span class="p">)</span> <span class="k">as</span> <span class="n">override_source</span><span class="p">:</span>
-                <span class="n">one_to_many</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">override_source</span><span class="p">)</span>
+            <span class="n">one_to_many</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">path_to_one_to_many</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">plant_parts_eia</span>
 

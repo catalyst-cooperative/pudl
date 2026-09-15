@@ -477,7 +477,7 @@ the validation stage of.
   * **plant_parts_eia** – the master unit list table.
   * **part_name** – should always be “plant_match_ferc1”.
   * **path_to_one_to_many** – a Path to the one_to_many csv file in
-    [`pudl.package_data.glue`](../../package_data/glue/index.html.md#module-pudl.package_data.glue).
+    `src/pudl/package_data/glue`.
 * **Returns:**
   The EIA plant parts table with one-to-many matches aggregated as plant
   parts.
