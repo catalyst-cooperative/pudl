@@ -4,6 +4,9 @@ macros:
   - name: test_check_column_correlation
     description: Check the correlation between two columns
     arguments:
+      - name: model
+        type: relation
+        description: The model (table) the test is applied to.
       - name: column1
         type: string
         description: The name of the first column
@@ -18,6 +21,9 @@ macros:
     description: >
       Check that the number of rows in each partition of the model is as expected.
     arguments:
+      - name: model
+        type: relation
+        description: The model (table) the test is applied to.
       - name: partition_expr
         type: string
         description: >
@@ -30,6 +36,9 @@ macros:
       Fails when non-null key tuple does not exist in parent. Rows with any
       foreign key column null are skipped, matching SQLite behavior.
     arguments:
+      - name: model
+        type: relation
+        description: The child model (table) the test is applied to.
       - name: fk_column_names
         type: list[str]
         description: Ordered list of child key columns.
@@ -49,6 +58,9 @@ macros:
       quality metrics like "what fraction of total capacity comes from renewable
       sources."
     arguments:
+      - name: model
+        type: relation
+        description: The model (table) the test is applied to.
       - name: column_name
         type: string
         description: The name of the column whose values will be summed and checked.
@@ -74,6 +86,9 @@ macros:
       set expectations that tighten as data quality improves over time; a row_condition
       that selects no rows passes, so years absent from the data do not fail.
     arguments:
+      - name: model
+        type: relation
+        description: The model (table) the test is applied to.
       - name: column_name
         type: string
         description: The name of the column whose values are checked.
@@ -105,11 +120,14 @@ macros:
       values that don't exist in the comparison table, you'll need to call this function
       in the schema of the comparison table as well.
     arguments:
+      - name: model
+        type: relation
+        description: The model (table) the test is applied to.
       - name: compare_table_name
         type: string
         description: The name of the table to compare columns with
       - name: compare_cols
-        type: list
+        type: list[str]
         description: >
           A list of column names present in both tables. The test will succeed only if
           all combinations of column values present in at least one row in the
@@ -123,17 +141,20 @@ macros:
       When ignore_eia860m_nulls is enabled, automatically excludes years which are
       only available in EIA-860M.
     arguments:
+      - name: model
+        type: relation
+        description: The model (table) the test is applied to.
       - name: exclude_columns
-        type: list
+        type: list[str]
         description: List of column names to exclude from the null check (optional, default empty list).
       - name: row_conditions
-        type: dict
+        type: dict[str, string]
         description: >
           Dictionary mapping column names to SQL row conditions. For each column, the null
           check will only be applied to rows matching the condition (optional, default
           empty dict).
       - name: ignore_eia860m_nulls
-        type: boolean
+        type: bool
         description: >
           When true, excludes years after the last available EIA-860 annual data
           (dynamically determined from core_eia860__scd_ownership.report_date) from null
@@ -151,6 +172,9 @@ macros:
       sum(fraction_owned) more than 1.02, or when more than half of generators have
       sum(fraction_owned) less than 0.98.
     arguments:
+      - name: model
+        type: relation
+        description: The model (table) the test is applied to.
       - name: n_acceptable_failures
         type: integer
         description: The number of generators allowed to have sum(fraction_owned) more than 1.02; default 0.
@@ -164,6 +188,9 @@ macros:
       have different years between these columns. Fails when the mismatch ratio exceeds
       the specified threshold.
     arguments:
+      - name: model
+        type: relation
+        description: The model (table) the test is applied to.
       - name: datetime_column
         type: string
         description: High-frequency datetime column (e.g., 'datetime_utc').
@@ -181,6 +208,9 @@ macros:
       ``plant_id_eia`` has multiple generators with the same id after dropping all
       [^A-Z0-9] characters.
     arguments:
+      - name: model
+        type: relation
+        description: The model (table) the test is applied to.
       - name: n_acceptable_failures
         type: integer
         description: The number of generators allowed to have inconsistent spellings.
@@ -193,6 +223,9 @@ macros:
       when data_maturity columns are present. Fails when the ratio of distinct dates doesn't match
       the expected multiplier for years present in both models.
     arguments:
+      - name: model
+        type: relation
+        description: The (typically higher frequency, e.g. monthly) model the test is applied to.
       - name: compare_model
         type: string
         description: The reference model to compare against (typically lower frequency, e.g. annual).
@@ -203,10 +236,10 @@ macros:
         type: string
         description: "Date column name (default: 'report_date')."
       - name: model_has_data_maturity
-        type: boolean
+        type: bool
         description: "Tell the test that the data_maturity column exists in the model (default: true). If this column is available, it will be used to filter out incomplete years of data."
       - name: compare_model_has_data_maturity
-        type: boolean
+        type: bool
         description: "Tell the test that the data_maturity column exists in the model (default: true). If this column is available, it will be used to filter out incomplete years of data."
 
   - name: test_expect_fgd_cost_totals_to_agree
@@ -228,6 +261,9 @@ macros:
       column and counting the number of distinct values of the second. Fails when a
       value in ``groupby_column`` is paired with more than one ``counted_column`` value.
     arguments:
+      - name: model
+        type: relation
+        description: The model (table) the test is applied to.
       - name: groupby_column
         type: string
         description: The name of the column to group by.
@@ -245,6 +281,9 @@ macros:
       (``report_date``, ``plant_id_eia``, ``generator_id``) combination has more than
       one unique value for ``operator_utility_id_eia``.
     arguments:
+      - name: model
+        type: relation
+        description: The model (table) the test is applied to.
       - name: n_acceptable_failures
         type: integer
         description: The number of generators allowed to multiple operator utilities on any particular date; default 0.
@@ -271,6 +310,9 @@ macros:
       total column) exceeds ``max_discrepancy_rate``. Records with null in total column
       do not count as discrepancies. Nulls in sum columns are coerced to 0.
     arguments:
+      - name: model
+        type: relation
+        description: The model (table) the test is applied to.
       - name: sum_columns
         type: list[str]
         description: The columns whose sum should match the value in the total column.
@@ -294,6 +336,9 @@ macros:
       it's uncommon that there are two columns which are supposed to be entirely equal,
       but there may be a subset of rows which are supposed to be equal.
     arguments:
+      - name: model
+        type: relation
+        description: The model (table) the test is applied to.
       - name: column_a
         type: str
         description: First column to compare.
@@ -314,8 +359,11 @@ macros:
     description: >
       Check that all nuclear Unit IDs correspond to generator IDs.
     arguments:
+      - name: model
+        type: relation
+        description: The model (table) the test is applied to.
       - name: generator_model
-        type: dbt source reference
+        type: relation
         description: >
           Where to look for generator listings. This will generally be
           "source('pudl', 'out_eia__yearly_generators')".
@@ -327,8 +375,11 @@ macros:
       table. Fails when the incidence of units with multiple fuels
       exceeds a maximum rate.
     arguments:
+      - name: model
+        type: relation
+        description: The model (table) the test is applied to.
       - name: bga_model
-        type: dbt source reference
+        type: relation
         description: >
           Where to look for boiler generator associations. This will
           generally be "source('pudl',
