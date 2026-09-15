@@ -4,6 +4,13 @@ sources:
     tables:
       - name: core_epamats__hourly_emissions
         data_tests:
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - plant_id_eia
+                pk_table_name: source('pudl', 'core_eia__entity_plants')
+                pk_column_names:
+                  - plant_id_eia
           - expect_columns_not_all_null:
               description: |-
                 Every column should contain at least some non-null data. The HF columns were dropped in
@@ -11,7 +18,6 @@ sources:
                 emissions; if they are ever re-added and left empty, this test will fail.
           - check_row_counts_per_partition:
               arguments:
-                table_name: core_epamats__hourly_emissions
                 partition_expr: year
           - dbt_utils.unique_combination_of_columns:
               arguments:
