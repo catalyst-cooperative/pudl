@@ -20,7 +20,7 @@ three things:
 1. **Collects configuration.** It walks the graph's op tree, harvesting default
    config values from each op's :class:`~dagster.Config` subclass. If
    ``config_from_yaml=True``, it also merges overrides from
-   ``pudl.package_data.settings.pudl_models.yml``. The merged config is stored
+   ``src/pudl/package_data/settings/pudl_models.yml``. The merged config is stored
    in the module-level ``MODEL_CONFIGURATION`` dict, which
    :func:`~pudl.dagster.config.get_ml_models_config` later folds into the
    default job config so Dagster knows the defaults at launch time.
@@ -43,8 +43,6 @@ Configuration precedence (lowest → highest):
 * Values entered in the Dagster UI Launchpad (single-run override)
 """
 
-import importlib
-
 import yaml
 from dagster import (
     AssetIn,
@@ -55,6 +53,7 @@ from dagster import (
 )
 
 import pudl.logging_helpers
+from pudl import PUDL_SETTINGS_PATH
 
 from . import experiment_tracking
 
@@ -64,9 +63,7 @@ MODEL_CONFIGURATION = {}
 
 def get_yml_config(experiment_name: str) -> dict:
     """Load model configuration from yaml file."""
-    config_file = (
-        importlib.resources.files("pudl.package_data.settings") / "pudl_models.yml"
-    )
+    config_file = PUDL_SETTINGS_PATH / "pudl_models.yml"
     config = yaml.safe_load(config_file.open("r"))
 
     if not (model_config := config.get(experiment_name)):

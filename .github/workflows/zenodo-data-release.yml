@@ -62,7 +62,13 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v7
         with:
-          fetch-depth: 0
+          # zenodo_data_release.py reads release notes/metadata live from the
+          # working tree and requires HEAD to match --pudl-version exactly
+          # (unless run with --skip-git-check, which we don't use here). It
+          # only needs `git rev-parse` on the tag and HEAD, not history, so a
+          # shallow checkout of just this ref (the default fetch-depth: 1) is
+          # sufficient.
+          ref: ${{ inputs.pudl_version }}
 
       - name: Authenticate to AWS
         uses: aws-actions/configure-aws-credentials@v6

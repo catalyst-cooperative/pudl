@@ -1,6 +1,5 @@
 """A collection of denormalized FERC assets and helper functions."""
 
-import importlib
 import re
 from copy import deepcopy
 from dataclasses import dataclass
@@ -35,6 +34,7 @@ import pudl.analysis.fuel_by_plant
 import pudl.helpers
 import pudl.logging_helpers
 import pudl.transform.ferc1
+from pudl import PUDL_PACKAGE_DATA_PATH
 from pudl.transform.ferc1 import (
     GroupMetricChecks,
     GroupMetricTolerances,
@@ -943,7 +943,7 @@ def _get_tags(
     file_name: str, _core_ferc1__table_dimensions: pd.DataFrame
 ) -> pd.DataFrame:
     """Grab tags from a stored CSV file and apply :func:`make_xbrl_factoid_dimensions_explicit`."""
-    tags_csv = importlib.resources.files("pudl.package_data.ferc1") / file_name
+    tags_csv = PUDL_PACKAGE_DATA_PATH / "ferc1" / file_name
     tags_df = (
         pd.read_csv(tags_csv)
         .drop_duplicates()
@@ -966,10 +966,7 @@ def _aggregatable_dimension_tags(
     # add in the rest from the table_dims
     # merge it into _out_ferc1__detailed_tags
     aggregatable_col = f"aggregatable_{dimension}"
-    tags_csv = (
-        importlib.resources.files("pudl.package_data.ferc1")
-        / f"xbrl_factoid_{dimension}_tags.csv"
-    )
+    tags_csv = PUDL_PACKAGE_DATA_PATH / "ferc1" / f"xbrl_factoid_{dimension}_tags.csv"
     dimensions = ["utility_type", "plant_function", "plant_status"]
     idx = list(NodeId._fields)
     tags_df = (

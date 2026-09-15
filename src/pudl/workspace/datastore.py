@@ -1,7 +1,6 @@
 """Datastore manages file retrieval for PUDL datasets."""
 
 import hashlib
-import importlib.resources
 import io
 import json
 import re
@@ -9,7 +8,6 @@ import zipfile
 from collections import defaultdict
 from collections.abc import Iterator
 from importlib.metadata import version
-from importlib.resources.abc import Traversable
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Annotated, Any, Self
@@ -24,6 +22,7 @@ from upath import UPath
 from urllib3.util.retry import Retry
 
 import pudl.logging_helpers
+from pudl import PUDL_SETTINGS_PATH
 from pudl.helpers import retry
 from pudl.workspace import resource_cache
 from pudl.workspace.resource_cache import PudlResourceKey, UPathCache
@@ -38,11 +37,9 @@ ZenodoDoi = Annotated[
 ]
 
 
-def get_zenodo_dois_path() -> Traversable:
+def get_zenodo_dois_path() -> Path:
     """Return the canonical packaged Zenodo DOI settings path."""
-    return importlib.resources.files("pudl.package_data.settings").joinpath(
-        "zenodo_dois.yml"
-    )
+    return PUDL_SETTINGS_PATH / "zenodo_dois.yml"
 
 
 class ChecksumMismatchError(ValueError):
