@@ -15,6 +15,13 @@ Enhancements
 New Data
 ^^^^^^^^
 
+EPA MATS
+~~~~~~~~
+
+* Created the :ref:`core_epamats__hourly_emissions` table, bringing hourly mercury and
+  hydrogen chloride emissions data from the EPA into PUDL. See issue :issue:`5357` and
+  PR :pr:`5572`. Thanks to contributor :user:`bsousa22` for bringing in this data!
+
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
