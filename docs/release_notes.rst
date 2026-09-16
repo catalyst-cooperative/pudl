@@ -25,6 +25,11 @@ EPA MATS
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+EIA-860
+~~~~~~~
+* Added final release data from 2025 for :doc:`EIA-860 <data_sources/eia860>`. See
+  issue :issue:`5589` and PR :pr:`5591`.
+
 Documentation
 ^^^^^^^^^^^^^
 
