@@ -50,23 +50,12 @@ Data types for EPA MATS columns.
 
 ### *class* pudl.extract.epamats.EpaMatsPartition(/, \*\*data: Any)
 
-Bases: [`pydantic.BaseModel`](https://pydantic.dev/docs/validation/latest/api/pydantic/base_model/#pydantic.BaseModel)
+Bases: [`pudl.extract.epacems.EpaCemsPartition`](../epacems/index.html.md#pudl.extract.epacems.EpaCemsPartition)
 
 Represents a MATS partition identifying a unique quarterly resource file.
 
-#### year_quarter *: Annotated[[str](https://docs.python.org/3/builtins/stdtypes.html#str), StringConstraints(strict=True, pattern='^(19|20)\\\\d{2}[q][1-4]$')]*
-
-#### *property* year
-
-Return the year associated with the year_quarter.
-
-#### *property* quarter
-
-Return the quarter associated with the year_quarter.
-
-#### get_filters()
-
-Returns filters for retrieving given partition resource from Datastore.
+Inherits the year_quarter validation, year/quarter properties, and datastore
+filters from `EpaCemsPartition`; only the CSV filename differs.
 
 #### get_quarterly_file() → [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)
 
@@ -74,17 +63,26 @@ Return the name of the CSV file within the zip that holds quarterly data.
 
 ### *class* pudl.extract.epamats.EpaMatsDatastore(datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore))
 
+Bases: [`pudl.extract.epacems.EpaCemsDatastore`](../epacems/index.html.md#pudl.extract.epacems.EpaCemsDatastore)
+
 Helper class to extract MATS resources from datastore.
 
 MATS resources are identified by a year and a quarter. Each year’s data is in
-a zip file containing 4 quarterly CSV files. This class implements get_data_frame
-method that will rename columns for a quarterly CSV file.
+a zip file containing 4 quarterly CSV files. Inherits the zip-reading and
+column-renaming logic from `EpaCemsDatastore`; only the dataset name,
+column mapping, and dtypes differ.
 
-#### datastore
+#### dataset_name *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 'epamats'*
 
-#### get_data_frame(partition: [EpaMatsPartition](#pudl.extract.epamats.EpaMatsPartition)) → polars.LazyFrame
+Name of the dataset used to fetch zipfile resources from the datastore.
 
-Constructs dataframe from a zipfile for a given (year_quarter) partition.
+#### rename_dict *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
+
+Mapping from raw column names to PUDL column names.
+
+#### dtype_dict
+
+Data types for the raw columns.
 
 ### pudl.extract.epamats.raw_epamats_\_hourly_emissions(context) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 

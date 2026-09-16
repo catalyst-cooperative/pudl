@@ -28,6 +28,7 @@ Submodules
    /autoapi/pudl/metadata/resources/eiaaeo/index
    /autoapi/pudl/metadata/resources/eiaapi/index
    /autoapi/pudl/metadata/resources/epacems/index
+   /autoapi/pudl/metadata/resources/epamats/index
    /autoapi/pudl/metadata/resources/ferc1/index
    /autoapi/pudl/metadata/resources/ferc1_eia_record_linkage/index
    /autoapi/pudl/metadata/resources/ferc714/index

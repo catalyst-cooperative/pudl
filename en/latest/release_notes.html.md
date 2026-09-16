@@ -10,6 +10,12 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
 
 ### New Data
 
+#### EPA MATS
+
+* Created the [core_epamats_\_hourly_emissions](data_dictionaries/pudl_db.html.md#core-epamats-hourly-emissions) table, bringing hourly mercury and
+  hydrogen chloride emissions data from the EPA into PUDL. See issue [#5357](https://github.com/catalyst-cooperative/pudl/issues/5357) and
+  PR [#5572](https://github.com/catalyst-cooperative/pudl/pull/5572). Thanks to contributor [@bsousa22](https://github.com/sponsors/bsousa22) for bringing in this data!
+
 ### Expanded Data Coverage
 
 #### EIA-860

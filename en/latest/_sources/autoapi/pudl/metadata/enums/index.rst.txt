@@ -37,6 +37,7 @@ Attributes
    pudl.metadata.enums.FUEL_CLASSES
    pudl.metadata.enums.RTO_CLASSES
    pudl.metadata.enums.EPACEMS_MEASUREMENT_CODES
+   pudl.metadata.enums.EPAMATS_MEASUREMENT_CODES
    pudl.metadata.enums.TECH_DESCRIPTIONS
    pudl.metadata.enums.PLANT_PARTS
    pudl.metadata.enums.TECH_DESCRIPTIONS_NRELATB
@@ -224,6 +225,16 @@ Module Contents
 
 
    Valid emissions measurement codes for the EPA CEMS hourly data.
+
+.. py:data:: EPAMATS_MEASUREMENT_CODES
+   :type:  list[str]
+   :value: ['Manually Calculated', 'Measured', 'Startup or Shutdown', 'Unavailable']
+
+
+   Valid emissions measurement codes for the EPA MATS hourly data.
+
+   "Unavailable" is entered by the respondent and does not mean the same thing as a
+   missing/NA value.
 
 .. py:data:: TECH_DESCRIPTIONS
    :type:  set[str]

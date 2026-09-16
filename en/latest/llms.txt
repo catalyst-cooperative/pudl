@@ -1,6 +1,6 @@
 # PUDL
 
-> PUDL 2026.9.1.dev11 documentation
+> PUDL 2026.9.1.dev12 documentation
 
 
 2016-2026, Catalyst Cooperative, CC-BY-4.0
@@ -167,6 +167,7 @@
 - [pudl.metadata.resources.eiaaeo](autoapi/pudl/metadata/resources/eiaaeo/index.html.md): Table definitions for EIA AEO resources.
 - [pudl.metadata.resources.eiaapi](autoapi/pudl/metadata/resources/eiaapi/index.html.md): Tables definitions for data from the EIA bulk electricity aggregates.
 - [pudl.metadata.resources.epacems](autoapi/pudl/metadata/resources/epacems/index.html.md): Table definitions for the EPA CEMS data group.
+- [pudl.metadata.resources.epamats](autoapi/pudl/metadata/resources/epamats/index.html.md): Table definitions for the EPA MATS data group.
 - [pudl.metadata.resources.ferc1](autoapi/pudl/metadata/resources/ferc1/index.html.md): Table definitions for the FERC Form 1 data group.
 - [pudl.metadata.resources.ferc1_eia_record_linkage](autoapi/pudl/metadata/resources/ferc1_eia_record_linkage/index.html.md): Definitions for the connection between FERC1 and EIA.
 - [pudl.metadata.resources.ferc714](autoapi/pudl/metadata/resources/ferc714/index.html.md): Tables definitions for data coming from the FERC Form 714.
@@ -229,6 +230,7 @@
 - [pudl.transform.eiaaeo](autoapi/pudl/transform/eiaaeo/index.html.md): Transform raw AEO tables into normalized assets.
 - [pudl.transform.eiaapi](autoapi/pudl/transform/eiaapi/index.html.md): Clean and normalize EIA bulk electricity data.
 - [pudl.transform.epacems](autoapi/pudl/transform/epacems/index.html.md): Module to perform data cleaning functions on EPA CEMS data tables.
+- [pudl.transform.epamats](autoapi/pudl/transform/epamats/index.html.md): Module to perform data cleaning functions on EPA MATS data tables.
 - [pudl.transform.ferc](autoapi/pudl/transform/ferc/index.html.md): Module for shared helpers for FERC Form transforms.
 - [pudl.transform.ferc1](autoapi/pudl/transform/ferc1/index.html.md): Classes & functions to process FERC Form 1 data before loading into the PUDL DB.
 - [pudl.transform.ferc714](autoapi/pudl/transform/ferc714/index.html.md): Transformation of the FERC Form 714 data.

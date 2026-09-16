@@ -10372,7 +10372,21 @@ Helper class to extract EpaCems resources from datastore.
 
 EpaCems resources are identified by a year and a quarter. Each of these zip files
 contains one csv file. This class implements get_data_frame method that will
-rename columns for a quarterly CSV file.
+rename columns for a quarterly CSV file. Subclasses (e.g. the MATS extractor)
+can override `dataset_name`, `rename_dict`, and `dtype_dict` to reuse the
+same zip-reading logic for similarly-structured datasets.
+
+#### dataset_name *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 'epacems'*
+
+Name of the dataset used to fetch zipfile resources from the datastore.
+
+#### rename_dict *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
+
+Mapping from raw column names to PUDL column names.
+
+#### dtype_dict
+
+Data types for the raw columns.
 
 #### datastore
 
@@ -10446,23 +10460,12 @@ Data types for EPA MATS columns.
 
 ### *class* pudl.extract.epamats.EpaMatsPartition(/, \*\*data: Any)
 
-Bases: [`pydantic.BaseModel`](https://pydantic.dev/docs/validation/latest/api/pydantic/base_model/#pydantic.BaseModel)
+Bases: [`pudl.extract.epacems.EpaCemsPartition`](autoapi/pudl/extract/epacems/index.html.md#pudl.extract.epacems.EpaCemsPartition)
 
 Represents a MATS partition identifying a unique quarterly resource file.
 
-#### year_quarter *: Annotated[[str](https://docs.python.org/3/builtins/stdtypes.html#str), StringConstraints(strict=True, pattern='^(19|20)\\\\d{2}[q][1-4]$')]*
-
-#### *property* year
-
-Return the year associated with the year_quarter.
-
-#### *property* quarter
-
-Return the quarter associated with the year_quarter.
-
-#### get_filters()
-
-Returns filters for retrieving given partition resource from Datastore.
+Inherits the year_quarter validation, year/quarter properties, and datastore
+filters from `EpaCemsPartition`; only the CSV filename differs.
 
 #### get_quarterly_file() → [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)
 
@@ -10470,17 +10473,26 @@ Return the name of the CSV file within the zip that holds quarterly data.
 
 ### *class* pudl.extract.epamats.EpaMatsDatastore(datastore: [pudl.workspace.datastore.Datastore](autoapi/pudl/workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore))
 
+Bases: [`pudl.extract.epacems.EpaCemsDatastore`](autoapi/pudl/extract/epacems/index.html.md#pudl.extract.epacems.EpaCemsDatastore)
+
 Helper class to extract MATS resources from datastore.
 
 MATS resources are identified by a year and a quarter. Each year’s data is in
-a zip file containing 4 quarterly CSV files. This class implements get_data_frame
-method that will rename columns for a quarterly CSV file.
+a zip file containing 4 quarterly CSV files. Inherits the zip-reading and
+column-renaming logic from `EpaCemsDatastore`; only the dataset name,
+column mapping, and dtypes differ.
 
-#### datastore
+#### dataset_name *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 'epamats'*
 
-#### get_data_frame(partition: [EpaMatsPartition](autoapi/pudl/extract/epamats/index.html.md#pudl.extract.epamats.EpaMatsPartition)) → polars.LazyFrame
+Name of the dataset used to fetch zipfile resources from the datastore.
 
-Constructs dataframe from a zipfile for a given (year_quarter) partition.
+#### rename_dict *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
+
+Mapping from raw column names to PUDL column names.
+
+#### dtype_dict
+
+Data types for the raw columns.
 
 ### pudl.extract.epamats.raw_epamats_\_hourly_emissions(context) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
@@ -16396,6 +16408,7 @@ Enumerations of valid field values.
 | [`FUEL_CLASSES`](autoapi/pudl/metadata/enums/index.html.md#pudl.metadata.enums.FUEL_CLASSES)                           |                                                                                 |
 | [`RTO_CLASSES`](autoapi/pudl/metadata/enums/index.html.md#pudl.metadata.enums.RTO_CLASSES)                            |                                                                                 |
 | [`EPACEMS_MEASUREMENT_CODES`](autoapi/pudl/metadata/enums/index.html.md#pudl.metadata.enums.EPACEMS_MEASUREMENT_CODES)              | Valid emissions measurement codes for the EPA CEMS hourly data.                 |
+| [`EPAMATS_MEASUREMENT_CODES`](autoapi/pudl/metadata/enums/index.html.md#pudl.metadata.enums.EPAMATS_MEASUREMENT_CODES)              | Valid emissions measurement codes for the EPA MATS hourly data.                 |
 | [`TECH_DESCRIPTIONS`](autoapi/pudl/metadata/enums/index.html.md#pudl.metadata.enums.TECH_DESCRIPTIONS)                      | Valid technology descriptions from the EIA plant parts list.                    |
 | [`PLANT_PARTS`](autoapi/pudl/metadata/enums/index.html.md#pudl.metadata.enums.PLANT_PARTS)                            | The plant parts in the EIA plant parts list.                                    |
 | [`TECH_DESCRIPTIONS_NRELATB`](autoapi/pudl/metadata/enums/index.html.md#pudl.metadata.enums.TECH_DESCRIPTIONS_NRELATB)              | NREL ATB technology descriptions.                                               |
@@ -16525,6 +16538,13 @@ Subregions are based on regional pricing zones.
 ### pudl.metadata.enums.EPACEMS_MEASUREMENT_CODES *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= ['Calculated', 'LME', 'Measured', 'Measured and Substitute', 'Other', 'Substitute']*
 
 Valid emissions measurement codes for the EPA CEMS hourly data.
+
+### pudl.metadata.enums.EPAMATS_MEASUREMENT_CODES *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= ['Manually Calculated', 'Measured', 'Startup or Shutdown', 'Unavailable']*
+
+Valid emissions measurement codes for the EPA MATS hourly data.
+
+“Unavailable” is entered by the respondent and does not mean the same thing as a
+missing/NA value.
 
 ### pudl.metadata.enums.TECH_DESCRIPTIONS *: [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
@@ -17643,6 +17663,26 @@ See [`pudl.metadata.helpers.build_foreign_keys()`](autoapi/pudl/metadata/helpers
 `foreign_key_rules`.
 
 
+# autoapi/pudl/metadata/resources/epamats/index.html.md
+
+# pudl.metadata.resources.epamats
+
+Table definitions for the EPA MATS data group.
+
+## Attributes
+
+| [`RESOURCE_METADATA`](autoapi/pudl/metadata/resources/epamats/index.html.md#pudl.metadata.resources.epamats.RESOURCE_METADATA)   | EPA MATS resource attributes by PUDL identifier (`resource.name`).   |
+|----------------------------------------------------------------------|----------------------------------------------------------------------|
+
+## Module Contents
+
+### pudl.metadata.resources.epamats.RESOURCE_METADATA *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]]*
+
+EPA MATS resource attributes by PUDL identifier (`resource.name`).
+
+Keys are in alphabetical order.
+
+
 # autoapi/pudl/metadata/resources/ferc1/index.html.md
 
 # pudl.metadata.resources.ferc1
@@ -17815,6 +17855,7 @@ A subpackage to define and organize PUDL database tables by data group.
 * [pudl.metadata.resources.eiaaeo](autoapi/pudl/metadata/resources/eiaaeo/index.html.md)
 * [pudl.metadata.resources.eiaapi](autoapi/pudl/metadata/resources/eiaapi/index.html.md)
 * [pudl.metadata.resources.epacems](autoapi/pudl/metadata/resources/epacems/index.html.md)
+* [pudl.metadata.resources.epamats](autoapi/pudl/metadata/resources/epamats/index.html.md)
 * [pudl.metadata.resources.ferc1](autoapi/pudl/metadata/resources/ferc1/index.html.md)
 * [pudl.metadata.resources.ferc1_eia_record_linkage](autoapi/pudl/metadata/resources/ferc1_eia_record_linkage/index.html.md)
 * [pudl.metadata.resources.ferc714](autoapi/pudl/metadata/resources/ferc714/index.html.md)
@@ -26612,6 +26653,112 @@ Make unique annual plant_id_eia and emissions_unit_id_epa.
   dataframe with unique set of
 
 
+# autoapi/pudl/transform/epamats/index.html.md
+
+# pudl.transform.epamats
+
+Module to perform data cleaning functions on EPA MATS data tables.
+
+Several transformation steps are identical to those used for EPA CEMS data
+(crosswalk-based plant ID harmonization, UTC conversion, plant UTC offset
+loading, and crosswalk validation), so they are imported directly from
+`pudl.transform.epacems` rather than duplicated here.
+
+## Attributes
+
+| [`logger`](autoapi/pudl/transform/epamats/index.html.md#pudl.transform.epamats.logger)                 |                                                              |
+|-------------------------------------------------------------------------|--------------------------------------------------------------|
+| [`MATS_MEASUREMENT_CODES`](autoapi/pudl/transform/epamats/index.html.md#pudl.transform.epamats.MATS_MEASUREMENT_CODES) | Mapping from raw MATS measurement codes to canonical values. |
+| [`MEASUREMENT_CODE_COLS`](autoapi/pudl/transform/epamats/index.html.md#pudl.transform.epamats.MEASUREMENT_CODE_COLS)  |                                                              |
+| [`HF_COLUMNS`](autoapi/pudl/transform/epamats/index.html.md#pudl.transform.epamats.HF_COLUMNS)             | HF emissions columns in the raw MATS data.                   |
+
+## Functions
+
+| [`_map_measurement_codes`](autoapi/pudl/transform/epamats/index.html.md#pudl.transform.epamats._map_measurement_codes)(→ polars.LazyFrame)         | Map non-canonical measurement codes to canonical values.           |
+|-----------------------------------------------------------------------------------------------------|--------------------------------------------------------------------|
+| [`_replace_missing_placeholders`](autoapi/pudl/transform/epamats/index.html.md#pudl.transform.epamats._replace_missing_placeholders)(→ polars.LazyFrame)  | Convert EPA's -1 placeholder for missing values into null.         |
+| [`_validate_and_drop_hf_columns`](autoapi/pudl/transform/epamats/index.html.md#pudl.transform.epamats._validate_and_drop_hf_columns)(→ polars.LazyFrame)  | Assert all HF columns are null, then drop them from the data.      |
+| [`transform_epamats`](autoapi/pudl/transform/epamats/index.html.md#pudl.transform.epamats.transform_epamats)(→ polars.LazyFrame)              | Transform EPA MATS hourly data and ready it for export to Parquet. |
+| [`core_epamats__hourly_emissions`](autoapi/pudl/transform/epamats/index.html.md#pudl.transform.epamats.core_epamats__hourly_emissions)(→ polars.LazyFrame) | Transform raw EPA MATS hourly emissions data and write to Parquet. |
+
+## Module Contents
+
+### pudl.transform.epamats.logger
+
+### pudl.transform.epamats.MATS_MEASUREMENT_CODES *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
+
+Mapping from raw MATS measurement codes to canonical values.
+
+RAW values seen in the data: `Measured`, `Startup or Shutdown`,
+`Unavailable`, `Manually Calculated`, `MEASURE`, `UNAVAIL`,
+`UPDOWN`, or empty string.
+
+### pudl.transform.epamats.MEASUREMENT_CODE_COLS *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= ['hg_mass_measurement_code', 'hcl_mass_measurement_code', 'hf_mass_measurement_code']*
+
+### pudl.transform.epamats.HF_COLUMNS *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= ['hf_output_rate_lb_per_mwh', 'hf_input_rate_lb_per_mmbtu', 'hf_mass_lbs', 'hf_mass_measurement_code']*
+
+HF emissions columns in the raw MATS data.
+
+MATS does not require reporting of hydrogen fluoride (HF) emissions, so these
+columns are expected to be entirely null. They are dropped from the core table;
+see [`_validate_and_drop_hf_columns()`](autoapi/pudl/transform/epamats/index.html.md#pudl.transform.epamats._validate_and_drop_hf_columns).
+
+### pudl.transform.epamats.\_map_measurement_codes(lf: polars.LazyFrame) → polars.LazyFrame
+
+Map non-canonical measurement codes to canonical values.
+
+Codes not in the mapping (e.g. `Measured`, `Manually Calculated`) are
+left unchanged. Empty strings are set to null.
+
+* **Parameters:**
+  **lf** – MATS hourly data as a Polars LazyFrame.
+* **Returns:**
+  The same data with measurement codes normalized.
+
+### pudl.transform.epamats.\_replace_missing_placeholders(lf: polars.LazyFrame) → polars.LazyFrame
+
+Convert EPA’s -1 placeholder for missing values into null.
+
+EPA hourly emissions data reports -1 when gross load is unknown, rather
+than leaving it blank. Standardize these as NA like other missing data so
+downstream users don’t have to special-case them.
+
+* **Parameters:**
+  **lf** – MATS hourly data as a Polars LazyFrame.
+* **Returns:**
+  The same data with -1 placeholders replaced by null.
+
+### pudl.transform.epamats.\_validate_and_drop_hf_columns(lf: polars.LazyFrame) → polars.LazyFrame
+
+Assert all HF columns are null, then drop them from the data.
+
+MATS does not require reporting of hourly hydrogen fluoride (HF) emissions,
+and currently all four HF columns are entirely null in the raw data. Rather than
+carrying them through the core table, we assert that they’re empty and then
+drop them. If EPA ever starts reporting HF emissions, this assertion will
+fail loudly and we can decide whether to keep the columns.
+
+* **Parameters:**
+  **lf** – MATS hourly data as a Polars LazyFrame.
+* **Returns:**
+  The same data, without the four all-null HF columns.
+
+### pudl.transform.epamats.transform_epamats(raw_lf: polars.LazyFrame, core_epa_\_assn_eia_epacamd: polars.DataFrame, plant_utc_offset: polars.DataFrame) → polars.LazyFrame
+
+Transform EPA MATS hourly data and ready it for export to Parquet.
+
+* **Parameters:**
+  * **raw_lf** – LazyFrame pointing to raw EPA MATS data.
+  * **core_epa_\_assn_eia_epacamd** – EPA-EIA crosswalk DataFrame.
+  * **plant_utc_offset** – Plant UTC offset DataFrame.
+* **Returns:**
+  A transformed LazyFrame of EPA MATS data.
+
+### pudl.transform.epamats.core_epamats_\_hourly_emissions(context, raw_epamats_\_hourly_emissions: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), \_core_epa_\_assn_eia_epacamd_unique: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), core_eia_\_entity_plants: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → polars.LazyFrame
+
+Transform raw EPA MATS hourly emissions data and write to Parquet.
+
+
 # autoapi/pudl/transform/ferc/index.html.md
 
 # pudl.transform.ferc
@@ -31024,6 +31171,7 @@ tables is normalized as a whole.
 * [pudl.transform.eiaaeo](autoapi/pudl/transform/eiaaeo/index.html.md)
 * [pudl.transform.eiaapi](autoapi/pudl/transform/eiaapi/index.html.md)
 * [pudl.transform.epacems](autoapi/pudl/transform/epacems/index.html.md)
+* [pudl.transform.epamats](autoapi/pudl/transform/epamats/index.html.md)
 * [pudl.transform.ferc](autoapi/pudl/transform/ferc/index.html.md)
 * [pudl.transform.ferc1](autoapi/pudl/transform/ferc1/index.html.md)
 * [pudl.transform.ferc714](autoapi/pudl/transform/ferc714/index.html.md)
@@ -59589,6 +59737,131 @@ WHERE
 | steam_load_lbs            | number     | pound      | Total steam pressure produced by a unit during the reported hour.                                                              |
 | year                      | integer    |            | Year the data was reported in, used for partitioning EPA CEMS.                                                                 |
 
+<a id="core-epamats-hourly-emissions"></a>
+
+## core_epamats_\_hourly_emissions
+
+Noticed any irregularities with this table? [File a report.](https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=core_epamats__hourly_emissions)
+
+Hourly time series of hourly emissions of mercury (Hg) and hydrogen chloride (HCl) from coal- and oil-fired power plants.
+
+Most-recent data:
+: 2026
+
+Processing:
+: Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
+
+Source:
+: EPA MATS – Mercury and Air Toxics Standards
+
+Primary key:
+: plant_id_epa, emissions_unit_id_epa, operating_datetime_utc
+
+### Usage Warnings
+
+* Not all IDs are present.
+* Contains information from multiple raw inputs.
+
+### Additional Details
+
+The EPA Mercury and Air Toxics Standards
+(MATS) dataset provides detailed information on emissions of hazardous air
+pollutants, specifically mercury (Hg), hydrogen chloride (HCl), and hydrogen
+fluoride (HF), from coal- and oil-fired power plants in the United States.
+Established under the Clean Air Act, MATS requires affected units to install
+and operate continuous emissions monitoring systems (CEMS) to track pollutant
+output rates and mass emissions.
+
+Only coal- and oil-fired units above a certain capacity threshold are required
+to comply with MATS, so not all plants that report to EIA have corresponding
+MATS monitoring data. The data covers roughly 2015 onward and is reported
+hourly.
+
+MATS does not require reporting of hourly hydrogen fluoride (HF) emissions, and the
+four HF columns are entirely null throughout the raw data, so they are dropped
+from this table. Only the mercury (Hg) and hydrogen chloride (HCl) columns
+contain data.
+
+Units in the MATS data are identified by their EPA emissions unit IDs, which
+may differ from EIA generator IDs. Use the core_epa_\_assn_eia_epacamd
+crosswalk to connect MATS emissions units to EIA plant IDs and generators.
+
+### Access methods
+
+* [Browse and query this table online](https://data.catalyst.coop/preview/pudl/core_epamats__hourly_emissions)
+* [Download this table as a Parquet file](https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_epamats__hourly_emissions.parquet)
+
+### pandas
+
+```python
+import pandas as pd
+df = pd.read_parquet(
+      "s3://pudl.catalyst.coop/nightly/core_epamats__hourly_emissions.parquet",
+      dtype_backend="pyarrow",
+)
+```
+
+### polars
+
+```python
+import polars as pl
+df = pl.read_parquet(
+      "s3://pudl.catalyst.coop/nightly/core_epamats__hourly_emissions.parquet",
+      storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+)
+```
+
+### SQL (DuckDB)
+
+```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
+SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_epamats__hourly_emissions.parquet';
+```
+
+### R
+
+```r
+library(arrow)
+df <- read_parquet(
+      "s3://pudl.catalyst.coop/nightly/core_epamats__hourly_emissions.parquet"
+)
+```
+
+### Columns
+
+| **Field Name**              | **Type**   | **Unit**   | **Description**                                                                                                                           |
+|-----------------------------|------------|------------|-------------------------------------------------------------------------------------------------------------------------------------------|
+| associated_stacks           | string     |            | EPA-associated stack IDs for the emissions unit.                                                                                          |
+| emissions_unit_id_epa       | string     |            | Emissions (smokestack) unit monitored by EPA CEMS.                                                                                        |
+| gross_load_mw               | number     | MW         | Average power in megawatts delivered during time interval measured.                                                                       |
+| hcl_input_rate_lb_per_mmbtu | number     | lb / MMBtu | Hydrogen chloride (HCl) emissions per unit of heat content.                                                                               |
+| hcl_mass_lbs                | number     | pound      | Hydrogen chloride (HCl) emissions in pounds.                                                                                              |
+| hcl_mass_measurement_code   | string     |            | Identifies whether the reported value of hydrogen chloride (HCl) emissions was measured, calculated, startup or shutdown, or unavailable. |
+| hcl_output_rate_lb_per_mwh  | number     | lb / MWh   | Hydrogen chloride (HCl) output emissions rate.                                                                                            |
+| heat_content_mmbtu          | number     | MMBtu      | The energy contained in fuel burned, measured in million BTU.                                                                             |
+| hg_controls                 | string     |            | Type of mercury (Hg) control technology installed.                                                                                        |
+| hg_input_rate_lb_per_tbtu   | number     | lb / TBtu  | Mercury (Hg) emissions per unit of heat content.                                                                                          |
+| hg_mass_lbs                 | number     | pound      | Mercury (Hg) emissions in pounds.                                                                                                         |
+| hg_mass_measurement_code    | string     |            | Identifies whether the reported value of mercury (Hg) emissions was measured, calculated, startup or shutdown, or unavailable.            |
+| hg_output_rate_lb_per_gwh   | number     | lb / GWh   | Mercury (Hg) output emissions rate.                                                                                                       |
+| nox_controls                | string     |            | Type of nitrogen oxide (NOx) control technology installed.                                                                                |
+| operating_datetime_utc      | datetime   |            | Date and time measurement began (UTC).                                                                                                    |
+| operating_time_hours        | number     | hour       | Length of time interval measured.                                                                                                         |
+| plant_id_eia                | integer    |            | The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.            |
+| plant_id_epa                | integer    |            | The ORISPL ID used by EPA to refer to the plant. Usually but not always the same as plant_id_eia.                                         |
+| plant_name_epa              | string     |            | Plant name as reported to the EPA.                                                                                                        |
+| pm_controls                 | string     |            | Type of particulate matter (PM) control technology installed.                                                                             |
+| primary_fuel_type           | string     |            | Primary fuel type burned by the unit.                                                                                                     |
+| secondary_fuel_type         | string     |            | Secondary fuel type burned by the unit.                                                                                                   |
+| so2_controls                | string     |            | Type of sulfur dioxide (SO2) control technology installed.                                                                                |
+| state                       | string     |            | Two letter US state abbreviation.                                                                                                         |
+| steam_load_lbs              | number     | pound      | Total steam pressure produced by a unit during the reported hour.                                                                         |
+| unit_type                   | string     |            | Type of emissions unit (e.g. boiler, combustion turbine).                                                                                 |
+| year                        | integer    |            | Year the data was reported in, used for partitioning EPA CEMS.                                                                            |
+
 <a id="core-ferc1-codes-power-purchase-types"></a>
 
 ## core_ferc1_\_codes_power_purchase_types
@@ -80829,6 +81102,12 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
 ### Enhancements
 
 ### New Data
+
+#### EPA MATS
+
+* Created the [core_epamats_\_hourly_emissions](data_dictionaries/pudl_db.html.md#core-epamats-hourly-emissions) table, bringing hourly mercury and
+  hydrogen chloride emissions data from the EPA into PUDL. See issue [#5357](https://github.com/catalyst-cooperative/pudl/issues/5357) and
+  PR [#5572](https://github.com/catalyst-cooperative/pudl/pull/5572). Thanks to contributor [@bsousa22](https://github.com/sponsors/bsousa22) for bringing in this data!
 
 ### Expanded Data Coverage
 
