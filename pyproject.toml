@@ -550,6 +550,12 @@ extend-select = ["NPY201"] # preview rule to easy migration to Numpy 2.0
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"] # Ignore unused imports
 "tests/*" = ["D"]
+"notebooks/**/*.py" = [
+    "D", # Docstrings aren't idiomatic in marimo notebook cells
+    "N803", # Marimo cell args are often ALL_CAPS constants from outer cells
+    "N806", # Marimo notebooks favor ALL_CAPS module-level-style constants
+    "B018", # A bare trailing expression is how marimo cells return a display value
+]
 
 [tool.ruff.lint.isort]
 known-first-party = ["pudl"]
