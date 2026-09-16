@@ -12,16 +12,49 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
 
 ### Expanded Data Coverage
 
+#### EIA-860
+
+* Added final release data from 2025 for [EIA-860](data_sources/eia860.html.md). See
+  issue [#5589](https://github.com/catalyst-cooperative/pudl/issues/5589) and PR [#5591](https://github.com/catalyst-cooperative/pudl/pull/5591).
+
 ### Documentation
+
+* Fixed dbt macro argument documentation in `dbt/macros/schema.yml` and
+  `dbt/tests/data_tests/generic_tests/schema.yml` to match dbt 1.12’s stricter
+  validation of macro `arguments:` blocks against their jinja signatures, clearing a
+  long list of spurious `dbt parse` warnings. Also standardized on the long-form
+  `string` type name (rather than `str`) throughout, since both are accepted by
+  dbt but were used inconsistently. See PR [#5593](https://github.com/catalyst-cooperative/pudl/pull/5593).
 
 ### New Data Tests & Validations
 
 ### Bug Fixes & Data Cleaning
 
+* Fixed `allocate_gen_fuel.py` silently dropping legitimate generation and fuel
+  data for generators transitioning between `proposed`/`existing` or
+  `existing`/`retired` status across a multi-year ETL run. Unified the slightly
+  different logics of these transitions into a single, shared, symmetric process. This
+  simplification exposed a bug in which one generator’s status transition could silently
+  prevent data from another group of generators at the same plant from being allocated.
+  Added extensive unit tests and new dbt data quality tests validating that >=99.7% of
+  all reported generation and fuel survives allocation. Thanks to [@grgmiller](https://github.com/sponsors/grgmiller) for
+  surfacing the issue and initiating the fix. See [#5440](https://github.com/catalyst-cooperative/pudl/issues/5440) and PRs [#5419](https://github.com/catalyst-cooperative/pudl/pull/5419), [#5511](https://github.com/catalyst-cooperative/pudl/pull/5511).
+* Fixed a bug where a skipped nightly/release build (i.e. one that found good build
+  outputs for its commit and kicked off the `deploy-pudl.yml` workflow) uploaded its
+  own small logfile to the build outputs bucket. This created newer object path with the
+  same commit confusing `deploy-pudl` causing deployment to fail. See [#5579](https://github.com/catalyst-cooperative/pudl/issues/5579)
+  and [#5580](https://github.com/catalyst-cooperative/pudl/pull/5580).
+
 ### Performance Improvements
 
 ### Developer Experience
 
+* Replaced all remaining uses of `importlib.resources` with direct `pathlib.Path`
+  access to files under `src/pudl/package_data`, since PUDL is only ever run from a
+  git checkout and no longer needs to support being installed as a distributable
+  package. Also removed the now-unneeded dummy `__init__.py` files that made
+  `package_data` subdirectories importable, which incidentally stops Sphinx from
+  generating documentation pages for these non-code directories. See PR [#5592](https://github.com/catalyst-cooperative/pudl/pull/5592).
 * Upgraded to Pyrefly 1.3.0 and adopted its new concise baseline format. Fixed a handful
   of genuine typing gaps that the upgrade surfaced. Mostly this involved type narrowing
   in places where an object that might be `None` was subject to a regex match, dict
@@ -224,15 +257,6 @@ story.
   key instead of `data_tests:`, meaning `dbt_helper` silently discarded the tests
   they contained instead of merging them into the generated `schema.yml`. See PR
   [#5458](https://github.com/catalyst-cooperative/pudl/pull/5458).
-* Fixed `allocate_gen_fuel.py` silently dropping legitimate generation and fuel
-  data for generators transitioning between `proposed`/`existing` or
-  `existing`/`retired` status across a multi-year ETL run. Unified the slightly
-  different logics of these transitions into a single, shared, symmetric process. This
-  simplification exposed a bug in which one generator’s status transition could silently
-  prevent data from another group of generators at the same plant from being allocated.
-  Added extensive unit tests an new dbt data quality tests validating that >=99.7% of
-  all reported generation and fuel survives allocation. Thanks to [@grgmiller](https://github.com/sponsors/grgmiller) for
-  surfacing and starting this fix. See [#5440](https://github.com/catalyst-cooperative/pudl/issues/5440) and PRs [#5419](https://github.com/catalyst-cooperative/pudl/pull/5419), [#5511](https://github.com/catalyst-cooperative/pudl/pull/5511).
 * Fixed several sources of non-deterministic row counts, where identical code and data
   produced different results on different machines (e.g. local macOS vs. nightly Linux
   builds) because several functions resolved ties among candidate values using

@@ -125,7 +125,7 @@ estimate historical hourly electricity demand by state for 2006-2020.
 The format of the company identifiers (CIDs) used in the CSV data (2006-2020) and the
 XBRL data (2021+) differs. To link respondents between both data formats, we manually
 map the IDs from both datasets and create a `respondent_id_ferc714` in
-`pudl.package_data.glue.respondent_id_ferc714.csv`.
+`src/pudl/package_data/glue/respondent_id_ferc714.csv`.
 
 This CSV builds on the [migrated data](https://www.ferc.gov/filing-forms/eforms-refresh/migrated-data-downloads) provided
 by FERC during the transition from CSV to XBRL data, which notes that:

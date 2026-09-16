@@ -49,8 +49,9 @@ DOI to point to the latest dataset by running:
 pixi run update_zenodo_dois dataset_name
 ```
 
-Verify that this updated the record in `pudl.package_data.settings.zenodo_dois.yml`
-to refer to the new raw input archives as expected.
+Verify that this updated the record in
+`src/pudl/package_data/settings/zenodo_dois.yml` to refer to the new raw input
+archives as expected.
 
 **1.3)** In [`pudl.metadata.sources.SOURCES`](../autoapi/pudl/metadata/sources/index.html.md#pudl.metadata.sources.SOURCES), update the `working_partitions`
 to reflect the years, months, or quarters of data that are available for each dataset

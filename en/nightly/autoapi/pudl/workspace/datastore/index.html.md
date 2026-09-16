@@ -23,10 +23,10 @@ Datastore manages file retrieval for PUDL datasets.
 
 ## Functions
 
-| [`get_zenodo_dois_path`](#pudl.workspace.datastore.get_zenodo_dois_path)(→ importlib.resources.abc.Traversable)   | Return the canonical packaged Zenodo DOI settings path.      |
-|----------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------|
-| [`validate_cache`](#pudl.workspace.datastore.validate_cache)(→ None)                                        | Validate elements in the datastore cache.                    |
-| [`fetch_resources`](#pudl.workspace.datastore.fetch_resources)(→ None)                                       | Retrieve all matching resources and store them in the cache. |
+| [`get_zenodo_dois_path`](#pudl.workspace.datastore.get_zenodo_dois_path)(→ pathlib.Path)   | Return the canonical packaged Zenodo DOI settings path.      |
+|-----------------------------------------------------------------------------------------|--------------------------------------------------------------|
+| [`validate_cache`](#pudl.workspace.datastore.validate_cache)(→ None)                 | Validate elements in the datastore cache.                    |
+| [`fetch_resources`](#pudl.workspace.datastore.fetch_resources)(→ None)                | Retrieve all matching resources and store them in the cache. |
 
 ## Module Contents
 
@@ -34,7 +34,7 @@ Datastore manages file retrieval for PUDL datasets.
 
 ### pudl.workspace.datastore.ZenodoDoi
 
-### pudl.workspace.datastore.get_zenodo_dois_path() → [importlib.resources.abc.Traversable](https://docs.python.org/3/library/importlib.resources.abc.html#importlib.resources.abc.Traversable)
+### pudl.workspace.datastore.get_zenodo_dois_path() → [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)
 
 Return the canonical packaged Zenodo DOI settings path.
 

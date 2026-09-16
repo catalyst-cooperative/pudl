@@ -22,7 +22,7 @@ three things:
 1. **Collects configuration.** It walks the graph’s op tree, harvesting default
    config values from each op’s [`Config`](https://docs.dagster.io/api/dagster/config/#dagster.Config) subclass. If
    `config_from_yaml=True`, it also merges overrides from
-   `pudl.package_data.settings.pudl_models.yml`. The merged config is stored
+   `src/pudl/package_data/settings/pudl_models.yml`. The merged config is stored
    in the module-level `MODEL_CONFIGURATION` dict, which
    `get_ml_models_config()` later folds into the
    default job config so Dagster knows the defaults at launch time.

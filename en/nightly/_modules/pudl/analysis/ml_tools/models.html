@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.analysis.ml_tools.models &#8212; PUDL 2026.9.1.dev7 documentation</title>
+    <title>pudl.analysis.ml_tools.models &#8212; PUDL 2026.9.1.dev11 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../../_static/documentation_options.js?v=47d74850"></script>
+    <script src="../../../../_static/documentation_options.js?v=6d6e54b9"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev7 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev7 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev11 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev11 documentation - Home"/>
   
   
 </a></div>
@@ -895,7 +895,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">1. **Collects configuration.** It walks the graph's op tree, harvesting default</span>
 <span class="sd">   config values from each op's :class:`~dagster.Config` subclass. If</span>
 <span class="sd">   ``config_from_yaml=True``, it also merges overrides from</span>
-<span class="sd">   ``pudl.package_data.settings.pudl_models.yml``. The merged config is stored</span>
+<span class="sd">   ``src/pudl/package_data/settings/pudl_models.yml``. The merged config is stored</span>
 <span class="sd">   in the module-level ``MODEL_CONFIGURATION`` dict, which</span>
 <span class="sd">   :func:`~pudl.dagster.config.get_ml_models_config` later folds into the</span>
 <span class="sd">   default job config so Dagster knows the defaults at launch time.</span>
@@ -918,8 +918,6 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">* Values entered in the Dagster UI Launchpad (single-run override)</span>
 <span class="sd">"""</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
-
 <span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">AssetIn</span><span class="p">,</span>
@@ -930,6 +928,7 @@ window.runMermaid = runMermaid;</script>
 <span class="p">)</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pudl.logging_helpers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl</span><span class="w"> </span><span class="kn">import</span> <span class="n">PUDL_SETTINGS_PATH</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">experiment_tracking</span>
 
@@ -947,9 +946,7 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/ml_tools/models/index.html#pudl.analysis.ml_tools.models.get_yml_config">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_yml_config</span><span class="p">(</span><span class="n">experiment_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Load model configuration from yaml file."""</span>
-    <span class="n">config_file</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s2">"pudl.package_data.settings"</span><span class="p">)</span> <span class="o">/</span> <span class="s2">"pudl_models.yml"</span>
-    <span class="p">)</span>
+    <span class="n">config_file</span> <span class="o">=</span> <span class="n">PUDL_SETTINGS_PATH</span> <span class="o">/</span> <span class="s2">"pudl_models.yml"</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">config_file</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"r"</span><span class="p">))</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">model_config</span> <span class="o">:=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">experiment_name</span><span class="p">)):</span>

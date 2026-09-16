@@ -1,6 +1,6 @@
 # PUDL
 
-> PUDL 2026.9.1.dev7 documentation
+> PUDL 2026.9.1.dev11 documentation
 
 
 2016-2026, Catalyst Cooperative, CC-BY-4.0
@@ -196,38 +196,6 @@
 - [pudl.output.ferc714](autoapi/pudl/output/ferc714/index.html.md): Functions & classes for compiling derived aspects of the FERC Form 714 data.
 - [pudl.output.rus](autoapi/pudl/output/rus/index.html.md): Create output tables for RUS-7 and RUS-12.
 - [pudl.output.sec10k](autoapi/pudl/output/sec10k/index.html.md): Denormalized output tables for the SEC 10-K assets.
-- [pudl.package_data](autoapi/pudl/package_data/index.html.md): Importable (dummy) package to include PUDL metadata structures.
-- [pudl.package_data.censuspep](autoapi/pudl/package_data/censuspep/index.html.md): Excel spreadsheet extraction maps for Census PEP FIPS codes, plus territories to add.
-- [pudl.package_data.censuspep.column_maps](autoapi/pudl/package_data/censuspep/column_maps/index.html.md): Metadata linking semantic meaning of Census PEP FIPS codes spreadsheet columns across years.
-- [pudl.package_data.eia176](autoapi/pudl/package_data/eia176/index.html.md): CSV file extraction maps for EIA 176.
-- [pudl.package_data.eia176.column_maps](autoapi/pudl/package_data/eia176/column_maps/index.html.md): Metadata linking semantic meaning of EIA 176 CSV file columns across years.
-- [pudl.package_data.eia191](autoapi/pudl/package_data/eia191/index.html.md): CSV file extraction maps for EIA 191.
-- [pudl.package_data.eia191.column_maps](autoapi/pudl/package_data/eia191/column_maps/index.html.md): Metadata linking semantic meaning of EIA 191 CSV file columns across years.
-- [pudl.package_data.eia757a](autoapi/pudl/package_data/eia757a/index.html.md): CSV file extraction maps for EIA 757a.
-- [pudl.package_data.eia757a.column_maps](autoapi/pudl/package_data/eia757a/column_maps/index.html.md): Metadata linking semantic meaning of EIA 757a CSV file columns across years.
-- [pudl.package_data.eia860](autoapi/pudl/package_data/eia860/index.html.md): Excel spreadsheet extraction maps for EIA 860.
-- [pudl.package_data.eia860.column_maps](autoapi/pudl/package_data/eia860/column_maps/index.html.md): Metadata linking semantic meaning of EIA 860 spreadsheet columns across years.
-- [pudl.package_data.eia860m](autoapi/pudl/package_data/eia860m/index.html.md): Excel spreadsheet extraction maps for EIA 860M.
-- [pudl.package_data.eia860m.column_maps](autoapi/pudl/package_data/eia860m/column_maps/index.html.md): Metadata linking semantic meaning of EIA 860M spreadsheet columns across years.
-- [pudl.package_data.eia861](autoapi/pudl/package_data/eia861/index.html.md): Excel spreadsheet extraction maps for EIA 861.
-- [pudl.package_data.eia861.column_maps](autoapi/pudl/package_data/eia861/column_maps/index.html.md): Metadata linking semantic meaning of EIA 861 spreadsheet columns across years.
-- [pudl.package_data.eia923](autoapi/pudl/package_data/eia923/index.html.md): Excel spreadsheet extraction maps for EIA 923.
-- [pudl.package_data.eia923.column_maps](autoapi/pudl/package_data/eia923/column_maps/index.html.md): Metadata linking semantic meaning of EIA 923 spreadsheet columns across years.
-- [pudl.package_data.eia930](autoapi/pudl/package_data/eia930/index.html.md): CSV file extraction maps for EIA 930.
-- [pudl.package_data.eia930.column_maps](autoapi/pudl/package_data/eia930/column_maps/index.html.md): Metadata linking semantic meaning of EIA 930 CSV file columns across years.
-- [pudl.package_data.epacems](autoapi/pudl/package_data/epacems/index.html.md): Additional data required for integration of the EPA CEMS hourly data.
-- [pudl.package_data.ferc1](autoapi/pudl/package_data/ferc1/index.html.md): Metadata required for extracting data from the FERC Form 1.
-- [pudl.package_data.ferc1.row_maps](autoapi/pudl/package_data/ferc1/row_maps/index.html.md): Metadata linking the semantic meaning of FERC 1 row numbers across years.
-- [pudl.package_data.glue](autoapi/pudl/package_data/glue/index.html.md): Importable (dummy) package to enable distribution of PUDL metadata structures.
-- [pudl.package_data.phmsagas](autoapi/pudl/package_data/phmsagas/index.html.md): Excel spreadsheet extraction maps for PHMSA gas data.
-- [pudl.package_data.phmsagas.column_maps](autoapi/pudl/package_data/phmsagas/column_maps/index.html.md): Metadata linking semantic meaning of PHMSA spreadsheet columns across years.
-- [pudl.package_data.rus12](autoapi/pudl/package_data/rus12/index.html.md): Excel spreadsheet extraction maps for RUS 12 data.
-- [pudl.package_data.rus12.column_maps](autoapi/pudl/package_data/rus12/column_maps/index.html.md): Metadata linking semantic meaning of RUS 12 spreadsheet columns across years.
-- [pudl.package_data.rus7](autoapi/pudl/package_data/rus7/index.html.md): CSV extraction maps for RUS 7 data.
-- [pudl.package_data.settings](autoapi/pudl/package_data/settings/index.html.md): Importable (dummy) package to enable distribution of PUDL metadata structures.
-- [pudl.package_data.test](autoapi/pudl/package_data/test/index.html.md): Excel spreadsheet extraction maps for testing.
-- [pudl.package_data.test.column_maps](autoapi/pudl/package_data/test/column_maps/index.html.md): Metadata linking semantic meaning of Testing spreadsheet columns across years.
-- [pudl.package_data.vcerare](autoapi/pudl/package_data/vcerare/index.html.md): CSV file extraction maps for VCE RARE Power Dataset.
 - [pudl.scripts](autoapi/pudl/scripts/index.html.md): Command line interface scripts for PUDL.
 - [pudl.scripts.auto_match_utilities](autoapi/pudl/scripts/auto_match_utilities/index.html.md): A CLI tool for matching FERC and EIA utilities.
 - [pudl.scripts.batch_config](autoapi/pudl/scripts/batch_config/index.html.md): Generate a Google Batch Job configuration file.

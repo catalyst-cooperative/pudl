@@ -16,7 +16,6 @@ The Public Utility Data Liberation (PUDL) Project.
 * [pudl.logging_helpers](logging_helpers/index.html.md)
 * [pudl.metadata](metadata/index.html.md)
 * [pudl.output](output/index.html.md)
-* [pudl.package_data](package_data/index.html.md)
 * [pudl.scripts](scripts/index.html.md)
 * [pudl.settings](settings/index.html.md)
 * [pudl.transform](transform/index.html.md)
@@ -25,24 +24,25 @@ The Public Utility Data Liberation (PUDL) Project.
 
 ## Attributes
 
-| [`PUDL_ROOT_PATH`](#pudl.PUDL_ROOT_PATH)                | Resolved absolute path to the repository root.        |
-|--------------------------------------------------------------------------------|-------------------------------------------------------|
-| [`PUDL_SETTINGS_PATH`](#pudl.PUDL_SETTINGS_PATH)            | Resolved absolute path to the package_data directory. |
-| [`PUDL_DBT_PATH`](#pudl.PUDL_DBT_PATH)                 | Resolved absolute path to the dbt directory.          |
-| [`PUDL_DOCS_PATH`](#pudl.PUDL_DOCS_PATH)                | Resolved absolute path to the docs directory.         |
-| [`PUDL_NIGHTLY_BUILDS_BASE_PATH`](#pudl.PUDL_NIGHTLY_BUILDS_BASE_PATH) | Base path to PUDL nightly builds outputs.             |
-| [`PUDL_EEL_HOLE_BASE_PATH`](#pudl.PUDL_EEL_HOLE_BASE_PATH)       | Base path to eel-hole s3 outputs.                     |
-| [`__author__`](#pudl.__author__)                    |                                                       |
-| [`__contact__`](#pudl.__contact__)                   |                                                       |
-| [`__maintainer__`](#pudl.__maintainer__)                |                                                       |
-| [`__license__`](#pudl.__license__)                   |                                                       |
-| [`__maintainer_email__`](#pudl.__maintainer_email__)          |                                                       |
-| [`__version__`](#pudl.__version__)                   |                                                       |
-| [`__docformat__`](#pudl.__docformat__)                 |                                                       |
-| [`__description__`](#pudl.__description__)               |                                                       |
-| [`__long_description__`](#pudl.__long_description__)          |                                                       |
-| [`__projecturl__`](#pudl.__projecturl__)                |                                                       |
-| [`__downloadurl__`](#pudl.__downloadurl__)               |                                                       |
+| [`PUDL_ROOT_PATH`](#pudl.PUDL_ROOT_PATH)                | Resolved absolute path to the repository root.                 |
+|--------------------------------------------------------------------------------|----------------------------------------------------------------|
+| [`PUDL_PACKAGE_DATA_PATH`](#pudl.PUDL_PACKAGE_DATA_PATH)        | Resolved absolute path to the package_data directory.          |
+| [`PUDL_SETTINGS_PATH`](#pudl.PUDL_SETTINGS_PATH)            | Resolved absolute path to the package_data/settings directory. |
+| [`PUDL_DBT_PATH`](#pudl.PUDL_DBT_PATH)                 | Resolved absolute path to the dbt directory.                   |
+| [`PUDL_DOCS_PATH`](#pudl.PUDL_DOCS_PATH)                | Resolved absolute path to the docs directory.                  |
+| [`PUDL_NIGHTLY_BUILDS_BASE_PATH`](#pudl.PUDL_NIGHTLY_BUILDS_BASE_PATH) | Base path to PUDL nightly builds outputs.                      |
+| [`PUDL_EEL_HOLE_BASE_PATH`](#pudl.PUDL_EEL_HOLE_BASE_PATH)       | Base path to eel-hole s3 outputs.                              |
+| [`__author__`](#pudl.__author__)                    |                                                                |
+| [`__contact__`](#pudl.__contact__)                   |                                                                |
+| [`__maintainer__`](#pudl.__maintainer__)                |                                                                |
+| [`__license__`](#pudl.__license__)                   |                                                                |
+| [`__maintainer_email__`](#pudl.__maintainer_email__)          |                                                                |
+| [`__version__`](#pudl.__version__)                   |                                                                |
+| [`__docformat__`](#pudl.__docformat__)                 |                                                                |
+| [`__description__`](#pudl.__description__)               |                                                                |
+| [`__long_description__`](#pudl.__long_description__)          |                                                                |
+| [`__projecturl__`](#pudl.__projecturl__)                |                                                                |
+| [`__downloadurl__`](#pudl.__downloadurl__)               |                                                                |
 
 ## Functions
 
@@ -68,9 +68,13 @@ Configure the root catalystcoop logger.
 
 Resolved absolute path to the repository root.
 
-### pudl.PUDL_SETTINGS_PATH *: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)*
+### pudl.PUDL_PACKAGE_DATA_PATH *: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)*
 
 Resolved absolute path to the package_data directory.
+
+### pudl.PUDL_SETTINGS_PATH *: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)*
+
+Resolved absolute path to the package_data/settings directory.
 
 ### pudl.PUDL_DBT_PATH *: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)*
 

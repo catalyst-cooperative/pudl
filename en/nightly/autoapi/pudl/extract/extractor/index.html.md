@@ -12,9 +12,9 @@ Generic functionality for extractors.
 
 ## Classes
 
-| [`GenericMetadata`](#pudl.extract.extractor.GenericMetadata)   | Load generic metadata from Python package data.   |
-|--------------------------------------------------------------------|---------------------------------------------------|
-| [`GenericExtractor`](#pudl.extract.extractor.GenericExtractor)  | Generic extractor base class.                     |
+| [`GenericMetadata`](#pudl.extract.extractor.GenericMetadata)   | Load generic metadata from files under src/pudl/package_data.   |
+|--------------------------------------------------------------------|-----------------------------------------------------------------|
+| [`GenericExtractor`](#pudl.extract.extractor.GenericExtractor)  | Generic extractor base class.                                   |
 
 ## Functions
 
@@ -35,10 +35,10 @@ Generic functionality for extractors.
 
 ### *class* pudl.extract.extractor.GenericMetadata(dataset_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str))
 
-Load generic metadata from Python package data.
+Load generic metadata from files under src/pudl/package_data.
 
-When metadata object is instantiated, it is given ${dataset} name and it
-will attempt to load csv files from pudl.package_data.${dataset} package.
+When metadata object is instantiated, it is given a ${dataset} name and it will
+attempt to load csv files from src/pudl/package_data/${dataset}.
 
 It expects the following kinds of files:
 
@@ -48,7 +48,7 @@ It expects the following kinds of files:
 
 #### \_dataset_name
 
-#### \_pkg
+#### \_path
 
 #### \_column_map
 
@@ -56,11 +56,11 @@ It expects the following kinds of files:
 
 Returns the name of the dataset described by this metadata.
 
-#### \_load_csv(package: [str](https://docs.python.org/3/builtins/stdtypes.html#str), filename: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### \_load_csv(package_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), filename: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
-Load metadata from a filename that is found in a package.
+Load metadata from a filename that is found in a package directory.
 
-#### \_load_column_maps(column_map_pkg: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)
+#### \_load_column_maps(column_map_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)
 
 Create a dictionary of all column mapping CSVs to use in get_column_map().
 

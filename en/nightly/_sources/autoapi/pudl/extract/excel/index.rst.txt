@@ -36,7 +36,7 @@ Module Contents
    Bases: :py:obj:`pudl.extract.extractor.GenericMetadata`
 
 
-   Load Excel metadata from Python package data.
+   Load Excel metadata from files under src/pudl/package_data.
 
    Excel sheet files may contain many different tables. When we load those
    into dataframes, metadata tells us how to do this. Metadata generally informs
@@ -44,8 +44,8 @@ Module Contents
    and it informs us how to translate excel column names into standardized
    column names.
 
-   When metadata object is instantiated, it is given ${dataset} name and it
-   will attempt to load csv files from pudl.package_data.${dataset} package.
+   When metadata object is instantiated, it is given a ${dataset} name and it will
+   attempt to load csv files from src/pudl/package_data/${dataset}.
 
    It expects the following kinds of files:
 
