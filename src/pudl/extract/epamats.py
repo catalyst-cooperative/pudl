@@ -18,8 +18,8 @@ import polars as pl
 from dagster import asset
 
 import pudl.logging_helpers
-from pudl.extract.epacems import EpaCemsDatastore, EpaCemsPartition
 from pudl.dagster.op_tags import COLD_PATH_OP_TAGS
+from pudl.extract.epacems import EpaCemsDatastore, EpaCemsPartition
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
