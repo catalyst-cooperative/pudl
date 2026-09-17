@@ -84,7 +84,6 @@ Performance Improvements
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^
 
-<<<<<<< HEAD
 * Replaced all remaining uses of ``importlib.resources`` with direct ``pathlib.Path``
   access to files under ``src/pudl/package_data``, since PUDL is only ever run from a
   git checkout and no longer needs to support being installed as a distributable
