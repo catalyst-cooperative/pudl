@@ -67,7 +67,7 @@ def test_ferc_xbrl_datastore_get_filings(mocker):
 
 
 @pytest.mark.parametrize(
-    "data_config,forms",
+    ("data_config", "forms"),
     [
         (
             FercToSqliteDataConfig(
@@ -391,7 +391,9 @@ def test_ferc_to_sqlite_asset_factory(mocker, pudl_test_paths):
     mock_extract_function.assert_called_once()
 
 
-@pytest.mark.parametrize("dataset,data_format", [("ferc1", "dbf"), ("ferc1", "xbrl")])
+@pytest.mark.parametrize(
+    ("dataset", "data_format"), [("ferc1", "dbf"), ("ferc1", "xbrl")]
+)
 def test_download_nightly_outputs(
     dataset, data_format, pudl_test_paths, tmp_path, mocker
 ):

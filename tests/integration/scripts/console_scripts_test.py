@@ -28,7 +28,7 @@ def test_pudl_datastore(script_runner, command: str):
 
 
 @pytest.mark.parametrize(
-    "resource_id,expected_success",
+    ("resource_id", "expected_success"),
     [
         # One migrated table
         ("core_epacems__hourly_emissions", True),

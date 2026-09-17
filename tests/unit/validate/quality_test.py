@@ -8,7 +8,7 @@ from pudl.validate import quality as pv
 
 
 @pytest.mark.parametrize(
-    "data,weights,quantile,expected",
+    ("data", "weights", "quantile", "expected"),
     [
         # Basic test case - single non-zero weight
         ([1, 2, 3, 4, 5], [0, 0, 0, 1, 0], 0.5, 4),
@@ -43,7 +43,7 @@ def test_weighted_quantile(data, weights, quantile, expected):
 
 
 @pytest.mark.parametrize(
-    "data,weights,quantile,expected_error",
+    ("data", "weights", "quantile", "expected_error"),
     [
         # Invalid quantile values
         ([1, 2, 3], [1, 1, 1], -0.1, ValueError),
@@ -62,7 +62,7 @@ def test_weighted_quantile_errors(data, weights, quantile, expected_error):
 
 
 @pytest.mark.parametrize(
-    "data,weights,quantile",
+    ("data", "weights", "quantile"),
     [
         # All NaN data
         ([np.nan, np.nan, np.nan], [1, 1, 1], 0.5),
@@ -81,7 +81,7 @@ def test_weighted_quantile_nan_cases(data, weights, quantile):
 
 
 @pytest.mark.parametrize(
-    "data,weights,quantile,expected",
+    ("data", "weights", "quantile", "expected"),
     [
         # Data with inf values - function filters out inf but processes remaining data
         ([1, np.inf, 3], [1, 1, 1], 0.5, 2.0),
@@ -101,7 +101,7 @@ def test_weighted_quantile_filtering(data, weights, quantile, expected):
 
 
 @pytest.mark.parametrize(
-    "rows,cols,max_null_fraction",
+    ("rows", "cols", "max_null_fraction"),
     [
         # All values present — never null
         ({"a": [1, 2], "b": [3, 4]}, "all", 0.9),
@@ -121,7 +121,7 @@ def test_no_null_rows_passes(rows, cols, max_null_fraction):
 
 
 @pytest.mark.parametrize(
-    "rows,cols,max_null_fraction,expected_null_count",
+    ("rows", "cols", "max_null_fraction", "expected_null_count"),
     [
         # Every column null in first row: fraction 1.0 > 0.9 threshold
         ({"a": [None, 1], "b": [None, 2]}, "all", 0.9, 1),

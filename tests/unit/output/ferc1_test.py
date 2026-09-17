@@ -424,7 +424,7 @@ def test_get_core_ferc1_asset_description():
     assert valid_core_ferc1_asset_name_result == "income_statements"
 
     invalid_core_ferc1_asset_name = "core_ferc1__income_statements"
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="can not be parsed"):
         get_core_ferc1_asset_description(invalid_core_ferc1_asset_name)
 
 
