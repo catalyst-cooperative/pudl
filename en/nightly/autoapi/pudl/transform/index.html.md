@@ -74,6 +74,7 @@ tables is normalized as a whole.
 * [pudl.transform.eiaaeo](eiaaeo/index.html.md)
 * [pudl.transform.eiaapi](eiaapi/index.html.md)
 * [pudl.transform.epacems](epacems/index.html.md)
+* [pudl.transform.epamats](epamats/index.html.md)
 * [pudl.transform.ferc](ferc/index.html.md)
 * [pudl.transform.ferc1](ferc1/index.html.md)
 * [pudl.transform.ferc714](ferc714/index.html.md)

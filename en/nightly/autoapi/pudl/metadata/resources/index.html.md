@@ -17,6 +17,7 @@ A subpackage to define and organize PUDL database tables by data group.
 * [pudl.metadata.resources.eiaaeo](eiaaeo/index.html.md)
 * [pudl.metadata.resources.eiaapi](eiaapi/index.html.md)
 * [pudl.metadata.resources.epacems](epacems/index.html.md)
+* [pudl.metadata.resources.epamats](epamats/index.html.md)
 * [pudl.metadata.resources.ferc1](ferc1/index.html.md)
 * [pudl.metadata.resources.ferc1_eia_record_linkage](ferc1_eia_record_linkage/index.html.md)
 * [pudl.metadata.resources.ferc714](ferc714/index.html.md)

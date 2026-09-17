@@ -28,6 +28,7 @@ Enumerations of valid field values.
 | [`FUEL_CLASSES`](#pudl.metadata.enums.FUEL_CLASSES)                           |                                                                                 |
 | [`RTO_CLASSES`](#pudl.metadata.enums.RTO_CLASSES)                            |                                                                                 |
 | [`EPACEMS_MEASUREMENT_CODES`](#pudl.metadata.enums.EPACEMS_MEASUREMENT_CODES)              | Valid emissions measurement codes for the EPA CEMS hourly data.                 |
+| [`EPAMATS_MEASUREMENT_CODES`](#pudl.metadata.enums.EPAMATS_MEASUREMENT_CODES)              | Valid emissions measurement codes for the EPA MATS hourly data.                 |
 | [`TECH_DESCRIPTIONS`](#pudl.metadata.enums.TECH_DESCRIPTIONS)                      | Valid technology descriptions from the EIA plant parts list.                    |
 | [`PLANT_PARTS`](#pudl.metadata.enums.PLANT_PARTS)                            | The plant parts in the EIA plant parts list.                                    |
 | [`TECH_DESCRIPTIONS_NRELATB`](#pudl.metadata.enums.TECH_DESCRIPTIONS_NRELATB)              | NREL ATB technology descriptions.                                               |
@@ -157,6 +158,13 @@ Subregions are based on regional pricing zones.
 ### pudl.metadata.enums.EPACEMS_MEASUREMENT_CODES *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= ['Calculated', 'LME', 'Measured', 'Measured and Substitute', 'Other', 'Substitute']*
 
 Valid emissions measurement codes for the EPA CEMS hourly data.
+
+### pudl.metadata.enums.EPAMATS_MEASUREMENT_CODES *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= ['Manually Calculated', 'Measured', 'Startup or Shutdown', 'Unavailable']*
+
+Valid emissions measurement codes for the EPA MATS hourly data.
+
+“Unavailable” is entered by the respondent and does not mean the same thing as a
+missing/NA value.
 
 ### pudl.metadata.enums.TECH_DESCRIPTIONS *: [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
