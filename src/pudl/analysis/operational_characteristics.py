@@ -774,7 +774,7 @@ HEAT_RATE_ANALYSIS_CONFIG_SCHEMA = {
     required_resource_keys={"global_data_config"},
     ins={"core_epacems__hourly_emissions": AssetIn()},
     config_schema=HEAT_RATE_ANALYSIS_CONFIG_SCHEMA,
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     op_tags={"memory-use": "high"},  # Peak of ~16 GB as of 2026-08-05
     kinds={"polars"},
 )

@@ -9,7 +9,6 @@ transformations.
 """
 
 import enum
-import importlib.resources
 import itertools
 import json
 import re
@@ -29,6 +28,7 @@ from pydantic import BaseModel, Field, field_validator
 import pudl.helpers
 import pudl.logging_helpers
 import pudl.metadata.classes
+from pudl import PUDL_PACKAGE_DATA_PATH
 from pudl.extract.ferc1 import TABLE_NAME_MAP_FERC1
 from pudl.helpers import (
     assert_cols_areclose,
@@ -713,7 +713,7 @@ def unstack_balances_to_report_year_instant_xbrl(
 class CombineAxisColumnsXbrl(TransformParams):
     """Parameters for :func:`combine_axis_columns_xbrl`."""
 
-    axis_columns_to_combine: list | None = None
+    axis_columns_to_combine: list[str] | None = None
     """List of axis columns to combine."""
 
     new_axis_column_name: str | None = None
@@ -776,6 +776,14 @@ def combine_axis_columns_xbrl(
         | valueB                  |
         +-------------------------+
     """
+    assert params.axis_columns_to_combine, (
+        "combine_axis_columns_xbrl should only be called when "
+        "axis_columns_to_combine is set."
+    )
+    assert params.new_axis_column_name, (
+        "combine_axis_columns_xbrl should only be called when "
+        "new_axis_column_name is set."
+    )
     # First, make sure that the new_axis_column_name param as the word axis in it
     if not params.new_axis_column_name.endswith("_axis"):
         raise ValueError(
@@ -1823,9 +1831,7 @@ def update_dbf_to_xbrl_map(ferc1_engine: sa.Engine) -> pd.DataFrame:
     idx_cols = ["sched_table_name", "row_number", "report_year"]
     all_rows = get_ferc1_dbf_rows_to_map(ferc1_engine).set_index(idx_cols)
     mapped_rows = (
-        pd.read_csv(
-            importlib.resources.files("pudl.package_data.ferc1") / "dbf_to_xbrl.csv"
-        )
+        pd.read_csv(PUDL_PACKAGE_DATA_PATH / "ferc1" / "dbf_to_xbrl.csv")
         .set_index(idx_cols)
         .drop(["row_literal"], axis="columns")
     )
@@ -1848,7 +1854,7 @@ def read_dbf_to_xbrl_map(dbf_table_names: list[str]) -> pd.DataFrame:
         DataFrame with columns ``[sched_table_name, report_year, row_number, row_type, xbrl_factoid]``
     """
     row_map = pd.read_csv(
-        importlib.resources.files("pudl.package_data.ferc1") / "dbf_to_xbrl.csv",
+        PUDL_PACKAGE_DATA_PATH / "ferc1" / "dbf_to_xbrl.csv",
         usecols=[
             "sched_table_name",
             "report_year",
@@ -1988,12 +1994,8 @@ def get_data_cols_raw_xbrl(
 
 def read_xbrl_calculation_fixes() -> pd.DataFrame:
     """Read in the table of calculation fixes."""
-    source = importlib.resources.files("pudl.package_data.ferc1").joinpath(
-        "xbrl_calculation_component_fixes.csv"
-    )
-    with importlib.resources.as_file(source) as file:
-        calc_fixes = pd.read_csv(file)
-    return calc_fixes
+    source = PUDL_PACKAGE_DATA_PATH / "ferc1" / "xbrl_calculation_component_fixes.csv"
+    return pd.read_csv(source)
 
 
 ################################################################################
@@ -2030,6 +2032,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     If ``None``, the calculations have not been instantiated. If the table has been
     instantiated but is an empty table, then there are no calculations for that table.
     """
+    pudl_paths: PudlPaths | None = None
+    """Object providing access to PUDL input/output directory paths."""
 
     def __init__(
         self,
@@ -2284,19 +2288,10 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             if col_name_new.endswith(f"_{value_type}"):
                 col_name_new = re.sub(f"_{value_type}$", "", col_name_new)
 
-        if self.params.unstack_balances_to_report_year_instant_xbrl:  # noqa: SIM102
-            # TODO: do something...? add starting_balance & ending_balance suffixes?
-            if self.params.merge_xbrl_metadata.on:
-                NotImplementedError(
-                    "We haven't implemented a xbrl_factoid rename for the parameter "
-                    "unstack_balances_to_report_year_instant_xbrl. Since you are trying"
-                    "to merge the metadata on this table that has this treatment, a "
-                    "xbrl_factoid rename will be required."
-                )
         if self.params.convert_units:  # noqa: SIM102
             # TODO: use from_unit -> to_unit map. but none of the $$ tables have this rn.
             if self.params.merge_xbrl_metadata.on:
-                NotImplementedError(
+                raise NotImplementedError(
                     "We haven't implemented a xbrl_factoid rename for the parameter "
                     "convert_units. Since you are trying to merge the metadata on this "
                     "table that has this treatment, a xbrl_factoid rename will be "
@@ -2697,6 +2692,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     # raw_xbrl_duration_dfs rather than a dictionary.
     def preprocess_xbrl(self, raw_xbrl_dfs: dict[str, pd.DataFrame]) -> pd.DataFrame:
         """Pre-process XBRL inputs into one dataframe. Grab freshest data and concat by default."""
+        assert self.pudl_paths is not None, (
+            "pudl_paths must be set to preprocess XBRL data."
+        )
         raw_xbrls = {
             table_name: filter_for_freshest_data_xbrl(
                 df,
@@ -3234,6 +3232,9 @@ class IdentificationCertificationTableTransformer(Ferc1AbstractTableTransformer)
 
     def preprocess_xbrl(self, raw_xbrl_dfs: dict[str, pd.DataFrame]) -> pd.DataFrame:
         """Pre-process XBRL inputs into one dataframe. Grab freshest data and concat by default."""
+        assert self.pudl_paths is not None, (
+            "pudl_paths must be set to preprocess XBRL data."
+        )
         raw_xbrls = {
             table_name: filter_for_freshest_data_xbrl(
                 df,
@@ -6049,7 +6050,6 @@ class DepreciationChangesTableTransformer(Ferc1AbstractTableTransformer):
         new_xbrl_metadata_json["instant"] = json.loads(
             instant.to_json(orient="records")
         )
-        self.xbrl_metadata_json = new_xbrl_metadata_json
         tbl_meta = super().convert_xbrl_metadata_json_to_df(new_xbrl_metadata_json)
         return tbl_meta
 
@@ -6498,13 +6498,17 @@ class CashFlowsTableTransformer(Ferc1AbstractTableTransformer):
         Replace the name of the balance column reported in the XBRL Instant table with
         starting_balance / ending_balance since we pull those two values into their own
         separate labeled rows, each of which should get the original metadata for the
-        Instant column.
+        Instant column. Mirrors the process found in
+        :meth:`DepreciationChangesTableTransformer.convert_xbrl_metadata_json_to_df`
         """
-        meta = super().convert_xbrl_metadata_json_to_df(xbrl_metadata_json)
-        ending_balance = meta[meta.xbrl_factoid == "starting_balance"].assign(
-            xbrl_factoid="ending_balance"
+        new_xbrl_metadata_json = xbrl_metadata_json
+        instant = pd.json_normalize(new_xbrl_metadata_json["instant"])
+        instant = pd.concat([instant] * 2).reset_index(drop=True)
+        instant["name"] = instant["name"] + ["_starting_balance", "_ending_balance"]
+        new_xbrl_metadata_json["instant"] = json.loads(
+            instant.to_json(orient="records")
         )
-        return pd.concat([meta, ending_balance])
+        return super().convert_xbrl_metadata_json_to_df(new_xbrl_metadata_json)
 
 
 class SalesByRateSchedulesTableTransformer(Ferc1AbstractTableTransformer):
@@ -6647,7 +6651,7 @@ _FERC1_PLANT_TABLES = frozenset(
 def ferc1_transform_asset_factory(
     table_name: str,
     tfr_class: Ferc1AbstractTableTransformer,
-    io_manager_key: str = "pudl_io_manager",
+    io_manager_key: str = "parquet_io_manager",
     convert_dtypes: bool = True,
     generic: bool = False,
     op_tags: dict[str, Any] | None = None,

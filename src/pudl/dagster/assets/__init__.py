@@ -77,6 +77,7 @@ core_module_groups = {
     "core_eia923": [pudl.transform.eia923],
     "core_eia930": [pudl.transform.eia930],
     "core_epacems": [pudl.transform.epacems],
+    "core_epamats": [pudl.transform.epamats],
     "core_ferc1": [pudl.transform.ferc1],
     "core_ferc714": [pudl.transform.ferc714],
     "core_ferccid": [pudl.transform.ferccid],
@@ -138,9 +139,7 @@ _base_assets = list(
 
 # IO manager keys that write canonical parquet outputs.  Assets using any of
 # these are included as upstream dependencies of the datapackage asset.
-_PARQUET_IO_MANAGER_KEYS: frozenset[str] = frozenset(
-    {"parquet_io_manager", "pudl_io_manager"}
-)
+_PARQUET_IO_MANAGER_KEYS: frozenset[str] = frozenset({"parquet_io_manager"})
 
 
 def _find_parquet_asset_keys(assets) -> list[dg.AssetKey]:

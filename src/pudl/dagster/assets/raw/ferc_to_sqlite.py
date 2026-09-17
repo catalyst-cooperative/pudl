@@ -79,6 +79,11 @@ class FercPaths:
         self.local_datapackage_path.unlink(missing_ok=True)
 
         if self.data_format == "xbrl":
+            assert (
+                self.local_duckdb_path is not None
+                and self.local_taxonomy_json_path is not None
+                and self.local_parquet_path is not None
+            ), "XBRL-specific paths must be set when data_format is xbrl."
             self.local_duckdb_path.unlink(missing_ok=True)
             self.local_taxonomy_json_path.unlink(missing_ok=True)
 
@@ -130,6 +135,12 @@ def _download_zipped_outputs(
         nightly_path = paths.nightly_sqlite_path
         local_path = paths.local_sqlite_path.parent
     else:
+        assert paths.nightly_parquet_path is not None, (
+            "nightly_parquet_path must be set when output_format is parquet."
+        )
+        assert paths.local_parquet_path is not None, (
+            "local_parquet_path must be set when output_format is parquet."
+        )
         nightly_path = paths.nightly_parquet_path
         local_path = paths.local_parquet_path
 
@@ -163,6 +174,13 @@ def _download_nightly_outputs(
     # DBF only produces sqlite and datapackage, so return
     if data_format == "dbf":
         return
+
+    assert (
+        paths.local_taxonomy_json_path is not None
+        and paths.nightly_taxonomy_json_path is not None
+        and paths.local_duckdb_path is not None
+        and paths.nightly_duckdb_path is not None
+    ), "XBRL-specific paths must be set when data_format is xbrl."
 
     # Download taxonomy JSON
     paths.local_taxonomy_json_path.write_bytes(

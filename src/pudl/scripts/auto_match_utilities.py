@@ -1,6 +1,5 @@
 """A CLI tool for matching FERC and EIA utilities."""
 
-import importlib
 import sys
 from pathlib import Path
 from typing import Literal
@@ -8,6 +7,7 @@ from typing import Literal
 import click
 import pandas as pd
 
+from pudl import PUDL_PACKAGE_DATA_PATH
 from pudl.analysis.record_linkage import name_cleaner
 from pudl.helpers import get_parquet_table
 from pudl.logging_helpers import get_logger
@@ -96,16 +96,13 @@ def match_utility_names(
 
 def get_existing_glue_df():
     """Read in the existing handmade glue spreadsheet."""
-    return pd.read_csv(
-        importlib.resources.files("pudl.package_data.glue") / "utility_id_pudl.csv"
-    )
+    return pd.read_csv(PUDL_PACKAGE_DATA_PATH / "glue" / "utility_id_pudl.csv")
 
 
 def get_false_matches():
     """Read in the existing handmade false matches spreadsheet."""
     return pd.read_csv(
-        importlib.resources.files("pudl.package_data.glue")
-        / "utility_id_pudl_false_matches.csv"
+        PUDL_PACKAGE_DATA_PATH / "glue" / "utility_id_pudl_false_matches.csv"
     )
 
 
@@ -254,9 +251,7 @@ def write_updated_matches(test_run: bool, dataframe: pd.DataFrame):
         devtools_dir = Path(repo_root / "devtools" / "ferc1-eia-glue")
         csv_path = devtools_dir / "utility_id_pudl_test_update.csv"
     else:
-        csv_path = (
-            importlib.resources.files("pudl.package_data.glue") / "utility_id_pudl.csv"
-        )
+        csv_path = PUDL_PACKAGE_DATA_PATH / "glue" / "utility_id_pudl.csv"
     logger.info(f"Writing matches to {csv_path}")
     dataframe.to_csv(csv_path, index=False)
 

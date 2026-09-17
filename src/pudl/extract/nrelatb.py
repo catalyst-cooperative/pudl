@@ -28,7 +28,7 @@ class Extractor(GenericExtractor):
 
         In this instance we are using the same methodology from the excel metadata extractor.
         """
-        _file_name = self.METADATA._load_csv(self.METADATA._pkg, "file_map.csv")
+        _file_name = self.METADATA._load_csv(self.METADATA._path, "file_map.csv")
         return str(
             _file_name.loc[str(self.METADATA._get_partition_selection(partition)), page]
         )

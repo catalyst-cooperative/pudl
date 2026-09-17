@@ -1308,7 +1308,7 @@ def _core_eia860__boiler_stack_flue(
     return bsf_assn
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def _core_eia860__cooling_equipment(
     raw_eia860__cooling_equipment: pd.DataFrame,
     _core_censuspep__yearly_geocodes: pd.DataFrame,
@@ -1420,7 +1420,7 @@ def cooling_equipment_continuity(cooling_equipment):
     )
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def _core_eia860__fgd_equipment(
     raw_eia860__fgd_equipment: pd.DataFrame,
     _core_censuspep__yearly_geocodes: pd.DataFrame,

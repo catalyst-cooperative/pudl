@@ -414,7 +414,7 @@ def validate_totals(
     return AssetCheckResult(passed=True)
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def core_eia176__yearly_gas_disposition_by_consumer(
     _core_eia176__yearly_company_data: pd.DataFrame,
     core_pudl__codes_subdivisions: pd.DataFrame,
@@ -598,7 +598,7 @@ def core_eia176__yearly_gas_disposition_by_consumer(
     return df
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def core_eia176__yearly_gas_imports(
     raw_eia176__continuation_text_lines: pd.DataFrame,
     core_pudl__codes_subdivisions: pd.DataFrame,
@@ -692,7 +692,7 @@ def core_eia176__yearly_gas_imports(
     ).reset_index(drop=True)
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def core_eia176__yearly_supplemental_gaseous_fuel_supplies(
     raw_eia176__continuation_text_lines: pd.DataFrame,
     core_pudl__codes_subdivisions: pd.DataFrame,
@@ -743,7 +743,7 @@ def core_eia176__yearly_supplemental_gaseous_fuel_supplies(
     ).reset_index(drop=True)
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def core_eia176__yearly_gas_exports(
     raw_eia176__continuation_text_lines: pd.DataFrame,
     core_pudl__codes_subdivisions: pd.DataFrame,
@@ -831,7 +831,7 @@ def core_eia176__yearly_gas_exports(
     ).reset_index(drop=True)
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def core_eia176__yearly_gas_disposition_other(
     raw_eia176__continuation_text_lines: pd.DataFrame,
     core_pudl__codes_subdivisions: pd.DataFrame,
@@ -883,7 +883,7 @@ def core_eia176__yearly_gas_disposition_other(
     ).reset_index(drop=True)
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def core_eia176__yearly_gas_supply(
     _core_eia176__yearly_company_data: pd.DataFrame,
     core_pudl__codes_subdivisions: pd.DataFrame,
@@ -1002,7 +1002,7 @@ def _compare_eia176_continuation_line_total(
     return comparison.loc[mismatch]
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def core_eia176__yearly_gas_disposition(
     _core_eia176__yearly_company_data: pd.DataFrame,
     core_pudl__codes_subdivisions: pd.DataFrame,
@@ -1178,7 +1178,7 @@ def core_eia176__yearly_gas_disposition(
     return df
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def core_eia176__yearly_liquefied_natural_gas_inventory(
     _core_eia176__yearly_company_data: pd.DataFrame,
     core_pudl__codes_subdivisions: pd.DataFrame,
@@ -1247,7 +1247,7 @@ def core_eia176__yearly_liquefied_natural_gas_inventory(
     return df
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def core_eia176__yearly_company_characteristics(
     raw_eia176__operation_types_and_sector_items: pd.DataFrame,
     _core_eia176__yearly_company_data: pd.DataFrame,

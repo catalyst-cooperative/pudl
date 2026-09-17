@@ -165,7 +165,6 @@ from this module directly in a notebook or script like this:
 
 from collections import OrderedDict
 from copy import deepcopy
-from importlib import resources
 from pathlib import Path
 from typing import Any, Literal
 
@@ -175,6 +174,7 @@ from dagster import AssetIn, AssetKey, AssetsDefinition, asset
 
 import pudl.helpers
 import pudl.logging_helpers
+from pudl import PUDL_PACKAGE_DATA_PATH
 from pudl.metadata.classes import Resource
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -325,7 +325,7 @@ FIRST_COLS = [
 
 
 @asset(
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     compute_kind="Python",
     op_tags={
         "memory-use": "high",
@@ -370,7 +370,7 @@ plant_parts_assets = [
 
 
 @asset(
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     compute_kind="Python",
     op_tags={
         "memory-use": "high",
@@ -651,9 +651,9 @@ class MakePlantParts:
         self.plant_parts_eia = self.add_one_to_many(
             plant_parts_eia=concatenated_plant_parts,
             part_name="plant_match_ferc1",
-            path_to_one_to_many=resources.files("pudl.package_data.glue").joinpath(
-                "eia_ferc1_one_to_many.csv",
-            ),
+            path_to_one_to_many=PUDL_PACKAGE_DATA_PATH
+            / "glue"
+            / "eia_ferc1_one_to_many.csv",
         )
         self.plant_parts_eia = TrueGranLabeler().execute(self.plant_parts_eia)
         # clean up, add additional columns
@@ -689,7 +689,7 @@ class MakePlantParts:
             plant_parts_eia: the master unit list table.
             part_name: should always be "plant_match_ferc1".
             path_to_one_to_many: a Path to the one_to_many csv file in
-                :mod:`pudl.package_data.glue`.
+                ``src/pudl/package_data/glue``.
 
         Returns:
             The EIA plant parts table with one-to-many matches aggregated as plant
@@ -697,8 +697,7 @@ class MakePlantParts:
         """
         # Read in csv.
         try:
-            with resources.as_file(path_to_one_to_many) as override_source:
-                one_to_many = pd.read_csv(override_source)
+            one_to_many = pd.read_csv(path_to_one_to_many)
         except FileNotFoundError:
             return plant_parts_eia
 
@@ -1638,7 +1637,7 @@ def reassign_id_ownership_dupes(plant_parts_eia: pd.DataFrame) -> pd.DataFrame:
 
 
 @asset(
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     compute_kind="Python",
     op_tags={"dagster/priority": 10},
 )
