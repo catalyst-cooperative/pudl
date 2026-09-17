@@ -9326,6 +9326,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
                 "construction_work_in_progress",
                 "AROs",
                 "correction",
+                "solar",
+                "wind",
+                "energy_storage",
+                "other_renewable",
             ]
         },
     },
