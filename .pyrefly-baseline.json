@@ -271,11 +271,6 @@
       "concise_description": "Argument `Path` is not assignable to parameter `pudl_paths` with type `PudlPaths` in function `pudl.extract.xbrl.convert_form`"
     },
     {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `PudlPaths | None` is not assignable to parameter `pudl_paths` with type `PudlPaths` in function `pudl.transform.ferc.get_primary_key_raw_xbrl`"
-    },
-    {
       "path": "src/pudl/transform/ferc714.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `PudlPaths | None` is not assignable to parameter `pudl_paths` with type `PudlPaths` in function `pudl.transform.ferc.get_primary_key_raw_xbrl`"

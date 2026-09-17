@@ -2032,6 +2032,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     If ``None``, the calculations have not been instantiated. If the table has been
     instantiated but is an empty table, then there are no calculations for that table.
     """
+    pudl_paths: PudlPaths | None = None
+    """Object providing access to PUDL input/output directory paths."""
 
     def __init__(
         self,
@@ -2286,19 +2288,10 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             if col_name_new.endswith(f"_{value_type}"):
                 col_name_new = re.sub(f"_{value_type}$", "", col_name_new)
 
-        if self.params.unstack_balances_to_report_year_instant_xbrl:  # noqa: SIM102
-            # TODO: do something...? add starting_balance & ending_balance suffixes?
-            if self.params.merge_xbrl_metadata.on:
-                NotImplementedError(
-                    "We haven't implemented a xbrl_factoid rename for the parameter "
-                    "unstack_balances_to_report_year_instant_xbrl. Since you are trying"
-                    "to merge the metadata on this table that has this treatment, a "
-                    "xbrl_factoid rename will be required."
-                )
         if self.params.convert_units:  # noqa: SIM102
             # TODO: use from_unit -> to_unit map. but none of the $$ tables have this rn.
             if self.params.merge_xbrl_metadata.on:
-                NotImplementedError(
+                raise NotImplementedError(
                     "We haven't implemented a xbrl_factoid rename for the parameter "
                     "convert_units. Since you are trying to merge the metadata on this "
                     "table that has this treatment, a xbrl_factoid rename will be "
@@ -2699,6 +2692,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     # raw_xbrl_duration_dfs rather than a dictionary.
     def preprocess_xbrl(self, raw_xbrl_dfs: dict[str, pd.DataFrame]) -> pd.DataFrame:
         """Pre-process XBRL inputs into one dataframe. Grab freshest data and concat by default."""
+        assert self.pudl_paths is not None, (
+            "pudl_paths must be set to preprocess XBRL data."
+        )
         raw_xbrls = {
             table_name: filter_for_freshest_data_xbrl(
                 df,
@@ -3236,6 +3232,9 @@ class IdentificationCertificationTableTransformer(Ferc1AbstractTableTransformer)
 
     def preprocess_xbrl(self, raw_xbrl_dfs: dict[str, pd.DataFrame]) -> pd.DataFrame:
         """Pre-process XBRL inputs into one dataframe. Grab freshest data and concat by default."""
+        assert self.pudl_paths is not None, (
+            "pudl_paths must be set to preprocess XBRL data."
+        )
         raw_xbrls = {
             table_name: filter_for_freshest_data_xbrl(
                 df,
@@ -6051,7 +6050,6 @@ class DepreciationChangesTableTransformer(Ferc1AbstractTableTransformer):
         new_xbrl_metadata_json["instant"] = json.loads(
             instant.to_json(orient="records")
         )
-        self.xbrl_metadata_json = new_xbrl_metadata_json
         tbl_meta = super().convert_xbrl_metadata_json_to_df(new_xbrl_metadata_json)
         return tbl_meta
 
@@ -6500,13 +6498,17 @@ class CashFlowsTableTransformer(Ferc1AbstractTableTransformer):
         Replace the name of the balance column reported in the XBRL Instant table with
         starting_balance / ending_balance since we pull those two values into their own
         separate labeled rows, each of which should get the original metadata for the
-        Instant column.
+        Instant column. Mirrors the process found in
+        :meth:`DepreciationChangesTableTransformer.convert_xbrl_metadata_json_to_df`
         """
-        meta = super().convert_xbrl_metadata_json_to_df(xbrl_metadata_json)
-        ending_balance = meta[meta.xbrl_factoid == "starting_balance"].assign(
-            xbrl_factoid="ending_balance"
+        new_xbrl_metadata_json = xbrl_metadata_json
+        instant = pd.json_normalize(new_xbrl_metadata_json["instant"])
+        instant = pd.concat([instant] * 2).reset_index(drop=True)
+        instant["name"] = instant["name"] + ["_starting_balance", "_ending_balance"]
+        new_xbrl_metadata_json["instant"] = json.loads(
+            instant.to_json(orient="records")
         )
-        return pd.concat([meta, ending_balance])
+        return super().convert_xbrl_metadata_json_to_df(new_xbrl_metadata_json)
 
 
 class SalesByRateSchedulesTableTransformer(Ferc1AbstractTableTransformer):
