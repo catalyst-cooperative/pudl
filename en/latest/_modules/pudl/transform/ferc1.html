@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.ferc1 &#8212; PUDL 2026.9.1.dev13 documentation</title>
+    <title>pudl.transform.ferc1 &#8212; PUDL 2026.9.1.dev14 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../_static/documentation_options.js?v=e49fba34"></script>
+    <script src="../../../_static/documentation_options.js?v=0cbcfb84"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev13 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev13 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev14 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev14 documentation - Home"/>
   
   
 </a></div>
@@ -3446,6 +3446,11 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    If ``None``, the calculations have not been instantiated. If the table has been</span>
 <span class="sd">    instantiated but is an empty table, then there are no calculations for that table.</span>
 <span class="sd">    """</span>
+<div class="viewcode-block" id="Ferc1AbstractTableTransformer.pudl_paths">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.Ferc1AbstractTableTransformer.pudl_paths">[docs]</a>
+    <span class="n">pudl_paths</span><span class="p">:</span> <span class="n">PudlPaths</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+<span class="w">    </span><span class="sd">"""Object providing access to PUDL input/output directory paths."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -3462,10 +3467,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">cache_dfs</span><span class="o">=</span><span class="n">cache_dfs</span><span class="p">,</span>
             <span class="n">clear_cached_dfs</span><span class="o">=</span><span class="n">clear_cached_dfs</span><span class="p">,</span>
         <span class="p">)</span>
-<div class="viewcode-block" id="Ferc1AbstractTableTransformer.pudl_paths">
-<a class="viewcode-back" href="../../../autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.Ferc1AbstractTableTransformer.pudl_paths">[docs]</a>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pudl_paths</span> <span class="o">=</span> <span class="n">pudl_paths</span></div>
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">pudl_paths</span> <span class="o">=</span> <span class="n">pudl_paths</span>
         <span class="k">if</span> <span class="n">xbrl_metadata_json</span><span class="p">:</span>
             <span class="n">xbrl_metadata_converted</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">convert_xbrl_metadata_json_to_df</span><span class="p">(</span>
                 <span class="n">xbrl_metadata_json</span>
@@ -3726,19 +3728,10 @@ window.runMermaid = runMermaid;</script>
             <span class="k">if</span> <span class="n">col_name_new</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="sa">f</span><span class="s2">"_</span><span class="si">{</span><span class="n">value_type</span><span class="si">}</span><span class="s2">"</span><span class="p">):</span>
                 <span class="n">col_name_new</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">f</span><span class="s2">"_</span><span class="si">{</span><span class="n">value_type</span><span class="si">}</span><span class="s2">$"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="n">col_name_new</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">unstack_balances_to_report_year_instant_xbrl</span><span class="p">:</span>  <span class="c1"># noqa: SIM102</span>
-            <span class="c1"># TODO: do something...? add starting_balance &amp; ending_balance suffixes?</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">merge_xbrl_metadata</span><span class="o">.</span><span class="n">on</span><span class="p">:</span>
-                <span class="ne">NotImplementedError</span><span class="p">(</span>
-                    <span class="s2">"We haven't implemented a xbrl_factoid rename for the parameter "</span>
-                    <span class="s2">"unstack_balances_to_report_year_instant_xbrl. Since you are trying"</span>
-                    <span class="s2">"to merge the metadata on this table that has this treatment, a "</span>
-                    <span class="s2">"xbrl_factoid rename will be required."</span>
-                <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">convert_units</span><span class="p">:</span>  <span class="c1"># noqa: SIM102</span>
             <span class="c1"># TODO: use from_unit -&gt; to_unit map. but none of the $$ tables have this rn.</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">merge_xbrl_metadata</span><span class="o">.</span><span class="n">on</span><span class="p">:</span>
-                <span class="ne">NotImplementedError</span><span class="p">(</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
                     <span class="s2">"We haven't implemented a xbrl_factoid rename for the parameter "</span>
                     <span class="s2">"convert_units. Since you are trying to merge the metadata on this "</span>
                     <span class="s2">"table that has this treatment, a xbrl_factoid rename will be "</span>
@@ -4178,6 +4171,9 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.Ferc1AbstractTableTransformer.preprocess_xbrl">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">preprocess_xbrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_xbrl_dfs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Pre-process XBRL inputs into one dataframe. Grab freshest data and concat by default."""</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">pudl_paths</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
+            <span class="s2">"pudl_paths must be set to preprocess XBRL data."</span>
+        <span class="p">)</span>
         <span class="n">raw_xbrls</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">table_name</span><span class="p">:</span> <span class="n">filter_for_freshest_data_xbrl</span><span class="p">(</span>
                 <span class="n">df</span><span class="p">,</span>
@@ -4778,6 +4774,9 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.IdentificationCertificationTableTransformer.preprocess_xbrl">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">preprocess_xbrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_xbrl_dfs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Pre-process XBRL inputs into one dataframe. Grab freshest data and concat by default."""</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">pudl_paths</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
+            <span class="s2">"pudl_paths must be set to preprocess XBRL data."</span>
+        <span class="p">)</span>
         <span class="n">raw_xbrls</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">table_name</span><span class="p">:</span> <span class="n">filter_for_freshest_data_xbrl</span><span class="p">(</span>
                 <span class="n">df</span><span class="p">,</span>
@@ -7926,7 +7925,6 @@ window.runMermaid = runMermaid;</script>
         <span class="n">new_xbrl_metadata_json</span><span class="p">[</span><span class="s2">"instant"</span><span class="p">]</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span>
             <span class="n">instant</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s2">"records"</span><span class="p">)</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">xbrl_metadata_json</span> <span class="o">=</span> <span class="n">new_xbrl_metadata_json</span>
         <span class="n">tbl_meta</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">convert_xbrl_metadata_json_to_df</span><span class="p">(</span><span class="n">new_xbrl_metadata_json</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">tbl_meta</span></div>
 
@@ -8468,13 +8466,17 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        Replace the name of the balance column reported in the XBRL Instant table with</span>
 <span class="sd">        starting_balance / ending_balance since we pull those two values into their own</span>
 <span class="sd">        separate labeled rows, each of which should get the original metadata for the</span>
-<span class="sd">        Instant column.</span>
+<span class="sd">        Instant column. Mirrors the process found in</span>
+<span class="sd">        :meth:`DepreciationChangesTableTransformer.convert_xbrl_metadata_json_to_df`</span>
 <span class="sd">        """</span>
-        <span class="n">meta</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">convert_xbrl_metadata_json_to_df</span><span class="p">(</span><span class="n">xbrl_metadata_json</span><span class="p">)</span>
-        <span class="n">ending_balance</span> <span class="o">=</span> <span class="n">meta</span><span class="p">[</span><span class="n">meta</span><span class="o">.</span><span class="n">xbrl_factoid</span> <span class="o">==</span> <span class="s2">"starting_balance"</span><span class="p">]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-            <span class="n">xbrl_factoid</span><span class="o">=</span><span class="s2">"ending_balance"</span>
+        <span class="n">new_xbrl_metadata_json</span> <span class="o">=</span> <span class="n">xbrl_metadata_json</span>
+        <span class="n">instant</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">new_xbrl_metadata_json</span><span class="p">[</span><span class="s2">"instant"</span><span class="p">])</span>
+        <span class="n">instant</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">instant</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">instant</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span> <span class="o">=</span> <span class="n">instant</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"_starting_balance"</span><span class="p">,</span> <span class="s2">"_ending_balance"</span><span class="p">]</span>
+        <span class="n">new_xbrl_metadata_json</span><span class="p">[</span><span class="s2">"instant"</span><span class="p">]</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span>
+            <span class="n">instant</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s2">"records"</span><span class="p">)</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">meta</span><span class="p">,</span> <span class="n">ending_balance</span><span class="p">])</span></div>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">convert_xbrl_metadata_json_to_df</span><span class="p">(</span><span class="n">new_xbrl_metadata_json</span><span class="p">)</span></div>
 </div>
 
 

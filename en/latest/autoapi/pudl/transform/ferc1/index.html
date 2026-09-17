@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
-    <title>pudl.transform.ferc1 &#8212; PUDL 2026.9.1.dev13 documentation</title>
+    <title>pudl.transform.ferc1 &#8212; PUDL 2026.9.1.dev14 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../../_static/documentation_options.js?v=e49fba34"></script>
+    <script src="../../../../_static/documentation_options.js?v=0cbcfb84"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev13 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev13 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev14 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev14 documentation - Home"/>
   
   
 </a></div>
@@ -2584,8 +2584,9 @@ instantiated but is an empty table, then there are no calculations for that tabl
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pudl.transform.ferc1.Ferc1AbstractTableTransformer.pudl_paths">
-<span class="sig-name descname"><span class="pre">pudl_paths</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="reference internal" href="../../../../_modules/pudl/transform/ferc1.html#Ferc1AbstractTableTransformer.pudl_paths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.ferc1.Ferc1AbstractTableTransformer.pudl_paths" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">pudl_paths</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../../workspace/setup/index.html#pudl.workspace.setup.PudlPaths" title="pudl.workspace.setup.PudlPaths"><span class="pre">pudl.workspace.setup.PudlPaths</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="reference internal" href="../../../../_modules/pudl/transform/ferc1.html#Ferc1AbstractTableTransformer.pudl_paths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.ferc1.Ferc1AbstractTableTransformer.pudl_paths" title="Link to this definition">#</a></dt>
+<dd><p>Object providing access to PUDL input/output directory paths.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pudl.transform.ferc1.Ferc1AbstractTableTransformer.transform_start">
@@ -5084,7 +5085,8 @@ calculable from the net change + the starting balance = the ending balance.</p>
 <p>Replace the name of the balance column reported in the XBRL Instant table with
 starting_balance / ending_balance since we pull those two values into their own
 separate labeled rows, each of which should get the original metadata for the
-Instant column.</p>
+Instant column. Mirrors the process found in
+<a class="reference internal" href="#pudl.transform.ferc1.DepreciationChangesTableTransformer.convert_xbrl_metadata_json_to_df" title="pudl.transform.ferc1.DepreciationChangesTableTransformer.convert_xbrl_metadata_json_to_df"><code class="xref py py-meth docutils literal notranslate"><span class="pre">DepreciationChangesTableTransformer.convert_xbrl_metadata_json_to_df()</span></code></a></p>
 </dd></dl>
 
 </dd></dl>

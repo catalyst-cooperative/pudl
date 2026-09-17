@@ -27996,7 +27996,9 @@ Dataframe of calculation components.
 If `None`, the calculations have not been instantiated. If the table has been
 instantiated but is an empty table, then there are no calculations for that table.
 
-#### pudl_paths *= None*
+#### pudl_paths *: [pudl.workspace.setup.PudlPaths](autoapi/pudl/workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
+
+Object providing access to PUDL input/output directory paths.
 
 #### transform_start(raw_dbf_dfs: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)], raw_xbrl_dfs: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
@@ -29965,7 +29967,8 @@ Transform the metadata to reflect the transformed data.
 Replace the name of the balance column reported in the XBRL Instant table with
 starting_balance / ending_balance since we pull those two values into their own
 separate labeled rows, each of which should get the original metadata for the
-Instant column.
+Instant column. Mirrors the process found in
+[`DepreciationChangesTableTransformer.convert_xbrl_metadata_json_to_df()`](autoapi/pudl/transform/ferc1/index.html.md#pudl.transform.ferc1.DepreciationChangesTableTransformer.convert_xbrl_metadata_json_to_df)
 
 ### *class* pudl.transform.ferc1.SalesByRateSchedulesTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/builtins/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](autoapi/pudl/workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/builtins/constants.html#None) = None)
 
@@ -81150,6 +81153,11 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
   own small logfile to the build outputs bucket. This created newer object path with the
   same commit confusing `deploy-pudl` causing deployment to fail. See [#5579](https://github.com/catalyst-cooperative/pudl/issues/5579)
   and [#5580](https://github.com/catalyst-cooperative/pudl/pull/5580).
+* Fixed a broken metadata override in `CashFlowsTableTransformer` that left the
+  `starting_balance`/`ending_balance` rows for `cash_and_cash_equivalents` in
+  [core_ferc1_\_yearly_cash_flows_sched120](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-cash-flows-sched120) without `row_type_xbrl`,
+  `is_within_table_calc`, `balance`, or `ferc_account` metadata. See
+  [#5587](https://github.com/catalyst-cooperative/pudl/issues/5587) and [#5588](https://github.com/catalyst-cooperative/pudl/pull/5588).
 
 ### Performance Improvements
 

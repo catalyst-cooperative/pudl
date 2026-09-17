@@ -1160,7 +1160,9 @@ Dataframe of calculation components.
 If `None`, the calculations have not been instantiated. If the table has been
 instantiated but is an empty table, then there are no calculations for that table.
 
-#### pudl_paths *= None*
+#### pudl_paths *: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
+
+Object providing access to PUDL input/output directory paths.
 
 #### transform_start(raw_dbf_dfs: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)], raw_xbrl_dfs: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
@@ -3129,7 +3131,8 @@ Transform the metadata to reflect the transformed data.
 Replace the name of the balance column reported in the XBRL Instant table with
 starting_balance / ending_balance since we pull those two values into their own
 separate labeled rows, each of which should get the original metadata for the
-Instant column.
+Instant column. Mirrors the process found in
+[`DepreciationChangesTableTransformer.convert_xbrl_metadata_json_to_df()`](#pudl.transform.ferc1.DepreciationChangesTableTransformer.convert_xbrl_metadata_json_to_df)
 
 ### *class* pudl.transform.ferc1.SalesByRateSchedulesTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/builtins/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.html.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/builtins/constants.html#None) = None)
 
