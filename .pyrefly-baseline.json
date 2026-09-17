@@ -271,11 +271,6 @@
       "concise_description": "Argument `Path` is not assignable to parameter `pudl_paths` with type `PudlPaths` in function `pudl.extract.xbrl.convert_form`"
     },
     {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `PudlPaths | None` is not assignable to parameter `pudl_paths` with type `PudlPaths` in function `pudl.transform.ferc.get_primary_key_raw_xbrl`"
-    },
-    {
       "path": "src/pudl/transform/ferc714.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `PudlPaths | None` is not assignable to parameter `pudl_paths` with type `PudlPaths` in function `pudl.transform.ferc.get_primary_key_raw_xbrl`"
@@ -319,76 +314,6 @@
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `SimulateFlagsSettings | None` is not assignable to parameter `settings` with type `SimulateFlagsSettings` in function `get_simulated_flag_mask`"
-    },
-    {
-      "path": "src/pudl/analysis/record_linkage/eia_ferc1_inputs.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `Traversable` is not assignable to parameter `filepath_or_buffer` with type `PathLike[str] | ReadCsvBuffer[bytes] | ReadCsvBuffer[str] | str` in function `pandas.io.parsers.readers.read_csv`"
-    },
-    {
-      "path": "src/pudl/analysis/record_linkage/eia_ferc1_record_linkage.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `Traversable` is not assignable to parameter `filepath_or_buffer` with type `PathLike[str] | ReadCsvBuffer[bytes] | ReadCsvBuffer[str] | str` in function `pandas.io.parsers.readers.read_csv`"
-    },
-    {
-      "path": "src/pudl/analysis/record_linkage/eia_ferc1_train.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `Traversable` is not assignable to parameter `filepath_or_buffer` with type `PathLike[str] | ReadCsvBuffer[bytes] | ReadCsvBuffer[str] | str` in function `pandas.io.parsers.readers.read_csv`"
-    },
-    {
-      "path": "src/pudl/glue/ferc1_eia.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `Traversable` is not assignable to parameter `filepath_or_buffer` with type `PathLike[str] | ReadCsvBuffer[bytes] | ReadCsvBuffer[str] | str` in function `pandas.io.parsers.readers.read_csv`"
-    },
-    {
-      "path": "src/pudl/glue/ferc714.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `Traversable` is not assignable to parameter `filepath_or_buffer` with type `PathLike[str] | ReadCsvBuffer[bytes] | ReadCsvBuffer[str] | str` in function `pandas.io.parsers.readers.read_csv`"
-    },
-    {
-      "path": "src/pudl/helpers.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `Traversable` is not assignable to parameter `filepath_or_buffer` with type `PathLike[str] | ReadCsvBuffer[bytes] | ReadCsvBuffer[str] | str` in function `pandas.io.parsers.readers.read_csv`"
-    },
-    {
-      "path": "src/pudl/output/ferc1.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `Traversable` is not assignable to parameter `filepath_or_buffer` with type `PathLike[str] | ReadCsvBuffer[bytes] | ReadCsvBuffer[str] | str` in function `pandas.io.parsers.readers.read_csv`"
-    },
-    {
-      "path": "src/pudl/scripts/auto_match_utilities.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `Traversable` is not assignable to parameter `filepath_or_buffer` with type `PathLike[str] | ReadCsvBuffer[bytes] | ReadCsvBuffer[str] | str` in function `pandas.io.parsers.readers.read_csv`"
-    },
-    {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `Traversable` is not assignable to parameter `filepath_or_buffer` with type `PathLike[str] | ReadCsvBuffer[bytes] | ReadCsvBuffer[str] | str` in function `pandas.io.parsers.readers.read_csv`"
-    },
-    {
-      "path": "src/pudl/transform/ferc714.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `Traversable` is not assignable to parameter `filepath_or_buffer` with type `PathLike[str] | ReadCsvBuffer[bytes] | ReadCsvBuffer[str] | str` in function `pandas.io.parsers.readers.read_csv`"
-    },
-    {
-      "path": "tests/pipeline/analysis/ferc1_eia_train_test.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `Traversable` is not assignable to parameter `filepath_or_buffer` with type `PathLike[str] | ReadCsvBuffer[bytes] | ReadCsvBuffer[str] | str` in function `pandas.io.parsers.readers.read_csv`"
-    },
-    {
-      "path": "src/pudl/analysis/plant_parts_eia.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `Traversable` is not assignable to parameter `path_to_one_to_many` with type `Path` in function `MakePlantParts.add_one_to_many`"
-    },
-    {
-      "path": "tests/unit/analysis/plant_parts_eia_test.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `Traversable` is not assignable to parameter `path_to_one_to_many` with type `Path` in function `pudl.analysis.plant_parts_eia.MakePlantParts.add_one_to_many`"
-    },
-    {
-      "path": "src/pudl/scripts/update_zenodo_dois.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `Traversable` is not assignable to parameter `yaml_file` with type `Path` in function `update_yaml_dois`"
     },
     {
       "path": "src/pudl/analysis/timeseries_cleaning.py",
@@ -1381,11 +1306,6 @@
       "concise_description": "No matching overload found for function `pandas.core.generic.NDFrame.pipe` called with arguments: (MultiColumnTransformFunc, dict[str, StringNormalization])"
     },
     {
-      "path": "src/pudl/scripts/auto_match_utilities.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `pandas.core.generic.NDFrame.to_csv` called with arguments: (Path | Traversable, index=Literal[False])"
-    },
-    {
       "path": "src/pudl/dagster/assets/core/glue.py",
       "name": "no-matching-overload",
       "concise_description": "No matching overload found for function `pandas.core.groupby.generic.DataFrameGroupBy.apply` called with arguments: ((subplant_crosswalk: DataFrame) -> DataFrame, include_groups=Literal[False])"
@@ -1394,11 +1314,6 @@
       "path": "tests/unit/validate/dbt_helper_test.py",
       "name": "no-matching-overload",
       "concise_description": "No matching overload found for function `pandas.core.series.Series.apply` called with arguments: (type[type])"
-    },
-    {
-      "path": "src/pudl/extract/extractor.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `pandas.io.parsers.readers.read_csv` called with arguments: (Traversable, index_col=Literal[0], comment=Literal['#'])"
     },
     {
       "path": "tests/unit/extract/xbrl_test.py",
@@ -1809,21 +1724,6 @@
       "path": "tests/unit/output/ferc1_test.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `TestForestSetup` has no attribute `parent`"
-    },
-    {
-      "path": "src/pudl/scripts/update_zenodo_dois.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Traversable` has no attribute `exists`"
-    },
-    {
-      "path": "src/pudl/extract/extractor.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Traversable` has no attribute `stem`"
-    },
-    {
-      "path": "src/pudl/extract/extractor.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Traversable` has no attribute `suffix`"
     },
     {
       "path": "tests/unit/metadata/harvest_test.py",
@@ -2261,6 +2161,11 @@
       "concise_description": "Unpacked keyword argument `PackableValue` is not assignable to parameter `zenodo_doi` with type `bytearray | bytes | str | None` in function `FercSqliteProvenanceRecord.__init__`"
     },
     {
+      "path": "tests/integration/analysis/record_linkage_test.py",
+      "name": "bad-argument-type",
+      "concise_description": "Unpacked keyword argument `Path` is not assignable to parameter `na_category` with type `bytearray | bytes | str` in function `pudl.transform.classes.StringCategories.__init__`"
+    },
+    {
       "path": "src/pudl/workspace/datastore.py",
       "name": "bad-argument-type",
       "concise_description": "Unpacked keyword argument `int | str` is not assignable to parameter `cached_only` with type `bool` in function `Datastore.get_resources`"
@@ -2269,11 +2174,6 @@
       "path": "src/pudl/workspace/datastore.py",
       "name": "bad-argument-type",
       "concise_description": "Unpacked keyword argument `int | str` is not assignable to parameter `skip_optimally_cached` with type `bool` in function `Datastore.get_resources`"
-    },
-    {
-      "path": "tests/integration/analysis/record_linkage_test.py",
-      "name": "bad-argument-type",
-      "concise_description": "Unpacked keyword argument `set[str]` is not assignable to parameter `na_category` with type `bytearray | bytes | str` in function `pudl.transform.classes.StringCategories.__init__`"
     },
     {
       "path": "tests/unit/transform/classes_test.py",
@@ -2399,11 +2299,6 @@
       "path": "src/pudl/metadata/descriptions.py",
       "name": "bad-assignment",
       "concise_description": "`Timestamp` is not assignable to variable `offset` with type `int`"
-    },
-    {
-      "path": "src/pudl/transform/params/ferc1.py",
-      "name": "bad-assignment",
-      "concise_description": "`Traversable` is not assignable to dict value type `set[str]`"
     },
     {
       "path": "src/pudl/analysis/timeseries_cleaning.py",

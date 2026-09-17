@@ -1,6 +1,5 @@
 """Prepare the inputs to the FERC1 to EIA record linkage model."""
 
-import importlib
 from typing import Literal
 
 import pandas as pd
@@ -8,6 +7,7 @@ import pandas as pd
 import pudl.analysis.plant_parts_eia
 import pudl.helpers
 import pudl.logging_helpers
+from pudl import PUDL_PACKAGE_DATA_PATH
 from pudl.analysis.plant_parts_eia import match_to_single_plant_part
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -289,10 +289,7 @@ def prep_train_connections(
     ]
     # Read in one_to_many csv and join corresponding plant_match_ferc1 parts to FERC IDs
     one_to_many = (
-        pd.read_csv(
-            importlib.resources.files("pudl.package_data.glue")
-            / "eia_ferc1_one_to_many.csv"
-        )
+        pd.read_csv(PUDL_PACKAGE_DATA_PATH / "glue" / "eia_ferc1_one_to_many.csv")
         .pipe(pudl.helpers.cleanstrings_snake, ["record_id_eia"])
         .drop_duplicates(subset=["record_id_ferc1", "record_id_eia"])
     )
@@ -338,9 +335,7 @@ def prep_train_connections(
     )
 
     train_df = (
-        pd.read_csv(
-            importlib.resources.files("pudl.package_data.glue") / "eia_ferc1_train.csv"
-        )
+        pd.read_csv(PUDL_PACKAGE_DATA_PATH / "glue" / "eia_ferc1_train.csv")
         .pipe(pudl.helpers.cleanstrings_snake, ["record_id_eia"])
         .drop_duplicates(subset=["record_id_ferc1", "record_id_eia"])
         .set_index("record_id_ferc1")

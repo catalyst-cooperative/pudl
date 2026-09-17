@@ -3,12 +3,12 @@
 import enum
 import json
 import re
-from importlib.resources import files
 from typing import Self
 
 import pandas as pd
 from pydantic import BaseModel, Field, model_validator
 
+from pudl import PUDL_SETTINGS_PATH
 from pudl.logging_helpers import get_logger
 
 logger = get_logger(__name__)
@@ -94,9 +94,7 @@ class HandleLegalTerms(enum.Enum):
 
 
 def _get_legal_terms_dict() -> dict[str, list]:
-    json_source = files("pudl.package_data.settings").joinpath(
-        NAME_LEGAL_TERMS_DICT_FILE
-    )
+    json_source = PUDL_SETTINGS_PATH / NAME_LEGAL_TERMS_DICT_FILE
     with json_source.open() as json_file:
         legal_terms_dict = json.load(json_file)[NAME_JSON_ENTRY_LEGAL_TERMS]["en"]
     return legal_terms_dict

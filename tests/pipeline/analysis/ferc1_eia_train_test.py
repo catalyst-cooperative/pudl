@@ -12,7 +12,6 @@ parameters. Ideally we'll design a way to automatically grab the most recent yea
 don't have to update this manually.
 """
 
-import importlib.resources
 import logging
 from contextlib import nullcontext
 from pathlib import Path
@@ -20,6 +19,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
+from pudl import PUDL_PACKAGE_DATA_PATH
 from pudl.analysis.record_linkage.eia_ferc1_inputs import (
     restrict_train_connections_on_date_range,
 )
@@ -35,9 +35,7 @@ logger = logging.getLogger(__name__)
 @pytest.fixture(scope="module")
 def eia_ferc1_training_data() -> pd.DataFrame:
     """The training data for the eia_ferc1 matching."""
-    return pd.read_csv(
-        importlib.resources.files("pudl.package_data.glue") / "eia_ferc1_train.csv"
-    )
+    return pd.read_csv(PUDL_PACKAGE_DATA_PATH / "glue" / "eia_ferc1_train.csv")
 
 
 @pytest.mark.parametrize(
