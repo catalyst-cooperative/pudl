@@ -290,6 +290,7 @@ def _pudl_etl(
     dg_config_path: Path,
     pudl_test_paths: PudlPaths,
     dagster_home: Path,
+    capmanager=None,
 ) -> None:
     """Run a dg launch job for pudl_with_ferc_to_sqlite including coverage collection.
 
@@ -327,24 +328,33 @@ def _pudl_etl(
         f"{env['PUDL_INPUT']=} {env['PUDL_OUTPUT']=} {env['DAGSTER_HOME']=}"
     )
 
-    # Stream subprocess output into pytest's live logging so progress is visible.
-    # Popen is used instead of run to allow streaming output. We also set text=True and
-    # line-buffered output to ensure logs are emitted in real time.
-    with subprocess.Popen(  # noqa: S603
-        cmd,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        text=True,
-        bufsize=1,
-        env=env,
-    ) as proc:
-        assert proc.stdout is not None
-        for line in proc.stdout:
-            logger.info(line.rstrip())
+    # Stream subprocess output straight to the terminal so progress is visible during
+    # the 30-45 minute fast ETL. Live logging (log_cli) is disabled globally to keep
+    # normal test output quiet, so we suspend pytest's output capture for the duration
+    # of the build and write the subprocess lines directly. Popen is used instead of
+    # run to allow streaming; text=True with bufsize=1 gives line-buffered real-time
+    # output.
+    if capmanager is not None:
+        capmanager.suspend_global_capture(in_=False)
+    try:
+        with subprocess.Popen(  # noqa: S603
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1,
+            env=env,
+        ) as proc:
+            assert proc.stdout is not None
+            for line in proc.stdout:
+                print(line.rstrip(), file=sys.stderr, flush=True)
 
-        returncode = proc.wait()
-        if returncode != 0:
-            raise subprocess.CalledProcessError(returncode, cmd)
+            returncode = proc.wait()
+            if returncode != 0:
+                raise subprocess.CalledProcessError(returncode, cmd)
+    finally:
+        if capmanager is not None:
+            capmanager.resume_global_capture()
 
     logger.info("Completed PUDL pytest ETL using dg launch.")
 
@@ -649,7 +659,8 @@ def prebuilt_outputs(
         f"Prebuilding PUDL outputs in temporary directory: {pudl_test_paths.pudl_output}"
     )
 
-    _pudl_etl(dg_config_path, pudl_test_paths, dagster_home)
+    capmanager = request.config.pluginmanager.getplugin("capturemanager")
+    _pudl_etl(dg_config_path, pudl_test_paths, dagster_home, capmanager)
     _assert_prebuilt_ferc_sqlite_dbs(pudl_test_paths)
 
 

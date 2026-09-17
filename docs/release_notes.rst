@@ -82,6 +82,10 @@ Developer Experience
   of genuine typing gaps that the upgrade surfaced. Mostly this involved type narrowing
   in places where an object that might be ``None`` was subject to a regex match, dict
   lookup, or other operation that would fail on ``None``. See PR :pr:`5583`.
+* Switched to using quieter, more compact ``pytest`` output instead of logging 1000s of
+  tests to the terminal. Fast ETL in pipeline tests still log. Make ``pixi.lock``
+  drift checking in pre-commit hooks more robust. Fix open SQLite database warnings
+  coming from FERC SQLite IO Manager. See PR :pr:`5573`.
 
 .. _release-v2026.9.0:
 
