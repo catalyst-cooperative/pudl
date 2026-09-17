@@ -2,4 +2,55 @@ run_coordinator:
   module: dagster
   class: QueuedRunCoordinator
   config:
-    max_concurrent_runs: 16
+    # NOTE: the run limit lives under `concurrency > runs > max_concurrent_runs`
+    # below, not here -- Dagster rejects `max_concurrent_runs` in
+    # `run_coordinator.config` once a top-level `concurrency` block is present.
+    #
+    # Launch dequeued runs in parallel so freed slots refill without waiting for
+    # the ~5s serial dequeue tick. Kept low (2) so the initial backfill wave
+    # ramps over ~30-60s instead of dumping 24 run workers onto the gRPC server
+    # and the box at once.
+    dequeue_use_threads: true
+    dequeue_num_workers: 2
+
+concurrency:
+  runs:
+    # Steady-state occupancy at 24 concurrent partition runs is healthy on a
+    # 32-vCPU machine. Measured load 20-34 for most of the run.
+    max_concurrent_runs: 24
+  pools:
+    # extract_ferceqr is tagged pool="ferceqr_extract" (see pudl.extract.ferceqr).
+    # This caps how many of those steps run simultaneously across all partition
+    # runs. The per-pool limit is set explicitly in builds/ferceqr_batch.sh via
+    # `dagster instance concurrency set` (1.13 YAML only supports a pool-wide
+    # default); default_limit here is the backstop if that step is skipped.
+    default_limit: 18
+    # Default granularity is "op": at most N copies of a pooled op/asset run at
+    # once, regardless of how many runs are in flight. That is what we want --
+    # the extract step is the memory-heavy phase, not the whole run.
+    granularity: op
+
+# Detect run workers that die without reporting a failure -- e.g. SIGKILL from
+# the kernel OOM-killer, which is how the 2026-09-06 run lost 4 partitions (no
+# RUN_FAILURE, no traceback, just a silent gap in the logs). Without this a
+# crashed run sits in STARTED forever and the only thing that notices is the
+# deploy asset's missing-partition check.
+run_monitoring:
+  enabled: true
+  # Mark a run failed if it never leaves STARTING within this long (gRPC server
+  # backpressure during the cold-start wave can strand launches).
+  start_timeout_seconds: 600
+  # The DefaultRunLauncher can't resume a dead run worker in place, so this must
+  # be 0: run_monitoring marks the crashed run FAILED and `run_retries` below
+  # relaunches it as a fresh run.
+  max_resume_run_attempts: 0
+  poll_interval_seconds: 60
+  free_slots_after_run_end_seconds: 300
+
+# Automatically retry FAILED runs. A partition that gets OOM-killed in the cold
+# start wave (now marked failed by run_monitoring rather than vanishing) is
+# retried as a new run, which lands after the herd has desynced and the
+# ferceqr_extract pool has free slots -- so it should succeed the second time.
+run_retries:
+  enabled: true
+  max_retries: 1
