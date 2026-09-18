@@ -215,40 +215,77 @@ def _promote_target(target: _DeploymentTarget, executor: ThreadPoolExecutor) -> 
     The datapackage JSON is promoted after the Parquet data so it never briefly
     references files that have not landed yet.
     """
-    futures = []
+
+    def wait(futures):
+        for future in futures:
+            future.result()
+
+    previous_exists = executor.submit(target.previous.exists).result()
+    if previous_exists:
+        logger.info(f"Removing existing snapshot {target.previous}")
+        wait(
+            [
+                executor.submit(
+                    target.previous.fs.rm, str(target.previous), recursive=True
+                )
+            ]
+        )
+
+    final_children = executor.submit(lambda: list(target.final.iterdir())).result()
+    staging_children = executor.submit(
+        lambda: list(target.staging_data.iterdir())
+    ).result()
 
     logger.info(f"Snapshotting {target.final} -> {target.previous}")
-    futures.append(
-        executor.submit(
-            target.final.fs.cp,
-            str(target.final),
-            str(target.previous),
-            recursive=True,
-        )
+    wait(
+        [
+            executor.submit(
+                child.fs.cp,
+                str(child),
+                str(target.previous / child.name),
+                recursive=True,
+            )
+            for child in final_children
+        ]
     )
 
-    logger.info(f"Promoting {target.staging} -> {target.final}")
-    futures.append(
-        executor.submit(
-            target.final.fs.cp,
-            str(target.staging_data),
-            str(target.final),
-            recursive=True,
-        )
-    )
-    futures.append(
-        executor.submit(
-            target.final.fs.cp,
-            target.staging_meta / "datapackage.json",
-            target.final / "datapackage.json",
-        )
-    )
-    futures.append(
-        executor.submit(target.final.fs.rm, str(target.staging), recursive=True)
+    logger.info(f"Removing existing final content under {target.final}")
+    wait(
+        [
+            executor.submit(
+                child.fs.rm,
+                str(child),
+                recursive=True,
+            )
+            for child in final_children
+        ]
     )
 
-    for future in futures:
-        future.result()
+    logger.info(f"Promoting {target.staging_data} -> {target.final}")
+    wait(
+        [
+            executor.submit(
+                child.fs.cp,
+                str(child),
+                str(target.final / child.name),
+                recursive=True,
+            )
+            for child in staging_children
+        ]
+    )
+
+    wait(
+        [
+            executor.submit(
+                target.final.fs.cp,
+                str(target.staging_meta / "datapackage.json"),
+                str(target.final / "datapackage.json"),
+            )
+        ]
+    )
+
+    logger.info(f"Removing staging directory {target.staging}")
+    wait([executor.submit(target.staging.fs.rmdir, str(target.staging))])
 
 
 def _remove_all_staging(targets: list[_DeploymentTarget]) -> None:
