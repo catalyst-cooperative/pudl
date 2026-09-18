@@ -1616,8 +1616,11 @@ Module Contents
 
 
    .. py:attribute:: pudl_paths
+      :type:  pudl.workspace.setup.PudlPaths | None
       :value: None
 
+
+      Object providing access to PUDL input/output directory paths.
 
 
    .. py:method:: transform_start(raw_dbf_dfs: dict[str, pandas.DataFrame], raw_xbrl_dfs: dict[str, pandas.DataFrame]) -> pandas.DataFrame
@@ -4015,7 +4018,8 @@ Module Contents
       Replace the name of the balance column reported in the XBRL Instant table with
       starting_balance / ending_balance since we pull those two values into their own
       separate labeled rows, each of which should get the original metadata for the
-      Instant column.
+      Instant column. Mirrors the process found in
+      :meth:`DepreciationChangesTableTransformer.convert_xbrl_metadata_json_to_df`
 
 
 

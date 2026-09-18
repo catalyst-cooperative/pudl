@@ -50,6 +50,11 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
   own small logfile to the build outputs bucket. This created newer object path with the
   same commit confusing `deploy-pudl` causing deployment to fail. See [#5579](https://github.com/catalyst-cooperative/pudl/issues/5579)
   and [#5580](https://github.com/catalyst-cooperative/pudl/pull/5580).
+* Fixed a broken metadata override in `CashFlowsTableTransformer` that left the
+  `starting_balance`/`ending_balance` rows for `cash_and_cash_equivalents` in
+  [core_ferc1_\_yearly_cash_flows_sched120](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-cash-flows-sched120) without `row_type_xbrl`,
+  `is_within_table_calc`, `balance`, or `ferc_account` metadata. See
+  [#5587](https://github.com/catalyst-cooperative/pudl/issues/5587) and [#5588](https://github.com/catalyst-cooperative/pudl/pull/5588).
 
 ### Performance Improvements
 
