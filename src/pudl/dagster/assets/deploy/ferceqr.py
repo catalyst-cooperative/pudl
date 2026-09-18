@@ -92,8 +92,7 @@ class _DeploymentTarget:
     """One resolved deployment destination plus the scratch prefixes beside it.
 
     ``final``/``staging``/``previous`` are full URI strings (``gs://…``, ``s3://…``)
-    or local paths. ``store`` is the :class:`~pudl.deploy.object_store.ObjectStore`
-    that knows how to move bytes for that URI scheme.
+    or local paths.
     """
 
     final: UPath
@@ -221,7 +220,7 @@ def _promote_target(target: _DeploymentTarget, executor: ThreadPoolExecutor) -> 
     logger.info(f"Snapshotting {target.final} -> {target.previous}")
     futures.append(
         executor.submit(
-            target.final.fs.put,
+            target.final.fs.cp,
             str(target.final),
             str(target.previous),
             recursive=True,
@@ -231,7 +230,7 @@ def _promote_target(target: _DeploymentTarget, executor: ThreadPoolExecutor) -> 
     logger.info(f"Promoting {target.staging} -> {target.final}")
     futures.append(
         executor.submit(
-            target.final.fs.put,
+            target.final.fs.cp,
             str(target.staging_data),
             str(target.final),
             recursive=True,
@@ -239,21 +238,14 @@ def _promote_target(target: _DeploymentTarget, executor: ThreadPoolExecutor) -> 
     )
     futures.append(
         executor.submit(
-            target.final.fs.put,
-            str(target.staging_data),
-            str(target.final),
-            recursive=True,
-        )
-    )
-    futures.append(
-        executor.submit(
-            target.final.fs.put,
+            target.final.fs.cp,
             str(target.staging_meta / "datapackage.json"),
             str(target.final / "datapackage.json"),
-            recursive=True,
         )
     )
-    futures.append(executor.submit(target.final.fs.rmdir, str(target.staging)))
+    futures.append(
+        executor.submit(target.final.fs.rm, str(target.staging), recursive=True)
+    )
 
     for future in futures:
         future.result()
@@ -263,7 +255,7 @@ def _remove_all_staging(targets: list[_DeploymentTarget]) -> None:
     """Best-effort removal of every target's staging prefix after a failure."""
     for target in targets:
         try:
-            target.store.remove(target.staging)
+            target.staging.fs.rmdir(str(target.staging))
         except Exception:
             logger.warning(
                 f"Failed to clean up staging prefix {target.staging}:\n"
