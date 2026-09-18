@@ -239,8 +239,8 @@ def _promote_target(target: _DeploymentTarget, executor: ThreadPoolExecutor) -> 
     futures.append(
         executor.submit(
             target.final.fs.cp,
-            str(target.staging_meta / "datapackage.json"),
-            str(target.final / "datapackage.json"),
+            target.staging_meta / "datapackage.json",
+            target.final / "datapackage.json",
         )
     )
     futures.append(
