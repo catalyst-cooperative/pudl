@@ -681,11 +681,20 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
     logger.info("FERC EQR build successful, deploying FERC EQR data.")
     try:
         with ThreadPoolExecutor() as executor:
-            for target in targets:
-                _stage_target(target, table_files, datapackage_path, executor)
+            stage_futures = [
+                executor.submit(
+                    _stage_target, target, table_files, datapackage_path, executor
+                )
+                for target in targets
+            ]
+            for future in stage_futures:
+                future.result()
 
-            for target in targets:
-                _promote_target(target, executor)
+            promote_futures = [
+                executor.submit(_promote_target, target, executor) for target in targets
+            ]
+            for future in promote_futures:
+                future.result()
 
     except Exception:
         logger.error(
