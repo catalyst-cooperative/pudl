@@ -285,14 +285,14 @@ def _promote_target(target: _DeploymentTarget, executor: ThreadPoolExecutor) -> 
     )
 
     logger.info(f"Removing staging directory {target.staging}")
-    wait([executor.submit(target.staging.fs.rmdir, str(target.staging))])
+    wait([executor.submit(target.staging.fs.rm, str(target.staging), recursive=True)])
 
 
 def _remove_all_staging(targets: list[_DeploymentTarget]) -> None:
     """Best-effort removal of every target's staging prefix after a failure."""
     for target in targets:
         try:
-            target.staging.fs.rmdir(str(target.staging))
+            target.staging.fs.rm(target.staging, recursive=True)
         except Exception:
             logger.warning(
                 f"Failed to clean up staging prefix {target.staging}:\n"
