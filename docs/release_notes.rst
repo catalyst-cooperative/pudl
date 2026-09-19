@@ -65,6 +65,12 @@ Bug Fixes & Data Cleaning
   :ref:`core_ferc1__yearly_cash_flows_sched120` without ``row_type_xbrl``,
   ``is_within_table_calc``, ``balance``, or ``ferc_account`` metadata. See
   :issue:`5587` and :pr:`5588`.
+* Made the FERC 1 to EIA plant-parts record linkage reproducible. The splink model
+  sampled record pairs without a seed and broke ties between equally probable matches
+  arbitrarily, so about 1% of the matches in
+  :ref:`out_pudl__yearly_assn_eia_ferc1_plant_parts` changed on every run even with
+  identical inputs. The sampling is now seeded and ties are broken by EIA record ID. See
+  :issue:`5610` and :pr:`5643`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
