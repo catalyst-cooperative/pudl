@@ -215,6 +215,11 @@ Bug Fixes & Data Cleaning
 * Fixed a bug that gave plants with no reported state the state FIPS code ``74`` (U.S.
   Minor Outlying Islands). Those plants in :ref:`core_eia__entity_plants`, and the
   generators built from them, now have a null ``state_id_fips``. See PR :pr:`5697`.
+* ``X`` in the EIA-861 dynamic pricing time-of-use, critical peak, real time and
+  variable peak columns is now treated as ``True`` (a checked box) instead of being
+  turned into a null, which changes four 2018 rows of
+  ``core_eia861__yearly_dynamic_pricing``. Unexpected codes other than Y, N and X raise
+  an error. See :issue:`5617`, :issue:`5601` and :pr:`5631`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
