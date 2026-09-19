@@ -5,6 +5,7 @@ All transformations include:
 """
 
 from collections.abc import Callable, Hashable
+from typing import overload
 
 import pandas as pd
 from dagster import AssetIn, AssetOut, Output, asset, multi_asset
@@ -1010,16 +1011,36 @@ def _pct_to_mw(df, pct_col):
     return mw_value
 
 
+_YN_TO_BOOL = {
+    "Y": True,
+    "y": True,
+    "X": True,  # Marked with an X, like a checked box on a form.
+    "x": True,
+    "N": False,
+    "n": False,
+    True: True,
+    False: False,
+}
+
+
+@overload
+def _make_yn_bool(df_object: pd.Series) -> pd.Series: ...
+
+
+@overload
+def _make_yn_bool(df_object: pd.DataFrame) -> pd.DataFrame: ...
+
+
 def _make_yn_bool(df_object):
-    """Turn Y/N reporting into True or False boolean statements for df or series."""
-    return df_object.replace(
-        {
-            "Y": True,
-            "y": True,
-            "N": False,
-            "n": False,
-        }
-    )
+    """Turn Y/N reporting into nullable booleans for a series or dataframe.
+
+    ``Y`` and ``X`` (a checked box) are ``True`` and ``N`` is ``False``. Existing
+    booleans are kept. Nulls and any other values (e.g. stray single-letter codes)
+    become ``pd.NA``.
+    """
+    if isinstance(df_object, pd.DataFrame):
+        return df_object.apply(_make_yn_bool)
+    return df_object.map(_YN_TO_BOOL).astype("boolean")
 
 
 def _thousand_to_one(df_object):
@@ -1959,11 +1980,8 @@ def core_eia861__yearly_dynamic_pricing(
         "variable_peak_pricing",
     ]
 
-    raw_dp = _pre_process(
-        raw_eia861__dynamic_pricing.assign(
-            short_form=lambda x: _make_yn_bool(x.short_form)
-        ),
-        idx_cols,
+    raw_dp = _pre_process(raw_eia861__dynamic_pricing, idx_cols).assign(
+        short_form=lambda x: _make_yn_bool(x.short_form)
     )
 
     ###########################################################################
@@ -2155,11 +2173,8 @@ def core_net_metering_eia861(raw_eia861__net_metering: pd.DataFrame):
     misc_cols = ["pv_current_flow_type"]
 
     # Pre-tidy clean specific to net_metering table
-    raw_nm = _pre_process(
-        raw_eia861__net_metering.assign(
-            short_form=lambda x: _make_yn_bool(x.short_form)
-        ),
-        idx_cols,
+    raw_nm = _pre_process(raw_eia861__net_metering, idx_cols).assign(
+        short_form=lambda x: _make_yn_bool(x.short_form)
     )
 
     # Separate customer class data from misc data (in this case just one col: current flow)
