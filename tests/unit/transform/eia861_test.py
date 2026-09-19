@@ -104,3 +104,37 @@ def test__combine_88888_values(actual, expected):
     idx_cols = ["report_date", "utility_id_eia", "state"]
     observed_outcome = eia861._combine_88888_values(actual, idx_cols)
     pd.testing.assert_frame_equal(expected, observed_outcome)
+
+
+@pytest.mark.parametrize("dtype", ["object", "string"])
+def test__make_yn_bool__series(dtype):
+    """Y/N codes become nullable booleans; nulls and other codes become NA."""
+    raw = pd.Series(["Y", "y", "N", "n", "X", None, pd.NA], dtype=dtype)
+    actual = eia861._make_yn_bool(raw)
+    expected = pd.Series(
+        [True, True, False, False, pd.NA, pd.NA, pd.NA], dtype="boolean"
+    )
+    pd.testing.assert_series_equal(actual, expected)
+
+
+def test__make_yn_bool__keeps_existing_booleans():
+    """Values that are already booleans are preserved."""
+    raw = pd.Series([True, False, "Y", None], dtype="object")
+    expected = pd.Series([True, False, True, pd.NA], dtype="boolean")
+    pd.testing.assert_series_equal(eia861._make_yn_bool(raw), expected)
+
+
+def test__make_yn_bool__dataframe():
+    """DataFrames are converted column by column, preserving the index."""
+    raw = pd.DataFrame(
+        {"a": ["Y", None], "b": pd.array(["n", pd.NA], dtype="string")},
+        index=pd.Index([5, 6], name="k"),
+    )
+    expected = pd.DataFrame(
+        {
+            "a": pd.array([True, pd.NA], dtype="boolean"),
+            "b": pd.array([False, pd.NA], dtype="boolean"),
+        },
+        index=pd.Index([5, 6], name="k"),
+    )
+    pd.testing.assert_frame_equal(eia861._make_yn_bool(raw), expected)
