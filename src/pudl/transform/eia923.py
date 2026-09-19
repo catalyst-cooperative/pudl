@@ -317,6 +317,23 @@ def _aggregate_generation_fuel_duplicates(
 
     duplicates = gen_fuel[is_duplicate].copy()
 
+    # These columns can come out of upstream extraction/transform steps as object
+    # dtype rather than a proper numeric dtype under pandas 3. Cast them explicitly
+    # so the select_dtypes(include="number") check below (and the aggregation and
+    # division further down) treat them as numeric instead of silently excluding
+    # or mishandling them. We use NumPy float64 (not nullable Float64) so that nulls
+    # are np.nan, which keeps the all-zero check below and the later concatenation
+    # with the object-dtype non-duplicate rows free of pd.NA.
+    numeric_value_cols = [
+        "fuel_consumed_units",
+        "fuel_consumed_for_electricity_units",
+        "fuel_consumed_mmbtu",
+        "fuel_consumed_for_electricity_mmbtu",
+        "net_generation_mwh",
+        "fuel_mmbtu_per_unit",
+    ]
+    duplicates[numeric_value_cols] = duplicates[numeric_value_cols].astype("float64")
+
     # Remove duplicates where all numeric fields are 0 (only if there are other,
     # non-zero duplicates)
     value_cols = duplicates.columns.difference(natural_key_fields + ["sector_id_eia"])
