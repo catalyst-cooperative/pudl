@@ -378,7 +378,7 @@ def test__clean_emissions_control_dates(raw_values, expected_dates, spot_fixes):
         min_valid_year=1950,
         max_valid_year=2025,
     )
-    expected = pd.to_datetime(pd.Series(expected_dates))
+    expected = pd.to_datetime(pd.Series(expected_dates)).astype("datetime64[ns]")
     pd.testing.assert_series_equal(result, expected, check_names=False)
 
 
