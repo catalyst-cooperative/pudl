@@ -454,8 +454,11 @@ def core_phmsagas__yearly_distribution_operators(
         df[col] = pd.to_datetime(df[col])
 
     # Initial string cleaning
-    for col in df.select_dtypes(include=["object"]).columns:
-        df[col] = df[col].str.strip()
+    # Some object-dtype columns (e.g. supplemental_report_id) hold non-string
+    # values (plain Python floats), which the .str accessor rejects outright as
+    # of pandas 3. Strip only actual strings and leave everything else as-is.
+    for col in df.select_dtypes(include=["object", "string"]).columns:
+        df[col] = df[col].map(lambda v: v.strip() if isinstance(v, str) else v)
 
     # Specify the columns to convert to integer type
     cols_to_convert = YEARLY_DISTRIBUTION_OPERATORS_COLUMNS[
