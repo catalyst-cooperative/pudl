@@ -65,6 +65,9 @@ Bug Fixes & Data Cleaning
   :ref:`core_ferc1__yearly_cash_flows_sched120` without ``row_type_xbrl``,
   ``is_within_table_calc``, ``balance``, or ``ferc_account`` metadata. See
   :issue:`5587` and :pr:`5588`.
+* ``standardize_percentages_ratio()`` now accepts columns of numeric strings (which some
+  Excel-sourced columns arrive as) and always returns nullable ``Float64``. Genuinely
+  non-numeric values still raise. See :issue:`5614` and :pr:`5628`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
