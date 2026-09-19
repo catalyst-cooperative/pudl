@@ -690,7 +690,7 @@ def _tidy_class_dfs(
     class_list: list[str],
     class_type: str,
     keep_totals: bool = False,
-) -> pd.DataFrame:
+) -> tuple[pd.DataFrame, list[str]]:
     """Stack multiple data columns and create a categorical column for filtering.
 
     Many EIA-861 tables are reported in a wide format, with several columns reporting
@@ -725,7 +725,8 @@ def _tidy_class_dfs(
             output is generated at the DEBUG level.
 
     Returns:
-        A tidier long-form version of the input dataframe.
+        A tuple of a tidier long-form version of the input dataframe, and the primary
+        key columns of that dataframe (``idx_cols`` plus ``class_type``).
     """
     # Replace NA values in the BA code column with "UNK"
     logger.debug(f"Cleaning {df_name} table index columns so we can tidy data.")
