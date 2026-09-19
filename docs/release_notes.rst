@@ -65,6 +65,11 @@ Bug Fixes & Data Cleaning
   :ref:`core_ferc1__yearly_cash_flows_sched120` without ``row_type_xbrl``,
   ``is_within_table_calc``, ``balance``, or ``ferc_account`` metadata. See
   :issue:`5587` and :pr:`5588`.
+* ``X`` in the EIA-861 dynamic pricing time-of-use, critical peak, real time and
+  variable peak columns is now treated as ``True`` (a checked box) instead of being
+  turned into a null, which changes four 2018 rows of
+  ``core_eia861__yearly_dynamic_pricing``. Unexpected codes other than Y, N and X raise
+  an error. See :issue:`5617`, :issue:`5601` and :pr:`5631`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
