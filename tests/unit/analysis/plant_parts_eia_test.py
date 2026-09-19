@@ -767,3 +767,37 @@ def test_one_to_many():
         .set_index("record_id_eia")
     )
     pd.testing.assert_frame_equal(one_to_many_df, plant_gen_one_to_many_expected)
+
+
+def test_add_record_id_null_utility():
+    """Records with a null utility_id_eia still get a non-null, unique record ID.
+
+    pandas 3's ``astype(str)`` turns nulls into ``NaN``, which would propagate through
+    the string concatenation and null out the entire record ID.
+    """
+    part_df = pd.DataFrame(
+        {
+            "plant_id_eia": [1, 1],
+            "generator_id": ["a", "a"],
+            "report_date": pd.to_datetime(["2020-01-01", "2020-01-01"]),
+            "plant_part": ["plant_gen", "plant_gen"],
+            "ownership_record_type": ["total", "owned"],
+            "utility_id_eia": pd.array([None, 111], dtype="Int64"),
+            "operational_status_pudl": ["operating", "operating"],
+        }
+    )
+    id_cols = ["plant_id_eia", "generator_id"]
+
+    with_year = pudl.analysis.plant_parts_eia.add_record_id(part_df, id_cols)
+    assert with_year.record_id_eia.tolist() == [
+        "1_a_2020_plant_gen_total_<NA>",
+        "1_a_2020_plant_gen_owned_111",
+    ]
+
+    without_year = pudl.analysis.plant_parts_eia.add_record_id(
+        part_df, id_cols, year=False
+    )
+    assert without_year.plant_part_id_eia.tolist() == [
+        "1_a_plant_gen_total_<NA>",
+        "1_a_plant_gen_owned_111",
+    ]

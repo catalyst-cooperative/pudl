@@ -1467,7 +1467,7 @@ def add_record_id(
             + "_"
             + x.ownership_record_type.astype(str)
             + "_"
-            + x.utility_id_eia.astype("Int64").astype(str)
+            + x.utility_id_eia.astype("Int64").astype("string").fillna("<NA>")
         )
     )
     # add operational status only when records are not "operating" (i.e.
