@@ -1340,8 +1340,12 @@ def calculate_values_from_components(
     # Data types were very messy here, including pandas Float64 for the
     # calculated_value columns which did not work with the np.isclose(). Not sure
     # why these are cropping up.
-    calculated_df = calculated_df.convert_dtypes(convert_floating=False).astype(
-        {value_col: "float64", "calculated_value": "float64"}
+    # Round-trip through nullable Float64 first: pandas 3 refuses to cast an
+    # object/nullable column containing pd.NA straight to numpy float64.
+    calculated_df = (
+        calculated_df.convert_dtypes(convert_floating=False)
+        .astype({value_col: "Float64", "calculated_value": "Float64"})
+        .astype({value_col: "float64", "calculated_value": "float64"})
     )
     # For all of these below, only assign values when the record is a calculated record
     # Also, make sure we are filling nulls so we capture the differences when there are
@@ -4592,8 +4596,10 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
             strings ``header``, ``note``, ``total``, or NA to indicate what type of row
             it is.
         """
-        # Add a column to show final row type
-        df.insert(3, "row_type", np.nan)
+        # Add a column to show final row type. Use an object dtype so that string
+        # labels ("header", "note", "total") can be written into it without pandas 3
+        # raising on a lossy assignment into a float column.
+        df.insert(3, "row_type", np.full(len(df), pd.NA, dtype=object))
 
         # Label the row types
         df_labeled = (
@@ -4927,7 +4933,10 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
                 # We update the ferc lic col because some were already there from the
                 # plant name extraction. However, we want to override with the notes
                 # ferc licenses because they are more likely to be accurate.
-                group.license_id_ferc1.update(updated_ferc_license_col)
+                # Series.update() via chained assignment (group.col.update(...)) is a
+                # silent no-op under pandas 3's copy-on-write; update the column on
+                # the DataFrame directly instead so the change actually takes effect.
+                group.update({"license_id_ferc1": updated_ferc_license_col})
                 group.loc[regular_row, "notes"] = notes_col
 
             return group
