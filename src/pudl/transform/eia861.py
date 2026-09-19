@@ -1990,10 +1990,10 @@ def core_eia861__yearly_dynamic_pricing(
 
     logger.info("Performing value transformations on EIA 861 Dynamic Pricing table.")
     for col in class_attributes:
-        tidy_dp[col] = (
-            tidy_dp[col]
-            .replace({"Y": True, "N": False})
-            .apply(lambda x: x if x in [True, False] else pd.NA)
+        # "X" indicates a value that wasn't reported, so it becomes null, not False.
+        tidy_dp[col] = tidy_dp[col].replace({"X": pd.NA})
+        tidy_dp = pudl.helpers.convert_col_to_bool(
+            tidy_dp, col_name=col, true_values=["Y"], false_values=["N"]
         )
 
     return _post_process(tidy_dp, name="core_eia861__yearly_dynamic_pricing")
