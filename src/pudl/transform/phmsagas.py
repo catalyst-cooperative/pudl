@@ -380,9 +380,11 @@ def _check_and_drop_log_if_always_in_report_id(df):
     # CG checked and there is another seemingly fully different
     # report_id ended in 1064 so this one seems like the log is wrong
     # so its seems chill to delete this column
+    is_suffix = test_log.apply(
+        lambda x: x.report_id.endswith(x.log_number), axis=1
+    ).astype(bool)
     log_not_report_suffix = test_log[
-        (~test_log.apply(lambda x: x.report_id.endswith(x.log_number), axis=1))
-        & (test_log.report_id != "19951063")
+        ~is_suffix & (test_log.report_id != "19951063").astype(bool)
     ]
     if not log_not_report_suffix.empty:
         raise AssertionError(
@@ -467,7 +469,7 @@ def core_phmsagas__yearly_distribution_operators(
 
     # Standardize case for city, county, operator name, etc.
     # Capitalize the first letter of each word in a list of columns
-    cap_cols = df.select_dtypes(include=["object"]).columns.difference(
+    cap_cols = df.select_dtypes(include=["object", "string"]).columns.difference(
         YEARLY_DISTRIBUTION_OPERATORS_COLUMNS["capitalization_exclusion"]
     )
     for col in cap_cols:

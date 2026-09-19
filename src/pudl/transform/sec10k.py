@@ -44,12 +44,16 @@ def _extract_filer_cik_from_filename(filename_col: pd.Series) -> pd.Series:
 
 def _compute_fraction_owned(percent_ownership: pd.Series) -> pd.Series:
     """Clean percent ownership, convert to float, then convert percent to ratio."""
-    return (
-        percent_ownership.str.replace(r"(\.{2,})", r"\.", regex=True)
-        .replace("\\\\", "", regex=True)
+    # Work on an object-dtype copy: the regex replacements below use Python `re`
+    # semantics (backslash escapes, replacement strings) that the Arrow-backed string
+    # dtype's pyarrow/RE2 engine rejects under pandas 3.
+    cleaned = (
+        percent_ownership.astype(object)
+        .str.replace(r"\.{2,}", ".", regex=True)
+        .replace(r"\\", "", regex=True)
         .replace(".", "0.0", regex=False)
-        .astype("float")
-    ) / 100.0
+    )
+    return cleaned.astype("float") / 100.0
 
 
 def _standardize_taxpayer_id_irs(taxpayer_id_irs: pd.Series) -> pd.Series:
@@ -60,11 +64,11 @@ def _standardize_taxpayer_id_irs(taxpayer_id_irs: pd.Series) -> pd.Series:
     - Reformat to NN-NNNNNNN format.
     """
     tin = taxpayer_id_irs.astype("string").str.replace(r"[^\d]", "", regex=True)
-    not_nine_digits = ~tin.str.match(r"^\d{9}$")
+    not_nine_digits = ~tin.str.match(r"^\d{9}$").fillna(False)
     logger.info(f"Nulling {sum(not_nine_digits.dropna())} invalid TINs.")
-    nine_zeroes = tin == "000000000"
+    nine_zeroes = (tin == "000000000").fillna(False)
     logger.info(f"Nulling {sum(nine_zeroes.dropna())} all-zero TINs.")
-    tin.loc[(not_nine_digits | nine_zeroes)] = pd.NA
+    tin = tin.mask(not_nine_digits | nine_zeroes, pd.NA)
     tin = tin.str[:2] + "-" + tin.str[2:]
     return tin
 
