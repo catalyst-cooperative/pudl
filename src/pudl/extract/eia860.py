@@ -10,6 +10,7 @@ from dagster import AssetOut, Output, multi_asset
 
 import pudl.extract.eia860m
 import pudl.logging_helpers
+from pudl.dagster.op_tags import HOT_PATH_OP_TAGS
 from pudl.extract import excel
 from pudl.extract.extractor import raw_df_factory
 from pudl.helpers import remove_leading_zeros_from_numeric_strings
@@ -94,7 +95,7 @@ RAW_EIA860_TABLE_NAMES = {
 }
 
 
-raw_eia860__all_dfs = raw_df_factory(Extractor, name="eia860")
+raw_eia860__all_dfs = raw_df_factory(Extractor, name="eia860", op_tags=HOT_PATH_OP_TAGS)
 
 
 # TODO (bendnorman): Figure out type hint for context keyword and multi_asset return
@@ -105,6 +106,7 @@ raw_eia860__all_dfs = raw_df_factory(Extractor, name="eia860")
     },
     can_subset=True,
     required_resource_keys={"datastore", "global_data_config"},
+    op_tags=HOT_PATH_OP_TAGS,
 )
 def extract_eia860(context, raw_eia860__all_dfs, raw_eia860m__all_dfs):
     """Extract raw EIA data from excel sheets into dataframes.

@@ -23,6 +23,7 @@ from upath import UPath
 
 import pudl.logging_helpers
 from pudl import PUDL_EEL_HOLE_BASE_PATH
+from pudl.dagster.op_tags import COLD_PATH_OP_TAGS, HOT_PATH_OP_TAGS
 from pudl.dagster.provenance import (
     FERC_TO_SQLITE_METADATA_KEY,
     FercSqliteProvenance,
@@ -398,8 +399,11 @@ raw_ferc1_dbf__sqlite = ferc_to_sqlite_asset_factory(
         data_config=context.resources.global_data_config.ferc_to_sqlite,
         output_path=context.resources.pudl_paths.pudl_output,
     ).execute(),
-    op_tags={"dagster/priority": 10},
+    op_tags=HOT_PATH_OP_TAGS,
 )
+# FERC Forms 2, 6, and 60 have no downstream consumers, so a low scheduling priority
+# lets them backfill idle executor slots during the serial tail of the run instead of
+# joining the thundering herd of extractions at the start.
 raw_ferc2_dbf__sqlite = ferc_to_sqlite_asset_factory(
     dataset=FercForm.FORM2,
     data_format="dbf",
@@ -408,7 +412,7 @@ raw_ferc2_dbf__sqlite = ferc_to_sqlite_asset_factory(
         data_config=context.resources.global_data_config.ferc_to_sqlite,
         output_path=context.resources.pudl_paths.pudl_output,
     ).execute(),
-    op_tags={"dagster/priority": 10},
+    op_tags=COLD_PATH_OP_TAGS,
 )
 raw_ferc6_dbf__sqlite = ferc_to_sqlite_asset_factory(
     dataset=FercForm.FORM6,
@@ -418,7 +422,7 @@ raw_ferc6_dbf__sqlite = ferc_to_sqlite_asset_factory(
         data_config=context.resources.global_data_config.ferc_to_sqlite,
         output_path=context.resources.pudl_paths.pudl_output,
     ).execute(),
-    op_tags={"dagster/priority": 10},
+    op_tags=COLD_PATH_OP_TAGS,
 )
 raw_ferc60_dbf__sqlite = ferc_to_sqlite_asset_factory(
     dataset=FercForm.FORM60,
@@ -428,7 +432,7 @@ raw_ferc60_dbf__sqlite = ferc_to_sqlite_asset_factory(
         data_config=context.resources.global_data_config.ferc_to_sqlite,
         output_path=context.resources.pudl_paths.pudl_output,
     ).execute(),
-    op_tags={"dagster/priority": 10},
+    op_tags=COLD_PATH_OP_TAGS,
 )
 
 raw_ferc1_xbrl__sqlite = ferc_to_sqlite_asset_factory(
@@ -443,7 +447,7 @@ raw_ferc1_xbrl__sqlite = ferc_to_sqlite_asset_factory(
         workers=context.resources.runtime_settings.xbrl_num_workers,
         loglevel=context.resources.runtime_settings.xbrl_loglevel,
     ),
-    op_tags={"dagster/priority": 10},
+    op_tags=HOT_PATH_OP_TAGS,
 )
 raw_ferc2_xbrl__sqlite = ferc_to_sqlite_asset_factory(
     dataset=FercForm.FORM2,
@@ -457,7 +461,7 @@ raw_ferc2_xbrl__sqlite = ferc_to_sqlite_asset_factory(
         workers=context.resources.runtime_settings.xbrl_num_workers,
         loglevel=context.resources.runtime_settings.xbrl_loglevel,
     ),
-    op_tags={"dagster/priority": 10},
+    op_tags=COLD_PATH_OP_TAGS,
 )
 raw_ferc6_xbrl__sqlite = ferc_to_sqlite_asset_factory(
     dataset=FercForm.FORM6,
@@ -471,7 +475,7 @@ raw_ferc6_xbrl__sqlite = ferc_to_sqlite_asset_factory(
         workers=context.resources.runtime_settings.xbrl_num_workers,
         loglevel=context.resources.runtime_settings.xbrl_loglevel,
     ),
-    op_tags={"dagster/priority": 10},
+    op_tags=COLD_PATH_OP_TAGS,
 )
 raw_ferc60_xbrl__sqlite = ferc_to_sqlite_asset_factory(
     dataset=FercForm.FORM60,
@@ -485,7 +489,7 @@ raw_ferc60_xbrl__sqlite = ferc_to_sqlite_asset_factory(
         workers=context.resources.runtime_settings.xbrl_num_workers,
         loglevel=context.resources.runtime_settings.xbrl_loglevel,
     ),
-    op_tags={"dagster/priority": 10},
+    op_tags=COLD_PATH_OP_TAGS,
 )
 raw_ferc714_xbrl__sqlite = ferc_to_sqlite_asset_factory(
     dataset=FercForm.FORM714,
@@ -499,5 +503,5 @@ raw_ferc714_xbrl__sqlite = ferc_to_sqlite_asset_factory(
         workers=context.resources.runtime_settings.xbrl_num_workers,
         loglevel=context.resources.runtime_settings.xbrl_loglevel,
     ),
-    op_tags={"dagster/priority": 10},
+    op_tags=HOT_PATH_OP_TAGS,
 )
