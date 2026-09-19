@@ -6,6 +6,8 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
+import polars as pl
+import shapely
 
 from pudl.metadata.dtypes import PERIODS
 
@@ -591,3 +593,21 @@ def groupby_aggregate(
     # Enforce original data types, which nulls and errors may have changed
     result = result.astype(dtypes, copy=False)
     return result, reports
+
+
+def is_valid_wkb(values: pl.Series) -> pl.Series:
+    """Check that each value in a ``Binary`` Series parses as WKB.
+
+    Null values are valid, since a geometry may be missing. Only parseability is
+    checked, not topological validity (self-intersections, etc.).
+
+    Args:
+        values: A Polars ``Binary`` Series of WKB geometries.
+
+    Returns:
+        A boolean Series of the same length, and name, as ``values``.
+    """
+    parsed = shapely.from_wkb(values.to_list(), on_invalid="ignore")
+    return pl.Series(
+        values.name, values.is_null().to_numpy() | ~shapely.is_missing(parsed)
+    )

@@ -1,6 +1,5 @@
 """Tests for timeseries anomalies detection and imputation."""
 
-import geopandas as gpd  # noqa: ICN002
 import numpy as np
 import pandas as pd
 import polars as pl
@@ -58,7 +57,8 @@ def out_ferc714__hourly_estimated_state_demand_args():
         ).lazy(),
         # toy county, but the first two chars have to line up with a state listed in POLITICAL_SUBDIVISIONS
         # so let's go with Alabama
-        "out_censusdp1tract__counties": gpd.GeoDataFrame(
+        # The geometry column is never needed, so it isn't even provided.
+        "out_censusdp1tract__counties": pl.LazyFrame(
             {
                 "county_id_fips": ["01000"],
                 "dp0010001": [1],
