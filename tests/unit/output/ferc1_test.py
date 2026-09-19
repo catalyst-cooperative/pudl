@@ -485,4 +485,8 @@ report_year,utility_id_ferc1,xbrl_factoid,cool_tag_col,ending_balance,is_disaggr
 """
         ),
     ).convert_dtypes()
+    # convert_dtypes types the all-null tag column as Int64; it holds string tags.
+    expected_only_total["cool_tag_col"] = expected_only_total["cool_tag_col"].astype(
+        "string"
+    )
     pd.testing.assert_frame_equal(expected_only_total, out_only_total, check_like=True)

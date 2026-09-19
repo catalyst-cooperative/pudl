@@ -828,7 +828,7 @@ def expand_timeseries(
         pd.concat([df, end_dates.reset_index()])
         .set_index(date_col)
         .groupby(key_cols)
-        .resample(freq, include_groups=False)
+        .resample(freq)
         .ffill()
         .reset_index()
     )
