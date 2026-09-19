@@ -9,6 +9,7 @@ tools from scikit-learn
 """
 
 import mlflow
+import numpy as np
 import pandas as pd
 from dagster import graph, op
 
@@ -84,23 +85,76 @@ ferc_dataframe_embedder = embed_dataframe.dataframe_embedder_factory(
 )
 
 
+#: Columns that put FERC 1 steam records in a canonical order. ``record_id`` is the
+#: primary key, so it makes the order total and the resulting IDs reproducible.
+_CANONICAL_RECORD_ORDER = [
+    "report_year",
+    "utility_id_ferc1",
+    "plant_name_ferc1",
+    "record_id",
+]
+
+
+def _canonicalize_plant_ids(
+    input_df: pd.DataFrame, record_labels: pd.Series
+) -> pd.Series:
+    """Replace arbitrary cluster labels with IDs that depend only on the clusters.
+
+    The labels assigned by the clustering models are numbered by the internals of the
+    algorithm, so they get permuted by tiny changes in the inputs even when the plants
+    they describe are identical. Instead, give every cluster the position of its
+    earliest record when all records are sorted by :data:`_CANONICAL_RECORD_ORDER`.
+    Because that only depends on the members of a cluster, splitting, merging, or adding
+    a plant does not change the IDs of unrelated plants, and diffs between runs
+    highlight real changes to the clusters.
+
+    Args:
+        input_df: The records that were clustered. Must contain the columns in
+            :data:`_CANONICAL_RECORD_ORDER`.
+        record_labels: The cluster label of each record, indexed like ``input_df``.
+
+    Returns:
+        A series of plant IDs, indexed like ``input_df``.
+    """
+    ordered = input_df[_CANONICAL_RECORD_ORDER].copy()
+    ordered["record_label"] = record_labels.to_numpy()
+    ordered = ordered.sort_values(_CANONICAL_RECORD_ORDER, kind="stable")
+    ordered["position"] = np.arange(len(ordered))
+    plant_ids = ordered.groupby("record_label")["position"].transform("min")
+    return plant_ids.reindex(input_df.index).rename("plant_id_ferc1")
+
+
+def _assign_plant_ids(
+    ferc1_steam_df: pd.DataFrame, input_df: pd.DataFrame, record_labels: pd.Series
+) -> pd.DataFrame:
+    """Add canonical ``plant_id_ferc1`` to the steam table, matching on ``record_id``."""
+    plant_ids = _canonicalize_plant_ids(input_df, record_labels)
+    plant_ids.index = input_df["record_id"]
+    return ferc1_steam_df.assign(
+        plant_id_ferc1=ferc1_steam_df["record_id"].map(plant_ids)
+    )
+
+
 @op(tags={"dagster/priority": 10})
 def plants_steam_validate_ids(
     ferc_to_ferc_tracker: experiment_tracking.ExperimentTracker,
     ferc1_steam_df: pd.DataFrame,
+    input_df: pd.DataFrame,
     label_df: pd.DataFrame,
 ) -> pd.DataFrame:
     """Tests that plant_id_ferc1 timeseries includes one record per year.
 
     Args:
         ferc1_steam_df: A DataFrame of the data from the FERC 1 Steam table.
+        input_df: The (sorted) records that were clustered to produce ``label_df``.
         label_df: A DataFrame containing column of newly assigned plant labels.
 
     Returns:
-        The input dataframe, to enable method chaining.
+        The steam dataframe with a ``plant_id_ferc1`` column added.
     """
-    # Add column of labels to steam df
-    ferc1_steam_df.loc[:, "plant_id_ferc1"] = label_df["record_label"]
+    ferc1_steam_df = _assign_plant_ids(
+        ferc1_steam_df, input_df, label_df["record_label"]
+    )
 
     ##########################################################################
     # FERC PLANT ID ERROR CHECKING STUFF
@@ -143,11 +197,14 @@ def merge_steam_fuel_dfs(
     ffc = list(fuel_fractions.filter(regex=".*_fraction_mmbtu$").columns)
 
     # Grab fuel consumption proportions for use in assigning plant IDs:
-    return ferc1_steam_df.merge(
+    merged = ferc1_steam_df.merge(
         fuel_fractions[["utility_id_ferc1", "plant_name_ferc1", "report_year"] + ffc],
         on=["utility_id_ferc1", "plant_name_ferc1", "report_year"],
         how="left",
     ).astype({"plant_type": str, "construction_type": str})
+    # Clustering results depend on the order of the input rows, so sort by primary key.
+    # The clustering ops assume a default RangeIndex, so reset it after sorting.
+    return merged.sort_values("record_id", kind="stable").reset_index(drop=True)
 
 
 @models.pudl_model(
@@ -174,5 +231,5 @@ def ferc_to_ferc(
     label_df = link_ids_cross_year(input_df, feature_matrix, experiment_tracker)
 
     return plants_steam_validate_ids(
-        experiment_tracker, core_ferc1__yearly_steam_plants_sched402, label_df
+        experiment_tracker, core_ferc1__yearly_steam_plants_sched402, input_df, label_df
     )

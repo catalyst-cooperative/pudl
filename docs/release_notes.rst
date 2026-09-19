@@ -65,6 +65,12 @@ Bug Fixes & Data Cleaning
   :ref:`core_ferc1__yearly_cash_flows_sched120` without ``row_type_xbrl``,
   ``is_within_table_calc``, ``balance``, or ``ferc_account`` metadata. See
   :issue:`5587` and :pr:`5588`.
+* Made ``plant_id_ferc1`` reproducible. The cluster labels from the FERC 1 plant
+  matching model were numbered arbitrarily, so they were reshuffled by tiny changes in
+  input row order even when the plants themselves were unchanged. The model inputs are
+  now sorted by ``record_id`` and each plant's ID is derived from its earliest record,
+  so unrelated plants keep their IDs when others change. IDs are still not stable across
+  data updates and shouldn't be hard-coded. See :issue:`5609` and :pr:`5642`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
