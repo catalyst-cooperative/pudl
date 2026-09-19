@@ -215,6 +215,11 @@ Bug Fixes & Data Cleaning
 * Fixed a bug that gave plants with no reported state the state FIPS code ``74`` (U.S.
   Minor Outlying Islands). Those plants in :ref:`core_eia__entity_plants`, and the
   generators built from them, now have a null ``state_id_fips``. See PR :pr:`5697`.
+* Fixed the PHMSA gas distribution operators cleanup, which turned non-string values in
+  object columns (such as numeric zip codes and phone numbers) into nulls while
+  stripping whitespace. Only strings are stripped now, so a handful of previously null
+  values in ``core_phmsagas__yearly_distribution_operators`` are preserved. See
+  :issue:`5616` and :pr:`5630`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
