@@ -7,9 +7,7 @@ from typing import Any, Literal
 
 import duckdb.sqltypes
 import frictionless
-import geopandas as gpd  # noqa: ICN002
 import pandas as pd
-import pandera.pandas as pr_pandas
 import pandera.polars as pr_polars
 import polars as pl
 import pyarrow as pa
@@ -795,41 +793,31 @@ def dummy_pandera_schema_w_geometry(dummy_resource_dict_w_geometry):
     return resource.schema.to_pandera()
 
 
-@pytest.mark.parametrize(
-    "data,backend",
-    [
-        (
-            pl.DataFrame(
-                {
-                    "plant_id_eia": [12345, 12346],
-                    "city": ["Bloomington", "Springfield"],
-                    "capacity_mw": [1.3, 1.0],
-                }
-            ),
-            "polars",
-        ),
-        (
-            gpd.GeoDataFrame(
-                {
-                    "plant_id_eia": [12345, 12346],
-                    "city": pd.Series(["Bloomington", "Springfield"], dtype="string"),
-                    "capacity_mw": [1.3, 1.0],
-                    "geometry": [Point(0, 0), Point(1, 0)],
-                }
-            ),
-            "pandas",
-        ),
-    ],
-)
-def test_resource_descriptors_can_encode_schemas(
-    data, backend, dummy_pandera_schema, dummy_pandera_schema_w_geometry
+_VALID_PLANT_DATA = {
+    "plant_id_eia": [12345, 12346],
+    "city": ["Bloomington", "Springfield"],
+    "capacity_mw": [1.3, 1.0],
+}
+
+
+def test_resource_descriptors_can_encode_schemas(dummy_pandera_schema):
+    data = pl.DataFrame(_VALID_PLANT_DATA)
+    assert not dummy_pandera_schema.validate(data).is_empty()
+
+
+def test_resource_descriptors_with_geometry_encode_polars_schemas(
+    dummy_pandera_schema_w_geometry,
 ):
-    if backend == "polars":
-        schema = dummy_pandera_schema
-        assert not schema.validate(data).is_empty()
-    else:
-        schema = dummy_pandera_schema_w_geometry
-        assert not schema.validate(data).empty
+    """A geometry field is validated by the Polars backend, as WKB ``Binary``."""
+    data = pl.DataFrame(
+        _VALID_PLANT_DATA
+        | {"geometry": pl.Series([Point(0, 0).wkb, Point(1, 0).wkb], dtype=pl.Binary)}
+    )
+
+    schema = dummy_pandera_schema_w_geometry
+
+    assert isinstance(schema, pr_polars.DataFrameSchema)
+    assert not schema.validate(data).is_empty()
 
 
 @pytest.mark.parametrize(
@@ -874,29 +862,36 @@ def test_resource_descriptor_schema_failures(error_msg, data, dummy_pandera_sche
     [
         pytest.param(
             "column 'plant_id_eia' not in dataframe",
-            gpd.GeoDataFrame([]),
+            pl.DataFrame([]),
             id="empty dataframe",
         ),
         pytest.param(
-            "expected series 'plant_id_eia' to have type Int64",
-            gpd.GeoDataFrame(
+            "expected column 'plant_id_eia' to have type Int64, got String",
+            pl.DataFrame(
                 {
                     "plant_id_eia": ["non_number"],
                     "city": ["Bloomington"],
                     "capacity_mw": ["1.3"],
-                    "geometry": [Point(0, 0)],
+                    "geometry": pl.Series([Point(0, 0).wkb], dtype=pl.Binary),
                 }
-            ).astype(str),
+            ),
             id="bad dtype",
         ),
         pytest.param(
+            "expected column 'geometry' to have type Binary, got String",
+            pl.DataFrame(_VALID_PLANT_DATA | {"geometry": ["POINT (0 0)"] * 2}),
+            id="geometry as WKT",
+        ),
+        pytest.param(
             "columns .* not unique",
-            gpd.GeoDataFrame(
+            pl.DataFrame(
                 {
                     "plant_id_eia": [12345, 12345],
-                    "city": pd.Series(["Bloomington", "Springfield"], dtype="string"),
+                    "city": ["Bloomington", "Springfield"],
                     "capacity_mw": [1.3, 1.0],
-                    "geometry": [Point(0, 0), Point(1, 0)],
+                    "geometry": pl.Series(
+                        [Point(0, 0).wkb, Point(1, 0).wkb], dtype=pl.Binary
+                    ),
                 }
             ),
             id="duplicate PK",
@@ -906,7 +901,7 @@ def test_resource_descriptor_schema_failures(error_msg, data, dummy_pandera_sche
 def test_resource_descriptor_schema_failures_w_geometry(
     error_msg, data, dummy_pandera_schema_w_geometry
 ):
-    with pytest.raises(pr_pandas.errors.SchemaError, match=error_msg):
+    with pytest.raises(pr_polars.errors.SchemaError, match=error_msg):
         dummy_pandera_schema_w_geometry.validate(data)
 
 
@@ -1289,7 +1284,7 @@ _GEOMETRY_RESOURCE = "out_censusdp1tract__states"
 
 _BACKEND_GEOMETRY_SUPPORT: list[tuple[PudlDtypeBackend, bool]] = [
     ("pandas", True),
-    ("polars", False),
+    ("polars", True),
     ("sqlite", False),
     ("duckdb", False),
     ("pyarrow", True),
@@ -1320,10 +1315,10 @@ def test_get_pudl_dtypes_named_backend(
     assert dtypes[_OVERRIDE_FIELD] == expected_dtype
 
 
-def test_get_pudl_dtypes_polars_skips_unsupported_types() -> None:
-    """Polars dtype selection should skip fields whose canonical type is unsupported."""
+def test_get_pudl_dtypes_polars_geometry_is_wkb_binary() -> None:
+    """Polars has no geometry type, so geometry fields are WKB ``Binary`` columns."""
     dtypes = get_pudl_dtypes(dtype_backend="polars")
-    assert "geometry" not in dtypes
+    assert dtypes["geometry"] == pl.Binary
 
 
 @pytest.mark.parametrize(

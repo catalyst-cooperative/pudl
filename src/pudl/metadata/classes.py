@@ -73,6 +73,7 @@ from pudl.metadata.helpers import (
     expand_periodic_column_names,
     format_errors,
     groupby_aggregate,
+    is_valid_wkb,
     most_and_more_frequent,
     split_period,
 )
@@ -378,22 +379,21 @@ class FieldConstraints(PudlMeta):
                 raise ValueError("must be greater or equal to minimum")
         return value
 
-    def to_pandera_checks(self, use_pandas_backend: bool) -> list[pr_polars.Check]:
+    def to_pandera_checks(self) -> list[pr_polars.Check]:
         """Convert these constraints to pandera Column checks."""
         checks = []
-        pandera_module = pr_pandas if use_pandas_backend else pr_polars
         if self.min_length is not None:
-            checks.append(pandera_module.Check.str_length(min_value=self.min_length))
+            checks.append(pr_polars.Check.str_length(min_value=self.min_length))
         if self.max_length is not None:
-            checks.append(pandera_module.Check.str_length(max_value=self.max_length))
+            checks.append(pr_polars.Check.str_length(max_value=self.max_length))
         if self.minimum is not None:
-            checks.append(pandera_module.Check.ge(self.minimum))
+            checks.append(pr_polars.Check.ge(self.minimum))
         if self.maximum is not None:
-            checks.append(pandera_module.Check.le(self.maximum))
+            checks.append(pr_polars.Check.le(self.maximum))
         if self.pattern is not None:
-            checks.append(pandera_module.Check.str_matches(self.pattern))
+            checks.append(pr_polars.Check.str_matches(self.pattern))
         if self.enum:
-            checks.append(pandera_module.Check.isin(self.enum))
+            checks.append(pr_polars.Check.isin(self.enum))
 
         return checks
 
@@ -993,29 +993,39 @@ class Field(PudlMeta):
             descriptor["constraints"] = constraints
         return frictionless.Field.from_descriptor(descriptor)
 
-    def to_pandera_column(
-        self, use_pandas_backend: bool
-    ) -> pr_polars.Column | pr_pandas.Column:
+    def requires_content_validation(self) -> bool:
+        """Whether validating this field requires reading its actual values.
+
+        True if it has value constraints, and for geometry fields, whose WKB must be
+        checked for parseability.
+        """
+        return self.type == "geometry" or self.constraints.requires_content_validation()
+
+    def to_pandera_column(self) -> pr_polars.Column:
         """Encode this field def as a Pandera column."""
         constraints = self.constraints
-        checks = constraints.to_pandera_checks(use_pandas_backend)
+        checks = constraints.to_pandera_checks()
         if constraints.enum:
-            # The physical dtype is unconstrained Categorical/"category" (see
-            # Field.to_polars_dtype / Field.to_pandas_dtype); the enum value
-            # constraint itself is enforced by the `checks` (Check.isin) above,
-            # not by the declared column dtype.
-            column_type = "category" if use_pandas_backend else pl.Categorical()
-        elif self.type == "geometry":
-            column_type = gpd.array.GeometryDtype()
+            # The physical dtype is unconstrained Categorical (see
+            # Field.to_polars_dtype); the enum value constraint itself is enforced by
+            # the `checks` (Check.isin) above, not by the declared column dtype.
+            column_type = pl.Categorical()
         else:
-            column_type = (
-                FIELD_DTYPES_PANDAS[self.type]
-                if use_pandas_backend
-                else FIELD_DTYPES_POLARS[self.type]
+            column_type = FIELD_DTYPES_POLARS[self.type]
+        if self.type == "geometry":
+            checks.append(
+                pr_polars.Check(
+                    lambda data: data.lazyframe.select(
+                        pl.col(data.key).map_batches(
+                            is_valid_wkb, return_dtype=pl.Boolean
+                        )
+                    ),
+                    name="valid_wkb",
+                    error="geometry must be valid WKB",
+                )
             )
 
-        pandera_module = pr_pandas if use_pandas_backend else pr_polars
-        return pandera_module.Column(
+        return pr_polars.Column(
             column_type,
             checks=checks,
             nullable=not constraints.required,
@@ -1151,18 +1161,16 @@ class Schema(PudlMeta):
                     )
         return self
 
-    def to_pandera(self: Self) -> pr_polars.DataFrameSchema | pr_pandas.DataFrameSchema:
-        """Turn PUDL Schema into Pandera schema, so dagster can understand it."""
+    def to_pandera(self: Self) -> pr_polars.DataFrameSchema:
+        """Turn PUDL Schema into Pandera schema, so dagster can understand it.
+
+        Geometry fields are validated as WKB ``Binary`` columns, like every other
+        field, by Pandera's Polars backend.
+        """
         # 2024-02-09: pr.Check doesn't have interop with Pydantic type system
         # yet, so we encode as Callable, then cast.
-        use_pandas_backend = any(field.type == "geometry" for field in self.fields)
-        pandera_module = pr_pandas if use_pandas_backend else pr_polars
-
-        return pandera_module.DataFrameSchema(
-            {
-                field.name: field.to_pandera_column(use_pandas_backend)
-                for field in self.fields
-            },
+        return pr_polars.DataFrameSchema(
+            {field.name: field.to_pandera_column() for field in self.fields},
             unique=self.primary_key,
         )
 
