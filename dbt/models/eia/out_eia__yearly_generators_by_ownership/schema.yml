@@ -74,6 +74,8 @@ sources:
           - name: utility_id_eia
           - name: utility_id_pudl
           - name: utility_name_eia
+          - name: operator_utility_id_eia
+          - name: operator_utility_id_pudl
           - name: technology_description
           - name: energy_source_code_1
           - name: prime_mover_code
