@@ -1563,3 +1563,36 @@ def test_persist_table_as_parquet_duckdb_enum_written_as_dictionary(
     assert polars_result["code"].dtype == pl.Categorical
     assert polars_result["code"].to_list() == ["a", "b", "a"]
     assert set(polars_result["code"].unique().to_list()) == {"a", "b"}
+
+
+@pytest.mark.parametrize(
+    ("kind", "writer"),
+    [
+        ("pandas", (pd.DataFrame, "to_parquet")),
+        ("polars", (pl.LazyFrame, "sink_parquet")),
+        ("duckdb", (pq, "ParquetWriter")),
+    ],
+)
+def test_persist_table_as_parquet_compression(kind, writer, tmp_path, mocker):
+    """Every kind of table is written with the codec and level set centrally in pudl."""
+    mocker.patch("pudl.PARQUET_COMPRESSION_LEVEL", 7)
+    mocker.patch.dict(
+        "os.environ",
+        {
+            "PUDL_OUTPUT": str(tmp_path / "output"),
+            "PUDL_INPUT": str(tmp_path / "input"),
+        },
+    )
+    data = {
+        "pandas": lambda: pd.DataFrame({"a": [1, 2]}),
+        "polars": lambda: pl.LazyFrame({"a": [1, 2]}),
+        "duckdb": lambda: duckdb.sql("SELECT 1 AS a UNION ALL SELECT 2"),
+    }[kind]()
+    spy = mocker.spy(*writer)
+
+    parquet_data = persist_table_as_parquet(data, table_name=f"_test__{kind}_zstd")
+
+    assert spy.call_args.kwargs["compression"] == pudl.PARQUET_COMPRESSION
+    assert spy.call_args.kwargs["compression_level"] == 7
+    row_group = pq.read_metadata(parquet_data.parquet_path).row_group(0)
+    assert row_group.column(0).compression == pudl.PARQUET_COMPRESSION.upper()
