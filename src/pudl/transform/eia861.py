@@ -490,7 +490,8 @@ def _tidy_class_dfs(
             output is generated at the DEBUG level.
 
     Returns:
-        A tidier long-form version of the input dataframe.
+        A tuple of a tidier long-form version of the input dataframe, and the primary
+        key columns of that dataframe (``idx_cols`` plus ``class_type``).
     """
     # Replace NA values in the BA code column with "UNK"
     logger.debug(f"Cleaning {df_name} table index columns so we can tidy data.")
