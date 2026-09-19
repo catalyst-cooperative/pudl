@@ -3,6 +3,7 @@
 import warnings
 from pathlib import Path
 
+import polars as pl
 from dagster import PreviewWarning
 from upath import UPath
 
@@ -20,6 +21,11 @@ warnings.filterwarnings(
 )
 
 configure_root_logger()
+
+# GeoParquet geometry columns carry a ``geoarrow.wkb`` Arrow extension type. Tell Polars
+# to load it as its plain ``Binary`` (WKB) storage type rather than warning about an
+# unregistered extension type on the first GeoParquet file it encounters.
+pl.register_extension_type("geoarrow.wkb", as_storage=True)
 
 # Paths to resources stored within the PUDL repository. Unlike PUDL_INPUT and
 # PUDL_OUTPUT these are not intended to be overridden by users or reset at runtime for

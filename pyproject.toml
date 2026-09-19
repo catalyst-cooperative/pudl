@@ -617,7 +617,6 @@ filterwarnings = [
     "ignore:Exception ignored in:pytest.PytestUnraisableExceptionWarning",
     "ignore:Specifying a partitions_def on an AssetCheckSpec is currently in preview",
     "ignore:No path_separator found in configuration:DeprecationWarning:alembic",
-    "ignore:Extension type 'geoarrow.wkb' is not registered:UserWarning",
     "ignore:invalid escape sequence:SyntaxWarning:stringcase",
     "ignore:invalid escape sequence:SyntaxWarning:parsedatetime",
     "ignore:grpcio < 1.83.0 does not support Post-Quantum Cryptography:FutureWarning",
