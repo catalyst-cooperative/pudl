@@ -153,3 +153,17 @@ def test__make_yn_bool__dataframe():
         index=pd.Index([5, 6], name="k"),
     )
     pd.testing.assert_frame_equal(eia861._make_yn_bool(raw), expected)
+
+
+def test__dynamic_pricing_flags_to_bool():
+    """Y and X are True, N is False, nulls stay null, and other codes raise."""
+    df = pd.DataFrame({"a": ["Y", "N", "X", None], "b": ["N", "X", "Y", "N"]})
+    out = eia861._dynamic_pricing_flags_to_bool(df, ["a", "b"])
+    pd.testing.assert_series_equal(
+        out["a"], pd.Series([True, False, True, pd.NA], dtype="boolean", name="a")
+    )
+    pd.testing.assert_series_equal(
+        out["b"], pd.Series([False, True, True, False], dtype="boolean", name="b")
+    )
+    with pytest.raises(AssertionError, match="not categorized"):
+        eia861._dynamic_pricing_flags_to_bool(pd.DataFrame({"a": ["Y", "Z"]}), ["a"])
