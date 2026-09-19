@@ -2749,37 +2749,56 @@ def normalize_year_fragments(
     return year
 
 
-def make_changelog(df_all: pd.DataFrame, idx: list[str]):
-    """Make a changelog table with unique instances of values over start report and max report date."""
+def make_changelog(df_all: pd.DataFrame, idx: list[str]) -> pd.DataFrame:
+    """Make a changelog table with unique instances of values over time.
+
+    Each record is valid from its ``report_date`` until the ``report_date`` of the next
+    distinct record in the same series. A series is a unique combination of the
+    non-date ``idx`` columns and, if present, ``column_name`` (as in the "tall" forensics
+    tables, where many different columns and values share one entity ID). Records
+    reported on the entity's last report date are valid for one more month.
+
+    The output is fully sorted, so it doesn't depend on the order of the input rows.
+    """
     idx_no_date = [c for c in idx if c != "report_date"]
+    series_cols = idx_no_date + [c for c in ["column_name"] if c in df_all.columns]
+    # Tie-breakers, so that rows sharing an ID and report date sort deterministically.
+    tiebreak_cols = [c for c in ["record_value"] if c in df_all.columns]
+    sort_cols = series_cols + ["report_date"] + tiebreak_cols
+
+    def _sort_key(col: pd.Series) -> pd.Series:
+        # record_value holds values of many types (floats, timestamps, strings, ...)
+        # from different columns, which can't be ordered against each other, so order
+        # them by their string representation instead.
+        return col.astype("string") if col.name == "record_value" else col
+
     # assign a max report_date column for use in the valid_until_date column
     df_all["report_date_max"] = df_all.groupby(idx_no_date)["report_date"].transform(
         "max"
     )
 
     df_changelog = df_all.sort_values(
-        by=["report_date"], ascending=True
+        sort_cols, kind="stable", key=_sort_key
     ).drop_duplicates(
         subset=[c for c in df_all if c != "report_date"],
         keep="first",
     )
 
-    report_date_max_mask = (
-        df_changelog["report_date"] == df_changelog["report_date_max"]
-    )
-    df_changelog.loc[~report_date_max_mask, "valid_until_date"] = (
-        df_changelog.sort_values(idx, ascending=False)
-        .groupby(idx_no_date)["report_date"]
-        .transform("shift")
-        .fillna(df_changelog.report_date_max)
+    # Within each series, a record is valid until the next record begins.
+    next_report_date = df_changelog.groupby(series_cols)["report_date"].shift(-1)
+    df_changelog["valid_until_date"] = next_report_date.fillna(
+        df_changelog["report_date_max"]
     )
 
     # for all of the last month records, use the next month as the valid until date
-    df_changelog.loc[report_date_max_mask, "valid_until_date"] = (
-        df_changelog.report_date + pd.DateOffset(months=1)
+    report_date_max_mask = (
+        df_changelog["report_date"] == df_changelog["report_date_max"]
     )
+    df_changelog.loc[report_date_max_mask, "valid_until_date"] = df_changelog.loc[
+        report_date_max_mask, "report_date"
+    ] + pd.DateOffset(months=1)
 
-    return df_changelog.sort_values(idx)
+    return df_changelog.sort_values(sort_cols, kind="stable", key=_sort_key)
 
 
 def parse_address(addr: str):
