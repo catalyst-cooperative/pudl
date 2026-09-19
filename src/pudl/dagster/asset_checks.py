@@ -27,9 +27,7 @@ from typing import Any
 
 import dagster as dg
 import frictionless
-import geopandas as gpd  # noqa: ICN002
 import pandas as pd
-import pandera.pandas as pr_pandas
 import pandera.polars as pr_polars
 import pint
 import polars as pl
@@ -62,42 +60,26 @@ def _collect_asset_metadata(asset_value) -> dict[str, Any]:
 
 
 def _extract_actual_columns_and_dtypes(
-    asset_value: pl.LazyFrame | pd.DataFrame,
-) -> tuple[list[str], dict[str, str], bool]:
-    """Extract actual column names and dtypes from supported dataframe objects."""
-    use_pandas_backend = False
-
-    if isinstance(asset_value, pl.LazyFrame):
-        schema = asset_value.collect_schema()
-        actual_columns = schema.names()
-        actual_dtypes = {
-            col: str(dtype)
-            for col, dtype in zip(actual_columns, schema.dtypes(), strict=True)
-        }
-        return actual_columns, actual_dtypes, use_pandas_backend
-
-    if isinstance(asset_value, pd.DataFrame):
-        use_pandas_backend = True
-        actual_columns = list(asset_value.columns)
-        actual_dtypes = {
-            str(col): str(dtype) for col, dtype in asset_value.dtypes.items()
-        }
-        return actual_columns, actual_dtypes, use_pandas_backend
-
-    raise ValueError(
-        f"Unsupported asset type for dtype collection: {type(asset_value)}"
-    )
+    asset_value: pl.LazyFrame,
+) -> tuple[list[str], dict[str, str]]:
+    """Extract actual column names and dtypes from a Polars LazyFrame."""
+    schema = asset_value.collect_schema()
+    actual_columns = schema.names()
+    actual_dtypes = {
+        col: str(dtype)
+        for col, dtype in zip(actual_columns, schema.dtypes(), strict=True)
+    }
+    return actual_columns, actual_dtypes
 
 
 def _collect_dtype_metadata(
-    asset_value: pl.LazyFrame | pd.DataFrame,
+    asset_value: pl.LazyFrame,
     resource: Resource,
 ) -> dict[str, Any]:
     """Build metadata comparing actual dataframe dtypes to metadata-driven expectations.
 
     Args:
-        asset_value: Asset output to introspect. Supported types are
-            :class:`pandas.DataFrame` and :class:`polars.LazyFrame`.
+        asset_value: Asset output to introspect.
         resource: PUDL metadata resource whose schema fields define expected columns and
             dtypes.
 
@@ -105,14 +87,11 @@ def _collect_dtype_metadata(
         A metadata dictionary with:
         - ``field_details``: per-column expected/actual dtype details, declared
           constraints, and whether the column is content-checked (see
-          :meth:`~pudl.metadata.classes.FieldConstraints.requires_content_validation`).
+          :meth:`~pudl.metadata.classes.Field.requires_content_validation`).
         - ``column_comparison``: expected/actual column counts and optional missing
           or extra column lists.
         - ``type_mismatches``: only present when common columns have differing dtype
           strings.
-
-    Raises:
-        ValueError: If ``asset_value`` is not a supported dataframe type.
 
     Notes:
         Expected dtypes are captured as strings from ``field.to_pandera_column()``.
@@ -120,18 +99,14 @@ def _collect_dtype_metadata(
         ``"Error: ..."`` values rather than raised.
     """
     dtype_errors: dict[str, str] = {}
-    actual_columns, actual_dtypes, use_pandas_backend = (
-        _extract_actual_columns_and_dtypes(asset_value)
-    )
+    actual_columns, actual_dtypes = _extract_actual_columns_and_dtypes(asset_value)
 
     expected_columns = [field.name for field in resource.schema.fields]
 
     pandera_dtypes = {}
     for field in resource.schema.fields:
         try:
-            pandera_dtypes[field.name] = str(
-                field.to_pandera_column(use_pandas_backend=use_pandas_backend).dtype
-            )
+            pandera_dtypes[field.name] = str(field.to_pandera_column().dtype)
         except Exception as exc:
             error_text = str(exc)
             pandera_dtypes[field.name] = f"Error: {error_text}"
@@ -142,7 +117,7 @@ def _collect_dtype_metadata(
             "pudl_field_dtype": field.type,
             "expected_pandera_dtype": pandera_dtypes.get(field.name, "Unknown"),
             "actual_dtype": actual_dtypes.get(field.name, "Column not present"),
-            "content_checked": field.constraints.requires_content_validation(),
+            "content_checked": field.requires_content_validation(),
             "constraints": field.constraints.model_dump_json(exclude_defaults=True),
         }
         for field in resource.schema.fields
@@ -182,25 +157,6 @@ def _collect_dtype_metadata(
     return metadata
 
 
-def _collect_geometry_metadata(asset_value) -> dict[str, Any]:
-    """Collect GeoPandas-specific metadata."""
-    if not isinstance(asset_value, gpd.GeoDataFrame):
-        return {}
-
-    metadata = {
-        "geometry_column": (
-            asset_value.geometry.name
-            if hasattr(asset_value, "geometry")
-            else "No geometry attribute"
-        )
-    }
-
-    if hasattr(asset_value, "geometry") and hasattr(asset_value.geometry, "dtype"):
-        metadata["geometry_dtype"] = str(asset_value.geometry.dtype)
-
-    return metadata
-
-
 def _collect_primary_key_metadata(
     resource: Resource, actual_columns: list[str]
 ) -> dict[str, Any]:
@@ -227,6 +183,29 @@ def _collect_primary_key_metadata(
     }
 
 
+def _summarize_binary(value: Any) -> Any:
+    """Replace ``bytes`` with a short, JSON-safe description; pass anything else on.
+
+    Failure cases can be WKB geometries, which are neither JSON-serializable nor small
+    (a single geometry can be megabytes), so only their size and first bytes are kept.
+    The first bytes are shown as text if they are printable ASCII, which is what
+    happens when WKT or GeoJSON ends up in a geometry column, and as hex otherwise.
+    """
+    if not isinstance(value, bytes):
+        return value
+    prefix = value[:16]
+    if prefix.isascii() and prefix.decode("ascii").isprintable():
+        shown = repr(prefix.decode("ascii"))
+    else:
+        shown = f"0x{prefix.hex()}"
+    return f"<{len(value)} bytes, starting {shown}>"
+
+
+def _summarize_binary_records(records: list[dict[Any, Any]]) -> list[dict[Any, Any]]:
+    """Apply :func:`_summarize_binary` to every value of a list of records."""
+    return [{k: _summarize_binary(v) for k, v in record.items()} for record in records]
+
+
 def _failure_cases_sample(
     failure_cases: Any, max_failure_samples: int = 20
 ) -> tuple[int | None, Any]:
@@ -249,20 +228,26 @@ def _failure_cases_sample(
     if isinstance(failure_cases, pl.DataFrame):
         return (
             failure_cases.height,
-            failure_cases.head(max_failure_samples).to_dicts(),
+            _summarize_binary_records(
+                failure_cases.head(max_failure_samples).to_dicts()
+            ),
         )
     if isinstance(failure_cases, pd.DataFrame):
         return (
             len(failure_cases),
-            failure_cases.head(max_failure_samples).to_dict(orient="records"),
+            _summarize_binary_records(
+                failure_cases.head(max_failure_samples).to_dict(orient="records")
+            ),
         )
     if isinstance(failure_cases, pd.Series):
         return (
             len(failure_cases),
-            failure_cases.head(max_failure_samples).tolist(),
+            [_summarize_binary(v) for v in failure_cases.head(max_failure_samples)],
         )
     if isinstance(failure_cases, list):
-        return len(failure_cases), failure_cases[:max_failure_samples]
+        return len(failure_cases), [
+            _summarize_binary(v) for v in failure_cases[:max_failure_samples]
+        ]
     if failure_cases is None:
         return None, None
     return None, str(failure_cases)
@@ -416,10 +401,10 @@ def _validate_polars_content(
         for field in resource.schema.fields:
             if field.name not in present_columns:
                 continue
-            if not field.constraints.requires_content_validation():
+            if not field.requires_content_validation():
                 continue
             column_schema = pr_polars.DataFrameSchema(
-                {field.name: field.to_pandera_column(use_pandas_backend=False)}
+                {field.name: field.to_pandera_column()}
             )
             try:
                 column_schema.validate(asset_value.select(field.name), lazy=True)
@@ -443,15 +428,13 @@ def asset_check_from_schema(  # noqa: C901
 ) -> dg.AssetChecksDefinition | None:
     """Create a Dagster asset check based on the resource schema, if defined.
 
-    The vast majority of assets will be loaded as Polars LazyFrames directly using
-    the ``PudlParquetIOManager`` and validated with Pandera's Polars backend, but
-    there are two exceptions to this. The first exception are assets which contain
-    a geometry data type. These assets will all be loaded as geopandas GeoDataFrames
-    and use Pandera's Pandas backend as Polars does not support geometry data types.
-    The second exception are assets produced entirely using DuckDB. These assets
-    return ``ParquetData`` objects, which are handled by the default io-manager. In
-    this case, the resulting parquet file(s) will be scanned with Polars to produce
-    a LazyFrame, then handled exactly the same as a typical asset.
+    Assets are loaded as Polars LazyFrames directly using the ``PudlParquetIOManager``
+    and validated with Pandera's Polars backend. That includes assets with a geometry
+    column, which Polars sees as WKB ``Binary``. The one exception is assets produced
+    entirely using DuckDB. These assets return ``ParquetData`` objects, which are
+    handled by the default io-manager. In this case, the resulting parquet file(s)
+    will be scanned with Polars to produce a LazyFrame, then handled exactly the same
+    as a typical asset.
     """
     resource_id = asset_key.to_user_string()
     try:
@@ -461,17 +444,7 @@ def asset_check_from_schema(  # noqa: C901
 
     pandera_schema = resource.schema.to_pandera()
     partitions = ferceqr_year_quarters if "ferceqr" in resource_id else None
-    if duckdb_asset:
-        asset_type = ParquetData
-    elif isinstance(pandera_schema, pr_polars.DataFrameSchema):
-        asset_type = pl.LazyFrame
-    elif isinstance(pandera_schema, pr_pandas.DataFrameSchema):
-        asset_type = gpd.GeoDataFrame
-    else:
-        raise ValueError(
-            "Unexpected return type from `Resource.schema.to_pandera()`."
-            f"Expected a pandera `DataFrameSchema`, but got: `{type(pandera_schema)}`"
-        )
+    asset_type = ParquetData if duckdb_asset else pl.LazyFrame
 
     @dg.asset_check(asset=asset_key, blocking=True, partitions_def=partitions)
     # Dagster uses this runtime annotation to select the correct IO manager load type,
@@ -488,7 +461,7 @@ def asset_check_from_schema(  # noqa: C901
                 partitions=asset_value.partitions,
             )
 
-        actual_columns, _, _ = _extract_actual_columns_and_dtypes(asset_value)
+        actual_columns, _ = _extract_actual_columns_and_dtypes(asset_value)
 
         # Collect all metadata that's cheap and available regardless of outcome,
         # up front -- so it's present on every return path below, including one
@@ -496,7 +469,6 @@ def asset_check_from_schema(  # noqa: C901
         metadata: dict[str, Any] = (
             _collect_asset_metadata(asset_value)
             | _collect_dtype_metadata(asset_value, resource)
-            | _collect_geometry_metadata(asset_value)
             | _collect_primary_key_metadata(resource, actual_columns)
         )
         metadata["is_duckdb_asset"] = duckdb_asset
@@ -505,49 +477,39 @@ def asset_check_from_schema(  # noqa: C901
         timings: dict[str, float] = {}
 
         try:
-            if isinstance(asset_value, pl.LazyFrame):
-                # Column presence and dtypes are checked here, using only the
-                # cheap `collect_schema()` metadata -- no data is read. Value
-                # constraints (ranges, enums, uniqueness, etc.) are checked
-                # separately below, one narrow column at a time, so that even
-                # PUDL's largest tables remain tractable to validate. Errors
-                # from both passes are collected and reported together,
-                # rather than stopping at whichever one fails first, since
-                # they're independent and a caller fixing one shouldn't have
-                # to re-run the check to discover the other.
-                assert isinstance(pandera_schema, pr_polars.DataFrameSchema)
-                errors: list[SchemaError] = []
-                schema_check_start = time.perf_counter()
-                try:
-                    pandera_schema.validate(asset_value, lazy=True)
-                except SchemaErrors as schema_errors:
-                    errors.extend(schema_errors.schema_errors)
-                finally:
-                    timings["schema_check_seconds"] = (
-                        time.perf_counter() - schema_check_start
-                    )
-
-                content_errors, content_timings = _validate_polars_content(
-                    asset_value, resource
+            # Column presence and dtypes are checked here, using only the
+            # cheap `collect_schema()` metadata -- no data is read. Value
+            # constraints (ranges, enums, uniqueness, etc.) are checked
+            # separately below, one narrow column at a time, so that even
+            # PUDL's largest tables remain tractable to validate. Errors
+            # from both passes are collected and reported together,
+            # rather than stopping at whichever one fails first, since
+            # they're independent and a caller fixing one shouldn't have
+            # to re-run the check to discover the other.
+            assert isinstance(pandera_schema, pr_polars.DataFrameSchema)
+            errors: list[SchemaError] = []
+            schema_check_start = time.perf_counter()
+            try:
+                pandera_schema.validate(asset_value, lazy=True)
+            except SchemaErrors as schema_errors:
+                errors.extend(schema_errors.schema_errors)
+            finally:
+                timings["schema_check_seconds"] = (
+                    time.perf_counter() - schema_check_start
                 )
-                errors.extend(content_errors)
-                timings.update(content_timings)
 
-                if errors:
-                    raise SchemaErrors(
-                        schema=pandera_schema,
-                        schema_errors=errors,
-                        data=asset_value,
-                    )
-            else:
-                assert isinstance(pandera_schema, pr_pandas.DataFrameSchema)
-                schema_check_start = time.perf_counter()
-                try:
-                    pandera_schema.validate(asset_value, lazy=True)
-                finally:
-                    timings["schema_check_seconds"] = (
-                        time.perf_counter() - schema_check_start
-                    )
+            content_errors, content_timings = _validate_polars_content(
+                asset_value, resource
+            )
+            errors.extend(content_errors)
+            timings.update(content_timings)
+
+            if errors:
+                raise SchemaErrors(
+                    schema=pandera_schema,
+                    schema_errors=errors,
+                    data=asset_value,
+                )
             metadata["timing"] = timings
             return dg.AssetCheckResult(passed=True, metadata=metadata)
 
