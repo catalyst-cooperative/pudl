@@ -65,6 +65,11 @@ Bug Fixes & Data Cleaning
   :ref:`core_ferc1__yearly_cash_flows_sched120` without ``row_type_xbrl``,
   ``is_within_table_calc``, ``balance``, or ``ferc_account`` metadata. See
   :issue:`5587` and :pr:`5588`.
+* ``scale_by_ownership()`` now always returns nullable ``Float64`` for the
+  ownership-scaled columns. Previously their dtype depended on the data: ``Int64`` when
+  every scaled value happened to be integral and ``float64`` otherwise. This affects the
+  dtypes of ``out_eia__yearly_generators_by_ownership`` and the tables built from it.
+  See :issue:`5613` and :pr:`5627`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^

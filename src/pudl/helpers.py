@@ -2168,8 +2168,13 @@ def scale_by_ownership(
             gens.copy().assign(fraction_owned=1, ownership_record_type="total"),
         ]
     )
-    gens.loc[:, scale_cols] = gens.loc[:, scale_cols].multiply(
-        gens["fraction_owned"], axis="index"
+    # Scaling by a fractional ownership share is inherently fractional, so cast the
+    # scaled columns to nullable Float64 before multiplying. pandas 3.0 raises on a
+    # lossy setitem that would write float results back into an integer column.
+    gens[scale_cols] = (
+        gens[scale_cols]
+        .astype("Float64")
+        .multiply(gens["fraction_owned"], axis="index")
     )
     return gens
 
