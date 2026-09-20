@@ -63,6 +63,17 @@ AGGREGATION_FREQS: tuple[AggregationFreq, ...] = get_args(AggregationFreq.__valu
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
+UNICODE_WHITESPACE_REGEX = (
+    "[\\s\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\x85]+"
+)
+"""Regex matching a run of ASCII or Unicode whitespace characters.
+
+Python's :mod:`re` matches Unicode whitespace like the non-breaking space with ``\\s``,
+but the RE2 engine that pyarrow uses for pandas' default ``str`` dtype only matches
+ASCII whitespace. Listing the characters explicitly gives the same result for ``object``,
+``string`` and ``str`` columns.
+"""
+
 
 def null_dates_outside_ns_bounds(dates: pd.Series) -> pd.Series:
     """Set datetimes that can't be represented with nanosecond resolution to ``NaT``.
@@ -478,7 +489,7 @@ def clean_eia_counties(
         df[county_col]
         .str.strip()
         # Condense multiple whitespace chars.
-        .str.replace(r"\s+", " ", regex=True)
+        .str.replace(UNICODE_WHITESPACE_REGEX, " ", regex=True)
         .str.replace(r"^St ", "St. ", regex=True)  # Standardize abbreviation.
         # Standardize abbreviation.
         .str.replace(r"^Ste ", "Ste. ", regex=True)
@@ -937,7 +948,7 @@ def simplify_strings(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
                     .str.replace(r"[\x00-\x1f\x7f-\x9f]", "", regex=True)
                     .str.strip()
                     .str.lower()
-                    .str.replace(r"\s+", " ", regex=True)
+                    .str.replace(UNICODE_WHITESPACE_REGEX, " ", regex=True)
                 )
     return out_df
 
@@ -970,7 +981,10 @@ def cleanstrings_series(
     """
     if simplify:
         col = (
-            col.astype(str).str.strip().str.lower().str.replace(r"\s+", " ", regex=True)
+            col.astype(str)
+            .str.strip()
+            .str.lower()
+            .str.replace(UNICODE_WHITESPACE_REGEX, " ", regex=True)
         )
         for k in str_map:
             str_map[k] = [re.sub(r"\s+", " ", s.lower().strip()) for s in str_map[k]]
@@ -1290,7 +1304,7 @@ def simplify_columns(df: pd.DataFrame) -> pd.DataFrame:
         df.columns.str.replace(r"[^0-9a-zA-Z]+", " ", regex=True)
         .str.strip()
         .str.lower()
-        .str.replace(r"\s+", " ", regex=True)
+        .str.replace(UNICODE_WHITESPACE_REGEX, " ", regex=True)
         .str.replace(" ", "_")
     )
     return df
@@ -1578,7 +1592,7 @@ def cleanstrings_snake(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
             .astype(pd.StringDtype())
             .str.strip()
             .str.lower()
-            .str.replace(r"\s+", "_", regex=True)
+            .str.replace(UNICODE_WHITESPACE_REGEX, "_", regex=True)
         )
     return df
 
