@@ -1264,8 +1264,7 @@ class AddConsistentAttributes(AddAttribute):
             logger.debug(f"{attribute_col} already here.. ")
             return part_df
 
-        record_df = gens_mega.copy()
-        record_df = self.assign_col(record_df)
+        record_df = self.assign_col(gens_mega)
 
         consistent_records = self.get_consistent_qualifiers(record_df)
 

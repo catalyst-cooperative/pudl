@@ -673,7 +673,7 @@ def fill_generator_technology_description(gens_df: pd.DataFrame) -> pd.DataFrame
         A copy of the input dataframe, with ``technology_description`` filled in.
     """
     nrows_orig = len(gens_df)
-    out_df = gens_df.copy()
+    out_df = gens_df
 
     # Fill in missing technology_descriptions with unique correspondences
     # between energy_source_code_1 and prime_mover_code when there has always
