@@ -668,7 +668,7 @@ def _core_eia860__plants(raw_eia860__plant: pd.DataFrame) -> pd.DataFrame:
         p_df.county.str.replace(r"[^a-z,A-Z]+", " ", regex=True)
         .str.strip()
         .str.lower()
-        .str.replace(r"\s+", " ", regex=True)
+        .str.replace(pudl.helpers.UNICODE_WHITESPACE_REGEX, " ", regex=True)
         .str.title()
     )
 

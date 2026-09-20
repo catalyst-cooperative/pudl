@@ -184,6 +184,10 @@ Major Dependency Updates
   letting pandas 3 keep typos like the year ``0006``. This affects FERC 1 certification
   dates and EIA-860 ``boiler_operating_date``. See issue :issue:`5644` and PR
   :pr:`5130`.
+* Made whitespace normalization treat Unicode whitespace like the non-breaking space
+  as whitespace on pandas 3's default string dtype, whose regex engine only matches
+  ASCII whitespace with ``\s``. This fixes a ``street_address`` in
+  :ref:`core_ferc__entity_companies`. See issue :issue:`5646` and PR :pr:`5130`.
 
 .. _release-v2026.9.0:
 

@@ -22,6 +22,7 @@ from shapely.geometry import Point
 
 import pudl.helpers
 from pudl.helpers import (
+    UNICODE_WHITESPACE_REGEX,
     ParquetData,
     add_fips_ids,
     apply_pudl_dtypes,
@@ -46,6 +47,7 @@ from pudl.helpers import (
     persist_table_as_parquet,
     remove_leading_zeros_from_numeric_strings,
     retry,
+    simplify_strings,
     standardize_na_values,
     standardize_percentages_ratio,
     standardize_phone_column,
@@ -514,6 +516,24 @@ def test_month_year_to_date_nulls_out_of_bounds_dates():
     assert list(out.columns) == ["boiler_operating_date"]
     assert out["boiler_operating_date"].isna().tolist() == [True, True, False]
     assert out["boiler_operating_date"].iloc[2] == pd.Timestamp("2010-03-01")
+
+
+@pytest.mark.parametrize("dtype", [object, "string", str])
+def test_unicode_whitespace_regex(dtype):
+    """Unicode whitespace is collapsed for every string dtype, as it was in pandas 2."""
+    col = pd.Series(
+        ["4809\xa0Jefferson\xa0Highway", "a\u2009 b\u3000c", "d  e"], dtype=dtype
+    )
+    out = col.str.replace(UNICODE_WHITESPACE_REGEX, " ", regex=True)
+    assert out.tolist() == ["4809 Jefferson Highway", "a b c", "d e"]
+
+
+def test_simplify_strings_collapses_non_breaking_spaces():
+    """Non-breaking spaces are normalized like other whitespace."""
+    in_df = pd.DataFrame({"addr": ["  4809\xa0Jefferson\xa0\xa0Highway ", None]})
+    out_df = simplify_strings(in_df, columns=["addr"])
+    assert out_df["addr"].iloc[0] == "4809 jefferson highway"
+    assert pd.isna(out_df["addr"].iloc[1])
 
 
 def test_standardize_na_values():
