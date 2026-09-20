@@ -1840,7 +1840,7 @@ def distribute_annually_reported_data_to_months_if_annual(
                 )
             )
 
-        reporters = df.copy().pipe(assign_plant_year)
+        reporters = df.pipe(assign_plant_year)
         # get a count of the number of missing values in a year
         key_columns_annual = ["plant_year"] + [
             col for col in key_columns if col != "report_date"

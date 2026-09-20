@@ -60,12 +60,10 @@ def _get_plant_nuclear_unit_id_map(nuc_fuel: pd.DataFrame) -> dict[int, str]:
     Returns:
         plant_to_nuc_id: one to one mapping of plant_id_eia to nuclear_unit_id.
     """
-    nuc_fuel = nuc_fuel[nuc_fuel.nuclear_unit_id.notna()].copy()
+    nuc_fuel = nuc_fuel[nuc_fuel.nuclear_unit_id.notna()]
 
     # Find the plants with one nuclear unit
-    plant_nuc_unit_counts = (
-        nuc_fuel.groupby("plant_id_eia").nuclear_unit_id.nunique().copy()
-    )
+    plant_nuc_unit_counts = nuc_fuel.groupby("plant_id_eia").nuclear_unit_id.nunique()
 
     plant_id_with_one_unit = plant_nuc_unit_counts[plant_nuc_unit_counts.eq(1)].index
 
@@ -134,12 +132,12 @@ def _get_plant_prime_mover_map(gen_fuel: pd.DataFrame) -> dict[int, str]:
         fuel_type_map: one to one mapping of plant_id_eia to prime_mover_codes.
     """
     # Remove fuels that don't have a prime mover.
-    gen_fuel = gen_fuel[~gen_fuel.prime_mover_code.isna()].copy()
+    gen_fuel = gen_fuel[~gen_fuel.prime_mover_code.isna()]
 
     # find plants with one prime mover
-    plant_prime_movers_counts = (
-        gen_fuel.groupby("plant_id_eia").prime_mover_code.nunique().copy()
-    )
+    plant_prime_movers_counts = gen_fuel.groupby(
+        "plant_id_eia"
+    ).prime_mover_code.nunique()
     plant_ids_with_one_pm = plant_prime_movers_counts[
         plant_prime_movers_counts.eq(1)
     ].index
@@ -315,7 +313,7 @@ def _aggregate_generation_fuel_duplicates(
 
     is_duplicate = gen_fuel.duplicated(subset=natural_key_fields, keep=False)
 
-    duplicates = gen_fuel[is_duplicate].copy()
+    duplicates = gen_fuel[is_duplicate]
 
     # These columns can come out of upstream extraction/transform steps as object
     # dtype rather than a proper numeric dtype under pandas 3. Cast them explicitly
@@ -390,7 +388,7 @@ def _aggregate_generation_fuel_duplicates(
     ].replace([np.inf, -np.inf], np.nan)
 
     # Add the resolved records back to generation_fuel dataframe.
-    gen_df = gen_fuel[~is_duplicate].copy()
+    gen_df = gen_fuel[~is_duplicate]
     gen_df = pd.concat([gen_df, resolved_dupes])
 
     if gen_df[natural_key_fields].isnull().any().any():
@@ -783,13 +781,13 @@ def _core_eia923__pre_generation_fuel(raw_eia923__generation_fuel: pd.DataFrame)
     # Create separate nuclear unit fuel table
     nukes = gen_fuel[
         gen_fuel.nuclear_unit_id.notna() | gen_fuel.energy_source_code.eq("NUC")
-    ].copy()
+    ]
 
     gen_fuel_nuke = gen_fuel_nuclear(nukes)
 
     gen_fuel = gen_fuel[
         gen_fuel.nuclear_unit_id.isna() & gen_fuel.energy_source_code.ne("NUC")
-    ].copy()
+    ]
     gen_fuel = gen_fuel.drop(columns=["nuclear_unit_id"])
 
     # Backfill 2001, 2002 prime_mover_codes.
@@ -874,7 +872,7 @@ def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.Da
 
     is_duplicate = boiler_fuel_df.duplicated(subset=key_cols, keep=False)
     # copying bc a slice of this copy will be reassigned later
-    duplicates: pd.DataFrame = boiler_fuel_df[is_duplicate].copy()
+    duplicates: pd.DataFrame = boiler_fuel_df[is_duplicate]
     boiler_fuel_groups = duplicates.groupby(key_cols)
 
     # For relative columns, take average weighted by fuel usage

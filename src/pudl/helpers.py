@@ -2187,7 +2187,7 @@ def scale_by_ownership(
     gens = pd.concat(
         [
             gens,
-            gens.copy().assign(fraction_owned=1, ownership_record_type="total"),
+            gens.assign(fraction_owned=1, ownership_record_type="total"),
         ]
     )
     # Scaling by a fractional ownership share is inherently fractional, so the scaled
