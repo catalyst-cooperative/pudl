@@ -215,6 +215,11 @@ Bug Fixes & Data Cleaning
 * Fixed a bug that gave plants with no reported state the state FIPS code ``74`` (U.S.
   Minor Outlying Islands). Those plants in :ref:`core_eia__entity_plants`, and the
   generators built from them, now have a null ``state_id_fips``. See PR :pr:`5697`.
+* Plant part record IDs for records with a null ``utility_id_eia`` now end in ``null``
+  instead of ``<NA>`` (or ``<na>``), consistent with the rest of the ID. This changes
+  ``record_id_eia`` and ``plant_part_id_eia`` in ``out_eia__yearly_plant_parts`` and the
+  related plant-part association tables for a few hundred records. See :issue:`5598` and
+  :pr:`5640`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
