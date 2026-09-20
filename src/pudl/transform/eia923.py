@@ -462,7 +462,7 @@ def _yearly_to_monthly_records(df: pd.DataFrame) -> pd.DataFrame:
     month_idx = pd.MultiIndex.from_frame(col_df).set_names([None, "report_month"])
     # reshape
     df.columns = month_idx
-    stacked = df.stack(future_stack=True)
+    stacked = df.stack()
     # Preserve the prior behavior of dropping rows whose reshaped monthly
     # values are all null while still using pandas' new stack implementation.
     if isinstance(stacked, pd.Series):
