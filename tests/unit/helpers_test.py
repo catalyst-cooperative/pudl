@@ -40,7 +40,9 @@ from pudl.helpers import (
     get_parquet_table,
     get_parquet_table_polars,
     make_changelog,
+    month_year_to_date,
     normalize_year_fragments,
+    null_dates_outside_ns_bounds,
     persist_table_as_parquet,
     remove_leading_zeros_from_numeric_strings,
     retry,
@@ -486,6 +488,32 @@ def test_convert_to_date():
     )
     out_df = convert_to_date(in_df)
     assert_frame_equal(out_df, expected_df)
+
+
+def test_null_dates_outside_ns_bounds():
+    """Dates that overflow nanosecond resolution are nulled, like they were in pandas 2."""
+    dates = pd.to_datetime(
+        pd.Series(["0006-03-29", "1677-09-21", "2001-04-11", None, "9650-06-01"]),
+        errors="coerce",
+    )
+    out = null_dates_outside_ns_bounds(dates)
+    assert out.dtype == dates.dtype
+    assert out.isna().tolist() == [True, True, False, True, True]
+    assert out[2] == pd.Timestamp("2001-04-11")
+
+
+def test_month_year_to_date_nulls_out_of_bounds_dates():
+    """Implausible operating years become NaT instead of a bogus timestamp."""
+    in_df = pd.DataFrame(
+        {
+            "boiler_operating_month": [6, 12, 3],
+            "boiler_operating_year": [9650, 1559, 2010],
+        }
+    )
+    out = month_year_to_date(in_df)
+    assert list(out.columns) == ["boiler_operating_date"]
+    assert out["boiler_operating_date"].isna().tolist() == [True, True, False]
+    assert out["boiler_operating_date"].iloc[2] == pd.Timestamp("2010-03-01")
 
 
 def test_standardize_na_values():
