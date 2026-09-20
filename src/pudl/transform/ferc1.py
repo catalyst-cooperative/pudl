@@ -387,7 +387,7 @@ def wide_to_tidy(df: pd.DataFrame, params: WideToTidy) -> pd.DataFrame:
     # pandas-stubs can't statically tell that stack() here returns a DataFrame
     # rather than a Series, so .loc[:, ...] looks like Series-style indexing.
     df_out = (
-        df_out.stack(params.stacked_column_name, future_stack=True)  # type: ignore[bad-index]
+        df_out.stack(params.stacked_column_name)  # type: ignore[bad-index]
         .loc[:, params.value_types]
         .reset_index()
     )
