@@ -35,8 +35,7 @@ def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame
     """
     # Preliminary clean and get rid of unnecessary 'year' column
     own_df = (
-        raw_eia860__ownership.copy()
-        .pipe(pudl.helpers.standardize_na_values)
+        raw_eia860__ownership.pipe(pudl.helpers.standardize_na_values)
         .pipe(pudl.helpers.convert_to_date)
         .drop(columns=["year"])
     )
