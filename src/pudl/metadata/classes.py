@@ -2197,7 +2197,6 @@ class Resource(PudlMeta):
         if matches is None:
             # Primary key present but no matches were found
             return self.format_df()
-        df = df.copy()
         # Rename periodic key columns (if any) to the requested period
         df = df.rename(columns=matches)
         # Cast integer year fields to datetime
