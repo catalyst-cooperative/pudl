@@ -684,8 +684,7 @@ def _compile_all_entity_records(
         # if the df contains the desired columns the grab those columns
         if set(base_cols).issubset(transformed_df.columns):
             logger.debug(f"        {table_name}...")
-            # create a copy of the df to muck with
-            df = transformed_df.copy()
+            df = transformed_df
             # we know these columns must be in the dfs
             cols = []
             # check whether the columns are in the specific table
@@ -845,8 +844,8 @@ def harvest_entity_tables(  # noqa: C901
         subset=id_cols
     )
 
-    entity_df = entity_id_df.copy()
-    annual_df = annual_id_df.copy()
+    entity_df = entity_id_df
+    annual_df = annual_id_df
     consistency = pd.DataFrame(
         columns=["column", "consistent_ratio", "wrongos", "total"]
     )
