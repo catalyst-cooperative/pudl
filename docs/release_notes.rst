@@ -166,6 +166,9 @@ Developer Experience
 Major Dependency Updates
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
+Pandas 3.0
+~~~~~~~~~~
+
 * Upgraded to ``pandas`` 3.x. PUDL's transform code was updated for the pandas 3.0
   behavior changes it relied on: the new default string dtype (PDEP-14), the removal
   of silent dtype upcasting on ``setitem`` (PDEP-6), mandatory Copy-on-Write, the
