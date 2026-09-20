@@ -199,9 +199,6 @@ def _core_eia860__generators(
     Returns:
         Cleaned ``_core_eia860__generators`` dataframe ready for harvesting.
     """
-    # Groupby objects were creating chained assignment warning that is N/A
-    pd.options.mode.chained_assignment = None
-
     # There are three sets of generator data reported in the EIA860 table,
     # planned, existing, and retired generators. We're going to concatenate
     # them all together into a single big table, with a column that indicates

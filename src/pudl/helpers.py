@@ -185,7 +185,7 @@ def multi_index_stack(
     df.columns = pd.MultiIndex.from_frame(
         df.columns.str.extract(pattern, expand=True)
     ).set_names(match_names)
-    df = df.stack(level=unstack_level, future_stack=True).reset_index()
+    df = df.stack(level=unstack_level).reset_index()
     # remove the remaining multi-index
     df.columns = df.columns.map("".join)
     df = df.dropna(subset=data_cols, how="all")

@@ -766,8 +766,8 @@ def _tidy_class_dfs(
         rf"{class_list_regex}", n=1, expand=True
     ).set_names([class_type, None])
     # Now stack the customer classes into their own categorical column,
-    data_cols = data_cols.stack(level=0, future_stack=True).reset_index()
-    # future_stack=True doesn't unify heterogeneous per-column extension dtypes
+    data_cols = data_cols.stack(level=0).reset_index()
+    # The pandas 3 stack() doesn't unify heterogeneous per-column extension dtypes
     # (e.g. some class-suffixed source columns are Int64, others Float64) the way
     # the old stack() implementation did, so the stacked value columns can come
     # back as generic object dtype. Restore proper nullable dtypes so downstream

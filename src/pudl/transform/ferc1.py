@@ -385,7 +385,7 @@ def wide_to_tidy(df: pd.DataFrame, params: WideToTidy) -> pd.DataFrame:
     )
     df_out.columns = new_cols
     df_out = (
-        df_out.stack(params.stacked_column_name, future_stack=True)
+        df_out.stack(params.stacked_column_name)
         .loc[:, params.value_types]
         .reset_index()
     )

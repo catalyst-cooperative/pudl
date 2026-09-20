@@ -3130,7 +3130,8 @@ def get_column_value_ratio(
         )
     ratio_df = (
         pd.DataFrame(
-            grouped_df.filter(regex="^ratio_").stack(future_stack=False),
+            # pandas 3 stack() keeps NaN rows; the legacy implementation dropped them.
+            grouped_df.filter(regex="^ratio_").stack().dropna(),
             columns=[f"ratio_{column}"],
         )
         .reset_index()
