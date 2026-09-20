@@ -672,7 +672,7 @@ def connect_ids(
     duplicates = subplant_unit_pairs[
         (subplant_unit_pairs.duplicated(subset=id_to_update, keep=False))
         & (~subplant_unit_pairs[id_to_update].isna())
-    ].copy()
+    ]
 
     # if there are any duplicate units, indicating an incorrect id_to_update, fix the
     # id_to_update

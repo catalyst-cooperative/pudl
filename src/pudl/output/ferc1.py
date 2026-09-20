@@ -656,7 +656,7 @@ def out_ferc1__yearly_steam_plants_fuel_by_plant_sched402(
         Fuel type other indicates we didn't know how to categorize the reported fuel
         type, which leads to records with incomplete and unusable data.
         """
-        return df[df.fuel_type_code_pudl != "other"].copy()
+        return df[df.fuel_type_code_pudl != "other"]
 
     thresh = context.op_config["thresh"]
     # The existing function expects `fuel_type_code_pudl` to be an object, rather than
@@ -1267,7 +1267,7 @@ class Exploder:
             self.calculation_components_xbrl_ferc1.table_name_parent.isin(
                 self.table_names
             )
-        ].copy()
+        ]
         # Groupby parent factoids
         gb = calc_explode.groupby(
             ["table_name_parent", "xbrl_factoid_parent"], as_index=False

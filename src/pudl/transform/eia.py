@@ -154,7 +154,7 @@ def occurrence_consistency(
     """
     # select only the columns you want and drop the NaNs
     # we want to drop the NaNs because
-    col_df = compiled_df[entity_idx + ["report_date", col]].copy()
+    col_df = compiled_df[entity_idx + ["report_date", col]]
     if get_pudl_dtypes(field_namespace="eia")[col] == "string":
         nan_str_mask = (col_df[col] == "nan").fillna(False)
         col_df.loc[nan_str_mask, col] = pd.NA
@@ -547,7 +547,7 @@ def harvest_entity_tables(  # noqa: C901
     compiled_df = _compile_all_entity_records(entity, clean_dfs)
 
     # compile annual ids
-    annual_id_df = compiled_df[["report_date"] + id_cols].copy().drop_duplicates()
+    annual_id_df = compiled_df[["report_date"] + id_cols].drop_duplicates()
     annual_id_df = annual_id_df.sort_values(["report_date"] + id_cols, ascending=False)
 
     # create the annual and entity dfs
@@ -792,11 +792,11 @@ def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:
     )
 
     # Create a set of bga's that are linked, directly from bga8
-    bga_assn = bga_compiled_1[bga_compiled_1["boiler_id"].notnull()].copy()
+    bga_assn = bga_compiled_1[bga_compiled_1["boiler_id"].notnull()]
     bga_assn.loc[:, "bga_source"] = "eia860_org"
 
     # Create a set of bga's that were not linked directly through bga8
-    bga_unassn = bga_compiled_1[bga_compiled_1["boiler_id"].isnull()].copy()
+    bga_unassn = bga_compiled_1[bga_compiled_1["boiler_id"].isnull()]
     bga_unassn = bga_unassn.drop(["boiler_id"], axis=1)
 
     # Side note: there are only 6 generators that appear in bga8 that don't
@@ -846,7 +846,7 @@ def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:
     bga_gen_units = bga_compiled_units.drop(["boiler_id"], axis=1)
     bga_boil_units = bga_compiled_units[
         ["plant_id_eia", "report_date", "boiler_id", "unit_id_eia"]
-    ].copy()
+    ]
     bga_boil_units = bga_boil_units.dropna(subset=["boiler_id"])
 
     # merge the units with the boilers

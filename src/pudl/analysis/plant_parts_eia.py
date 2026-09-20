@@ -958,8 +958,8 @@ class PlantPart:
         # id_cols = PLANT_PARTS[self.part_name]["id_cols"]
         # split up the 'owned' slices from the 'total' slices.
         # this is because the aggregations are different
-        part_own = gens_mega.loc[gens_mega.ownership_record_type == "owned"].copy()
-        part_tot = gens_mega.loc[gens_mega.ownership_record_type == "total"].copy()
+        part_own = gens_mega.loc[gens_mega.ownership_record_type == "owned"]
+        part_tot = gens_mega.loc[gens_mega.ownership_record_type == "total"]
         if len(gens_mega) != len(part_own) + len(part_tot):
             raise AssertionError(
                 "Error occurred in breaking apart ownership types."
@@ -1338,7 +1338,7 @@ class AddPriorityAttribute(AddAttribute):
         gens_mega = self.assign_col(gens_mega)
         logger.debug(f"getting max {attribute_col}")
         consistent_records = pudl.helpers.dedupe_on_category(
-            gens_mega.copy()[self.base_cols + [attribute_col]],
+            gens_mega[self.base_cols + [attribute_col]],
             self.base_cols,
             attribute_col,
             PRIORITY_ATTRIBUTES_DICT[attribute_col],
