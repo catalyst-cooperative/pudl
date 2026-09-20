@@ -1,7 +1,7 @@
 import pandas as pd
 
 from pudl.extract import excel
-from pudl.extract.eia860m import append_eia860m
+from pudl.extract.eia860m import Extractor, append_eia860m
 
 
 def test_append_eia860m_concats_puerto_rico_rows(mocker):
@@ -57,3 +57,24 @@ def test_append_eia860m_does_not_expose_puerto_rico_pages(mocker):
 
     # And the mainland page should have been extended by both mainland and PR rows
     assert out["generator_existing"]["foo"].tolist() == [10, 20, 30]
+
+
+def test_process_raw_keeps_missing_generator_ids_as_nan_strings(mocker):
+    """Missing generator and boiler IDs stay the string "nan", as they were in pandas 2."""
+    extractor = Extractor.__new__(Extractor)
+    extractor.cols_added = []
+    extractor._metadata = mocker.Mock()
+    extractor._metadata.get_column_map.return_value = {}
+    mocker.patch.object(
+        Extractor, "add_data_maturity", side_effect=lambda df, page, **part: df
+    )
+    raw = pd.DataFrame(
+        {
+            "plant_id_eia": [1, 2, 3],
+            "generator_id": ["001", None, "A1"],
+            "boiler_id": [float("nan"), "0002", "B"],
+        }
+    )
+    out = extractor.process_raw(raw, "generator_existing", year_month="2026-01")
+    assert out["generator_id"].tolist() == ["1", "nan", "A1"]
+    assert out["boiler_id"].tolist() == ["nan", "2", "B"]
