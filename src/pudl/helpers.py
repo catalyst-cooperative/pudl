@@ -58,6 +58,23 @@ otherwise we'll get unrealistic heat rates.
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
+def null_dates_outside_ns_bounds(dates: pd.Series) -> pd.Series:
+    """Set datetimes that can't be represented with nanosecond resolution to ``NaT``.
+
+    Pandas 2 always parsed datetimes at nanosecond resolution, so implausible dates
+    outside of 1677-09-21 to 2262-04-11 (typically typos like the year ``0006``)
+    overflowed and were coerced to ``NaT``. Pandas 3 infers a coarser resolution
+    and keeps them. This preserves the original behavior.
+
+    Args:
+        dates: A datetime Series, e.g. from ``pd.to_datetime(..., errors="coerce")``.
+
+    Returns:
+        The Series with out-of-bounds datetimes replaced by ``NaT``.
+    """
+    return dates.where(dates.between(pd.Timestamp.min, pd.Timestamp.max))
+
+
 def run_git(args: list[str], cwd: Path | None = None) -> str:
     """Run a git subcommand and return its stdout, logging stderr on failure.
 
@@ -1101,8 +1118,8 @@ def month_year_to_date(df: pd.DataFrame) -> pd.DataFrame:
         years = df.loc[date_mask, year_col]
         months = df.loc[date_mask, month_col]
 
-        df.loc[date_mask, date_col] = pd.to_datetime(
-            {"year": years, "month": months, "day": 1}, errors="coerce"
+        df.loc[date_mask, date_col] = null_dates_outside_ns_bounds(
+            pd.to_datetime({"year": years, "month": months, "day": 1}, errors="coerce")
         )
 
         # Now that we've replaced these fields with a date, we drop them.

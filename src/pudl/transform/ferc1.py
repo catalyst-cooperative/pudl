@@ -3365,7 +3365,9 @@ class IdentificationCertificationTableTransformer(Ferc1AbstractTableTransformer)
 
         date_cols = ["attestation_date", "filing_date", "name_change_date"]
         for col in date_cols:
-            df[col] = pd.to_datetime(df[col], errors="coerce")
+            df[col] = pudl.helpers.null_dates_outside_ns_bounds(
+                pd.to_datetime(df[col], errors="coerce")
+            )
 
         to_null = [
             "",

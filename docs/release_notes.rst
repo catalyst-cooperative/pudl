@@ -179,6 +179,11 @@ Major Dependency Updates
   ``"nan"``, as they were under pandas 2, so the upgrade doesn't drop the plants,
   utilities and EIA-923 data that only appear in records with no generator ID. See
   issue :issue:`5645` and PR :pr:`5130`.
+* Kept dates outside the range pandas can represent with nanosecond resolution (years
+  before 1677 or after 2262) as ``NaT``, as they were under pandas 2, rather than
+  letting pandas 3 keep typos like the year ``0006``. This affects FERC 1 certification
+  dates and EIA-860 ``boiler_operating_date``. See issue :issue:`5644` and PR
+  :pr:`5130`.
 
 .. _release-v2026.9.0:
 
