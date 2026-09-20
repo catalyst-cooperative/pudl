@@ -175,6 +175,10 @@ Major Dependency Updates
   :func:`pudl.helpers.scale_by_ownership` (feeding
   :ref:`out_eia__yearly_generators_by_ownership` and the plant parts list) are now
   consistently nullable ``Float64``. See PR :pr:`5130`.
+* Kept missing EIA-860M ``generator_id`` and ``boiler_id`` values as the string
+  ``"nan"``, as they were under pandas 2, so the upgrade doesn't drop the plants,
+  utilities and EIA-923 data that only appear in records with no generator ID. See
+  issue :issue:`5645` and PR :pr:`5130`.
 
 .. _release-v2026.9.0:
 
