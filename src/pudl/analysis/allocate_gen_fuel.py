@@ -252,7 +252,6 @@ def allocate_gen_fuel_asset_factory(
         gens: pd.DataFrame,
     ) -> pd.DataFrame:
         """Allocate net gen from gen_fuel to generator/energy_source_code level."""
-        pd.options.mode.copy_on_write = True
         gf, bf, gen, bga, gens = select_input_data(
             gf=gf, bf=bf, gen=gen, bga=bga, gens=gens
         )
