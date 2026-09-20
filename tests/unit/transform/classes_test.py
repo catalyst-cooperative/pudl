@@ -426,7 +426,7 @@ def fill_values(col: pd.Series, params: FillValue):
 
     Fills NA values with a number.
     """
-    col = col.copy().fillna(params.fill_value).infer_objects(copy=False)
+    col = col.copy().fillna(params.fill_value).infer_objects()
     col.name = col.name + "_filled"
     return col
 

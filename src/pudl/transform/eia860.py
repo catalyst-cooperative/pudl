@@ -290,9 +290,8 @@ def _core_eia860__generators(
         .pipe(
             pudl.helpers.simplify_strings,
             columns=["rto_iso_lmp_node_id", "rto_iso_location_wholesale_reporting_id"],
-            copy=False,
         )
-        .pipe(pudl.helpers.convert_to_date, copy=False)
+        .pipe(pudl.helpers.convert_to_date)
     )
     # This manual fix is required before encoding because there's not a unique mapping
     # PA -> PACW in Oregon
@@ -305,7 +304,7 @@ def _core_eia860__generators(
         (gens_df.state == "UT") & (gens_df.balancing_authority_code_eia == "PA"),
         "balancing_authority_code_eia",
     ] = "PACE"
-    gens_df = PUDL_PACKAGE.encode(gens_df, copy=False)
+    gens_df = PUDL_PACKAGE.encode(gens_df)
 
     # spot fix one proposed fusion plant's technology description. It's assumed to be wrong
     # because we learned via pudl.output.eia.fill_generator_technology_description

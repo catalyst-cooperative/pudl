@@ -597,7 +597,6 @@ def _core_rus12__yearly_plant_operations(
         [df_by_borrower.set_index(idx_check), df_by_plant.set_index(idx_check)],
         axis="index",
         join="outer",
-        copy=False,
     )
     # There is some overlap between the by_borrower and by_plant records but we
     # should have all of the original df records

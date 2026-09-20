@@ -863,9 +863,7 @@ def organize_cols(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
     return df[organized_cols]
 
 
-def simplify_strings(
-    df: pd.DataFrame, columns: list[str], copy: bool = True
-) -> pd.DataFrame:
+def simplify_strings(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
     """Simplify the strings contained in a set of dataframe columns.
 
     Performs several operations to simplify strings for comparison and parsing purposes.
@@ -875,19 +873,14 @@ def simplify_strings(
 
     Leaves null values unaltered. Casts other values with astype(str).
 
-    Running with ``copy=False`` is intended for memory-intensive data frames where no
-    upstream process retains a reference to the data. Use care with this option,
-    and keep an eye out for spooky data changes showing up in unexpected places.
-
     Args:
         df: DataFrame whose columns are being cleaned up.
         columns: The labels of the string columns to be simplified.
-        copy: (Default True) Return a copy, making no changes to the original data.
 
     Returns:
         The whole DataFrame that was passed in, with the string columns cleaned up.
     """
-    out_df = df.copy() if copy else df
+    out_df = df.copy()
     for col in columns:
         if col in out_df.columns:
             mask = out_df[col].notnull()
@@ -1126,7 +1119,6 @@ def convert_to_date(
     day_col: str = "report_day",
     month_na_value: int = 1,
     day_na_value: int = 1,
-    copy: bool = True,
 ) -> pd.DataFrame:
     """Convert specified year, month or day columns into a datetime object.
 
@@ -1134,10 +1126,6 @@ def convert_to_date(
     conversion is applied, and the original dataframe is returned unchanged.
     Otherwise the constructed date is placed in that column, and the columns
     which were used to create the date are dropped.
-
-    Running with ``copy=False`` is intended for memory-intensive data frames where no
-    upstream process retains a reference to the data. Use care with this option,
-    and keep an eye out for spooky data changes showing up in unexpected places.
 
     Args:
         df: dataframe to convert
@@ -1148,14 +1136,12 @@ def convert_to_date(
         month_na_value: generated month if no month exists or if the month
             value is NA.
         day_na_value: generated day if no day exists or if the day value is NA.
-        copy: (default True) return a copy, making no changes to the original data.
 
     Returns:
         A DataFrame in which the year, month, day columns values have been converted
         into datetime objects.
     """
-    if copy:
-        df = df.copy()
+    df = df.copy()
     if date_col in df.columns:
         return df
 
@@ -1172,10 +1158,7 @@ def convert_to_date(
     df[date_col] = pd.to_datetime({"year": year, "month": month, "day": day})
     cols_to_drop = [x for x in [day_col, year_col, month_col] if x in df.columns]
 
-    if copy:
-        return df.drop(cols_to_drop, axis="columns")
-    df.drop(cols_to_drop, axis="columns", inplace=True)  # noqa: PD002
-    return df
+    return df.drop(cols_to_drop, axis="columns")
 
 
 def remove_leading_zeros_from_numeric_strings(
