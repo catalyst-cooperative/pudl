@@ -7,6 +7,12 @@ set -uo pipefail
 
 RESULTS_BUCKET="gs://test.catalyst.coop/_bench"
 
+# The pixi-provided gcloud lacks the gcloud-crc32c component, and without a TTY it
+# cannot prompt to install it, so `gcloud storage cp` refuses to run. Never prompt,
+# and skip hash checks when the fast implementation is unavailable.
+export CLOUDSDK_CORE_DISABLE_PROMPTS=1
+export CLOUDSDK_STORAGE_CHECK_HASHES=if_fast_else_skip
+
 gcloud config set project "$GCP_BILLING_PROJECT" || exit 1
 
 python devtools/ferceqr_transfer_benchmark.py \
