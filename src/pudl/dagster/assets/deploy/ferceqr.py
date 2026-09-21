@@ -246,22 +246,20 @@ def _verify_staged(target: _DeploymentTarget, expected: dict[str, int]) -> None:
 def _copy_tree(src: UPath, dst: UPath, executor: ThreadPoolExecutor) -> None:
     """Copy every object under *src* to the same relative path under *dst*.
 
-    On S3 this is one batch of server-side copies through boto3; elsewhere each
-    top-level child is copied by fsspec in the thread pool.
+    Existing objects under *dst* are overwritten and others are left alone. Files
+    are copied one by one, since fsspec would nest a directory copied onto an existing
+    directory. On S3 this is one batch of server-side copies through boto3; elsewhere
+    each file is copied by fsspec in the thread pool.
     """
+    names = list(_relative_objects(src))
     if _is_s3(src):
         s3_copy_objects(
-            (f"s3://{src.path.rstrip('/')}/{name}", f"{dst}/{name}")
-            for name in _relative_objects(src)
+            (f"s3://{src.path.rstrip('/')}/{name}", f"{dst}/{name}") for name in names
         )
         return
+    _make_local_parents([dst / name for name in names])
     _wait(
-        [
-            executor.submit(
-                child.fs.cp, str(child), str(dst / child.name), recursive=True
-            )
-            for child in src.iterdir()
-        ]
+        [executor.submit(src.fs.cp, str(src / name), str(dst / name)) for name in names]
     )
 
 
@@ -297,7 +295,12 @@ def _stage_target(
 
 
 def _promote_target(target: _DeploymentTarget, executor: ThreadPoolExecutor) -> None:
-    """Snapshot the live tree, then move staging into place and drop the staging dir.
+    """Snapshot the live tree, then merge staging into it and drop the staging dir.
+
+    Promotion is a merge: staged files overwrite live files of the same name and
+    everything else already under the final prefix is left alone, so a build that
+    covers only some partitions updates just those. Nothing is ever deleted from the
+    live prefix; stale files must be removed by hand.
 
     The datapackage JSON is promoted after the Parquet data so it never briefly
     references files that have not landed yet.
@@ -312,20 +315,12 @@ def _promote_target(target: _DeploymentTarget, executor: ThreadPoolExecutor) -> 
             ]
         )
 
-    final_children = executor.submit(lambda: list(target.final.iterdir())).result()
+    # A first-ever deployment has nothing to snapshot.
+    if executor.submit(target.final.exists).result():
+        logger.info(f"Snapshotting {target.final} -> {target.previous}")
+        _copy_tree(target.final, target.previous, executor)
 
-    logger.info(f"Snapshotting {target.final} -> {target.previous}")
-    _copy_tree(target.final, target.previous, executor)
-
-    logger.info(f"Removing existing final content under {target.final}")
-    _wait(
-        [
-            executor.submit(child.fs.rm, str(child), recursive=True)
-            for child in final_children
-        ]
-    )
-
-    logger.info(f"Promoting {target.staging_data} -> {target.final}")
+    logger.info(f"Merging {target.staging_data} into {target.final}")
     _copy_tree(target.staging_data, target.final, executor)
 
     _wait(
@@ -686,8 +681,9 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
        ``._staging_{BUILD_ID}`` prefix beside the target.
     2. Verify the staged object set matches the local outputs by name and size.
     3. Copy the current live tree into ``._ferceqr_previous`` for rollback.
-    4. Server-side move staging into the final prefix (data first, datapackage
-       last) and delete the staging prefix.
+    4. Server-side merge staging into the final prefix (data first, datapackage
+       last) and delete the staging prefix. Staged files overwrite live files of the
+       same name; other live files are left in place.
 
     A failure in steps 1-2 leaves the target untouched. A failure in steps 3-4
     may leave the target with a mix of old and new files; ``._ferceqr_previous``

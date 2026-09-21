@@ -273,14 +273,14 @@ def test_deploy_ferceqr_success_path_writes_success_and_notifies(mocker, tmp_pat
     assert (tmp_path / "FERCEQR_SUCCESS").exists()
     assert not (tmp_path / "FERCEQR_FAILURE").exists()
 
-    # The built partitions land in the final layout. Promotion replaces the live
-    # content (the old tree is only kept in the snapshot below), so the pre-existing
-    # 2012q4 file is gone from the final prefix, and the unrequested 2014q1 was
-    # never deployed.
+    # The built partitions land in the final layout. Promotion merges into the
+    # existing prefix rather than replacing it, so 2012q4 is still there and the
+    # unrequested 2014q1 was never deployed.
     for table_name in deploy_ferceqr.FERCEQR_TRANSFORM_ASSETS:
         names = {p.name for p in (deploy_root / table_name).glob("*.parquet")}
-        assert names == {"2013q3.parquet", "2013q4.parquet"}
-    assert not (deploy_root / "core_ferceqr__contracts" / "2012q4.parquet").exists()
+        assert {"2013q3.parquet", "2013q4.parquet"} <= names
+        assert "2014q1.parquet" not in names
+    assert (deploy_root / "core_ferceqr__contracts" / "2012q4.parquet").exists()
     assert (deploy_root / deploy_ferceqr.DEPLOYED_DATAPACKAGE_FILENAME).exists()
 
     # The previous deployment was snapshotted for rollback, and staging is gone.
@@ -299,6 +299,47 @@ def test_deploy_ferceqr_success_path_writes_success_and_notifies(mocker, tmp_pat
         "core_ferceqr__contracts"
         in zulip_mock.send_stream_message.call_args.kwargs["content"]
     )
+
+
+def test_deploy_ferceqr_merge_overwrites_same_name_and_keeps_other_files(
+    mocker, tmp_path
+):
+    """Re-deploying a partition replaces that file; unrelated live files survive."""
+    source_root = tmp_path / "source"
+    deploy_root = tmp_path / "deploy"
+    deploy_context = _build_deploy_context(
+        tmp_path, mocker, targets=[UPath(deploy_root)]
+    )
+    _mock_deploy_dependencies(mocker, deploy_context, source_root, ["2013q3"])
+
+    live = deploy_root / "core_ferceqr__contracts"
+    live.mkdir(parents=True)
+    (live / "2013q3.parquet").write_bytes(b"stale build")
+    (live / "2012q4.parquet").write_bytes(b"untouched")
+
+    deploy_ferceqr.deploy_ferceqr(deploy_context)
+
+    new_bytes = (
+        source_root / "core_ferceqr__contracts" / "2013q3.parquet"
+    ).read_bytes()
+    assert (live / "2013q3.parquet").read_bytes() == new_bytes
+    assert (live / "2012q4.parquet").read_bytes() == b"untouched"
+
+
+def test_deploy_ferceqr_first_deployment_needs_no_existing_target(mocker, tmp_path):
+    """A target that does not exist yet is created, with nothing to snapshot."""
+    source_root = tmp_path / "source"
+    deploy_root = tmp_path / "deploy"
+    deploy_context = _build_deploy_context(
+        tmp_path, mocker, targets=[UPath(deploy_root)]
+    )
+    _mock_deploy_dependencies(mocker, deploy_context, source_root, ["2013q3"])
+
+    deploy_ferceqr.deploy_ferceqr(deploy_context)
+
+    assert (deploy_root / "core_ferceqr__contracts" / "2013q3.parquet").exists()
+    assert (deploy_root / deploy_ferceqr.DEPLOYED_DATAPACKAGE_FILENAME).exists()
+    assert not (tmp_path / deploy_ferceqr.PREVIOUS_DIRNAME).exists()
 
 
 def test_deploy_ferceqr_no_targets_writes_datapackage_and_skips_publish(
