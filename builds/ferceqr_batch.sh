@@ -229,12 +229,6 @@ ferceqr_etl_started=true
 
 log_vm_labels
 
-# Set the cross-run limit for the `ferceqr_extract` concurrency pool (see the
-# pool= tag on the extract multi_asset and the `concurrency` block in
-# dagster-ferceqr.yaml). Done here rather than in dagster.yaml because 1.13's
-# YAML only supports a pool-wide default_limit, not a per-pool value. Idempotent.
-dagster instance concurrency set ferceqr_extract 18
-
 run_ferceqr_etl
 
 # Check if build was successful and return appropriate return value

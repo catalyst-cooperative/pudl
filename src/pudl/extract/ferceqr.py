@@ -391,9 +391,8 @@ def _save_extract_errors(
     # builds/dagster-ferceqr.yaml), and newest-first ordering front-loads the
     # largest quarters, so without a cap all of the first wave hit this step
     # together and their combined DuckDB working sets exhaust the VM's RAM. The
-    # `ferceqr_extract` pool bounds how many run concurrently; the limit is set
-    # in builds/ferceqr_batch.sh (default_limit in dagster-ferceqr.yaml is the
-    # backstop).
+    # `ferceqr_extract` pool bounds how many run concurrently; the limit is the
+    # pools default_limit in builds/dagster-ferceqr.yaml.
     pool="ferceqr_extract",
     # A genuinely transient failure here (a DuckDB error on one filing, an
     # object-store blip pulling the quarter archive) shouldn't doom the whole
