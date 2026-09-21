@@ -241,11 +241,6 @@
       "concise_description": "Argument `None` is not assignable to parameter `ds` with type `Datastore` in function `pudl.extract.excel.ExcelExtractor.__init__`"
     },
     {
-      "path": "src/pudl/glue/ferc1_eia.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `None` is not assignable to parameter `io_manager_key` with type `str` in function `pudl.transform.ferc1.ferc1_transform_asset_factory`"
-    },
-    {
       "path": "src/pudl/dagster/assets/raw/ferc_to_sqlite.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `Path` is not assignable to parameter `datapackage_path` with type `UPath` in function `pudl.dagster.provenance.FercSqliteProvenanceRecord.from_datapackage`"
@@ -816,11 +811,6 @@
       "concise_description": "Argument `type[Ferc1AbstractTableTransformer]` is not assignable to parameter `tfr_class` with type `Ferc1AbstractTableTransformer` in function `ferc1_transform_asset_factory`"
     },
     {
-      "path": "src/pudl/glue/ferc1_eia.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `type[GenericPlantFerc1TableTransformer]` is not assignable to parameter `tfr_class` with type `Ferc1AbstractTableTransformer` in function `pudl.transform.ferc1.ferc1_transform_asset_factory`"
-    },
-    {
       "path": "tests/unit/dagster/io_managers_test.py",
       "name": "read-only",
       "concise_description": "Attribute `is_ephemeral` of class `DagsterInstance` is a read-only property and cannot be set"
@@ -859,11 +849,6 @@
       "path": "tests/unit/output/ferc1_test.py",
       "name": "bad-index",
       "concise_description": "Cannot index into `dict[_Node, Any]`"
-    },
-    {
-      "path": "tests/pipeline/glue/glue_test.py",
-      "name": "bad-index",
-      "concise_description": "Cannot index into `dict[str, DataFrame]`"
     },
     {
       "path": "src/pudl/metadata/classes.py",
@@ -1942,11 +1927,6 @@
     },
     {
       "path": "src/pudl/analysis/record_linkage/name_cleaner.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `Series` is not assignable to declared return type `DataFrame`"
-    },
-    {
-      "path": "src/pudl/glue/ferc1_eia.py",
       "name": "bad-return",
       "concise_description": "Returned type `Series` is not assignable to declared return type `DataFrame`"
     },
