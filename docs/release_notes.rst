@@ -69,6 +69,18 @@ Bug Fixes & Data Cleaning
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Sped up the :doc:`FERC EQR <data_sources/ferceqr>` batch deployment to cloud object
+  storage from ~3 hours to ~5 minutes. Uploads to and server-side copies within S3 now
+  go through ``boto3`` in the new :mod:`pudl.deploy.s3_transfer` module, while GCS and
+  all other targets stay on ``fsspec``/``UPath`` and run in a thread pool. Deployment
+  now stages each build under a per-build ``._staging_{BUILD_ID}`` prefix, verifies the
+  staged files by name and size, snapshots the previous outputs into
+  ``._ferceqr_previous`` for manual rollback, and then merges the staged files into the
+  live prefix. Existing files that a build doesn't replace are left in place in
+  anticipation of doing incremental per-file updates. The build VM was also bumped to
+  ``c4d-standard-32`` after an out-of-memory crash. See issue :issue:`5317` and PR
+  :pr:`5561`.
+
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^
 
