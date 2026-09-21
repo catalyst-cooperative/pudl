@@ -19,6 +19,7 @@ python devtools/ferceqr_transfer_benchmark.py \
     --s3-scratch s3://pudl.catalyst.coop/._ferceqr_bench \
     --gcs-scratch "$RESULTS_BUCKET" \
     --n-parallel 4 \
+    --only s3-copy --only gcs-upload --only combined \
     --results "${RESULTS_BUCKET}/results-${BATCH_JOB_ID}.json" \
     2>&1 | tee /tmp/bench.log
 rc=${PIPESTATUS[0]}

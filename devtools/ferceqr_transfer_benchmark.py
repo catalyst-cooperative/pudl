@@ -18,6 +18,7 @@ the temporary ``build-deploy-ferceqr`` workflow edit on this branch). Only write
 beneath the scratch prefixes given on the command line, and deletes them when done.
 """
 
+import contextlib
 import json
 import os
 import shutil
@@ -82,14 +83,29 @@ def run_parallel(fn: Callable, args: list[tuple]) -> None:
             fut.result()
 
 
-def s3fs_fs(pool: int | None, max_concurrency: int | None = None):
+def s3fs_fs(
+    pool: int | None,
+    max_concurrency: int | None = None,
+    read_timeout: int | None = None,
+):
     """Build an uncached s3fs filesystem with the given connection tuning."""
     kwargs = {"skip_instance_cache": True}
+    config_kwargs = {}
     if pool:
-        kwargs["config_kwargs"] = {"max_pool_connections": pool}
+        config_kwargs["max_pool_connections"] = pool
+    if read_timeout:
+        config_kwargs["read_timeout"] = read_timeout
+    if config_kwargs:
+        kwargs["config_kwargs"] = config_kwargs
     if max_concurrency:
         kwargs["max_concurrency"] = max_concurrency
     return fsspec.filesystem("s3", **kwargs)
+
+
+def safe_rm(fs, path: str) -> None:
+    """Recursively delete *path*, tolerating a case that failed before writing it."""
+    with contextlib.suppress(FileNotFoundError):
+        fs.rm(path, recursive=True)
 
 
 def boto3_client():
@@ -162,7 +178,7 @@ def bench_s3_upload(files: list[Path], scratch: str) -> None:
                     one, [(f,) for f in subset]
                 ),
             )
-            fs.rm(f"{scratch}/up/{label}/{mode}", recursive=True)
+            safe_rm(fs, f"{scratch}/up/{label}/{mode}")
 
     client = boto3_client()
     for mode, subset in (("single", files[:1]), ("parallel", files)):
@@ -186,18 +202,20 @@ def bench_s3_copy(files: list[Path], scratch: str) -> None:
         crt_upload(client, f, f"{src_prefix}/{f.name}")
     sizes = {f.name: f.stat().st_size for f in files}
 
-    # (label, s3fs cp kwargs)
+    # (label, s3fs cp kwargs, read_timeout). s3fs' default read_timeout of 15 s
+    # kills a single UploadPartCopy of several GiB, so large blocks need more.
     configs = [
-        ("s3fs-cp-default", {}),
-        ("s3fs-cp-block512MiB", {"block": 512 * MiB}),
-        ("s3fs-cp-block5GiB", {"block": 5 * GiB - 1}),
+        ("s3fs-cp-default", {}, None),
+        ("s3fs-cp-block512MiB", {"block": 512 * MiB}, None),
+        ("s3fs-cp-block1GiB-rt600", {"block": 1 * GiB}, 600),
+        ("s3fs-cp-block5GiB-rt600", {"block": 5 * GiB - 1}, 600),
     ]
-    for label, cp_kwargs in configs:
+    for label, cp_kwargs, read_timeout in configs:
         for mode, names in (
             ("single", list(sizes)[:1]),
             ("parallel", list(sizes)),
         ):
-            fs = s3fs_fs(256)
+            fs = s3fs_fs(256, read_timeout=read_timeout)
             dst = f"{scratch}/copy_dst/{label}/{mode}"
             timed(
                 f"s3-copy {label}",
@@ -208,7 +226,7 @@ def bench_s3_copy(files: list[Path], scratch: str) -> None:
                     [(n,) for n in names],
                 ),
             )
-            fs.rm(dst, recursive=True)
+            safe_rm(fs, dst)
 
     for mode, names in (("single", list(sizes)[:1]), ("parallel", list(sizes))):
         dst = f"{scratch}/copy_dst/crt/{mode}"
@@ -245,7 +263,7 @@ def bench_gcs_upload(files: list[Path], scratch: str) -> None:
                     one, [(f,) for f in subset]
                 ),
             )
-            fs.rm(dst, recursive=True)
+            safe_rm(fs, dst)
 
     for mode, subset in (("single", files[:1]), ("parallel", files)):
         dst = f"{scratch}/up/gcloud/{mode}"
@@ -257,6 +275,53 @@ def bench_gcs_upload(files: list[Path], scratch: str) -> None:
         )
 
 
+def bench_combined(files: list[Path], s3_scratch: str, gcs_scratch: str) -> None:
+    """Upload to S3 and GCS at the same time, as the real deploy does."""
+    nbytes = 2 * sum(f.stat().st_size for f in files)
+
+    def fsspec_case(label: str, pool, conc, chunk) -> None:
+        s3 = s3fs_fs(pool, conc)
+        gcs = fsspec.filesystem("gcs", skip_instance_cache=True)
+        s3_kwargs = {"chunksize": chunk} if chunk else {}
+        s3_dst = f"{s3_scratch}/combined/{label}"
+        gcs_dst = f"{gcs_scratch}/combined/{label}"
+
+        def run() -> None:
+            with ThreadPoolExecutor(max_workers=2 * len(files)) as ex:
+                futs = []
+                for f in files:
+                    futs.append(
+                        ex.submit(s3.put, str(f), f"{s3_dst}/{f.name}", **s3_kwargs)
+                    )
+                    futs.append(ex.submit(gcs.put, str(f), f"{gcs_dst}/{f.name}"))
+                for fut in futs:
+                    fut.result()
+
+        timed(f"combined {label}", "s3+gcs", nbytes, run)
+        safe_rm(s3, s3_dst)
+        safe_rm(gcs, gcs_dst)
+
+    fsspec_case("fsspec-default", None, None, None)
+    fsspec_case("fsspec-pool256-conc64-64MiB", 256, 64, 64 * MiB)
+
+    client = boto3_client()
+    s3_dst = f"{s3_scratch}/combined/native"
+    gcs_dst = f"{gcs_scratch}/combined/native"
+
+    def run_native() -> None:
+        with ThreadPoolExecutor(max_workers=len(files) + 1) as ex:
+            futs = [
+                ex.submit(crt_upload, client, f, f"{s3_dst}/{f.name}") for f in files
+            ]
+            futs.append(ex.submit(gcloud_cp, files, gcs_dst))
+            for fut in futs:
+                fut.result()
+
+    timed("combined boto3-crt+gcloud", "s3+gcs", nbytes, run_native)
+    safe_rm(fsspec.filesystem("s3", skip_instance_cache=True), s3_dst)
+    safe_rm(fsspec.filesystem("gcs", skip_instance_cache=True), gcs_dst)
+
+
 @click.command()
 @click.option(
     "--source", default="gs://test.catalyst.coop/ferceqr/core_ferceqr__transactions"
@@ -266,7 +331,9 @@ def bench_gcs_upload(files: list[Path], scratch: str) -> None:
 @click.option("--n-parallel", default=4, show_default=True)
 @click.option("--workdir", default="/tmp/ferceqr_bench")  # noqa: S108
 @click.option(
-    "--only", type=click.Choice(["s3-upload", "s3-copy", "gcs-upload"]), multiple=True
+    "--only",
+    type=click.Choice(["s3-upload", "s3-copy", "gcs-upload", "combined"]),
+    multiple=True,
 )
 @click.option("--results", "results_uri", required=True, help="gs:// URI for JSON.")
 def main(source, s3_scratch, gcs_scratch, n_parallel, workdir, only, results_uri):
@@ -276,7 +343,7 @@ def main(source, s3_scratch, gcs_scratch, n_parallel, workdir, only, results_uri
     gcs_scratch = f"{gcs_scratch.rstrip('/')}/{run_id}"
     workdir = Path(workdir)
     workdir.mkdir(parents=True, exist_ok=True)
-    only = set(only) or {"s3-upload", "s3-copy", "gcs-upload"}
+    only = set(only) or {"s3-upload", "s3-copy", "gcs-upload", "combined"}
 
     gcs = fsspec.filesystem("gcs")
     names = sorted(
@@ -294,12 +361,19 @@ def main(source, s3_scratch, gcs_scratch, n_parallel, workdir, only, results_uri
         files.append(dest)
 
     try:
-        if "s3-upload" in only:
-            bench_s3_upload(files, s3_scratch)
-        if "s3-copy" in only:
-            bench_s3_copy(files, s3_scratch)
-        if "gcs-upload" in only:
-            bench_gcs_upload(files, gcs_scratch)
+        sections = {
+            "s3-upload": lambda: bench_s3_upload(files, s3_scratch),
+            "s3-copy": lambda: bench_s3_copy(files, s3_scratch),
+            "gcs-upload": lambda: bench_gcs_upload(files, gcs_scratch),
+            "combined": lambda: bench_combined(files, s3_scratch, gcs_scratch),
+        }
+        for name, run_section in sections.items():
+            if name not in only:
+                continue
+            try:
+                run_section()
+            except Exception:
+                log(f"SECTION {name} aborted:\n{traceback.format_exc()}")
     finally:
         log("Cleaning up scratch prefixes")
         for scratch in (s3_scratch, gcs_scratch):
