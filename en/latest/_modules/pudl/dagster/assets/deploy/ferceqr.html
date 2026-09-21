@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.dagster.assets.deploy.ferceqr &#8212; PUDL 2026.9.1.dev16 documentation</title>
+    <title>pudl.dagster.assets.deploy.ferceqr &#8212; PUDL 2026.9.1.dev17 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../../../_static/documentation_options.js?v=854d1509"></script>
+    <script src="../../../../../_static/documentation_options.js?v=2c0d616f"></script>
     <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev16 documentation - Home"/>
-    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev16 documentation - Home"/>
+    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev17 documentation - Home"/>
+    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev17 documentation - Home"/>
   
   
 </a></div>
@@ -888,9 +888,11 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">uuid</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">concurrent.futures</span><span class="w"> </span><span class="kn">import</span> <span class="n">Future</span><span class="p">,</span> <span class="n">ThreadPoolExecutor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dg</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
@@ -900,6 +902,8 @@ window.runMermaid = runMermaid;</script>
     <span class="n">FercEqrDeploymentResource</span><span class="p">,</span>
     <span class="n">ZulipNotificationResource</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.deploy.s3_transfer</span><span class="w"> </span><span class="kn">import</span> <span class="n">copy_objects</span> <span class="k">as</span> <span class="n">s3_copy_objects</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.deploy.s3_transfer</span><span class="w"> </span><span class="kn">import</span> <span class="n">upload_files</span> <span class="k">as</span> <span class="n">s3_upload_files</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParquetData</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.logging_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">PUDL_PACKAGE</span>
@@ -932,6 +936,42 @@ window.runMermaid = runMermaid;</script>
     <span class="s2">"core_ferceqr__quarterly_identity"</span><span class="p">,</span>
     <span class="s2">"core_ferceqr__quarterly_index_pub"</span><span class="p">,</span>
 <span class="p">]</span></div>
+
+
+<span class="c1"># Name of the descriptor in $PUDL_OUTPUT. It cannot simply be ``datapackage.json``:</span>
+<span class="c1"># the PUDL ETL already writes $PUDL_OUTPUT/parquet/datapackage.json (next to the EQR</span>
+<span class="c1"># Parquet files), and $PUDL_OUTPUT holds several ``&lt;dataset&gt;_datapackage.json`` files.</span>
+<div class="viewcode-block" id="DATAPACKAGE_FILENAME">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr.DATAPACKAGE_FILENAME">[docs]</a>
+<span class="n">DATAPACKAGE_FILENAME</span> <span class="o">=</span> <span class="s2">"ferceqr_parquet_datapackage.json"</span></div>
+
+
+<span class="c1"># Name of the descriptor in the deployed FERC EQR prefix, which holds nothing but</span>
+<span class="c1"># this dataset. ``datapackage.json`` is the only filename the Data Package spec</span>
+<span class="c1"># accepts for a descriptor.</span>
+<div class="viewcode-block" id="DEPLOYED_DATAPACKAGE_FILENAME">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr.DEPLOYED_DATAPACKAGE_FILENAME">[docs]</a>
+<span class="n">DEPLOYED_DATAPACKAGE_FILENAME</span> <span class="o">=</span> <span class="s2">"datapackage.json"</span></div>
+
+
+<span class="c1"># Layout beneath the per-build staging prefix. Parquet data and the datapackage</span>
+<span class="c1"># JSON go in separate subdirectories so the promote step can move the data into</span>
+<span class="c1"># place first and the descriptor last -- a consumer that reads the datapackage to</span>
+<span class="c1"># discover files then never sees it reference a Parquet file that has not landed.</span>
+<div class="viewcode-block" id="STAGING_DATA_SUBDIR">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr.STAGING_DATA_SUBDIR">[docs]</a>
+<span class="n">STAGING_DATA_SUBDIR</span> <span class="o">=</span> <span class="s2">"data"</span></div>
+
+<div class="viewcode-block" id="STAGING_META_SUBDIR">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr.STAGING_META_SUBDIR">[docs]</a>
+<span class="n">STAGING_META_SUBDIR</span> <span class="o">=</span> <span class="s2">"meta"</span></div>
+
+
+<span class="c1"># Sibling of each deployment target holding the previous build's data, refreshed</span>
+<span class="c1"># just before every promote so a botched deploy can be rolled back by hand.</span>
+<div class="viewcode-block" id="PREVIOUS_DIRNAME">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr.PREVIOUS_DIRNAME">[docs]</a>
+<span class="n">PREVIOUS_DIRNAME</span> <span class="o">=</span> <span class="s2">"._ferceqr_previous"</span></div>
 
 
 <span class="c1"># Type alias: asset name -&gt; partition name -&gt; status name</span>
@@ -971,149 +1011,296 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<div class="viewcode-block" id="_staging_path">
-<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr._staging_path">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">_staging_path</span><span class="p">(</span><span class="n">dist_path</span><span class="p">:</span> <span class="n">UPath</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UPath</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Return the staging path *alongside* *dist_path* for an atomic deploy.</span>
+<span class="nd">@dataclass</span>
+<div class="viewcode-block" id="_DeploymentTarget">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr._DeploymentTarget">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">_DeploymentTarget</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""One resolved deployment destination plus the scratch prefixes beside it.</span>
 
-<span class="sd">    The staging path sits as a sibling of the deployment target, rather than a</span>
-<span class="sd">    child. On cloud storage this avoids prefix-scoping ambiguity during the</span>
-<span class="sd">    rename loop — the staging and final prefixes are completely disjoint:</span>
-
-<span class="sd">    .. code-block:: text</span>
-
-<span class="sd">        gs://bucket/</span>
-<span class="sd">          ├── 2026-06-10-.../              (final target dir)</span>
-<span class="sd">          └── ._staging_2026-06-10-.../    (staging dir, sibling)</span>
-
-<span class="sd">    The suffix includes the BUILD_ID to tie it to a specific build run, and a</span>
-<span class="sd">    random component to avoid collisions during concurrent development runs.</span>
-
-<span class="sd">    If ``BUILD_ID`` is not set (local/testing), a random short suffix is used alone.</span>
+<span class="sd">    ``final``/``staging``/``previous`` are :class:`~upath.UPath` objects on local</span>
+<span class="sd">    disk or cloud storage (``gs://…``, ``s3://…``).</span>
 <span class="sd">    """</span>
-    <span class="n">build_id</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"BUILD_ID"</span><span class="p">)</span>
-    <span class="n">suffix</span> <span class="o">=</span> <span class="n">build_id</span> <span class="ow">or</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span><span class="p">[:</span><span class="mi">8</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">dist_path</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"._staging_</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">"</span></div>
+
+<div class="viewcode-block" id="_DeploymentTarget.final">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr._DeploymentTarget.final">[docs]</a>
+    <span class="n">final</span><span class="p">:</span> <span class="n">UPath</span></div>
+
+<div class="viewcode-block" id="_DeploymentTarget.build_id">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr._DeploymentTarget.build_id">[docs]</a>
+    <span class="n">build_id</span><span class="p">:</span> <span class="nb">str</span></div>
+
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="_DeploymentTarget.staging">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr._DeploymentTarget.staging">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">staging</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UPath</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Per-build scratch prefix holding everything staged for this build."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">final</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"._staging_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">build_id</span><span class="si">}</span><span class="s2">"</span></div>
+
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="_DeploymentTarget.staging_data">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr._DeploymentTarget.staging_data">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">staging_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UPath</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Prefix holding staged Parquet files, one subdirectory per table."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">staging</span> <span class="o">/</span> <span class="n">STAGING_DATA_SUBDIR</span></div>
+
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="_DeploymentTarget.staging_meta">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr._DeploymentTarget.staging_meta">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">staging_meta</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UPath</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Prefix holding the staged datapackage JSON."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">staging</span> <span class="o">/</span> <span class="n">STAGING_META_SUBDIR</span></div>
+
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="_DeploymentTarget.previous">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr._DeploymentTarget.previous">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">previous</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UPath</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Prefix holding snapshot of previous version."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">final</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="n">PREVIOUS_DIRNAME</span></div>
+</div>
 
 
 
-<div class="viewcode-block" id="_deploy_to_staging">
-<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr._deploy_to_staging">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">_deploy_to_staging</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
-    <span class="n">ferceqr_deployment</span><span class="p">:</span> <span class="n">FercEqrDeploymentResource</span><span class="p">,</span>
-    <span class="n">source_partitions</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-    <span class="n">datapackage_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">UPath</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Copy EQR outputs to a staging location under each target, return staging paths.</span>
+<div class="viewcode-block" id="_deployment_targets">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr._deployment_targets">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_deployment_targets</span><span class="p">(</span><span class="n">resolved_targets</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">UPath</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_DeploymentTarget</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Turn resolved deployment UPaths into :class:`_DeploymentTarget` records.</span>
 
-<span class="sd">    Each table's Parquet files and the datapackage JSON are written to a temporary</span>
-<span class="sd">    ``._staging_{BUILD_ID}_{random}`` subdirectory beneath the real deployment target.</span>
-<span class="sd">    This ensures that a timeout or crash during copying never leaves the final target</span>
-<span class="sd">    in a partially-deployed state.</span>
-
-<span class="sd">    *datapackage_path* is the path to the ``ferceqr_parquet_datapackage.json``</span>
-<span class="sd">    file on the local filesystem (written to ``pudl_output`` by the caller).</span>
-
-<span class="sd">    Returns the list of staging :class:`~upath.UPath` objects so the caller can atomically</span>
-<span class="sd">    promote them via rename.</span>
+<span class="sd">    The staging and previous-build prefixes are siblings of the final target so</span>
+<span class="sd">    their key namespaces never overlap it. The staging suffix ties the scratch</span>
+<span class="sd">    prefix to a single build (BUILD_ID), with a random fallback for local runs.</span>
 <span class="sd">    """</span>
-    <span class="n">resolved_targets</span> <span class="o">=</span> <span class="n">ferceqr_deployment</span><span class="o">.</span><span class="n">resolved_targets</span><span class="p">()</span>
-    <span class="n">staging_targets</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">UPath</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">dist_path</span> <span class="ow">in</span> <span class="n">resolved_targets</span><span class="p">:</span>
-        <span class="n">staging_dir</span> <span class="o">=</span> <span class="n">_staging_path</span><span class="p">(</span><span class="n">dist_path</span><span class="p">)</span>
-        <span class="n">staging_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Deploying to staging area: </span><span class="si">{</span><span class="n">staging_dir</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">build_id</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"BUILD_ID"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span><span class="p">[:</span><span class="mi">8</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">_DeploymentTarget</span><span class="p">(</span><span class="n">final</span><span class="o">=</span><span class="n">resolved</span><span class="p">,</span> <span class="n">build_id</span><span class="o">=</span><span class="n">build_id</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">resolved</span> <span class="ow">in</span> <span class="n">resolved_targets</span>
+    <span class="p">]</span></div>
 
-        <span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="n">FERCEQR_TRANSFORM_ASSETS</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  Copying </span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">staging_dir</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
-            <span class="n">src_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">ParquetData</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="n">table</span><span class="p">)</span><span class="o">.</span><span class="n">parquet_directory</span><span class="p">)</span>
-            <span class="n">table_dest</span> <span class="o">=</span> <span class="n">staging_dir</span> <span class="o">/</span> <span class="n">table</span>
-            <span class="n">table_dest</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">source_partition_name</span> <span class="ow">in</span> <span class="n">source_partitions</span><span class="p">:</span>
-                <span class="n">parquet_file</span> <span class="o">=</span> <span class="n">src_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">source_partition_name</span><span class="si">}</span><span class="s2">.parquet"</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">parquet_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-                    <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">"Expected parquet output for </span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2"> "</span>
-                        <span class="sa">f</span><span class="s2">"partition </span><span class="si">{</span><span class="n">source_partition_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">parquet_file</span><span class="si">}</span><span class="s2">"</span>
-                    <span class="p">)</span>
-                <span class="p">(</span><span class="n">table_dest</span> <span class="o">/</span> <span class="n">parquet_file</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">write_bytes</span><span class="p">(</span><span class="n">parquet_file</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">())</span>
 
-        <span class="c1"># Copy the datapackage JSON that was written alongside the parquet data.</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">datapackage_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">"FERC EQR datapackage not found at </span><span class="si">{</span><span class="n">datapackage_path</span><span class="si">}</span><span class="s2">"</span>
-            <span class="p">)</span>
-        <span class="p">(</span><span class="n">staging_dir</span> <span class="o">/</span> <span class="s2">"ferceqr_parquet_datapackage.json"</span><span class="p">)</span><span class="o">.</span><span class="n">write_bytes</span><span class="p">(</span>
-            <span class="n">datapackage_path</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">()</span>
+
+<div class="viewcode-block" id="_source_parquet_files">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr._source_parquet_files">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_source_parquet_files</span><span class="p">(</span><span class="n">source_partitions</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""Map each transform asset to its local Parquet files for *source_partitions*.</span>
+
+<span class="sd">    Raises :class:`FileNotFoundError` if any expected partition file is missing so</span>
+<span class="sd">    an incomplete build never gets partially deployed.</span>
+<span class="sd">    """</span>
+    <span class="n">table_files</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="n">FERCEQR_TRANSFORM_ASSETS</span><span class="p">:</span>
+        <span class="n">src_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">ParquetData</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="n">table</span><span class="p">)</span><span class="o">.</span><span class="n">parquet_directory</span><span class="p">)</span>
+        <span class="n">files</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">partition</span> <span class="ow">in</span> <span class="n">source_partitions</span><span class="p">:</span>
+            <span class="n">parquet_file</span> <span class="o">=</span> <span class="n">src_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">partition</span><span class="si">}</span><span class="s2">.parquet"</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">parquet_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"Expected parquet output for </span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2"> partition </span><span class="si">{</span><span class="n">partition</span><span class="si">}</span><span class="s2">: "</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">parquet_file</span><span class="si">}</span><span class="s2">"</span>
+                <span class="p">)</span>
+            <span class="n">files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">parquet_file</span><span class="p">)</span>
+        <span class="n">table_files</span><span class="p">[</span><span class="n">table</span><span class="p">]</span> <span class="o">=</span> <span class="n">files</span>
+    <span class="k">return</span> <span class="n">table_files</span></div>
+
+
+
+<div class="viewcode-block" id="_expected_object_sizes">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr._expected_object_sizes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_expected_object_sizes</span><span class="p">(</span>
+    <span class="n">table_files</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]],</span> <span class="n">datapackage_path</span><span class="p">:</span> <span class="n">Path</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return ``{staging_relative_path: size_bytes}`` for everything to be uploaded."""</span>
+    <span class="n">expected</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">STAGING_DATA_SUBDIR</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">parquet_file</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">:</span> <span class="n">parquet_file</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span>
+        <span class="k">for</span> <span class="n">table</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">table_files</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">parquet_file</span> <span class="ow">in</span> <span class="n">files</span>
+    <span class="p">}</span>
+    <span class="n">expected</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">STAGING_META_SUBDIR</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">DEPLOYED_DATAPACKAGE_FILENAME</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">datapackage_path</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">expected</span></div>
+
+
+
+<div class="viewcode-block" id="_wait">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr._wait">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_wait</span><span class="p">(</span><span class="n">futures</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Future</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Block until every future finishes, raising the first failure."""</span>
+    <span class="k">for</span> <span class="n">future</span> <span class="ow">in</span> <span class="n">futures</span><span class="p">:</span>
+        <span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="_is_s3">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr._is_s3">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_s3</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">UPath</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Whether *path* lives on S3, where bulk transfers bypass fsspec."""</span>
+    <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">protocol</span> <span class="o">==</span> <span class="s2">"s3"</span></div>
+
+
+
+<div class="viewcode-block" id="_make_local_parents">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr._make_local_parents">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_make_local_parents</span><span class="p">(</span><span class="n">paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">UPath</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Create parent directories for local *paths*; object stores need none."""</span>
+    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">protocol</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">""</span><span class="p">,</span> <span class="s2">"file"</span><span class="p">,</span> <span class="s2">"local"</span><span class="p">}:</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_relative_objects">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr._relative_objects">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_relative_objects</span><span class="p">(</span><span class="n">root</span><span class="p">:</span> <span class="n">UPath</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Map each object's path relative to *root* to its size in bytes.</span>
+
+<span class="sd">    Empty if nothing exists under *root*. The filesystem's listing cache is dropped</span>
+<span class="sd">    first, since S3 transfers go through boto3 and would otherwise leave it stale.</span>
+<span class="sd">    """</span>
+    <span class="n">fs</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">fs</span>
+    <span class="n">fs</span><span class="o">.</span><span class="n">invalidate_cache</span><span class="p">()</span>
+    <span class="n">root_path</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">"/"</span><span class="p">)</span>
+    <span class="n">listing</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">],</span> <span class="n">fs</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">root_path</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">removeprefix</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">root_path</span><span class="si">}</span><span class="s2">/"</span><span class="p">):</span> <span class="n">info</span><span class="p">[</span><span class="s2">"size"</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">listing</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"/"</span><span class="p">)</span>  <span class="c1"># skip "directory placeholder" objects</span>
+    <span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="_verify_staged">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr._verify_staged">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_verify_staged</span><span class="p">(</span><span class="n">target</span><span class="p">:</span> <span class="n">_DeploymentTarget</span><span class="p">,</span> <span class="n">expected</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Raise :class:`RuntimeError` unless staging holds exactly the *expected* objects.</span>
+
+<span class="sd">    The failure that matters is a transfer that died partway, so names and byte</span>
+<span class="sd">    sizes are compared; bit-level integrity is enforced by the transfer clients.</span>
+<span class="sd">    """</span>
+    <span class="n">actual</span> <span class="o">=</span> <span class="n">_relative_objects</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">staging</span><span class="p">)</span>
+    <span class="n">missing</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">expected</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">actual</span><span class="p">))</span>
+    <span class="n">unexpected</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">actual</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">expected</span><span class="p">))</span>
+    <span class="n">wrong_size</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> (expected </span><span class="si">{</span><span class="n">expected</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="si">}</span><span class="s2"> bytes, found </span><span class="si">{</span><span class="n">actual</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="si">}</span><span class="s2">)"</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">expected</span><span class="p">)</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">actual</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">expected</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">!=</span> <span class="n">actual</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">missing</span> <span class="ow">or</span> <span class="n">unexpected</span> <span class="ow">or</span> <span class="n">wrong_size</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"Staged objects under </span><span class="si">{</span><span class="n">target</span><span class="o">.</span><span class="n">staging</span><span class="si">}</span><span class="s2"> do not match the local outputs.</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="sa">f</span><span class="s2">"  missing: </span><span class="si">{</span><span class="n">missing</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="sa">f</span><span class="s2">"  unexpected: </span><span class="si">{</span><span class="n">unexpected</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="sa">f</span><span class="s2">"  wrong size: </span><span class="si">{</span><span class="n">wrong_size</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_copy_tree">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr._copy_tree">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_copy_tree</span><span class="p">(</span><span class="n">src</span><span class="p">:</span> <span class="n">UPath</span><span class="p">,</span> <span class="n">dst</span><span class="p">:</span> <span class="n">UPath</span><span class="p">,</span> <span class="n">executor</span><span class="p">:</span> <span class="n">ThreadPoolExecutor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Copy every object under *src* to the same relative path under *dst*.</span>
+
+<span class="sd">    Existing objects under *dst* are overwritten and others are left alone. Files</span>
+<span class="sd">    are copied one by one, since fsspec would nest a directory copied onto an existing</span>
+<span class="sd">    directory. On S3 this is one batch of server-side copies through boto3; elsewhere</span>
+<span class="sd">    each file is copied by fsspec in the thread pool.</span>
+<span class="sd">    """</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">_relative_objects</span><span class="p">(</span><span class="n">src</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">_is_s3</span><span class="p">(</span><span class="n">src</span><span class="p">):</span>
+        <span class="n">s3_copy_objects</span><span class="p">(</span>
+            <span class="p">(</span><span class="sa">f</span><span class="s2">"s3://</span><span class="si">{</span><span class="n">src</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">'/'</span><span class="p">)</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">dst</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span>
         <span class="p">)</span>
-        <span class="n">staging_targets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">staging_dir</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="n">_make_local_parents</span><span class="p">([</span><span class="n">dst</span> <span class="o">/</span> <span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">])</span>
+    <span class="n">_wait</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">cp</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">src</span> <span class="o">/</span> <span class="n">name</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">dst</span> <span class="o">/</span> <span class="n">name</span><span class="p">))</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">]</span>
+    <span class="p">)</span></div>
 
-    <span class="k">return</span> <span class="n">staging_targets</span></div>
 
 
-
-<div class="viewcode-block" id="_promote_staging">
-<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr._promote_staging">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">_promote_staging</span><span class="p">(</span>
-    <span class="n">staging_targets</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">UPath</span><span class="p">],</span> <span class="n">resolved_targets</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">UPath</span><span class="p">]</span>
+<div class="viewcode-block" id="_stage_target">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr._stage_target">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_stage_target</span><span class="p">(</span>
+    <span class="n">target</span><span class="p">:</span> <span class="n">_DeploymentTarget</span><span class="p">,</span>
+    <span class="n">table_files</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]],</span>
+    <span class="n">datapackage_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">executor</span><span class="p">:</span> <span class="n">ThreadPoolExecutor</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Atomically promote staging directories to their final destination paths.</span>
+<span class="w">    </span><span class="sd">"""Upload all outputs to *target*'s staging prefix and verify they arrived.</span>
 
-<span class="sd">    For each ``(staging_dir, final_dir)`` pair, this moves the contents of the staged</span>
-<span class="sd">    table directories and the datapackage JSON into the final target directory. On GCS</span>
-<span class="sd">    and S3 ``UPath.rename()`` performs a server-side copy followed by deletion of the</span>
-<span class="sd">    original, so the metadata (owner, timestamps, storage class) is preserved and no</span>
-<span class="sd">    data re-upload occurs. On local filesystems the rename is a fast inode-level</span>
-<span class="sd">    operation.</span>
+<span class="sd">    Raises :class:`RuntimeError` if the staged object set does not exactly match</span>
+<span class="sd">    the local outputs by name and byte size. The final target is untouched.</span>
 <span class="sd">    """</span>
-    <span class="k">for</span> <span class="n">staging_dir</span><span class="p">,</span> <span class="n">final_dir</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">staging_targets</span><span class="p">,</span> <span class="n">resolved_targets</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Promoting </span><span class="si">{</span><span class="n">staging_dir</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="n">final_dir</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-        <span class="n">final_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Staging FERC EQR outputs to </span><span class="si">{</span><span class="n">target</span><span class="o">.</span><span class="n">staging</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">uploads</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">target</span><span class="o">.</span><span class="n">staging_data</span> <span class="o">/</span> <span class="n">table</span> <span class="o">/</span> <span class="n">file</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">table</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">table_files</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span>
+    <span class="p">]</span>
+    <span class="n">uploads</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">datapackage_path</span><span class="p">,</span> <span class="n">target</span><span class="o">.</span><span class="n">staging_meta</span> <span class="o">/</span> <span class="n">DEPLOYED_DATAPACKAGE_FILENAME</span><span class="p">)</span>
+    <span class="p">)</span>
 
-        <span class="c1"># Rename each table directory into the final target.</span>
-        <span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="n">FERCEQR_TRANSFORM_ASSETS</span><span class="p">:</span>
-            <span class="n">src</span> <span class="o">=</span> <span class="n">staging_dir</span> <span class="o">/</span> <span class="n">table</span>
-            <span class="n">dst</span> <span class="o">=</span> <span class="n">final_dir</span> <span class="o">/</span> <span class="n">table</span>
-            <span class="n">dst</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">src</span><span class="o">.</span><span class="n">iterdir</span><span class="p">():</span>
-                <span class="n">child</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">dst</span> <span class="o">/</span> <span class="n">child</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-            <span class="c1"># Remove the now-empty staging subdirectory. On GCS/S3 we need</span>
-            <span class="c1"># fs.rm() -- rmdir() fails because there is no real directory.</span>
-            <span class="c1"># Note: on GCS rename() performs a copy+delete, so the source</span>
-            <span class="c1"># prefix may already be gone. Guard against that.</span>
-            <span class="k">if</span> <span class="n">src</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-                <span class="n">src</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">rm</span><span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">_is_s3</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">staging</span><span class="p">):</span>
+        <span class="n">s3_upload_files</span><span class="p">((</span><span class="n">file</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="p">))</span> <span class="k">for</span> <span class="n">file</span><span class="p">,</span> <span class="n">dest</span> <span class="ow">in</span> <span class="n">uploads</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">fs</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">staging</span><span class="o">.</span><span class="n">fs</span>
+        <span class="n">_make_local_parents</span><span class="p">([</span><span class="n">dest</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">dest</span> <span class="ow">in</span> <span class="n">uploads</span><span class="p">])</span>
+        <span class="n">_wait</span><span class="p">([</span><span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">fs</span><span class="o">.</span><span class="n">put</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">file</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="p">))</span> <span class="k">for</span> <span class="n">file</span><span class="p">,</span> <span class="n">dest</span> <span class="ow">in</span> <span class="n">uploads</span><span class="p">])</span>
 
-        <span class="c1"># Rename the datapackage JSON.</span>
-        <span class="n">datapackage_src</span> <span class="o">=</span> <span class="n">staging_dir</span> <span class="o">/</span> <span class="s2">"ferceqr_parquet_datapackage.json"</span>
+    <span class="n">_verify_staged</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">_expected_object_sizes</span><span class="p">(</span><span class="n">table_files</span><span class="p">,</span> <span class="n">datapackage_path</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="_promote_target">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr._promote_target">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_promote_target</span><span class="p">(</span><span class="n">target</span><span class="p">:</span> <span class="n">_DeploymentTarget</span><span class="p">,</span> <span class="n">executor</span><span class="p">:</span> <span class="n">ThreadPoolExecutor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Snapshot the live tree, then merge staging into it and drop the staging dir.</span>
+
+<span class="sd">    Promotion is a merge: staged files overwrite live files of the same name and</span>
+<span class="sd">    everything else already under the final prefix is left alone, so a build that</span>
+<span class="sd">    covers only some partitions updates just those. Nothing is ever deleted from the</span>
+<span class="sd">    live prefix; stale files must be removed by hand.</span>
+
+<span class="sd">    The datapackage JSON is promoted after the Parquet data so it never briefly</span>
+<span class="sd">    references files that have not landed yet.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">previous</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Removing existing snapshot </span><span class="si">{</span><span class="n">target</span><span class="o">.</span><span class="n">previous</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">target</span><span class="o">.</span><span class="n">previous</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">rm</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">previous</span><span class="p">),</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># A first-ever deployment has nothing to snapshot.</span>
+    <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">final</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Snapshotting </span><span class="si">{</span><span class="n">target</span><span class="o">.</span><span class="n">final</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="n">target</span><span class="o">.</span><span class="n">previous</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">_copy_tree</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">final</span><span class="p">,</span> <span class="n">target</span><span class="o">.</span><span class="n">previous</span><span class="p">,</span> <span class="n">executor</span><span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Merging </span><span class="si">{</span><span class="n">target</span><span class="o">.</span><span class="n">staging_data</span><span class="si">}</span><span class="s2"> into </span><span class="si">{</span><span class="n">target</span><span class="o">.</span><span class="n">final</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">_copy_tree</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">staging_data</span><span class="p">,</span> <span class="n">target</span><span class="o">.</span><span class="n">final</span><span class="p">,</span> <span class="n">executor</span><span class="p">)</span>
+
+    <span class="n">target</span><span class="o">.</span><span class="n">final</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">cp</span><span class="p">(</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">staging_meta</span> <span class="o">/</span> <span class="n">DEPLOYED_DATAPACKAGE_FILENAME</span><span class="p">),</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">final</span> <span class="o">/</span> <span class="n">DEPLOYED_DATAPACKAGE_FILENAME</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Removing staging directory </span><span class="si">{</span><span class="n">target</span><span class="o">.</span><span class="n">staging</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">target</span><span class="o">.</span><span class="n">staging</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">rm</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">staging</span><span class="p">),</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_remove_all_staging">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr._remove_all_staging">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_remove_all_staging</span><span class="p">(</span><span class="n">targets</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">_DeploymentTarget</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Best-effort removal of every target's staging prefix after a failure."""</span>
+    <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">datapackage_src</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">final_dir</span> <span class="o">/</span> <span class="s2">"ferceqr_parquet_datapackage.json"</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">"Expected datapackage JSON not found in staging dir: </span><span class="si">{</span><span class="n">datapackage_src</span><span class="si">}</span><span class="s2">"</span>
-            <span class="p">)</span>
-            <span class="k">raise</span>
-
-        <span class="c1"># Remove the now empty staging directory.</span>
-        <span class="n">_remove_staging</span><span class="p">(</span><span class="n">staging_dir</span><span class="p">)</span></div>
-
-
-
-<div class="viewcode-block" id="_remove_staging">
-<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr._remove_staging">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">_remove_staging</span><span class="p">(</span><span class="n">staging_dir</span><span class="p">:</span> <span class="n">UPath</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Remove a staging directory and all its contents.</span>
-
-<span class="sd">    Used for cleanup if the promotion step fails — the partial staging data is</span>
-<span class="sd">    discarded rather than leaked. Safe to call on directories that do not exist</span>
-<span class="sd">    (e.g. if promotion already removed them before the failure occurred).</span>
-
-<span class="sd">    Uses ``fs.rm(path, recursive=True)`` instead of ``rmdir()`` because cloud</span>
-<span class="sd">    storage (GCS, S3) uses virtual prefixes rather than real directories and</span>
-<span class="sd">    ``rmdir()`` would raise ``NotADirectoryError``.</span>
-<span class="sd">    """</span>
-    <span class="k">if</span> <span class="n">staging_dir</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-        <span class="n">staging_dir</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">rm</span><span class="p">(</span><span class="n">staging_dir</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+            <span class="n">target</span><span class="o">.</span><span class="n">staging</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">rm</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">staging</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Failed to clean up staging prefix </span><span class="si">{</span><span class="n">target</span><span class="o">.</span><span class="n">staging</span><span class="si">}</span><span class="s2">:</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="o">+</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">()</span>
+            <span class="p">)</span></div>
 
 
 
@@ -1329,7 +1516,7 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr.build_ferceqr_notification">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">build_ferceqr_notification</span><span class="p">(</span>
     <span class="n">context</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetExecutionContext</span><span class="p">,</span>
-    <span class="n">outcome</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"SUCCESS"</span><span class="p">,</span> <span class="s2">"FAILURE"</span><span class="p">],</span>
+    <span class="n">outcome</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"SUCCESS"</span><span class="p">,</span> <span class="s2">"FAILURE"</span><span class="p">,</span> <span class="s2">"SKIPPED"</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Build a Markdown notification string for FERC EQR deployment outcomes.</span>
 
@@ -1379,11 +1566,11 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span>
 
     <span class="c1"># Build the Markdown.</span>
-    <span class="n">title</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="s2">"</span><span class="se">\n</span><span class="s2"># :check: FERC EQR Deployment Succeeded"</span>
-        <span class="k">if</span> <span class="n">outcome</span> <span class="o">==</span> <span class="s2">"SUCCESS"</span>
-        <span class="k">else</span> <span class="s2">"</span><span class="se">\n</span><span class="s2"># :x: FERC EQR Deployment Failed"</span>
-    <span class="p">)</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"SUCCESS"</span><span class="p">:</span> <span class="s2">"</span><span class="se">\n</span><span class="s2"># :check: FERC EQR Deployment Succeeded"</span><span class="p">,</span>
+        <span class="s2">"FAILURE"</span><span class="p">:</span> <span class="s2">"</span><span class="se">\n</span><span class="s2"># :x: FERC EQR Deployment Failed"</span><span class="p">,</span>
+        <span class="s2">"SKIPPED"</span><span class="p">:</span> <span class="s2">"</span><span class="se">\n</span><span class="s2"># :check: FERC EQR Build Succeeded (deployment skipped)"</span><span class="p">,</span>
+    <span class="p">}[</span><span class="n">outcome</span><span class="p">]</span>
     <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">title</span><span class="p">,</span> <span class="s2">""</span><span class="p">]</span>
     <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"- Build ID: `</span><span class="si">{</span><span class="n">build_id</span><span class="si">}</span><span class="s2">`"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">source_run_id</span><span class="p">:</span>
@@ -1445,107 +1632,138 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<div class="viewcode-block" id="_deploy_source_partitions">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr._deploy_source_partitions">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_deploy_source_partitions</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetExecutionContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Read the built partitions from run tags, empty when invoked outside a run.</span>
+
+<span class="sd">    Deploying only the *specific* partitions this build produced avoids sweeping</span>
+<span class="sd">    up unrelated data left lying around, especially on local runs.</span>
+<span class="sd">    """</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">run_tags</span> <span class="o">=</span> <span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">run</span><span class="o">.</span><span class="n">tags</span> <span class="ow">or</span> <span class="p">{})</span> <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">run</span> <span class="k">else</span> <span class="p">{}</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">"deploy_ferceqr: context.run not available (direct invocation in tests)"</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="k">return</span> <span class="n">_validate_partitions</span><span class="p">(</span><span class="n">run_tags</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">FERCEQR_SOURCE_PARTITIONS_TAG</span><span class="p">)</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">)</span></div>
+
+
+
 <span class="nd">@deployment_status_asset</span>
 <div class="viewcode-block" id="deploy_ferceqr">
 <a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr.deploy_ferceqr">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">deploy_ferceqr</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetExecutionContext</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Publish EQR outputs to configured deployment targets.</span>
 
-<span class="sd">    Uses a staging-then-rename pattern: all files are first uploaded to a</span>
-<span class="sd">    ``._staging_{BUILD_ID}_{random}`` directory beneath each target, then</span>
-<span class="sd">    atomically moved (server-side on GCS/S3, inode-level locally) to the final</span>
-<span class="sd">    path. This ensures the target is never partially populated — if the upload</span>
-<span class="sd">    is interrupted, the staging directory is simply discarded.</span>
+<span class="sd">    Each target is handled with a staging-then-promote pattern. S3 targets move</span>
+<span class="sd">    bytes through :mod:`pudl.deploy.s3_transfer` (much faster than ``s3fs``); all</span>
+<span class="sd">    other targets, and all listing and deletion, use ``fsspec``:</span>
+
+<span class="sd">    1. Upload every built Parquet file and the datapackage JSON into a per-build</span>
+<span class="sd">       ``._staging_{BUILD_ID}`` prefix beside the target.</span>
+<span class="sd">    2. Verify the staged object set matches the local outputs by name and size.</span>
+<span class="sd">    3. Copy the current live tree into ``._ferceqr_previous`` for rollback.</span>
+<span class="sd">    4. Server-side merge staging into the final prefix (data first, datapackage</span>
+<span class="sd">       last) and delete the staging prefix. Staged files overwrite live files of the</span>
+<span class="sd">       same name; other live files are left in place.</span>
+
+<span class="sd">    A failure in steps 1-2 leaves the target untouched. A failure in steps 3-4</span>
+<span class="sd">    may leave the target with a mix of old and new files; ``._ferceqr_previous``</span>
+<span class="sd">    holds the prior build for a manual rollback. Targets are processed</span>
+<span class="sd">    concurrently.</span>
 <span class="sd">    """</span>
     <span class="n">pudl_paths</span><span class="p">:</span> <span class="n">PudlPaths</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">pudl_paths</span>
     <span class="n">zulip</span><span class="p">:</span> <span class="n">ZulipNotificationResource</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">zulip_notification</span>
     <span class="n">ferceqr_deployment</span><span class="p">:</span> <span class="n">FercEqrDeploymentResource</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">ferceqr_deployment_targets</span>
     <span class="p">)</span>
-    <span class="n">source_partitions</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
-    <span class="c1"># Extract source partitions from run tags for parquet copy. Getting the</span>
-    <span class="c1"># *specific* partitions that were built helps avoid copying a bunch of other</span>
-    <span class="c1"># data that might be laying around... in the case of local runs especially.</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">run</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">run</span>
-        <span class="n">partitions_raw</span> <span class="o">=</span> <span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">tags</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">FERCEQR_SOURCE_PARTITIONS_TAG</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">partitions_raw</span><span class="p">:</span>
-            <span class="n">source_partitions</span> <span class="o">=</span> <span class="n">_validate_partitions</span><span class="p">(</span><span class="n">partitions_raw</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="s2">"deploy_ferceqr: context.run not available (direct invocation in tests)"</span>
-        <span class="p">)</span>
-
+    <span class="n">source_partitions</span> <span class="o">=</span> <span class="n">_deploy_source_partitions</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">source_partitions</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"FERC EQR deployment run has no deployable partitions."</span><span class="p">)</span>
 
     <span class="c1"># Write the datapackage alongside the parquet data in pudl_output so it can</span>
-    <span class="c1"># be deployed like any other file and remains as a record of the build.</span>
-    <span class="n">datapackage_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">pudl_paths</span><span class="o">.</span><span class="n">pudl_output</span><span class="p">)</span> <span class="o">/</span> <span class="s2">"ferceqr_parquet_datapackage.json"</span>
+    <span class="c1"># be deployed like any other file and remains as a record of the build. Built</span>
+    <span class="c1"># even when there is nothing to publish, so it can be reviewed and tested as</span>
+    <span class="c1"># a development artifact.</span>
+    <span class="n">datapackage_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">pudl_paths</span><span class="o">.</span><span class="n">pudl_output</span><span class="p">)</span> <span class="o">/</span> <span class="n">DATAPACKAGE_FILENAME</span>
     <span class="n">PUDL_PACKAGE</span><span class="o">.</span><span class="n">to_frictionless</span><span class="p">(</span><span class="n">include_pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">"core_ferceqr.*"</span><span class="p">)</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span>
         <span class="nb">str</span><span class="p">(</span><span class="n">datapackage_path</span><span class="p">)</span>
     <span class="p">)</span>
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"FERC EQR build successful, deploying FERC EQR data."</span><span class="p">)</span>
-
-    <span class="c1"># Phase 1: Upload everything to staging directories.</span>
-    <span class="n">resolved_targets</span> <span class="o">=</span> <span class="n">ferceqr_deployment</span><span class="o">.</span><span class="n">resolved_targets</span><span class="p">()</span>
-    <span class="n">staging_targets</span> <span class="o">=</span> <span class="n">_deploy_to_staging</span><span class="p">(</span>
-        <span class="n">ferceqr_deployment</span><span class="o">=</span><span class="n">ferceqr_deployment</span><span class="p">,</span>
-        <span class="n">source_partitions</span><span class="o">=</span><span class="n">source_partitions</span><span class="p">,</span>
-        <span class="n">datapackage_path</span><span class="o">=</span><span class="n">datapackage_path</span><span class="p">,</span>
-    <span class="p">)</span>
-
-    <span class="c1"># Phase 2: Atomically promote staging to the final paths.</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">_promote_staging</span><span class="p">(</span>
-            <span class="n">staging_targets</span><span class="o">=</span><span class="n">staging_targets</span><span class="p">,</span>
-            <span class="n">resolved_targets</span><span class="o">=</span><span class="n">resolved_targets</span><span class="p">,</span>
+    <span class="n">targets</span> <span class="o">=</span> <span class="n">_deployment_targets</span><span class="p">(</span><span class="n">ferceqr_deployment</span><span class="o">.</span><span class="n">resolved_targets</span><span class="p">())</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">targets</span><span class="p">:</span>
+        <span class="c1"># deployment_mode "none" (or an unset deployment config) is a deliberate</span>
+        <span class="c1"># choice -- e.g. a tuning run that doesn't want the GCS-&gt;S3 egress. The</span>
+        <span class="c1"># build still succeeded and the datapackage is written; report success</span>
+        <span class="c1"># and skip publishing rather than failing.</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"No FERC EQR deployment targets configured; build succeeded, "</span>
+            <span class="sa">f</span><span class="s2">"datapackage written to </span><span class="si">{</span><span class="n">datapackage_path</span><span class="si">}</span><span class="s2">, skipping publish."</span>
         <span class="p">)</span>
+        <span class="n">zulip</span><span class="o">.</span><span class="n">send_stream_message</span><span class="p">(</span>
+            <span class="n">stream</span><span class="o">=</span><span class="s2">"pudl-deployments"</span><span class="p">,</span>
+            <span class="n">topic</span><span class="o">=</span><span class="s2">"build-deploy-ferceqr"</span><span class="p">,</span>
+            <span class="n">content</span><span class="o">=</span><span class="n">build_ferceqr_notification</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="s2">"SKIPPED"</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">_write_status_file</span><span class="p">(</span><span class="s2">"FERCEQR_SUCCESS"</span><span class="p">,</span> <span class="n">pudl_paths</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">table_files</span> <span class="o">=</span> <span class="n">_source_parquet_files</span><span class="p">(</span><span class="n">source_partitions</span><span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"FERC EQR build successful, deploying FERC EQR data."</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># The per-target tasks below submit their per-file work to this same pool and</span>
+        <span class="c1"># block on it. That deadlocks if the number of targets reaches the pool's</span>
+        <span class="c1"># max_workers (min(32, CPUs + 4)), since every worker would then be a parent</span>
+        <span class="c1"># waiting on queued children. We have 2 targets, so it can't happen today.</span>
+        <span class="k">with</span> <span class="n">ThreadPoolExecutor</span><span class="p">()</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
+            <span class="n">stage_futures</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span>
+                    <span class="n">_stage_target</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">table_files</span><span class="p">,</span> <span class="n">datapackage_path</span><span class="p">,</span> <span class="n">executor</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">targets</span>
+            <span class="p">]</span>
+            <span class="k">for</span> <span class="n">future</span> <span class="ow">in</span> <span class="n">stage_futures</span><span class="p">:</span>
+                <span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+
+            <span class="n">promote_futures</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">_promote_target</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">executor</span><span class="p">)</span> <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">targets</span>
+            <span class="p">]</span>
+            <span class="k">for</span> <span class="n">future</span> <span class="ow">in</span> <span class="n">promote_futures</span><span class="p">:</span>
+                <span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+
     <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-            <span class="s2">"FERC EQR deployment promotion failed! "</span>
-            <span class="s2">"Staging directories may contain partial data; "</span>
-            <span class="s2">"cleaning up staging paths.</span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">(),</span>
+            <span class="s2">"FERC EQR deployment failed; cleaning up staging prefixes.</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="o">+</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">()</span>
         <span class="p">)</span>
-        <span class="c1"># Send failure notification inline before the exception propagates.</span>
-        <span class="c1"># The sensor-triggered failure asset never gets to run because the</span>
-        <span class="c1"># bash script kills the dagster daemon as soon as FERCEQR_FAILURE</span>
-        <span class="c1"># appears, so we must notify here while the process is still alive.</span>
+        <span class="c1"># Notify inline before the exception propagates: the sensor-triggered</span>
+        <span class="c1"># failure asset never runs because the bash script kills the dagster</span>
+        <span class="c1"># daemon as soon as FERCEQR_FAILURE appears.</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">notification_markdown</span> <span class="o">=</span> <span class="n">build_ferceqr_notification</span><span class="p">(</span>
-                <span class="n">context</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="s2">"FAILURE"</span>
-            <span class="p">)</span>
             <span class="n">zulip</span><span class="o">.</span><span class="n">send_stream_message</span><span class="p">(</span>
                 <span class="n">stream</span><span class="o">=</span><span class="s2">"pudl-deployments"</span><span class="p">,</span>
                 <span class="n">topic</span><span class="o">=</span><span class="s2">"build-deploy-ferceqr"</span><span class="p">,</span>
-                <span class="n">content</span><span class="o">=</span><span class="n">notification_markdown</span><span class="p">,</span>
+                <span class="n">content</span><span class="o">=</span><span class="n">build_ferceqr_notification</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="s2">"FAILURE"</span><span class="p">),</span>
             <span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
                 <span class="s2">"FERC EQR failure notification also failed:</span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">()</span>
             <span class="p">)</span>
-        <span class="k">for</span> <span class="n">staging_dir</span> <span class="ow">in</span> <span class="n">staging_targets</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">_remove_staging</span><span class="p">(</span><span class="n">staging_dir</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">"Failed to clean up staging dir </span><span class="si">{</span><span class="n">staging_dir</span><span class="si">}</span><span class="s2">:</span><span class="se">\n</span><span class="s2">"</span>
-                    <span class="o">+</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">()</span>
-                <span class="p">)</span>
-        <span class="c1"># Write the failure sentinel HERE (inside the inline handler) so the</span>
-        <span class="c1"># log messages above are flushed before the sentinel triggers killall.</span>
+        <span class="n">_remove_all_staging</span><span class="p">(</span><span class="n">targets</span><span class="p">)</span>
+        <span class="c1"># Write the failure sentinel HERE so the log messages above are flushed</span>
+        <span class="c1"># before the sentinel triggers killall.</span>
         <span class="n">_write_status_file</span><span class="p">(</span><span class="s2">"FERCEQR_FAILURE"</span><span class="p">,</span> <span class="n">pudl_paths</span><span class="p">)</span>
         <span class="k">raise</span>
 
-    <span class="c1"># Send Zulip notification about successful build</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"FERC EQR deployment succeeded. Notifying Zulip."</span><span class="p">)</span>
-    <span class="n">notification_markdown</span> <span class="o">=</span> <span class="n">build_ferceqr_notification</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="s2">"SUCCESS"</span><span class="p">)</span>
     <span class="n">zulip</span><span class="o">.</span><span class="n">send_stream_message</span><span class="p">(</span>
         <span class="n">stream</span><span class="o">=</span><span class="s2">"pudl-deployments"</span><span class="p">,</span>
         <span class="n">topic</span><span class="o">=</span><span class="s2">"build-deploy-ferceqr"</span><span class="p">,</span>
-        <span class="n">content</span><span class="o">=</span><span class="n">notification_markdown</span><span class="p">,</span>
+        <span class="n">content</span><span class="o">=</span><span class="n">build_ferceqr_notification</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="s2">"SUCCESS"</span><span class="p">),</span>
     <span class="p">)</span>
     <span class="n">_write_status_file</span><span class="p">(</span><span class="s2">"FERCEQR_SUCCESS"</span><span class="p">,</span> <span class="n">pudl_paths</span><span class="p">)</span></div>
 
