@@ -13,11 +13,11 @@ import time
 import traceback
 import uuid
 from collections.abc import Callable
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import Future, ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import timedelta
 from pathlib import Path
-from typing import Literal
+from typing import Literal, cast
 
 import dagster as dg
 import pandas as pd
@@ -27,7 +27,8 @@ from pudl.dagster.resources import (
     FercEqrDeploymentResource,
     ZulipNotificationResource,
 )
-from pudl.deploy.object_store import ObjectStore
+from pudl.deploy.s3_transfer import copy_objects as s3_copy_objects
+from pudl.deploy.s3_transfer import upload_files as s3_upload_files
 from pudl.helpers import ParquetData
 from pudl.logging_helpers import get_logger
 from pudl.metadata.classes import PUDL_PACKAGE
@@ -47,7 +48,15 @@ FERCEQR_TRANSFORM_ASSETS = [
     "core_ferceqr__quarterly_index_pub",
 ]
 
+# Name of the descriptor in $PUDL_OUTPUT. It cannot simply be ``datapackage.json``:
+# the PUDL ETL already writes $PUDL_OUTPUT/parquet/datapackage.json (next to the EQR
+# Parquet files), and $PUDL_OUTPUT holds several ``<dataset>_datapackage.json`` files.
 DATAPACKAGE_FILENAME = "ferceqr_parquet_datapackage.json"
+
+# Name of the descriptor in the deployed FERC EQR prefix, which holds nothing but
+# this dataset. ``datapackage.json`` is the only filename the Data Package spec
+# accepts for a descriptor.
+DEPLOYED_DATAPACKAGE_FILENAME = "datapackage.json"
 
 # Layout beneath the per-build staging prefix. Parquet data and the datapackage
 # JSON go in separate subdirectories so the promote step can move the data into
@@ -93,24 +102,31 @@ class _DeploymentTarget:
     """One resolved deployment destination plus the scratch prefixes beside it.
 
     ``final``/``staging``/``previous`` are full URI strings (``gs://…``, ``s3://…``)
-    or local paths. ``store`` is the :class:`~pudl.deploy.object_store.ObjectStore`
-    that knows how to move bytes for that URI scheme.
+    or local paths.
     """
 
-    store: ObjectStore
-    final: str
-    staging: str
-    previous: str
+    final: UPath
+    build_id: str
 
     @property
-    def staging_data(self) -> str:
+    def staging(self) -> UPath:
         """Prefix holding staged Parquet files, one subdirectory per table."""
-        return f"{self.staging}/{STAGING_DATA_SUBDIR}"
+        return self.final.parent / f"._staging_{self.build_id}"
 
     @property
-    def staging_meta(self) -> str:
+    def staging_data(self) -> UPath:
+        """Prefix holding staged Parquet files, one subdirectory per table."""
+        return self.staging / STAGING_DATA_SUBDIR
+
+    @property
+    def staging_meta(self) -> UPath:
         """Prefix holding the staged datapackage JSON."""
-        return f"{self.staging}/{STAGING_META_SUBDIR}"
+        return self.staging / STAGING_META_SUBDIR
+
+    @property
+    def previous(self) -> UPath:
+        """Prefix holding snapshot of previous version."""
+        return self.final.parent / PREVIOUS_DIRNAME
 
 
 def _deployment_targets(resolved_targets: list[UPath]) -> list[_DeploymentTarget]:
@@ -123,14 +139,10 @@ def _deployment_targets(resolved_targets: list[UPath]) -> list[_DeploymentTarget
     build_id = os.getenv("BUILD_ID") or uuid.uuid4().hex[:8]
     targets: list[_DeploymentTarget] = []
     for resolved in resolved_targets:
-        final = str(resolved).rstrip("/")
-        parent = final.rpartition("/")[0]
         targets.append(
             _DeploymentTarget(
-                store=ObjectStore.for_uri(final, dict(resolved.storage_options)),
-                final=final,
-                staging=f"{parent}/._staging_{build_id}",
-                previous=f"{parent}/{PREVIOUS_DIRNAME}",
+                final=resolved,
+                build_id=build_id,
             )
         )
     return targets
@@ -167,17 +179,95 @@ def _expected_object_sizes(
         for table, files in table_files.items()
         for parquet_file in files
     }
-    expected[f"{STAGING_META_SUBDIR}/{datapackage_path.name}"] = (
+    expected[f"{STAGING_META_SUBDIR}/{DEPLOYED_DATAPACKAGE_FILENAME}"] = (
         datapackage_path.stat().st_size
     )
     return expected
+
+
+def _wait(futures: list[Future]) -> None:
+    """Block until every future finishes, raising the first failure."""
+    for future in futures:
+        future.result()
+
+
+def _is_s3(path: UPath) -> bool:
+    """Whether *path* lives on S3, where bulk transfers bypass fsspec."""
+    return path.protocol in {"s3", "s3a"}
+
+
+def _make_local_parents(paths: list[UPath]) -> None:
+    """Create parent directories for local *paths*; object stores need none."""
+    for path in paths:
+        if path.protocol in {"", "file", "local"}:
+            path.parent.mkdir(parents=True, exist_ok=True)
+
+
+def _relative_objects(root: UPath) -> dict[str, int]:
+    """Map each object's path relative to *root* to its size in bytes.
+
+    Empty if nothing exists under *root*. The filesystem's listing cache is dropped
+    first, since S3 transfers go through boto3 and would otherwise leave it stale.
+    """
+    fs = root.fs
+    fs.invalidate_cache()
+    root_path = root.path.rstrip("/")
+    listing = cast(dict[str, dict], fs.find(root_path, detail=True))
+    return {
+        path.removeprefix(f"{root_path}/"): info["size"]
+        for path, info in listing.items()
+        if not path.endswith("/")  # skip "directory placeholder" objects
+    }
+
+
+def _verify_staged(target: _DeploymentTarget, expected: dict[str, int]) -> None:
+    """Raise :class:`RuntimeError` unless staging holds exactly the *expected* objects.
+
+    The failure that matters is a transfer that died partway, so names and byte
+    sizes are compared; bit-level integrity is enforced by the transfer clients.
+    """
+    actual = _relative_objects(target.staging)
+    missing = sorted(set(expected) - set(actual))
+    unexpected = sorted(set(actual) - set(expected))
+    wrong_size = sorted(
+        f"{name} (expected {expected[name]} bytes, found {actual[name]})"
+        for name in set(expected) & set(actual)
+        if expected[name] != actual[name]
+    )
+    if missing or unexpected or wrong_size:
+        raise RuntimeError(
+            f"Staged objects under {target.staging} do not match the local outputs.\n"
+            f"  missing: {missing}\n"
+            f"  unexpected: {unexpected}\n"
+            f"  wrong size: {wrong_size}"
+        )
+
+
+def _copy_tree(src: UPath, dst: UPath, executor: ThreadPoolExecutor) -> None:
+    """Copy every object under *src* to the same relative path under *dst*.
+
+    Existing objects under *dst* are overwritten and others are left alone. Files
+    are copied one by one, since fsspec would nest a directory copied onto an existing
+    directory. On S3 this is one batch of server-side copies through boto3; elsewhere
+    each file is copied by fsspec in the thread pool.
+    """
+    names = list(_relative_objects(src))
+    if _is_s3(src):
+        s3_copy_objects(
+            (f"s3://{src.path.rstrip('/')}/{name}", f"{dst}/{name}") for name in names
+        )
+        return
+    _make_local_parents([dst / name for name in names])
+    _wait(
+        [executor.submit(src.fs.cp, str(src / name), str(dst / name)) for name in names]
+    )
 
 
 def _stage_target(
     target: _DeploymentTarget,
     table_files: dict[str, list[Path]],
     datapackage_path: Path,
-    expected_sizes: dict[str, int],
+    executor: ThreadPoolExecutor,
 ) -> None:
     """Upload all outputs to *target*'s staging prefix and verify they arrived.
 
@@ -185,64 +275,73 @@ def _stage_target(
     the local outputs by name and byte size. The final target is untouched.
     """
     logger.info(f"Staging FERC EQR outputs to {target.staging}")
-    for table, files in table_files.items():
-        target.store.upload_files(files, f"{target.staging_data}/{table}")
-    target.store.upload_files([datapackage_path], target.staging_meta)
+    uploads = [
+        (file, target.staging_data / table / file.name)
+        for table, files in table_files.items()
+        for file in files
+    ]
+    uploads.append(
+        (datapackage_path, target.staging_meta / DEPLOYED_DATAPACKAGE_FILENAME)
+    )
 
-    staged_sizes = target.store.object_sizes(target.staging)
-    if staged_sizes != expected_sizes:
-        missing = sorted(set(expected_sizes) - set(staged_sizes))
-        unexpected = sorted(set(staged_sizes) - set(expected_sizes))
-        wrong_size = sorted(
-            key
-            for key in expected_sizes.keys() & staged_sizes.keys()
-            if expected_sizes[key] != staged_sizes[key]
-        )
-        raise RuntimeError(
-            f"Staged upload to {target.staging} does not match local outputs. "
-            f"missing={missing} unexpected={unexpected} wrong_size={wrong_size}"
-        )
+    if _is_s3(target.staging):
+        s3_upload_files((file, str(dest)) for file, dest in uploads)
+    else:
+        fs = target.staging.fs
+        _make_local_parents([dest for _, dest in uploads])
+        _wait([executor.submit(fs.put, str(file), str(dest)) for file, dest in uploads])
+
+    _verify_staged(target, _expected_object_sizes(table_files, datapackage_path))
 
 
-def _promote_target(target: _DeploymentTarget) -> None:
-    """Snapshot the live tree, then move staging into place and drop the staging dir.
+def _promote_target(target: _DeploymentTarget, executor: ThreadPoolExecutor) -> None:
+    """Snapshot the live tree, then merge staging into it and drop the staging dir.
+
+    Promotion is a merge: staged files overwrite live files of the same name and
+    everything else already under the final prefix is left alone, so a build that
+    covers only some partitions updates just those. Nothing is ever deleted from the
+    live prefix; stale files must be removed by hand.
 
     The datapackage JSON is promoted after the Parquet data so it never briefly
     references files that have not landed yet.
     """
-    if target.store.object_sizes(target.final):
+    if executor.submit(target.previous.exists).result():
+        logger.info(f"Removing existing snapshot {target.previous}")
+        _wait(
+            [
+                executor.submit(
+                    target.previous.fs.rm, str(target.previous), recursive=True
+                )
+            ]
+        )
+
+    # A first-ever deployment has nothing to snapshot.
+    if executor.submit(target.final.exists).result():
         logger.info(f"Snapshotting {target.final} -> {target.previous}")
-        target.store.sync(target.final, target.previous)
+        _copy_tree(target.final, target.previous, executor)
 
-    logger.info(f"Promoting {target.staging} -> {target.final}")
-    target.store.move(target.staging_data, target.final)
-    target.store.move(target.staging_meta, target.final)
-    target.store.remove(target.staging)
+    logger.info(f"Merging {target.staging_data} into {target.final}")
+    _copy_tree(target.staging_data, target.final, executor)
 
+    _wait(
+        [
+            executor.submit(
+                target.final.fs.cp,
+                str(target.staging_meta / DEPLOYED_DATAPACKAGE_FILENAME),
+                str(target.final / DEPLOYED_DATAPACKAGE_FILENAME),
+            )
+        ]
+    )
 
-def _run_for_targets(
-    targets: list[_DeploymentTarget], step: Callable[[_DeploymentTarget], None]
-) -> None:
-    """Run *step* against every target, concurrently when there is more than one.
-
-    The first exception raised by any target propagates once all have finished.
-    """
-    if not targets:
-        return
-    if len(targets) == 1:
-        step(targets[0])
-        return
-    with ThreadPoolExecutor(max_workers=len(targets)) as pool:
-        futures = [pool.submit(step, target) for target in targets]
-        for future in as_completed(futures):
-            future.result()
+    logger.info(f"Removing staging directory {target.staging}")
+    _wait([executor.submit(target.staging.fs.rm, str(target.staging), recursive=True)])
 
 
 def _remove_all_staging(targets: list[_DeploymentTarget]) -> None:
     """Best-effort removal of every target's staging prefix after a failure."""
     for target in targets:
         try:
-            target.store.remove(target.staging)
+            target.staging.fs.rm(target.staging, recursive=True)
         except Exception:
             logger.warning(
                 f"Failed to clean up staging prefix {target.staging}:\n"
@@ -574,15 +673,17 @@ def _deploy_source_partitions(context: dg.AssetExecutionContext) -> list[str]:
 def deploy_ferceqr(context: dg.AssetExecutionContext):
     """Publish EQR outputs to configured deployment targets.
 
-    Each target is handled with a staging-then-promote pattern driven by
-    :class:`~pudl.deploy.object_store.ObjectStore`:
+    Each target is handled with a staging-then-promote pattern. S3 targets move
+    bytes through :mod:`pudl.deploy.s3_transfer` (much faster than ``s3fs``); all
+    other targets, and all listing and deletion, use ``fsspec``:
 
     1. Upload every built Parquet file and the datapackage JSON into a per-build
        ``._staging_{BUILD_ID}`` prefix beside the target.
     2. Verify the staged object set matches the local outputs by name and size.
     3. Copy the current live tree into ``._ferceqr_previous`` for rollback.
-    4. Server-side move staging into the final prefix (data first, datapackage
-       last) and delete the staging prefix.
+    4. Server-side merge staging into the final prefix (data first, datapackage
+       last) and delete the staging prefix. Staged files overwrite live files of the
+       same name; other live files are left in place.
 
     A failure in steps 1-2 leaves the target untouched. A failure in steps 3-4
     may leave the target with a mix of old and new files; ``._ferceqr_previous``
@@ -627,17 +728,25 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
         return
 
     table_files = _source_parquet_files(source_partitions)
-    expected_sizes = _expected_object_sizes(table_files, datapackage_path)
 
     logger.info("FERC EQR build successful, deploying FERC EQR data.")
     try:
-        _run_for_targets(
-            targets,
-            lambda target: _stage_target(
-                target, table_files, datapackage_path, expected_sizes
-            ),
-        )
-        _run_for_targets(targets, _promote_target)
+        with ThreadPoolExecutor() as executor:
+            stage_futures = [
+                executor.submit(
+                    _stage_target, target, table_files, datapackage_path, executor
+                )
+                for target in targets
+            ]
+            for future in stage_futures:
+                future.result()
+
+            promote_futures = [
+                executor.submit(_promote_target, target, executor) for target in targets
+            ]
+            for future in promote_futures:
+                future.result()
+
     except Exception:
         logger.error(
             "FERC EQR deployment failed; cleaning up staging prefixes.\n"

@@ -6,11 +6,11 @@ from types import SimpleNamespace
 
 import dagster as dg
 import pytest
+from fsspec.implementations.local import LocalFileSystem
 from upath import UPath
 
 from pudl.dagster import sensors
 from pudl.dagster.assets.deploy import ferceqr as deploy_ferceqr
-from pudl.deploy.object_store import LocalObjectStore, ObjectStore
 
 
 def _build_deploy_context(tmp_path, mocker, targets=None):
@@ -273,7 +273,7 @@ def test_deploy_ferceqr_success_path_writes_success_and_notifies(mocker, tmp_pat
     assert (tmp_path / "FERCEQR_SUCCESS").exists()
     assert not (tmp_path / "FERCEQR_FAILURE").exists()
 
-    # The built partitions land in the final layout; promotion merges into the
+    # The built partitions land in the final layout. Promotion merges into the
     # existing prefix rather than replacing it, so 2012q4 is still there and the
     # unrequested 2014q1 was never deployed.
     for table_name in deploy_ferceqr.FERCEQR_TRANSFORM_ASSETS:
@@ -281,7 +281,7 @@ def test_deploy_ferceqr_success_path_writes_success_and_notifies(mocker, tmp_pat
         assert {"2013q3.parquet", "2013q4.parquet"} <= names
         assert "2014q1.parquet" not in names
     assert (deploy_root / "core_ferceqr__contracts" / "2012q4.parquet").exists()
-    assert (deploy_root / deploy_ferceqr.DATAPACKAGE_FILENAME).exists()
+    assert (deploy_root / deploy_ferceqr.DEPLOYED_DATAPACKAGE_FILENAME).exists()
 
     # The previous deployment was snapshotted for rollback, and staging is gone.
     assert (
@@ -299,6 +299,47 @@ def test_deploy_ferceqr_success_path_writes_success_and_notifies(mocker, tmp_pat
         "core_ferceqr__contracts"
         in zulip_mock.send_stream_message.call_args.kwargs["content"]
     )
+
+
+def test_deploy_ferceqr_merge_overwrites_same_name_and_keeps_other_files(
+    mocker, tmp_path
+):
+    """Re-deploying a partition replaces that file; unrelated live files survive."""
+    source_root = tmp_path / "source"
+    deploy_root = tmp_path / "deploy"
+    deploy_context = _build_deploy_context(
+        tmp_path, mocker, targets=[UPath(deploy_root)]
+    )
+    _mock_deploy_dependencies(mocker, deploy_context, source_root, ["2013q3"])
+
+    live = deploy_root / "core_ferceqr__contracts"
+    live.mkdir(parents=True)
+    (live / "2013q3.parquet").write_bytes(b"stale build")
+    (live / "2012q4.parquet").write_bytes(b"untouched")
+
+    deploy_ferceqr.deploy_ferceqr(deploy_context)
+
+    new_bytes = (
+        source_root / "core_ferceqr__contracts" / "2013q3.parquet"
+    ).read_bytes()
+    assert (live / "2013q3.parquet").read_bytes() == new_bytes
+    assert (live / "2012q4.parquet").read_bytes() == b"untouched"
+
+
+def test_deploy_ferceqr_first_deployment_needs_no_existing_target(mocker, tmp_path):
+    """A target that does not exist yet is created, with nothing to snapshot."""
+    source_root = tmp_path / "source"
+    deploy_root = tmp_path / "deploy"
+    deploy_context = _build_deploy_context(
+        tmp_path, mocker, targets=[UPath(deploy_root)]
+    )
+    _mock_deploy_dependencies(mocker, deploy_context, source_root, ["2013q3"])
+
+    deploy_ferceqr.deploy_ferceqr(deploy_context)
+
+    assert (deploy_root / "core_ferceqr__contracts" / "2013q3.parquet").exists()
+    assert (deploy_root / deploy_ferceqr.DEPLOYED_DATAPACKAGE_FILENAME).exists()
+    assert not (tmp_path / deploy_ferceqr.PREVIOUS_DIRNAME).exists()
 
 
 def test_deploy_ferceqr_no_targets_writes_datapackage_and_skips_publish(
@@ -364,24 +405,19 @@ def test_deploy_ferceqr_staging_mismatch_aborts_before_promote(mocker, tmp_path)
     )
     mocker.patch.object(deploy_ferceqr, "logger", mocker.Mock())
 
-    class _DropsFirstFileStore(LocalObjectStore):
-        """A store that silently loses the first file it is asked to upload."""
+    real_put = LocalFileSystem.put
+    dropped: list[str] = []
 
-        def __init__(self):
-            self._dropped = False
+    def _drops_first_file(self, lpath, rpath, *args, **kwargs):
+        """Silently lose the first file it is asked to upload."""
+        if not dropped:
+            dropped.append(lpath)
+            return None
+        return real_put(self, lpath, rpath, *args, **kwargs)
 
-        def upload_files(self, sources, dest_prefix):
-            sources = list(sources)
-            if not self._dropped and sources:
-                self._dropped = True
-                sources = sources[1:]
-            super().upload_files(sources, dest_prefix)
+    mocker.patch.object(LocalFileSystem, "put", _drops_first_file)
 
-    mocker.patch.object(
-        deploy_ferceqr.ObjectStore, "for_uri", return_value=_DropsFirstFileStore()
-    )
-
-    with pytest.raises(RuntimeError, match="does not match local outputs"):
+    with pytest.raises(RuntimeError, match="do not match the local outputs"):
         deploy_ferceqr.deploy_ferceqr(deploy_context)
 
     assert (tmp_path / "FERCEQR_FAILURE").exists()
@@ -466,7 +502,7 @@ def test_deploy_ferceqr_promote_failure_cleans_up_and_reports(mocker, tmp_path):
         deploy_ferceqr.deploy_ferceqr(deploy_context)
 
     assert not any(d.name.startswith("._staging_") for d in tmp_path.iterdir())
-    assert not (deploy_root / deploy_ferceqr.DATAPACKAGE_FILENAME).exists()
+    assert not (deploy_root / deploy_ferceqr.DEPLOYED_DATAPACKAGE_FILENAME).exists()
     assert (tmp_path / "FERCEQR_FAILURE").exists()
 
 
@@ -485,9 +521,80 @@ def test_deployment_targets_builds_sibling_scratch_prefixes(mocker, tmp_path):
     mocker.patch.dict(deploy_ferceqr.os.environ, {"BUILD_ID": "build-abc"}, clear=False)
     deploy_root = tmp_path / "dist" / "ferceqr"
     (target,) = deploy_ferceqr._deployment_targets([UPath(deploy_root)])
-    assert isinstance(target.store, ObjectStore)
-    assert target.final == str(deploy_root)
-    assert target.staging == str(tmp_path / "dist" / "._staging_build-abc")
-    assert target.previous == str(tmp_path / "dist" / "._ferceqr_previous")
-    assert target.staging_data == f"{target.staging}/data"
-    assert target.staging_meta == f"{target.staging}/meta"
+    assert target.final == UPath(deploy_root)
+    assert target.staging == UPath(tmp_path / "dist" / "._staging_build-abc")
+    assert target.previous == UPath(tmp_path / "dist" / "._ferceqr_previous")
+    assert target.staging_data == target.staging / "data"
+    assert target.staging_meta == target.staging / "meta"
+
+
+def test_stage_target_s3_uploads_through_boto3_and_verifies(mocker, tmp_path):
+    """S3 targets upload the whole batch via s3_transfer, then verify by listing."""
+    src = tmp_path / "src"
+    src.mkdir()
+    parquet = src / "2013q3.parquet"
+    parquet.write_bytes(b"parquet")
+    datapackage = src / deploy_ferceqr.DATAPACKAGE_FILENAME
+    datapackage.write_text("{}")
+    target = deploy_ferceqr._DeploymentTarget(
+        final=UPath(tmp_path / "dist" / "ferceqr"), build_id="b"
+    )
+
+    uploaded: list[tuple[Path, str]] = []
+
+    def _fake_upload(files):
+        # Stand in for boto3: "S3" is the local tmp_path here.
+        for path, dest in files:
+            uploaded.append((path, dest))
+            Path(dest).parent.mkdir(parents=True, exist_ok=True)
+            Path(dest).write_bytes(path.read_bytes())
+
+    mocker.patch.object(deploy_ferceqr, "_is_s3", return_value=True)
+    mocker.patch.object(deploy_ferceqr, "s3_upload_files", side_effect=_fake_upload)
+    with deploy_ferceqr.ThreadPoolExecutor() as executor:
+        deploy_ferceqr._stage_target(
+            target, {"core_ferceqr__contracts": [parquet]}, datapackage, executor
+        )
+
+    assert {Path(dest).name for _, dest in uploaded} == {
+        "2013q3.parquet",
+        deploy_ferceqr.DEPLOYED_DATAPACKAGE_FILENAME,
+    }
+
+
+def test_copy_tree_s3_copies_every_object_in_one_batch(mocker, tmp_path):
+    """On S3 the copy is one boto3 batch mapping each source object to its dest."""
+    src = tmp_path / "staging" / "data"
+    (src / "table_a").mkdir(parents=True)
+    (src / "table_a" / "2013q3.parquet").write_bytes(b"a")
+    (src / "table_b").mkdir()
+    (src / "table_b" / "2013q3.parquet").write_bytes(b"bb")
+    dst = UPath(tmp_path / "final")
+
+    mocker.patch.object(deploy_ferceqr, "_is_s3", return_value=True)
+    copy = mocker.patch.object(deploy_ferceqr, "s3_copy_objects")
+    deploy_ferceqr._copy_tree(UPath(src), dst, mocker.Mock())
+
+    (pairs,) = copy.call_args.args
+    assert sorted(pairs) == [
+        (f"s3://{src}/table_a/2013q3.parquet", f"{dst}/table_a/2013q3.parquet"),
+        (f"s3://{src}/table_b/2013q3.parquet", f"{dst}/table_b/2013q3.parquet"),
+    ]
+
+
+def test_verify_staged_reports_missing_unexpected_and_wrong_size(tmp_path):
+    """_verify_staged names every discrepancy between staging and local outputs."""
+    target = deploy_ferceqr._DeploymentTarget(final=UPath(tmp_path / "f"), build_id="b")
+    (target.staging_data / "t").mkdir(parents=True)
+    (target.staging_data / "t" / "short.parquet").write_bytes(b"12")
+    (target.staging_data / "t" / "extra.parquet").write_bytes(b"x")
+    expected = {
+        "data/t/short.parquet": 3,
+        "data/t/absent.parquet": 1,
+    }
+    with pytest.raises(RuntimeError) as excinfo:
+        deploy_ferceqr._verify_staged(target, expected)
+    message = str(excinfo.value)
+    assert "data/t/absent.parquet" in message  # missing
+    assert "data/t/extra.parquet" in message  # unexpected
+    assert "short.parquet (expected 3 bytes, found 2)" in message  # wrong size
