@@ -19,6 +19,13 @@ Enhancements
   owned generators gave no indication of who actually runs them. See issue :issue:`5550`
   and PR :pr:`5585`.
 
+* Added foreign key constraints for ``operator_utility_id_eia`` (to
+  :ref:`core_eia__entity_utilities`) and ``operator_utility_id_pudl`` (to
+  :ref:`core_pudl__entity_utilities_pudl`), checked by dbt in
+  :ref:`out_eia__yearly_generators_by_ownership`. The same ``operator_utility_id_eia``
+  constraint now also applies to :ref:`core_eia860__scd_ownership` and
+  :ref:`out_eia860__yearly_ownership`. See PR :pr:`5585`.
+
 New Data
 ^^^^^^^^
 

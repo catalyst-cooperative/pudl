@@ -72,7 +72,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": ["utility_id_pudl", "utility_name_pudl"],
             "primary_key": ["utility_id_pudl"],
-            "foreign_key_rules": {"fields": [["utility_id_pudl"]]},
+            "foreign_key_rules": {
+                "fields": [["utility_id_pudl"], ["operator_utility_id_pudl"]]
+            },
         },
         "etl_group": "glue",
         "field_namespace": "pudl",

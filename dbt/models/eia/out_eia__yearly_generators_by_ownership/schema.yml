@@ -21,6 +21,13 @@ sources:
           - foreign_key:
               arguments:
                 fk_column_names:
+                  - operator_utility_id_eia
+                pk_table_name: source('pudl', 'core_eia__entity_utilities')
+                pk_column_names:
+                  - utility_id_eia
+          - foreign_key:
+              arguments:
+                fk_column_names:
                   - plant_id_eia
                   - generator_id
                   - report_date
@@ -49,6 +56,13 @@ sources:
               arguments:
                 fk_column_names:
                   - utility_id_pudl
+                pk_table_name: source('pudl', 'core_pudl__entity_utilities_pudl')
+                pk_column_names:
+                  - utility_id_pudl
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - operator_utility_id_pudl
                 pk_table_name: source('pudl', 'core_pudl__entity_utilities_pudl')
                 pk_column_names:
                   - utility_id_pudl
