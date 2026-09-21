@@ -50,9 +50,11 @@ def _get_csv(base_path: UPath, year_quarter: str) -> Generator[zipfile.ZipFile]:
     with (
         tempfile.TemporaryDirectory() as tmp_dir,
     ):
-        # Download file to local path
+        # Stream the download to disk. Recent quarterly archives are 3-4 GB and many
+        # partition runs start at once, so ``read_bytes()`` (which holds the whole
+        # archive in memory first) can exhaust the VM's RAM.
         local_path = Path(tmp_dir) / zip_name
-        local_path.write_bytes(remote_path.read_bytes())
+        remote_path.fs.get_file(remote_path.path, str(local_path))
         # Yield open zipfile
         with zipfile.ZipFile(local_path) as zf:
             yield zf
