@@ -13,11 +13,11 @@ import time
 import traceback
 import uuid
 from collections.abc import Callable
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import Future, ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import timedelta
 from pathlib import Path
-from typing import Literal
+from typing import Literal, cast
 
 import dagster as dg
 import pandas as pd
@@ -27,6 +27,8 @@ from pudl.dagster.resources import (
     FercEqrDeploymentResource,
     ZulipNotificationResource,
 )
+from pudl.deploy.s3_transfer import copy_objects as s3_copy_objects
+from pudl.deploy.s3_transfer import upload_files as s3_upload_files
 from pudl.helpers import ParquetData
 from pudl.logging_helpers import get_logger
 from pudl.metadata.classes import PUDL_PACKAGE
@@ -169,10 +171,90 @@ def _expected_object_sizes(
         for table, files in table_files.items()
         for parquet_file in files
     }
-    expected[f"{STAGING_META_SUBDIR}/{datapackage_path.name}"] = (
+    expected[f"{STAGING_META_SUBDIR}/datapackage.json"] = (
         datapackage_path.stat().st_size
     )
     return expected
+
+
+def _wait(futures: list[Future]) -> None:
+    """Block until every future finishes, raising the first failure."""
+    for future in futures:
+        future.result()
+
+
+def _is_s3(path: UPath) -> bool:
+    """Whether *path* lives on S3, where bulk transfers bypass fsspec."""
+    return path.protocol in {"s3", "s3a"}
+
+
+def _make_local_parents(paths: list[UPath]) -> None:
+    """Create parent directories for local *paths*; object stores need none."""
+    for path in paths:
+        if path.protocol in {"", "file", "local"}:
+            path.parent.mkdir(parents=True, exist_ok=True)
+
+
+def _relative_objects(root: UPath) -> dict[str, int]:
+    """Map each object's path relative to *root* to its size in bytes.
+
+    Empty if nothing exists under *root*. The filesystem's listing cache is dropped
+    first, since S3 transfers go through boto3 and would otherwise leave it stale.
+    """
+    fs = root.fs
+    fs.invalidate_cache()
+    root_path = root.path.rstrip("/")
+    listing = cast(dict[str, dict], fs.find(root_path, detail=True))
+    return {
+        path.removeprefix(f"{root_path}/"): info["size"]
+        for path, info in listing.items()
+        if not path.endswith("/")  # skip "directory placeholder" objects
+    }
+
+
+def _verify_staged(target: _DeploymentTarget, expected: dict[str, int]) -> None:
+    """Raise :class:`RuntimeError` unless staging holds exactly the *expected* objects.
+
+    The failure that matters is a transfer that died partway, so names and byte
+    sizes are compared; bit-level integrity is enforced by the transfer clients.
+    """
+    actual = _relative_objects(target.staging)
+    missing = sorted(set(expected) - set(actual))
+    unexpected = sorted(set(actual) - set(expected))
+    wrong_size = sorted(
+        f"{name} (expected {expected[name]} bytes, found {actual[name]})"
+        for name in set(expected) & set(actual)
+        if expected[name] != actual[name]
+    )
+    if missing or unexpected or wrong_size:
+        raise RuntimeError(
+            f"Staged objects under {target.staging} do not match the local outputs.\n"
+            f"  missing: {missing}\n"
+            f"  unexpected: {unexpected}\n"
+            f"  wrong size: {wrong_size}"
+        )
+
+
+def _copy_tree(src: UPath, dst: UPath, executor: ThreadPoolExecutor) -> None:
+    """Copy every object under *src* to the same relative path under *dst*.
+
+    On S3 this is one batch of server-side copies through boto3; elsewhere each
+    top-level child is copied by fsspec in the thread pool.
+    """
+    if _is_s3(src):
+        s3_copy_objects(
+            (f"s3://{src.path.rstrip('/')}/{name}", f"{dst}/{name}")
+            for name in _relative_objects(src)
+        )
+        return
+    _wait(
+        [
+            executor.submit(
+                child.fs.cp, str(child), str(dst / child.name), recursive=True
+            )
+            for child in src.iterdir()
+        ]
+    )
 
 
 def _stage_target(
@@ -187,26 +269,21 @@ def _stage_target(
     the local outputs by name and byte size. The final target is untouched.
     """
     logger.info(f"Staging FERC EQR outputs to {target.staging}")
-    fs = target.staging_data.fs
-    futures = []
-    for table, files in table_files.items():
-        for file in files:
-            futures.append(
-                executor.submit(
-                    fs.put,
-                    str(file),
-                    str(target.staging_data / table / file.name),
-                )
-            )
-    futures.append(
-        executor.submit(
-            fs.put,
-            str(datapackage_path),
-            str(target.staging_meta / "datapackage.json"),
-        )
-    )
-    for future in futures:
-        future.result()
+    uploads = [
+        (file, target.staging_data / table / file.name)
+        for table, files in table_files.items()
+        for file in files
+    ]
+    uploads.append((datapackage_path, target.staging_meta / "datapackage.json"))
+
+    if _is_s3(target.staging):
+        s3_upload_files((file, str(dest)) for file, dest in uploads)
+    else:
+        fs = target.staging.fs
+        _make_local_parents([dest for _, dest in uploads])
+        _wait([executor.submit(fs.put, str(file), str(dest)) for file, dest in uploads])
+
+    _verify_staged(target, _expected_object_sizes(table_files, datapackage_path))
 
 
 def _promote_target(target: _DeploymentTarget, executor: ThreadPoolExecutor) -> None:
@@ -215,15 +292,9 @@ def _promote_target(target: _DeploymentTarget, executor: ThreadPoolExecutor) -> 
     The datapackage JSON is promoted after the Parquet data so it never briefly
     references files that have not landed yet.
     """
-
-    def wait(futures):
-        for future in futures:
-            future.result()
-
-    previous_exists = executor.submit(target.previous.exists).result()
-    if previous_exists:
+    if executor.submit(target.previous.exists).result():
         logger.info(f"Removing existing snapshot {target.previous}")
-        wait(
+        _wait(
             [
                 executor.submit(
                     target.previous.fs.rm, str(target.previous), recursive=True
@@ -232,49 +303,22 @@ def _promote_target(target: _DeploymentTarget, executor: ThreadPoolExecutor) -> 
         )
 
     final_children = executor.submit(lambda: list(target.final.iterdir())).result()
-    staging_children = executor.submit(
-        lambda: list(target.staging_data.iterdir())
-    ).result()
 
     logger.info(f"Snapshotting {target.final} -> {target.previous}")
-    wait(
-        [
-            executor.submit(
-                child.fs.cp,
-                str(child),
-                str(target.previous / child.name),
-                recursive=True,
-            )
-            for child in final_children
-        ]
-    )
+    _copy_tree(target.final, target.previous, executor)
 
     logger.info(f"Removing existing final content under {target.final}")
-    wait(
+    _wait(
         [
-            executor.submit(
-                child.fs.rm,
-                str(child),
-                recursive=True,
-            )
+            executor.submit(child.fs.rm, str(child), recursive=True)
             for child in final_children
         ]
     )
 
     logger.info(f"Promoting {target.staging_data} -> {target.final}")
-    wait(
-        [
-            executor.submit(
-                child.fs.cp,
-                str(child),
-                str(target.final / child.name),
-                recursive=True,
-            )
-            for child in staging_children
-        ]
-    )
+    _copy_tree(target.staging_data, target.final, executor)
 
-    wait(
+    _wait(
         [
             executor.submit(
                 target.final.fs.cp,
@@ -285,7 +329,7 @@ def _promote_target(target: _DeploymentTarget, executor: ThreadPoolExecutor) -> 
     )
 
     logger.info(f"Removing staging directory {target.staging}")
-    wait([executor.submit(target.staging.fs.rm, str(target.staging), recursive=True)])
+    _wait([executor.submit(target.staging.fs.rm, str(target.staging), recursive=True)])
 
 
 def _remove_all_staging(targets: list[_DeploymentTarget]) -> None:
@@ -624,8 +668,9 @@ def _deploy_source_partitions(context: dg.AssetExecutionContext) -> list[str]:
 def deploy_ferceqr(context: dg.AssetExecutionContext):
     """Publish EQR outputs to configured deployment targets.
 
-    Each target is handled with a staging-then-promote pattern driven by
-    :class:`~pudl.deploy.object_store.ObjectStore`:
+    Each target is handled with a staging-then-promote pattern. S3 targets move
+    bytes through :mod:`pudl.deploy.s3_transfer` (much faster than ``s3fs``); all
+    other targets, and all listing and deletion, use ``fsspec``:
 
     1. Upload every built Parquet file and the datapackage JSON into a per-build
        ``._staging_{BUILD_ID}`` prefix beside the target.
