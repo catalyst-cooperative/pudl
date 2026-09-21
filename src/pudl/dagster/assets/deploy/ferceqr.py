@@ -101,8 +101,8 @@ def _clear_status_files(pudl_paths: PudlPaths) -> None:
 class _DeploymentTarget:
     """One resolved deployment destination plus the scratch prefixes beside it.
 
-    ``final``/``staging``/``previous`` are full URI strings (``gs://…``, ``s3://…``)
-    or local paths.
+    ``final``/``staging``/``previous`` are :class:`~upath.UPath` objects on local
+    disk or cloud storage (``gs://…``, ``s3://…``).
     """
 
     final: UPath
@@ -110,7 +110,7 @@ class _DeploymentTarget:
 
     @property
     def staging(self) -> UPath:
-        """Prefix holding staged Parquet files, one subdirectory per table."""
+        """Per-build scratch prefix holding everything staged for this build."""
         return self.final.parent / f"._staging_{self.build_id}"
 
     @property
@@ -137,15 +137,10 @@ def _deployment_targets(resolved_targets: list[UPath]) -> list[_DeploymentTarget
     prefix to a single build (BUILD_ID), with a random fallback for local runs.
     """
     build_id = os.getenv("BUILD_ID") or uuid.uuid4().hex[:8]
-    targets: list[_DeploymentTarget] = []
-    for resolved in resolved_targets:
-        targets.append(
-            _DeploymentTarget(
-                final=resolved,
-                build_id=build_id,
-            )
-        )
-    return targets
+    return [
+        _DeploymentTarget(final=resolved, build_id=build_id)
+        for resolved in resolved_targets
+    ]
 
 
 def _source_parquet_files(source_partitions: list[str]) -> dict[str, list[Path]]:
@@ -193,7 +188,7 @@ def _wait(futures: list[Future]) -> None:
 
 def _is_s3(path: UPath) -> bool:
     """Whether *path* lives on S3, where bulk transfers bypass fsspec."""
-    return path.protocol in {"s3", "s3a"}
+    return path.protocol == "s3"
 
 
 def _make_local_parents(paths: list[UPath]) -> None:
@@ -305,36 +300,25 @@ def _promote_target(target: _DeploymentTarget, executor: ThreadPoolExecutor) -> 
     The datapackage JSON is promoted after the Parquet data so it never briefly
     references files that have not landed yet.
     """
-    if executor.submit(target.previous.exists).result():
+    if target.previous.exists():
         logger.info(f"Removing existing snapshot {target.previous}")
-        _wait(
-            [
-                executor.submit(
-                    target.previous.fs.rm, str(target.previous), recursive=True
-                )
-            ]
-        )
+        target.previous.fs.rm(str(target.previous), recursive=True)
 
     # A first-ever deployment has nothing to snapshot.
-    if executor.submit(target.final.exists).result():
+    if target.final.exists():
         logger.info(f"Snapshotting {target.final} -> {target.previous}")
         _copy_tree(target.final, target.previous, executor)
 
     logger.info(f"Merging {target.staging_data} into {target.final}")
     _copy_tree(target.staging_data, target.final, executor)
 
-    _wait(
-        [
-            executor.submit(
-                target.final.fs.cp,
-                str(target.staging_meta / DEPLOYED_DATAPACKAGE_FILENAME),
-                str(target.final / DEPLOYED_DATAPACKAGE_FILENAME),
-            )
-        ]
+    target.final.fs.cp(
+        str(target.staging_meta / DEPLOYED_DATAPACKAGE_FILENAME),
+        str(target.final / DEPLOYED_DATAPACKAGE_FILENAME),
     )
 
     logger.info(f"Removing staging directory {target.staging}")
-    _wait([executor.submit(target.staging.fs.rm, str(target.staging), recursive=True)])
+    target.staging.fs.rm(str(target.staging), recursive=True)
 
 
 def _remove_all_staging(targets: list[_DeploymentTarget]) -> None:
@@ -731,6 +715,10 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
 
     logger.info("FERC EQR build successful, deploying FERC EQR data.")
     try:
+        # The per-target tasks below submit their per-file work to this same pool and
+        # block on it. That deadlocks if the number of targets reaches the pool's
+        # max_workers (min(32, CPUs + 4)), since every worker would then be a parent
+        # waiting on queued children. We have 2 targets, so it can't happen today.
         with ThreadPoolExecutor() as executor:
             stage_futures = [
                 executor.submit(
