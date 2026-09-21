@@ -48,7 +48,15 @@ FERCEQR_TRANSFORM_ASSETS = [
     "core_ferceqr__quarterly_index_pub",
 ]
 
+# Name of the descriptor in $PUDL_OUTPUT. It cannot simply be ``datapackage.json``:
+# the PUDL ETL already writes $PUDL_OUTPUT/parquet/datapackage.json (next to the EQR
+# Parquet files), and $PUDL_OUTPUT holds several ``<dataset>_datapackage.json`` files.
 DATAPACKAGE_FILENAME = "ferceqr_parquet_datapackage.json"
+
+# Name of the descriptor in the deployed FERC EQR prefix, which holds nothing but
+# this dataset. ``datapackage.json`` is the only filename the Data Package spec
+# accepts for a descriptor.
+DEPLOYED_DATAPACKAGE_FILENAME = "datapackage.json"
 
 # Layout beneath the per-build staging prefix. Parquet data and the datapackage
 # JSON go in separate subdirectories so the promote step can move the data into
@@ -171,7 +179,7 @@ def _expected_object_sizes(
         for table, files in table_files.items()
         for parquet_file in files
     }
-    expected[f"{STAGING_META_SUBDIR}/datapackage.json"] = (
+    expected[f"{STAGING_META_SUBDIR}/{DEPLOYED_DATAPACKAGE_FILENAME}"] = (
         datapackage_path.stat().st_size
     )
     return expected
@@ -274,7 +282,9 @@ def _stage_target(
         for table, files in table_files.items()
         for file in files
     ]
-    uploads.append((datapackage_path, target.staging_meta / "datapackage.json"))
+    uploads.append(
+        (datapackage_path, target.staging_meta / DEPLOYED_DATAPACKAGE_FILENAME)
+    )
 
     if _is_s3(target.staging):
         s3_upload_files((file, str(dest)) for file, dest in uploads)
@@ -322,8 +332,8 @@ def _promote_target(target: _DeploymentTarget, executor: ThreadPoolExecutor) -> 
         [
             executor.submit(
                 target.final.fs.cp,
-                str(target.staging_meta / "datapackage.json"),
-                str(target.final / "datapackage.json"),
+                str(target.staging_meta / DEPLOYED_DATAPACKAGE_FILENAME),
+                str(target.final / DEPLOYED_DATAPACKAGE_FILENAME),
             )
         ]
     )

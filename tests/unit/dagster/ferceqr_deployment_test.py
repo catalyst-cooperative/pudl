@@ -281,7 +281,7 @@ def test_deploy_ferceqr_success_path_writes_success_and_notifies(mocker, tmp_pat
         names = {p.name for p in (deploy_root / table_name).glob("*.parquet")}
         assert names == {"2013q3.parquet", "2013q4.parquet"}
     assert not (deploy_root / "core_ferceqr__contracts" / "2012q4.parquet").exists()
-    assert (deploy_root / "datapackage.json").exists()
+    assert (deploy_root / deploy_ferceqr.DEPLOYED_DATAPACKAGE_FILENAME).exists()
 
     # The previous deployment was snapshotted for rollback, and staging is gone.
     assert (
@@ -461,7 +461,7 @@ def test_deploy_ferceqr_promote_failure_cleans_up_and_reports(mocker, tmp_path):
         deploy_ferceqr.deploy_ferceqr(deploy_context)
 
     assert not any(d.name.startswith("._staging_") for d in tmp_path.iterdir())
-    assert not (deploy_root / "datapackage.json").exists()
+    assert not (deploy_root / deploy_ferceqr.DEPLOYED_DATAPACKAGE_FILENAME).exists()
     assert (tmp_path / "FERCEQR_FAILURE").exists()
 
 
@@ -517,7 +517,7 @@ def test_stage_target_s3_uploads_through_boto3_and_verifies(mocker, tmp_path):
 
     assert {Path(dest).name for _, dest in uploaded} == {
         "2013q3.parquet",
-        "datapackage.json",
+        deploy_ferceqr.DEPLOYED_DATAPACKAGE_FILENAME,
     }
 
 
