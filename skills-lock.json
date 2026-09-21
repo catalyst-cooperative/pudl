@@ -3,10 +3,10 @@
   "skills": {
     "dagster-expert": {
       "source": "dagster-io/skills",
-      "ref": "v1.13.22",
+      "ref": "v1.13.23",
       "sourceType": "github",
-      "skillPath": "plugins/dagster/skills/dagster-expert/SKILL.md",
-      "computedHash": "c3f631f1c606a6c90e848508490e5cc04bd193e3c32d32f9f6b1bfa33ccc380f"
+      "skillPath": "plugins/dagster-expert/skills/dagster-expert/SKILL.md",
+      "computedHash": "255afd28bf2978c70185a54da749084cf406287aa81b75641a91f2a04ffc67c8"
     },
     "datapackage": {
       "source": "catalyst-cooperative/agent-skills",
