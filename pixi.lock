@@ -50,6 +50,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/aws-checksums-0.2.10-h720e601_4.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/aws-crt-cpp-0.40.1-h102d43b_3.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/aws-sdk-cpp-1.11.833-hc7390e0_9.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/awscrt-0.36.1-py314h324e86d_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/azure-core-cpp-1.16.3-h206d751_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/azure-identity-cpp-1.13.3-h71f81a8_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/azure-storage-blobs-cpp-12.18.0-h74b55db_1.conda
@@ -700,6 +701,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/aws-checksums-0.2.10-hbf34bff_4.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/aws-crt-cpp-0.40.1-h18900c3_3.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/aws-sdk-cpp-1.11.833-h1131a43_9.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/awscrt-0.36.1-py314h1187f9e_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/azure-core-cpp-1.16.3-h412bcfc_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/azure-identity-cpp-1.13.3-hd0001b6_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/azure-storage-blobs-cpp-12.18.0-h2e50874_1.conda
@@ -1719,6 +1721,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/aws-checksums-0.2.10-h83f6fd2_4.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/aws-crt-cpp-0.40.1-hfc09f7c_3.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/aws-sdk-cpp-1.11.833-hcd60bbe_9.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-64/awscrt-0.36.1-py314h20ed0b2_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/azure-core-cpp-1.16.3-hce1ca1b_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/azure-identity-cpp-1.13.3-hfaa3f56_2.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/azure-storage-blobs-cpp-12.18.0-h5a4125c_1.conda
@@ -2333,6 +2336,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/aws-checksums-0.2.10-hf0b4b85_4.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/aws-crt-cpp-0.40.1-h5b5d287_3.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/aws-sdk-cpp-1.11.833-haa98fb3_9.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/awscrt-0.36.1-py314h6366067_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/azure-core-cpp-1.16.3-he5ae378_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/azure-identity-cpp-1.13.3-h05177fb_2.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/azure-storage-blobs-cpp-12.18.0-h409340b_1.conda
@@ -2584,6 +2588,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/aws-checksums-0.2.10-h720e601_4.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/aws-crt-cpp-0.40.1-h102d43b_3.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/aws-sdk-cpp-1.11.833-hc7390e0_9.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/awscrt-0.36.1-py314h324e86d_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/azure-core-cpp-1.16.3-h206d751_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/azure-identity-cpp-1.13.3-h71f81a8_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/azure-storage-blobs-cpp-12.18.0-h74b55db_1.conda
@@ -3286,6 +3291,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/aws-checksums-0.2.10-hbf34bff_4.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/aws-crt-cpp-0.40.1-h18900c3_3.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/aws-sdk-cpp-1.11.833-h1131a43_9.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/awscrt-0.36.1-py314h1187f9e_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/azure-core-cpp-1.16.3-h412bcfc_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/azure-identity-cpp-1.13.3-hd0001b6_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/azure-storage-blobs-cpp-12.18.0-h2e50874_1.conda
@@ -4364,6 +4370,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/aws-checksums-0.2.10-h83f6fd2_4.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/aws-crt-cpp-0.40.1-hfc09f7c_3.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/aws-sdk-cpp-1.11.833-hcd60bbe_9.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-64/awscrt-0.36.1-py314h20ed0b2_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/azure-core-cpp-1.16.3-hce1ca1b_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/azure-identity-cpp-1.13.3-hfaa3f56_2.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/azure-storage-blobs-cpp-12.18.0-h5a4125c_1.conda
@@ -5001,6 +5008,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/aws-checksums-0.2.10-hf0b4b85_4.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/aws-crt-cpp-0.40.1-h5b5d287_3.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/aws-sdk-cpp-1.11.833-haa98fb3_9.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/awscrt-0.36.1-py314h6366067_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/azure-core-cpp-1.16.3-he5ae378_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/azure-identity-cpp-1.13.3-h05177fb_2.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/azure-storage-blobs-cpp-12.18.0-h409340b_1.conda
@@ -5596,6 +5604,31 @@ packages:
     - aws-sdk-cpp >=1.11.833,<1.11.834.0a0
   size: 3394321
   timestamp: 1784137257627
+- conda: https://conda.anaconda.org/conda-forge/linux-64/awscrt-0.36.1-py314h324e86d_1.conda
+  sha256: 464fdd43ad2fb7112cad992bb9f2eae30016d2ce44eaa3c2d1a726cd7cfd7e32
+  md5: 212cfa82c04acc2f6f6afd9d71d760ed
+  depends:
+  - python
+  - libgcc >=14
+  - __glibc >=2.17,<3.0.a0
+  - python_abi 3.14.* *_cp314
+  - aws-c-event-stream >=0.7.1,<0.7.2.0a0
+  - aws-c-common >=0.14.2,<0.14.3.0a0
+  - aws-c-io >=0.27.3,<0.27.4.0a0
+  - aws-c-http >=0.11.0,<0.11.1.0a0
+  - aws-checksums >=0.2.10,<0.2.11.0a0
+  - aws-c-cal >=0.9.14,<0.9.15.0a0
+  - s2n >=1.7.5,<1.7.6.0a0
+  - aws-c-auth >=0.10.4,<0.10.5.0a0
+  - aws-c-mqtt >=0.16.0,<0.16.1.0a0
+  - aws-c-s3 >=0.12.8,<0.12.9.0a0
+  license: Apache-2.0
+  license_family: APACHE
+  purls:
+  - pkg:pypi/awscrt?source=hash-mapping
+  run_exports: {}
+  size: 308404
+  timestamp: 1784883064408
 - conda: https://conda.anaconda.org/conda-forge/linux-64/azure-core-cpp-1.16.3-h206d751_0.conda
   sha256: fffc66e9be8806a92b314e27129c42b1298ea7065028c9e5d175dacb07829261
   md5: 0cabc152dc8896c3a4c4aebf2b308627
@@ -6638,7 +6671,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/httptools?source=compressed-mapping
+  - pkg:pypi/httptools?source=hash-mapping
   run_exports: {}
   size: 105771
   timestamp: 1788525677508
@@ -11047,6 +11080,31 @@ packages:
     - aws-sdk-cpp >=1.11.833,<1.11.834.0a0
   size: 3343033
   timestamp: 1784137273922
+- conda: https://conda.anaconda.org/conda-forge/linux-aarch64/awscrt-0.36.1-py314h1187f9e_1.conda
+  sha256: db5b9b77237168b346a5efa2f6c5f8c6631bbf90be359b72e0f8fa3f6542f9ac
+  md5: d2c39668fd35435515d950ddd6ec28f5
+  depends:
+  - python
+  - libgcc >=14
+  - python 3.14.* *_cp314
+  - aws-c-http >=0.11.0,<0.11.1.0a0
+  - aws-c-auth >=0.10.4,<0.10.5.0a0
+  - s2n >=1.7.5,<1.7.6.0a0
+  - aws-c-common >=0.14.2,<0.14.3.0a0
+  - python_abi 3.14.* *_cp314
+  - aws-c-s3 >=0.12.8,<0.12.9.0a0
+  - aws-c-cal >=0.9.14,<0.9.15.0a0
+  - aws-checksums >=0.2.10,<0.2.11.0a0
+  - aws-c-io >=0.27.3,<0.27.4.0a0
+  - aws-c-mqtt >=0.16.0,<0.16.1.0a0
+  - aws-c-event-stream >=0.7.1,<0.7.2.0a0
+  license: Apache-2.0
+  license_family: APACHE
+  purls:
+  - pkg:pypi/awscrt?source=hash-mapping
+  run_exports: {}
+  size: 318438
+  timestamp: 1784883075316
 - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/azure-core-cpp-1.16.3-h412bcfc_0.conda
   sha256: 5ba7676afdda3b325068e4da6192561acf4d11ce6352e86c20811043d71d5974
   md5: eb4544865559667708a887e635b8f472
@@ -17647,7 +17705,7 @@ packages:
   license: Apache-2.0
   license_family: APACHE
   purls:
-  - pkg:pypi/google-cloud-core?source=hash-mapping
+  - pkg:pypi/google-cloud-core?source=compressed-mapping
   run_exports: {}
   size: 33788
   timestamp: 1787731122188
@@ -21953,6 +22011,30 @@ packages:
     - aws-sdk-cpp >=1.11.833,<1.11.834.0a0
   size: 3011638
   timestamp: 1784137319923
+- conda: https://conda.anaconda.org/conda-forge/osx-64/awscrt-0.36.1-py314h20ed0b2_1.conda
+  sha256: 29ef53a18a165e65018b29f5ea4dc9e90b0b7fad32c12b529367828ce6bea756
+  md5: aa816bb5951bec44bf120e220913f6f9
+  depends:
+  - python
+  - __osx >=11.0
+  - aws-c-auth >=0.10.4,<0.10.5.0a0
+  - aws-c-event-stream >=0.7.1,<0.7.2.0a0
+  - aws-checksums >=0.2.10,<0.2.11.0a0
+  - s2n >=1.7.5,<1.7.6.0a0
+  - aws-c-io >=0.27.3,<0.27.4.0a0
+  - aws-c-s3 >=0.12.8,<0.12.9.0a0
+  - aws-c-cal >=0.9.14,<0.9.15.0a0
+  - python_abi 3.14.* *_cp314
+  - aws-c-common >=0.14.2,<0.14.3.0a0
+  - aws-c-http >=0.11.0,<0.11.1.0a0
+  - aws-c-mqtt >=0.16.0,<0.16.1.0a0
+  license: Apache-2.0
+  license_family: APACHE
+  purls:
+  - pkg:pypi/awscrt?source=hash-mapping
+  run_exports: {}
+  size: 297207
+  timestamp: 1784883128372
 - conda: https://conda.anaconda.org/conda-forge/osx-64/azure-core-cpp-1.16.3-hce1ca1b_0.conda
   sha256: f4587840df0e0b6356fc6d4c559d70a1641a7e1158c39fa1d20f0a06266edc14
   md5: c5e20566861a21ca9e671d0683540c47
@@ -26113,6 +26195,31 @@ packages:
     - aws-sdk-cpp >=1.11.833,<1.11.834.0a0
   size: 2834544
   timestamp: 1784137336612
+- conda: https://conda.anaconda.org/conda-forge/osx-arm64/awscrt-0.36.1-py314h6366067_1.conda
+  sha256: 7d193b66a7e8ebd97a3b2d1283951074b01fafd0d4be66d6bca1324a38c65199
+  md5: 1493ae5971293c92efb8c84f3e1e9cf3
+  depends:
+  - python
+  - __osx >=11.0
+  - python 3.14.* *_cp314
+  - aws-c-s3 >=0.12.8,<0.12.9.0a0
+  - aws-c-common >=0.14.2,<0.14.3.0a0
+  - aws-c-cal >=0.9.14,<0.9.15.0a0
+  - aws-c-http >=0.11.0,<0.11.1.0a0
+  - s2n >=1.7.5,<1.7.6.0a0
+  - aws-c-io >=0.27.3,<0.27.4.0a0
+  - aws-c-auth >=0.10.4,<0.10.5.0a0
+  - aws-c-mqtt >=0.16.0,<0.16.1.0a0
+  - aws-c-event-stream >=0.7.1,<0.7.2.0a0
+  - aws-checksums >=0.2.10,<0.2.11.0a0
+  - python_abi 3.14.* *_cp314
+  license: Apache-2.0
+  license_family: APACHE
+  purls:
+  - pkg:pypi/awscrt?source=hash-mapping
+  run_exports: {}
+  size: 297063
+  timestamp: 1784883251925
 - conda: https://conda.anaconda.org/conda-forge/osx-arm64/azure-core-cpp-1.16.3-he5ae378_0.conda
   sha256: 9645073c4682ad3a334a2b06c5fc0ddc57fc9f0f537cc3123053634c92c28625
   md5: 4f42d997f42a8d34ff74cb677cf0c828
