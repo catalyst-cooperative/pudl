@@ -113,7 +113,8 @@ EIA generators. It is primarily used as an input to :ref:`out_eia__yearly_plant_
 The ``utility_id_eia``, ``utility_id_pudl`` and ``utility_name_eia`` columns describe
 the *owner* of each generator slice. Jointly owned generators are typically run by a
 single utility on behalf of all of their owners, and that operator is identified
-separately by the ``operator_utility_id_eia`` and ``operator_utility_id_pudl`` columns.
+separately by the ``operator_utility_id_eia``, ``operator_utility_id_pudl`` and
+``operator_utility_name_eia`` columns.
 For generators that are absent from :ref:`core_eia860__scd_ownership` the owner and the
 operator are the same utility.
 
@@ -139,6 +140,7 @@ operator are the same utility.
                 "utility_name_eia",
                 "operator_utility_id_eia",
                 "operator_utility_id_pudl",
+                "operator_utility_name_eia",
                 "technology_description",
                 "energy_source_code_1",
                 "prime_mover_code",

@@ -166,6 +166,7 @@ def test_make_mega_gen_tbl():
                 "generator_id": ["a", "b", "c"],
                 "utility_id_eia": [111, 111, 111],
                 "utility_id_pudl": [11, 11, 11],
+                "utility_name_eia": "Operator Co",
                 "unit_id_pudl": 1,
                 "prime_mover_code": ["CT", "CT", "CA"],
                 "technology_description": "Natural Gas Fired Combined Cycle",
@@ -195,6 +196,12 @@ def test_make_mega_gen_tbl():
                 "generator_id": ["a", "b", "c", "c"],
                 "owner_utility_id_eia": [111, 111, 111, 888],
                 "utility_id_pudl": [11, 11, 11, 88],
+                "owner_utility_name_eia": [
+                    "Operator Co",
+                    "Operator Co",
+                    "Operator Co",
+                    "Other Owner Co",
+                ],
                 "fraction_owned": [1, 1, 0.75, 0.25],
             }
         )
@@ -233,9 +240,20 @@ def test_make_mega_gen_tbl():
                 # utility_id_* columns describe each generator's owner.
                 "operator_utility_id_eia": 111,
                 "operator_utility_id_pudl": 11,
+                "operator_utility_name_eia": "Operator Co",
                 "fraction_owned": [1.00, 1.00, 0.75, 0.25, 1.00, 1.00, 1.00, 1.00],
                 "utility_id_eia": [111, 111, 111, 888, 111, 111, 111, 888],
                 "utility_id_pudl": [11, 11, 11, 88, 11, 11, 11, 88],
+                "utility_name_eia": [
+                    "Operator Co",
+                    "Operator Co",
+                    "Operator Co",
+                    "Other Owner Co",
+                    "Operator Co",
+                    "Operator Co",
+                    "Operator Co",
+                    "Other Owner Co",
+                ],
                 "ownership_record_type": [
                     "owned",
                     "owned",
@@ -517,10 +535,10 @@ def test_scale_by_ownership_swaps_owner_utility_columns():
 
 
 def test_label_operator_utility_survives_ownership_scaling():
-    """The operator's IDs are preserved when ownership swaps in the owner's IDs.
+    """The operator's IDs and name are preserved when ownership swaps in the owner's IDs.
 
-    ``label_operator_utility`` stashes the operator's ``utility_id_eia`` and
-    ``utility_id_pudl`` before :func:`pudl.helpers.scale_by_ownership` overwrites
+    ``label_operator_utility`` stashes the operator's ``utility_id_eia``,
+    ``utility_id_pudl`` and ``utility_name_eia`` before :func:`pudl.helpers.scale_by_ownership` overwrites
     those columns with the owner's IDs, so every record ends up describing both
     the owner and the operator of the generator.
     See https://github.com/catalyst-cooperative/pudl/issues/5550
@@ -535,6 +553,7 @@ def test_label_operator_utility_survives_ownership_scaling():
             "generator_id": ["a", "a"],
             "owner_utility_id_eia": [3, 4],
             "utility_id_pudl": [30, 40],
+            "owner_utility_name_eia": ["Operator Co", "Other Owner Co"],
             "fraction_owned": [0.7, 0.3],
         },
     ).astype(
@@ -552,6 +571,7 @@ def test_label_operator_utility_survives_ownership_scaling():
             "generator_id": ["a", "b"],
             "utility_id_eia": [3, 3],
             "utility_id_pudl": [30, 30],
+            "utility_name_eia": ["Operator Co", "Operator Co"],
             "capacity_mw": [100.0, 50.0],
         },
     ).astype(
@@ -594,10 +614,19 @@ def test_label_operator_utility_survives_ownership_scaling():
                 "fraction_owned": [0.7, 0.3, 1.0, 1.0, 1.0, 1.0],
                 "utility_id_eia": [3, 4, 3, 3, 4, 3],
                 "utility_id_pudl": [30, 40, 30, 30, 40, 30],
+                "utility_name_eia": [
+                    "Operator Co",
+                    "Other Owner Co",
+                    "Operator Co",
+                    "Operator Co",
+                    "Other Owner Co",
+                    "Operator Co",
+                ],
                 # The operator is the same utility for every slice of a given
                 # generator, whether or not it happens to own that slice.
                 "operator_utility_id_eia": [3, 3, 3, 3, 3, 3],
                 "operator_utility_id_pudl": [30, 30, 30, 30, 30, 30],
+                "operator_utility_name_eia": ["Operator Co"] * 6,
                 "ownership_record_type": ["owned"] * 3 + ["total"] * 3,
             },
         )

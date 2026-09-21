@@ -5685,6 +5685,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "stable over time."
         ),
     },
+    "operator_utility_name_eia": {
+        "type": "string",
+        "description": "The name of the EIA operator utility.",
+    },
     "operator_id_phmsa": {
         "type": "integer",
         "description": (

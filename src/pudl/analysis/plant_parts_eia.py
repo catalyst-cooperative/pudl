@@ -592,13 +592,13 @@ class MakeMegaGenTbl:
         return gen_df
 
     def label_operator_utility(self, gen_df: pd.DataFrame) -> pd.DataFrame:
-        """Preserve the operator utility's IDs before ownership is integrated.
+        """Preserve the operator utility's IDs and name before ownership is integrated.
 
-        The ``utility_id_eia`` and ``utility_id_pudl`` columns of the generators
-        table identify the utility that operates each generator. Once
+        The ``utility_id_eia``, ``utility_id_pudl`` and ``utility_name_eia`` columns
+        of the generators table identify the utility that operates each generator. Once
         :func:`pudl.helpers.scale_by_ownership` runs, those columns describe each
-        generator's owners instead, so we stash the operator's IDs in dedicated
-        columns first. Jointly owned generators typically have a single operator
+        generator's owners instead, so we stash the operator's IDs and name in
+        dedicated columns first. Jointly owned generators typically have a single operator
         and several owners, and knowing who operates a generator makes it
         possible to reconcile ownership-scaled generation with the utility-level
         data reported in EIA-861.
@@ -606,15 +606,18 @@ class MakeMegaGenTbl:
 
         Args:
             gen_df: annual table of all generators from EIA, with the operator
-                utility's ``utility_id_eia`` and ``utility_id_pudl``.
+                utility's ``utility_id_eia``, ``utility_id_pudl`` and
+                ``utility_name_eia``.
 
         Returns:
-            The same table with ``operator_utility_id_eia`` and
-            ``operator_utility_id_pudl`` columns added.
+            The same table with ``operator_utility_id_eia``,
+            ``operator_utility_id_pudl`` and ``operator_utility_name_eia`` columns
+            added.
         """
         return gen_df.assign(
             operator_utility_id_eia=gen_df["utility_id_eia"],
             operator_utility_id_pudl=gen_df["utility_id_pudl"],
+            operator_utility_name_eia=gen_df["utility_name_eia"],
         )
 
 
