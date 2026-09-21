@@ -75,7 +75,6 @@ _generic_ferc1_plant_transform_assets = [
     ferc1_transform_asset_factory(
         table_name,
         glue_ferc1_eia.GenericPlantFerc1TableTransformer,  # type: ignore[bad-argument-type]
-        io_manager_key=None,
         convert_dtypes=False,
         generic=True,
         name=f"_ferc1_generic__{table_name}",
