@@ -975,13 +975,19 @@ class PlantPart:
 
         # we want a "total" record for each of the utilities that own any slice
         # of a particular plant-part. To achieve this, we are going to remove
-        # the utility info (and drop duplicates bc a plant-part with many
-        # generators will have multiple duplicate records for each owner)
-        # we are going to generate the aggregated output for a utility-less
-        # "total" record and then merge back in the many utilities so each of
-        # the utilities is associated with an aggregated "total" plant-part
-        # record
-        part_tot_no_utils = part_tot.drop(columns=["utility_id_eia"]).drop_duplicates()
+        # the utility info (and keep a single record per generator, bc a jointly
+        # owned generator has one "total" record for each of its owners) we are
+        # going to generate the aggregated output for a utility-less "total"
+        # record and then merge back in the many utilities so each of the
+        # utilities is associated with an aggregated "total" plant-part record.
+        # We deduplicate on the generator's identity rather than on all of the
+        # non-utility columns, because the owner-describing columns (e.g.
+        # utility_id_pudl and utility_name_eia) also differ between a
+        # generator's owners.
+        # See https://github.com/catalyst-cooperative/pudl/issues/5651
+        part_tot_no_utils = part_tot.drop_duplicates(
+            subset=["plant_id_eia", "generator_id", "report_date"]
+        ).drop(columns=["utility_id_eia"])
         # still need to re-calc the fraction owned for the part
         part_tot_out = (
             pudl.helpers.sum_and_weighted_average_agg(

@@ -1,6 +1,7 @@
 """Tests for timeseries anomalies detection and imputation."""
 
 import pandas as pd
+import pytest
 
 import pudl.analysis.plant_parts_eia
 import pudl.helpers
@@ -53,6 +54,51 @@ def test_plant_ag():
         .convert_dtypes()
     )
     pd.testing.assert_frame_equal(plant_ag_out, plant_ag_expected)
+
+
+def test_plant_ag_does_not_double_count_jointly_owned_generators():
+    """The "total" records count each generator once, however many owners it has.
+
+    The owner-describing columns (``utility_id_eia``, ``utility_id_pudl`` and
+    ``utility_name_eia``) differ between the ownership records of a jointly owned
+    generator, so they can't be relied on to collapse a generator's "total" records
+    into one before aggregating.
+    See https://github.com/catalyst-cooperative/pudl/issues/5651
+    """
+    # Generator "a" (100 MW, $10/MWh) is jointly owned by utilities 3 and 4, while
+    # generator "b" (300 MW, $20/MWh) is owned by utility 3 alone.
+    gens_mega = pd.DataFrame(
+        {
+            "plant_id_eia": 1,
+            "report_date": "2020-01-01",
+            "operational_status_pudl": "operating",
+            "generator_id": ["a", "a", "b", "a", "a", "b"],
+            "utility_id_eia": [3, 4, 3, 3, 4, 3],
+            "utility_id_pudl": [30, 40, 30, 30, 40, 30],
+            "utility_name_eia": ["Three", "Four", "Three", "Three", "Four", "Three"],
+            "ownership_record_type": ["owned"] * 3 + ["total"] * 3,
+            "capacity_mw": [60.0, 40.0, 300.0, 100.0, 100.0, 300.0],
+            "fuel_cost_per_mwh": [10.0, 10.0, 20.0, 10.0, 10.0, 20.0],
+        }
+    ).astype({"report_date": "datetime64[us]"})
+
+    out = (
+        pudl.analysis.plant_parts_eia.PlantPart(part_name="plant")
+        .ag_part_by_own_slice(
+            gens_mega,
+            sum_cols=["capacity_mw"],
+            wtavg_dict={"fuel_cost_per_mwh": "capacity_mw"},
+        )
+        .sort_values(["ownership_record_type", "utility_id_eia"], ignore_index=True)
+    )
+
+    # The plant is 400 MW, with a capacity-weighted cost of (100*10 + 300*20) / 400.
+    # Both owners get a "total" record describing the whole plant, and their "owned"
+    # records describe their own shares of it.
+    assert out["ownership_record_type"].tolist() == ["owned", "owned", "total", "total"]
+    assert out["utility_id_eia"].tolist() == [3, 4, 3, 4]
+    assert out["capacity_mw"].tolist() == pytest.approx([360.0, 40.0, 400.0, 400.0])
+    assert out["fuel_cost_per_mwh"].tolist()[2:] == pytest.approx([17.5, 17.5])
 
 
 def test_prime_fuel_ag():
