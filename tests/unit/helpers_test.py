@@ -1566,7 +1566,6 @@ def test_persist_table_as_parquet_duckdb_enum_written_as_dictionary(
     assert set(polars_result["code"].unique().to_list()) == {"a", "b"}
 
 
-
 class TestDuckdbConnect:
     """``duckdb_connect`` applies ``PUDL_DUCKDB_*`` caps, unset -> DuckDB defaults."""
 
@@ -1633,4 +1632,3 @@ def test_persist_table_as_parquet_compression(kind, writer, tmp_path, mocker):
     assert spy.call_args.kwargs["compression_level"] == 7
     row_group = pq.read_metadata(parquet_data.parquet_path).row_group(0)
     assert row_group.column(0).compression == pudl.PARQUET_COMPRESSION.upper()
->>>>>>> 4f4fb7b657 (Write all Parquet with zstd, set centrally)
