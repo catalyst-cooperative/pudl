@@ -7,13 +7,11 @@ run_coordinator:
 
 concurrency:
   runs:
-    # Steady-state occupancy at 24 concurrent partition runs is healthy on a
-    # 32-vCPU machine. Measured load 20-34 for most of the run.
-    max_concurrent_runs: 24
+    max_concurrent_runs: 44
   pools:
     # extract_ferceqr is tagged pool="ferceqr_extract" (see pudl.extract.ferceqr). This
     # caps how many of those steps run simultaneously across all partition runs.
-    default_limit: 18
+    default_limit: 40
     # Default granularity is "op": at most N copies of a pooled op/asset run at
     # once, regardless of how many runs are in flight. That is what we want --
     # the extract step is the memory-heavy phase, not the whole run.

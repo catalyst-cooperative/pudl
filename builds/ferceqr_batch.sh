@@ -190,9 +190,8 @@ FERCEQR_BUILD_TIMEOUT_SECONDS=$((FERCEQR_BUILD_TIMEOUT_HOURS * 3600))
 # Select the FERC EQR-specific dagster configuration from the repo copy.
 cp "${PUDL_ROOT_PATH}/builds/dagster-ferceqr.yaml" "${DAGSTER_HOME}/dagster.yaml"
 
-# Cap each DuckDB connection so the concurrent partition runs don't collectively
-# oversubscribe the VM's cores. 2 threads x 12 pooled extracts = 24 <= 32.
-# When a quarter's working set exceeds memory_limit DuckDB spills to
+# Cap each DuckDB connection so the concurrent partition runs don't oversubscribe the
+# VM's cores. When a quarter's working set exceeds memory_limit DuckDB spills to
 # temp_directory rather than failing.
 export PUDL_DUCKDB_THREADS=2
 export PUDL_DUCKDB_MEMORY_LIMIT=4GB

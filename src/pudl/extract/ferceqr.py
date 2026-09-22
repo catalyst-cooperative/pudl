@@ -54,7 +54,11 @@ def _get_csv(base_path: UPath, year_quarter: str) -> Generator[zipfile.ZipFile]:
         # partition runs start at once, so ``read_bytes()`` (which holds the whole
         # archive in memory first) can exhaust the VM's RAM.
         local_path = Path(tmp_dir) / zip_name
-        remote_path.fs.get_file(remote_path.path, str(local_path))
+        remote_path.fs.get_file(
+            remote_path.path,
+            str(local_path),
+            concurrency=8,  # default 4: parallel ranged reads per file
+        )
         # Yield open zipfile
         with zipfile.ZipFile(local_path) as zf:
             yield zf
