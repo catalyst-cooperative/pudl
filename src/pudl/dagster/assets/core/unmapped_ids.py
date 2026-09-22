@@ -78,6 +78,11 @@ _generic_ferc1_plant_transform_assets = [
         convert_dtypes=False,
         generic=True,
         name=f"_ferc1_generic__{table_name}",
+        # These assets are renamed away from table_name to avoid colliding with the
+        # real core_ferc1__* asset, so the default parquet_io_manager can't look up
+        # PUDL Resource metadata for them by name. Fall back to the plain default
+        # io_manager, like the other dev-only DataFrame assets in this module.
+        io_manager_key="io_manager",
     )
     for table_name in glue_ferc1_eia.GENERIC_FERC1_PLANT_TABLES
 ]
