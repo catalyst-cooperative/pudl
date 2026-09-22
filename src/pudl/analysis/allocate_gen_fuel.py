@@ -377,8 +377,8 @@ def allocate_gen_fuel_by_generator_energy_source(
         freq: Frequency at which the tables are aggregated temporally.
         debug: If True, return additional debugging information.
     """
-    gf, bf, gens_at_freq, gen = standardize_input_frequency(
-        gf, bf, gens, gen, plant_reporting_frequency, freq
+    bf, gens_at_freq, gen = standardize_input_frequency(
+        bf, gens, gen, plant_reporting_frequency, freq
     )
     # Add any startup energy source codes to the list of energy source codes
     gens_at_freq = adjust_msw_energy_source_codes(gens_at_freq, gf, bf)
@@ -503,23 +503,20 @@ def select_input_data(
 
 
 def standardize_input_frequency(
-    gf: pd.DataFrame,
     bf: pd.DataFrame,
     gens: pd.DataFrame,
     gen: pd.DataFrame,
     plant_reporting_frequency: pd.DataFrame,
     freq: AllocationFrequency,
-) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Standardize the frequency of the input tables.
 
     Employ :func:`distribute_annually_reported_data_to_months_if_annual` on the
-    generation fuel, boiler fuel, and generation tables. Employ
-    :func:`pudl.helpers.expand_timeseries` on the generators table. Also use the
-    expanded generators table to ensure the generation table has all of the
-    generators present.
+    boiler fuel and generation table. Employ :func:`pudl.helpers.expand_timeseries`
+    on the generators table. Also use the expanded generators table to ensure the
+    generation table has all of the generators present.
 
     Args:
-        gf: :ref:`out_eia923__generation_fuel_combined` table
         bf: :ref:`core_eia923__monthly_boiler_fuel` table
         gens: :ref:`core_eia860__scd_generators` table
         gen: :ref:`core_eia923__monthly_generation` table
@@ -528,15 +525,6 @@ def standardize_input_frequency(
             annual reporters.
         freq: the (time) frequency at which the tables will be aggregated.
     """
-    for data_column_name in DATA_COLUMNS:
-        gf = distribute_annually_reported_data_to_months_if_annual(
-            df=gf,
-            key_columns=IDX_PM_ESC,
-            data_column_name=data_column_name,
-            freq=freq,
-            plant_reporting_frequency=plant_reporting_frequency,
-        )
-
     bf = distribute_annually_reported_data_to_months_if_annual(
         df=bf,
         key_columns=[
@@ -576,7 +564,7 @@ def standardize_input_frequency(
             validate="1:1",
         )
     )
-    return gf, bf, gens_at_freq, gen
+    return bf, gens_at_freq, gen
 
 
 def scale_allocated_net_gen_fuel_by_ownership(
@@ -1869,31 +1857,28 @@ def distribute_annually_reported_data_to_months_if_annual(
     freq: AllocationFrequency,
     plant_reporting_frequency: pd.DataFrame | None,
 ) -> pd.DataFrame:
-    """Allocates annually-reported data from the gf, bf, or gen table to each month.
+    """Allocates annually-reported data from the gen or bf table to each month.
 
-    Certain plants only report data to the generation fuel, generator, and boiler
-    fuel tables on an annual basis. These plants are identified using the
-    plant-level ``reporting_frequency_code`` from ``core_eia860__scd_plants``: a
-    plant-year is treated as an annual reporter if its code is "A" (a missing code
-    is filled with "A" to be conservative; "AM" plants report true monthly values,
-    just filed once a year via the annual survey form, so they're treated like "M"
+    Certain plants only report data to the generator table and boiler fuel table
+    on an annual basis. These plants are identified using the plant-level
+    ``reporting_frequency_code`` from ``core_eia860__scd_plants``: a plant-year is
+    treated as an annual reporter if its code is "A" (a missing code is filled
+    with "A" to be conservative; "AM" plants report true monthly values, just
+    filed once a year via the annual survey form, so they're treated like "M"
     plants and left alone). The monthly values reported by annual reporters are
     summed to the annual level, and then distributed evenly across all 12 months.
 
     Args:
-        df: A dataframe of generation-fuel, generation, or boiler-fuel data,
-            loaded from :ref:`out_eia923__monthly_generation_fuel_combined` or
-            :ref:`out_eia923__yearly_generation_fuel_combined`,
+        df: A dataframe of either generation or boiler-fuel data, loaded from
             :ref:`out_eia923__monthly_generation` or
-            :ref:`out_eia923__yearly_generation`, and
+            :ref:`out_eia923__yearly_generation` and
             :ref:`out_eia923__monthly_boiler_fuel` or
-            :ref:`out_eia923__yearly_boiler_fuel` respectively.
-        key_columns: a list of the primary key column names, one of
-            :py:const:`IDX_PM_ESC`, :py:const:`IDX_B_PM_ESC`, or
-            ``["plant_id_eia","generator_id","report_date"]``
-        data_column_name: the name of the data column to allocate, one of
-            :py:const:`DATA_COLUMNS` (for ``gf``) or "fuel_consumed_mmbtu" /
-            "net_generation_mwh" (for ``bf``/``gen`` respectively)
+            :ref:`out_eia923__yearly_boiler_fuel` or respectively.
+        key_columns: a list of the primary key column names, either
+            ``["plant_id_eia","boiler_id","energy_source_code"]`` or
+            ``["plant_id_eia","generator_id"]``
+        data_column_name: the name of the data column to allocate, either
+            "net_generation_mwh" or "fuel_consumed_mmbtu" depending on the df specified
         freq: frequency of input df. Must be either ``YS`` or ``MS``.
         plant_reporting_frequency: a plant-year lookup of
             ``reporting_frequency_code``, as produced by
