@@ -505,6 +505,10 @@ class MakeMegaGenTbl:
         """
         logger.info("Generating the mega generator table with ownership.")
 
+        # label_operator_utility must run before scale_by_ownership, which
+        # overwrites the utility_id_eia, utility_id_pudl and utility_name_eia
+        # columns it copies from with the owner's values. Reordering these two
+        # steps would silently label every record's owner as its operator.
         gens_mega = (
             self.get_gens_mega_table(mcoe)
             .pipe(self.label_operating_gens)
@@ -591,7 +595,8 @@ class MakeMegaGenTbl:
         )
         return gen_df
 
-    def label_operator_utility(self, gen_df: pd.DataFrame) -> pd.DataFrame:
+    @staticmethod
+    def label_operator_utility(gen_df: pd.DataFrame) -> pd.DataFrame:
         """Preserve the operator utility's IDs and name before ownership is integrated.
 
         The ``utility_id_eia``, ``utility_id_pudl`` and ``utility_name_eia`` columns

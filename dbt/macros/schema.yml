@@ -61,3 +61,15 @@ macros:
       - name: labels
         type: list[any]
         description: Labels to match, each in the format accepted by subcomponent_one_label_condition.
+  - name: one_value_per_group
+    description: Data test which fails if any group of records reports more than one distinct value of the tested column. Nulls are ignored, so a group with a single non-null value alongside nulls passes.
+    arguments:
+      - name: model
+        type: string
+        description: The table or model to check.
+      - name: column_name
+        type: string
+        description: Column whose value should be constant within each group. Supplied by the column the test is attached to.
+      - name: group_by_columns
+        type: list[string]
+        description: Columns identifying the group within which the tested column should have a single value, e.g. [plant_id_eia, generator_id, report_date].
