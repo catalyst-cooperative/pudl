@@ -46,6 +46,18 @@ New Data Tests & Validations
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Fixed ``allocate_gen_fuel.py`` misidentifying annual reporters in the
+  :ref:`core_eia923__monthly_boiler_fuel` and :ref:`core_eia923__monthly_generation`
+  tables. The old heuristic guessed a plant was an annual reporter from its data
+  pattern (11 months missing, with the one reported value in January or December),
+  which produced false positives for generators/boilers that simply had sparse,
+  genuinely-monthly data concentrated in a single month. Annual reporters are now
+  identified directly from the plant-level ``reporting_frequency_code`` in
+  :ref:`core_eia860__scd_plants` (missing codes are conservatively treated as
+  annual), and their annually-reported values are summed across all months and
+  distributed evenly, rather than assuming the total appears only in January or
+  December. Thanks to :user:`grgmiller` for identifying and fixing this. See
+  :issue:`5420` and PR :pr:`5653`.
 * Fixed ``allocate_gen_fuel.py`` silently dropping legitimate generation and fuel
   data for generators transitioning between ``proposed``/``existing`` or
   ``existing``/``retired`` status across a multi-year ETL run. Unified the slightly
