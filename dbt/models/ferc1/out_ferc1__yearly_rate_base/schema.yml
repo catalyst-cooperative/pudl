@@ -25,6 +25,10 @@ sources:
               description: ferc_account is entirely null. Seems like an error.
               config:
                 severity: warn
+          - expect_factoid_rate_base_category:
+              description: |-
+                Factoids ending with a rate-base category must have that same value in
+                rate_base_category, excluding accumulated_depreciation as a known exception.
         columns:
           - name: report_year
           - name: utility_id_ferc1

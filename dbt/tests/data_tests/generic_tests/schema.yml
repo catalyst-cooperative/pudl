@@ -387,3 +387,13 @@ macros:
       - name: max_differing_fuel_rate
         type: float
         description: Maximum acceptable fraction of units mapping to multiple fuels. (optional; default 0.01)
+  - name: expect_factoid_rate_base_category
+    description: >
+      Check that XBRL factoids originating from a plant function generally belong to
+      the rate base category corresponding to that plant function.
+      Accumulated depreciation, asset retirement costs and other deferred debits
+      and credits are exempted.
+    arguments:
+      name: model
+      type: relation
+      description: The model (table) the test is applied to.
