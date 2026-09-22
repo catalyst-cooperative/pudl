@@ -448,15 +448,12 @@ def get_ratio_from_bf_and_allocated_by_boiler(
 def test_allocate_gen_fuel_sums_match(gf, bf):
     """Test that fuel consumption sums match between input and output."""
 
-    gf_selected, bf_selected, gen, bga, gens, plants = (
-        allocate_gen_fuel.select_input_data(
-            gf=gf,
-            bf=bf,
-            gen=GEN_EIA923_BASE,
-            bga=BOILER_GENERATOR_ASSN_EIA860_BASE,
-            gens=GENS_EIA860_BASE,
-            plants=PLANTS_EIA860_BASE,
-        )
+    gf_selected, bf_selected, gen, bga, gens = allocate_gen_fuel.select_input_data(
+        gf=gf,
+        bf=bf,
+        gen=GEN_EIA923_BASE,
+        bga=BOILER_GENERATOR_ASSN_EIA860_BASE,
+        gens=GENS_EIA860_BASE,
     )
     allocated = allocate_gen_fuel.allocate_gen_fuel_by_generator_energy_source(
         gf=gf_selected,
@@ -465,7 +462,7 @@ def test_allocate_gen_fuel_sums_match(gf, bf):
         bga=bga,
         gens=gens,
         plant_reporting_frequency=allocate_gen_fuel._get_plant_reporting_frequency(
-            plants
+            PLANTS_EIA860_BASE
         ),
         freq="YS",
     )
@@ -480,13 +477,12 @@ def test_allocate_gen_fuel_sums_match(gf, bf):
 def test_allocate_gen_fuel_dfo_ratios_match(gf):
     """Test that DFO fuel ratios match between boiler and allocated data."""
 
-    gf_selected, bf, gen, bga, gens, plants = allocate_gen_fuel.select_input_data(
+    gf_selected, bf, gen, bga, gens = allocate_gen_fuel.select_input_data(
         gf=gf,
         bf=BOILER_FUEL_EIA923_BASE,
         gen=GEN_EIA923_BASE,
         bga=BOILER_GENERATOR_ASSN_EIA860_BASE,
         gens=GENS_EIA860_BASE,
-        plants=PLANTS_EIA860_BASE,
     )
     allocated = allocate_gen_fuel.allocate_gen_fuel_by_generator_energy_source(
         gf=gf_selected,
@@ -495,7 +491,7 @@ def test_allocate_gen_fuel_dfo_ratios_match(gf):
         bga=bga,
         gens=gens,
         plant_reporting_frequency=allocate_gen_fuel._get_plant_reporting_frequency(
-            plants
+            PLANTS_EIA860_BASE
         ),
         freq="YS",
     )
@@ -512,13 +508,12 @@ def test_allocate_gen_fuel_dfo_ratios_match(gf):
 
 def test_add_missing_energy_source():
     """Test adding missing energy source codes to generators."""
-    gf, bf, _, _, gens, _ = allocate_gen_fuel.select_input_data(
+    gf, bf, _, _, gens = allocate_gen_fuel.select_input_data(
         gf=GENERATION_FUEL_EIA923_EXTRA_ESC,
         bf=BOILER_FUEL_EIA923_BASE,
         gen=GEN_EIA923_BASE,
         bga=BOILER_GENERATOR_ASSN_EIA860_BASE,
         gens=GENS_EIA860_BASE,
-        plants=PLANTS_EIA860_BASE,
     )
     gens = allocate_gen_fuel.add_missing_energy_source_codes_to_gens(gens, gf, bf)
     # assert that the missing energy source code is RC
@@ -527,13 +522,12 @@ def test_add_missing_energy_source():
 
 def test_allocate_bf_data_to_gens_drops_pm_code():
     """Test that non-matching prime mover codes are dropped."""
-    _, bf, _, bga, gens, _ = allocate_gen_fuel.select_input_data(
+    _, bf, _, bga, gens = allocate_gen_fuel.select_input_data(
         gf=GENERATION_FUEL_EIA923_BASE,
         bf=BOILER_FUEL_EIA923_EXTRA_PM,
         gen=GEN_EIA923_BASE,
         bga=BOILER_GENERATOR_ASSN_EIA860_BASE,
         gens=GENS_EIA860_BASE,
-        plants=PLANTS_EIA860_BASE,
     )
     bf_by_gens = allocate_gen_fuel.allocate_bf_data_to_gens(bf, gens, bga)
     # allocate_bf_data_to_gens quietly drops and records with non-matching PM codes.
@@ -549,13 +543,12 @@ def test_allocate_bf_data_to_gens_drops_pm_code():
 
 def test_allocate_gen_fuel_by_generator_drops_pm_data():
     """Test that prime mover data not in BGA is handled correctly."""
-    gf, bf, gen, bga, gens, plants = allocate_gen_fuel.select_input_data(
+    gf, bf, gen, bga, gens = allocate_gen_fuel.select_input_data(
         gf=GENERATION_FUEL_EIA923_BASE,
         bf=BOILER_FUEL_EIA923_EXTRA_PM,
         gen=GEN_EIA923_BASE,
         bga=BOILER_GENERATOR_ASSN_EIA860_BASE,
         gens=GENS_EIA860_BASE,
-        plants=PLANTS_EIA860_BASE,
     )
 
     allocated = allocate_gen_fuel.allocate_gen_fuel_by_generator_energy_source(
@@ -565,7 +558,7 @@ def test_allocate_gen_fuel_by_generator_drops_pm_data():
         bga=bga,
         gens=gens,
         plant_reporting_frequency=allocate_gen_fuel._get_plant_reporting_frequency(
-            plants
+            PLANTS_EIA860_BASE
         ),
         freq="YS",
     )

@@ -255,8 +255,8 @@ def allocate_gen_fuel_asset_factory(
     ) -> pd.DataFrame:
         """Allocate net gen from gen_fuel to generator/energy_source_code level."""
         pd.options.mode.copy_on_write = True
-        gf, bf, gen, bga, gens, plants = select_input_data(
-            gf=gf, bf=bf, gen=gen, bga=bga, gens=gens, plants=plants
+        gf, bf, gen, bga, gens = select_input_data(
+            gf=gf, bf=bf, gen=gen, bga=bga, gens=gens
         )
         plant_reporting_frequency = _get_plant_reporting_frequency(plants)
         return allocate_gen_fuel_by_generator_energy_source(
@@ -443,10 +443,7 @@ def select_input_data(
     gen: pd.DataFrame,
     bga: pd.DataFrame,
     gens: pd.DataFrame,
-    plants: pd.DataFrame,
-) -> tuple[
-    pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame
-]:
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Select only the subset of input data needed for the allocation.
 
     This includes both selecting only a subset of columns from most input tables, and
@@ -498,8 +495,7 @@ def select_input_data(
         f"and {granular_net_gen_ratio:.1%} of net generation in the "
         "higher-coverage core_eia923__monthly_generation_fuel table."
     )
-    plants = plants.loc[:, ["plant_id_eia", "report_date", "reporting_frequency_code"]]
-    return gf, bf, gen, bga, gens, plants
+    return gf, bf, gen, bga, gens
 
 
 def standardize_input_frequency(
