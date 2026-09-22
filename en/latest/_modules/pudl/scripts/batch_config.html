@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.scripts.batch_config &#8212; PUDL 2026.9.1.dev17 documentation</title>
+    <title>pudl.scripts.batch_config &#8212; PUDL 2026.9.1.dev18 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../_static/documentation_options.js?v=2c0d616f"></script>
+    <script src="../../../_static/documentation_options.js?v=8e7a9028"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev17 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev17 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev18 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev18 documentation - Home"/>
   
   
 </a></div>
@@ -1065,12 +1065,16 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">"logsPolicy"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"destination"</span><span class="p">:</span> <span class="s2">"CLOUD_LOGGING"</span><span class="p">},</span>
         <span class="c1"># Batch copies these job-level labels onto every `batch_task_logs` entry (as</span>
         <span class="c1"># `labels.&lt;key&gt;`), unlike the `allocationPolicy` instance labels above which</span>
-        <span class="c1"># only surface on VM metrics. Repeating `pipeline` here lets the dashboard's</span>
-        <span class="c1"># Logs widget filter by pipeline via the `${pipeline}` template variable,</span>
-        <span class="c1"># matching the behavior of the metric widgets.</span>
+        <span class="c1"># only surface on VM metrics. Repeating `pipeline` and `batch-job-id` here</span>
+        <span class="c1"># lets the dashboard's Logs widget filter/group the same way its metric</span>
+        <span class="c1"># widgets do. `batch-job-id` in particular is unreliable on VM metrics for</span>
+        <span class="c1"># short-lived jobs -- Cloud Monitoring only enriches `metadata.user_labels`</span>
+        <span class="c1"># after its metadata scraper has polled the instance, which a ~30-minute</span>
+        <span class="c1"># Batch VM can miss entirely -- but it always lands on the logs.</span>
         <span class="s2">"labels"</span><span class="p">:</span> <span class="p">{</span>
             <span class="s2">"component"</span><span class="p">:</span> <span class="s2">"build"</span><span class="p">,</span>
             <span class="s2">"pipeline"</span><span class="p">:</span> <span class="n">pipeline</span><span class="p">,</span>
+            <span class="s2">"batch-job-id"</span><span class="p">:</span> <span class="n">batch_job_id</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">}</span></div>
 

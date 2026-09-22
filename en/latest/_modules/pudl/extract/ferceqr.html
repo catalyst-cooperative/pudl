@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.extract.ferceqr &#8212; PUDL 2026.9.1.dev17 documentation</title>
+    <title>pudl.extract.ferceqr &#8212; PUDL 2026.9.1.dev18 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../_static/documentation_options.js?v=2c0d616f"></script>
+    <script src="../../../_static/documentation_options.js?v=8e7a9028"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev17 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev17 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev18 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev18 documentation - Home"/>
   
   
 </a></div>
@@ -889,7 +889,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.dagster.partitions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ferceqr_year_quarters</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.dagster.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">FercEqrArchiveResource</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParquetData</span><span class="p">,</span> <span class="n">persist_table_as_parquet</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParquetData</span><span class="p">,</span> <span class="n">duckdb_connect</span><span class="p">,</span> <span class="n">persist_table_as_parquet</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.logging_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
 
 <div class="viewcode-block" id="logger">
@@ -936,9 +936,15 @@ window.runMermaid = runMermaid;</script>
     <span class="k">with</span> <span class="p">(</span>
         <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp_dir</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="c1"># Download file to local path</span>
+        <span class="c1"># Stream the download to disk. Recent quarterly archives are 3-4 GB and many</span>
+        <span class="c1"># partition runs start at once, so ``read_bytes()`` (which holds the whole</span>
+        <span class="c1"># archive in memory first) can exhaust the VM's RAM.</span>
         <span class="n">local_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span> <span class="o">/</span> <span class="n">zip_name</span>
-        <span class="n">local_path</span><span class="o">.</span><span class="n">write_bytes</span><span class="p">(</span><span class="n">remote_path</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">())</span>
+        <span class="n">remote_path</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">get_file</span><span class="p">(</span>
+            <span class="n">remote_path</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">local_path</span><span class="p">),</span>
+            <span class="n">concurrency</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>  <span class="c1"># default 4: parallel ranged reads per file</span>
+        <span class="p">)</span>
         <span class="c1"># Yield open zipfile</span>
         <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">zf</span><span class="p">:</span>
             <span class="k">yield</span> <span class="n">zf</span></div>
@@ -1302,6 +1308,20 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">"raw_ferceqr__index_pub"</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetOut</span><span class="p">(</span><span class="n">kinds</span><span class="o">=</span><span class="p">{</span><span class="s2">"duckdb"</span><span class="p">}),</span>
         <span class="s2">"raw_ferceqr__extract_errors"</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetOut</span><span class="p">(</span><span class="n">kinds</span><span class="o">=</span><span class="p">{</span><span class="s2">"duckdb"</span><span class="p">}),</span>
     <span class="p">},</span>
+    <span class="c1"># This is the memory-heavy phase of a partition run: it opens a DuckDB</span>
+    <span class="c1"># connection and streams every filing's CSVs through it. In the FERC EQR</span>
+    <span class="c1"># backfill many partition runs execute at once (max_concurrent_runs in</span>
+    <span class="c1"># builds/dagster-ferceqr.yaml), and newest-first ordering front-loads the</span>
+    <span class="c1"># largest quarters, so without a cap all of the first wave hit this step</span>
+    <span class="c1"># together and their combined DuckDB working sets exhaust the VM's RAM. The</span>
+    <span class="c1"># `ferceqr_extract` pool bounds how many run concurrently; the limit is the</span>
+    <span class="c1"># pools default_limit in builds/dagster-ferceqr.yaml.</span>
+    <span class="n">pool</span><span class="o">=</span><span class="s2">"ferceqr_extract"</span><span class="p">,</span>
+    <span class="c1"># A genuinely transient failure here (a DuckDB error on one filing, an</span>
+    <span class="c1"># object-store blip pulling the quarter archive) shouldn't doom the whole</span>
+    <span class="c1"># deploy. This does NOT catch an OOM SIGKILL of the run worker -- that is</span>
+    <span class="c1"># handled at the run level by run_monitoring + run_retries (dagster.yaml).</span>
+    <span class="n">retry_policy</span><span class="o">=</span><span class="n">dg</span><span class="o">.</span><span class="n">RetryPolicy</span><span class="p">(</span><span class="n">max_retries</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">30</span><span class="p">),</span>
 <span class="p">)</span>
 <div class="viewcode-block" id="extract_ferceqr">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/ferceqr/index.html#pudl.extract.ferceqr.extract_ferceqr">[docs]</a>
@@ -1331,13 +1351,15 @@ window.runMermaid = runMermaid;</script>
     <span class="n">table_file_counts</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">_ALL_TABLE_TYPES</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">corrupt_filing_count</span> <span class="o">=</span> <span class="mi">0</span>
 
-    <span class="c1"># Open top level zipfile</span>
+    <span class="c1"># Open top level zipfile. The connection inherits PUDL_DUCKDB_* caps from the</span>
+    <span class="c1"># environment (see pudl.helpers.duckdb_connect): most per-filing CSVs are</span>
+    <span class="c1"># tiny, but big utilities' recent transactions filings run to tens of</span>
+    <span class="c1"># millions of rows and are processed one at a time in the loop below, so</span>
+    <span class="c1"># DuckDB's parallel CSV reader earns its keep there.</span>
     <span class="k">with</span> <span class="p">(</span>
         <span class="n">_get_csv</span><span class="p">(</span><span class="n">ferceqr_archive</span><span class="o">.</span><span class="n">upath</span><span class="p">,</span> <span class="n">year_quarter</span><span class="p">)</span> <span class="k">as</span> <span class="n">quarter_archive</span><span class="p">,</span>
-        <span class="n">duckdb</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">,</span>
+        <span class="n">duckdb_connect</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="c1"># Disable DuckDB progress bar, as it is quite noisy in the logs.</span>
-        <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">"PRAGMA disable_progress_bar"</span><span class="p">)</span>
         <span class="c1"># Loop through all nested zipfiles (one for each filing in the quarter)</span>
         <span class="n">filing_names</span> <span class="o">=</span> <span class="n">quarter_archive</span><span class="o">.</span><span class="n">namelist</span><span class="p">()</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Extracting </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">filing_names</span><span class="p">)</span><span class="si">}</span><span class="s2"> filings for </span><span class="si">{</span><span class="n">year_quarter</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
