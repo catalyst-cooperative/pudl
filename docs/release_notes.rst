@@ -15,8 +15,20 @@ Enhancements
 New Data
 ^^^^^^^^
 
+EPA MATS
+~~~~~~~~
+
+* Created the :ref:`core_epamats__hourly_emissions` table, bringing hourly mercury and
+  hydrogen chloride emissions data from the EPA into PUDL. See issue :issue:`5357` and
+  PR :pr:`5572`. Thanks to contributor :user:`bsousa22` for bringing in this data!
+
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
+
+EIA-860
+~~~~~~~
+* Added final release data from 2025 for :doc:`EIA-860 <data_sources/eia860>`. See
+  issue :issue:`5589` and PR :pr:`5591`.
 
 Documentation
 ^^^^^^^^^^^^^
@@ -48,9 +60,33 @@ Bug Fixes & Data Cleaning
   own small logfile to the build outputs bucket. This created newer object path with the
   same commit confusing ``deploy-pudl`` causing deployment to fail. See :issue:`5579`
   and :pr:`5580`.
+* Fixed a broken metadata override in ``CashFlowsTableTransformer`` that left the
+  ``starting_balance``/``ending_balance`` rows for ``cash_and_cash_equivalents`` in
+  :ref:`core_ferc1__yearly_cash_flows_sched120` without ``row_type_xbrl``,
+  ``is_within_table_calc``, ``balance``, or ``ferc_account`` metadata. See
+  :issue:`5587` and :pr:`5588`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Sped up the :doc:`FERC EQR <data_sources/ferceqr>` batch deployment to cloud object
+  storage from ~3 hours to ~5 minutes. Uploads to and server-side copies within S3 now
+  go through ``boto3`` in the new :mod:`pudl.deploy.s3_transfer` module, while GCS and
+  all other targets stay on ``fsspec``/``UPath`` and run in a thread pool. Deployment
+  now stages each build under a per-build ``._staging_{BUILD_ID}`` prefix, verifies the
+  staged files by name and size, snapshots the previous outputs into
+  ``._ferceqr_previous`` for manual rollback, and then merges the staged files into the
+  live prefix. Existing files that a build doesn't replace are left in place in
+  anticipation of doing incremental per-file updates. The build VM was also bumped to
+  ``c4d-standard-32`` after an out-of-memory crash. See issue :issue:`5317` and PR
+  :pr:`5561`.
+* Sped up the :doc:`FERC EQR <data_sources/ferceqr>` batch ETL from ~45 minutes to
+  ~25 minutes: a standalone Dagster gRPC code server, newest-quarter-first
+  partitioning, and a bounded ``ferceqr_extract`` concurrency pool. Also fixed an
+  intermittent out-of-memory kill that silently dropped a quarter from the build, by
+  capping DuckDB's resource use per connection and streaming quarterly archive
+  downloads instead of reading them into memory. See issue :issue:`5318` and PR
+  :pr:`5595`.
 
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^
