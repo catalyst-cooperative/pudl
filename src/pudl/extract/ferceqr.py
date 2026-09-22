@@ -57,7 +57,7 @@ def _get_csv(base_path: UPath, year_quarter: str) -> Generator[zipfile.ZipFile]:
         remote_path.fs.get_file(
             remote_path.path,
             str(local_path),
-            concurrency=8,  # default 4: parallel ranged reads per file
+            concurrency=12,  # default 4: parallel ranged reads per file
         )
         # Yield open zipfile
         with zipfile.ZipFile(local_path) as zf:
