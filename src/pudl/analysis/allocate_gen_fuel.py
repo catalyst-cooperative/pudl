@@ -226,6 +226,7 @@ def allocate_gen_fuel_asset_factory(
             "gen": AssetIn(key=f"out_eia923__{agg_freqs[freq]}_generation"),
             "bga": AssetIn(key="core_eia860__assn_boiler_generator"),
             "gens": AssetIn(key="_out_eia__yearly_generators"),
+            "plants": AssetIn(key="core_eia860__scd_plants"),
         },
         io_manager_key=io_manager_key,
         op_tags={"memory-use": "high"},
@@ -250,18 +251,21 @@ def allocate_gen_fuel_asset_factory(
         gen: pd.DataFrame,
         bga: pd.DataFrame,
         gens: pd.DataFrame,
+        plants: pd.DataFrame,
     ) -> pd.DataFrame:
         """Allocate net gen from gen_fuel to generator/energy_source_code level."""
         pd.options.mode.copy_on_write = True
-        gf, bf, gen, bga, gens = select_input_data(
-            gf=gf, bf=bf, gen=gen, bga=bga, gens=gens
+        gf, bf, gen, bga, gens, plants = select_input_data(
+            gf=gf, bf=bf, gen=gen, bga=bga, gens=gens, plants=plants
         )
+        plant_reporting_frequency = _get_plant_reporting_frequency(plants)
         return allocate_gen_fuel_by_generator_energy_source(
             gf=gf,
             bf=bf,
             gen=gen,
             bga=bga,
             gens=gens,
+            plant_reporting_frequency=plant_reporting_frequency,
             freq=freq,
             debug=context.op_config["debug"],
         )
@@ -340,6 +344,7 @@ def allocate_gen_fuel_by_generator_energy_source(
     gen: pd.DataFrame,
     bga: pd.DataFrame,
     gens: pd.DataFrame,
+    plant_reporting_frequency: pd.DataFrame,
     freq: AllocationFrequency,
     debug: bool = False,
 ) -> pd.DataFrame:
@@ -366,10 +371,15 @@ def allocate_gen_fuel_by_generator_energy_source(
         gen: Temporally aggregated :ref:`core_eia923__monthly_generation` dataframe.
         bga: :ref:`core_eia860__assn_boiler_generator` dataframe.
         gens: :ref:`core_eia860__scd_generators` dataframe.
+        plant_reporting_frequency: plant-year lookup of ``reporting_frequency_code``,
+            as produced by :func:`_get_plant_reporting_frequency`, used to identify
+            which plants are annual reporters.
         freq: Frequency at which the tables are aggregated temporally.
         debug: If True, return additional debugging information.
     """
-    bf, gens_at_freq, gen = standardize_input_frequency(bf, gens, gen, freq)
+    gf, bf, gens_at_freq, gen = standardize_input_frequency(
+        gf, bf, gens, gen, plant_reporting_frequency, freq
+    )
     # Add any startup energy source codes to the list of energy source codes
     gens_at_freq = adjust_msw_energy_source_codes(gens_at_freq, gf, bf)
     gens_at_freq = add_missing_energy_source_codes_to_gens(gens_at_freq, gf, bf)
@@ -433,7 +443,10 @@ def select_input_data(
     gen: pd.DataFrame,
     bga: pd.DataFrame,
     gens: pd.DataFrame,
-) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    plants: pd.DataFrame,
+) -> tuple[
+    pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame
+]:
     """Select only the subset of input data needed for the allocation.
 
     This includes both selecting only a subset of columns from most input tables, and
@@ -485,25 +498,45 @@ def select_input_data(
         f"and {granular_net_gen_ratio:.1%} of net generation in the "
         "higher-coverage core_eia923__monthly_generation_fuel table."
     )
-    return gf, bf, gen, bga, gens
+    plants = plants.loc[:, ["plant_id_eia", "report_date", "reporting_frequency_code"]]
+    return gf, bf, gen, bga, gens, plants
 
 
 def standardize_input_frequency(
-    bf: pd.DataFrame, gens: pd.DataFrame, gen: pd.DataFrame, freq: AllocationFrequency
-) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    gf: pd.DataFrame,
+    bf: pd.DataFrame,
+    gens: pd.DataFrame,
+    gen: pd.DataFrame,
+    plant_reporting_frequency: pd.DataFrame,
+    freq: AllocationFrequency,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Standardize the frequency of the input tables.
 
-    Employ :func:`distribute_annually_reported_data_to_months_if_annual` on the boiler
-    fuel and generation table. Employ :func:`pudl.helpers.expand_timeseries` on the
-    generators table. Also use the expanded generators table to ensure the generation
-    table has all of the generators present.
+    Employ :func:`distribute_annually_reported_data_to_months_if_annual` on the
+    generation fuel, boiler fuel, and generation tables. Employ
+    :func:`pudl.helpers.expand_timeseries` on the generators table. Also use the
+    expanded generators table to ensure the generation table has all of the
+    generators present.
 
     Args:
+        gf: :ref:`out_eia923__generation_fuel_combined` table
         bf: :ref:`core_eia923__monthly_boiler_fuel` table
         gens: :ref:`core_eia860__scd_generators` table
         gen: :ref:`core_eia923__monthly_generation` table
+        plant_reporting_frequency: plant-year lookup of ``reporting_frequency_code``,
+            as produced by :func:`_get_plant_reporting_frequency`, used to identify
+            annual reporters.
         freq: the (time) frequency at which the tables will be aggregated.
     """
+    for data_column_name in DATA_COLUMNS:
+        gf = distribute_annually_reported_data_to_months_if_annual(
+            df=gf,
+            key_columns=IDX_PM_ESC,
+            data_column_name=data_column_name,
+            freq=freq,
+            plant_reporting_frequency=plant_reporting_frequency,
+        )
+
     bf = distribute_annually_reported_data_to_months_if_annual(
         df=bf,
         key_columns=[
@@ -515,6 +548,7 @@ def standardize_input_frequency(
         ],
         data_column_name="fuel_consumed_mmbtu",
         freq=freq,
+        plant_reporting_frequency=plant_reporting_frequency,
     )
 
     # duplicate each entry in the gens table 12 times to create an entry for each month of the year
@@ -531,6 +565,7 @@ def standardize_input_frequency(
             key_columns=["plant_id_eia", "generator_id", "report_date"],
             data_column_name="net_generation_mwh",
             freq=freq,
+            plant_reporting_frequency=plant_reporting_frequency,
         )
         # the gen table is missing many generator ids. Let's fill this using the gens table
         # leaving a missing value for net generation
@@ -541,7 +576,7 @@ def standardize_input_frequency(
             validate="1:1",
         )
     )
-    return bf, gens_at_freq, gen
+    return gf, bf, gens_at_freq, gen
 
 
 def scale_allocated_net_gen_fuel_by_ownership(
@@ -1785,141 +1820,127 @@ def group_duplicate_keys(df: pd.DataFrame) -> pd.DataFrame:
 #####################################################################################
 # Fuel Allocation Functions
 #####################################################################################
+def _get_plant_reporting_frequency(plants: pd.DataFrame) -> pd.DataFrame:
+    """Build a plant-year lookup of ``reporting_frequency_code`` from EIA-860 plants.
+
+    A plant-year is only treated as an annual reporter if its code is "A". Plants
+    coded "AM" report true monthly values via the annual survey form, so they are
+    treated the same as "M" plants: their data is left untouched.
+
+    Missing codes are filled with "A" to be conservative: treating a plant with a
+    missing code as if it were monthly would let a single reported month's value
+    flow through the rest of the allocation process as though it were that month's
+    true value, which is a worse outcome than over-smoothing an actually-monthly
+    plant. Missing values generally appear due to inconsistencies between the "A"
+    and "AM" reporting frequency codes being unresolvable during data harvesting
+    (see issue :issue:`1933`).
+
+    Args:
+        plants: :ref:`core_eia860__scd_plants` dataframe with columns
+            ``plant_id_eia``, ``report_date``, and ``reporting_frequency_code``.
+
+    Returns:
+        Dataframe with one row per plant-year, with columns ``plant_id_eia``,
+        ``year``, and ``reporting_frequency_code``.
+    """
+    plant_reporting_frequency = plants.loc[
+        :, ["plant_id_eia", "report_date", "reporting_frequency_code"]
+    ].assign(year=lambda x: x.report_date.dt.year)
+
+    n_missing = plant_reporting_frequency.reporting_frequency_code.isna().sum()
+    if n_missing:
+        logger.warning(
+            f"Filling {n_missing} of {len(plant_reporting_frequency)} plant-years "
+            f"({n_missing / len(plant_reporting_frequency):.1%}) missing a "
+            "reporting_frequency_code with 'A' (annual)."
+        )
+    plant_reporting_frequency = plant_reporting_frequency.assign(
+        reporting_frequency_code=lambda x: x.reporting_frequency_code.fillna("A")
+    )
+    return plant_reporting_frequency.loc[
+        :, ["plant_id_eia", "year", "reporting_frequency_code"]
+    ]
+
+
 def distribute_annually_reported_data_to_months_if_annual(
     df: pd.DataFrame,
     key_columns: list[str],
     data_column_name: str,
     freq: AllocationFrequency,
+    plant_reporting_frequency: pd.DataFrame | None,
 ) -> pd.DataFrame:
-    """Allocates annually-reported data from the gen or bf table to each month.
+    """Allocates annually-reported data from the gf, bf, or gen table to each month.
 
-    Certain plants only report data to the generator table and boiler fuel table
-    on an annual basis. In these cases, their annual total is reported as a single
-    value in January or December, and the other 11 months are reported as missing
-    values. This function first identifies which plants are annual respondents by
-    identifying plants that have 11 months of missing data, with the one month of
-    existing data being in January or December. This is an assumption based on seeing
-    that over 40% of the plants that have 11 months of missing data report their one
-    month of data in January and December (this ratio of reporting is checked and will
-    raise a warning if it becomes untrue). It then distributes this annually-reported
-    value evenly across all months in the year. Because we know some of the plants are
-    reporting in only one month that is not January or December, the assumption about
-    January and December only reporting is almost certainly resulting in some non-annual
-    data being allocated across all months, but on average the data will be more
-    accurate.
-
-    Note: We should be able to use the ``reporting_frequency_code`` column for the
-    identification of annually reported data. This currently does not work because we
-    assumed this was a plant-level annual attribute (and is thus stored in the
-    ``core_eia860__scd_plants`` table). See Issue #1933.
+    Certain plants only report data to the generation fuel, generator, and boiler
+    fuel tables on an annual basis. These plants are identified using the
+    plant-level ``reporting_frequency_code`` from ``core_eia860__scd_plants``: a
+    plant-year is treated as an annual reporter if its code is "A" (a missing code
+    is filled with "A" to be conservative; "AM" plants report true monthly values,
+    just filed once a year via the annual survey form, so they're treated like "M"
+    plants and left alone). The monthly values reported by annual reporters are
+    summed to the annual level, and then distributed evenly across all 12 months.
 
     Args:
-        df: A dataframe of either generation or boiler-fuel data, loaded from
+        df: A dataframe of generation-fuel, generation, or boiler-fuel data,
+            loaded from :ref:`out_eia923__monthly_generation_fuel_combined` or
+            :ref:`out_eia923__yearly_generation_fuel_combined`,
             :ref:`out_eia923__monthly_generation` or
-            :ref:`out_eia923__yearly_generation` and
+            :ref:`out_eia923__yearly_generation`, and
             :ref:`out_eia923__monthly_boiler_fuel` or
-            :ref:`out_eia923__yearly_boiler_fuel` or respectively.
-        key_columns: a list of the primary key column names, either
-            ``["plant_id_eia","boiler_id","energy_source_code"]`` or
-            ``["plant_id_eia","generator_id"]``
-        data_column_name: the name of the data column to allocate, either
-            "net_generation_mwh" or "fuel_consumed_mmbtu" depending on the df specified
+            :ref:`out_eia923__yearly_boiler_fuel` respectively.
+        key_columns: a list of the primary key column names, one of
+            :py:const:`IDX_PM_ESC`, :py:const:`IDX_B_PM_ESC`, or
+            ``["plant_id_eia","generator_id","report_date"]``
+        data_column_name: the name of the data column to allocate, one of
+            :py:const:`DATA_COLUMNS` (for ``gf``) or "fuel_consumed_mmbtu" /
+            "net_generation_mwh" (for ``bf``/``gen`` respectively)
         freq: frequency of input df. Must be either ``YS`` or ``MS``.
+        plant_reporting_frequency: a plant-year lookup of
+            ``reporting_frequency_code``, as produced by
+            :func:`_get_plant_reporting_frequency`. Required when ``freq`` is
+            ``MS``; ignored otherwise.
 
     Returns:
         Dataframe with the annually reported generation or fuel consumption values
         allocated to each month.
     """
     if freq == "MS":
-
-        def assign_plant_year(df):
-            return df.assign(
-                plant_year=lambda x: (
-                    x.report_date.dt.year.astype(str) + "_" + x.plant_id_eia.astype(str)
-                )
-            )
-
-        reporters = df.copy().pipe(assign_plant_year)
-        # get a count of the number of missing values in a year
-        key_columns_annual = ["plant_year"] + [
-            col for col in key_columns if col != "report_date"
-        ]
-        reporters["missing_data"] = (
-            reporters.assign(
-                missing_data=lambda x: (
-                    x[data_column_name].isnull()
-                    | np.isclose(reporters[data_column_name], 0)
-                )
-            )
-            .groupby(key_columns_annual, dropna=False)[["missing_data"]]
-            .transform("sum")
+        assert plant_reporting_frequency is not None, (
+            "plant_reporting_frequency is required when freq is 'MS'."
         )
-
-        # separate annual and monthly reporters
-        once_a_year_reporters = reporters[
-            (
-                reporters[data_column_name].notnull()
-                & ~np.isclose(reporters[data_column_name], 0)
-            )
-            & (reporters.missing_data == 11)
+        key_columns_annual = [col for col in key_columns if col != "report_date"] + [
+            "year"
         ]
-        annual_reporters = once_a_year_reporters[
-            once_a_year_reporters.report_date.dt.month.isin([1, 12])
-        ].set_index(["plant_year"])
+        df_out = df.assign(year=lambda x: x.report_date.dt.year).merge(
+            plant_reporting_frequency,
+            how="left",
+            on=["plant_id_eia", "year"],
+            validate="m:1",
+        )
+        # Missing reporting frequency codes are treated as annual
+        df_out["reporting_frequency_code"] = df_out.reporting_frequency_code.fillna("A")
+        is_annual = df_out.reporting_frequency_code == "A"
+        annual_total = df_out.groupby(key_columns_annual, dropna=False)[
+            data_column_name
+        ].transform("sum", min_count=1)
 
-        # check if the plurality of the once_a_year_reporters are in Jan or Dec
-        perc_of_annual = len(annual_reporters) / len(once_a_year_reporters)
-        if perc_of_annual < 0.40:
-            logger.warning(
-                f"Less than 40% ({perc_of_annual:.0%}) of the once-a-year reporters "
-                "are in January or December. Examine assumption about annual reporters."
-            )
-
-        reporters = reporters.set_index(["plant_year"])
-        monthly_reporters = reporters.loc[
-            reporters.index.difference(annual_reporters.index)
-        ]
-
+        n_annual_plant_years = (
+            df_out.loc[is_annual, ["plant_id_eia", "year"]].drop_duplicates().shape[0]
+        )
+        n_plant_years = (
+            df_out.loc[:, ["plant_id_eia", "year"]].drop_duplicates().shape[0]
+        )
         logger.info(
-            f"Distributing {len(annual_reporters) / len(reporters):.1%} annually reported"
-            " records to months."
+            f"Distributing annually reported data across all months for "
+            f"{n_annual_plant_years} of {n_plant_years} plant-years "
+            f"({n_annual_plant_years / n_plant_years:.1%})."
         )
-        # first convert the december month to january bc expand_timeseries expands from
-        # the start date and we want january on.
-        annual_reporters_expanded = (
-            annual_reporters.assign(
-                report_date=lambda x: pd.to_datetime(
-                    {
-                        "year": x.report_date.dt.year,
-                        "month": 1,
-                        "day": 1,
-                    },
-                )
-            )
-            .pipe(
-                pudl.helpers.expand_timeseries,
-                key_cols=[col for col in key_columns if col != "report_date"],
-                date_col="report_date",
-                fill_through_freq="year",
-            )
-            .assign(**{data_column_name: lambda x: x[data_column_name] / 12})
-            .pipe(assign_plant_year)
-            .pipe(apply_pudl_dtypes, field_namespace="eia")
-            .set_index(["plant_year"])
-        )
-        # sometimes a plant oscillates btwn annual and monthly reporting. when it does
-        # expand_timeseries will generate monthly records for years that were not
-        # included annual_reporters bc expand_timeseries expands from the most recent
-        # to the last date... so we remove any plant/year combo that didn't show up
-        # before the expansion
-        annual_reporters_expanded = annual_reporters_expanded.loc[
-            annual_reporters_expanded.index.intersection(annual_reporters.index)
-        ]
 
-        df_out = (
-            pd.concat([monthly_reporters, annual_reporters_expanded])
-            .reset_index(drop=True)
-            .drop(columns=["missing_data"])
+        df_out[data_column_name] = df_out[data_column_name].mask(
+            is_annual, annual_total / 12
+        )
+        df_out = df_out.drop(columns=["year", "reporting_frequency_code"]).pipe(
+            apply_pudl_dtypes, field_namespace="eia"
         )
     elif freq == "YS":
         df_out = df
