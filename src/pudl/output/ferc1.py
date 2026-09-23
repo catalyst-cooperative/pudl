@@ -1276,13 +1276,24 @@ class Exploder:
         # Keep only calculations in which ALL calculation components are in explosion
         # Restrict columns to the ones we actually need. Drop duplicates and order
         # things for legibility.
+        logger.info("Current table looks like!")
+        logger.info(calc_explode)
+        logger.info(self.table_names)
+        logger.info(self.root_table)
+        logger.info(parent_cols)
+        logger.info(calc_cols)
         calc_explode = (
             calc_explode[calc_explode.is_in_explosion]
             .loc[
                 :,
                 parent_cols
                 + calc_cols
-                + ["weight", "is_within_table_calc", "is_total_to_subdimensions_calc"],
+                + [
+                    "ferc_account",
+                    "weight",
+                    "is_within_table_calc",
+                    "is_total_to_subdimensions_calc",
+                ],
             ]
             .drop_duplicates()
             .set_index(parent_cols + calc_cols)
@@ -1347,6 +1358,7 @@ class Exploder:
                 # if they weren't we'd need to check within the group of
                 # the parent fact like in process_xbrl_metadata_calculations
                 is_within_table_calc=False,
+                ferc_account=pd.NA,
             )
             .drop(columns=["xbrl_factoid_off_by"])
         )

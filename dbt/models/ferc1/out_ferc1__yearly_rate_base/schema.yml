@@ -21,10 +21,7 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 partition_expr: report_year
-          - expect_columns_not_all_null:
-              description: ferc_account is entirely null. Seems like an error.
-              config:
-                severity: warn
+          - expect_columns_not_all_null
           - expect_factoid_rate_base_category:
               arguments:
                 column_name: rate_base_category
