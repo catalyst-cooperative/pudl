@@ -87,6 +87,10 @@ Performance Improvements
   capping DuckDB's resource use per connection and streaming quarterly archive
   downloads instead of reading them into memory. See issue :issue:`5318` and PR
   :pr:`5595`.
+* Switched all of PUDL's Parquet outputs from snappy to zstd compression, which makes
+  the files substantially smaller. The codec and compression levels are now set in one
+  place (:data:`pudl.PARQUET_COMPRESSION` and related constants) and used by every
+  Parquet writer. See :issue:`5603` and :pr:`5604`.
 
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^
