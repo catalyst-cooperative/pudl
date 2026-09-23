@@ -24,4 +24,8 @@ sources:
   pudl_dbt:
     +meta:
       external_location: |
-        '{{ env_var('PUDL_OUTPUT') }}/parquet/{name}.parquet'
+        {%- if name in ['core_ferceqr__contracts'] -%}
+        's3://pudl.catalyst.coop/ferceqr/{{ name }}/**/*.parquet'
+        {%- else -%}
+        '{{ env_var('PUDL_OUTPUT') }}/parquet/{{ name }}.parquet'
+        {%- endif -%}
