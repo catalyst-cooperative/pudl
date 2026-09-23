@@ -392,8 +392,6 @@ def test_geoparquet_output_has_valid_geo_metadata(
     geo_parquet_output_path: Path,
 ) -> None:
     """Written file must carry spec-compliant GeoParquet 1.0.0 metadata with PROJJSON CRS."""
-    import pyarrow.parquet as pq
-
     raw_meta = pq.read_metadata(geo_parquet_output_path).metadata
     assert b"geo" in raw_meta, "GeoParquet 'geo' metadata key is missing"
 
@@ -491,8 +489,6 @@ def test_parquet_io_manager_rejects_unsupported_output_type(
 
 def test_geoparquet_output_is_zstd_compressed(geo_parquet_output_path: Path) -> None:
     """Geometry tables are zstd-compressed, like PUDL's other Parquet outputs."""
-    import pyarrow.parquet as pq  # noqa: PLC0415
-
     row_group = pq.read_metadata(geo_parquet_output_path).row_group(0)
 
     assert {row_group.column(i).compression for i in range(row_group.num_columns)} == {
