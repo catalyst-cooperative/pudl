@@ -568,6 +568,7 @@ def impute_latc_tnn(
     theta: int = 20,
     epsilon: float = 1e-7,
     maxiter: int = 300,
+    min_iterations: int = 50,
 ) -> np.ndarray:
     """Impute tensor values with LATC-TNN method by Chen and Sun (2020).
 
@@ -587,6 +588,12 @@ def impute_latc_tnn(
         theta:
         epsilon: Convergence criterion. A smaller number will result in more iterations.
         maxiter: Maximum number of iterations.
+        min_iterations: Minimum number of iterations before the ``epsilon``
+            convergence check is allowed to stop the loop. See PUDL issue #5649:
+            the relative change between iterations can dip transiently in the
+            first few iterations (before the algorithm has done any real work)
+            without indicating genuine convergence, so `epsilon` alone is not a
+            safe stopping criterion for iterations before this floor.
 
     Returns:
         Tensor with missing values in `tensor` replaced by imputed values.
@@ -650,7 +657,7 @@ def impute_latc_tnn(
         it += 1
         if it % 25 == 0:
             logger.info(f"impute_latc_tnn: iteration {it}, tol={tol:.2e}")
-        if tol < epsilon or it >= maxiter:
+        if (tol < epsilon and it >= min_iterations) or it >= maxiter:
             break
     logger.info(f"impute_latc_tnn: converged after {it} iterations (tol={tol:.2e})")
     return tensor_hat
@@ -686,6 +693,7 @@ def impute_latc_tubal(  # noqa: C901
     lambda0: float = 2e-7,
     epsilon: float = 1e-7,
     maxiter: int = 300,
+    min_iterations: int = 50,
 ) -> np.ndarray:
     """Impute tensor values with LATC-Tubal method by Chen, Chen and Sun (2020).
 
@@ -704,6 +712,16 @@ def impute_latc_tubal(  # noqa: C901
         lambda0:
         epsilon: Convergence criterion. A smaller number will result in more iterations.
         maxiter: Maximum number of iterations.
+        min_iterations: Minimum number of iterations before the ``epsilon``
+            convergence check is allowed to stop the loop. See PUDL issue
+            #5649: the relative change between iterations dips sharply
+            (sometimes below `1e-5`) in the first ~10 iterations, before
+            bouncing back up by several orders of magnitude once the
+            algorithm starts doing real work, and the internal basis
+            (``phi``) is recomputed every 10 iterations thereafter, causing a
+            smaller but similarly-shaped periodic dip-and-bounce for the rest
+            of the run. `epsilon` alone is not a safe stopping criterion for
+            iterations before this floor.
 
     Returns:
         Tensor with missing values in `tensor` replaced by imputed values.
@@ -788,7 +806,7 @@ def impute_latc_tubal(  # noqa: C901
             del temp1
         if it % 25 == 0:
             logger.info(f"impute_latc_tubal: iteration {it}, tol={tol:.2e}")
-        if tol < epsilon or it >= maxiter:
+        if (tol < epsilon and it >= min_iterations) or it >= maxiter:
             break
     logger.info(f"impute_latc_tubal: converged after {it} iterations (tol={tol:.2e})")
     return x

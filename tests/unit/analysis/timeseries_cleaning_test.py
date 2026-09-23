@@ -133,6 +133,42 @@ def test_impute_latc_tubal_still_stochastic_above_subsample_threshold() -> None:
     assert not np.array_equal(result1, result2)
 
 
+@pytest.mark.parametrize(
+    "imputer",
+    [timeseries_cleaning.impute_latc_tubal, timeseries_cleaning.impute_latc_tnn],
+)
+def test_min_iterations_floor_delays_convergence_check(imputer) -> None:
+    """`epsilon` cannot stop the loop before `min_iterations`, even if trivially met.
+
+    Real convergence trajectories dip sharply in the first ~10 iterations
+    before bouncing back up by orders of magnitude once the algorithm starts
+    doing real work (see PUDL issue #5649) -- an early, transient dip below
+    `epsilon` does not mean the fit has actually converged. This uses a
+    trivially-satisfied `epsilon=1.0` (true from iteration 1 onward for any
+    real `tol`) to isolate the floor mechanism itself: the loop must still
+    run for `min_iterations` regardless.
+    """
+    x = simulate_series(n=3, periods=60, frequency=24, seed=20260923)
+    # Give the optimizer real work to do -- with no missing values there's
+    # nothing to fit, and both floor settings trivially "converge" at once.
+    x[100:150, :] = np.nan
+    tensor = timeseries_cleaning.fold_tensor(x, periods=24)
+
+    result_with_floor = imputer(
+        tensor.copy(), epsilon=1.0, min_iterations=10, maxiter=300, rho0=1
+    )
+    result_no_floor = imputer(
+        tensor.copy(), epsilon=1.0, min_iterations=0, maxiter=300, rho0=1
+    )
+
+    # With no floor, epsilon=1.0 is satisfied trivially at iteration 1, so
+    # the loop barely does any work and the result stays close to the naive
+    # mean-fill initialization. With the floor, the loop is forced to run
+    # for 10 iterations of real optimization first, producing a
+    # meaningfully different (and better-fit) result.
+    assert not np.allclose(result_with_floor, result_no_floor)
+
+
 def test_merge_imputed_preserves_reported_values_for_unflagged_cells() -> None:
     """Unflagged cells keep the reported value, not the model's reconstruction."""
     datetimes = pd.date_range("2025-01-01", periods=5, freq="h", name="datetime")

@@ -1861,9 +1861,11 @@ class TestDuckdbConnect:
         threads, mem = self._settings(conn)
         assert threads == 2
         assert "GiB" in mem  # 6 GB rendered as a GiB figure
-        assert conn.execute("select current_setting('temp_directory')").fetchone()[
-            0
-        ] == str(tmp_path)
+        temp_dir_row = conn.execute(
+            "select current_setting('temp_directory')"
+        ).fetchone()
+        assert temp_dir_row is not None
+        assert temp_dir_row[0] == str(tmp_path)
 
     def test_explicit_override_wins_over_env(self, monkeypatch):
         monkeypatch.setenv("PUDL_DUCKDB_THREADS", "2")
