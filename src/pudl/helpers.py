@@ -2526,7 +2526,6 @@ def persist_table_as_parquet(
     table_data: pd.DataFrame | pl.LazyFrame | duckdb.DuckDBPyRelation,
     table_name: str,
     partitions: dict[str, Any] | None = None,
-    compression: Literal["zstd", "snappy", "gzip", "brotli"] = "zstd",
 ) -> ParquetData:
     """Write data from DataFrame or LazyFrame to disk as a parquet file.
 
@@ -2538,16 +2537,21 @@ def persist_table_as_parquet(
         table_name: Table name used to construct path to/name of parquet file.
         partitions: Optional partition dimension values indicating the data to be
             written.
+
+    The file is compressed with :data:`pudl.PARQUET_COMPRESSION` at
+    :data:`pudl.PARQUET_COMPRESSION_LEVEL`.
     """
     # Create ParquetData class to get path to write parquet file
     parquet_data = ParquetData(table_name=table_name, partitions=partitions or {})
+    compression_options: dict[str, Any] = {
+        "compression": pudl.PARQUET_COMPRESSION,
+        "compression_level": pudl.PARQUET_COMPRESSION_LEVEL,
+    }
     if isinstance(table_data, pd.DataFrame):
-        table_data.to_parquet(parquet_data.parquet_path, compression=compression)
+        table_data.to_parquet(parquet_data.parquet_path, **compression_options)
     elif isinstance(table_data, pl.LazyFrame):
         table_data.sink_parquet(
-            parquet_data.parquet_path,
-            engine="streaming",
-            compression=compression,
+            parquet_data.parquet_path, engine="streaming", **compression_options
         )
     elif isinstance(table_data, duckdb.DuckDBPyRelation):
         # DuckDB's own to_parquet() writer flattens ENUM columns down to plain
@@ -2572,7 +2576,7 @@ def persist_table_as_parquet(
         # than getting correct, cross-backend-readable categorical dtypes.
         reader = table_data.to_arrow_reader(batch_size=100_000)
         with pq.ParquetWriter(
-            str(parquet_data.parquet_path), reader.schema, compression=compression
+            str(parquet_data.parquet_path), reader.schema, **compression_options
         ) as writer:
             for batch in reader:
                 writer.write_batch(batch)
