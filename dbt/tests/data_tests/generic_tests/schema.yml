@@ -389,11 +389,16 @@ macros:
         description: Maximum acceptable fraction of units mapping to multiple fuels. (optional; default 0.01)
   - name: expect_factoid_rate_base_category
     description: >
-      Check that XBRL factoids originating from a plant function generally belong to
-      the rate base category corresponding to that plant function.
-      Accumulated depreciation, asset retirement costs and other deferred debits
-      and credits are exempted.
+      Check that XBRL factoids originating from a plant function correspond to values in
+      a selected column (e.g., plant_function, rate_base_category).
     arguments:
-      name: model
-      type: relation
-      description: The model (table) the test is applied to.
+      - name: model
+        type: relation
+        description: The model (table) the test is applied to.
+      - name: column_name
+        type: string
+        description: Column to compare against the xbrl_factoid column.
+      - name: row_condition
+        type: string
+        description: >
+          Optional SQL condition restricting the population of comparison.

@@ -288,3 +288,10 @@ core_ferc1__yearly_depreciation_by_function_sched219,accumulated_depreciation,el
 core_ferc1__yearly_balance_sheet_assets_sched110,utility_plant_net,,,,utility_plant,
 core_ferc1__yearly_utility_plant_summary_sched200,utility_plant_net,,,,utility_plant,
 core_ferc1__yearly_balance_sheet_liabilities_sched110,liabilities_and_other_credits_correction,,,,correction,
+core_ferc1__yearly_plant_in_service_sched204,distribution_plant,,,,distribution,added to ensure corrections assigned to correct category
+core_ferc1__yearly_plant_in_service_sched204,transmission_plant,,,,transmission,added to ensure corrections assigned to correct category
+core_ferc1__yearly_plant_in_service_sched204,other_production_plant,,,,other_production,added to ensure corrections assigned to correct category
+core_ferc1__yearly_plant_in_service_sched204,steam_production_plant,,,,steam,added to ensure corrections assigned to correct category
+core_ferc1__yearly_plant_in_service_sched204,general_plant,,,,general_plant,added to ensure corrections assigned to correct category
+core_ferc1__yearly_plant_in_service_sched204,nuclear_production_plant,,,,nuclear,added to ensure corrections assigned to correct category
+core_ferc1__yearly_plant_in_service_sched204,hydraulic_production_plant,,,,hydro,added to ensure corrections assigned to correct category
