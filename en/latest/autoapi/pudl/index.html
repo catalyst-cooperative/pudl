@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
-    <title>pudl &#8212; PUDL 2026.9.1.dev19 documentation</title>
+    <title>pudl &#8212; PUDL 2026.9.1.dev20 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../_static/documentation_options.js?v=273ae44e"></script>
+    <script src="../../_static/documentation_options.js?v=f3d6aab5"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev19 documentation - Home"/>
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev19 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev20 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -845,37 +845,46 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.PUDL_EEL_HOLE_BASE_PATH" title="pudl.PUDL_EEL_HOLE_BASE_PATH"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PUDL_EEL_HOLE_BASE_PATH</span></code></a></p></td>
 <td><p>Base path to eel-hole s3 outputs.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.__author__" title="pudl.__author__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__author__</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.PARQUET_COMPRESSION" title="pudl.PARQUET_COMPRESSION"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PARQUET_COMPRESSION</span></code></a></p></td>
+<td><p>The compression codec for all of PUDL's Parquet outputs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.PARQUET_COMPRESSION_LEVEL" title="pudl.PARQUET_COMPRESSION_LEVEL"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PARQUET_COMPRESSION_LEVEL</span></code></a></p></td>
+<td><p>The compression level for <a class="reference internal" href="#pudl.PARQUET_COMPRESSION" title="pudl.PARQUET_COMPRESSION"><code class="xref py py-data docutils literal notranslate"><span class="pre">PARQUET_COMPRESSION</span></code></a>, for most Parquet outputs.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.PARQUET_GEOMETRY_COMPRESSION_LEVEL" title="pudl.PARQUET_GEOMETRY_COMPRESSION_LEVEL"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PARQUET_GEOMETRY_COMPRESSION_LEVEL</span></code></a></p></td>
+<td><p>The compression level for Parquet files with geometry columns.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.__author__" title="pudl.__author__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__author__</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.__contact__" title="pudl.__contact__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__contact__</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.__contact__" title="pudl.__contact__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__contact__</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.__maintainer__" title="pudl.__maintainer__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__maintainer__</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.__maintainer__" title="pudl.__maintainer__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__maintainer__</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.__license__" title="pudl.__license__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__license__</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.__license__" title="pudl.__license__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__license__</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.__maintainer_email__" title="pudl.__maintainer_email__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__maintainer_email__</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.__maintainer_email__" title="pudl.__maintainer_email__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__maintainer_email__</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.__version__" title="pudl.__version__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__version__</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.__version__" title="pudl.__version__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__version__</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.__docformat__" title="pudl.__docformat__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__docformat__</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.__docformat__" title="pudl.__docformat__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__docformat__</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.__description__" title="pudl.__description__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__description__</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.__description__" title="pudl.__description__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__description__</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.__long_description__" title="pudl.__long_description__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__long_description__</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.__long_description__" title="pudl.__long_description__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__long_description__</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.__projecturl__" title="pudl.__projecturl__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__projecturl__</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.__projecturl__" title="pudl.__projecturl__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__projecturl__</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.__downloadurl__" title="pudl.__downloadurl__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__downloadurl__</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.__downloadurl__" title="pudl.__downloadurl__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__downloadurl__</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -954,6 +963,41 @@ that pytest has access to PUDL logs during testing.</p></li>
 <dt class="sig sig-object py" id="pudl.PUDL_EEL_HOLE_BASE_PATH">
 <span class="sig-prename descclassname"><span class="pre">pudl.</span></span><span class="sig-name descname"><span class="pre">PUDL_EEL_HOLE_BASE_PATH</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">upath.UPath</span></span><a class="reference internal" href="../../_modules/pudl.html#PUDL_EEL_HOLE_BASE_PATH"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.PUDL_EEL_HOLE_BASE_PATH" title="Link to this definition">#</a></dt>
 <dd><p>Base path to eel-hole s3 outputs.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.PARQUET_COMPRESSION">
+<span class="sig-prename descclassname"><span class="pre">pudl.</span></span><span class="sig-name descname"><span class="pre">PARQUET_COMPRESSION</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'brotli'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'gzip'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'snappy'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'zstd'</span></span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'zstd'</span></span><a class="reference internal" href="../../_modules/pudl.html#PARQUET_COMPRESSION"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.PARQUET_COMPRESSION" title="Link to this definition">#</a></dt>
+<dd><p>The compression codec for all of PUDL’s Parquet outputs.</p>
+<p>The compression levels below depend on this codec, so revisit them if it changes.</p>
+<p>PUDL uses ZSTD because it compresses our data better than the default SNAPPY, is fast,
+and read time is independent of compression level. This list only includes codes that
+are supported by all of Pandas, Polars, DuckDB, and PyArrow.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.PARQUET_COMPRESSION_LEVEL">
+<span class="sig-prename descclassname"><span class="pre">pudl.</span></span><span class="sig-name descname"><span class="pre">PARQUET_COMPRESSION_LEVEL</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></span><a class="reference internal" href="../../_modules/pudl.html#PARQUET_COMPRESSION_LEVEL"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.PARQUET_COMPRESSION_LEVEL" title="Link to this definition">#</a></dt>
+<dd><p>The compression level for <a class="reference internal" href="#pudl.PARQUET_COMPRESSION" title="pudl.PARQUET_COMPRESSION"><code class="xref py py-data docutils literal notranslate"><span class="pre">PARQUET_COMPRESSION</span></code></a>, for most Parquet outputs.</p>
+<p>Higher levels will typically write more slowly, and use more memory. Depending on the
+algorithm, higher compression levels may also impact the time and resources required to
+read the file. Note that different compression algorithms have different allowable
+compression level values. See the Parquet documentation for more details:</p>
+<p><a class="reference external" href="https://parquet.apache.org/docs/file-format/data-pages/compression/">https://parquet.apache.org/docs/file-format/data-pages/compression/</a></p>
+<p>PUDL uses ZSTD level 3 because it is the Polars default and higher compression levels
+have little impact on our data but significantly increase write times. On both PUDL’s
+float-dominated numeric time series and our wider string-dominated tables ZSTD level 9
+only saves about 3% in overall combined file size compared to level 3, and took about
+2.5 times as long to write.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.PARQUET_GEOMETRY_COMPRESSION_LEVEL">
+<span class="sig-prename descclassname"><span class="pre">pudl.</span></span><span class="sig-name descname"><span class="pre">PARQUET_GEOMETRY_COMPRESSION_LEVEL</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">9</span></span><a class="reference internal" href="../../_modules/pudl.html#PARQUET_GEOMETRY_COMPRESSION_LEVEL"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.PARQUET_GEOMETRY_COMPRESSION_LEVEL" title="Link to this definition">#</a></dt>
+<dd><p>The compression level for Parquet files with geometry columns.</p>
+<p>Geometries (WKB) compress far better than PUDL’s other data, and dominate the size of
+the files that contain them: on the Census tract table, zstd level 9 was about 25%
+smaller than level 3, so it is worth the slower write.</p>
 </dd></dl>
 
 <dl class="py data">
@@ -1086,6 +1130,9 @@ that pytest has access to PUDL logs during testing.</p></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.PUDL_DOCS_PATH"><code class="docutils literal notranslate"><span class="pre">PUDL_DOCS_PATH</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.PUDL_NIGHTLY_BUILDS_BASE_PATH"><code class="docutils literal notranslate"><span class="pre">PUDL_NIGHTLY_BUILDS_BASE_PATH</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.PUDL_EEL_HOLE_BASE_PATH"><code class="docutils literal notranslate"><span class="pre">PUDL_EEL_HOLE_BASE_PATH</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.PARQUET_COMPRESSION"><code class="docutils literal notranslate"><span class="pre">PARQUET_COMPRESSION</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.PARQUET_COMPRESSION_LEVEL"><code class="docutils literal notranslate"><span class="pre">PARQUET_COMPRESSION_LEVEL</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.PARQUET_GEOMETRY_COMPRESSION_LEVEL"><code class="docutils literal notranslate"><span class="pre">PARQUET_GEOMETRY_COMPRESSION_LEVEL</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.__author__"><code class="docutils literal notranslate"><span class="pre">__author__</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.__contact__"><code class="docutils literal notranslate"><span class="pre">__contact__</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.__maintainer__"><code class="docutils literal notranslate"><span class="pre">__maintainer__</span></code></a></li>

@@ -76,6 +76,10 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
   capping DuckDB’s resource use per connection and streaming quarterly archive
   downloads instead of reading them into memory. See issue [#5318](https://github.com/catalyst-cooperative/pudl/issues/5318) and PR
   [#5595](https://github.com/catalyst-cooperative/pudl/pull/5595).
+* Switched all of PUDL’s Parquet outputs from snappy to zstd compression, which makes
+  the files substantially smaller. The codec and compression levels are now set in one
+  place ([`pudl.PARQUET_COMPRESSION`](autoapi/pudl/index.html.md#pudl.PARQUET_COMPRESSION) and related constants) and used by every
+  Parquet writer. See [#5603](https://github.com/catalyst-cooperative/pudl/issues/5603) and [#5604](https://github.com/catalyst-cooperative/pudl/pull/5604).
 
 ### Developer Experience
 

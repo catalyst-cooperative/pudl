@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.helpers &#8212; PUDL 2026.9.1.dev19 documentation</title>
+    <title>pudl.helpers &#8212; PUDL 2026.9.1.dev20 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../_static/documentation_options.js?v=273ae44e"></script>
+    <script src="../../_static/documentation_options.js?v=f3d6aab5"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev19 documentation - Home"/>
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev19 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev20 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -3628,7 +3628,6 @@ window.runMermaid = runMermaid;</script>
     <span class="n">table_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span> <span class="o">|</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">DuckDBPyRelation</span><span class="p">,</span>
     <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">partitions</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">compression</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"zstd"</span><span class="p">,</span> <span class="s2">"snappy"</span><span class="p">,</span> <span class="s2">"gzip"</span><span class="p">,</span> <span class="s2">"brotli"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"zstd"</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParquetData</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Write data from DataFrame or LazyFrame to disk as a parquet file.</span>
 
@@ -3640,16 +3639,21 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        table_name: Table name used to construct path to/name of parquet file.</span>
 <span class="sd">        partitions: Optional partition dimension values indicating the data to be</span>
 <span class="sd">            written.</span>
+
+<span class="sd">    The file is compressed with :data:`pudl.PARQUET_COMPRESSION` at</span>
+<span class="sd">    :data:`pudl.PARQUET_COMPRESSION_LEVEL`.</span>
 <span class="sd">    """</span>
     <span class="c1"># Create ParquetData class to get path to write parquet file</span>
     <span class="n">parquet_data</span> <span class="o">=</span> <span class="n">ParquetData</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="n">table_name</span><span class="p">,</span> <span class="n">partitions</span><span class="o">=</span><span class="n">partitions</span> <span class="ow">or</span> <span class="p">{})</span>
+    <span class="n">compression_options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"compression"</span><span class="p">:</span> <span class="n">pudl</span><span class="o">.</span><span class="n">PARQUET_COMPRESSION</span><span class="p">,</span>
+        <span class="s2">"compression_level"</span><span class="p">:</span> <span class="n">pudl</span><span class="o">.</span><span class="n">PARQUET_COMPRESSION_LEVEL</span><span class="p">,</span>
+    <span class="p">}</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">table_data</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
-        <span class="n">table_data</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">parquet_data</span><span class="o">.</span><span class="n">parquet_path</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="n">compression</span><span class="p">)</span>
+        <span class="n">table_data</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">parquet_data</span><span class="o">.</span><span class="n">parquet_path</span><span class="p">,</span> <span class="o">**</span><span class="n">compression_options</span><span class="p">)</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">table_data</span><span class="p">,</span> <span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span><span class="p">):</span>
         <span class="n">table_data</span><span class="o">.</span><span class="n">sink_parquet</span><span class="p">(</span>
-            <span class="n">parquet_data</span><span class="o">.</span><span class="n">parquet_path</span><span class="p">,</span>
-            <span class="n">engine</span><span class="o">=</span><span class="s2">"streaming"</span><span class="p">,</span>
-            <span class="n">compression</span><span class="o">=</span><span class="n">compression</span><span class="p">,</span>
+            <span class="n">parquet_data</span><span class="o">.</span><span class="n">parquet_path</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">"streaming"</span><span class="p">,</span> <span class="o">**</span><span class="n">compression_options</span>
         <span class="p">)</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">table_data</span><span class="p">,</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">DuckDBPyRelation</span><span class="p">):</span>
         <span class="c1"># DuckDB's own to_parquet() writer flattens ENUM columns down to plain</span>
@@ -3674,7 +3678,7 @@ window.runMermaid = runMermaid;</script>
         <span class="c1"># than getting correct, cross-backend-readable categorical dtypes.</span>
         <span class="n">reader</span> <span class="o">=</span> <span class="n">table_data</span><span class="o">.</span><span class="n">to_arrow_reader</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="mi">100_000</span><span class="p">)</span>
         <span class="k">with</span> <span class="n">pq</span><span class="o">.</span><span class="n">ParquetWriter</span><span class="p">(</span>
-            <span class="nb">str</span><span class="p">(</span><span class="n">parquet_data</span><span class="o">.</span><span class="n">parquet_path</span><span class="p">),</span> <span class="n">reader</span><span class="o">.</span><span class="n">schema</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="n">compression</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">parquet_data</span><span class="o">.</span><span class="n">parquet_path</span><span class="p">),</span> <span class="n">reader</span><span class="o">.</span><span class="n">schema</span><span class="p">,</span> <span class="o">**</span><span class="n">compression_options</span>
         <span class="p">)</span> <span class="k">as</span> <span class="n">writer</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">:</span>
                 <span class="n">writer</span><span class="o">.</span><span class="n">write_batch</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>

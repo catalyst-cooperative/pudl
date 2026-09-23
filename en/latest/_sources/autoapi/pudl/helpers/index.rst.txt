@@ -1270,7 +1270,7 @@ Module Contents
       Get name of an individual parquet file corresponding to a single partition of data.
 
 
-.. py:function:: persist_table_as_parquet(table_data: pandas.DataFrame | polars.LazyFrame | duckdb.DuckDBPyRelation, table_name: str, partitions: dict[str, Any] | None = None, compression: Literal['zstd', 'snappy', 'gzip', 'brotli'] = 'zstd') -> ParquetData
+.. py:function:: persist_table_as_parquet(table_data: pandas.DataFrame | polars.LazyFrame | duckdb.DuckDBPyRelation, table_name: str, partitions: dict[str, Any] | None = None) -> ParquetData
 
    Write data from DataFrame or LazyFrame to disk as a parquet file.
 
@@ -1281,6 +1281,9 @@ Module Contents
    :param table_name: Table name used to construct path to/name of parquet file.
    :param partitions: Optional partition dimension values indicating the data to be
                       written.
+
+   The file is compressed with :data:`pudl.PARQUET_COMPRESSION` at
+   :data:`pudl.PARQUET_COMPRESSION_LEVEL`.
 
 
 .. py:function:: lf_from_parquet(parquet_data: ParquetData, use_all_partitions: bool = False) -> polars.LazyFrame

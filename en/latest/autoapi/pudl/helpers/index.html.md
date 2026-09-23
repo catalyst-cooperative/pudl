@@ -1205,7 +1205,7 @@ Get path to directory for writing/reading parquet files.
 
 Get name of an individual parquet file corresponding to a single partition of data.
 
-### pudl.helpers.persist_table_as_parquet(table_data: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | polars.LazyFrame | [duckdb.DuckDBPyRelation](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyRelation), table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), partitions: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any] | [None](https://docs.python.org/3/builtins/constants.html#None) = None, compression: Literal['zstd', 'snappy', 'gzip', 'brotli'] = 'zstd') → [ParquetData](#pudl.helpers.ParquetData)
+### pudl.helpers.persist_table_as_parquet(table_data: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | polars.LazyFrame | [duckdb.DuckDBPyRelation](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyRelation), table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), partitions: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any] | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [ParquetData](#pudl.helpers.ParquetData)
 
 Write data from DataFrame or LazyFrame to disk as a parquet file.
 
@@ -1217,6 +1217,9 @@ transforms.
   * **table_name** – Table name used to construct path to/name of parquet file.
   * **partitions** – Optional partition dimension values indicating the data to be
     written.
+
+The file is compressed with [`pudl.PARQUET_COMPRESSION`](../index.html.md#pudl.PARQUET_COMPRESSION) at
+[`pudl.PARQUET_COMPRESSION_LEVEL`](../index.html.md#pudl.PARQUET_COMPRESSION_LEVEL).
 
 ### pudl.helpers.lf_from_parquet(parquet_data: [ParquetData](#pudl.helpers.ParquetData), use_all_partitions: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → polars.LazyFrame
 

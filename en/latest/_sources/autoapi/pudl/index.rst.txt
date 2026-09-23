@@ -46,6 +46,9 @@ Attributes
    pudl.PUDL_DOCS_PATH
    pudl.PUDL_NIGHTLY_BUILDS_BASE_PATH
    pudl.PUDL_EEL_HOLE_BASE_PATH
+   pudl.PARQUET_COMPRESSION
+   pudl.PARQUET_COMPRESSION_LEVEL
+   pudl.PARQUET_GEOMETRY_COMPRESSION_LEVEL
    pudl.__author__
    pudl.__contact__
    pudl.__maintainer__
@@ -117,6 +120,50 @@ Package Contents
    :type:  upath.UPath
 
    Base path to eel-hole s3 outputs.
+
+.. py:data:: PARQUET_COMPRESSION
+   :type:  Literal['brotli', 'gzip', 'snappy', 'zstd']
+   :value: 'zstd'
+
+
+   The compression codec for all of PUDL's Parquet outputs.
+
+   The compression levels below depend on this codec, so revisit them if it changes.
+
+   PUDL uses ZSTD because it compresses our data better than the default SNAPPY, is fast,
+   and read time is independent of compression level. This list only includes codes that
+   are supported by all of Pandas, Polars, DuckDB, and PyArrow.
+
+.. py:data:: PARQUET_COMPRESSION_LEVEL
+   :type:  int
+   :value: 3
+
+
+   The compression level for :data:`PARQUET_COMPRESSION`, for most Parquet outputs.
+
+   Higher levels will typically write more slowly, and use more memory. Depending on the
+   algorithm, higher compression levels may also impact the time and resources required to
+   read the file. Note that different compression algorithms have different allowable
+   compression level values. See the Parquet documentation for more details:
+
+   https://parquet.apache.org/docs/file-format/data-pages/compression/
+
+   PUDL uses ZSTD level 3 because it is the Polars default and higher compression levels
+   have little impact on our data but significantly increase write times. On both PUDL's
+   float-dominated numeric time series and our wider string-dominated tables ZSTD level 9
+   only saves about 3% in overall combined file size compared to level 3, and took about
+   2.5 times as long to write.
+
+.. py:data:: PARQUET_GEOMETRY_COMPRESSION_LEVEL
+   :type:  int
+   :value: 9
+
+
+   The compression level for Parquet files with geometry columns.
+
+   Geometries (WKB) compress far better than PUDL's other data, and dominate the size of
+   the files that contain them: on the Census tract table, zstd level 9 was about 25%
+   smaller than level 3, so it is worth the slower write.
 
 .. py:data:: __author__
    :value: 'Catalyst Cooperative'
