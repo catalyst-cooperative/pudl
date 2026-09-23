@@ -80,6 +80,17 @@ Performance Improvements
   anticipation of doing incremental per-file updates. The build VM was also bumped to
   ``c4d-standard-32`` after an out-of-memory crash. See issue :issue:`5317` and PR
   :pr:`5561`.
+* Sped up the :doc:`FERC EQR <data_sources/ferceqr>` batch ETL from ~45 minutes to
+  ~25 minutes: a standalone Dagster gRPC code server, newest-quarter-first
+  partitioning, and a bounded ``ferceqr_extract`` concurrency pool. Also fixed an
+  intermittent out-of-memory kill that silently dropped a quarter from the build, by
+  capping DuckDB's resource use per connection and streaming quarterly archive
+  downloads instead of reading them into memory. See issue :issue:`5318` and PR
+  :pr:`5595`.
+* Switched all of PUDL's Parquet outputs from snappy to zstd compression, which makes
+  the files substantially smaller. The codec and compression levels are now set in one
+  place (:data:`pudl.PARQUET_COMPRESSION` and related constants) and used by every
+  Parquet writer. See :issue:`5603` and :pr:`5604`.
 
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^

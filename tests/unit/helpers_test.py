@@ -32,6 +32,7 @@ from pudl.helpers import (
     dedupe_and_drop_nas,
     dedupe_on_category,
     diff_wide_tables,
+    duckdb_connect,
     duckdb_extract_zipped_csv,
     env_var_is_true,
     expand_timeseries,
@@ -1543,7 +1544,7 @@ def test_duckdb_extract_zipped_csv_only_extracts_requested_pages(tmp_path, mocke
             dataset="test",
             partitions={"year": 2020},
             pages=["wanted.csv"],
-            datasore=datastore,
+            datastore=datastore,
             zip_path=Path("2020/"),
         )
     )
@@ -1577,7 +1578,7 @@ def test_duckdb_extract_zipped_csv_applies_explicit_column_types(tmp_path, mocke
         dataset="test",
         partitions={"year": 2020},
         pages=["wanted.csv"],
-        datasore=datastore,
+        datastore=datastore,
         zip_path=Path("2020/"),
         column_types=column_types,
     ):
@@ -1612,7 +1613,7 @@ def test_duckdb_extract_zipped_csv_without_column_types_uses_auto_detect(
         dataset="test",
         partitions={"year": 2020},
         pages=["wanted.csv"],
-        datasore=datastore,
+        datastore=datastore,
         zip_path=Path("2020/"),
     ):
         results.append((page, relation.columns, relation.fetchall()))
@@ -1648,7 +1649,7 @@ def test_duckdb_extract_zipped_csv_raises_on_wrong_column_types(tmp_path, mocker
             dataset="test",
             partitions={"year": 2020},
             pages=["wanted.csv"],
-            datasore=datastore,
+            datastore=datastore,
             zip_path=Path("2020/"),
             column_types=column_types,
         ):
@@ -1680,7 +1681,7 @@ def test_duckdb_extract_zipped_csv_raises_on_integer_narrowing(tmp_path, mocker)
             dataset="test",
             partitions={"year": 2020},
             pages=["wanted.csv"],
-            datasore=datastore,
+            datastore=datastore,
             zip_path=Path("2020/"),
             column_types=column_types,
         ):
@@ -1832,3 +1833,71 @@ def test_persist_table_as_parquet_native_writer_allow_enum_columns_flattens_to_s
 
     pandas_result = pd.read_parquet(parquet_data.parquet_path)
     assert pandas_result["code"].tolist() == ["a", "b"]
+
+
+class TestDuckdbConnect:
+    """``duckdb_connect`` applies ``PUDL_DUCKDB_*`` caps, unset -> DuckDB defaults."""
+
+    def _settings(self, conn):
+        return conn.execute(
+            "select current_setting('threads'), current_setting('memory_limit')"
+        ).fetchone()
+
+    def test_unset_env_uses_duckdb_defaults(self, monkeypatch):
+        for var in (
+            "PUDL_DUCKDB_THREADS",
+            "PUDL_DUCKDB_MEMORY_LIMIT",
+            "PUDL_DUCKDB_TEMP_DIRECTORY",
+        ):
+            monkeypatch.delenv(var, raising=False)
+        default_threads, _ = self._settings(duckdb.connect())
+        assert self._settings(duckdb_connect())[0] == default_threads
+
+    def test_env_vars_cap_the_connection(self, monkeypatch, tmp_path):
+        monkeypatch.setenv("PUDL_DUCKDB_THREADS", "2")
+        monkeypatch.setenv("PUDL_DUCKDB_MEMORY_LIMIT", "6GB")
+        monkeypatch.setenv("PUDL_DUCKDB_TEMP_DIRECTORY", str(tmp_path))
+        conn = duckdb_connect()
+        threads, mem = self._settings(conn)
+        assert threads == 2
+        assert "GiB" in mem  # 6 GB rendered as a GiB figure
+        assert conn.execute("select current_setting('temp_directory')").fetchone()[
+            0
+        ] == str(tmp_path)
+
+    def test_explicit_override_wins_over_env(self, monkeypatch):
+        monkeypatch.setenv("PUDL_DUCKDB_THREADS", "2")
+        assert self._settings(duckdb_connect(threads="1"))[0] == 1
+
+
+@pytest.mark.parametrize(
+    ("kind", "writer"),
+    [
+        ("pandas", (pd.DataFrame, "to_parquet")),
+        ("polars", (pl.LazyFrame, "sink_parquet")),
+        ("duckdb", (pq, "ParquetWriter")),
+    ],
+)
+def test_persist_table_as_parquet_compression(kind, writer, tmp_path, mocker):
+    """Every kind of table is written with the codec and level set centrally in pudl."""
+    mocker.patch("pudl.PARQUET_COMPRESSION_LEVEL", 7)
+    mocker.patch.dict(
+        "os.environ",
+        {
+            "PUDL_OUTPUT": str(tmp_path / "output"),
+            "PUDL_INPUT": str(tmp_path / "input"),
+        },
+    )
+    data = {
+        "pandas": lambda: pd.DataFrame({"a": [1, 2]}),
+        "polars": lambda: pl.LazyFrame({"a": [1, 2]}),
+        "duckdb": lambda: duckdb.sql("SELECT 1 AS a UNION ALL SELECT 2"),
+    }[kind]()
+    spy = mocker.spy(*writer)
+
+    parquet_data = persist_table_as_parquet(data, table_name=f"_test__{kind}_zstd")
+
+    assert spy.call_args.kwargs["compression"] == pudl.PARQUET_COMPRESSION
+    assert spy.call_args.kwargs["compression_level"] == 7
+    row_group = pq.read_metadata(parquet_data.parquet_path).row_group(0)
+    assert row_group.column(0).compression == pudl.PARQUET_COMPRESSION.upper()

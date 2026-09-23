@@ -2527,7 +2527,6 @@ def persist_table_as_parquet(
     table_data: pd.DataFrame | pl.LazyFrame | duckdb.DuckDBPyRelation,
     table_name: str,
     partitions: dict[str, Any] | None = None,
-    compression: Literal["zstd", "snappy", "gzip", "brotli"] = "zstd",
     use_native_duckdb_writer: bool = False,
     allow_enum_columns: bool = False,
 ) -> ParquetData:
@@ -2535,6 +2534,9 @@ def persist_table_as_parquet(
 
     Offloading data to disk allows Polars and duckdb to perform highly efficient
     transforms.
+
+    The file is compressed with :data:`pudl.PARQUET_COMPRESSION` at
+    :data:`pudl.PARQUET_COMPRESSION_LEVEL`.
 
     Args:
         table_data: Tabular data to write to disk.
@@ -2564,13 +2566,15 @@ def persist_table_as_parquet(
     """
     # Create ParquetData class to get path to write parquet file
     parquet_data = ParquetData(table_name=table_name, partitions=partitions or {})
+    compression_options: dict[str, Any] = {
+        "compression": pudl.PARQUET_COMPRESSION,
+        "compression_level": pudl.PARQUET_COMPRESSION_LEVEL,
+    }
     if isinstance(table_data, pd.DataFrame):
-        table_data.to_parquet(parquet_data.parquet_path, compression=compression)
+        table_data.to_parquet(parquet_data.parquet_path, **compression_options)
     elif isinstance(table_data, pl.LazyFrame):
         table_data.sink_parquet(
-            parquet_data.parquet_path,
-            engine="streaming",
-            compression=compression,
+            parquet_data.parquet_path, engine="streaming", **compression_options
         )
     elif isinstance(table_data, duckdb.DuckDBPyRelation):
         # DuckDB's own to_parquet() writer flattens ENUM columns down to plain
@@ -2610,13 +2614,16 @@ def persist_table_as_parquet(
                         "instead, or pass allow_enum_columns=True if that loss is "
                         "acceptable for this table."
                     )
+            # DuckDB's write_parquet() has no compression_level parameter, unlike
+            # the pandas/Polars/pyarrow writers above and below.
             table_data.write_parquet(
-                str(parquet_data.parquet_path), compression=compression
+                str(parquet_data.parquet_path),
+                compression=compression_options["compression"],
             )
         else:
             reader = table_data.to_arrow_reader(batch_size=100_000)
             with pq.ParquetWriter(
-                str(parquet_data.parquet_path), reader.schema, compression=compression
+                str(parquet_data.parquet_path), reader.schema, **compression_options
             ) as writer:
                 for batch in reader:
                     writer.write_batch(batch)
@@ -2658,6 +2665,38 @@ def df_from_parquet(
     return pd.read_parquet(parquet_data.parquet_path)
 
 
+def duckdb_connect(**overrides: str) -> duckdb.DuckDBPyConnection:
+    """Open a DuckDB connection with resource caps taken from the environment.
+
+    A DuckDB connection defaults to using every CPU core and ~80% of system RAM.
+    That is fine for one connection at a time, but PUDL runs many DuckDB-backed
+    assets concurrently -- most acutely the FERC EQR partition backfill, where a
+    dozen-plus partition runs each open their own connection. Left at the
+    defaults, N connections collectively oversubscribe the machine's cores and
+    can exhaust its memory (a load average in the hundreds, then an OOM).
+
+    ``PUDL_DUCKDB_THREADS``, ``PUDL_DUCKDB_MEMORY_LIMIT`` (e.g. ``"6GB"``), and
+    ``PUDL_DUCKDB_TEMP_DIRECTORY`` cap a single connection. When
+    ``memory_limit`` is hit DuckDB spills to ``temp_directory`` rather than
+    failing, so a too-low limit only slows a run down. All three are unset
+    outside the batch jobs, so local and CI single-asset runs keep DuckDB's
+    defaults. Explicit *overrides* win over the environment.
+    """
+    config: dict[str, Any] = {
+        key: value
+        for env_var, key in (
+            ("PUDL_DUCKDB_THREADS", "threads"),
+            ("PUDL_DUCKDB_MEMORY_LIMIT", "memory_limit"),
+            ("PUDL_DUCKDB_TEMP_DIRECTORY", "temp_directory"),
+        )
+        if (value := os.environ.get(env_var))
+    } | dict(overrides)
+    conn = duckdb.connect(config=config) if config else duckdb.connect()
+    # Disable DuckDB's progress bar, which is very noisy in non-interactive logs.
+    conn.execute("PRAGMA disable_progress_bar")
+    return conn
+
+
 @contextmanager
 def duckdb_relation_from_parquet(
     parquet_data: ParquetData, use_all_partitions: bool = False
@@ -2672,9 +2711,7 @@ def duckdb_relation_from_parquet(
         use_all_partitions: If true read the entire directory of parquet files.
             Otherwise only read data from the partition specified in parquet_data.
     """
-    with duckdb.connect() as conn:
-        # Disable DuckDB progress bar, as it is quite noisy in the logs.
-        conn.execute("PRAGMA disable_progress_bar")
+    with duckdb_connect() as conn:
         if use_all_partitions:
             yield conn.read_parquet(f"{parquet_data.parquet_directory}/*.parquet"), conn
         else:
@@ -2808,12 +2845,10 @@ def duckdb_extract_zipped_csv(
     """
     pages = list(pages)
     with (
-        duckdb.connect() as conn,
+        duckdb_connect() as conn,
         datastore.get_zipfile_resource(dataset=dataset, **partitions) as zf,
         tempfile.TemporaryDirectory() as tmp_dir,
     ):
-        # Disable DuckDB progress bar, as it is quite noisy in the logs.
-        conn.execute("PRAGMA disable_progress_bar")
         tmp_dir = Path(tmp_dir)
         # Only extract the members we actually need -- some archives (e.g. vcerare's
         # 2024 vintage) bundle other files we never read, like a ~475 MB parquet file

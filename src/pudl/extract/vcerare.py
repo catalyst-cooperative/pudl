@@ -89,7 +89,7 @@ def extract_vcerare(
             dataset="vcerare",
             partitions=partitions,
             pages=VCERARE_PAGES.keys(),
-            datasore=context.resources.datastore,
+            datastore=context.resources.datastore,
             zip_path=Path(f"{year}/"),
             column_types=_vcerare_column_types(year),
         ):
