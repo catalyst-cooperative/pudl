@@ -2681,11 +2681,98 @@ def duckdb_relation_from_parquet(
             yield conn.read_parquet(str(parquet_data.parquet_path)), conn
 
 
+_DUCKDB_INTEGER_TYPES = frozenset(
+    {
+        "TINYINT",
+        "SMALLINT",
+        "INTEGER",
+        "INT",
+        "BIGINT",
+        "HUGEINT",
+        "UTINYINT",
+        "USMALLINT",
+        "UINTEGER",
+        "UBIGINT",
+        "UHUGEINT",
+    }
+)
+
+
+def _read_typed_csv_rejecting_narrowing(
+    conn: duckdb.DuckDBPyConnection, csv_path: Path, column_types: dict[str, str]
+) -> duckdb.DuckDBPyRelation:
+    """Read a CSV with explicit column types, without silently rounding bad data.
+
+    DuckDB's CSV reader raises a ``ConversionException`` when a value can't be
+    converted to its declared type at all (e.g. text into ``DOUBLE``), so those
+    mismatches already fail loudly. But for integer types it silently rounds
+    fractional values (e.g. ``"10.5"`` -> ``11``) instead of erroring, which would
+    let a caller's incorrect ``column_types`` mapping corrupt data unnoticed.
+
+    To catch that case, integer-typed columns are read as ``DOUBLE`` first, then cast
+    down to the declared integer type. The check for a nonzero fractional part is
+    fused into that same cast expression via DuckDB's ``error()`` function, so a bad
+    value raises during the same scan that produces the output, rather than requiring
+    a separate pass that would re-read the CSV from disk a second time.
+
+    Args:
+        conn: Open DuckDB connection to read with.
+        csv_path: Path to the CSV file on disk.
+        column_types: Mapping of cleaned column name to DuckDB type, as returned by
+            a ``duckdb_extract_zipped_csv`` ``column_types`` callable.
+
+    Returns:
+        A DuckDB relation with the given column names and types.
+
+    Raises:
+        duckdb.InvalidInputException: If an integer-typed column contains a
+            fractional value that DuckDB would otherwise silently round.
+    """
+    integer_cols = {
+        col: dtype
+        for col, dtype in column_types.items()
+        if dtype.upper() in _DUCKDB_INTEGER_TYPES
+    }
+    if not integer_cols:
+        return conn.read_csv(
+            str(csv_path), header=True, auto_detect=False, columns=column_types
+        )
+
+    read_types = {
+        col: ("DOUBLE" if col in integer_cols else dtype)
+        for col, dtype in column_types.items()
+    }
+    relation = conn.read_csv(
+        str(csv_path), header=True, auto_detect=False, columns=read_types
+    )
+
+    def _narrowing_expr(col: str, dtype: str) -> str:
+        # Calling DuckDB's error() from inside the CAST raises during the same
+        # scan that produces the output, instead of requiring a separate
+        # pre-check pass that would re-read the CSV from disk a second time.
+        message = (
+            f"{csv_path.name}: column {col!r} was declared as {dtype} but "
+            "contains a fractional value that DuckDB's CSV reader would "
+            "silently round."
+        ).replace("'", "''")
+        return (
+            f'CAST(CASE WHEN "{col}" IS NOT NULL AND "{col}" != TRUNC("{col}") '
+            f"THEN error('{message}') ELSE \"{col}\" END AS {dtype}) "
+            f'AS "{col}"'
+        )
+
+    projection = ", ".join(
+        _narrowing_expr(col, integer_cols[col]) if col in integer_cols else f'"{col}"'
+        for col in column_types
+    )
+    return relation.project(projection)
+
+
 def duckdb_extract_zipped_csv(
     dataset: str,
     partitions: dict[str, Any],
     pages: Iterable[str],
-    datasore,
+    datastore,
     zip_path: Path = Path(),
     column_types: Callable[[list[str]], dict[str, str]] | None = None,
 ) -> Generator[tuple[str, duckdb.DuckDBPyRelation]]:
@@ -2705,19 +2792,24 @@ def duckdb_extract_zipped_csv(
 
     Args:
         dataset: Name of dataset (required to get archive from datastore).
-        partition: Partitions of resource to extract data from.
+        partitions: Partitions of resource to extract data from.
         pages: List of csv files to extract from archive.
         datastore: Instance of PUDL datastore to get raw data.
         zip_path: Base path within zipfile that points to where CSV files are stored.
-            If not explicitly set, assume CSV files are at the top level of the zipfile.
+            If not explicitly set, assume CSV files are at the top level of the
+            zipfile.
         column_types: Optional callable that takes the raw header row (as read
             directly from the CSV, before any cleaning) and returns a mapping of
             cleaned column name to DuckDB type.
+
+    Yields:
+        A ``(page, relation)`` tuple for each requested page, where ``page`` is the
+        CSV filename and ``relation`` is a DuckDB relation over its contents.
     """
     pages = list(pages)
     with (
         duckdb.connect() as conn,
-        datasore.get_zipfile_resource(dataset=dataset, **partitions) as zf,
+        datastore.get_zipfile_resource(dataset=dataset, **partitions) as zf,
         tempfile.TemporaryDirectory() as tmp_dir,
     ):
         # Disable DuckDB progress bar, as it is quite noisy in the logs.
@@ -2737,11 +2829,8 @@ def duckdb_extract_zipped_csv(
                     header_row = next(csv.reader(f))
                 yield (
                     page,
-                    conn.read_csv(
-                        str(csv_path),
-                        header=True,
-                        auto_detect=False,
-                        columns=column_types(header_row),
+                    _read_typed_csv_rejecting_narrowing(
+                        conn, csv_path, column_types(header_row)
                     ),
                 )
 

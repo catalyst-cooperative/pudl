@@ -1624,6 +1624,69 @@ def test_duckdb_extract_zipped_csv_without_column_types_uses_auto_detect(
     assert rows == [(1, 10.5), (2, 11.5)]
 
 
+def test_duckdb_extract_zipped_csv_raises_on_wrong_column_types(tmp_path, mocker):
+    """A column_types callable that lies about a column's type should fail loudly.
+
+    duckdb_extract_zipped_csv relies on DuckDB's default ignore_errors=False so that
+    a mismatch between the caller-supplied schema and the actual CSV contents raises
+    instead of silently coercing bad values to NULL.
+    """
+    zip_path = tmp_path / "archive.zip"
+    _make_test_zip(zip_path)
+
+    datastore = mocker.Mock()
+    datastore.get_zipfile_resource.return_value = _fake_zipfile_resource(zip_path)
+
+    def column_types(header_row: list[str]) -> dict[str, str]:
+        # wanted.csv's first column holds plain integers like "1" -- TIMESTAMP is wrong.
+        return {"hour_of_year": "TIMESTAMP"} | {
+            col.lower(): "DOUBLE" for col in header_row[1:]
+        }
+
+    with pytest.raises(duckdb.ConversionException):
+        for _page, relation in duckdb_extract_zipped_csv(
+            dataset="test",
+            partitions={"year": 2020},
+            pages=["wanted.csv"],
+            datasore=datastore,
+            zip_path=Path("2020/"),
+            column_types=column_types,
+        ):
+            relation.fetchall()
+
+
+def test_duckdb_extract_zipped_csv_raises_on_integer_narrowing(tmp_path, mocker):
+    """A fractional value declared as an integer type should fail loudly, not round.
+
+    DuckDB's CSV reader silently rounds "10.5" -> 11 when the declared type is
+    BIGINT, rather than raising like it does for other type mismatches. This test
+    locks in the extra guard duckdb_extract_zipped_csv adds on top of DuckDB's
+    default behavior to catch that case.
+    """
+    zip_path = tmp_path / "archive.zip"
+    _make_test_zip(zip_path)
+
+    datastore = mocker.Mock()
+    datastore.get_zipfile_resource.return_value = _fake_zipfile_resource(zip_path)
+
+    def column_types(header_row: list[str]) -> dict[str, str]:
+        # wanted.csv's second column contains floats like "10.5" -- BIGINT is wrong.
+        return {"hour_of_year": "BIGINT"} | {
+            col.lower(): "BIGINT" for col in header_row[1:]
+        }
+
+    with pytest.raises(duckdb.InvalidInputException, match="silently round"):
+        for _page, relation in duckdb_extract_zipped_csv(
+            dataset="test",
+            partitions={"year": 2020},
+            pages=["wanted.csv"],
+            datasore=datastore,
+            zip_path=Path("2020/"),
+            column_types=column_types,
+        ):
+            relation.fetchall()
+
+
 def test_persist_table_as_parquet_duckdb_enum_written_as_dictionary(
     tmp_path, monkeypatch
 ):
