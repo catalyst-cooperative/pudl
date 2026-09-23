@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
-    <title>pudl.extract.vcerare &#8212; PUDL 2026.9.1.dev20 documentation</title>
+    <title>pudl.extract.vcerare &#8212; PUDL 2026.9.1.dev21 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../../_static/documentation_options.js?v=f3d6aab5"></script>
+    <script src="../../../../_static/documentation_options.js?v=5a96ded3"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev20 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev20 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev21 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev21 documentation - Home"/>
   
   
 </a></div>
@@ -821,6 +821,9 @@ read in when the fips partition is set to True.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.extract.vcerare.VCERARE_PAGES" title="pudl.extract.vcerare.VCERARE_PAGES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VCERARE_PAGES</span></code></a></p></td>
 <td><p></p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.vcerare.DATETIME_HOUR_OF_YEAR_START_YEAR" title="pudl.extract.vcerare.DATETIME_HOUR_OF_YEAR_START_YEAR"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DATETIME_HOUR_OF_YEAR_START_YEAR</span></code></a></p></td>
+<td><p></p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -829,13 +832,16 @@ read in when the fips partition is set to True.</p>
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.vcerare._clean_column_names" title="pudl.extract.vcerare._clean_column_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_clean_column_names</span></code></a>(→ duckdb.DuckDBPyRelation)</p></td>
-<td><p>Apply basic cleaning to column names.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.vcerare._clean_column_name" title="pudl.extract.vcerare._clean_column_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_clean_column_name</span></code></a>(→ str)</p></td>
+<td><p>Match the raw VCE RARE column naming convention to PUDL's snake_case.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.extract.vcerare.extract_vcerare" title="pudl.extract.vcerare.extract_vcerare"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_vcerare</span></code></a>(→ tuple[dict[int, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.extract.vcerare._vcerare_column_types" title="pudl.extract.vcerare._vcerare_column_types"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_vcerare_column_types</span></code></a>(...)</p></td>
+<td><p>Build a DuckDB <code class="docutils literal notranslate"><span class="pre">columns</span></code> schema from a raw VCE RARE CSV header row.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.vcerare.extract_vcerare" title="pudl.extract.vcerare.extract_vcerare"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_vcerare</span></code></a>(→ tuple[dict[int, ...)</p></td>
 <td><p>Extract data from all vcerare pages and write to parquet files.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.vcerare.raw_vcerare__lat_lon_fips" title="pudl.extract.vcerare.raw_vcerare__lat_lon_fips"><code class="xref py py-obj docutils literal notranslate"><span class="pre">raw_vcerare__lat_lon_fips</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.extract.vcerare.raw_vcerare__lat_lon_fips" title="pudl.extract.vcerare.raw_vcerare__lat_lon_fips"><code class="xref py py-obj docutils literal notranslate"><span class="pre">raw_vcerare__lat_lon_fips</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Extract lat/lon to FIPS and county mapping CSV.</p></td>
 </tr>
 </tbody>
@@ -854,10 +860,26 @@ read in when the fips partition is set to True.</p>
 <span class="sig-prename descclassname"><span class="pre">pudl.extract.vcerare.</span></span><span class="sig-name descname"><span class="pre">VCERARE_PAGES</span></span><a class="reference internal" href="../../../../_modules/pudl/extract/vcerare.html#VCERARE_PAGES"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.vcerare.VCERARE_PAGES" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.extract.vcerare.DATETIME_HOUR_OF_YEAR_START_YEAR">
+<span class="sig-prename descclassname"><span class="pre">pudl.extract.vcerare.</span></span><span class="sig-name descname"><span class="pre">DATETIME_HOUR_OF_YEAR_START_YEAR</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2024</span></span><a class="reference internal" href="../../../../_modules/pudl/extract/vcerare.html#DATETIME_HOUR_OF_YEAR_START_YEAR"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.vcerare.DATETIME_HOUR_OF_YEAR_START_YEAR" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 <dl class="py function">
-<dt class="sig sig-object py" id="pudl.extract.vcerare._clean_column_names">
-<span class="sig-prename descclassname"><span class="pre">pudl.extract.vcerare.</span></span><span class="sig-name descname"><span class="pre">_clean_column_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_relation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyRelation" title="(in duckdb)"><span class="pre">duckdb.DuckDBPyRelation</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyRelation" title="(in duckdb)"><span class="pre">duckdb.DuckDBPyRelation</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/vcerare.html#_clean_column_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.vcerare._clean_column_names" title="Link to this definition">#</a></dt>
-<dd><p>Apply basic cleaning to column names.</p>
+<dt class="sig sig-object py" id="pudl.extract.vcerare._clean_column_name">
+<span class="sig-prename descclassname"><span class="pre">pudl.extract.vcerare.</span></span><span class="sig-name descname"><span class="pre">_clean_column_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/vcerare.html#_clean_column_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.vcerare._clean_column_name" title="Link to this definition">#</a></dt>
+<dd><p>Match the raw VCE RARE column naming convention to PUDL’s snake_case.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.extract.vcerare._vcerare_column_types">
+<span class="sig-prename descclassname"><span class="pre">pudl.extract.vcerare.</span></span><span class="sig-name descname"><span class="pre">_vcerare_column_types</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><span class="pre">collections.abc.Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/vcerare.html#_vcerare_column_types"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.vcerare._vcerare_column_types" title="Link to this definition">#</a></dt>
+<dd><p>Build a DuckDB <code class="docutils literal notranslate"><span class="pre">columns</span></code> schema from a raw VCE RARE CSV header row.</p>
+<p>Every column is a per-county/subregion capacity factor (<code class="docutils literal notranslate"><span class="pre">DOUBLE</span></code>) except the
+first, unnamed column, which is always <code class="docutils literal notranslate"><span class="pre">hour_of_year</span></code> and whose type depends
+on the report year (see <code class="docutils literal notranslate"><span class="pre">DATETIME_HOUR_OF_YEAR_START_YEAR</span></code>). The set of
+county/subregion columns is not stable across vintages, so it’s always derived
+from the actual header row rather than hardcoded.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -929,7 +951,9 @@ its extraction is controlled by a boolean in the ETL run.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.vcerare.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.vcerare.VCERARE_PAGES"><code class="docutils literal notranslate"><span class="pre">VCERARE_PAGES</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.vcerare._clean_column_names"><code class="docutils literal notranslate"><span class="pre">_clean_column_names()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.vcerare.DATETIME_HOUR_OF_YEAR_START_YEAR"><code class="docutils literal notranslate"><span class="pre">DATETIME_HOUR_OF_YEAR_START_YEAR</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.vcerare._clean_column_name"><code class="docutils literal notranslate"><span class="pre">_clean_column_name()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.vcerare._vcerare_column_types"><code class="docutils literal notranslate"><span class="pre">_vcerare_column_types()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.vcerare.extract_vcerare"><code class="docutils literal notranslate"><span class="pre">extract_vcerare()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.vcerare.raw_vcerare__lat_lon_fips"><code class="docutils literal notranslate"><span class="pre">raw_vcerare__lat_lon_fips()</span></code></a></li>
 </ul>

@@ -352,6 +352,13 @@ story.
   using complex arithmetic in calculating eigenvalues due to floating point noise in the
   imaginary components of the matrix math we were doing in our timeseries imputations.
   See PR [#5503](https://github.com/catalyst-cooperative/pudl/pull/5503).
+* Sped up VCE RARE, EIA-930, and FERC EQR raw data extraction. VCE RARE’s very wide CSVs
+  no longer make DuckDB sniff column types on every read, cutting extraction time from
+  about 5 to 1.5 minutes. EIA-930 and FERC EQR extraction switched back to DuckDB’s
+  native multi-threaded Parquet writer for untyped/ENUM-free tables, undoing a
+  performance regression introduced in [#5570](https://github.com/catalyst-cooperative/pudl/pull/5570) when we switched to the
+  single-threaded Arrow writer to preserve Categorical types. This change cuts
+  extraction time by ~25% on the largest tables. See PR [#5575](https://github.com/catalyst-cooperative/pudl/pull/5575).
 
 ### Developer Experience
 

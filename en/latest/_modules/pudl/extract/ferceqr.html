@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.extract.ferceqr &#8212; PUDL 2026.9.1.dev20 documentation</title>
+    <title>pudl.extract.ferceqr &#8212; PUDL 2026.9.1.dev21 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../_static/documentation_options.js?v=f3d6aab5"></script>
+    <script src="../../../_static/documentation_options.js?v=5a96ded3"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev20 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev20 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev21 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev21 documentation - Home"/>
   
   
 </a></div>
@@ -1045,6 +1045,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">csv_rel</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="sa">f</span><span class="s2">"*, '</span><span class="si">{</span><span class="n">year_quarter</span><span class="si">}</span><span class="s2">' AS year_quarter"</span><span class="p">),</span>
         <span class="n">table_name</span><span class="o">=</span><span class="n">_get_table_name</span><span class="p">(</span><span class="s2">"ident"</span><span class="p">,</span> <span class="n">year_quarter</span><span class="p">),</span>
         <span class="n">partitions</span><span class="o">=</span><span class="p">{</span><span class="s2">"filing"</span><span class="p">:</span> <span class="n">filing_name</span><span class="p">},</span>
+        <span class="n">use_native_duckdb_writer</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">cid</span></div>
 
@@ -1077,6 +1078,7 @@ window.runMermaid = runMermaid;</script>
         <span class="p">),</span>
         <span class="n">table_name</span><span class="o">=</span><span class="n">_get_table_name</span><span class="p">(</span><span class="n">table_type</span><span class="p">,</span> <span class="n">year_quarter</span><span class="p">),</span>
         <span class="n">partitions</span><span class="o">=</span><span class="p">{</span><span class="s2">"filing"</span><span class="p">:</span> <span class="n">filing_name</span><span class="p">},</span>
+        <span class="n">use_native_duckdb_writer</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
@@ -1283,6 +1285,10 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    ``raw_ferceqr__extract_errors`` table. ``extract_ferceqr`` builds its own</span>
 <span class="sd">    :class:`~pudl.helpers.ParquetData` pointing at this same table/quarter after</span>
 <span class="sd">    calling this function, the same way it does for the other four raw tables.</span>
+
+<span class="sd">    ``reject_errors.error_type`` is always a genuine DuckDB-internal ENUM (see</span>
+<span class="sd">    ``_get_rejected_record_counts``), so this uses ``allow_enum_columns=True`` to</span>
+<span class="sd">    write with the fast native writer.</span>
 <span class="sd">    """</span>
     <span class="n">persist_table_as_parquet</span><span class="p">(</span>
         <span class="n">duckdb_connection</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s2">"reject_errors"</span><span class="p">)</span>
@@ -1295,6 +1301,8 @@ window.runMermaid = runMermaid;</script>
         <span class="p">),</span>
         <span class="n">table_name</span><span class="o">=</span><span class="s2">"raw_ferceqr__extract_errors"</span><span class="p">,</span>
         <span class="n">partitions</span><span class="o">=</span><span class="p">{</span><span class="s2">"year_quarter"</span><span class="p">:</span> <span class="n">year_quarter</span><span class="p">},</span>
+        <span class="n">use_native_duckdb_writer</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">allow_enum_columns</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 

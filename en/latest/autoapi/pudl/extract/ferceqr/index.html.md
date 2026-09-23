@@ -180,6 +180,10 @@ each rejected record, then writes the result to the
 [`ParquetData`](../../helpers/index.html.md#pudl.helpers.ParquetData) pointing at this same table/quarter after
 calling this function, the same way it does for the other four raw tables.
 
+`reject_errors.error_type` is always a genuine DuckDB-internal ENUM (see
+`_get_rejected_record_counts`), so this uses `allow_enum_columns=True` to
+write with the fast native writer.
+
 ### pudl.extract.ferceqr.extract_ferceqr(context: [dagster.AssetExecutionContext](https://docs.dagster.io/api/dagster/execution/#dagster.AssetExecutionContext), ferceqr_archive: [pudl.dagster.resources.FercEqrArchiveResource](../../dagster/resources/index.html.md#pudl.dagster.resources.FercEqrArchiveResource) = FercEqrArchiveResource())
 
 Extract year quarter from CSVs and load to parquet files.

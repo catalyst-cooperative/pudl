@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.helpers &#8212; PUDL 2026.9.1.dev20 documentation</title>
+    <title>pudl.helpers &#8212; PUDL 2026.9.1.dev21 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../_static/documentation_options.js?v=f3d6aab5"></script>
+    <script src="../../_static/documentation_options.js?v=5a96ded3"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev20 documentation - Home"/>
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev20 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev21 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev21 documentation - Home"/>
   
   
 </a></div>
@@ -879,6 +879,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">with cleaning and restructuring dataframes.</span>
 <span class="sd">"""</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
@@ -3182,7 +3183,7 @@ window.runMermaid = runMermaid;</script>
             <span class="s2">"fraction_owned"</span><span class="p">,</span>
         <span class="p">]</span>
         <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">operator_owner_col_map</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
-    <span class="p">]</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">convert_cols_dtypes</span><span class="p">,</span> <span class="s2">"eia"</span><span class="p">)</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">convert_cols_dtypes</span><span class="p">,</span> <span class="s2">"eia"</span><span class="p">)</span>
     <span class="c1"># we're left merging BC we've removed the retired gens, which are</span>
     <span class="c1"># reported in the ownership table</span>
     <span class="n">gens</span> <span class="o">=</span> <span class="n">gens</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
@@ -3628,20 +3629,42 @@ window.runMermaid = runMermaid;</script>
     <span class="n">table_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span> <span class="o">|</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">DuckDBPyRelation</span><span class="p">,</span>
     <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">partitions</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">use_native_duckdb_writer</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">allow_enum_columns</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParquetData</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Write data from DataFrame or LazyFrame to disk as a parquet file.</span>
 
 <span class="sd">    Offloading data to disk allows Polars and duckdb to perform highly efficient</span>
 <span class="sd">    transforms.</span>
 
+<span class="sd">    The file is compressed with :data:`pudl.PARQUET_COMPRESSION` at</span>
+<span class="sd">    :data:`pudl.PARQUET_COMPRESSION_LEVEL`.</span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        table_data: Tabular data to write to disk.</span>
 <span class="sd">        table_name: Table name used to construct path to/name of parquet file.</span>
 <span class="sd">        partitions: Optional partition dimension values indicating the data to be</span>
 <span class="sd">            written.</span>
+<span class="sd">        use_native_duckdb_writer: Only used when ``table_data`` is a</span>
+<span class="sd">            ``DuckDBPyRelation``. If ``True``, use DuckDB's own multi-threaded</span>
+<span class="sd">            ``write_parquet()`` instead of the default Arrow-based batch writer.</span>
+<span class="sd">            This is faster, but flattens any ENUM columns down to plain strings,</span>
+<span class="sd">            losing the dictionary/Categorical type that the default writer</span>
+<span class="sd">            preserves for consistency with PUDL's pandas/Polars writers -- only</span>
+<span class="sd">            set this when ``table_data`` is known not to contain ENUM columns</span>
+<span class="sd">            (e.g. it's a raw-extraction relation with no metadata ``Resource``</span>
+<span class="sd">            declaring an intended categorical type), or when that dtype loss is</span>
+<span class="sd">            acceptable (see ``allow_enum_columns``).</span>
+<span class="sd">        allow_enum_columns: Only used when ``use_native_duckdb_writer`` is</span>
+<span class="sd">            ``True``. If ``True``, skips the ENUM-column check above and writes</span>
+<span class="sd">            with the native writer regardless, flattening any ENUM column to a</span>
+<span class="sd">            plain string.</span>
 
-<span class="sd">    The file is compressed with :data:`pudl.PARQUET_COMPRESSION` at</span>
-<span class="sd">    :data:`pudl.PARQUET_COMPRESSION_LEVEL`.</span>
+<span class="sd">    Raises:</span>
+<span class="sd">        TypeError: If ``table_data`` isn't a ``pd.DataFrame``, ``pl.LazyFrame``, or</span>
+<span class="sd">            ``duckdb.DuckDBPyRelation``.</span>
+<span class="sd">        ValueError: If ``use_native_duckdb_writer`` is ``True``, ``table_data``</span>
+<span class="sd">            contains an ENUM column, and ``allow_enum_columns`` is ``False``.</span>
 <span class="sd">    """</span>
     <span class="c1"># Create ParquetData class to get path to write parquet file</span>
     <span class="n">parquet_data</span> <span class="o">=</span> <span class="n">ParquetData</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="n">table_name</span><span class="p">,</span> <span class="n">partitions</span><span class="o">=</span><span class="n">partitions</span> <span class="ow">or</span> <span class="p">{})</span>
@@ -3676,12 +3699,36 @@ window.runMermaid = runMermaid;</script>
         <span class="c1"># data is processed rarely and quarters are written in parallel, so the</span>
         <span class="c1"># wall-clock cost of any one partition writing more slowly matters less</span>
         <span class="c1"># than getting correct, cross-backend-readable categorical dtypes.</span>
-        <span class="n">reader</span> <span class="o">=</span> <span class="n">table_data</span><span class="o">.</span><span class="n">to_arrow_reader</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="mi">100_000</span><span class="p">)</span>
-        <span class="k">with</span> <span class="n">pq</span><span class="o">.</span><span class="n">ParquetWriter</span><span class="p">(</span>
-            <span class="nb">str</span><span class="p">(</span><span class="n">parquet_data</span><span class="o">.</span><span class="n">parquet_path</span><span class="p">),</span> <span class="n">reader</span><span class="o">.</span><span class="n">schema</span><span class="p">,</span> <span class="o">**</span><span class="n">compression_options</span>
-        <span class="p">)</span> <span class="k">as</span> <span class="n">writer</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">:</span>
-                <span class="n">writer</span><span class="o">.</span><span class="n">write_batch</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">use_native_duckdb_writer</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">allow_enum_columns</span><span class="p">:</span>
+                <span class="n">enum_cols</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">col</span>
+                    <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">dtype</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                        <span class="n">table_data</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">table_data</span><span class="o">.</span><span class="n">types</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"ENUM"</span><span class="p">)</span>
+                <span class="p">]</span>
+                <span class="k">if</span> <span class="n">enum_cols</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">"use_native_duckdb_writer=True was requested for </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">, "</span>
+                        <span class="sa">f</span><span class="s2">"but it has ENUM column(s) </span><span class="si">{</span><span class="n">enum_cols</span><span class="si">}</span><span class="s2"> that would silently lose "</span>
+                        <span class="s2">"their dictionary type. Use the default Arrow-based writer "</span>
+                        <span class="s2">"instead, or pass allow_enum_columns=True if that loss is "</span>
+                        <span class="s2">"acceptable for this table."</span>
+                    <span class="p">)</span>
+            <span class="c1"># DuckDB's write_parquet() has no compression_level parameter, unlike</span>
+            <span class="c1"># the pandas/Polars/pyarrow writers above and below.</span>
+            <span class="n">table_data</span><span class="o">.</span><span class="n">write_parquet</span><span class="p">(</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">parquet_data</span><span class="o">.</span><span class="n">parquet_path</span><span class="p">),</span>
+                <span class="n">compression</span><span class="o">=</span><span class="n">compression_options</span><span class="p">[</span><span class="s2">"compression"</span><span class="p">],</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">reader</span> <span class="o">=</span> <span class="n">table_data</span><span class="o">.</span><span class="n">to_arrow_reader</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="mi">100_000</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">pq</span><span class="o">.</span><span class="n">ParquetWriter</span><span class="p">(</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">parquet_data</span><span class="o">.</span><span class="n">parquet_path</span><span class="p">),</span> <span class="n">reader</span><span class="o">.</span><span class="n">schema</span><span class="p">,</span> <span class="o">**</span><span class="n">compression_options</span>
+            <span class="p">)</span> <span class="k">as</span> <span class="n">writer</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">:</span>
+                    <span class="n">writer</span><span class="o">.</span><span class="n">write_batch</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
             <span class="s2">"table_data must be of type pd.DataFrame, pl.LazyFrame or duckdb.DuckDBPyRelation."</span>
@@ -3767,7 +3814,7 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../autoapi/pudl/helpers/index.html#pudl.helpers.duckdb_relation_from_parquet">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">duckdb_relation_from_parquet</span><span class="p">(</span>
     <span class="n">parquet_data</span><span class="p">:</span> <span class="n">ParquetData</span><span class="p">,</span> <span class="n">use_all_partitions</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">duckdb</span><span class="o">.</span><span class="n">DuckDBPyRelation</span><span class="p">,</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">DuckDBPyConnection</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">duckdb</span><span class="o">.</span><span class="n">DuckDBPyRelation</span><span class="p">,</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">DuckDBPyConnection</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">"""Create a duckdb relation to read from parquet files.</span>
 
 <span class="sd">    This method is intended to be used as a context manager to keep the duckdb</span>
@@ -3786,15 +3833,109 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<div class="viewcode-block" id="_DUCKDB_INTEGER_TYPES">
+<a class="viewcode-back" href="../../autoapi/pudl/helpers/index.html#pudl.helpers._DUCKDB_INTEGER_TYPES">[docs]</a>
+<span class="n">_DUCKDB_INTEGER_TYPES</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">"TINYINT"</span><span class="p">,</span>
+        <span class="s2">"SMALLINT"</span><span class="p">,</span>
+        <span class="s2">"INTEGER"</span><span class="p">,</span>
+        <span class="s2">"INT"</span><span class="p">,</span>
+        <span class="s2">"BIGINT"</span><span class="p">,</span>
+        <span class="s2">"HUGEINT"</span><span class="p">,</span>
+        <span class="s2">"UTINYINT"</span><span class="p">,</span>
+        <span class="s2">"USMALLINT"</span><span class="p">,</span>
+        <span class="s2">"UINTEGER"</span><span class="p">,</span>
+        <span class="s2">"UBIGINT"</span><span class="p">,</span>
+        <span class="s2">"UHUGEINT"</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_read_typed_csv_rejecting_narrowing">
+<a class="viewcode-back" href="../../autoapi/pudl/helpers/index.html#pudl.helpers._read_typed_csv_rejecting_narrowing">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_read_typed_csv_rejecting_narrowing</span><span class="p">(</span>
+    <span class="n">conn</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">DuckDBPyConnection</span><span class="p">,</span> <span class="n">csv_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">column_types</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">DuckDBPyRelation</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Read a CSV with explicit column types, without silently rounding bad data.</span>
+
+<span class="sd">    DuckDB's CSV reader raises a ``ConversionException`` when a value can't be</span>
+<span class="sd">    converted to its declared type at all (e.g. text into ``DOUBLE``), so those</span>
+<span class="sd">    mismatches already fail loudly. But for integer types it silently rounds</span>
+<span class="sd">    fractional values (e.g. ``"10.5"`` -&gt; ``11``) instead of erroring, which would</span>
+<span class="sd">    let a caller's incorrect ``column_types`` mapping corrupt data unnoticed.</span>
+
+<span class="sd">    To catch that case, integer-typed columns are read as ``DOUBLE`` first, then cast</span>
+<span class="sd">    down to the declared integer type. The check for a nonzero fractional part is</span>
+<span class="sd">    fused into that same cast expression via DuckDB's ``error()`` function, so a bad</span>
+<span class="sd">    value raises during the same scan that produces the output, rather than requiring</span>
+<span class="sd">    a separate pass that would re-read the CSV from disk a second time.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        conn: Open DuckDB connection to read with.</span>
+<span class="sd">        csv_path: Path to the CSV file on disk.</span>
+<span class="sd">        column_types: Mapping of cleaned column name to DuckDB type, as returned by</span>
+<span class="sd">            a ``duckdb_extract_zipped_csv`` ``column_types`` callable.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A DuckDB relation with the given column names and types.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        duckdb.InvalidInputException: If an integer-typed column contains a</span>
+<span class="sd">            fractional value that DuckDB would otherwise silently round.</span>
+<span class="sd">    """</span>
+    <span class="n">integer_cols</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">col</span><span class="p">:</span> <span class="n">dtype</span>
+        <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">dtype</span> <span class="ow">in</span> <span class="n">column_types</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">dtype</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="ow">in</span> <span class="n">_DUCKDB_INTEGER_TYPES</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">integer_cols</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">conn</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">csv_path</span><span class="p">),</span> <span class="n">header</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">auto_detect</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">column_types</span>
+        <span class="p">)</span>
+
+    <span class="n">read_types</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">col</span><span class="p">:</span> <span class="p">(</span><span class="s2">"DOUBLE"</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">integer_cols</span> <span class="k">else</span> <span class="n">dtype</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">dtype</span> <span class="ow">in</span> <span class="n">column_types</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+    <span class="p">}</span>
+    <span class="n">relation</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">csv_path</span><span class="p">),</span> <span class="n">header</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">auto_detect</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">read_types</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_narrowing_expr</span><span class="p">(</span><span class="n">col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="c1"># Calling DuckDB's error() from inside the CAST raises during the same</span>
+        <span class="c1"># scan that produces the output, instead of requiring a separate</span>
+        <span class="c1"># pre-check pass that would re-read the CSV from disk a second time.</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">csv_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: column </span><span class="si">{</span><span class="n">col</span><span class="si">!r}</span><span class="s2"> was declared as </span><span class="si">{</span><span class="n">dtype</span><span class="si">}</span><span class="s2"> but "</span>
+            <span class="s2">"contains a fractional value that DuckDB's CSV reader would "</span>
+            <span class="s2">"silently round."</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"'"</span><span class="p">,</span> <span class="s2">"''"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'CAST(CASE WHEN "</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s1">" IS NOT NULL AND "</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s1">" != TRUNC("</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s1">") '</span>
+            <span class="sa">f</span><span class="s2">"THEN error('</span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">') ELSE </span><span class="se">\"</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="se">\"</span><span class="s2"> END AS </span><span class="si">{</span><span class="n">dtype</span><span class="si">}</span><span class="s2">) "</span>
+            <span class="sa">f</span><span class="s1">'AS "</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s1">"'</span>
+        <span class="p">)</span>
+
+    <span class="n">projection</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">_narrowing_expr</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">integer_cols</span><span class="p">[</span><span class="n">col</span><span class="p">])</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">integer_cols</span> <span class="k">else</span> <span class="sa">f</span><span class="s1">'"</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s1">"'</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">column_types</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">relation</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="n">projection</span><span class="p">)</span></div>
+
+
+
 <div class="viewcode-block" id="duckdb_extract_zipped_csv">
 <a class="viewcode-back" href="../../autoapi/pudl/helpers/index.html#pudl.helpers.duckdb_extract_zipped_csv">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">duckdb_extract_zipped_csv</span><span class="p">(</span>
     <span class="n">dataset</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">partitions</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
-    <span class="n">pages</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-    <span class="n">datasore</span><span class="p">,</span>
+    <span class="n">pages</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">datastore</span><span class="p">,</span>
     <span class="n">zip_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(),</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ParquetData</span><span class="p">]:</span>
+    <span class="n">column_types</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">DuckDBPyRelation</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">"""Extract data from zipped CSV page(s) in a data archive.</span>
 
 <span class="sd">    A common pattern for raw PUDL data is a set of zipfiles with one zipfile per</span>
@@ -3804,24 +3945,52 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    each CSV file within a zipfile, allowing the caller to perform transforms using</span>
 <span class="sd">    the relation before writing to disk with the ``offload_table`` function.</span>
 
+<span class="sd">    ``column_types``, when provided, allows the caller to avoid using DuckDB's CSV</span>
+<span class="sd">    column type auto-detection entirely in favor of providing an explicit schema. This</span>
+<span class="sd">    is useful because header/type sniffing is the dominant cost for very wide CSVs. When</span>
+<span class="sd">    omitted, the function falls back to DuckDB's normal auto-detection.</span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        dataset: Name of dataset (required to get archive from datastore).</span>
-<span class="sd">        partition: Partitions of resource to extract data from.</span>
+<span class="sd">        partitions: Partitions of resource to extract data from.</span>
 <span class="sd">        pages: List of csv files to extract from archive.</span>
 <span class="sd">        datastore: Instance of PUDL datastore to get raw data.</span>
 <span class="sd">        zip_path: Base path within zipfile that points to where CSV files are stored.</span>
-<span class="sd">            If not explicitly set, assume CSV files are at the top level of the zipfile.</span>
+<span class="sd">            If not explicitly set, assume CSV files are at the top level of the</span>
+<span class="sd">            zipfile.</span>
+<span class="sd">        column_types: Optional callable that takes the raw header row (as read</span>
+<span class="sd">            directly from the CSV, before any cleaning) and returns a mapping of</span>
+<span class="sd">            cleaned column name to DuckDB type.</span>
+
+<span class="sd">    Yields:</span>
+<span class="sd">        A ``(page, relation)`` tuple for each requested page, where ``page`` is the</span>
+<span class="sd">        CSV filename and ``relation`` is a DuckDB relation over its contents.</span>
 <span class="sd">    """</span>
+    <span class="n">pages</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">pages</span><span class="p">)</span>
     <span class="k">with</span> <span class="p">(</span>
         <span class="n">duckdb_connect</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">,</span>
-        <span class="n">datasore</span><span class="o">.</span><span class="n">get_zipfile_resource</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="o">**</span><span class="n">partitions</span><span class="p">)</span> <span class="k">as</span> <span class="n">zf</span><span class="p">,</span>
+        <span class="n">datastore</span><span class="o">.</span><span class="n">get_zipfile_resource</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="o">**</span><span class="n">partitions</span><span class="p">)</span> <span class="k">as</span> <span class="n">zf</span><span class="p">,</span>
         <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp_dir</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="n">tmp_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span>
-        <span class="n">zf</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span>
+        <span class="c1"># Only extract the members we actually need -- some archives (e.g. vcerare's</span>
+        <span class="c1"># 2024 vintage) bundle other files we never read, like a ~475 MB parquet file</span>
+        <span class="c1"># and __MACOSX/ junk.</span>
+        <span class="n">zf</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">,</span> <span class="n">members</span><span class="o">=</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">zip_path</span> <span class="o">/</span> <span class="n">page</span><span class="p">)</span> <span class="k">for</span> <span class="n">page</span> <span class="ow">in</span> <span class="n">pages</span><span class="p">])</span>
 
         <span class="k">for</span> <span class="n">page</span> <span class="ow">in</span> <span class="n">pages</span><span class="p">:</span>
-            <span class="k">yield</span> <span class="n">page</span><span class="p">,</span> <span class="n">conn</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">tmp_dir</span> <span class="o">/</span> <span class="n">zip_path</span> <span class="o">/</span> <span class="n">page</span><span class="p">))</span></div>
+            <span class="n">csv_path</span> <span class="o">=</span> <span class="n">tmp_dir</span> <span class="o">/</span> <span class="n">zip_path</span> <span class="o">/</span> <span class="n">page</span>
+            <span class="k">if</span> <span class="n">column_types</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">page</span><span class="p">,</span> <span class="n">conn</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">csv_path</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">csv_path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">newline</span><span class="o">=</span><span class="s2">""</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">header_row</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">f</span><span class="p">))</span>
+                <span class="k">yield</span> <span class="p">(</span>
+                    <span class="n">page</span><span class="p">,</span>
+                    <span class="n">_read_typed_csv_rejecting_narrowing</span><span class="p">(</span>
+                        <span class="n">conn</span><span class="p">,</span> <span class="n">csv_path</span><span class="p">,</span> <span class="n">column_types</span><span class="p">(</span><span class="n">header_row</span><span class="p">)</span>
+                    <span class="p">),</span>
+                <span class="p">)</span></div>
 
 
 
