@@ -567,7 +567,7 @@ def impute_latc_tnn(
     lambda0: float = 2e-7,
     theta: int = 20,
     epsilon: float = 1e-7,
-    maxiter: int = 300,
+    max_iterations: int = 300,
     min_iterations: int = 50,
 ) -> np.ndarray:
     """Impute tensor values with LATC-TNN method by Chen and Sun (2020).
@@ -587,11 +587,10 @@ def impute_latc_tnn(
         lambda0:
         theta:
         epsilon: Convergence criterion. A smaller number will result in more iterations.
-        maxiter: Maximum number of iterations.
+        max_iterations: Maximum number of iterations.
         min_iterations: Minimum number of iterations before the ``epsilon``
-            convergence check is allowed to stop the loop. See PUDL issue #5649:
-            the relative change between iterations can dip transiently in the
-            first few iterations (before the algorithm has done any real work)
+            convergence check is allowed to stop the loop. The relative change
+            between iterations can dip transiently in the first few iterations
             without indicating genuine convergence, so `epsilon` alone is not a
             safe stopping criterion for iterations before this floor.
 
@@ -611,8 +610,7 @@ def impute_latc_tnn(
     z[pos_missing] = np.mean(mat[mat != 0])
     # `a` is always overwritten by `a[m, :] = np.linalg.pinv(qm) @ ...` below
     # before it is read, and is unused entirely when `lambda0 <= 0`, so its
-    # initial value doesn't matter -- no need for it to be random. See PUDL
-    # issue #5649.
+    # initial value doesn't matter.
     a = np.zeros((dim[0], d))
     it = 0
     ind = np.zeros((d, dim_time - max_lag), dtype=int)
@@ -657,7 +655,7 @@ def impute_latc_tnn(
         it += 1
         if it % 25 == 0:
             logger.info(f"impute_latc_tnn: iteration {it}, tol={tol:.2e}")
-        if (tol < epsilon and it >= min_iterations) or it >= maxiter:
+        if (tol < epsilon and it >= min_iterations) or it >= max_iterations:
             break
     logger.info(f"impute_latc_tnn: converged after {it} iterations (tol={tol:.2e})")
     return tensor_hat
@@ -692,7 +690,7 @@ def impute_latc_tubal(  # noqa: C901
     rho0: float = 1e-7,
     lambda0: float = 2e-7,
     epsilon: float = 1e-7,
-    maxiter: int = 300,
+    max_iterations: int = 300,
     min_iterations: int = 50,
 ) -> np.ndarray:
     """Impute tensor values with LATC-Tubal method by Chen, Chen and Sun (2020).
@@ -711,17 +709,15 @@ def impute_latc_tubal(  # noqa: C901
         rho0:
         lambda0:
         epsilon: Convergence criterion. A smaller number will result in more iterations.
-        maxiter: Maximum number of iterations.
+        max_iterations: Maximum number of iterations.
         min_iterations: Minimum number of iterations before the ``epsilon``
-            convergence check is allowed to stop the loop. See PUDL issue
-            #5649: the relative change between iterations dips sharply
-            (sometimes below `1e-5`) in the first ~10 iterations, before
-            bouncing back up by several orders of magnitude once the
-            algorithm starts doing real work, and the internal basis
-            (``phi``) is recomputed every 10 iterations thereafter, causing a
-            smaller but similarly-shaped periodic dip-and-bounce for the rest
-            of the run. `epsilon` alone is not a safe stopping criterion for
-            iterations before this floor.
+            convergence check is allowed to stop the loop. The relative change
+            between iterations dips sharply in the first ~10 iterations, before
+            bouncing back up by several orders of magnitude once the algorithm
+            starts doing real work, and the internal basis (``phi``) is recomputed
+            every 10 iterations thereafter, causing a smaller periodic
+            dip-and-bounce for the rest of the run. `epsilon` alone is not a safe
+            stopping criterion for iterations before this floor.
 
     Returns:
         Tensor with missing values in `tensor` replaced by imputed values.
@@ -743,8 +739,7 @@ def impute_latc_tubal(  # noqa: C901
     z[pos_missing] = np.mean(mat[mat != 0])
     # `a` is always overwritten by `a[m, :] = np.linalg.pinv(qm) @ ...` below
     # before it is read, and is unused entirely when `lambda0 <= 0`, so its
-    # initial value doesn't matter -- no need for it to be random. See PUDL
-    # issue #5649.
+    # initial value doesn't matter.
     a = np.zeros((dim[0], d))
     it = 0
     ind = np.zeros((d, dim_time - max_lag), dtype=np.int_)
@@ -759,12 +754,11 @@ def impute_latc_tubal(  # noqa: C901
     # downstream _tsvt() einsum/SVD calls into much slower complex arithmetic.
     _, phi = np.linalg.eigh(temp1 @ temp1.T)
     del temp1
-    # [2026-09 stable-imputation] Thresholds raised from 5e3/1e4 to 1e4/2e4.
-    # A full year of hourly data (our largest current use case) has at most
-    # 8,784 time steps (leap year), so this makes the fit below deterministic
-    # for all current production imputation without removing the subsampling
-    # path for any future higher-resolution dataset that needs it. See
-    # PUDL issue #5649.
+    # Thresholds raised from 5e3/1e4 to 1e4/2e4. A full year of hourly data
+    # (our largest current use case) has at most 8,784 time steps (leap year),
+    # so this makes the fit below deterministic for all current production
+    # imputation without removing the subsampling path for any future
+    # higher-resolution dataset that needs it.
     if dim_time > 1e4 and dim_time <= 2e4:
         sample_rate = 0.2
     elif dim_time > 2e4:
@@ -806,7 +800,7 @@ def impute_latc_tubal(  # noqa: C901
             del temp1
         if it % 25 == 0:
             logger.info(f"impute_latc_tubal: iteration {it}, tol={tol:.2e}")
-        if (tol < epsilon and it >= min_iterations) or it >= maxiter:
+        if (tol < epsilon and it >= min_iterations) or it >= max_iterations:
             break
     logger.info(f"impute_latc_tubal: converged after {it} iterations (tol={tol:.2e})")
     return x
@@ -1732,7 +1726,7 @@ def _merge_imputed(
     # rows that were actually imputed. Only applies where the row was part of
     # the imputed matrix at all (`imputed_value_col` not null); rows dropped
     # from the matrix entirely (e.g. all-null columns, or years/ids outside
-    # this run) are left as-is. See PUDL issue #5649.
+    # this run) are left as-is.
     unflagged = merged["flags"].isna() & merged["imputed_value_col"].notna()
     merged.loc[unflagged, "imputed_value_col"] = merged.loc[unflagged, "value_col"]
 
@@ -1934,7 +1928,7 @@ class ImputeTimeseriesSettings:
     ``years_from_context``). Use this instead of hardcoding a year based on
     wall-clock date -- e.g. ``date.today().year`` -- which makes two builds of
     the same input data pick different methods depending on when they happen
-    to run. See PUDL issue #5649.
+    to run.
     """
     simulate_flags_settings: SimulateFlagsSettings | None = None
     """Settings to simulate flagged values and score imputation.

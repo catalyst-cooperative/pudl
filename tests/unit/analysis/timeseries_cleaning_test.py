@@ -100,8 +100,12 @@ def test_impute_latc_tubal_deterministic_below_subsample_threshold() -> None:
     tensor = timeseries_cleaning.fold_tensor(x, periods=24)
     assert tensor.shape[1] * tensor.shape[2] == 7200
 
-    result1 = timeseries_cleaning.impute_latc_tubal(tensor.copy(), maxiter=5, rho0=1)
-    result2 = timeseries_cleaning.impute_latc_tubal(tensor.copy(), maxiter=5, rho0=1)
+    result1 = timeseries_cleaning.impute_latc_tubal(
+        tensor.copy(), max_iterations=5, rho0=1
+    )
+    result2 = timeseries_cleaning.impute_latc_tubal(
+        tensor.copy(), max_iterations=5, rho0=1
+    )
 
     np.testing.assert_array_equal(result1, result2)
 
@@ -127,8 +131,12 @@ def test_impute_latc_tubal_still_stochastic_above_subsample_threshold() -> None:
     tensor = timeseries_cleaning.fold_tensor(x, periods=24)
     assert tensor.shape[1] * tensor.shape[2] == 12000
 
-    result1 = timeseries_cleaning.impute_latc_tubal(tensor.copy(), maxiter=2, rho0=1)
-    result2 = timeseries_cleaning.impute_latc_tubal(tensor.copy(), maxiter=2, rho0=1)
+    result1 = timeseries_cleaning.impute_latc_tubal(
+        tensor.copy(), max_iterations=2, rho0=1
+    )
+    result2 = timeseries_cleaning.impute_latc_tubal(
+        tensor.copy(), max_iterations=2, rho0=1
+    )
 
     assert not np.array_equal(result1, result2)
 
@@ -155,10 +163,10 @@ def test_min_iterations_floor_delays_convergence_check(imputer) -> None:
     tensor = timeseries_cleaning.fold_tensor(x, periods=24)
 
     result_with_floor = imputer(
-        tensor.copy(), epsilon=1.0, min_iterations=10, maxiter=300, rho0=1
+        tensor.copy(), epsilon=1.0, min_iterations=10, max_iterations=300, rho0=1
     )
     result_no_floor = imputer(
-        tensor.copy(), epsilon=1.0, min_iterations=0, maxiter=300, rho0=1
+        tensor.copy(), epsilon=1.0, min_iterations=0, max_iterations=300, rho0=1
     )
 
     # With no floor, epsilon=1.0 is satisfied trivially at iteration 1, so
@@ -235,7 +243,7 @@ def test_splice_does_not_introduce_large_discontinuities() -> None:
     flagged_matrix.iloc[start:end, 0] = np.nan
 
     imputed = timeseries_cleaning.impute(
-        flagged_matrix, method="tubal", rho0=1, maxiter=100
+        flagged_matrix, method="tubal", rho0=1, max_iterations=100
     )
     unflagged_mask = flagged_matrix.notna()
     spliced = imputed.where(~unflagged_mask, reported)
@@ -301,10 +309,10 @@ def test_flags_and_imputes_anomalies(series_seed, anomalies_seed) -> None:
     for method in "tubal", "tnn":
         # Impute null values
         imputed0 = timeseries_cleaning.impute(
-            matrix, mask=mask, method=method, rho0=1, maxiter=1
+            matrix, mask=mask, method=method, rho0=1, max_iterations=1
         )
         imputed = timeseries_cleaning.impute(
-            matrix, mask=mask, method=method, rho0=1, maxiter=100
+            matrix, mask=mask, method=method, rho0=1, max_iterations=100
         )
         # Deviations between original and imputed values
         fit0 = timeseries_cleaning.summarize_imputed(matrix, imputed0, mask)
