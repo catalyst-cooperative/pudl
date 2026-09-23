@@ -1685,12 +1685,6 @@ class SimulateFlagsSettings:
     """
     mape_threshold: float = 0.05
     """Maximum allowable mean absolute percent error computed on simulated values. Will be checked in an asset check."""
-    seed: int = 0
-    """Seed for the random selection of reference/simulation months.
-
-    Makes the simulated MAPE asset check reproducible between otherwise
-    identical builds. See PUDL issue #5649.
-    """
 
 
 class SimulationDataFrame(pa.DataFrameModel):
@@ -1874,7 +1868,7 @@ def get_simulated_flag_mask(
     # It doesn't matter which months in particular get matched up
     simulation_df = pd.concat(
         [
-            bad_months.sample(num_months, random_state=settings.seed)
+            bad_months.sample(num_months)
             .rename(
                 columns={
                     "id_col": "reference_id_col",
@@ -1882,7 +1876,7 @@ def get_simulated_flag_mask(
                 }
             )[["reference_id_col", "reference_month"]]
             .reset_index(),
-            good_months.sample(num_months, random_state=settings.seed)
+            good_months.sample(num_months)
             .rename(
                 columns={
                     "id_col": "simulation_id_col",
