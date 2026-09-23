@@ -65,6 +65,8 @@ Bug Fixes & Data Cleaning
   :ref:`core_ferc1__yearly_cash_flows_sched120` without ``row_type_xbrl``,
   ``is_within_table_calc``, ``balance``, or ``ferc_account`` metadata. See
   :issue:`5587` and :pr:`5588`.
+* Fixed tags for new 2025 XBRL factoids and rescued the ``ferc_account`` field in
+  :ref:`out_ferc1__yearly_rate_base`. See :issue:`5520` and :pr:`5597`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
