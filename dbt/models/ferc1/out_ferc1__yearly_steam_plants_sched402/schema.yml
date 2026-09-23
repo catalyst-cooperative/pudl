@@ -48,10 +48,17 @@ sources:
               arguments:
                 partition_expr: report_year
           - expect_one2one_mapping:
+              description: |-
+                Raised from 6 to 7 in PR #5642, which made plant_id_ferc1 assignment reproducible by
+                sorting the clustering model's inputs. That also made the clustering itself
+                input-order-independent, which shifted one ambiguous case (utility 260's "g t indirect
+                chgs." / "g.t-indirect chgs." plant, a generic accounting line rather than a real
+                physical plant) from two correctly separate plant_id_ferc1 clusters into one that spans
+                two plant_id_pudl values. See #5609.
               arguments:
                 groupby_column: plant_id_ferc1
                 counted_column: plant_id_pudl
-                n_acceptable: 6
+                n_acceptable: 7
           - dbt_expectations.expect_compound_columns_to_be_unique:
               arguments:
                 column_list:
