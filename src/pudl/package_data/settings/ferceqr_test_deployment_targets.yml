@@ -1,5 +1,9 @@
 ---
+# Non-production FERC EQR deployment targets, used by the build-deploy-ferceqr
+# workflow in "test" mode. Fixed paths (no append_build_id) so test runs
+# exercise the same snapshot-and-promote-over-existing behavior as production.
+# The S3 entry writes to a scratch prefix in the production bucket because that
+# is the only S3 bucket available.
 deployment_targets:
-  - path: gs://test.catalyst.coop
-    storage_options: {}
-    append_build_id: true
+  - path: gs://test.catalyst.coop/ferceqr
+  - path: s3://pudl.catalyst.coop/ferceqr_test

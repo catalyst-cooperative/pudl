@@ -506,11 +506,6 @@
       "concise_description": "Argument `dict[str, str]` is not assignable to parameter `obj` with type `DataFrame | GeoDataFrame | LazyFrame` in function `pudl.dagster.io_managers.PudlParquetIOManager.handle_output`"
     },
     {
-      "path": "src/pudl/extract/epacems.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `dict[str, type[Categorical] | type[Date] | type[Float64] | type[Int16] | type[Int64] | type[String]]` is not assignable to parameter `dtypes` with type `DataType | DataTypeClass | DataTypeExpr | Mapping[DataType | DataTypeClass | Selector | str, DataType | DataTypeClass | type[Decimal | bool | bytes | date | datetime | float | int | list[Any] | object | str | time | timedelta | tuple[Any, ...] | None]] | Schema` in function `polars.lazyframe.frame.LazyFrame.cast`"
-    },
-    {
       "path": "src/pudl/output/ferc1.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `dict_keys[Hashable, dict[Hashable, Any]]` is not assignable to parameter `tuples` with type `Iterable[tuple[Hashable, ...]]` in function `pandas.core.indexes.multi.MultiIndex.from_tuples`"
