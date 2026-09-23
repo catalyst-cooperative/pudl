@@ -58,6 +58,25 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
 
 ### Performance Improvements
 
+* Sped up the [FERC EQR](data_sources/ferceqr.html.md) batch deployment to cloud object
+  storage from ~3 hours to ~5 minutes. Uploads to and server-side copies within S3 now
+  go through `boto3` in the new [`pudl.deploy.s3_transfer`](autoapi/pudl/deploy/s3_transfer/index.html.md#module-pudl.deploy.s3_transfer) module, while GCS and
+  all other targets stay on `fsspec`/`UPath` and run in a thread pool. Deployment
+  now stages each build under a per-build `._staging_{BUILD_ID}` prefix, verifies the
+  staged files by name and size, snapshots the previous outputs into
+  `._ferceqr_previous` for manual rollback, and then merges the staged files into the
+  live prefix. Existing files that a build doesn’t replace are left in place in
+  anticipation of doing incremental per-file updates. The build VM was also bumped to
+  `c4d-standard-32` after an out-of-memory crash. See issue [#5317](https://github.com/catalyst-cooperative/pudl/issues/5317) and PR
+  [#5561](https://github.com/catalyst-cooperative/pudl/pull/5561).
+* Sped up the [FERC EQR](data_sources/ferceqr.html.md) batch ETL from ~45 minutes to
+  ~25 minutes: a standalone Dagster gRPC code server, newest-quarter-first
+  partitioning, and a bounded `ferceqr_extract` concurrency pool. Also fixed an
+  intermittent out-of-memory kill that silently dropped a quarter from the build, by
+  capping DuckDB’s resource use per connection and streaming quarterly archive
+  downloads instead of reading them into memory. See issue [#5318](https://github.com/catalyst-cooperative/pudl/issues/5318) and PR
+  [#5595](https://github.com/catalyst-cooperative/pudl/pull/5595).
+
 ### Developer Experience
 
 * Replaced all remaining uses of `importlib.resources` with direct `pathlib.Path`

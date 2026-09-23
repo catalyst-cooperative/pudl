@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="release_notes.html.md" />
-    <title>PUDL Release Notes &#8212; PUDL 2026.9.1.dev16 documentation</title>
+    <title>PUDL Release Notes &#8212; PUDL 2026.9.1.dev19 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="_static/documentation_options.js?v=854d1509"></script>
+    <script src="_static/documentation_options.js?v=273ae44e"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev16 documentation - Home"/>
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev16 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev19 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev19 documentation - Home"/>
   
   
 </a></div>
@@ -579,6 +579,26 @@ and <a class="reference external" href="https://github.com/catalyst-cooperative/
 </section>
 <section id="performance-improvements">
 <h3>Performance Improvements<a class="headerlink" href="#performance-improvements" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Sped up the <a class="reference internal" href="data_sources/ferceqr.html"><span class="doc">FERC EQR</span></a> batch deployment to cloud object
+storage from ~3 hours to ~5 minutes. Uploads to and server-side copies within S3 now
+go through <code class="docutils literal notranslate"><span class="pre">boto3</span></code> in the new <a class="reference internal" href="autoapi/pudl/deploy/s3_transfer/index.html#module-pudl.deploy.s3_transfer" title="pudl.deploy.s3_transfer"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.deploy.s3_transfer</span></code></a> module, while GCS and
+all other targets stay on <code class="docutils literal notranslate"><span class="pre">fsspec</span></code>/<code class="docutils literal notranslate"><span class="pre">UPath</span></code> and run in a thread pool. Deployment
+now stages each build under a per-build <code class="docutils literal notranslate"><span class="pre">._staging_{BUILD_ID}</span></code> prefix, verifies the
+staged files by name and size, snapshots the previous outputs into
+<code class="docutils literal notranslate"><span class="pre">._ferceqr_previous</span></code> for manual rollback, and then merges the staged files into the
+live prefix. Existing files that a build doesn’t replace are left in place in
+anticipation of doing incremental per-file updates. The build VM was also bumped to
+<code class="docutils literal notranslate"><span class="pre">c4d-standard-32</span></code> after an out-of-memory crash. See issue <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/5317">#5317</a> and PR
+<a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5561">#5561</a>.</p></li>
+<li><p>Sped up the <a class="reference internal" href="data_sources/ferceqr.html"><span class="doc">FERC EQR</span></a> batch ETL from ~45 minutes to
+~25 minutes: a standalone Dagster gRPC code server, newest-quarter-first
+partitioning, and a bounded <code class="docutils literal notranslate"><span class="pre">ferceqr_extract</span></code> concurrency pool. Also fixed an
+intermittent out-of-memory kill that silently dropped a quarter from the build, by
+capping DuckDB’s resource use per connection and streaming quarterly archive
+downloads instead of reading them into memory. See issue <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/5318">#5318</a> and PR
+<a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5595">#5595</a>.</p></li>
+</ul>
 </section>
 <section id="developer-experience">
 <h3>Developer Experience<a class="headerlink" href="#developer-experience" title="Link to this heading">#</a></h3>

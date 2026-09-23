@@ -23,7 +23,20 @@ Attributes
    pudl.dagster.assets.deploy.ferceqr.FERCEQR_SOURCE_PARTITIONS_TAG
    pudl.dagster.assets.deploy.ferceqr.DAGSTER_BACKFILL_TAG
    pudl.dagster.assets.deploy.ferceqr.FERCEQR_TRANSFORM_ASSETS
+   pudl.dagster.assets.deploy.ferceqr.DATAPACKAGE_FILENAME
+   pudl.dagster.assets.deploy.ferceqr.DEPLOYED_DATAPACKAGE_FILENAME
+   pudl.dagster.assets.deploy.ferceqr.STAGING_DATA_SUBDIR
+   pudl.dagster.assets.deploy.ferceqr.STAGING_META_SUBDIR
+   pudl.dagster.assets.deploy.ferceqr.PREVIOUS_DIRNAME
    pudl.dagster.assets.deploy.ferceqr.StepStatusTable
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.dagster.assets.deploy.ferceqr._DeploymentTarget
 
 
 Functions
@@ -33,10 +46,18 @@ Functions
 
    pudl.dagster.assets.deploy.ferceqr._write_status_file
    pudl.dagster.assets.deploy.ferceqr._clear_status_files
-   pudl.dagster.assets.deploy.ferceqr._staging_path
-   pudl.dagster.assets.deploy.ferceqr._deploy_to_staging
-   pudl.dagster.assets.deploy.ferceqr._promote_staging
-   pudl.dagster.assets.deploy.ferceqr._remove_staging
+   pudl.dagster.assets.deploy.ferceqr._deployment_targets
+   pudl.dagster.assets.deploy.ferceqr._source_parquet_files
+   pudl.dagster.assets.deploy.ferceqr._expected_object_sizes
+   pudl.dagster.assets.deploy.ferceqr._wait
+   pudl.dagster.assets.deploy.ferceqr._is_s3
+   pudl.dagster.assets.deploy.ferceqr._make_local_parents
+   pudl.dagster.assets.deploy.ferceqr._relative_objects
+   pudl.dagster.assets.deploy.ferceqr._verify_staged
+   pudl.dagster.assets.deploy.ferceqr._copy_tree
+   pudl.dagster.assets.deploy.ferceqr._stage_target
+   pudl.dagster.assets.deploy.ferceqr._promote_target
+   pudl.dagster.assets.deploy.ferceqr._remove_all_staging
    pudl.dagster.assets.deploy.ferceqr._parse_step_key
    pudl.dagster.assets.deploy.ferceqr._validate_partitions
    pudl.dagster.assets.deploy.ferceqr._markdown_step_status_table
@@ -45,6 +66,7 @@ Functions
    pudl.dagster.assets.deploy.ferceqr._compute_deploy_duration
    pudl.dagster.assets.deploy.ferceqr.build_ferceqr_notification
    pudl.dagster.assets.deploy.ferceqr.deployment_status_asset
+   pudl.dagster.assets.deploy.ferceqr._deploy_source_partitions
    pudl.dagster.assets.deploy.ferceqr.deploy_ferceqr
    pudl.dagster.assets.deploy.ferceqr.handle_ferceqr_failure
 
@@ -70,6 +92,26 @@ Module Contents
    :value: ['core_ferceqr__contracts', 'core_ferceqr__transactions', 'core_ferceqr__quarterly_identity',...
 
 
+.. py:data:: DATAPACKAGE_FILENAME
+   :value: 'ferceqr_parquet_datapackage.json'
+
+
+.. py:data:: DEPLOYED_DATAPACKAGE_FILENAME
+   :value: 'datapackage.json'
+
+
+.. py:data:: STAGING_DATA_SUBDIR
+   :value: 'data'
+
+
+.. py:data:: STAGING_META_SUBDIR
+   :value: 'meta'
+
+
+.. py:data:: PREVIOUS_DIRNAME
+   :value: '._ferceqr_previous'
+
+
 .. py:data:: StepStatusTable
 
 .. py:function:: _write_status_file(status: Literal['FERCEQR_SUCCESS', 'FERCEQR_FAILURE'], pudl_paths: pudl.workspace.setup.PudlPaths)
@@ -88,65 +130,137 @@ Module Contents
    Remove any stale FERC EQR status files from the output directory.
 
 
-.. py:function:: _staging_path(dist_path: upath.UPath) -> upath.UPath
+.. py:class:: _DeploymentTarget
 
-   Return the staging path *alongside* *dist_path* for an atomic deploy.
+   One resolved deployment destination plus the scratch prefixes beside it.
 
-   The staging path sits as a sibling of the deployment target, rather than a
-   child. On cloud storage this avoids prefix-scoping ambiguity during the
-   rename loop — the staging and final prefixes are completely disjoint:
-
-   .. code-block:: text
-
-       gs://bucket/
-         ├── 2026-06-10-.../              (final target dir)
-         └── ._staging_2026-06-10-.../    (staging dir, sibling)
-
-   The suffix includes the BUILD_ID to tie it to a specific build run, and a
-   random component to avoid collisions during concurrent development runs.
-
-   If ``BUILD_ID`` is not set (local/testing), a random short suffix is used alone.
+   ``final``/``staging``/``previous`` are :class:`~upath.UPath` objects on local
+   disk or cloud storage (``gs://…``, ``s3://…``).
 
 
-.. py:function:: _deploy_to_staging(ferceqr_deployment: pudl.dagster.resources.FercEqrDeploymentResource, source_partitions: list[str], datapackage_path: pathlib.Path) -> list[upath.UPath]
-
-   Copy EQR outputs to a staging location under each target, return staging paths.
-
-   Each table's Parquet files and the datapackage JSON are written to a temporary
-   ``._staging_{BUILD_ID}_{random}`` subdirectory beneath the real deployment target.
-   This ensures that a timeout or crash during copying never leaves the final target
-   in a partially-deployed state.
-
-   *datapackage_path* is the path to the ``ferceqr_parquet_datapackage.json``
-   file on the local filesystem (written to ``pudl_output`` by the caller).
-
-   Returns the list of staging :class:`~upath.UPath` objects so the caller can atomically
-   promote them via rename.
+   .. py:attribute:: final
+      :type:  upath.UPath
 
 
-.. py:function:: _promote_staging(staging_targets: list[upath.UPath], resolved_targets: list[upath.UPath]) -> None
-
-   Atomically promote staging directories to their final destination paths.
-
-   For each ``(staging_dir, final_dir)`` pair, this moves the contents of the staged
-   table directories and the datapackage JSON into the final target directory. On GCS
-   and S3 ``UPath.rename()`` performs a server-side copy followed by deletion of the
-   original, so the metadata (owner, timestamps, storage class) is preserved and no
-   data re-upload occurs. On local filesystems the rename is a fast inode-level
-   operation.
+   .. py:attribute:: build_id
+      :type:  str
 
 
-.. py:function:: _remove_staging(staging_dir: upath.UPath) -> None
+   .. py:property:: staging
+      :type: upath.UPath
 
-   Remove a staging directory and all its contents.
 
-   Used for cleanup if the promotion step fails — the partial staging data is
-   discarded rather than leaked. Safe to call on directories that do not exist
-   (e.g. if promotion already removed them before the failure occurred).
+      Per-build scratch prefix holding everything staged for this build.
 
-   Uses ``fs.rm(path, recursive=True)`` instead of ``rmdir()`` because cloud
-   storage (GCS, S3) uses virtual prefixes rather than real directories and
-   ``rmdir()`` would raise ``NotADirectoryError``.
+
+   .. py:property:: staging_data
+      :type: upath.UPath
+
+
+      Prefix holding staged Parquet files, one subdirectory per table.
+
+
+   .. py:property:: staging_meta
+      :type: upath.UPath
+
+
+      Prefix holding the staged datapackage JSON.
+
+
+   .. py:property:: previous
+      :type: upath.UPath
+
+
+      Prefix holding snapshot of previous version.
+
+
+.. py:function:: _deployment_targets(resolved_targets: list[upath.UPath]) -> list[_DeploymentTarget]
+
+   Turn resolved deployment UPaths into :class:`_DeploymentTarget` records.
+
+   The staging and previous-build prefixes are siblings of the final target so
+   their key namespaces never overlap it. The staging suffix ties the scratch
+   prefix to a single build (BUILD_ID), with a random fallback for local runs.
+
+
+.. py:function:: _source_parquet_files(source_partitions: list[str]) -> dict[str, list[pathlib.Path]]
+
+   Map each transform asset to its local Parquet files for *source_partitions*.
+
+   Raises :class:`FileNotFoundError` if any expected partition file is missing so
+   an incomplete build never gets partially deployed.
+
+
+.. py:function:: _expected_object_sizes(table_files: dict[str, list[pathlib.Path]], datapackage_path: pathlib.Path) -> dict[str, int]
+
+   Return ``{staging_relative_path: size_bytes}`` for everything to be uploaded.
+
+
+.. py:function:: _wait(futures: list[concurrent.futures.Future]) -> None
+
+   Block until every future finishes, raising the first failure.
+
+
+.. py:function:: _is_s3(path: upath.UPath) -> bool
+
+   Whether *path* lives on S3, where bulk transfers bypass fsspec.
+
+
+.. py:function:: _make_local_parents(paths: list[upath.UPath]) -> None
+
+   Create parent directories for local *paths*; object stores need none.
+
+
+.. py:function:: _relative_objects(root: upath.UPath) -> dict[str, int]
+
+   Map each object's path relative to *root* to its size in bytes.
+
+   Empty if nothing exists under *root*. The filesystem's listing cache is dropped
+   first, since S3 transfers go through boto3 and would otherwise leave it stale.
+
+
+.. py:function:: _verify_staged(target: _DeploymentTarget, expected: dict[str, int]) -> None
+
+   Raise :class:`RuntimeError` unless staging holds exactly the *expected* objects.
+
+   The failure that matters is a transfer that died partway, so names and byte
+   sizes are compared; bit-level integrity is enforced by the transfer clients.
+
+
+.. py:function:: _copy_tree(src: upath.UPath, dst: upath.UPath, executor: concurrent.futures.ThreadPoolExecutor) -> None
+
+   Copy every object under *src* to the same relative path under *dst*.
+
+   Existing objects under *dst* are overwritten and others are left alone. Files
+   are copied one by one, since fsspec would nest a directory copied onto an existing
+   directory. On S3 this is one batch of server-side copies through boto3; elsewhere
+   each file is copied by fsspec in the thread pool.
+
+
+.. py:function:: _stage_target(target: _DeploymentTarget, table_files: dict[str, list[pathlib.Path]], datapackage_path: pathlib.Path, executor: concurrent.futures.ThreadPoolExecutor) -> None
+
+   Upload all outputs to *target*'s staging prefix and verify they arrived.
+
+   Raises :class:`RuntimeError` if the staged object set does not exactly match
+   the local outputs by name and byte size. The final target is untouched.
+
+
+.. py:function:: _promote_target(target: _DeploymentTarget, executor: concurrent.futures.ThreadPoolExecutor) -> None
+
+   Snapshot the live tree, then merge staging into it and drop the staging dir.
+
+   Promotion is a merge: staged files overwrite live files of the same name and
+   everything else already under the final prefix is left alone, so a build that
+   covers only some partitions updates just those. Nothing is ever deleted from the
+   live prefix; stale files must be removed by hand.
+
+   The datapackage JSON is promoted after the Parquet data so it never briefly
+   references files that have not landed yet.
+
+
+.. py:function:: _remove_all_staging(targets: list[_DeploymentTarget]) -> None
+
+   Best-effort removal of every target's staging prefix after a failure.
 
 
 .. py:function:: _parse_step_key(step_key: str, source_partition: str | None) -> tuple[str, str]
@@ -192,7 +306,7 @@ Module Contents
    Return elapsed time since the current run started, or None on failure.
 
 
-.. py:function:: build_ferceqr_notification(context: dagster.AssetExecutionContext, outcome: Literal['SUCCESS', 'FAILURE']) -> str
+.. py:function:: build_ferceqr_notification(context: dagster.AssetExecutionContext, outcome: Literal['SUCCESS', 'FAILURE', 'SKIPPED']) -> str
 
    Build a Markdown notification string for FERC EQR deployment outcomes.
 
@@ -211,15 +325,34 @@ Module Contents
    until it eventually times out.
 
 
+.. py:function:: _deploy_source_partitions(context: dagster.AssetExecutionContext) -> list[str]
+
+   Read the built partitions from run tags, empty when invoked outside a run.
+
+   Deploying only the *specific* partitions this build produced avoids sweeping
+   up unrelated data left lying around, especially on local runs.
+
+
 .. py:function:: deploy_ferceqr(context: dagster.AssetExecutionContext)
 
    Publish EQR outputs to configured deployment targets.
 
-   Uses a staging-then-rename pattern: all files are first uploaded to a
-   ``._staging_{BUILD_ID}_{random}`` directory beneath each target, then
-   atomically moved (server-side on GCS/S3, inode-level locally) to the final
-   path. This ensures the target is never partially populated — if the upload
-   is interrupted, the staging directory is simply discarded.
+   Each target is handled with a staging-then-promote pattern. S3 targets move
+   bytes through :mod:`pudl.deploy.s3_transfer` (much faster than ``s3fs``); all
+   other targets, and all listing and deletion, use ``fsspec``:
+
+   1. Upload every built Parquet file and the datapackage JSON into a per-build
+      ``._staging_{BUILD_ID}`` prefix beside the target.
+   2. Verify the staged object set matches the local outputs by name and size.
+   3. Copy the current live tree into ``._ferceqr_previous`` for rollback.
+   4. Server-side merge staging into the final prefix (data first, datapackage
+      last) and delete the staging prefix. Staged files overwrite live files of the
+      same name; other live files are left in place.
+
+   A failure in steps 1-2 leaves the target untouched. A failure in steps 3-4
+   may leave the target with a mix of old and new files; ``._ferceqr_previous``
+   holds the prior build for a manual rollback. Targets are processed
+   concurrently.
 
 
 .. py:function:: handle_ferceqr_failure(context: dagster.AssetExecutionContext)

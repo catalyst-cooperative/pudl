@@ -89,6 +89,7 @@ with cleaning and restructuring dataframes.
 | [`persist_table_as_parquet`](#pudl.helpers.persist_table_as_parquet)(→ ParquetData)                | Write data from DataFrame or LazyFrame to disk as a parquet file.                                                                                                                                                                                                 |
 | [`lf_from_parquet`](#pudl.helpers.lf_from_parquet)(→ polars.LazyFrame)                    | Scan parquet file(s) from disk and return Polars LazyFrame.                                                                                                                                                                                                       |
 | [`df_from_parquet`](#pudl.helpers.df_from_parquet)(→ pandas.DataFrame)                    | Read data from a set of parquet files and return a pandas DataFrame.                                                                                                                                                                                              |
+| [`duckdb_connect`](#pudl.helpers.duckdb_connect)(→ duckdb.DuckDBPyConnection)            | Open a DuckDB connection with resource caps taken from the environment.                                                                                                                                                                                           |
 | [`duckdb_relation_from_parquet`](#pudl.helpers.duckdb_relation_from_parquet)(...)                      | Create a duckdb relation to read from parquet files.                                                                                                                                                                                                              |
 | [`duckdb_extract_zipped_csv`](#pudl.helpers.duckdb_extract_zipped_csv)() → tuple[str, ParquetData]) | Extract data from zipped CSV page(s) in a data archive.                                                                                                                                                                                                           |
 | [`normalize_year_fragments`](#pudl.helpers.normalize_year_fragments)(→ pandas.Series)              | Normalize year fragments into 4-digit years using a rolling-century rule.                                                                                                                                                                                         |
@@ -1234,6 +1235,24 @@ Read data from a set of parquet files and return a pandas DataFrame.
   * **parquet_data** – Points to parquet data on disk.
   * **use_all_partitions** – If true read the entire directory of parquet files.
     Otherwise only read data from the partition specified in parquet_data.
+
+### pudl.helpers.duckdb_connect(\*\*overrides: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [duckdb.DuckDBPyConnection](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyConnection)
+
+Open a DuckDB connection with resource caps taken from the environment.
+
+A DuckDB connection defaults to using every CPU core and ~80% of system RAM.
+That is fine for one connection at a time, but PUDL runs many DuckDB-backed
+assets concurrently – most acutely the FERC EQR partition backfill, where a
+dozen-plus partition runs each open their own connection. Left at the
+defaults, N connections collectively oversubscribe the machine’s cores and
+can exhaust its memory (a load average in the hundreds, then an OOM).
+
+`PUDL_DUCKDB_THREADS`, `PUDL_DUCKDB_MEMORY_LIMIT` (e.g. `"6GB"`), and
+`PUDL_DUCKDB_TEMP_DIRECTORY` cap a single connection. When
+`memory_limit` is hit DuckDB spills to `temp_directory` rather than
+failing, so a too-low limit only slows a run down. All three are unset
+outside the batch jobs, so local and CI single-asset runs keep DuckDB’s
+defaults. Explicit *overrides* win over the environment.
 
 ### pudl.helpers.duckdb_relation_from_parquet(parquet_data: [ParquetData](#pudl.helpers.ParquetData), use_all_partitions: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[duckdb.DuckDBPyRelation](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyRelation), [duckdb.DuckDBPyConnection](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyConnection)]
 
