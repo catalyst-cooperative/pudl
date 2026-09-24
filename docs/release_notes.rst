@@ -97,6 +97,11 @@ Bug Fixes & Data Cleaning
   ``record_id_eia`` and ``plant_part_id_eia`` in ``out_eia__yearly_plant_parts`` and the
   related plant-part association tables for a few hundred records. See :issue:`5598` and
   :pr:`5640`.
+* ``X`` in the EIA-861 dynamic pricing time-of-use, critical peak, real time and
+  variable peak columns is now treated as ``True`` (a checked box) instead of being
+  turned into a null, which changes four 2018 rows of
+  ``core_eia861__yearly_dynamic_pricing``. Unexpected codes other than Y, N and X raise
+  an error. See :issue:`5617`, :issue:`5601` and :pr:`5631`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
