@@ -65,6 +65,11 @@ Bug Fixes & Data Cleaning
   :ref:`core_ferc1__yearly_cash_flows_sched120` without ``row_type_xbrl``,
   ``is_within_table_calc``, ``balance``, or ``ferc_account`` metadata. See
   :issue:`5587` and :pr:`5588`.
+* Fixed the PHMSA gas distribution operators cleanup, which turned non-string values in
+  object columns (such as numeric zip codes and phone numbers) into nulls while
+  stripping whitespace. Only strings are stripped now, so a handful of previously null
+  values in ``core_phmsagas__yearly_distribution_operators`` are preserved. See
+  :issue:`5616` and :pr:`5630`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
