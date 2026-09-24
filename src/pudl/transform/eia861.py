@@ -602,7 +602,7 @@ def add_backfilled_ba_code_column(df, by_cols: list[str]) -> pd.DataFrame:
     )
     ba_ids["balancing_authority_code_eia_bfilled"] = ba_ids.groupby(by_cols)[
         "balancing_authority_code_eia"
-    ].fillna(method="bfill")
+    ].bfill()
     ba_eia861_filled = df.merge(ba_ids, how="left")
 
     end_len = len(ba_eia861_filled)
@@ -691,7 +691,7 @@ def _tidy_class_dfs(
     class_list: list[str],
     class_type: str,
     keep_totals: bool = False,
-) -> pd.DataFrame:
+) -> tuple[pd.DataFrame, list[str]]:
     """Stack multiple data columns and create a categorical column for filtering.
 
     Many EIA-861 tables are reported in a wide format, with several columns reporting
@@ -726,7 +726,8 @@ def _tidy_class_dfs(
             output is generated at the DEBUG level.
 
     Returns:
-        A tidier long-form version of the input dataframe.
+        A tuple of a tidier long-form version of the input dataframe, and the primary
+        key columns of that dataframe (``idx_cols`` plus ``class_type``).
     """
     # Replace NA values in the BA code column with "UNK"
     logger.debug(f"Cleaning {df_name} table index columns so we can tidy data.")
@@ -765,7 +766,16 @@ def _tidy_class_dfs(
         rf"{class_list_regex}", n=1, expand=True
     ).set_names([class_type, None])
     # Now stack the customer classes into their own categorical column,
-    data_cols = data_cols.stack(level=0, dropna=False).reset_index()
+    data_cols = data_cols.stack(level=0, future_stack=True).reset_index()
+    # future_stack=True doesn't unify heterogeneous per-column extension dtypes
+    # (e.g. some class-suffixed source columns are Int64, others Float64) the way
+    # the old stack() implementation did, so the stacked value columns can come
+    # back as generic object dtype. Restore proper nullable dtypes so downstream
+    # dedup logic (_dedupe_cols_agg) correctly treats them as numeric.
+    value_cols = [
+        col for col in data_cols.columns if col not in idx_cols + [class_type]
+    ]
+    data_cols[value_cols] = data_cols[value_cols].convert_dtypes()
     denorm_cols = _filter_non_class_cols(raw_df, class_list).reset_index()
     # Check to make sure that the idx_cols are actually valid primary key cols:
     # This is tricky, because NA values in the BA Code column creates actual duplicate
@@ -1154,9 +1164,19 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
         return no_dupes
 
     utils_88888 = df[df["utility_id_eia"] == 88888]
-    agg_utils_88888 = utils_88888.groupby(
-        idx_cols, group_keys=False, dropna=False
-    ).apply(sum_numeric_values_when_strings_match)
+    # NOTE: as of pandas 3.0 groupby(...).apply() no longer passes the grouping
+    # columns into the applied function, but sum_numeric_values_when_strings_match
+    # needs them. Iterate over the groups explicitly so each group frame still
+    # carries idx_cols.
+    combined_groups = [
+        sum_numeric_values_when_strings_match(group)
+        for _, group in utils_88888.groupby(idx_cols, dropna=False)
+    ]
+    agg_utils_88888 = (
+        pd.concat(combined_groups, ignore_index=True)
+        if combined_groups
+        else utils_88888
+    )
     recombined_df = pd.concat(
         [df[df["utility_id_eia"] != 88888], agg_utils_88888], ignore_index=True
     )
