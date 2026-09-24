@@ -87,6 +87,11 @@ Bug Fixes & Data Cleaning
   arbitrarily, so values were often wrong and changed between builds. It's now the next
   change in the same column, and the output is deterministic. See :issue:`5608` and
   :pr:`5641`.
+* Fixed the PHMSA gas distribution operators cleanup, which turned non-string values in
+  object columns (such as numeric zip codes and phone numbers) into nulls while
+  stripping whitespace. Only strings are stripped now, so a handful of previously null
+  values in ``core_phmsagas__yearly_distribution_operators`` are preserved. See
+  :issue:`5616` and :pr:`5630`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
