@@ -93,7 +93,9 @@ def extract_page(
         )
         all_partitions = con.query(union_query)
         return persist_table_as_parquet(
-            all_partitions, table_name=f"raw_eia930__{page}"
+            all_partitions,
+            table_name=f"raw_eia930__{page}",
+            use_native_duckdb_writer=True,
         )
 
 
