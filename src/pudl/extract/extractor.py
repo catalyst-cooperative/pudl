@@ -335,10 +335,19 @@ def _is_dict_str_strint(_context: TypeCheckContext, x: Any) -> bool:
     return True
 
 
+def _is_dict_str_strint_nullable(_context: TypeCheckContext, x: Any) -> bool:
+    if not x:
+        return True
+    return _is_dict_str_strint(_context=_context, x=x)
+
+
 # 2024-03-27: Dagster can't automatically convert union types within
 # parametrized types; we have to write our own custom DagsterType for now.
 dagster_dict_str_strint = DagsterType(
     name="dict[str, str | int]", type_check_fn=_is_dict_str_strint
+)
+partition_override_types = DagsterType(
+    name="dict[str, str | int] | None", type_check_fn=_is_dict_str_strint_nullable
 )
 
 
@@ -377,7 +386,9 @@ def partition_extractor_factory(
     return extract_single_partition
 
 
-def partitions_from_data_config_factory(name: str) -> OpDefinition:
+def partitions_from_data_config_factory(
+    name: str, partition_override: dict[str, PartitionSelection] | None = None
+) -> OpDefinition:
     """Construct a Dagster op to get target partitions from data config in Dagster context.
 
     Args:
@@ -389,8 +400,13 @@ def partitions_from_data_config_factory(name: str) -> OpDefinition:
         out=DynamicOut(),
         required_resource_keys={"global_data_config"},
         name=f"{name}_partitions_from_data_config",
+        ins={
+            "partition_override": In(
+                dagster_type=partition_override_types, default_value=partition_override
+            )
+        },
     )
-    def partitions_from_data_config(context) -> DynamicOutput:
+    def partitions_from_data_config(context, partition_override) -> DynamicOutput:
         """Produce target partitions for the given dataset from the dataset data config.
 
         These will be used to kick off worker processes to extract each year of data in
@@ -401,7 +417,12 @@ def partitions_from_data_config_factory(name: str) -> OpDefinition:
             extracted. See the Dagster API documentation for more details:
             https://docs.dagster.io/_apidocs/dynamic#dagster.DynamicOut
         """
-        if "eia" in name:  # Account for nested data config if EIA
+        # If partition override selected, ignore all the rest and yield directly.
+        if partition_override:
+            key, value = next(iter(partition_override.items()))
+            yield DynamicOutput({key: value}, mapping_key=str(value))
+            return
+        elif "eia" in name:  # Account for nested data config if EIA
             partition_data_config = context.resources.global_data_config.pudl.eia
         else:
             partition_data_config = context.resources.global_data_config.pudl
@@ -433,7 +454,9 @@ def partitions_from_data_config_factory(name: str) -> OpDefinition:
 
 
 def raw_df_factory(
-    extractor_cls: type[GenericExtractor], name: str
+    extractor_cls: type[GenericExtractor],
+    name: str,
+    partition_override: dict[str, PartitionSelection] | None = None,
 ) -> AssetsDefinition:
     """Return a dagster graph asset to extract raw DataFrames from CSV or Excel files.
 
@@ -446,7 +469,9 @@ def raw_df_factory(
     partition_extractor = partition_extractor_factory(extractor_cls, name)
     # Get the list of target partitions to extract from the PUDL data config object
     # which is stored in the Dagster context that is available to all ops.
-    partitions_from_data_config = partitions_from_data_config_factory(name)
+    partitions_from_data_config = partitions_from_data_config_factory(
+        name, partition_override
+    )
 
     def raw_dfs() -> dict[str, pd.DataFrame]:
         """Produce a dictionary of extracted dataframes."""

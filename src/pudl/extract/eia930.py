@@ -8,16 +8,24 @@ more information.
 
 We extract these CSVs into DuckDB, rename the columns as per the column map, and
 dump out the concatenated pages to Parquet.
+
+EIA Form 930 also includes an Excel spreadsheet containing reference tables with
+information about the BAs, sub-BAs, and codes used in the EIA 930 data. We
+process these using the standard Excel extractor.
 """
 
 import re
+from io import BytesIO
 
 import duckdb
-from dagster import asset
+import pandas as pd
+from dagster import AssetOut, Output, asset, multi_asset
 
 import pudl.logging_helpers
+from pudl.extract import excel
 from pudl.extract.extractor import (
     GenericMetadata,
+    raw_df_factory,
 )
 from pudl.helpers import ParquetData, persist_table_as_parquet
 from pudl.workspace.datastore import Datastore
@@ -147,3 +155,80 @@ def extract_half_year_page(
         view_name
     )
     return view_name
+
+
+class Extractor(excel.ExcelExtractor):
+    """Extractor for EIA form 930 reference tables."""
+
+    def __init__(self, *args, **kwargs):
+        """Initialize the module.
+
+        Args:
+            ds (:class:datastore.Datastore): Initialized datastore.
+        """
+        self.METADATA = excel.ExcelMetadata("eia930")
+        self.cols_added = []
+        self.BLACKLISTED_PAGES = [
+            "balance",
+            "interchange",
+            "subregion",
+        ]  # Actually CSVs
+        super().__init__(*args, **kwargs)
+
+    def load_source(self, page: str, **partition: dict) -> pd.DataFrame:
+        """Override this method to expect 'all' partition, grab unzipped file directly."""
+        # Only valid when the override is something like {"half_year": "all"}
+        part = next(iter(partition.values()))
+        if part != "all":
+            raise ValueError(f"Unsupported EIA930 custom partition: {partition}")
+
+        excel_file = pd.ExcelFile(
+            BytesIO(self.ds.get_unique_resource(self._dataset_name, **partition)),
+            engine="calamine",
+        )
+
+        return pd.read_excel(
+            excel_file,
+            sheet_name=self._metadata.get_sheet_name(page, **partition),
+            skiprows=self._metadata.get_skiprows(page, **partition),
+            skipfooter=self._metadata.get_skipfooter(page, **partition),
+            dtype=self.get_dtypes(page, **partition),
+        )
+
+
+raw_eia930__all_dfs = raw_df_factory(
+    Extractor, name="eia930", partition_override={"half_year": "all"}
+)
+
+
+@multi_asset(
+    outs={
+        table_name: AssetOut(is_required=False)
+        for table_name in sorted(
+            (
+                "raw_eia930__codes_balancing_authorities",
+                "raw_eia930__codes_regions",
+                "raw_eia930__codes_balancing_authority_subregions",
+                # "raw_eia930__codes_connections",
+                # "raw_eia930__codes_energy_sources",
+            )
+        )
+    },
+    can_subset=True,
+)
+def extract_eia930(context, raw_eia930__all_dfs):
+    """Extract raw EIA-930 data from excel sheets into dataframes."""
+    # create descriptive table_names
+    raw_eia930__all_dfs = {
+        "raw_eia930__codes_" + table_name: df
+        for table_name, df in raw_eia930__all_dfs.items()
+    }
+
+    raw_eia930__all_dfs = dict(sorted(raw_eia930__all_dfs.items()))
+    selected_outputs = set(context.selected_output_names)
+
+    return (
+        Output(output_name=table_name, value=df)
+        for table_name, df in raw_eia930__all_dfs.items()
+        if table_name in selected_outputs
+    )
