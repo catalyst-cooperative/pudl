@@ -76,6 +76,10 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
   capping DuckDB’s resource use per connection and streaming quarterly archive
   downloads instead of reading them into memory. See issue [#5318](https://github.com/catalyst-cooperative/pudl/issues/5318) and PR
   [#5595](https://github.com/catalyst-cooperative/pudl/pull/5595).
+* Switched all of PUDL’s Parquet outputs from snappy to zstd compression, which makes
+  the files substantially smaller. The codec and compression levels are now set in one
+  place ([`pudl.PARQUET_COMPRESSION`](autoapi/pudl/index.html.md#pudl.PARQUET_COMPRESSION) and related constants) and used by every
+  Parquet writer. See [#5603](https://github.com/catalyst-cooperative/pudl/issues/5603) and [#5604](https://github.com/catalyst-cooperative/pudl/pull/5604).
 
 ### Developer Experience
 
@@ -348,6 +352,13 @@ story.
   using complex arithmetic in calculating eigenvalues due to floating point noise in the
   imaginary components of the matrix math we were doing in our timeseries imputations.
   See PR [#5503](https://github.com/catalyst-cooperative/pudl/pull/5503).
+* Sped up VCE RARE, EIA-930, and FERC EQR raw data extraction. VCE RARE’s very wide CSVs
+  no longer make DuckDB sniff column types on every read, cutting extraction time from
+  about 5 to 1.5 minutes. EIA-930 and FERC EQR extraction switched back to DuckDB’s
+  native multi-threaded Parquet writer for untyped/ENUM-free tables, undoing a
+  performance regression introduced in [#5570](https://github.com/catalyst-cooperative/pudl/pull/5570) when we switched to the
+  single-threaded Arrow writer to preserve Categorical types. This change cuts
+  extraction time by ~25% on the largest tables. See PR [#5575](https://github.com/catalyst-cooperative/pudl/pull/5575).
 
 ### Developer Experience
 

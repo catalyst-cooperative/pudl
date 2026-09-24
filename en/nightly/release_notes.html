@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="release_notes.html.md" />
-    <title>PUDL Release Notes &#8212; PUDL 2026.9.1.dev19 documentation</title>
+    <title>PUDL Release Notes &#8212; PUDL 2026.9.1.dev21 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="_static/documentation_options.js?v=273ae44e"></script>
+    <script src="_static/documentation_options.js?v=5a96ded3"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev19 documentation - Home"/>
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev19 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev21 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev21 documentation - Home"/>
   
   
 </a></div>
@@ -598,6 +598,10 @@ intermittent out-of-memory kill that silently dropped a quarter from the build, 
 capping DuckDB’s resource use per connection and streaming quarterly archive
 downloads instead of reading them into memory. See issue <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/5318">#5318</a> and PR
 <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5595">#5595</a>.</p></li>
+<li><p>Switched all of PUDL’s Parquet outputs from snappy to zstd compression, which makes
+the files substantially smaller. The codec and compression levels are now set in one
+place (<a class="reference internal" href="autoapi/pudl/index.html#pudl.PARQUET_COMPRESSION" title="pudl.PARQUET_COMPRESSION"><code class="xref py py-data docutils literal notranslate"><span class="pre">pudl.PARQUET_COMPRESSION</span></code></a> and related constants) and used by every
+Parquet writer. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/5603">#5603</a> and <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5604">#5604</a>.</p></li>
 </ul>
 </section>
 <section id="developer-experience">
@@ -911,6 +915,13 @@ See PR <a class="reference external" href="https://github.com/catalyst-cooperati
 using complex arithmetic in calculating eigenvalues due to floating point noise in the
 imaginary components of the matrix math we were doing in our timeseries imputations.
 See PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5503">#5503</a>.</p></li>
+<li><p>Sped up VCE RARE, EIA-930, and FERC EQR raw data extraction. VCE RARE’s very wide CSVs
+no longer make DuckDB sniff column types on every read, cutting extraction time from
+about 5 to 1.5 minutes. EIA-930 and FERC EQR extraction switched back to DuckDB’s
+native multi-threaded Parquet writer for untyped/ENUM-free tables, undoing a
+performance regression introduced in <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5570">#5570</a> when we switched to the
+single-threaded Arrow writer to preserve Categorical types. This change cuts
+extraction time by ~25% on the largest tables. See PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5575">#5575</a>.</p></li>
 </ul>
 </section>
 <section id="id9">

@@ -203,6 +203,10 @@ Module Contents
    :class:`~pudl.helpers.ParquetData` pointing at this same table/quarter after
    calling this function, the same way it does for the other four raw tables.
 
+   ``reject_errors.error_type`` is always a genuine DuckDB-internal ENUM (see
+   ``_get_rejected_record_counts``), so this uses ``allow_enum_columns=True`` to
+   write with the fast native writer.
+
 
 .. py:function:: extract_ferceqr(context: dagster.AssetExecutionContext, ferceqr_archive: pudl.dagster.resources.FercEqrArchiveResource = FercEqrArchiveResource())
 

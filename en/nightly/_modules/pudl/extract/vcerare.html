@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.extract.vcerare &#8212; PUDL 2026.9.1.dev19 documentation</title>
+    <title>pudl.extract.vcerare &#8212; PUDL 2026.9.1.dev21 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../_static/documentation_options.js?v=273ae44e"></script>
+    <script src="../../../_static/documentation_options.js?v=5a96ded3"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev19 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev19 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev21 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev21 documentation - Home"/>
   
   
 </a></div>
@@ -886,10 +886,10 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="n">BytesIO</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">duckdb</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="kn">import</span> <span class="n">AssetOut</span><span class="p">,</span> <span class="n">asset</span><span class="p">,</span> <span class="n">multi_asset</span>
 
@@ -914,23 +914,44 @@ window.runMermaid = runMermaid;</script>
 <span class="p">}</span></div>
 
 
+<span class="c1"># VCE RARE switched the raw hour_of_year column from an integer hour index</span>
+<span class="c1"># (1-8760) to an ISO timestamp starting with this report year. Shared with</span>
+<span class="c1"># pudl.transform.vcerare so the two don't drift independently.</span>
+<div class="viewcode-block" id="DATETIME_HOUR_OF_YEAR_START_YEAR">
+<a class="viewcode-back" href="../../../autoapi/pudl/extract/vcerare/index.html#pudl.extract.vcerare.DATETIME_HOUR_OF_YEAR_START_YEAR">[docs]</a>
+<span class="n">DATETIME_HOUR_OF_YEAR_START_YEAR</span> <span class="o">=</span> <span class="mi">2024</span></div>
 
-<div class="viewcode-block" id="_clean_column_names">
-<a class="viewcode-back" href="../../../autoapi/pudl/extract/vcerare/index.html#pudl.extract.vcerare._clean_column_names">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">_clean_column_names</span><span class="p">(</span>
-    <span class="n">table_relation</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">DuckDBPyRelation</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">DuckDBPyRelation</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Apply basic cleaning to column names."""</span>
-    <span class="n">columns</span> <span class="o">=</span> <span class="n">table_relation</span><span class="o">.</span><span class="n">columns</span>
-    <span class="n">col_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">col</span><span class="p">:</span> <span class="n">col</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"."</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"-"</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">}</span>
 
-    <span class="c1"># The first column is never named, but is always the ``hour_of_year`` column</span>
-    <span class="n">col_map</span><span class="p">[</span><span class="n">columns</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="s2">"hour_of_year"</span>
 
-    <span class="c1"># Rename all columns</span>
-    <span class="k">return</span> <span class="n">table_relation</span><span class="o">.</span><span class="n">select</span><span class="p">(</span>
-        <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s1">'"</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s1">" AS "</span><span class="si">{</span><span class="n">clean_col</span><span class="si">}</span><span class="s1">"'</span> <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">clean_col</span> <span class="ow">in</span> <span class="n">col_map</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
-    <span class="p">)</span></div>
+<div class="viewcode-block" id="_clean_column_name">
+<a class="viewcode-back" href="../../../autoapi/pudl/extract/vcerare/index.html#pudl.extract.vcerare._clean_column_name">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_clean_column_name</span><span class="p">(</span><span class="n">col</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Match the raw VCE RARE column naming convention to PUDL's snake_case."""</span>
+    <span class="k">return</span> <span class="n">col</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"."</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"-"</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_vcerare_column_types">
+<a class="viewcode-back" href="../../../autoapi/pudl/extract/vcerare/index.html#pudl.extract.vcerare._vcerare_column_types">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_vcerare_column_types</span><span class="p">(</span><span class="n">year</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""Build a DuckDB ``columns`` schema from a raw VCE RARE CSV header row.</span>
+
+<span class="sd">    Every column is a per-county/subregion capacity factor (``DOUBLE``) except the</span>
+<span class="sd">    first, unnamed column, which is always ``hour_of_year`` and whose type depends</span>
+<span class="sd">    on the report year (see ``DATETIME_HOUR_OF_YEAR_START_YEAR``). The set of</span>
+<span class="sd">    county/subregion columns is not stable across vintages, so it's always derived</span>
+<span class="sd">    from the actual header row rather than hardcoded.</span>
+<span class="sd">    """</span>
+    <span class="n">hour_of_year_type</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">"TIMESTAMP"</span> <span class="k">if</span> <span class="n">year</span> <span class="o">&gt;=</span> <span class="n">DATETIME_HOUR_OF_YEAR_START_YEAR</span> <span class="k">else</span> <span class="s2">"BIGINT"</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_column_types</span><span class="p">(</span><span class="n">header_row</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"hour_of_year"</span><span class="p">:</span> <span class="n">hour_of_year_type</span><span class="p">}</span> <span class="o">|</span> <span class="p">{</span>
+            <span class="n">_clean_column_name</span><span class="p">(</span><span class="n">col</span><span class="p">):</span> <span class="s2">"DOUBLE"</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">header_row</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">_column_types</span></div>
 
 
 
@@ -957,18 +978,18 @@ window.runMermaid = runMermaid;</script>
             <span class="n">dataset</span><span class="o">=</span><span class="s2">"vcerare"</span><span class="p">,</span>
             <span class="n">partitions</span><span class="o">=</span><span class="n">partitions</span><span class="p">,</span>
             <span class="n">pages</span><span class="o">=</span><span class="n">VCERARE_PAGES</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span>
-            <span class="n">datasore</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">datastore</span><span class="p">,</span>
+            <span class="n">datastore</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">datastore</span><span class="p">,</span>
             <span class="n">zip_path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">/"</span><span class="p">),</span>
+            <span class="n">column_types</span><span class="o">=</span><span class="n">_vcerare_column_types</span><span class="p">(</span><span class="n">year</span><span class="p">),</span>
         <span class="p">):</span>
             <span class="c1"># Collect ParquetData objects for each year/page combo</span>
             <span class="n">extracted_tables</span><span class="p">[</span><span class="n">VCERARE_PAGES</span><span class="p">[</span><span class="n">page</span><span class="p">]]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
                 <span class="p">{</span>
                     <span class="n">year</span><span class="p">:</span> <span class="n">persist_table_as_parquet</span><span class="p">(</span>
-                        <span class="n">table_data</span><span class="o">=</span><span class="n">_clean_column_names</span><span class="p">(</span>
-                            <span class="n">relation</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="sa">f</span><span class="s2">"*, </span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2"> as report_year"</span><span class="p">)</span>
-                        <span class="p">),</span>
+                        <span class="n">table_data</span><span class="o">=</span><span class="n">relation</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="sa">f</span><span class="s2">"*, </span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2"> as report_year"</span><span class="p">),</span>
                         <span class="n">table_name</span><span class="o">=</span><span class="n">VCERARE_PAGES</span><span class="p">[</span><span class="n">page</span><span class="p">],</span>
                         <span class="n">partitions</span><span class="o">=</span><span class="n">partitions</span><span class="p">,</span>
+                        <span class="n">use_native_duckdb_writer</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                     <span class="p">)</span>
                 <span class="p">}</span>
             <span class="p">)</span>

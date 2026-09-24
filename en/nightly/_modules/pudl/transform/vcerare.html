@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.vcerare &#8212; PUDL 2026.9.1.dev19 documentation</title>
+    <title>pudl.transform.vcerare &#8212; PUDL 2026.9.1.dev21 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../_static/documentation_options.js?v=273ae44e"></script>
+    <script src="../../../_static/documentation_options.js?v=5a96ded3"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev19 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev19 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev21 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev21 documentation - Home"/>
   
   
 </a></div>
@@ -885,6 +885,7 @@ window.runMermaid = runMermaid;</script>
 <span class="p">)</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pudl.logging_helpers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.extract.vcerare</span><span class="w"> </span><span class="kn">import</span> <span class="n">DATETIME_HOUR_OF_YEAR_START_YEAR</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">ParquetData</span><span class="p">,</span>
     <span class="n">cleanstrings_snake</span><span class="p">,</span>
@@ -1094,12 +1095,12 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># Convert report_year to int</span>
     <span class="n">lf</span> <span class="o">=</span> <span class="n">lf</span><span class="o">.</span><span class="n">with_columns</span><span class="p">(</span><span class="n">report_year</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"report_year"</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">Int32</span><span class="p">))</span>
 
-    <span class="k">if</span> <span class="n">year</span> <span class="o">&gt;=</span> <span class="mi">2024</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">year</span> <span class="o">&gt;=</span> <span class="n">DATETIME_HOUR_OF_YEAR_START_YEAR</span><span class="p">:</span>
         <span class="n">hour_of_year_dtype</span> <span class="o">=</span> <span class="n">lf</span><span class="o">.</span><span class="n">collect_schema</span><span class="p">()[</span><span class="s2">"hour_of_year"</span><span class="p">]</span>
         <span class="k">assert</span> <span class="n">hour_of_year_dtype</span> <span class="o">==</span> <span class="n">pl</span><span class="o">.</span><span class="n">Datetime</span><span class="p">,</span> <span class="p">(</span>
             <span class="sa">f</span><span class="s2">"Expected the </span><span class="si">{</span><span class="n">lf_name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2"> table to publish hour_of_year as a "</span>
-            <span class="sa">f</span><span class="s2">"datetime column (as VCE RARE has since 2024), got "</span>
-            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">hour_of_year_dtype</span><span class="si">}</span><span class="s2">."</span>
+            <span class="sa">f</span><span class="s2">"datetime column (as VCE RARE has since "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">DATETIME_HOUR_OF_YEAR_START_YEAR</span><span class="si">}</span><span class="s2">), got </span><span class="si">{</span><span class="n">hour_of_year_dtype</span><span class="si">}</span><span class="s2">."</span>
         <span class="p">)</span>
         <span class="n">lf</span> <span class="o">=</span> <span class="n">lf</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s2">"hour_of_year"</span><span class="p">:</span> <span class="s2">"datetime_utc"</span><span class="p">})</span><span class="o">.</span><span class="n">with_columns</span><span class="p">(</span>
             <span class="n">hour_of_year</span><span class="o">=</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"datetime_utc"</span><span class="p">)</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">ordinal_day</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">24</span>

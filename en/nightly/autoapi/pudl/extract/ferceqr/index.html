@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
-    <title>pudl.extract.ferceqr &#8212; PUDL 2026.9.1.dev19 documentation</title>
+    <title>pudl.extract.ferceqr &#8212; PUDL 2026.9.1.dev21 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../../_static/documentation_options.js?v=273ae44e"></script>
+    <script src="../../../../_static/documentation_options.js?v=5a96ded3"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev19 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev19 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev21 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev21 documentation - Home"/>
   
   
 </a></div>
@@ -1043,6 +1043,9 @@ each rejected record, then writes the result to the
 <code class="docutils literal notranslate"><span class="pre">raw_ferceqr__extract_errors</span></code> table. <code class="docutils literal notranslate"><span class="pre">extract_ferceqr</span></code> builds its own
 <a class="reference internal" href="../../helpers/index.html#pudl.helpers.ParquetData" title="pudl.helpers.ParquetData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParquetData</span></code></a> pointing at this same table/quarter after
 calling this function, the same way it does for the other four raw tables.</p>
+<p><code class="docutils literal notranslate"><span class="pre">reject_errors.error_type</span></code> is always a genuine DuckDB-internal ENUM (see
+<code class="docutils literal notranslate"><span class="pre">_get_rejected_record_counts</span></code>), so this uses <code class="docutils literal notranslate"><span class="pre">allow_enum_columns=True</span></code> to
+write with the fast native writer.</p>
 </dd></dl>
 
 <dl class="py function">
