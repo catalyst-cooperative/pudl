@@ -8,7 +8,7 @@ on:
       datasets:
         description: "Specific datasets to update (space separated)"
         required: false
-        default: "eia176 eia191 eia757a ferc2 ferc6 ferc60 ferccid eiaapi epacamd_eia epacems" # Default to all datasets that don't require any hand-mapping for now
+        default: "eia176 eia191 eia757a eia930 ferc2 ferc6 ferc60 ferccid eiaapi epacamd_eia epacems epamats phmsagas" # Default to all datasets that don't require any hand-mapping for now
 
 permissions:
   contents: write
@@ -18,7 +18,7 @@ jobs:
   update-dois:
     runs-on: ubuntu-latest
     env:
-      DATASETS: ${{ inputs.datasets || 'eia176 eia191 eia757a ferc2 ferc6 ferc60 ferccid eiaapi epacamd_eia epacems'}}
+      DATASETS: ${{ inputs.datasets || 'eia176 eia191 eia757a eia930 ferc2 ferc6 ferc60 ferccid eiaapi epacamd_eia epacems epamats phmsagas'}}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
