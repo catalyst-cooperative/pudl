@@ -1950,6 +1950,19 @@ def core_eia861__yearly_distribution_systems(
     return df
 
 
+def _dynamic_pricing_flags_to_bool(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
+    """Convert the Y/N/X dynamic pricing flags in ``cols`` into nullable booleans.
+
+    ``X`` is treated as ``True``, as if the respondent had marked a checkbox with an X.
+    Any other unexpected code raises an ``AssertionError``.
+    """
+    for col in cols:
+        df = pudl.helpers.convert_col_to_bool(
+            df, col_name=col, true_values=["Y", "X"], false_values=["N"]
+        )
+    return df
+
+
 @asset(io_manager_key="parquet_io_manager")
 def core_eia861__yearly_dynamic_pricing(
     raw_eia861__dynamic_pricing: pd.DataFrame,
@@ -2002,16 +2015,11 @@ def core_eia861__yearly_dynamic_pricing(
 
     ###########################################################################
     # Transform Values:
-    # * Make Y/N's into booleans and X values into pd.NA
+    # * Make Y/N/X's into booleans (X means True, like a checked box)
     ###########################################################################
 
     logger.info("Performing value transformations on EIA 861 Dynamic Pricing table.")
-    for col in class_attributes:
-        tidy_dp[col] = (
-            tidy_dp[col]
-            .replace({"Y": True, "N": False})
-            .apply(lambda x: x if x in [True, False] else pd.NA)
-        )
+    tidy_dp = _dynamic_pricing_flags_to_bool(tidy_dp, class_attributes)
 
     return _post_process(tidy_dp, name="core_eia861__yearly_dynamic_pricing")
 
