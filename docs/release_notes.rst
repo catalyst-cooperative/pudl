@@ -71,6 +71,16 @@ Bug Fixes & Data Cleaning
   :ref:`out_pudl__yearly_assn_eia_ferc1_plant_parts` changed on every run even with
   identical inputs. The sampling is now seeded and ties are broken by EIA record ID. See
   :issue:`5610` and :pr:`5643`.
+* Made ``plant_id_ferc1`` reproducible. The cluster labels from the FERC 1 plant
+  matching model were numbered arbitrarily, so they were reshuffled by tiny changes in
+  input row order even when the plants themselves were unchanged. The model inputs are
+  now sorted by ``record_id`` and each plant's ID is derived from its earliest record,
+  so unrelated plants keep their IDs when others change, and IDs now start at 1 instead
+  of 0. IDs are still not stable across data updates and shouldn't be hard-coded. Making
+  the clustering independent of input row order changed the grouping of one plant which
+  now spans two ``plant_id_pudl`` values within a single ``plant_id_ferc1``, so we
+  raised the tolerance in the corresponding dbt test. See issue :issue:`5609` and PR
+  :pr:`5642`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
