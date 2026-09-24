@@ -1,0 +1,1234 @@
+power_supplier_borrower_id_rus,power_supplier_utility_id_eia,power_supplier_name_rus,power_supplier_utility_type,distributor_borrower_id_rus,distributor_utility_id_eia,distributor_name_rus,distributor_utility_type
+,900002,1803 Electric Cooperative,Cooperative,LA0018,1458,Beauregard Electric Cooperative,Cooperative
+,900002,1803 Electric Cooperative,Cooperative,LA0017,3641,Claiborne Electric Cooperative,Cooperative
+,900002,1803 Electric Cooperative,Cooperative,LA0012,13783,Northeast Louisiana Power Cooperative,Cooperative
+,900002,1803 Electric Cooperative,Cooperative,LA0008,17565,South Louisiana Electric Cooperative Association,Cooperative
+,900002,1803 Electric Cooperative,Cooperative,LA0010,21567,Washington-St. Tammany Electric Cooperative,Cooperative
+,195,Alabama Power,IOU,AL0029,1780,Black Warrior Electric Cooperative,Cooperative
+,195,Alabama Power,IOU,AL0039,19027,Tombigbee Electric Cooperative,Cooperative
+AK0032,49803,Alaska Electric and Energy Cooperative,Cooperative,AK0005,19558,"Homer Electric Association, Inc.",Cooperative
+PA0027,332,"Allegheny Electric Cooperative, Inc.",Cooperative,PA0025,40220,"Adams Electric Cooperative, Inc.",Cooperative
+PA0027,332,"Allegheny Electric Cooperative, Inc.",Cooperative,PA0024,40221,"Bedford REC, Inc.",Cooperative
+PA0027,332,"Allegheny Electric Cooperative, Inc.",Cooperative,PA0017,40224,"Central Electric Cooperative, Inc.",Cooperative
+PA0027,332,"Allegheny Electric Cooperative, Inc.",Cooperative,PA0015,40289,"Claverack Rural Electric Cooperative, Inc.",Cooperative
+PA0027,332,"Allegheny Electric Cooperative, Inc.",Cooperative,PA0250,13205,New Enterprise REC,Cooperative
+PA0027,332,"Allegheny Electric Cooperative, Inc.",Cooperative,PA0004,40293,"Northwestern RECA, Inc.",Cooperative
+PA0027,332,"Allegheny Electric Cooperative, Inc.",Cooperative,PA0006,40292,"REA Energy Cooperative, Inc.",Cooperative
+PA0027,332,"Allegheny Electric Cooperative, Inc.",Cooperative,PA0021,40167,"Somerset REC, Inc.",Cooperative
+PA0027,332,"Allegheny Electric Cooperative, Inc.",Cooperative,PA0012,40291,"Sullivan County REC, Inc.",Cooperative
+PA0027,332,"Allegheny Electric Cooperative, Inc.",Cooperative,NJ0006,40299,Sussex REC,Cooperative
+PA0027,332,"Allegheny Electric Cooperative, Inc.",Cooperative,PA0013,40290,"Tri-County REC, Inc.",Cooperative
+PA0027,332,"Allegheny Electric Cooperative, Inc.",Cooperative,PA0028,40219,"United Electric Cooperative, Inc.",Cooperative
+PA0027,332,"Allegheny Electric Cooperative, Inc.",Cooperative,PA0020,40222,"Valley REC, Inc.",Cooperative
+PA0027,332,"Allegheny Electric Cooperative, Inc.",Cooperative,PA0019,40223,"Warren Electric Cooperative, Inc.",Cooperative
+,9417,Alliant Energy,IOU,WI0055,108,Adams-Columbia Electric Cooperative,Cooperative
+,9417,Alliant Energy,IOU,WI0068,3293,Central Wisconsin Electric Cooperative,Cooperative
+,9417,Alliant Energy,IOU,WI0038,16196,Rock Energy Cooperative,Cooperative
+,9417,Alliant Energy,IOU,,800578,Southern Minnesota Energy Cooperative (MN),Cooperative
+,343,American Electric Power (AEP),IOU,WV0010,8192,Harrison Rural Electrification Association,Cooperative
+,733,Appalachian Power Company,IOU,VA0002,4471,Craig-Botetourt Electric Cooperative,Cooperative
+,9000003,ARC Power,Cooperative,MI0043,3828,Cloverland Electric Cooperative,Cooperative
+AZ0028,796,"Arizona Electric Power Co-op, Inc.",Cooperative,CA0041,694,"Anza Electric Co-op, Inc.",Cooperative
+AZ0028,796,"Arizona Electric Power Co-op, Inc.",Cooperative,,,Central Arizona Water Conservation District,Municipal
+AZ0028,796,"Arizona Electric Power Co-op, Inc.",Cooperative,AZ0023,5438,"Duncan Valley Electric Cooperative, Inc.",Cooperative
+AZ0028,796,"Arizona Electric Power Co-op, Inc.",Cooperative,AZ0017,7456,"Graham County Electric Cooperative, Inc.",Cooperative
+AZ0028,796,"Arizona Electric Power Co-op, Inc.",Cooperative,NV0017,11021,Lincoln County Power District #1,Cooperative
+AZ0028,796,"Arizona Electric Power Co-op, Inc.",Cooperative,,,Metropolitan Water District of California,Municipal
+AZ0028,796,"Arizona Electric Power Co-op, Inc.",Cooperative,AZ0022,21538,"Mohave Electric Co-op, Inc.",Cooperative
+AZ0028,796,"Arizona Electric Power Co-op, Inc.",Cooperative,,,Southwest Public Power Agency,Municipal
+AZ0028,796,"Arizona Electric Power Co-op, Inc.",Cooperative,AZ0014,18280,"Sulphur Springs Valley Electric Cooperative, Inc.",Cooperative
+AZ0028,796,"Arizona Electric Power Co-op, Inc.",Cooperative,AZ0020,19189,"Trico Electric Cooperative, Inc.",Cooperative
+AZ0028,796,"Arizona Electric Power Co-op, Inc.",Cooperative,NV0018,19840,Valley Electric Association,Cooperative
+,803,Arizona Public Service Company,State,AZ0027,13314,Navajo Tribal Utility Authority,Tribal
+,803,Arizona Public Service Company,IOU,AZ0030,14543,Tohono O'odham Utility Authority,Tribal
+,17716,Southwestern Power Administration,Federal,AR0034,807,Arkansas Electric Co-op Corp.,Cooperative
+AR0034,807,Arkansas Electric Co-op Corp.,Cooperative,AR0013,817,Arkansas Valley Electric Cooperative Corp.,Cooperative
+AR0034,807,Arkansas Electric Co-op Corp.,Cooperative,AR0031,925,"Ashley-Chicot Electric Co-op, Inc.",Cooperative
+AR0034,807,Arkansas Electric Co-op Corp.,Cooperative,AR0021,2678,C & L Electric Co-op Corp.,Cooperative
+AR0034,807,Arkansas Electric Co-op Corp.,Cooperative,AR0018,3093,Carroll Electric Cooperative Corporation,Cooperative
+AR0034,807,Arkansas Electric Co-op Corp.,Cooperative,AR0022,3712,Clay County Electric Co-op Corp.,Cooperative
+AR0034,807,Arkansas Electric Co-op Corp.,Cooperative,AR0009,4509,Craighead Electric Co-op Corp.,Cooperative
+AR0034,807,Arkansas Electric Co-op Corp.,Cooperative,AR0011,6206,Farmers Electric Cooperative Corp.,Cooperative
+AR0034,807,Arkansas Electric Co-op Corp.,Cooperative,AR0010,6342,First Electric Cooperative Corporation,Cooperative
+AR0034,807,Arkansas Electric Co-op Corp.,Cooperative,AR0023,12681,"Mississippi County Elec. Co-op, Inc.",Cooperative
+AR0034,807,Arkansas Electric Co-op Corp.,Cooperative,AR0026,13676,"North Arkansas Electric Cooperative, Inc.",Cooperative
+AR0034,807,Arkansas Electric Co-op Corp.,Cooperative,AR0027,14238,Ouachita Electric Cooperative Corporation,Cooperative
+AR0034,807,Arkansas Electric Co-op Corp.,Cooperative,AR0024,14289,Ozarks Electric Co-op Corp.,Cooperative
+AR0034,807,Arkansas Electric Co-op Corp.,Cooperative,AR0028,14864,Petit Jean Electric Co-op Corporation,Cooperative
+AR0034,807,Arkansas Electric Co-op Corp.,Cooperative,AR0033,15811,"Rich Mountain Electric Cooperative, Inc.",Cooperative
+AR0034,807,Arkansas Electric Co-op Corp.,Cooperative,AR0029,17540,"South Central Arkansas Electric  Cooperative, Inc.",Cooperative
+AR0034,807,Arkansas Electric Co-op Corp.,Cooperative,AR0012,17671,Southwest Arkansas Electric Cooperative Corp,Cooperative
+AR0034,807,Arkansas Electric Co-op Corp.,Cooperative,AR0015,20963,Woodruff Electric Cooperative Corp.,Cooperative
+,17716,Southwestern Power Administration,Federal,MO0073,924,"Associated Electric Co-op, Inc.",Cooperative
+MO0073,924,"Associated Electric Co-op, Inc.",Cooperative,MO0071,3242,Central Electric Power Cooperative,Cooperative
+MO0073,924,"Associated Electric Co-op, Inc.",Cooperative,AR0032,9979,KAMO Power,Cooperative
+MO0073,924,"Associated Electric Co-op, Inc.",Cooperative,MO0060,11380,M & A Electric Power Co-operative,Cooperative
+MO0073,924,"Associated Electric Co-op, Inc.",Cooperative,MO0070,13738,Northeast Missouri Elec. Power Co-op,Cooperative
+MO0073,924,"Associated Electric Co-op, Inc.",Cooperative,MO0072,13190,"NW Electric Power Cooperative, Inc.",Cooperative
+MO0073,924,"Associated Electric Co-op, Inc.",Cooperative,MO0059,17106,Sho-Me Power Electric Cooperative,Cooperative
+ND0045,1307,Basin Electric Power Cooperative,Cooperative,MT0041,40301,Central Montana Elec. Power Co-op,Cooperative
+ND0045,1307,Basin Electric Power Cooperative,Cooperative,ND0042,3279,"Central Power Electric Cooperative, Inc.",Cooperative
+ND0045,1307,Basin Electric Power Cooperative,Cooperative,IA0084,4363,Corn Belt Power Cooperative,Cooperative
+ND0045,1307,Basin Electric Power Cooperative,Cooperative,MN0056,4577,Crow Wing Co-op Power & Light Co.,Cooperative
+ND0045,1307,Basin Electric Power Cooperative,Cooperative,SD0043,5552,"East River Electric Power Cooperative, Inc.",Cooperative
+ND0045,1307,Basin Electric Power Cooperative,Cooperative,SD0040,7484,"Grand Electric Cooperative, Inc.",Cooperative
+ND0045,1307,Basin Electric Power Cooperative,Cooperative,ND0027,10153,"KEM Electric Cooperative, Inc.",Cooperative
+ND0045,1307,Basin Electric Power Cooperative,Cooperative,IA0086,10574,L & O Power Cooperative,Cooperative
+ND0045,1307,Basin Electric Power Cooperative,Cooperative,,61300,Members 1st Power Cooperative,Cooperative
+ND0045,1307,Basin Electric Power Cooperative,Cooperative,MN0039,40304,Minnesota Valley Cooperative Light & Power Association,Cooperative
+ND0045,1307,Basin Electric Power Cooperative,Cooperative,ND0025,12899,"Mor-Gran-Sou Electric Co-op, Inc.",Cooperative
+ND0045,1307,Basin Electric Power Cooperative,Cooperative,IA0085,13798,Northwest Iowa Power Cooperative,Cooperative
+ND0045,1307,Basin Electric Power Cooperative,Cooperative,SD0026,16286,"Rosebud Electric Cooperative, Inc.",Cooperative
+ND0045,1307,Basin Electric Power Cooperative,Cooperative,SD0044,16443,"Rushmore Electric Power Cooperative, Inc.",Cooperative
+ND0045,1307,Basin Electric Power Cooperative,Cooperative,CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative
+ND0045,1307,Basin Electric Power Cooperative,Cooperative,MT0040,19389,Upper Missouri Power Cooperative,Cooperative
+ND0045,1307,Basin Electric Power Cooperative,Cooperative,MN0062,20996,Wright-Hennepin Cooperative Electric Assn.,Cooperative
+ND0045,1307,Basin Electric Power Cooperative,Cooperative,,40603,Wyoming Municipal Power Agency,State
+KY0062,1692,Big Rivers Electric Corporation,Cooperative,KY0020,9605,Jackson Purchase Energy Corp.,Cooperative
+KY0062,1692,Big Rivers Electric Corporation,Cooperative,KY0065,9964,Kenergy Corp,Cooperative
+KY0062,1692,Big Rivers Electric Corporation,Cooperative,KY0018,12243,Meade County RECC,Cooperative
+,1738,Bonneville Power Administration,Federal,WA0008,1625,Benton Rural Electric Association,Cooperative
+,1738,Bonneville Power Administration,Federal,WA0036,1723,"Big Bend Electric Cooperative, Inc.",Cooperative
+,1738,Bonneville Power Administration,Federal,OR0029,4005,"Columbia Basin Electric Cooperative, Inc.",Cooperative
+,1738,Bonneville Power Administration,Federal,OR0037,4008,Columbia Power Cooperative Association,Cooperative
+,1738,Bonneville Power Administration,Federal,WA0020,4041,"Columbia Rural Electric Association, Inc.",Cooperative
+,1738,Bonneville Power Administration,Federal,,5584,"East End Mutual Electric Cooperative, Inc.",Cooperative
+,1738,Bonneville Power Administration,Federal,WA0249,5832,Elmhurst Mutual Power & Light Company,Cooperative
+,1738,Bonneville Power Administration,Federal,,6155,"Farmers Electric Cooperative, Inc.",Cooperative
+,1738,Bonneville Power Administration,Federal,MT0030,7262,"Glacier Electric Cooperative, Inc.",Cooperative
+,1738,Bonneville Power Administration,Federal,OR0041,11589,"Harney Electric Cooperative, Inc.",Cooperative
+,1738,Bonneville Power Administration,Federal,OR0194,8830,Hood River Electric Cooperative,Cooperative
+,1738,Bonneville Power Administration,Federal,ID0015,9186,"Idaho County Light & Power Coop. Assn., Inc.",Cooperative
+,1738,Bonneville Power Administration,Federal,WA0018,8699,Inland Power & Light Company,Cooperative
+,1738,Bonneville Power Administration,Federal,ID0011,10454,"Kootenai Electric Cooperative, Inc.",Cooperative
+,1738,Bonneville Power Administration,Federal,,10627,Lakeview Light & Power Company,Municipal
+,1738,Bonneville Power Administration,Federal,ID0019,11211,"Lost River Electric Cooperative, Inc.",Cooperative
+,1738,Bonneville Power Administration,Federal,WY0011,11273,"Lower Valley Energy, Inc.",Cooperative
+,1738,Bonneville Power Administration,Federal,OR0039,12439,"Midstate Electric Cooperative, Inc.",Cooperative
+,1738,Bonneville Power Administration,Federal,MT0012,12692,"Missoula Electric Cooperative, Inc.",Cooperative
+,1738,Bonneville Power Administration,Federal,,12744,Modern Electric Water Company,Cooperative
+,1738,Bonneville Power Administration,Federal,WA0039,13387,"Nespelem Valley Electric Coop., Inc.",Cooperative
+,1738,Bonneville Power Administration,Federal,WA0191,14012,Ohop Mutual Light Company,Cooperative
+,1738,Bonneville Power Administration,Federal,OR0193,14109,Oregon Trail Electric Cooperative,Cooperative
+,1738,Bonneville Power Administration,Federal,,14505,Parkland Light and Water Company,Cooperative
+,1738,Bonneville Power Administration,Federal,WA0285,14668,"Peninsula Light Company, Inc.",Cooperative
+,1738,Bonneville Power Administration,Federal,OR0048,14323,PNGC Power,Cooperative
+,1738,Bonneville Power Administration,Federal,,56536,"Riverside Electric Company, Ltd, Cooperative, Inc.",Cooperative
+,1738,Bonneville Power Administration,Federal,,16555,Salem Electric,Municipal
+,1738,Bonneville Power Administration,Federal,ID0023,16565,"Salmon River Electric Co-op, Inc.",Cooperative
+,1738,Bonneville Power Administration,Federal,ID0240,17576,"South Side Electric, Inc.",Cooperative
+,1738,Bonneville Power Administration,Federal,CA0006,18260,Surprise Valley Electrification Corp.,Cooperative
+,1738,Bonneville Power Administration,Federal,WA0014,18448,Tanner Electric Cooperative,Cooperative
+,1738,Bonneville Power Administration,Federal,OR0014,19325,Umatilla Electric Cooperative,Cooperative
+,1738,Bonneville Power Administration,Federal,ID0195,19502,"United Electric Cooperative, Inc.",Cooperative
+,1738,Bonneville Power Administration,Federal,MT0010,23586,"Vigilante Electric Cooperative, Inc.",Cooperative
+,1738,Bonneville Power Administration,Federal,OR0026,20138,"Wasco Electric Cooperative, Inc.",Cooperative
+,1738,Bonneville Power Administration,Federal,,20332,Wells Rural Electric Company,Cooperative
+,540,BP Energy Company,Private,IL0046,17697,Southwestern Electric Cooperative,Cooperative
+,17716,Southwestern Power Administration,Federal,TX0121,2172,"Brazos Electric Power Cooperative, Inc.",Cooperative
+TX0121,2172,"Brazos Electric Power Cooperative, Inc.",Cooperative,TX0007,1273,"Bartlett Electric Cooperative, Inc.",Cooperative
+TX0121,2172,"Brazos Electric Power Cooperative, Inc.",Cooperative,TX0086,4295,"Comanche County Electric Cooperative Association, ",Cooperative
+TX0121,2172,"Brazos Electric Power Cooperative, Inc.",Cooperative,TX0049,5078,CoServ Electric,Cooperative
+TX0121,2172,"Brazos Electric Power Cooperative, Inc.",Cooperative,TX0098,6611,"Fort Belknap Electric Cooperative, Inc.",Cooperative
+TX0121,2172,"Brazos Electric Power Cooperative, Inc.",Cooperative,TX0070,7979,Hamilton County Electric Co-op Assn,Cooperative
+TX0121,2172,"Brazos Electric Power Cooperative, Inc.",Cooperative,TX0166,55982,Heart of Texas Electric Cooperative,Cooperative
+TX0121,2172,"Brazos Electric Power Cooperative, Inc.",Cooperative,TX0038,8620,"HILCO Electric Cooperative, Inc.",Cooperative
+TX0121,2172,"Brazos Electric Power Cooperative, Inc.",Cooperative,TX0071,9422,"J-A-C Electric Cooperative, Inc.",Cooperative
+TX0121,2172,"Brazos Electric Power Cooperative, Inc.",Cooperative,TX0115,12452,Mid-South Synergy,Cooperative
+TX0121,2172,"Brazos Electric Power Cooperative, Inc.",Cooperative,TX0063,13332,"Navarro County Electric Co-op, Inc.",Cooperative
+TX0121,2172,"Brazos Electric Power Cooperative, Inc.",Cooperative,TX0122,16146,"Navasota Valley Electric Cooperative, Inc.",Cooperative
+TX0121,2172,"Brazos Electric Power Cooperative, Inc.",Cooperative,TX0068,4262,PenTex Energy,Cooperative
+TX0121,2172,"Brazos Electric Power Cooperative, Inc.",Cooperative,TX0056,17561,"South Plains Electric Cooperative, Inc.",Cooperative
+TX0121,2172,"Brazos Electric Power Cooperative, Inc.",Cooperative,TX0101,19159,"Tri-County Electric Cooperative, Inc.",Cooperative
+TX0121,2172,"Brazos Electric Power Cooperative, Inc.",Cooperative,TX0164,19490,"United Electric Co-op Services, Inc.",Cooperative
+TX0121,2172,"Brazos Electric Power Cooperative, Inc.",Cooperative,TX0085,20948,"Wise Electric Cooperative, Inc.",Cooperative
+OH0099,7004,"Buckeye Power, Inc.",Cooperative,OH0094,118,"Adams REC, Inc.",Cooperative
+OH0099,7004,"Buckeye Power, Inc.",Cooperative,OH0088,2502,"Buckeye REC, Inc.",Cooperative
+OH0099,7004,"Buckeye Power, Inc.",Cooperative,OH0074,2651,"Butler REC, Inc.",Cooperative
+OH0099,7004,"Buckeye Power, Inc.",Cooperative,OH0084,3076,"Carroll Electric Cooperative, Inc.",Cooperative
+OH0099,7004,"Buckeye Power, Inc.",Cooperative,OH0059,12990,"Consolidated Electric Cooperative, Inc.",Cooperative
+OH0099,7004,"Buckeye Power, Inc.",Cooperative,OH0042,4796,"Darke REC, Inc.",Cooperative
+OH0099,7004,"Buckeye Power, Inc.",Cooperative,OH0083,6335,"Firelands Electric Cooperative, Inc.",Cooperative
+OH0099,7004,"Buckeye Power, Inc.",Cooperative,OH0055,6804,Frontier Power Company,Cooperative
+OH0099,7004,"Buckeye Power, Inc.",Cooperative,OH0086,7891,"Guernsey-Muskingum Electric Co-op, Inc.",Cooperative
+OH0099,7004,"Buckeye Power, Inc.",Cooperative,OH0087,8034,"Hancock-Wood Electric Co-op, Inc.",Cooperative
+OH0099,7004,"Buckeye Power, Inc.",Cooperative,OH0031,8761,"Holmes-Wayne Electric Cooperative, Inc.",Cooperative
+OH0099,7004,"Buckeye Power, Inc.",Cooperative,OH0071,11203,Logan County Co-op Pwr. & Light Assn.,Cooperative
+OH0099,7004,"Buckeye Power, Inc.",Cooperative,OH0056,11200,"Lorain-Medina REC, Inc.",Cooperative
+OH0099,7004,"Buckeye Power, Inc.",Cooperative,OH0085,36189,"Mid-Ohio Energy Cooperative, Inc.",Cooperative
+OH0099,7004,"Buckeye Power, Inc.",Cooperative,OH0033,12515,"Midwest Electric, Inc.",Cooperative
+OH0099,7004,"Buckeye Power, Inc.",Cooperative,MI0049,12377,Midwest Energy and Communications,Cooperative
+OH0099,7004,"Buckeye Power, Inc.",Cooperative,OH0060,13693,"North Central Electric Co-op, Inc.",Cooperative
+OH0099,7004,"Buckeye Power, Inc.",Cooperative,OH0075,13704,"North Western Electric Co-op, Inc.",Cooperative
+OH0099,7004,"Buckeye Power, Inc.",Cooperative,OH0039,14599,"Paulding-Putnam Electric Co-op, Inc.",Cooperative
+OH0099,7004,"Buckeye Power, Inc.",Cooperative,OH0001,15054,"Pioneer REC, Inc.",Cooperative
+OH0099,7004,"Buckeye Power, Inc.",Cooperative,OH0065,18085,South Central Power Co.,Cooperative
+OH0099,7004,"Buckeye Power, Inc.",Cooperative,OH0041,10668,The Energy Cooperative,Cooperative
+OH0099,7004,"Buckeye Power, Inc.",Cooperative,OH0068,19176,"TriCounty REC, Inc.",Cooperative
+OH0099,7004,"Buckeye Power, Inc.",Cooperative,OH0050,19501,"Union REC, Inc.",Cooperative
+OH0099,7004,"Buckeye Power, Inc.",Cooperative,OH0093,20150,"Washington Electric Cooperative, Inc.",Cooperative
+SC0050,40218,"Central Electric Power Co-op, Inc.",Cooperative,SC0014,162,"Aiken Electric Cooperative, Inc.",Cooperative
+SC0050,40218,"Central Electric Power Co-op, Inc.",Cooperative,SC0025,1613,"Berkeley Electric Cooperative, Inc.",Cooperative
+SC0050,40218,"Central Electric Power Co-op, Inc.",Cooperative,SC0029,1763,"Black River Electric Cooperative, Inc.",Cooperative
+SC0050,40218,"Central Electric Power Co-op, Inc.",Cooperative,SC0038,1890,"Blue Ridge Electric Cooperative, Inc.",Cooperative
+SC0050,40218,"Central Electric Power Co-op, Inc.",Cooperative,SC0033,2212,"Broad River Electric Cooperative, Inc.",Cooperative
+SC0050,40218,"Central Electric Power Co-op, Inc.",Cooperative,SC0030,3844,"Coastal Electric Cooperative, Inc.",Cooperative
+SC0050,40218,"Central Electric Power Co-op, Inc.",Cooperative,SC0023,5644,"Edisto Electric Cooperative, Inc.",Cooperative
+SC0050,40218,"Central Electric Power Co-op, Inc.",Cooperative,SC0022,5929,"Fairfield Electric Cooperative, Inc.",Cooperative
+SC0050,40218,"Central Electric Power Co-op, Inc.",Cooperative,SC0031,8786,"Horry Electric Cooperative, Inc.",Cooperative
+SC0050,40218,"Central Electric Power Co-op, Inc.",Cooperative,SC0019,10768,"Laurens Electric Cooperative, Inc.",Cooperative
+SC0050,40218,"Central Electric Power Co-op, Inc.",Cooperative,SC0035,11019,"Little River Electric Cooperative, Inc.",Cooperative
+SC0050,40218,"Central Electric Power Co-op, Inc.",Cooperative,SC0021,11355,"Lynches River Electric Cooperative, Inc.",Cooperative
+SC0050,40218,"Central Electric Power Co-op, Inc.",Cooperative,SC0027,11693,"Marlboro Electric Cooperative, Inc.",Cooperative
+SC0050,40218,"Central Electric Power Co-op, Inc.",Cooperative,SC0037,12462,"Mid-Carolina Electric Cooperative, Inc.",Cooperative
+SC0050,40218,"Central Electric Power Co-op, Inc.",Cooperative,SC0034,13524,Newberry Electric Cooperative,Cooperative
+SC0050,40218,"Central Electric Power Co-op, Inc.",Cooperative,SC0040,14398,"Palmetto Electric Cooperative, Inc.",Cooperative
+SC0050,40218,"Central Electric Power Co-op, Inc.",Cooperative,SC0026,14557,"Pee Dee Electric Cooperative, Inc.",Cooperative
+SC0050,40218,"Central Electric Power Co-op, Inc.",Cooperative,SC0028,16606,"Santee Electric Cooperative, Inc.",Cooperative
+SC0050,40218,"Central Electric Power Co-op, Inc.",Cooperative,SC0032,14175,"Tri-County Electric Cooperative, Inc.",Cooperative
+SC0050,40218,"Central Electric Power Co-op, Inc.",Cooperative,SC0041,21002,"York Electric Cooperative, Inc.",Cooperative
+MO0071,3242,Central Electric Power Cooperative,Cooperative,MO0019,2001,Boone Electric Co-op,Cooperative
+MO0071,3242,Central Electric Power Cooperative,Cooperative,MO0024,4160,Callaway Electric Cooperative,Cooperative
+MO0071,3242,Central Electric Power Cooperative,Cooperative,MO0040,3268,Central Missouri Electric Cooperative,Cooperative
+MO0071,3242,Central Electric Power Cooperative,Cooperative,MO0047,4063,"Co-Mo Electric Cooperative, Inc.",Cooperative
+MO0071,3242,Central Electric Power Cooperative,Cooperative,MO0036,4237,Consolidated Electric Co-op,Cooperative
+MO0071,3242,Central Electric Power Cooperative,Cooperative,MO0057,4675,"Cuivre River Electric Co-op, Inc.",Cooperative
+MO0071,3242,Central Electric Power Cooperative,Cooperative,MO0022,8911,Howard Electric Cooperative,Cooperative
+MO0071,3242,Central Electric Power Cooperative,Cooperative,MO0045,16751,Three Rivers Electric Co-op,Cooperative
+IA0083,3258,Central Iowa Power Cooperative,Cooperative,IA0079,3722,"Clarke Electric Cooperative, Inc.",Cooperative
+IA0083,3258,Central Iowa Power Cooperative,Cooperative,IA0007,11788,Consumers Energy,Cooperative
+IA0083,3258,Central Iowa Power Cooperative,Cooperative,IA0095,5588,East-Central Iowa REC,Cooperative
+IA0083,3258,Central Iowa Power Cooperative,Cooperative,IA0009,5605,Eastern Iowa Light & Power Cooperative,Cooperative
+IA0083,3258,Central Iowa Power Cooperative,Cooperative,IA0073,6112,"Farmers Electric Cooperative, Inc.",Cooperative
+IA0083,3258,Central Iowa Power Cooperative,Cooperative,IA0021,7750,Guthrie County REC,Cooperative
+IA0083,3258,Central Iowa Power Cooperative,Cooperative,IA0053,11053,Linn County REC,Cooperative
+IA0083,3258,Central Iowa Power Cooperative,Cooperative,IA0034,12642,Maquoketa Valley REC,Cooperative
+IA0083,3258,Central Iowa Power Cooperative,Cooperative,IA0093,12450,Midland Power Cooperative,Cooperative
+IA0083,3258,Central Iowa Power Cooperative,Cooperative,IA0040,26765,Pella Co-op Electric Assn.,Cooperative
+IA0083,3258,Central Iowa Power Cooperative,Cooperative,,,South Iowa Municipal Electric Cooperative Association,Municipal
+IA0083,3258,Central Iowa Power Cooperative,Cooperative,IA0100,49986,Southwest Iowa Rural Electric Co-op,Cooperative
+IA0083,3258,Central Iowa Power Cooperative,Cooperative,IA0056,18446,T.I.P. Rural Electric Cooperative,Cooperative
+MT0041,40301,Central Montana Elec. Power Co-op,Cooperative,MT0024,1671,"Big Flat Electric Co-op, Inc.",Cooperative
+MT0043,40301,Central Montana Elec. Power Co-op,Cooperative,MT0030,7262,Glacier EC,Cooperative
+MT0041,40301,Central Montana Elec. Power Co-op,Cooperative,MT0032,8632,"Hill County Electric Cooperative, Inc.",Cooperative
+MT0041,40301,Central Montana Elec. Power Co-op,Cooperative,MT0031,11643,"Marias River Electric Cooperative, Inc.",Cooperative
+MT0041,40301,Central Montana Elec. Power Co-op,Cooperative,MT0028,11989,"McCone Electric Co-op, Inc.",Cooperative
+MT0041,40301,Central Montana Elec. Power Co-op,Cooperative,MT0026,13749,"NorVal Electric Co-op, Inc.",Cooperative
+MT0041,40301,Central Montana Elec. Power Co-op,Cooperative,MT0016,14500,"Park Electric Cooperative, Inc.",Cooperative
+MT0041,40301,Central Montana Elec. Power Co-op,Cooperative,MT0002,18401,"Sun River Electric Cooperative, Inc.",Cooperative
+MT0043,40301,Central Montana Elec. Power Co-op,Cooperative,MT0010,23586,"Vigilante Electric Cooperative, Inc.",Cooperative
+MT0043,40301,Central Montana Elec. Power Co-op,Cooperative,MT0009,20997,"Yellowstone Valley Electric Cooperative, Inc.",Cooperative
+ND0042,3279,"Central Power Electric Cooperative, Inc.",Cooperative,ND0035,2985,"Capital Electric Cooperative, Inc.",Cooperative
+ND0042,3279,"Central Power Electric Cooperative, Inc.",Cooperative,ND0051,4717,Dakota Valley Electric Cooperative,Cooperative
+ND0042,3279,"Central Power Electric Cooperative, Inc.",Cooperative,ND0037,12090,"McLean Electric Cooperative, Inc.",Cooperative
+ND0042,3279,"Central Power Electric Cooperative, Inc.",Cooperative,ND0022,13694,"North Central Electric Cooperative, Inc.",Cooperative
+ND0042,3279,"Central Power Electric Cooperative, Inc.",Cooperative,ND0050,13196,Northern Plains Electric Cooperative,Cooperative
+ND0042,3279,"Central Power Electric Cooperative, Inc.",Cooperative,ND0017,19790,"Verendrye Electric Cooperative, Inc.",Cooperative
+,3522,Chugach Electric Association,Cooperative,,16955,City of Seward,Municipal
+,3522,Chugach Electric Association,Cooperative,AK0006,7353,"Golden Valley Electric Association, Inc.",Cooperative
+,3522,Chugach Electric Association,Cooperative,AK0005,19558,"Homer Electric Association, Inc.",Cooperative
+,3522,Chugach Electric Association,Cooperative,AK0002,11824,"Matanuska Electric Assn, Inc.",Cooperative
+,6958,City of Garland - (TX),Municipal,TX0149,3282,Central Texas Electric Cooperative,Cooperative
+,6958,City of Garland - (TX),Municipal,TX0058,6183,Fayette Electric Coop Inc,Cooperative
+,20259,City of Webster City - (IA),Municipal,,3111,Cass Electric Coop,Cooperative
+,3265,Cleco Power LLC,IOU,LA0013,5202,Dixie Electric Membership Corporation,Cooperative
+,3991,"CMS Marketing, Serv & Trade Co",Private,MI0037,18895,Thumb Electric Cooperative,Cooperative
+NM0022,4265,"Continental Divide Electric Cooperative, Inc.",Cooperative,AZ0027,13314,Navajo Tribal Utility Authority,Tribal
+MS0053,17568,Cooperative Energy,Cooperative,MS0021,3839,Coahoma Electric Power Association,Cooperative
+MS0053,17568,Cooperative Energy,Cooperative,MS0028,3841,Coast Electric Power Association,Cooperative
+MS0053,17568,Cooperative Energy,Cooperative,MS0034,22815,Delta Electric Power Association,Cooperative
+MS0053,17568,Cooperative Energy,Cooperative,MS0030,5175,Dixie Electric Power Association,Cooperative
+MS0053,17568,Cooperative Energy,Cooperative,MS0041,11519,Magnolia Electric Power Association,Cooperative
+MS0053,17568,Cooperative Energy,Cooperative,MS0036,14563,Pearl River Valley EPA,Cooperative
+MS0053,17568,Cooperative Energy,Cooperative,MS0039,17252,Singing River Electric Power Assn.,Cooperative
+MS0053,17568,Cooperative Energy,Cooperative,MS0040,17647,Southern Pine Electric Power Assn.,Cooperative
+MS0053,17568,Cooperative Energy,Cooperative,MS0023,17683,Southwest Mississippi EPA,Cooperative
+MS0053,17568,Cooperative Energy,Cooperative,MS0031,18961,Twin County Electric Power Association,Cooperative
+MS0053,17568,Cooperative Energy,Cooperative,MS0020,21114,Yazoo Valley Electric Power Association,Cooperative
+IA0084,4363,Corn Belt Power Cooperative,Cooperative,IA0018,1968,Boone Valley Electric Co-op,Cooperative
+IA0084,4363,Corn Belt Power Cooperative,Cooperative,IA0032,2652,Butler County Rural Electric Cooperative,Cooperative
+IA0084,4363,Corn Belt Power Cooperative,Cooperative,IA0033,4040,Calhoun County Electric Cooperative Assn.,Cooperative
+IA0084,4363,Corn Belt Power Cooperative,Cooperative,IA0030,6722,Franklin Rural Electric Cooperative,Cooperative
+IA0084,4363,Corn Belt Power Cooperative,Cooperative,IA0031,7864,Grundy County REC,Cooperative
+IA0084,4363,Corn Belt Power Cooperative,Cooperative,IA0092,9425,Iowa Lakes Electric Cooperative,Cooperative
+IA0084,4363,Corn Belt Power Cooperative,Cooperative,IA0093,12450,Midland Power Cooperative,Cooperative
+IA0084,4363,Corn Belt Power Cooperative,Cooperative,,,North Iowa Municipal Cooperative Association,Municipal
+IA0084,4363,Corn Belt Power Cooperative,Cooperative,IA0099,15291,Prairie Energy Cooperative,Cooperative
+IA0084,4363,Corn Belt Power Cooperative,Cooperative,IA0110,3722,Raccoon Valley Electric Co-op,Cooperative
+WI0064,4716,Dairyland Power Cooperative,Cooperative,IA0074,329,"Allamakee-Clayton Elec. Co-op, Inc.",Cooperative
+WI0064,4716,Dairyland Power Cooperative,Cooperative,,1181,"Bangor, Wis.",Municipal
+WI0064,4716,Dairyland Power Cooperative,Cooperative,WI0040,1251,Barron Electric Cooperative,Cooperative
+WI0064,4716,Dairyland Power Cooperative,Cooperative,WI0063,1367,"Bayfield Electric Cooperative, Inc.",Cooperative
+WI0064,4716,Dairyland Power Cooperative,Cooperative,WI0019,3498,Chippewa Valley Electric Cooperative,Cooperative
+WI0064,4716,Dairyland Power Cooperative,Cooperative,,765,"City of Arcadia, Wis.",Municipal
+WI0064,4716,Dairyland Power Cooperative,Cooperative,,4627,"City of Cumberland, Wis.",Municipal
+WI0064,4716,Dairyland Power Cooperative,Cooperative,,5834,"City of Elroy, Wis.",Municipal
+WI0064,4716,Dairyland Power Cooperative,Cooperative,,6274,"City of Fennimore, Wis.",Municipal
+WI0064,4716,Dairyland Power Cooperative,Cooperative,,6579,"City of Forest City, Iowa",Municipal
+WI0064,4716,Dairyland Power Cooperative,Cooperative,,10606,"City of Lake Mills, Iowa",Municipal
+WI0064,4716,Dairyland Power Cooperative,Cooperative,,10685,"City of Lanesboro, Min.",Municipal
+WI0064,4716,Dairyland Power Cooperative,Cooperative,,13466,"City of New Lisbon, Wis.",Municipal
+WI0064,4716,Dairyland Power Cooperative,Cooperative,,17862,"City of St. Charles, Minn.",Municipal
+WI0064,4716,Dairyland Power Cooperative,Cooperative,,18204,"City of Strawberry Point, Iowa",Municipal
+WI0064,4716,Dairyland Power Cooperative,Cooperative,WI0029,3701,Clark Electric Cooperative,Cooperative
+WI0064,4716,Dairyland Power Cooperative,Cooperative,,3814,"Clintonville, Wis.",Municipal
+WI0064,4716,Dairyland Power Cooperative,Cooperative,,4369,"Cornell, Wis.",Municipal
+WI0064,4716,Dairyland Power Cooperative,Cooperative,WI0049,5417,Dunn Energy Cooperative,Cooperative
+WI0064,4716,Dairyland Power Cooperative,Cooperative,WI0053,5632,Eau Claire Energy Co-op,Cooperative
+WI0064,4716,Dairyland Power Cooperative,Cooperative,MN0061,6782,Freeborn-Mower Co-op Services,Cooperative
+WI0064,4716,Dairyland Power Cooperative,Cooperative,IA0098,8319,Heartland Power Cooperative,Cooperative
+WI0064,4716,Dairyland Power Cooperative,Cooperative,WI0047,8574,Jackson Electric Cooperative,Cooperative
+WI0064,4716,Dairyland Power Cooperative,Cooperative,IL0044,9750,"Jo-Carroll Energy, Inc.",Cooperative
+WI0064,4716,Dairyland Power Cooperative,Cooperative,WI0057,9922,Jump River Electric Cooperative,Cooperative
+WI0064,4716,Dairyland Power Cooperative,Cooperative,,10243,"Kiel, Wis.",Municipal
+WI0064,4716,Dairyland Power Cooperative,Cooperative,,11571,"Manitowoc, Wis.",Municipal
+WI0064,4716,Dairyland Power Cooperative,Cooperative,,12114,"McGregor Municipal Utilities, Iowa",Municipal
+WI0064,4716,Dairyland Power Cooperative,Cooperative,,12265,"Medford, Wis.",Municipal
+WI0064,4716,Dairyland Power Cooperative,Cooperative,MN0032,19157,MiEnergy Cooperative,Cooperative
+WI0064,4716,Dairyland Power Cooperative,Cooperative,WI0025,13936,Oakdale Electric Cooperative,Cooperative
+WI0064,4716,Dairyland Power Cooperative,Cooperative,,14201,"Osage Municipal Utilities, Iowa",Municipal
+WI0064,4716,Dairyland Power Cooperative,Cooperative,MN0059,14468,People's Cooperative Services,Cooperative
+WI0064,4716,Dairyland Power Cooperative,Cooperative,WI0032,15034,Pierce Pepin Cooperative Services,Cooperative
+WI0064,4716,Dairyland Power Cooperative,Cooperative,WI0054,15344,Polk-Burnett Electric Cooperative,Cooperative
+WI0064,4716,Dairyland Power Cooperative,Cooperative,WI0058,15356,"Price Electric Cooperative, Inc.",Cooperative
+WI0064,4716,Dairyland Power Cooperative,Cooperative,WI0035,15983,Richland Electric Cooperative,Cooperative
+WI0064,4716,Dairyland Power Cooperative,Cooperative,WI0037,16060,Riverland Energy Cooperative,Cooperative
+WI0064,4716,Dairyland Power Cooperative,Cooperative,WI0043,16740,Scenic Rivers Energy Cooperative,Cooperative
+WI0064,4716,Dairyland Power Cooperative,Cooperative,,17011,"Shawano, Wis.",Municipal
+WI0064,4716,Dairyland Power Cooperative,Cooperative,WI0051,17868,St. Croix Electric Co-op,Cooperative
+WI0064,4716,Dairyland Power Cooperative,Cooperative,,18200,"Stratford, Wis.",Municipal
+WI0064,4716,Dairyland Power Cooperative,Cooperative,WI0021,18383,Taylor Electric Cooperative,Cooperative
+WI0064,4716,Dairyland Power Cooperative,Cooperative,,19114,"Trempealeau, Wis.",Municipal
+WI0064,4716,Dairyland Power Cooperative,Cooperative,WI0041,19813,Vernon Electric Cooperative,Cooperative
+WI0064,4716,Dairyland Power Cooperative,Cooperative,,792,"Village of Argyle, Wis.",Municipal
+WI0064,4716,Dairyland Power Cooperative,Cooperative,,3156,"Village of Cashton, Wis.",Municipal
+WI0064,4716,Dairyland Power Cooperative,Cooperative,,10525,"Village of La Farge, Wis.",Municipal
+WI0064,4716,Dairyland Power Cooperative,Cooperative,,12336,"Village of Merrillan, Wis.",Municipal
+WI0064,4716,Dairyland Power Cooperative,Cooperative,,19867,"Village of Viola, Wis.",Municipal
+WI0064,4716,Dairyland Power Cooperative,Cooperative,,20862,"Wisconsin Rapids, Wis.",Municipal
+UT0021,40230,Deseret G&T,Cooperative,WY0009,2215,"Bridger Valley Electric Assn., Inc.",Cooperative
+UT0021,40230,Deseret G&T,Cooperative,UT0020,40165,Dixie Power,Cooperative
+UT0021,40230,Deseret G&T,Cooperative,UT0006,6957,"Garkane Energy Cooperative, Inc.",Cooperative
+UT0021,40230,Deseret G&T,Cooperative,UT0008,12866,"Moon Lake Electric Association, Inc.",Cooperative
+UT0021,40230,Deseret G&T,Cooperative,NV0019,13073,"Mt. Wheeler Power, Inc.",Cooperative
+,19876,Dominion Virginia Power,IOU,VA0002,4471,Craig-Botetourt Electric Cooperative,Cooperative
+,5416,Duke Energy,IOU,SC0050,40218,"Central Electric Power Co-op, Inc.",Cooperative
+,5416,Duke Energy,IOU,NC0046,6784,French Broad Electric Membership Corporation,Cooperative
+,3046,Duke Energy Progress,IOU,NC0067,13683,North Carolina EMC,Cooperative
+WI0064,4716,Dairyland Power Cooperative,Cooperative,IL0036,13292,Norris Electric Cooperative,Cooperative
+KY0059,5580,East Kentucky Power Cooperative,Cooperative,KY0058,1708,Big Sandy RECC,Cooperative
+KY0059,5580,East Kentucky Power Cooperative,Cooperative,KY0064,1886,Blue Grass Energy Cooperative Corp.,Cooperative
+KY0059,5580,East Kentucky Power Cooperative,Cooperative,KY0049,3687,"Clark Energy Cooperative, Inc.",Cooperative
+KY0059,5580,East Kentucky Power Cooperative,Cooperative,KY0057,4622,"Cumberland Valley Electric, Inc.",Cooperative
+KY0059,5580,East Kentucky Power Cooperative,Cooperative,KY0034,6194,Farmers RECC,Cooperative
+KY0059,5580,East Kentucky Power Cooperative,Cooperative,KY0052,6442,Fleming-Mason Energy Cooperative,Cooperative
+KY0059,5580,East Kentucky Power Cooperative,Cooperative,KY0061,7558,Grayson RECC,Cooperative
+KY0059,5580,East Kentucky Power Cooperative,Cooperative,KY0027,9292,Inter-County Energy Cooperative Corp.,Cooperative
+KY0059,5580,East Kentucky Power Cooperative,Cooperative,KY0003,9575,Jackson Energy Cooperative,Cooperative
+KY0059,5580,East Kentucky Power Cooperative,Cooperative,KY0056,11011,Licking Valley RECC,Cooperative
+KY0059,5580,East Kentucky Power Cooperative,Cooperative,KY0051,13651,Nolin RECC,Cooperative
+KY0059,5580,East Kentucky Power Cooperative,Cooperative,KY0037,14251,"Owen Electric Cooperative, Inc.",Cooperative
+KY0059,5580,East Kentucky Power Cooperative,Cooperative,KY0021,16587,Salt River Electric Cooperative Corp.,Cooperative
+KY0059,5580,East Kentucky Power Cooperative,Cooperative,KY0030,17044,Shelby Energy Cooperative,Cooperative
+KY0059,5580,East Kentucky Power Cooperative,Cooperative,KY0054,17564,South Kentucky RECC,Cooperative
+KY0059,5580,East Kentucky Power Cooperative,Cooperative,KY0023,18498,Taylor County RECC,Cooperative
+SD0043,5552,"East River Electric Power Cooperative, Inc.",Cooperative,MN0079,155,Agralite Electric Cooperative,Cooperative
+SD0043,5552,"East River Electric Power Cooperative, Inc.",Cooperative,SD0027,1898,Bon Homme Yankton Electric Assn Inc.,Cooperative
+SD0043,5552,"East River Electric Power Cooperative, Inc.",Cooperative,SD0051,3236,Central Electric Cooperative,Cooperative
+SD0043,5552,"East River Electric Power Cooperative, Inc.",Cooperative,SD0032,3315,"Charles Mix Electric Assn, Inc.",Cooperative
+SD0043,5552,"East River Electric Power Cooperative, Inc.",Cooperative,,5771,City of Elk Point,Municipal
+SD0043,5552,"East River Electric Power Cooperative, Inc.",Cooperative,SD0003,3716,Clay-Union Electric Corporation,Cooperative
+SD0043,5552,"East River Electric Power Cooperative, Inc.",Cooperative,SD0018,3850,"Codington-Clark Electric Cooperative, Inc.",Cooperative
+SD0043,5552,"East River Electric Power Cooperative, Inc.",Cooperative,SD0050,4720,"Dakota Energy Cooperative, Inc.",Cooperative
+SD0043,5552,"East River Electric Power Cooperative, Inc.",Cooperative,SD0039,5328,"Douglas Electric Cooperative, Inc.",Cooperative
+SD0043,5552,"East River Electric Power Cooperative, Inc.",Cooperative,SD0036,6272,"FEM Electric Association, Inc.",Cooperative
+SD0043,5552,"East River Electric Power Cooperative, Inc.",Cooperative,SD0017,7870,"H-D Electric Cooperative, Inc.",Cooperative
+SD0043,5552,"East River Electric Power Cooperative, Inc.",Cooperative,SD0030,10329,"Kingsbury Electric Cooperative, Inc.",Cooperative
+SD0043,5552,"East River Electric Power Cooperative, Inc.",Cooperative,SD0020,10632,"Lake Region Electric Assn, Inc.",Cooperative
+SD0043,5552,"East River Electric Power Cooperative, Inc.",Cooperative,MN0080,11345,"Lyon-Lincoln Electric Cooperative, Inc.",Cooperative
+SD0043,5552,"East River Electric Power Cooperative, Inc.",Cooperative,MN0003,12227,Meeker Cooperative Light & Power Assn.,Cooperative
+SD0043,5552,"East River Electric Power Cooperative, Inc.",Cooperative,SD0021,13750,"Northern Electric Cooperative, Inc.",Cooperative
+SD0043,5552,"East River Electric Power Cooperative, Inc.",Cooperative,SD0037,13853,"Oahe Electric Cooperative, Inc.",Cooperative
+SD0043,5552,"East River Electric Power Cooperative, Inc.",Cooperative,MN0060,15750,Redwood Electric Cooperative,Cooperative
+SD0043,5552,"East River Electric Power Cooperative, Inc.",Cooperative,MN0072,15845,Renville-Sibley Cooperative Power Assn.,Cooperative
+SD0043,5552,"East River Electric Power Cooperative, Inc.",Cooperative,SD0012,17267,Sioux Valley Energy,Cooperative
+SD0043,5552,"East River Electric Power Cooperative, Inc.",Cooperative,MN0055,17550,South Central Electric Association,Cooperative
+SD0043,5552,"East River Electric Power Cooperative, Inc.",Cooperative,SD0052,19293,"Southeastern Electric Cooperative, Inc.",Cooperative
+SD0043,5552,"East River Electric Power Cooperative, Inc.",Cooperative,MN0084,19060,"Traverse Electric Cooperative, Inc.",Cooperative
+SD0043,5552,"East River Electric Power Cooperative, Inc.",Cooperative,SD0006,19493,"Union County Electric Co-op, Inc.",Cooperative
+SD0043,5552,"East River Electric Power Cooperative, Inc.",Cooperative,SD0016,20422,"Whetstone Valley Electric Cooperative, Inc.",Cooperative
+,17716,Southwestern Power Administration,Federal,TX0161,39347,"East Texas Electric Cooperative, Inc",Cooperative
+TX0161,39347,"East Texas Electric Cooperative, Inc",Cooperative,TX0158,13670,Northeast Texas Elec. Co-op,Cooperative
+TX0161,39347,"East Texas Electric Cooperative, Inc",Cooperative,TX0195,18589,Rayburn Country Electric Co-op,Cooperative
+TX0161,39347,"East Texas Electric Cooperative, Inc",Cooperative,TX0157,18679,Tex-La Electric Co-op of Texas,Cooperative
+,5701,El Paso Electric Company,IOU,TX0144,16057,Rio Grande Electric Cooperative,Cooperative
+,22500,Evergy,IOU,KS0054,9961,Kansas Electric Power Co-op,Cooperative
+,22500,Evergy Kansas Central (KS),IOU,KS0022,5334,Doniphan Electric Cooperative Association,Cooperative
+,22500,Evergy Kansas Central (KS),IOU,KS0030,13386,Nemaha-Marshall Electric Cooperative Association,Cooperative
+,8775,Exelon Energy Company,Private,LA0018,1458,Beauregard Electric Cooperative,Cooperative
+,8775,Exelon Energy Company,Private,LA0017,3641,Claiborne Electric Cooperative,Cooperative
+,8775,Exelon Energy Company,Private,LA0012,13783,Northeast Louisiana Power Cooperative,Cooperative
+,8775,Exelon Energy Company,Private,LA0008,17565,South Louisiana Electric Cooperative Association,Cooperative
+,8775,Exelon Energy Company,Private,LA0010,21567,Washington-St. Tammany Electric Cooperative,Cooperative
+,6452,Florida Power and Light,IOU,FL0024,6443,"Florida Keys El Coop Assn, Inc",Cooperative
+,6452,Florida Power and Light,IOU,FL0025,10857,"Lee County Electric Cooperative, Inc.",Cooperative
+GA0110,7197,Georgia Transmission Corporation,Cooperative,GA0042,407,Altamaha EMC,Cooperative
+GA0110,7197,Georgia Transmission Corporation,Cooperative,GA0096,562,Amicalola EMC,Cooperative
+GA0110,7197,Georgia Transmission Corporation,Cooperative,GA0087,2903,Canoochee EMC,Cooperative
+GA0110,7197,Georgia Transmission Corporation,Cooperative,GA0034,3081,Carroll EMC,Cooperative
+GA0110,7197,Georgia Transmission Corporation,Cooperative,GA0058,3248,Central Georgia EMC,Cooperative
+GA0110,7197,Georgia Transmission Corporation,Cooperative,GA0099,3843,Coastal EMC,Cooperative
+GA0110,7197,Georgia Transmission Corporation,Cooperative,GA0084,3916,Cobb Electric Membership Corporation,Cooperative
+GA0110,7197,Georgia Transmission Corporation,Cooperative,GA0022,40212,Colquitt EMC,Cooperative
+GA0110,7197,Georgia Transmission Corporation,Cooperative,GA0103,4432,Coweta-Fayette EMC,Cooperative
+GA0110,7197,Georgia Transmission Corporation,Cooperative,GA0020,19219,Diverse Power Incorporated,Cooperative
+GA0110,7197,Georgia Transmission Corporation,Cooperative,GA0090,5905,Excelsior EMC,Cooperative
+GA0110,7197,Georgia Transmission Corporation,Cooperative,GA0066,6411,Flint EMC,Cooperative
+GA0110,7197,Georgia Transmission Corporation,Cooperative,GA0068,7450,Grady EMC,Cooperative
+GA0110,7197,Georgia Transmission Corporation,Cooperative,GA0037,7090,GreyStone Power Corporation,Cooperative
+GA0110,7197,Georgia Transmission Corporation,Cooperative,GA0078,7887,Habersham EMC,Cooperative
+GA0110,7197,Georgia Transmission Corporation,Cooperative,GA0039,8210,Hart EMC,Cooperative
+GA0110,7197,Georgia Transmission Corporation,Cooperative,GA0065,9431,Irwin EMC,Cooperative
+GA0110,7197,Georgia Transmission Corporation,Cooperative,GA0083,9601,Jackson EMC,Cooperative
+GA0110,7197,Georgia Transmission Corporation,Cooperative,GA0074,9689,Jefferson Energy Cooperative,Cooperative
+GA0110,7197,Georgia Transmission Corporation,Cooperative,GA0088,26218,Little Ocmulgee EMC,Cooperative
+GA0110,7197,Georgia Transmission Corporation,Cooperative,GA0097,12472,Middle Georgia EMC,Cooperative
+GA0110,7197,Georgia Transmission Corporation,Cooperative,GA0070,12706,Mitchell EMC,Cooperative
+GA0110,7197,Georgia Transmission Corporation,Cooperative,GA0073,13934,Ocmulgee EMC,Cooperative
+GA0110,7197,Georgia Transmission Corporation,Cooperative,GA0091,13962,Oconee EMC,Cooperative
+GA0110,7197,Georgia Transmission Corporation,Cooperative,GA0092,31833,Okefenoke REMC,Cooperative
+GA0110,7197,Georgia Transmission Corporation,Cooperative,GA0017,14649,Planters EMC,Cooperative
+GA0110,7197,Georgia Transmission Corporation,Cooperative,GA0008,15700,Rayle EMC,Cooperative
+GA0110,7197,Georgia Transmission Corporation,Cooperative,GA0067,16674,Satilla REMC,Cooperative
+GA0110,7197,Georgia Transmission Corporation,Cooperative,GA0077,16865,Sawnee EMC,Cooperative
+GA0110,7197,Georgia Transmission Corporation,Cooperative,GA0095,17290,Slash Pine EMC,Cooperative
+GA0110,7197,Georgia Transmission Corporation,Cooperative,GA0051,17832,Snapping Shoals EMC,Cooperative
+GA0110,7197,Georgia Transmission Corporation,Cooperative,GA0075,10624,Southern Rivers Energy,Cooperative
+GA0110,7197,Georgia Transmission Corporation,Cooperative,GA0045,18305,Sumter EMC,Cooperative
+GA0110,7197,Georgia Transmission Corporation,Cooperative,GA0086,18499,Three Notch EMC,Cooperative
+GA0110,7197,Georgia Transmission Corporation,Cooperative,GA0094,18956,Tri-County EMC,Cooperative
+GA0110,7197,Georgia Transmission Corporation,Cooperative,GA0031,19581,Upson EMC,Cooperative
+GA0110,7197,Georgia Transmission Corporation,Cooperative,GA0035,20065,Walton EMC,Cooperative
+GA0110,7197,Georgia Transmission Corporation,Cooperative,GA0069,20146,Washington EMC,Cooperative
+TX0159,7349,"Golden Spread Electric Cooperative, Inc.",Cooperative,TX0062,1169,Bailey County Electric Cooperative Assn,Cooperative
+TX0159,7349,"Golden Spread Electric Cooperative, Inc.",Cooperative,TX0163,1591,"Big Country Electric Cooperative, Inc.",Cooperative
+TX0159,7349,"Golden Spread Electric Cooperative, Inc.",Cooperative,TX0061,3938,"Coleman County Electric Co-op, Inc.",Cooperative
+TX0159,7349,"Golden Spread Electric Cooperative, Inc.",Cooperative,TX0114,4146,"Concho Valley Electric Cooperative, Inc.",Cooperative
+TX0159,7349,"Golden Spread Electric Cooperative, Inc.",Cooperative,TX0047,4939,"Deaf Smith Electric Cooperative, Inc.",Cooperative
+TX0159,7349,"Golden Spread Electric Cooperative, Inc.",Cooperative,TX0080,7561,"Greenbelt Electric Co-op, Inc.",Cooperative
+TX0159,7349,"Golden Spread Electric Cooperative, Inc.",Cooperative,TX0059,10625,"Lamb County Electric Co-op, Inc.",Cooperative
+TX0159,7349,"Golden Spread Electric Cooperative, Inc.",Cooperative,TX0055,11014,"Lighthouse Electric Cooperative, Inc.",Cooperative
+TX0159,7349,"Golden Spread Electric Cooperative, Inc.",Cooperative,TX0060,11364,"Lyntegar Electric Cooperative, Inc.",Cooperative
+TX0159,7349,"Golden Spread Electric Cooperative, Inc.",Cooperative,TX0135,13757,"North Plains Electric Cooperative, Inc.",Cooperative
+TX0159,7349,"Golden Spread Electric Cooperative, Inc.",Cooperative,TX0145,16063,"Rita Blanca Electric Cooperative, Inc.",Cooperative
+TX0159,7349,"Golden Spread Electric Cooperative, Inc.",Cooperative,TX0056,17561,"South Plains Electric Cooperative, Inc.",Cooperative
+TX0159,7349,"Golden Spread Electric Cooperative, Inc.",Cooperative,TX0124,17693,"Southwest Texas Electric Cooperative, Inc.",Cooperative
+TX0159,7349,"Golden Spread Electric Cooperative, Inc.",Cooperative,TX0108,18199,"Swisher Electric Cooperative, Inc.",Cooperative
+TX0159,7349,"Golden Spread Electric Cooperative, Inc.",Cooperative,TX0106,27369,"Taylor Electric Cooperative, Inc.",Cooperative
+TX0159,7349,"Golden Spread Electric Cooperative, Inc.",Cooperative,OK0034,19160,"Tri-County Electric Cooperative, Inc.",Cooperative
+MN0110,7570,Great River Energy,Cooperative,MN0079,155,Agralite Electric Cooperative,Cooperative
+MN0110,7570,Great River Energy,Cooperative,MN0104,887,"Arrowhead Electric Cooperative, Inc.",Cooperative
+MN0110,7570,Great River Energy,Cooperative,MN0108,1884,BENCO Electric Cooperative,Cooperative
+MN0110,7570,Great River Energy,Cooperative,MN0035,2316,Brown County REA,Cooperative
+MN0110,7570,Great River Energy,Cooperative,MN0048,689,Connexus Energy,Cooperative
+MN0110,7570,Great River Energy,Cooperative,MN0004,4346,Co-op Light & Power Association,Cooperative
+MN0110,7570,Great River Energy,Cooperative,MN0056,4577,Crow Wing Co-op Power & Light Co.,Cooperative
+MN0110,7570,Great River Energy,Cooperative,MN0065,25177,Dakota Electric Association,Cooperative
+MN0110,7570,Great River Energy,Cooperative,MN0001,5574,East Central Energy,Cooperative
+MN0110,7570,Great River Energy,Cooperative,MN0037,6258,Federated REA,Cooperative
+MN0110,7570,Great River Energy,Cooperative,MN0009,7460,Goodhue County Cooperative Electric Assn.,Cooperative
+MN0110,7570,Great River Energy,Cooperative,MN0083,9475,Itasca-Mantrap Co-op Electrical Assn,Cooperative
+MN0110,7570,Great River Energy,Cooperative,MN0058,9991,Kandiyohi Power Cooperative,Cooperative
+MN0110,7570,Great River Energy,Cooperative,MN0109,10697,Lake Country Power,Cooperative
+MN0110,7570,Great River Energy,Cooperative,MN0057,10618,Lake Region Electric Cooperative,Cooperative
+MN0110,7570,Great River Energy,Cooperative,MN0025,11910,McLeod Cooperative Power Assn.,Cooperative
+MN0110,7570,Great River Energy,Cooperative,MN0003,12227,Meeker Cooperative Light & Power Assn.,Cooperative
+MN0110,7570,Great River Energy,Cooperative,MN0081,12546,Mille Lacs Energy Cooperative,Cooperative
+MN0110,7570,Great River Energy,Cooperative,MN0063,12651,Minnesota Valley Electric Cooperative,Cooperative
+MN0110,7570,Great River Energy,Cooperative,MN0066,13684,Nobles Cooperative Electric,Cooperative
+MN0110,7570,Great River Energy,Cooperative,MN0094,13700,North Itasca Electric Co-op,Cooperative
+MN0110,7570,Great River Energy,Cooperative,MN0060,15750,Redwood Electric Cooperative,Cooperative
+MN0110,7570,Great River Energy,Cooperative,MN0018,16368,Runestone Electric Association,Cooperative
+MN0110,7570,Great River Energy,Cooperative,MN0055,17550,South Central Electric Association,Cooperative
+MN0110,7570,Great River Energy,Cooperative,MN0034,18019,Stearns Electric Association,Cooperative
+MN0110,7570,Great River Energy,Cooperative,MN0053,18047,Steele-Waseca Cooperative Electric,Cooperative
+MN0110,7570,Great River Energy,Cooperative,MN0085,27422,Todd-Wadena Electric Cooperative,Cooperative
+MN0110,7570,Great River Energy,Cooperative,MN0062,20996,Wright-Hennepin Cooperative Electric Assn.,Cooperative
+,800480,Green Power EMC,Cooperative,GA0042,407,Altamaha EMC,Cooperative
+,800480,Green Power EMC,Cooperative,GA0096,562,Amicalola EMC,Cooperative
+,800480,Green Power EMC,Cooperative,GA0087,2903,Canoochee EMC,Cooperative
+,800480,Green Power EMC,Cooperative,GA0034,3081,Carroll EMC,Cooperative
+,800480,Green Power EMC,Cooperative,GA0058,3248,Central Georgia EMC,Cooperative
+,800480,Green Power EMC,Cooperative,GA0099,3843,Coastal EMC,Cooperative
+,800480,Green Power EMC,Cooperative,GA0084,3916,Cobb Electric Membership Corporation,Cooperative
+,800480,Green Power EMC,Cooperative,GA0022,40212,Colquitt EMC,Cooperative
+,800480,Green Power EMC,Cooperative,GA0103,4432,Coweta-Fayette EMC,Cooperative
+,800480,Green Power EMC,Cooperative,GA0020,19219,Diverse Power Incorporated,Cooperative
+,800480,Green Power EMC,Cooperative,GA0090,5905,Excelsior EMC,Cooperative
+,800480,Green Power EMC,Cooperative,GA0066,6411,Flint EMC,Cooperative
+,800480,Green Power EMC,Cooperative,GA0068,7450,Grady EMC,Cooperative
+,800480,Green Power EMC,Cooperative,GA0037,7090,GreyStone Power Corporation,Cooperative
+,800480,Green Power EMC,Cooperative,GA0078,7887,Habersham EMC,Cooperative
+,800480,Green Power EMC,Cooperative,GA0039,8210,Hart EMC,Cooperative
+,800480,Green Power EMC,Cooperative,GA0065,9431,Irwin EMC,Cooperative
+,800480,Green Power EMC,Cooperative,GA0083,9601,Jackson EMC,Cooperative
+,800480,Green Power EMC,Cooperative,GA0074,9689,Jefferson Energy Cooperative,Cooperative
+,800480,Green Power EMC,Cooperative,GA0088,26218,Little Ocmulgee EMC,Cooperative
+,800480,Green Power EMC,Cooperative,GA0097,12472,Middle Georgia EMC,Cooperative
+,800480,Green Power EMC,Cooperative,GA0070,12706,Mitchell EMC,Cooperative
+,800480,Green Power EMC,Cooperative,GA0073,13934,Ocmulgee EMC,Cooperative
+,800480,Green Power EMC,Cooperative,GA0091,13962,Oconee EMC,Cooperative
+,800480,Green Power EMC,Cooperative,GA0092,31833,Okefenoke REMC,Cooperative
+,800480,Green Power EMC,Cooperative,GA0017,14649,Planters EMC,Cooperative
+,800480,Green Power EMC,Cooperative,GA0008,15700,Rayle EMC,Cooperative
+,800480,Green Power EMC,Cooperative,GA0067,16674,Satilla REMC,Cooperative
+,800480,Green Power EMC,Cooperative,GA0077,16865,Sawnee EMC,Cooperative
+,800480,Green Power EMC,Cooperative,GA0095,17290,Slash Pine EMC,Cooperative
+,800480,Green Power EMC,Cooperative,GA0051,17832,Snapping Shoals EMC,Cooperative
+,800480,Green Power EMC,Cooperative,GA0075,10624,Southern Rivers Energy,Cooperative
+,800480,Green Power EMC,Cooperative,GA0045,18305,Sumter EMC,Cooperative
+,800480,Green Power EMC,Cooperative,GA0086,18499,Three Notch EMC,Cooperative
+,800480,Green Power EMC,Cooperative,GA0094,18956,Tri-County EMC,Cooperative
+,800480,Green Power EMC,Cooperative,GA0031,19581,Upson EMC,Cooperative
+,800480,Green Power EMC,Cooperative,GA0035,20065,Walton EMC,Cooperative
+,800480,Green Power EMC,Cooperative,GA0069,20146,Washington EMC,Cooperative
+,800593,Guzman Energy,Private,CO0020,5086,Delta-Montrose Electric Assn.,Cooperative
+,800593,Guzman Energy,Private,NM0011,10378,"Kit Carson Electric Cooperative, Inc.",Cooperative
+AK0005,19558,"Homer Electric Association, Inc.",Cooperative,AK0006,7353,"Golden Valley Electric Association, Inc.",Cooperative
+IN0106,9267,"Hoosier Energy REC, Inc.",Cooperative,IN0021,1283,Bartholomew County REMC,Cooperative
+IN0106,9267,"Hoosier Energy REC, Inc.",Cooperative,IN0072,22822,Clark County REMC,Cooperative
+IN0106,9267,"Hoosier Energy REC, Inc.",Cooperative,IN0026,4848,Daviess-Martin County REMC,Cooperative
+IN0106,9267,"Hoosier Energy REC, Inc.",Cooperative,IN0027,4960,Decatur County REMC,Cooperative
+IN0106,9267,"Hoosier Energy REC, Inc.",Cooperative,IN0083,5394,"Dubois REC, Inc.",Cooperative
+IN0106,9267,"Hoosier Energy REC, Inc.",Cooperative,IN0089,8179,Harrison County REMC,Cooperative
+IN0106,9267,"Hoosier Energy REC, Inc.",Cooperative,IN0016,8466,Henry County REMC,Cooperative
+IN0106,9267,"Hoosier Energy REC, Inc.",Cooperative,IN0092,9576,Jackson County REMC,Cooperative
+IN0106,9267,"Hoosier Energy REC, Inc.",Cooperative,IN0038,9778,Johnson County REMC,Cooperative
+IN0106,9267,"Hoosier Energy REC, Inc.",Cooperative,IN0047,14160,Orange County REMC,Cooperative
+IN0106,9267,"Hoosier Energy REC, Inc.",Cooperative,IN0018,17038,"RushShelby Energy, Inc.",Cooperative
+IN0106,9267,"Hoosier Energy REC, Inc.",Cooperative,IN0060,12929,South Central Indiana REMC,Cooperative
+IN0106,9267,"Hoosier Energy REC, Inc.",Cooperative,IN0052,17599,Southeastern Indiana REMC,Cooperative
+IN0106,9267,"Hoosier Energy REC, Inc.",Cooperative,IN0099,19445,Southern Indiana Power,Cooperative
+IN0106,9267,"Hoosier Energy REC, Inc.",Cooperative,IN0001,19667,Utilities District of Western Indiana REMC,Cooperative
+IN0106,9267,"Hoosier Energy REC, Inc.",Cooperative,IL0002,20222,Wayne-White Counties Electric Cooperative,Cooperative
+IN0106,9267,"Hoosier Energy REC, Inc.",Cooperative,IN0109,20216,Whitewater Valley REMC,Cooperative
+IN0106,9267,"Hoosier Energy REC, Inc.",Cooperative,IN0110,25295,WIN Energy REMC,Cooperative
+AR0032,9979,KAMO Power,Cooperative,MO0069,1279,Barry Electric Co-op,Cooperative
+AR0032,9979,KAMO Power,Cooperative,MO0028,1301,"Barton County Electric Co-op, Inc.",Cooperative
+AR0032,9979,KAMO Power,Cooperative,OK0024,3226,Central REC,Cooperative
+AR0032,9979,KAMO Power,Cooperative,OK0035,4296,"Cookson Hills Electric Cooperative, Inc.",Cooperative
+AR0032,9979,KAMO Power,Cooperative,OK0023,5598,"East Central Oklahoma Electric Cooperative, Inc.",Cooperative
+AR0032,9979,KAMO Power,Cooperative,OK0028,9246,"Indian Electric Cooperative, Inc.",Cooperative
+AR0032,9979,KAMO Power,Cooperative,OK0033,10170,"Kiamichi Electric Cooperative, Inc.",Cooperative
+AR0032,9979,KAMO Power,Cooperative,OK0037,10599,"Lake Region Electric Co-op, Inc.",Cooperative
+AR0032,9979,KAMO Power,Cooperative,MO0048,13520,"New-Mac Electric Cooperative, Inc.",Cooperative
+AR0032,9979,KAMO Power,Cooperative,OK0019,13734,Northeast Oklahoma Electric Co-op,Cooperative
+AR0032,9979,KAMO Power,Cooperative,MO0037,14192,Osage Valley Electric Co-op Assn.,Cooperative
+AR0032,9979,KAMO Power,Cooperative,MO0030,14288,Ozark Electric Co-op,Cooperative
+AR0032,9979,KAMO Power,Cooperative,AR0024,14289,Ozarks Electric Co-op Corp.,Cooperative
+AR0032,9979,KAMO Power,Cooperative,MO0055,16511,"Sac Osage Electric Cooperative, Inc.",Cooperative
+AR0032,9979,KAMO Power,Cooperative,MO0053,27238,Southwest Electric Co-op,Cooperative
+AR0032,9979,KAMO Power,Cooperative,OK0025,19785,Verdigris Valley Electric Cooperative,Cooperative
+AR0032,9979,KAMO Power,Cooperative,MO0046,20574,White River Valley Electric Cooperative,Cooperative
+,17716,Southwestern Power Administration,Federal,KS0054,9961,Kansas Electric Power Co-op,Cooperative
+KS0054,9961,Kansas Electric Power Co-op,Cooperative,KS0063,64196,"4 Rivers Electric Cooperative, Inc.",Cooperative
+KS0054,9961,Kansas Electric Power Co-op,Cooperative,KS0032,40208,Ark Valley Electric Co-op Assn.,Cooperative
+KS0054,9961,Kansas Electric Power Co-op,Cooperative,KS0058,23826,"Bluestem Electric Cooperative, Inc.",Cooperative
+KS0054,9961,Kansas Electric Power Co-op,Cooperative,KS0013,2354,Brown-Atchison Electric Co-op Assn.,Cooperative
+KS0054,9961,Kansas Electric Power Co-op,Cooperative,KS0019,2641,"Butler REC, Inc.",Cooperative
+KS0054,9961,Kansas Electric Power Co-op,Cooperative,KS0038,2961,Caney Valley Electric Co-op Assn.,Cooperative
+KS0054,9961,Kansas Electric Power Co-op,Cooperative,KS0046,2774,"CMS Electric Co-op, Inc.",Cooperative
+KS0054,9961,Kansas Electric Power Co-op,Cooperative,KS0015,4704,DS&O Rural Electric Co-op Assn.,Cooperative
+KS0054,9961,Kansas Electric Power Co-op,Cooperative,KS0027,6431,"Flint Hills RECA, Inc.",Cooperative
+KS0054,9961,Kansas Electric Power Co-op,Cooperative,KS0062,10019,"FreeState Electric Cooperative, Inc.",Cooperative
+KS0054,9961,Kansas Electric Power Co-op,Cooperative,KS0057,16854,Heartland REC,Cooperative
+KS0054,9961,Kansas Electric Power Co-op,Cooperative,KS0033,13570,"Ninnescah RECA, Inc.",Cooperative
+KS0054,9961,Kansas Electric Power Co-op,Cooperative,KS0059,16267,Rolling Hills Electric Co-op,Cooperative
+KS0054,9961,Kansas Electric Power Co-op,Cooperative,KS0018,16920,"Sedgwick County Electric Cooperative Assn.,Inc.",Cooperative
+KS0054,9961,Kansas Electric Power Co-op,Cooperative,KS0014,18316,"Sumner-Cowley Electric Coop, Inc.",Cooperative
+KS0054,9961,Kansas Electric Power Co-op,Cooperative,KS0050,18962,Twin Valley Electric Cooperative,Cooperative
+IA0086,10574,L & O Power Cooperative,Cooperative,MN0037,6258,Federated Rural Electric,Cooperative
+IA0086,10574,L & O Power Cooperative,Cooperative,IA0050,11298,Lyon Rural Electric Cooperative,Cooperative
+IA0086,10574,L & O Power Cooperative,Cooperative,IA0070,14202,"Osceola Electric Cooperative, Inc.",Cooperative
+IA0086,10574,L & O Power Cooperative,Cooperative,SD0012,17267,Sioux Valley Energy,Cooperative
+,11269,Lower Colorado River Authority,State,TX0092,1175,"Bandera Electric Coop, Inc",Cooperative
+,11269,Lower Colorado River Authority,State,TX0100,1892,"Bluebonnet Electric Coop, Inc",Cooperative
+,11269,Lower Colorado River Authority,State,TX0070,7979,Hamilton County Elec Coop Assn,Cooperative
+,11269,Lower Colorado River Authority,State,TX0076,14626,"Pedernales Electric Coop, Inc",Cooperative
+,11269,Lower Colorado River Authority,State,TX0144,16057,Rio Grande Electric Cooperative,Cooperative
+MO0060,11380,M & A Electric Power Co-operative,Cooperative,MO0038,1775,Black River Electric Cooperative,Cooperative
+MO0060,11380,M & A Electric Power Co-operative,Cooperative,MO0033,14285,Ozark Border Electric Cooperative,Cooperative
+MO0060,11380,M & A Electric Power Co-operative,Cooperative,MO0012,14712,Pemiscot-Dunklin Electric Cooperative,Cooperative
+MO0060,11380,M & A Electric Power Co-operative,Cooperative,MO0031,16805,SEMO Electric Cooperative,Cooperative
+,56223,Macquarie Energy LLC,Private,NV0018,19840,Valley Electric Association,Cooperative
+AK0002,11824,"Matanuska Electric Assn, Inc.",Cooperative,AK0006,7353,"Golden Valley Electric Association, Inc.",Cooperative
+,61300,Members 1st Power Cooperative,Cooperative,MT0015,21513,"Fergus Electric Cooperative, Inc.",Cooperative
+,61300,Members 1st Power Cooperative,Cooperative,WY0025,19156,Powder River Energy Corp.,Cooperative
+,61300,Members 1st Power Cooperative,Cooperative,MT0033,19022,"Tongue River Electric Co-op, Inc.",Cooperative
+,800558,"Midcontinent Independent System Operator, Inc. (IN)",Nonprofit,MI0043,3828,Cloverland Electric Cooperative,Cooperative
+WI0064,4716,Dairyland Power Cooperative,Cooperative,WI0014,13964,Oconto Electric Cooperative,Cooperative
+ND0020,12658,"Minnkota Power Cooperative, Inc.",Cooperative,MN0096,1529,"Beltrami Electric Cooperative, Inc.",Cooperative
+ND0020,12658,"Minnkota Power Cooperative, Inc.",Cooperative,ND0011,24949,"Cass County Electric Cooperative, Inc.",Cooperative
+ND0020,12658,"Minnkota Power Cooperative, Inc.",Cooperative,ND0038,3138,"Cavalier REC, Inc.",Cooperative
+ND0020,12658,"Minnkota Power Cooperative, Inc.",Cooperative,MN0101,3764,Clearwater-Polk Electric Cooperative,Cooperative
+ND0020,12658,"Minnkota Power Cooperative, Inc.",Cooperative,ND0019,12301,"Nodak Electric Cooperative, Inc.",Cooperative
+ND0020,12658,"Minnkota Power Cooperative, Inc.",Cooperative,MN0095,13731,"North Star Electric Co-op, Inc.",Cooperative
+ND0020,12658,"Minnkota Power Cooperative, Inc.",Cooperative,,40581,Northern Municipal Power Agency,Municipal
+ND0020,12658,"Minnkota Power Cooperative, Inc.",Cooperative,MN0087,14178,"P.K.M. Electric Cooperative, Inc.",Cooperative
+ND0020,12658,"Minnkota Power Cooperative, Inc.",Cooperative,MN0075,26934,"Red Lake Electric Cooperative, Inc.",Cooperative
+ND0020,12658,"Minnkota Power Cooperative, Inc.",Cooperative,MN0074,26939,Red River Valley Co-op Power Assn.,Cooperative
+ND0020,12658,"Minnkota Power Cooperative, Inc.",Cooperative,MN0097,16284,"Roseau Electric Cooperative, Inc.",Cooperative
+ND0020,12658,"Minnkota Power Cooperative, Inc.",Cooperative,MN0082,20639,"Wild Rice Electric Cooperative, Inc.",Cooperative
+,12686,Mississippi Power Company,IOU,MS0053,17568,Cooperative Energy,Cooperative
+,12917,Morgan Stanley,Private,IN0007,20603,Northeastern REMC,Cooperative
+,12917,Morgan Stanley Capital Grp Inc (NY),Private,VA0030,1062,BARC Electric Cooperative,Cooperative
+,12917,Morgan Stanley Capital Grp Inc (NY),Private,MT0019,1417,"Beartooth Electric Cooperative, Inc.",Cooperative
+,12917,Morgan Stanley Capital Grp Inc (NY),Private,VA0054,40228,Rappahannock Electric Cooperative,Cooperative
+,12917,Morgan Stanley Capital Grp Inc (NY),Private,VA0011,17066,"Shenandoah Valley Electric Cooperative, Inc.",Cooperative
+,12917,Morgan Stanley Capital Grp Inc (NY),Private,VA0027,21244,Southside Electric Cooperative,Cooperative
+,12917,Morgan Stanley Capital Grp Inc (NY),Private,OR0014,19325,Umatilla Electric Cooperative,Cooperative
+NE0104,40300,"Nebraska Electric G&T Co-op, Inc.",Cooperative,NE0051,2599,Burt County PPD,Municipal
+NE0104,40300,"Nebraska Electric G&T Co-op, Inc.",Cooperative,NE0059,2643,Butler Public Power District,Municipal
+NE0104,40300,"Nebraska Electric G&T Co-op, Inc.",Cooperative,NE0056,3205,Cedar-Knox PPD,Municipal
+NE0104,40300,"Nebraska Electric G&T Co-op, Inc.",Cooperative,NE0081,4373,Cornhusker PPD,Municipal
+NE0104,40300,"Nebraska Electric G&T Co-op, Inc.",Cooperative,NE0054,4632,Cuming County PPD,Municipal
+NE0104,40300,"Nebraska Electric G&T Co-op, Inc.",Cooperative,NE0083,4671,Custer PPD,Municipal
+NE0104,40300,"Nebraska Electric G&T Co-op, Inc.",Cooperative,NE0078,4911,Dawson PPD,Municipal
+NE0104,40300,"Nebraska Electric G&T Co-op, Inc.",Cooperative,NE0071,5780,Elkhorn RPPD,Municipal
+NE0104,40300,"Nebraska Electric G&T Co-op, Inc.",Cooperative,NE0049,8924,Howard Greeley RPPD,Municipal
+NE0104,40300,"Nebraska Electric G&T Co-op, Inc.",Cooperative,NE0097,10065,KBR Rural Public Power District,Municipal
+NE0104,40300,"Nebraska Electric G&T Co-op, Inc.",Cooperative,NE0103,11250,Loup Valleys RPPD,Municipal
+NE0104,40300,"Nebraska Electric G&T Co-op, Inc.",Cooperative,NE0079,10550,McCook PPD,Municipal
+NE0104,40300,"Nebraska Electric G&T Co-op, Inc.",Cooperative,NE0080,13610,Niobrara Valley EMC,Municipal
+NE0104,40300,"Nebraska Electric G&T Co-op, Inc.",Cooperative,NE0085,13698,North Central PPD,Municipal
+NE0104,40300,"Nebraska Electric G&T Co-op, Inc.",Cooperative,NE0064,21111,Perennial  Public Power District,Municipal
+NE0104,40300,"Nebraska Electric G&T Co-op, Inc.",Cooperative,NE0004,15188,Polk County RPPD,Municipal
+NE0104,40300,"Nebraska Electric G&T Co-op, Inc.",Cooperative,NE0105,17548,South Central PPD,Municipal
+NE0104,40300,"Nebraska Electric G&T Co-op, Inc.",Cooperative,NE0101,17692,Southwest PPD,Municipal
+NE0104,40300,"Nebraska Electric G&T Co-op, Inc.",Cooperative,NE0063,17979,Stanton County PPD,Municipal
+NE0104,40300,"Nebraska Electric G&T Co-op, Inc.",Cooperative,NE0098,20456,Twin Valleys PPD,Municipal
+,13337,Nebraska Public Power District,State,NE0104,40300,"Nebraska Electric G&T Co-op, Inc.",Cooperative
+,800198,New Brunswick Elec Pwr Comm Canada,Provincial,ME0012,5609,Eastern Maine Electric Cooperative,Cooperative
+,7279,NextEra Energy,IOU,LA0020,4153,Concordia Electric Cooperative,Cooperative
+,7279,NextEra Energy,Private,LA0015,15175,Pointe Coupee EMC,Cooperative
+,7279,NextEra Energy,IOU,IL0023,16420,Rural Electric Convenience Cooperative Co,Cooperative
+,7279,NextEra Energy,Private,LA0009,17684,Southwest Louisiana EMC,Cooperative
+NC0067,13683,North Carolina EMC,Cooperative,NC0066,240,Albemarle EMC,Cooperative
+NC0067,13683,North Carolina EMC,Cooperative,NC0023,1889,Blue Ridge EMC,Cooperative
+NC0067,13683,North Carolina EMC,Cooperative,NC0040,24889,Brunswick EMC,Cooperative
+NC0067,13683,North Carolina EMC,Cooperative,NC0064,2982,Cape Hatteras Electric Co-op,Cooperative
+NC0067,13683,North Carolina EMC,Cooperative,NC0055,3107,Carteret-Craven Electric Co-op,Cooperative
+NC0067,13683,North Carolina EMC,Cooperative,NC0058,3250,Central EMC,Cooperative
+NC0067,13683,North Carolina EMC,Cooperative,NC0016,5656,Edgecombe-Martin County EMC,Cooperative
+NC0067,13683,North Carolina EMC,Cooperative,NC0069,21632,EnergyUnited,Cooperative
+NC0067,13683,North Carolina EMC,Cooperative,NC0021,6640,Four County EMC,Cooperative
+NC0067,13683,North Carolina EMC,Cooperative,NC0033,7978,Halifax EMC,Cooperative
+NC0067,13683,North Carolina EMC,Cooperative,NC0010,8333,Haywood EMC,Cooperative
+NC0067,13683,North Carolina EMC,Cooperative,NC0043,9837,Jones-Onslow EMC,Cooperative
+NC0067,13683,North Carolina EMC,Cooperative,NC0051,11291,Lumbee River EMC,Cooperative
+NC0067,13683,North Carolina EMC,Cooperative,NC0034,14717,Pee Dee EMC,Cooperative
+NC0067,13683,North Carolina EMC,Cooperative,NC0032,15023,Piedmont EMC,Cooperative
+NC0067,13683,North Carolina EMC,Cooperative,NC0014,14857,Pitt & Greene EMC,Cooperative
+NC0067,13683,North Carolina EMC,Cooperative,NC0036,15671,Randolph EMC,Cooperative
+NC0067,13683,North Carolina EMC,Cooperative,NC0031,16101,Roanoke Electric Cooperative,Cooperative
+NC0067,13683,North Carolina EMC,Cooperative,NC0025,16496,Rutherford EMC,Cooperative
+NC0067,13683,North Carolina EMC,Cooperative,NC0052,17572,South River EMC,Cooperative
+NC0067,13683,North Carolina EMC,Cooperative,NC0049,18339,Surry-Yadkin EMC,Cooperative
+NC0067,13683,North Carolina EMC,Cooperative,NC0059,19108,Tideland EMC,Cooperative
+NC0067,13683,North Carolina EMC,Cooperative,NC0050,18957,Tri-County EMC,Cooperative
+NC0067,13683,North Carolina EMC,Cooperative,NC0039,19435,Union Power Cooperative,Cooperative
+NC0067,13683,North Carolina EMC,Cooperative,NC0047,19981,Wake EMC,Cooperative
+MO0070,13738,Northeast Missouri Elec. Power Co-op,Cooperative,IA0069,16611,Access Energy Cooperative,Cooperative
+MO0070,13738,Northeast Missouri Elec. Power Co-op,Cooperative,IA0082,3314,"Chariton Valley Electric Co-op, Inc.",Cooperative
+MO0070,13738,Northeast Missouri Elec. Power Co-op,Cooperative,MO0023,10962,Lewis County REC,Cooperative
+MO0070,13738,Northeast Missouri Elec. Power Co-op,Cooperative,MO0034,11463,Macon Electric Cooperative,Cooperative
+MO0070,13738,Northeast Missouri Elec. Power Co-op,Cooperative,MO0020,12700,Missouri REC,Cooperative
+MO0070,13738,Northeast Missouri Elec. Power Co-op,Cooperative,MO0026,15672,Ralls County Electric Cooperative,Cooperative
+MO0070,13738,Northeast Missouri Elec. Power Co-op,Cooperative,IA0077,17643,"Southern Iowa Electric Co-op, Inc.",Cooperative
+MO0070,13738,Northeast Missouri Elec. Power Co-op,Cooperative,MO0035,19158,Tri-County Electric Cooperative ,Cooperative
+,17716,Southwestern Power Administration,Federal,TX0158,13670,Northeast Texas Elec. Co-op,Cooperative
+TX0158,13670,Northeast Texas Elec. Co-op,Cooperative,TX0040,2049,"Bowie-Cass Electric Cooperative, Inc.",Cooperative
+TX0158,13670,Northeast Texas Elec. Co-op,Cooperative,TX0064,4975,"Deep East Texas Electric Cooperative, Inc.",Cooperative
+TX0158,13670,Northeast Texas Elec. Co-op,Cooperative,TX0041,14424,"Panola-Harrison Electric Cooperative, Inc.",Cooperative
+TX0158,13670,Northeast Texas Elec. Co-op,Cooperative,TX0065,16461,"Rusk County Electric Cooperative, Inc.",Cooperative
+TX0158,13670,Northeast Texas Elec. Co-op,Cooperative,TX0030,19579,Upshur-Rural Electric Cooperative Corporation,Cooperative
+TX0158,13670,Northeast Texas Elec. Co-op,Cooperative,TX0054,20927,"Wood County Electric Co-op, Inc.",Cooperative
+,40613,Northern California Power Agny,Municipal,CA0016,15308,Plumas-Sierra REC,Cooperative
+IA0085,13798,Northwest Iowa Power Cooperative,Cooperative,IA0015,8283,Harrison County REC,Cooperative
+IA0085,13798,Northwest Iowa Power Cooperative,Cooperative,IA0092,9425,Iowa Lakes Electric Cooperative,Cooperative
+IA0085,13798,Northwest Iowa Power Cooperative,Cooperative,IA0026,13675,Nishnabotna Valley REC,Cooperative
+IA0085,13798,Northwest Iowa Power Cooperative,Cooperative,IA0094,17260,North West Rural Electric Cooperative,Cooperative
+IA0085,13798,Northwest Iowa Power Cooperative,Cooperative,IA0096,19437,Western Iowa Power Cooperative,Cooperative
+IA0085,13798,Northwest Iowa Power Cooperative,Cooperative,,,WIMECA,Municipal
+IA0085,13798,Northwest Iowa Power Cooperative,Cooperative,IA0059,20951,Woodbury County RECA,Cooperative
+MO0072,13190,"NW Electric Power Cooperative, Inc.",Cooperative,MO0032,942,Atchison-Holt Electric Cooperative,Cooperative
+MO0072,13190,"NW Electric Power Cooperative, Inc.",Cooperative,MO0042,6181,"Farmers Electric Cooperative, Inc.",Cooperative
+MO0072,13190,"NW Electric Power Cooperative, Inc.",Cooperative,MO0044,7720,"Grundy Electric Cooperative, Inc.",Cooperative
+MO0072,13190,"NW Electric Power Cooperative, Inc.",Cooperative,MO0056,13690,North Central Missouri Elec. Co-op,Cooperative
+MO0072,13190,"NW Electric Power Cooperative, Inc.",Cooperative,MO0041,15138,"Platte-Clay Electric Cooperative, Inc.",Cooperative
+MO0072,13190,"NW Electric Power Cooperative, Inc.",Cooperative,MO0075,22646,United Electric Cooperative,Cooperative
+MO0072,13190,"NW Electric Power Cooperative, Inc.",Cooperative,MO0050,20363,"West Central Electric Cooperative, Inc.",Cooperative
+GA0109,13994,Oglethorpe Power Corporation,Cooperative,GA0042,407,Altamaha EMC,Cooperative
+GA0109,13994,Oglethorpe Power Corporation,Cooperative,GA0096,562,Amicalola EMC,Cooperative
+GA0109,13994,Oglethorpe Power Corporation,Cooperative,GA0087,2903,Canoochee EMC,Cooperative
+GA0109,13994,Oglethorpe Power Corporation,Cooperative,GA0034,3081,Carroll EMC,Cooperative
+GA0109,13994,Oglethorpe Power Corporation,Cooperative,GA0058,3248,Central Georgia EMC,Cooperative
+GA0109,13994,Oglethorpe Power Corporation,Cooperative,GA0099,3843,Coastal EMC,Cooperative
+GA0109,13994,Oglethorpe Power Corporation,Cooperative,GA0084,3916,Cobb Electric Membership Corporation,Cooperative
+GA0109,13994,Oglethorpe Power Corporation,Cooperative,GA0022,40212,Colquitt EMC,Cooperative
+GA0109,13994,Oglethorpe Power Corporation,Cooperative,GA0103,4432,Coweta-Fayette EMC,Cooperative
+GA0109,13994,Oglethorpe Power Corporation,Cooperative,GA0020,19219,Diverse Power Incorporated,Cooperative
+GA0109,13994,Oglethorpe Power Corporation,Cooperative,GA0090,5905,Excelsior EMC,Cooperative
+GA0109,13994,Oglethorpe Power Corporation,Cooperative,GA0066,6411,Flint EMC,Cooperative
+GA0109,13994,Oglethorpe Power Corporation,Cooperative,GA0068,7450,Grady EMC,Cooperative
+GA0109,13994,Oglethorpe Power Corporation,Cooperative,GA0037,7090,GreyStone Power Corporation,Cooperative
+GA0109,13994,Oglethorpe Power Corporation,Cooperative,GA0078,7887,Habersham EMC,Cooperative
+GA0109,13994,Oglethorpe Power Corporation,Cooperative,GA0039,8210,Hart EMC,Cooperative
+GA0109,13994,Oglethorpe Power Corporation,Cooperative,GA0065,9431,Irwin EMC,Cooperative
+GA0109,13994,Oglethorpe Power Corporation,Cooperative,GA0083,9601,Jackson EMC,Cooperative
+GA0109,13994,Oglethorpe Power Corporation,Cooperative,GA0074,9689,Jefferson Energy Cooperative,Cooperative
+GA0109,13994,Oglethorpe Power Corporation,Cooperative,GA0088,26218,Little Ocmulgee EMC,Cooperative
+GA0109,13994,Oglethorpe Power Corporation,Cooperative,GA0097,12472,Middle Georgia EMC,Cooperative
+GA0109,13994,Oglethorpe Power Corporation,Cooperative,GA0070,12706,Mitchell EMC,Cooperative
+GA0109,13994,Oglethorpe Power Corporation,Cooperative,GA0073,13934,Ocmulgee EMC,Cooperative
+GA0109,13994,Oglethorpe Power Corporation,Cooperative,GA0091,13962,Oconee EMC,Cooperative
+GA0109,13994,Oglethorpe Power Corporation,Cooperative,GA0092,31833,Okefenoke REMC,Cooperative
+GA0109,13994,Oglethorpe Power Corporation,Cooperative,GA0017,14649,Planters EMC,Cooperative
+GA0109,13994,Oglethorpe Power Corporation,Cooperative,GA0008,15700,Rayle EMC,Cooperative
+GA0109,13994,Oglethorpe Power Corporation,Cooperative,GA0067,16674,Satilla REMC,Cooperative
+GA0109,13994,Oglethorpe Power Corporation,Cooperative,GA0077,16865,Sawnee EMC,Cooperative
+GA0109,13994,Oglethorpe Power Corporation,Cooperative,GA0095,17290,Slash Pine EMC,Cooperative
+GA0109,13994,Oglethorpe Power Corporation,Cooperative,GA0051,17832,Snapping Shoals EMC,Cooperative
+GA0109,13994,Oglethorpe Power Corporation,Cooperative,GA0075,10624,Southern Rivers Energy,Cooperative
+GA0109,13994,Oglethorpe Power Corporation,Cooperative,GA0045,18305,Sumter EMC,Cooperative
+GA0109,13994,Oglethorpe Power Corporation,Cooperative,GA0086,18499,Three Notch EMC,Cooperative
+GA0109,13994,Oglethorpe Power Corporation,Cooperative,GA0094,18956,Tri-County EMC,Cooperative
+GA0109,13994,Oglethorpe Power Corporation,Cooperative,GA0031,19581,Upson EMC,Cooperative
+GA0109,13994,Oglethorpe Power Corporation,Cooperative,GA0035,20065,Walton EMC,Cooperative
+GA0109,13994,Oglethorpe Power Corporation,Cooperative,GA0069,20146,Washington EMC,Cooperative
+VA0052,40229,Old Dominion Electric Co-op,Cooperative,VA0039,84,A&N Electric Cooperative,Cooperative
+VA0052,40229,Old Dominion Electric Co-op,Cooperative,VA0030,1062,BARC Electric Cooperative,Cooperative
+VA0052,40229,Old Dominion Electric Co-op,Cooperative,MD0007,3503,"Choptank Electric Co-op, Inc.",Cooperative
+VA0052,40229,Old Dominion Electric Co-op,Cooperative,VA0037,4117,Community Electric Cooperative,Cooperative
+VA0052,40229,Old Dominion Electric Co-op,Cooperative,DE0002,5070,"Delaware Electric Cooperative, Inc.",Cooperative
+VA0052,40229,Old Dominion Electric Co-op,Cooperative,VA0031,12260,Mecklenburg Electric Cooperative,Cooperative
+VA0052,40229,Old Dominion Electric Co-op,Cooperative,VA0028,13762,"Northern Neck Electric Cooperative, Inc.",Cooperative
+VA0052,40229,Old Dominion Electric Co-op,Cooperative,VA0036,15410,Prince George Electric Cooperative,Cooperative
+VA0052,40229,Old Dominion Electric Co-op,Cooperative,VA0054,40228,Rappahannock Electric Cooperative,Cooperative
+VA0052,40229,Old Dominion Electric Co-op,Cooperative,VA0011,17066,"Shenandoah Valley Electric Cooperative, Inc.",Cooperative
+VA0052,40229,Old Dominion Electric Co-op,Cooperative,VA0027,21244,Southside Electric Cooperative,Cooperative
+VA0052,40229,Old Dominion Electric Co-op,Cooperative,,,TEC Trading Inc.,Private
+,14354,Pacificorp Utah Power,IOU,AZ0027,13314,Navajo Tribal Utility Authority,Tribal
+OR0048,14323,PNGC Power,Cooperative,OR0002,1736,Blachly-Lane Co. Co-op Elec. Assn.,Cooperative
+OR0048,14323,PNGC Power,Cooperative,OR0025,3240,"Central Electric Cooperative, Inc.",Cooperative
+OR0048,14323,PNGC Power,Cooperative,ID0010,3739,Clearwater Power Company,Cooperative
+OR0048,14323,PNGC Power,Cooperative,OR0004,4743,"Consumers Power, Inc.",Cooperative
+OR0048,14323,PNGC Power,Cooperative,OR0021,4317,"Coos-Curry Electric Cooperative, Inc.",Cooperative
+OR0048,14323,PNGC Power,Cooperative,OR0017,5327,"Douglas Electric Cooperative, Inc.",Cooperative
+OR0048,14323,PNGC Power,Cooperative,ID0017,6169,"Fall River Rural Electric Cooperative, Inc.",Cooperative
+OR0048,14323,PNGC Power,Cooperative,MT0013,6395,Flathead Electric Cooperative,Cooperative
+OR0048,14323,PNGC Power,Cooperative,OR0018,10681,"Lane Electric Cooperative, Inc.",Cooperative
+OR0048,14323,PNGC Power,Cooperative,MT0036,11022,"Lincoln Electric Co-op, Inc.",Cooperative
+OR0048,14323,PNGC Power,Cooperative,ID0004,13758,"Northern Lights, Inc.",Cooperative
+OR0048,14323,PNGC Power,Cooperative,WA0032,14074,Okanogan County Electric Co-op,Cooperative
+OR0048,14323,PNGC Power,Cooperative,WA0009,14170,Orcas Power and Light Cooperative,Cooperative
+OR0048,14323,PNGC Power,Cooperative,ID0016,22814,"Raft River REC, Inc.",Cooperative
+OR0048,14323,PNGC Power,Cooperative,MT0001,26916,Ravalli Electric Cooperative,Cooperative
+OR0048,14323,PNGC Power,Cooperative,OR0014,19325,Umatilla Electric Cooperative,Cooperative
+OR0048,14323,PNGC Power,Cooperative,OR0032,20385,"West Oregon Electric Cooperative, Inc.",Cooperative
+,15296,Power Authority of State of NY,State,NY0020,5021,Delaware County Electric Cooperative,Cooperative
+,15296,Power Authority of State of NY,State,NY0024,14125,Oneida-Madison Electric Cooperative,Cooperative
+,15296,Power Authority of State of NY,State,NY0019,14267,Otsego Electric Cooperative,Cooperative
+,15296,Power Authority of State of NY,State,NY0021,18102,Steuben Rural Electric Cooperative,Cooperative
+,800228,Powerex,Private,OR0014,19325,Umatilla Electric Cooperative,Cooperative
+AL0042,189,PowerSouth Energy Cooperative,Cooperative,AL0020,1149,Baldwin County EMC,Cooperative
+AL0042,189,PowerSouth Energy Cooperative,Cooperative,AL0030,3222,Central Alabama Electric Cooperative,Cooperative
+AL0042,189,PowerSouth Energy Cooperative,Cooperative,FL0030,3502,"Choctawhatchee Electric Cooperative, Inc.",Cooperative
+AL0044,189,PowerSouth Energy Cooperative,Cooperative,,2423,"City of Brundidge, Alabama",Municipal
+AL0042,189,PowerSouth Energy Cooperative,Cooperative,AL0009,40127,Clarke-Washington EMC,Cooperative
+AL0042,189,PowerSouth Energy Cooperative,Cooperative,AL0033,4327,"Coosa Valley Electric Cooperative, Inc.",Cooperative
+AL0042,189,PowerSouth Energy Cooperative,Cooperative,AL0044,4430,"Covington Electric Cooperative, Inc.",Cooperative
+AL0042,189,PowerSouth Energy Cooperative,Cooperative,AL0025,5204,Dixie Electric Cooperative,Cooperative
+AL0042,189,PowerSouth Energy Cooperative,Cooperative,FL0022,5964,"Escambia River Electric Co-op, Inc.",Cooperative
+AL0042,189,PowerSouth Energy Cooperative,Cooperative,FL0034,7785,"Gulf Coast Electric Cooperative, Inc.",Cooperative
+AL0042,189,PowerSouth Energy Cooperative,Cooperative,AL0026,14602,Pea River Electric Cooperative,Cooperative
+AL0042,189,PowerSouth Energy Cooperative,Cooperative,AL0022,30517,Pioneer Electric Cooperative,Cooperative
+AL0042,189,PowerSouth Energy Cooperative,Cooperative,AL0023,17534,"South Alabama Electric Cooperative, Inc.",Cooperative
+AL0042,189,PowerSouth Energy Cooperative,Cooperative,AL0027,17646,Southern Pine Electric Co-op,Cooperative
+AL0042,189,PowerSouth Energy Cooperative,Cooperative,AL0028,18203,Tallapoosa River Elec Co-op,Cooperative
+AL0043,189,PowerSouth Energy Cooperative,Cooperative,,604,"Utilities Board of the City of Andalusia, Alabama",Municipal
+AL0046,189,PowerSouth Energy Cooperative,Cooperative,,14151,"Utilities Board of the City of Opp, Alabama",Municipal
+AL0045,189,PowerSouth Energy Cooperative,Cooperative,,5728,"Water Works & Electric Board of the City of Elba, Alabama",Municipal
+AL0042,189,PowerSouth Energy Cooperative,Cooperative,FL0017,20371,West Florida Electric Co-op Assn.,Cooperative
+AL0042,189,PowerSouth Energy Cooperative,Cooperative,AL0032,20841,"Wiregrass Electric Cooperative, Inc.",Cooperative
+IL0053,40307,"Prairie Power, Inc.",Cooperative,IL0030,97,Adams Electric Cooperative,Cooperative
+IL0053,40307,"Prairie Power, Inc.",Cooperative,IL0008,3931,Coles-Moultrie Electric Cooperative,Cooperative
+IL0053,40307,"Prairie Power, Inc.",Cooperative,IL0054,5585,Eastern Illini Electric Cooperative,Cooperative
+IL0053,40307,"Prairie Power, Inc.",Cooperative,IL0018,9209,Illinois Electric Cooperative,Cooperative
+IL0053,40307,"Prairie Power, Inc.",Cooperative,IL0044,9750,"Jo-Carroll Energy, Inc.",Cooperative
+IL0053,40307,"Prairie Power, Inc.",Cooperative,IL0032,12070,McDonough Power Cooperative,Cooperative
+IL0053,40307,"Prairie Power, Inc.",Cooperative,IL0021,12395,Menard Electric Cooperative,Cooperative
+IL0053,40307,"Prairie Power, Inc.",Cooperative,IL0029,17040,Shelby Electric Cooperative,Cooperative
+IL0053,40307,"Prairie Power, Inc.",Cooperative,IL0039,17838,"Spoon River Electric Cooperative, Inc.",Cooperative
+IL0053,40307,"Prairie Power, Inc.",Cooperative,IL0033,29296,Western Illinois Electrical Cooperative,Cooperative
+,15473,Public Service Company of NM,IOU,AZ0027,13314,Navajo Tribal Utility Authority,Tribal
+,3413,PUD No 1 of Chelan County,Municipal,OR0014,19325,Umatilla Electric Cooperative,Cooperative
+,17716,Southwestern Power Administration,Federal,TX0195,18589,Rayburn Country Electric Co-op,Cooperative
+TX0195,18589,Rayburn Country Electric Co-op,Cooperative,TX0052,6173,"Fannin County Electric Cooperative, Inc.",Cooperative
+TX0195,18589,Rayburn Country Electric Co-op,Cooperative,TX0067,6182,"Farmers Electric Co-op, Inc.",Cooperative
+TX0195,18589,Rayburn Country Electric Co-op,Cooperative,TX0050,7559,"Grayson-Collin Electric Co-op, Inc.",Cooperative
+TX0195,18589,Rayburn Country Electric Co-op,Cooperative,TX0162,18976,Trinity Valley Electric Co-op,Cooperative
+SD0044,16443,"Rushmore Electric Power Cooperative, Inc.",Cooperative,SD0013,1769,"Black Hills Electric Cooperative, Inc.",Cooperative
+SD0044,16443,"Rushmore Electric Power Cooperative, Inc.",Cooperative,SD0015,2655,"Butte Electric Cooperative, Inc.",Cooperative
+SD0044,16443,"Rushmore Electric Power Cooperative, Inc.",Cooperative,SD0031,2986,"Cam Wal Electric Cooperative, Inc.",Cooperative
+SD0044,16443,"Rushmore Electric Power Cooperative, Inc.",Cooperative,SD0041,3435,"Cherry-Todd Electric Co-op, Inc.",Cooperative
+SD0044,16443,"Rushmore Electric Power Cooperative, Inc.",Cooperative,SD0035,10558,"Lacreek Electric Association, Inc.",Cooperative
+SD0044,16443,"Rushmore Electric Power Cooperative, Inc.",Cooperative,SD0038,12915,"Moreau-Grand Electric Cooperative, Inc.",Cooperative
+SD0044,16443,"Rushmore Electric Power Cooperative, Inc.",Cooperative,SD0042,20368,"West Central Electric Co-op, Inc.",Cooperative
+SD0044,16443,"Rushmore Electric Power Cooperative, Inc.",Cooperative,SD0011,20401,"West River Electric Assn, Inc.",Cooperative
+TX0155,16624,"San Miguel Electric Cooperative, Inc.",Cooperative,TX0121,2172,"Brazos Electric Power Cooperative, Inc.",Cooperative
+TX0155,16624,"San Miguel Electric Cooperative, Inc.",Cooperative,TX0148,17583,"South Texas Electric Cooperative, Inc.",Cooperative
+,17543,Santee Cooper,State,SC0050,40218,"Central Electric Power Co-op, Inc.",Cooperative
+FL0041,21554,"Seminole Electric Co-op, Inc.",Cooperative,FL0023,3245,"Central Florida Electric Cooperative, Inc.",Cooperative
+FL0041,21554,"Seminole Electric Co-op, Inc.",Cooperative,FL0014,3757,"Clay Electric Cooperative, Inc.",Cooperative
+FL0041,21554,"Seminole Electric Co-op, Inc.",Cooperative,FL0035,7264,"Glades Electric Cooperative, Inc.",Cooperative
+FL0041,21554,"Seminole Electric Co-op, Inc.",Cooperative,FL0026,14606,"Peace River Electric Cooperative, Inc.",Cooperative
+FL0041,21554,"Seminole Electric Co-op, Inc.",Cooperative,FL0016,18304,SECO Energy,Cooperative
+FL0041,21554,"Seminole Electric Co-op, Inc.",Cooperative,FL0015,18360,"Suwannee Valley Electric Co-op, Inc.",Cooperative
+FL0041,21554,"Seminole Electric Co-op, Inc.",Cooperative,FL0029,18449,"Talquin Electric Cooperative, Inc.",Cooperative
+FL0041,21554,"Seminole Electric Co-op, Inc.",Cooperative,FL0028,19161,"Tri-County Electric Cooperative, Inc.",Cooperative
+FL0041,21554,"Seminole Electric Co-op, Inc.",Cooperative,FL0033,20885,Withlacoochee River Electric Cooperative,Cooperative
+,800516,Shell Energy North America LP (TX),Private,CA0016,15308,Plumas-Sierra REC,Cooperative
+,800516,Shell Energy North America LP (TX),Private,OR0014,19325,Umatilla Electric Cooperative,Cooperative
+MO0059,17106,Sho-Me Power Electric Cooperative,Cooperative,MO0054,4524,"Crawford Electric Cooperative, Inc.",Cooperative
+MO0059,17106,Sho-Me Power Electric Cooperative,Cooperative,MO0068,7024,Gascosage Electric Cooperative,Cooperative
+MO0059,17106,Sho-Me Power Electric Cooperative,Cooperative,MO0049,8934,"Howell-Oregon Electric Cooperative, Inc.",Cooperative
+MO0059,17106,Sho-Me Power Electric Cooperative,Cooperative,MO0018,9331,Intercounty Electric Cooperative Assn.,Cooperative
+MO0059,17106,Sho-Me Power Electric Cooperative,Cooperative,MO0043,10603,Laclede Electric Co-op,Cooperative
+MO0059,17106,Sho-Me Power Electric Cooperative,Cooperative,MO0067,16851,Se-Ma-No Electric Co-op,Cooperative
+MO0059,17106,Sho-Me Power Electric Cooperative,Cooperative,MO0053,27238,Southwest Electric Co-op,Cooperative
+MO0059,17106,Sho-Me Power Electric Cooperative,Cooperative,MO0066,20318,Webster Electric Co-op,Cooperative
+MO0059,17106,Sho-Me Power Electric Cooperative,Cooperative,MO0046,20574,White River Valley Electric Cooperative,Cooperative
+TX0148,17583,"South Texas Electric Cooperative, Inc.",Cooperative,TX0102,9590,"Jackson Electric Co-op, Inc.",Cooperative
+TX0148,17583,"South Texas Electric Cooperative, Inc.",Cooperative,TX0087,10009,"Karnes Electric Cooperative, Inc.",Cooperative
+TX0148,17583,"South Texas Electric Cooperative, Inc.",Cooperative,TX0048,11501,"Magic Valley Electric Cooperative, Inc.",Cooperative
+TX0148,17583,"South Texas Electric Cooperative, Inc.",Cooperative,TX0095,12268,"Medina Electric Co-op, Inc.",Cooperative
+TX0148,17583,"South Texas Electric Cooperative, Inc.",Cooperative,TX0088,13830,"Nueces Electric Cooperative, Inc.",Cooperative
+TX0148,17583,"South Texas Electric Cooperative, Inc.",Cooperative,TX0111,16638,San Bernard Electric Cooperative,Cooperative
+TX0148,17583,"South Texas Electric Cooperative, Inc.",Cooperative,TX0091,16627,"San Patricio Electric Cooperative, Inc.",Cooperative
+TX0148,17583,"South Texas Electric Cooperative, Inc.",Cooperative,TX0096,19806,"Victoria Electric Cooperative, Inc.",Cooperative
+TX0148,17583,"South Texas Electric Cooperative, Inc.",Cooperative,TX0075,20472,"Wharton County Electric Co-op, Inc.",Cooperative
+,29304,Southeastern Power Administration,Federal,NC0066,240,Albemarle EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,GA0042,407,Altamaha EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,GA0096,562,Amicalola EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,AL0020,1149,Baldwin County EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,VA0030,1062,BARC Electric Cooperative,Cooperative
+,29304,Southeastern Power Administration,Federal,KY0062,1692,Big Rivers Electric Corporation,Cooperative
+,29304,Southeastern Power Administration,Federal,AL0029,1780,Black Warrior Electric Cooperative,Cooperative
+,29304,Southeastern Power Administration,Federal,NC0023,1889,Blue Ridge EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,GA0087,2903,Canoochee EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,NC0064,2982,Cape Hatteras Electric Co-op,Cooperative
+,29304,Southeastern Power Administration,Federal,GA0034,3081,Carroll EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,NC0055,3107,Carteret-Craven Electric Co-op,Cooperative
+,29304,Southeastern Power Administration,Federal,AL0030,3222,Central Alabama Electric Cooperative,Cooperative
+,29304,Southeastern Power Administration,Federal,SC0050,40218,"Central Electric Power Co-op, Inc.",Cooperative
+,29304,Southeastern Power Administration,Federal,NC0058,3250,Central EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,FL0023,3245,"Central Florida Electric Cooperative, Inc.",Cooperative
+,29304,Southeastern Power Administration,Federal,GA0058,3248,Central Georgia EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,VA0029,3291,Central Virginia Electric Cooperative,Cooperative
+,29304,Southeastern Power Administration,Federal,FL0030,3502,"Choctawhatchee Electric Cooperative, Inc.",Cooperative
+,29304,Southeastern Power Administration,Federal,AL0009,40127,Clarke-Washington EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,GA0099,3843,Coastal EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,GA0084,3916,Cobb Electric Membership Corporation,Cooperative
+,29304,Southeastern Power Administration,Federal,GA0022,40212,Colquitt EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,VA0037,4117,Community Electric Cooperative,Cooperative
+,29304,Southeastern Power Administration,Federal,MS0053,17568,Cooperative Energy,Cooperative
+,29304,Southeastern Power Administration,Federal,AL0033,4327,"Coosa Valley Electric Cooperative, Inc.",Cooperative
+,29304,Southeastern Power Administration,Federal,GA0103,4432,Coweta-Fayette EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,VA0002,4471,Craig-Botetourt Electric Cooperative,Cooperative
+,29304,Southeastern Power Administration,Federal,GA0020,19219,Diverse Power Incorporated,Cooperative
+,29304,Southeastern Power Administration,Federal,AL0025,5204,Dixie Electric Cooperative,Cooperative
+,29304,Southeastern Power Administration,Federal,KY0059,5580,East Kentucky Power Cooperative,Cooperative
+,29304,Southeastern Power Administration,Federal,NC0016,5656,Edgecombe-Martin County EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,NC0069,21632,EnergyUnited,Cooperative
+,29304,Southeastern Power Administration,Federal,GA0090,5905,Excelsior EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,GA0066,6411,Flint EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,NC0021,6640,Four County EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,NC0046,6784,French Broad Electric Membership Corporation,Cooperative
+,29304,Southeastern Power Administration,Federal,GA0068,7450,Grady EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,GA0037,7090,GreyStone Power Corporation,Cooperative
+,29304,Southeastern Power Administration,Federal,GA0078,7887,Habersham EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,NC0033,7978,Halifax EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,GA0039,8210,Hart EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,NC0010,8333,Haywood EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,GA0065,9431,Irwin EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,GA0083,9601,Jackson EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,GA0074,9689,Jefferson Energy Cooperative,Cooperative
+,29304,Southeastern Power Administration,Federal,NC0043,9837,Jones-Onslow EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,GA0088,26218,Little Ocmulgee EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,SC0035,11019,"Little River Electric Cooperative, Inc.",Cooperative
+,29304,Southeastern Power Administration,Federal,NC0051,11291,Lumbee River EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,VA0031,12260,Mecklenburg Electric Cooperative,Cooperative
+,29304,Southeastern Power Administration,Federal,GA0097,12472,Middle Georgia EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,GA0070,12706,Mitchell EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,VA0028,13762,"Northern Neck Electric Cooperative, Inc.",Cooperative
+,29304,Southeastern Power Administration,Federal,VA0055,13640,Northern Virginia Electric Cooperative,Cooperative
+,29304,Southeastern Power Administration,Federal,GA0073,13934,Ocmulgee EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,GA0091,13962,Oconee EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,GA0092,31833,Okefenoke REMC,Cooperative
+,29304,Southeastern Power Administration,Federal,AL0026,14602,Pea River Electric Cooperative,Cooperative
+,29304,Southeastern Power Administration,Federal,NC0034,14717,Pee Dee EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,NC0032,15023,Piedmont EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,AL0022,30517,Pioneer Electric Cooperative,Cooperative
+,29304,Southeastern Power Administration,Federal,NC0014,14857,Pitt & Greene EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,GA0017,14649,Planters EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,AL0043,189,PowerSouth Energy Cooperative,Cooperative
+,29304,Southeastern Power Administration,Federal,VA0036,15410,Prince George Electric Cooperative,Cooperative
+,29304,Southeastern Power Administration,Federal,NC0036,15671,Randolph EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,VA0054,40228,Rappahannock Electric Cooperative,Cooperative
+,29304,Southeastern Power Administration,Federal,GA0008,15700,Rayle EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,NC0031,16101,Roanoke Electric Cooperative,Cooperative
+,29304,Southeastern Power Administration,Federal,NC0025,16496,Rutherford EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,GA0067,16674,Satilla REMC,Cooperative
+,29304,Southeastern Power Administration,Federal,GA0077,16865,Sawnee EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,VA0011,17066,"Shenandoah Valley Electric Cooperative, Inc.",Cooperative
+,29304,Southeastern Power Administration,Federal,GA0095,17290,Slash Pine EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,GA0051,17832,Snapping Shoals EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,NC0052,17572,South River EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,IL0050,17632,Southern Illinois Power Cooperative,Cooperative
+,29304,Southeastern Power Administration,Federal,GA0075,10624,Southern Rivers Energy,Cooperative
+,29304,Southeastern Power Administration,Federal,VA0027,21244,Southside Electric Cooperative,Cooperative
+,29304,Southeastern Power Administration,Federal,GA0045,18305,Sumter EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,NC0049,18339,Surry-Yadkin EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,FL0015,18360,"Suwannee Valley Electric Co-op, Inc.",Cooperative
+,29304,Southeastern Power Administration,Federal,AL0028,18203,Tallapoosa River Elec Co-op,Cooperative
+,29304,Southeastern Power Administration,Federal,FL0029,18449,"Talquin Electric Cooperative, Inc.",Cooperative
+,29304,Southeastern Power Administration,Federal,,18642,Tennessee Valley Authority,Federal
+,29304,Southeastern Power Administration,Federal,GA0086,18499,Three Notch EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,NC0059,19108,Tideland EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,AL0039,19027,Tombigbee Electric Cooperative,Cooperative
+,29304,Southeastern Power Administration,Federal,FL0028,19161,"Tri-County Electric Cooperative, Inc.",Cooperative
+,29304,Southeastern Power Administration,Federal,GA0094,18956,Tri-County EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,NC0050,18957,Tri-County EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,NC0039,19435,Union Power Cooperative,Cooperative
+,29304,Southeastern Power Administration,Federal,GA0031,19581,Upson EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,NC0047,19981,Wake EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,GA0035,20065,Walton EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,GA0069,20146,Washington EMC,Cooperative
+,29304,Southeastern Power Administration,Federal,FL0017,20371,West Florida Electric Co-op Assn.,Cooperative
+IL0050,17632,Southern Illinois Power Cooperative,Cooperative,IL0048,3726,"Clay Electric Cooperative, Inc.",Cooperative
+IL0050,17632,Southern Illinois Power Cooperative,Cooperative,IL0045,3804,"Clinton County Electric Cooperative, Inc.",Cooperative
+IL0050,17632,Southern Illinois Power Cooperative,Cooperative,IL0034,5535,Egyptian Electric Cooperative Assn.,Cooperative
+IL0050,17632,Southern Illinois Power Cooperative,Cooperative,IL0031,12803,"Monroe County Electric Cooperative, Inc.",Cooperative
+IL0050,17632,Southern Illinois Power Cooperative,Cooperative,IL0037,17603,"SouthEastern Illinois Elec. Co-op, Inc.",Cooperative
+IL0050,17632,Southern Illinois Power Cooperative,Cooperative,IL0043,17585,Southern Illinois Electric Cooperative,Cooperative
+IL0050,17632,Southern Illinois Power Cooperative,Cooperative,IL0041,18955,"Tri-County Electric Cooperative, Inc.",Cooperative
+,800578,Southern Minnesota Energy Cooperative (MN),Cooperative,MN0108,1884,Blue Earth-Nicollet-Faribault Cooperative Electric Associati,Cooperative
+,800578,Southern Minnesota Energy Cooperative (MN),Cooperative,MN0035,2316,Brown County Rural Electrical Association,Cooperative
+,800578,Southern Minnesota Energy Cooperative (MN),Cooperative,MN0037,6258,Federated Rural Electric Association,Cooperative
+,800578,Southern Minnesota Energy Cooperative (MN),Cooperative,MN0061,6782,Freeborn-Mower Electric Cooperative,Cooperative
+,800578,Southern Minnesota Energy Cooperative (MN),Cooperative,MN0032,19157,MiEnergy Cooperative,Cooperative
+,800578,Southern Minnesota Energy Cooperative (MN),Cooperative,MN0066,13684,Nobles Cooperative Electric,Cooperative
+,800578,Southern Minnesota Energy Cooperative (MN),Cooperative,MN0059,14468,People's Cooperative Services,Cooperative
+,800578,Southern Minnesota Energy Cooperative (MN),Cooperative,MN0060,15750,Redwood Electric Cooperative,Cooperative
+,800578,Southern Minnesota Energy Cooperative (MN),Cooperative,SD0012,17267,"Sioux Valley - Southwestern Electric Cooperative, Inc.",Cooperative
+,800578,Southern Minnesota Energy Cooperative (MN),Cooperative,MN0055,17550,South Central Electric Association,Cooperative
+,800578,Southern Minnesota Energy Cooperative (MN),Cooperative,MN0053,18047,Steele-Waseca Cooperative Electric,Cooperative
+,800578,Southern Minnesota Energy Cooperative (MN),Cooperative,MN0063,12651,The Minnesota Valley Electric Cooperative,Cooperative
+,800576,Southwest Public Power Agency (AZ),Municipal,AZ0027,13314,Navajo Tribal Utility Authority,Tribal
+,800576,Southwest Public Power Agency (AZ),Municipal,AZ0030,14543,Tohono O'odham Utility Authority,Tribal
+,17698,Southwestern Electric Power Co,Cooperative,TX0157,18679,East Texas Electric Cooperative,Cooperative
+,17698,Southwestern Electric Power Co,Cooperative,TX0158,13670,Northeast Texas Elec. Co-op,Cooperative
+,17716,Southwestern Power Administration,Federal,LA0018,1458,Beauregard Electric Cooperative,Cooperative
+,17716,Southwestern Power Administration,Federal,LA0017,3641,Claiborne Electric Cooperative,Cooperative
+,17716,Southwestern Power Administration,Federal,LA0020,4153,Concordia Electric Cooperative,Cooperative
+,17716,Southwestern Power Administration,Federal,LA0013,5202,Dixie Electric Membership Corporation,Cooperative
+,17716,Southwestern Power Administration,Federal,KS0022,5334,Doniphan Electric Cooperative Association,Cooperative
+,17716,Southwestern Power Administration,Federal,LA0019,9682,Jefferson Davis Electric Cooperative,Cooperative
+,17716,Southwestern Power Administration,Federal,KS0030,13386,Nemaha-Marshall Electric Cooperative Association,Cooperative
+,17716,Southwestern Power Administration,Federal,LA0012,13783,Northeast Louisiana Power Cooperative,Cooperative
+,17716,Southwestern Power Administration,Federal,LA0015,15175,Pointe Coupee EMC,Cooperative
+,17716,Southwestern Power Administration,Federal,LA0008,17565,South Louisiana Electric Cooperative Association,Cooperative
+,17716,Southwestern Power Administration,Federal,LA0009,17684,Southwest Louisiana EMC,Cooperative
+,17716,Southwestern Power Administration,Federal,LA0010,21567,Washington-St. Tammany Electric Cooperative,Cooperative
+,17716,Southwestern Power Administration,Federal,KS0062,10019,"FreeState Electric Cooperative, Inc.",Cooperative
+KS0053,18315,Sunflower Electric Power Corp.,Cooperative,KS0042,10728,"Lane-Scott Electric Cooperative, Inc.",Cooperative
+KS0053,18315,Sunflower Electric Power Corp.,Cooperative,KS0044,15073,"Pioneer Electric Cooperative, Inc.",Cooperative
+KS0053,18315,Sunflower Electric Power Corp.,Cooperative,KS0028,13799,Prairie Land Electric Cooperative Inc.,Cooperative
+KS0053,18315,Sunflower Electric Power Corp.,Cooperative,KS0055,60839,Southern Pioneer Electric Company,Cooperative
+KS0053,18315,Sunflower Electric Power Corp.,Cooperative,KS0048,19820,"Victory Electric Cooperative Assn., Inc.",Cooperative
+KS0053,18315,Sunflower Electric Power Corp.,Cooperative,KS0047,20476,Western Cooperative Electric Assn. Inc.,Cooperative
+KS0053,18315,Sunflower Electric Power Corp.,Cooperative,KS0051,20510,"Wheatland Electric Co-op, Inc.",Cooperative
+,18642,Tennessee Valley Authority,Federal,NC0021,6641,4-County Electric Power Assn,Cooperative
+,18642,Tennessee Valley Authority,Federal,MS0056,276,Alcorn County Electric Power Assn,Cooperative
+,18642,Tennessee Valley Authority,Federal,TN0038,727,Appalachian Electric Coop,Cooperative
+,18642,Tennessee Valley Authority,Federal,AL0047,750,Arab Electric Coop Inc,Cooperative
+,18642,Tennessee Valley Authority,Federal,GA0081,1891,Blue Ridge Mountain EMC - (GA),Cooperative
+,18642,Tennessee Valley Authority,Federal,TN0046,2960,"Caney Fork Electric Coop, Inc",Cooperative
+,18642,Tennessee Valley Authority,Federal,MS0022,2849,Central Electric Power Assn - (MS),Cooperative
+,18642,Tennessee Valley Authority,Federal,AL0021,3426,Cherokee Electric Coop,Cooperative
+,18642,Tennessee Valley Authority,Federal,TN0049,40166,"Chickasaw Electric Coop, Inc",Cooperative
+,18642,Tennessee Valley Authority,Federal,AL0018,4618,"Cullman Electric Coop, Inc",Cooperative
+,18642,Tennessee Valley Authority,Federal,TN0024,4624,Cumberland Elec Member Corp,Cooperative
+,18642,Tennessee Valley Authority,Federal,TN0021,5399,Duck River Elec Member Corp,Cooperative
+,18642,Tennessee Valley Authority,Federal,MS0045,5578,East Mississippi Elec Pwr Assn,Cooperative
+,18642,Tennessee Valley Authority,Federal,TN0048,40236,"Forked Deer Electric Coop, Inc",Cooperative
+,18642,Tennessee Valley Authority,Federal,TN0026,6608,Fort Loudoun Electric Coop,Cooperative
+,18642,Tennessee Valley Authority,Federal,AL0046,6717,Franklin Electric Coop - (AL),Cooperative
+,18642,Tennessee Valley Authority,Federal,TN0020,7174,Gibson Electric Members Corp,Cooperative
+,18642,Tennessee Valley Authority,Federal,TN0037,8764,"Holston Electric Coop, Inc",Cooperative
+,18642,Tennessee Valley Authority,Federal,AL0037,9739,Joe Wheeler Elec Member Corp,Cooperative
+,18642,Tennessee Valley Authority,Federal,AL0043,11714,Marshall-De Kalb Electric Coop,Cooperative
+,18642,Tennessee Valley Authority,Federal,TN0032,12330,Meriwether Lewis Electric Coop,Cooperative
+,18642,Tennessee Valley Authority,Federal,TN0019,12470,Middle Tennessee E M C,Cooperative
+,18642,Tennessee Valley Authority,Federal,MS0001,40303,Monroe County Elec Power Assn,Cooperative
+,18642,Tennessee Valley Authority,Federal,TN0051,13027,"Mountain Electric Coop, Inc",Cooperative
+,18642,Tennessee Valley Authority,Federal,MS0050,13227,Natchez Trace Elec Power Assn,Cooperative
+,18642,Tennessee Valley Authority,Federal,AL0035,13669,North Alabama Electric Coop,Cooperative
+,18642,Tennessee Valley Authority,Federal,MS0024,40302,North East Mississippi EPA,Cooperative
+,18642,Tennessee Valley Authority,Federal,GA0007,13716,North Georgia Elec Member Corp,Cooperative
+,18642,Tennessee Valley Authority,Federal,MS0048,13735,Northcentral Mississippi E P A,Cooperative
+,18642,Tennessee Valley Authority,Federal,KY0026,14724,Pennyrile Rural Electric Coop,Cooperative
+,18642,Tennessee Valley Authority,Federal,TN0031,15016,Pickwick Electric Coop,Cooperative
+,18642,Tennessee Valley Authority,Federal,TN0036,15141,Plateau Electric Cooperative,Cooperative
+,18642,Tennessee Valley Authority,Federal,MS0017,15211,Pontotoc Electric Power Assn,Cooperative
+,18642,Tennessee Valley Authority,Federal,TN0061,15293,Powell Valley Electric Coop,Cooperative
+,18642,Tennessee Valley Authority,Federal,MS0046,15334,Prentiss County Elec Pwr Assn,Cooperative
+,18642,Tennessee Valley Authority,Federal,AL0036,16629,Sand Mountain Electric Coop,Cooperative
+,18642,Tennessee Valley Authority,Federal,TN0035,16930,Sequachee Valley Electric Coop,Cooperative
+,18642,Tennessee Valley Authority,Federal,TN0016,17694,Southwest Tennessee E M C,Cooperative
+,18642,Tennessee Valley Authority,Federal,MS0026,18447,Tallahatchie Valley E P A,Cooperative
+,18642,Tennessee Valley Authority,Federal,TN0034,18643,Tennessee Valley Electric Coop,Cooperative
+,18642,Tennessee Valley Authority,Federal,MS0047,18943,Tippah Electric Power Assn,Cooperative
+,18642,Tennessee Valley Authority,Federal,MS0043,18951,Tishomingo County E P A,Cooperative
+,18642,Tennessee Valley Authority,Federal,MS0049,19007,Tombigbee Electric Power Assn,Cooperative
+,18642,Tennessee Valley Authority,Federal,TN0009,19162,Tri-County Elec Member Corp (TN),Cooperative
+,18642,Tennessee Valley Authority,Federal,GA0108,19154,Tri-State Electric Member Corp,Cooperative
+,18642,Tennessee Valley Authority,Federal,TN0025,19574,Upper Cumberland E M C,Cooperative
+,18642,Tennessee Valley Authority,Federal,TN0001,19898,Volunteer Electric Coop,Cooperative
+,18642,Tennessee Valley Authority,Federal,KY0035,20130,Warren Rural Elec Coop Corp,Cooperative
+,18642,Tennessee Valley Authority,Federal,KY0050,20377,West Kentucky Rural E C C,Cooperative
+TX0161,39347,"East Texas Electric Cooperative, Inc",Cooperative,TX0078,3470,Cherokee County Electic Cooperative Association,Cooperative
+TX0161,39347,"East Texas Electric Cooperative, Inc",Cooperative,TX0064,4975,"Deep East Texas Electric Cooperative, Inc.",Cooperative
+TX0161,39347,"East Texas Electric Cooperative, Inc",Cooperative,TX0089,8898,"Houston County Electric Co-op, Inc.",Cooperative
+TX0161,39347,"East Texas Electric Cooperative, Inc",Cooperative,TX0125,9668,"Jasper-Newton Electric Cooperative, Inc.",Cooperative
+TX0161,39347,"East Texas Electric Cooperative, Inc",Cooperative,TX0065,16461,"Rusk County Electric Cooperative, Inc.",Cooperative
+TX0161,39347,"East Texas Electric Cooperative, Inc",Cooperative,TX0103,16613,"Sam Houston Electric Cooperative, Inc.",Cooperative
+TX0161,39347,"East Texas Electric Cooperative, Inc",Cooperative,TX0054,20927,"Wood County Electric Co-op, Inc.",Cooperative
+,19096,TransAlta Energy Mktg(US) Inc,Private,OR0014,19325,Umatilla Electric Cooperative,Cooperative
+AZ0020,19189,"Trico Electric Cooperative, Inc.",Cooperative,AZ0030,14543,Tohono O'odham Utility Authority,Tribal
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,WY0005,1683,Big Horn Rural Electric Company,Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,WY0021,2998,"Carbon Power & Light, Inc.",Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,NM0021,3273,Central New Mexico Electric Co-op,Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,NE0003,3495,Chimney Rock PPD,Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,NM0025,4071,"Columbus Electric Cooperative, Inc.",Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,NM0022,4265,"Continental Divide Electric Cooperative, Inc.",Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,CO0033,5862,"Empire Electric Assn., Inc.",Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,WY0012,6950,Garland Light & Power Co.,Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,CO0018,7787,"Gunnison County Electric Association, Inc.",Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,WY0027,8566,"High Plains Power, Inc.",Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,WY0014,27058,"High West Energy, Inc.",Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,CO0029,8570,Highline Electric Association,Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,NM0028,9699,Jemez Mountains Electric Co-op,Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,CO0039,10066,K. C. Electric Association,Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,CO0032,10539,"La Plata Electric Association, Inc.",Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,NE0088,12539,Midwest ECC,Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,NM0014,12901,"Mora-San Miguel Electric Co-op, Inc.",Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,CO0015,12860,Morgan County REA,Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,CO0042,13050,"Mountain Parks Electric, Inc.",Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,CO0037,13058,"Mountain View Electric Assn., Inc.",Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,WY0022,13685,"Niobrara Electric Assn., Inc.",Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,NM0015,13777,Northern Rio Arriba Electric Co-op,Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,NE0099,13805,Northwest RPPD,Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,NM0012,14224,"Otero County Electric Cooperative, Inc.",Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,NE0084,14426,Panhandle REMA,Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,CO0031,15257,"Poudre Valley REA, Inc.",Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,NE0001,16164,Roosevelt PPD,Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,CO0025,16616,"San Isabel Electric Assn., Inc.",Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,CO0014,16603,"San Luis Valley REC, Inc.",Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,CO0026,16622,"San Miguel Power Assn., Inc.",Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,CO0035,16649,"Sangre De Cristo Electric Association, Inc.",Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,NM0017,23326,"Sierra Electric Cooperative, Inc.",Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,NM0020,17492,"Socorro Electric Co-op, Inc.",Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,CO0017,17592,Southeast Colorado Power Association,Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,NM0026,17715,"Southwestern Electric Cooperative, Inc.",Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,NM0019,17826,"Springer Electric Cooperative, Inc.",Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,CO0022,19499,"United Power, Inc.",Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,NE0100,20509,Wheat Belt PPD,Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,WY0010,20506,Wheatland REA,Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,CO0040,20576,"White River Electric Assn., Inc.",Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,WY0006,21079,Wyrulec Company,Cooperative
+CO0047,30151,"Tri-State G&T Assn., Inc.",Cooperative,CO0038,21075,"Y-W Electric Association, Inc.",Cooperative
+,24211,Tucson Electric Power Co,IOU,AZ0027,13314,Navajo Tribal Utility Authority,Tribal
+,24211,Tucson Electric Power Co,IOU,AZ0013,13318,Navopache Electric Cooperative,Cooperative
+,24211,Tucson Electric Power Co,IOU,AZ0030,14543,Tohono O'odham Utility Authority,Tribal
+,800285,U S Corps of Engineers,Federal,MI0043,3828,Cloverland Electric Cooperative,Cooperative
+MT0040,19389,Upper Missouri Power Cooperative,Cooperative,ND0031,2394,"Burke-Divide Electric Cooperative, Inc.",Cooperative
+MT0040,19389,Upper Missouri Power Cooperative,Cooperative,MT0029,7318,"Goldenwest Electric Cooperative, Inc.",Cooperative
+MT0040,19389,Upper Missouri Power Cooperative,Cooperative,MT0005,11272,"Lower Yellowstone REA, Inc.",Cooperative
+MT0040,19389,Upper Missouri Power Cooperative,Cooperative,MT0028,11989,"McCone Electric Co-op, Inc.",Cooperative
+MT0040,19389,Upper Missouri Power Cooperative,Cooperative,ND0029,12087,"McKenzie Electric Cooperative, Inc.",Cooperative
+MT0040,19389,Upper Missouri Power Cooperative,Cooperative,MT0017,12463,Mid-Yellowstone Electric Cooperative,Cooperative
+MT0040,19389,Upper Missouri Power Cooperative,Cooperative,ND0028,20413,Mountrail-Williams Electric Cooperative,Cooperative
+MT0040,19389,Upper Missouri Power Cooperative,Cooperative,ND0052,55959,Roughrider Electric Cooperative,Cooperative
+MT0040,19389,Upper Missouri Power Cooperative,Cooperative,MT0025,16759,"Sheridan Electric Co-op, Inc.",Cooperative
+MT0040,19389,Upper Missouri Power Cooperative,Cooperative,ND0034,17261,"Slope Electric Cooperative, Inc.",Cooperative
+MT0040,19389,Upper Missouri Power Cooperative,Cooperative,MT0034,17593,"Southeast Electric Cooperative, Inc.",Cooperative
+,24431,Utah Municipal Power Agency,Municipal,CA0016,15308,Plumas-Sierra REC,Cooperative
+,19780,Vermont Public Pwr Supply Auth,Municipal,ME0019,8780,Fox Islands Electric Cooperative,Cooperative
+IN0107,40211,"Wabash Valley Power Assn., Inc.",Cooperative,IN0006,24753,Boone REMC,Cooperative
+IN0107,40211,"Wabash Valley Power Assn., Inc.",Cooperative,IN0112,27599,Carroll White REMC,Cooperative
+IN0107,40211,"Wabash Valley Power Assn., Inc.",Cooperative,MO0058,3600,Citizens Electric Corp.,Cooperative
+IN0107,40211,"Wabash Valley Power Assn., Inc.",Cooperative,IL0038,4362,Corn Belt Energy Corporation,Cooperative
+IN0107,40211,"Wabash Valley Power Assn., Inc.",Cooperative,IL0027,5531,EnerStar Power Corp,Cooperative
+IN0107,40211,"Wabash Valley Power Assn., Inc.",Cooperative,IN0029,6848,Fulton County REMC,Cooperative
+IN0107,40211,"Wabash Valley Power Assn., Inc.",Cooperative,IN0028,59505,Heartland REMC,Cooperative
+IN0107,40211,"Wabash Valley Power Assn., Inc.",Cooperative,IN0033,8447,Hendricks Power Cooperative,Cooperative
+IN0107,40211,"Wabash Valley Power Assn., Inc.",Cooperative,IN0035,9665,Jasper County REMC,Cooperative
+IN0107,40211,"Wabash Valley Power Assn., Inc.",Cooperative,IN0037,9666,Jay County REMC,Cooperative
+IN0107,40211,"Wabash Valley Power Assn., Inc.",Cooperative,IN0087,9999,Kankakee Valley REMC,Cooperative
+IN0107,40211,"Wabash Valley Power Assn., Inc.",Cooperative,IN0088,10448,Kosciusko REMC,Cooperative
+IN0107,40211,"Wabash Valley Power Assn., Inc.",Cooperative,IN0041,10562,LaGrange County REMC,Cooperative
+IN0107,40211,"Wabash Valley Power Assn., Inc.",Cooperative,IL0040,8824,"M.J.M. Electric Cooperative, Inc.",Cooperative
+IN0107,40211,"Wabash Valley Power Assn., Inc.",Cooperative,IN0009,11767,Marshall County REMC,Cooperative
+IN0107,40211,"Wabash Valley Power Assn., Inc.",Cooperative,IN0046,12406,Miami-Cass County REMC,Cooperative
+IN0107,40211,"Wabash Valley Power Assn., Inc.",Cooperative,IN0100,13566,Newton County REMC,Cooperative
+IN0107,40211,"Wabash Valley Power Assn., Inc.",Cooperative,IN0032,8000,NineStar Connect,Cooperative
+IN0107,40211,"Wabash Valley Power Assn., Inc.",Cooperative,IN0080,13647,Noble County REMC,Cooperative
+IN0107,40211,"Wabash Valley Power Assn., Inc.",Cooperative,IN0042,14471,Parke County REMC,Cooperative
+IN0107,40211,"Wabash Valley Power Assn., Inc.",Cooperative,IN0053,18100,Steuben County REMC,Cooperative
+IN0107,40211,"Wabash Valley Power Assn., Inc.",Cooperative,IN0055,18940,Tipmont REMC,Cooperative
+IN0107,40211,"Wabash Valley Power Assn., Inc.",Cooperative,IN0011,20111,Warren County REMC,Cooperative
+,27000,Western Area Power Administration,Federal,AZ0028,796,Arizona Electric Power Cooperative,Cooperative
+,27000,Western Area Power Administration,Federal,ND0045,1307,Basin Electric Power Cooperative,Cooperative
+,27000,Western Area Power Administration,Federal,MT0021,1675,Big Horn County Electric Cooperative,Cooperative
+,27000,Western Area Power Administration,Federal,MN0035,2316,Brown County Rural Electric,Cooperative
+,27000,Western Area Power Administration,Federal,ND0035,2985,Capital Electric Cooperative,Cooperative
+,27000,Western Area Power Administration,Federal,IA0083,3258,Central Iowa Power Cooperative,Cooperative
+,27000,Western Area Power Administration,Federal,MT0041,40301,Central Montana Electric Power Cooperative,Cooperative
+,27000,Western Area Power Administration,Federal,ND0042,3279,Central Power Electric Cooperative,Cooperative
+,27000,Western Area Power Administration,Federal,NM0004,3287,Central Valley Electric Cooperative,Cooperative
+,27000,Western Area Power Administration,Federal,CO0016,9336,CORE Electric Cooperative,Cooperative
+,27000,Western Area Power Administration,Federal,,4363,Corn Belt Power Cooperative,Cooperative
+,27000,Western Area Power Administration,Federal,,40230,Deseret Generation and Transmission,Cooperative
+,27000,Western Area Power Administration,Federal,SD0043,5552,East River Electric Power Cooperative,Cooperative
+,27000,Western Area Power Administration,Federal,NM0009,6198,Farmers Electric Cooperative,Cooperative
+,27000,Western Area Power Administration,Federal,MN0037,6258,Federated Rural Electric Association,Cooperative
+,27000,Western Area Power Administration,Federal,SD0040,7484,Grand Electric Cooperative,Cooperative
+,27000,Western Area Power Administration,Federal,CO0007,7563,Grand Valley Power,Cooperative
+,27000,Western Area Power Administration,Federal,CO0034,8773,Holy Cross Electric Association,Cooperative
+,27000,Western Area Power Administration,Federal,MN0083,9475,Itasca-Mantrap Cooperative Electric Association,Cooperative
+,27000,Western Area Power Administration,Federal,MN0058,9991,Kandiyohi Power Cooperative,Cooperative
+,27000,Western Area Power Administration,Federal,KS0054,9961,"Kansas Electric Power Cooperative, Inc.",Cooperative
+,27000,Western Area Power Administration,Federal,ND0027,10153,KEM Electric Cooperative,Cooperative
+,27000,Western Area Power Administration,Federal,IA0086,10574,L&O Power Cooperative,Cooperative
+,27000,Western Area Power Administration,Federal,MN0057,10618,Lake Region Cooperative Electrical Association,Cooperative
+,27000,Western Area Power Administration,Federal,NM0023,10817,Lea County Electric Cooperative,Cooperative
+,27000,Western Area Power Administration,Federal,MN0025,11910,McLeod Cooperative Power Association,Cooperative
+,27000,Western Area Power Administration,Federal,MN0003,12227,Meeker Cooperative Light and Power,Cooperative
+,27000,Western Area Power Administration,Federal,KS0055,12524,"Midwest Energy, Inc.",Cooperative
+,27000,Western Area Power Administration,Federal,MN0039,40304,Minnesota Valley Cooperative,Cooperative
+,27000,Western Area Power Administration,Federal,ND0020,12658,Minnkota Power Cooperative,Cooperative
+,27000,Western Area Power Administration,Federal,ND0025,12899,Mor-Gran-Sou Electric Cooperative,Cooperative
+,27000,Western Area Power Administration,Federal,AZ0027,13314,Navajo Tribal Utility Authority,Tribal
+,27000,Western Area Power Administration,Federal,AZ0013,13318,Navopache Electric Cooperative,Cooperative
+,27000,Western Area Power Administration,Federal,MN0066,13684,Nobles Cooperative Electric,Cooperative
+,27000,Western Area Power Administration,Federal,MT0026,13750,Northern Electric Cooperative,Cooperative
+,27000,Western Area Power Administration,Federal,IA0085,13798,Northwest Iowa Power Cooperative,Cooperative
+,27000,Western Area Power Administration,Federal,CA0016,15308,Plumas-Sierra Rural Electric Cooperative,Cooperative
+,27000,Western Area Power Administration,Federal,MN0060,15750,Redwood Electric Cooperative,Cooperative
+,27000,Western Area Power Administration,Federal,,,Resource Management,Private
+,27000,Western Area Power Administration,Federal,NM0008,22690,Roosevelt County Electric Cooperative,Cooperative
+,27000,Western Area Power Administration,Federal,SD0026,16286,Rosebud Electric Cooperative,Cooperative
+,27000,Western Area Power Administration,Federal,MN0018,16368,Runestone Electric Association,Cooperative
+,27000,Western Area Power Administration,Federal,SD0044,16443,Rushmore Electric Power Cooperative,Cooperative
+,27000,Western Area Power Administration,Federal,MN0055,17550,South Central Electric Association,Cooperative
+,27000,Western Area Power Administration,Federal,TX0148,17583,South Texas Electric Cooperative,Cooperative
+,27000,Western Area Power Administration,Federal,MN0034,18019,Stearns Cooperative Electric Association,Cooperative
+,27000,Western Area Power Administration,Federal,AZ0014,18280,Sulphur Springs Valley Electric Cooperative,Cooperative
+,27000,Western Area Power Administration,Federal,MN0085,27422,Todd-Wadena Electric Cooperative,Cooperative
+,27000,Western Area Power Administration,Federal,AZ0030,14543,Tohono O'odham Utility Authority,Tribal
+,27000,Western Area Power Administration,Federal,CO0047,30151,Tri-State Generation and Transmission Association,Cooperative
+,27000,Western Area Power Administration,Federal,MT0040,19389,Upper Missouri Power Cooperative,Cooperative
+,27000,Western Area Power Administration,Federal,OK0032,20447,Western Farmers Electric Cooperative,Cooperative
+,27000,Western Area Power Administration,Federal,,21664,Willwood Light and Power Company,Cooperative
+,27000,Western Area Power Administration,Federal,CO0036,21081,Yampa Valley Electric Association,Cooperative
+,17716,Southwestern Power Administration,Federal,OK0032,20447,Western Farmers Electric Co-op,Cooperative
+OK0032,20447,Western Farmers Electric Co-op,Cooperative,OK0012,296,"Alfalfa Electric Cooperative, Inc.",Cooperative
+OK0032,20447,Western Farmers Electric Co-op,Cooperative,OK0029,2911,Canadian Valley Electric Cooperative. Inc.,Cooperative
+OK0032,20447,Western Farmers Electric Co-op,Cooperative,NM0004,3287,"Central Valley Electric Cooperative, Inc.",Cooperative
+OK0032,20447,Western Farmers Electric Co-op,Cooperative,OK0030,3527,"Choctaw Electric Cooperative, Inc.",Cooperative
+OK0032,20447,Western Farmers Electric Co-op,Cooperative,OK0001,3478,Cimarron Electric Cooperative,Cooperative
+OK0032,20447,Western Farmers Electric Co-op,Cooperative,OK0006,60482,CKenergy Electric Cooperative,Cooperative
+OK0032,20447,Western Farmers Electric Co-op,Cooperative,OK0022,4401,"Cotton Electric Cooperative, Inc.",Cooperative
+OK0032,20447,Western Farmers Electric Co-op,Cooperative,OK0023,5598,"East Central Oklahoma Electric Cooperative, Inc.",Cooperative
+OK0032,20447,Western Farmers Electric Co-op,Cooperative,NM0009,6198,"Farmers Electric Co-op, Inc.",Cooperative
+OK0032,20447,Western Farmers Electric Co-op,Cooperative,OK0026,8183,"Harmon Electric Association., Inc.",Cooperative
+OK0032,20447,Western Farmers Electric Co-op,Cooperative,OK0002,10012,Kay Electric Cooperative,Cooperative
+OK0032,20447,Western Farmers Electric Co-op,Cooperative,OK0033,10170,"Kiamichi Electric Cooperative, Inc.",Cooperative
+OK0032,20447,Western Farmers Electric Co-op,Cooperative,NM0023,10817,"Lea County Electric Cooperative, Inc.",Cooperative
+OK0032,20447,Western Farmers Electric Co-op,Cooperative,OK0018,13838,"Northfork Electric Cooperative, Inc.",Cooperative
+OK0032,20447,Western Farmers Electric Co-op,Cooperative,OK0031,13807,"Northwestern Electric Cooperative, Inc.",Cooperative
+OK0032,20447,Western Farmers Electric Co-op,Cooperative,OK0010,14062,Oklahoma Electric Cooperative,Cooperative
+OK0032,20447,Western Farmers Electric Co-op,Cooperative,OK0014,15746,Red River Valley REA,Cooperative
+OK0032,20447,Western Farmers Electric Co-op,Cooperative,NM0008,22690,"Roosevelt County Electric Cooperative, Inc.",Cooperative
+OK0032,20447,Western Farmers Electric Co-op,Cooperative,OK0020,16382,"Rural Electric Cooperative, Inc.",Cooperative
+OK0032,20447,Western Farmers Electric Co-op,Cooperative,OK0027,17603,"Southeastern Electric Cooperative, Inc.",Cooperative
+OK0032,20447,Western Farmers Electric Co-op,Cooperative,OK0015,17681,"Southwest Rural Electric Association, Inc.",Cooperative
+,20847,Wisconsin Electric Power Co,IOU,MI0043,3828,Cloverland Electric Cooperative,Cooperative
+,20858,Wisconsin Public Power Inc,Municipal,MI0020,305,Alger-Delta Cooperative Electric Association,Cooperative
+,20860,Wisconsin Public Service Corp,IOU,WI0059,20153,"Washington Island El Coop, Inc",Cooperative
+MI0046,20845,"Wolverine Power Supply Co-op, Inc.",Cooperative,MI0044,3436,Cherryland Electric Cooperative,Cooperative
+MI0046,20845,"Wolverine Power Supply Co-op, Inc.",Cooperative,MI0048,38084,Great Lakes Energy Cooperative,Cooperative
+MI0046,20845,"Wolverine Power Supply Co-op, Inc.",Cooperative,MI0026,19396,"HomeWorks Tri-County Electric Co-op, Inc.",Cooperative
+MI0046,20845,"Wolverine Power Supply Co-op, Inc.",Cooperative,MI0049,12377,Midwest Energy and Communications,Cooperative
+MI0046,20845,"Wolverine Power Supply Co-op, Inc.",Cooperative,MI0028,15340,Presque Isle Electric & Gas Co-op,Cooperative
+MI0046,20845,"Wolverine Power Supply Co-op, Inc.",Cooperative,,56279,Spartan Renewable Energy,Cooperative
+MI0046,20845,"Wolverine Power Supply Co-op, Inc.",Cooperative,,20845,Wolverine Power Marketing Cooperative,Cooperative
+MI0046,20845,"Wolverine Pwr Supply Coop, Inc",Cooperative,MI0029,14156,Ontonagon County Rural Electric Association,Cooperative
+,15466,Xcel Energy,IOU,CO0016,9336,CORE Electric Cooperative,Cooperative
+,15466,Xcel Energy,IOU,CO0007,7563,Grand Valley Power,Cooperative
+,15466,Xcel Energy,IOU,CO0034,8773,Holy Cross Electric Association,Cooperative
+,15466,Xcel Energy,IOU,CO0036,21081,Yampa Valley Electric Association,Cooperative
+,,,,AZ0200,25866,Ak-Chin Energy Services,Tribal
+,,,,,192,Akiachak Native Community Electic Company,Tribal
+,,,,NV0003,191,Alamo Power District No. 3,Municipal
+,,,,AK0027,221,Alaska Village Electric Cooperative,Cooperative
+,,,,AK0282,1276,Barrow Utility and Electric Cooperative,Cooperative
+,,,,VA0029,3291,Central Virginia Electric Cooperative,Cooperative
+,,,,AK0008,3522,Chugach Electric Association,Cooperative
+,,,,AK0018,4329,Copper Valley Electric Association,Cooperative
+,,,,AK0030,40215,Cordova Electric Cooperative,Cooperative
+,,,,AZ0190,,Electrical District #1 Pinal County,Municipal
+,,,,AZ0029,15048,Electrical District #2 Pinal County,Municipal
+,,,,AZ0044,30518,Electrical District #3 Pinal County,Municipal
+,,,,AZ0228,15049,Electrical District #4 Pinal County,Municipal
+,,,,AZ0220,,Electrical District #5 Pinal County,Municipal
+,,,,,6168,Farmers Electric Cooperative-Kalona,Cooperative
+,,,,AZ0037,65261,Gila River Community Utility Authority,Tribal
+,,,,TX0094,7752,Guadalupe Valley Electric Cooperative,Cooperative
+,,,,AK0029,9188,I-N-N Electric Cooperative,Cooperative
+,,,,AK0028,18963,Inside Passage Electric Cooperative,Cooperative
+,,,,HI0001,10071,Kauai Island Electric Cooperative,Cooperative
+,,,,AK0003,10433,Kodiak Electric Association,Cooperative
+,,,,AK0013,10451,Kotzebue Electric Association,Cooperative
+,,,,TX0072,10649,Lamar County Electric Cooperative Association,Cooperative
+,,,,NV0017,11021,Lincoln County Power District #1,Municipal
+,,,,NE0096,11251,Loup River PPD,Municipal
+,,,,AK0011,12385,Metlakatla Power and Light,Municipal
+,,,,,12485,Middle Kuskokwim Elec Coop Inc,Cooperative
+,,,,AK0010,13201,Naknek Electric Association,Cooperative
+,,,,,13477,Nelson Lagoon Elec Coop Inc,Cooperative
+,,,,NH0004,13441,New Hampshire Electric Cooperative,Cooperative
+,,,,NE0077,13364,Norris PPD,Municipal
+,,,,VA0055,13640,Northern Virginia Electric Cooperative,Cooperative
+,,,,AK0026,13870,Nushagak Electric and Telephone Cooperative,Cooperative
+,,,,NV0004,14245,Overton Power District 5,Municipal
+,,,,OK0016,14775,People's Electric Cooperative,Cooperative
+,,,,MD0004,17637,Southern Maryland Electric Cooperative,Cooperative
+,,,,CA0190,19131,Trinity PUD,Municipal
+,,,,CA0044,19229,Trucker-Donner PUD,Municipal
+,,,,,19267,Tuntutuliak Comm Services Assn,Cooperative
+,,,,AK0297,40548,Unalakleet Valley Electric Cooperative,Cooperative
+,,,,VT0007,19791,Vermont Electric Cooperative,Cooperative
+,,,,VT0008,20151,"Washington Electric Cooperative, Inc.",Cooperative
