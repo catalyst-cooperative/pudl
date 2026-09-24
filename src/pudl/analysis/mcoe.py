@@ -237,16 +237,12 @@ def mcoe_asset_factory(
     ]
 
 
+# Both the yearly and monthly MCOE chains feed runtime-determining assets
+# (out_eia__monthly_generators and out_pudl__yearly_assn_eia_ferc1_plant_parts).
 mcoe_assets = [
     mcoe_asset
-    for freq, op_tags in [
-        ("YS", HOT_PATH_OP_TAGS),
-        ("MS", HOT_PATH_OP_TAGS),
-    ]
-    for mcoe_asset in mcoe_asset_factory(
-        freq=freq,
-        op_tags=op_tags,
-    )
+    for freq in ("YS", "MS")
+    for mcoe_asset in mcoe_asset_factory(freq=freq, op_tags=HOT_PATH_OP_TAGS)
 ]
 
 
