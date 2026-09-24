@@ -102,6 +102,14 @@ Bug Fixes & Data Cleaning
   turned into a null, which changes four 2018 rows of
   ``core_eia861__yearly_dynamic_pricing``. Unexpected codes other than Y, N and X raise
   an error. See :issue:`5617`, :issue:`5601` and :pr:`5631`.
+* ``standardize_percentages_ratio()`` now accepts columns of numeric strings (which some
+  Excel-sourced columns arrive as) and always returns nullable ``Float64``. Genuinely
+  non-numeric values still raise. See :issue:`5614` and :pr:`5628`.
+* ``scale_by_ownership()`` now always returns nullable ``Float64`` for the
+  ownership-scaled columns. Previously their dtype depended on the data: ``Int64`` when
+  every scaled value happened to be integral and ``float64`` otherwise. This affects the
+  dtypes of ``out_eia__yearly_generators_by_ownership`` and the tables built from it.
+  See :issue:`5613` and :pr:`5627`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^

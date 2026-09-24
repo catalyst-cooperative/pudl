@@ -569,7 +569,7 @@ def is_doi(doi: str) -> bool:
 
 
 def convert_col_to_datetime(df: pd.DataFrame, date_col_name: str) -> pd.DataFrame:
-    """Convert a non-datetime column in a dataframe to a datetime64[s].
+    """Convert a non-datetime column in a dataframe to a ``datetime64[ns]``.
 
     If the column isn't a datetime, it needs to be converted to a string type
     first so that integer years are formatted correctly.
@@ -586,7 +586,11 @@ def convert_col_to_datetime(df: pd.DataFrame, date_col_name: str) -> pd.DataFram
             f"{date_col_name} is {df[date_col_name].dtype} column. "
             "Converting to datetime64[ns]."
         )
-        df[date_col_name] = pd.to_datetime(df[date_col_name].astype("string"))
+        # pandas 3.0's pd.to_datetime infers second/microsecond resolution from
+        # strings; pin nanoseconds to match PUDL's canonical datetime dtype.
+        df[date_col_name] = pd.to_datetime(df[date_col_name].astype("string")).astype(
+            "datetime64[ns]"
+        )
     return df
 
 
@@ -937,7 +941,9 @@ def cleanstrings_series(
             col = col.replace(str_map[k], k)
 
     if unmapped is not None:
-        badstrings = np.setdiff1d(col.unique(), list(str_map.keys()))
+        # Drop nulls before the setdiff: np.setdiff1d sorts its inputs, and a mix of
+        # NaN/NA and strings (which pandas 3 no longer coerces away) can't be compared.
+        badstrings = np.setdiff1d(col.dropna().unique(), list(str_map.keys()))
         # This call to replace can only work if there are actually some
         # leftover strings to fix -- otherwise it runs forever because we
         # are replacing nothing with nothing.
@@ -1727,10 +1733,16 @@ def standardize_percentages_ratio(
     """
     logger.info(f"Standardizing ratios and percentages for {mixed_cols}")
     for col in mixed_cols:
-        if not pd.api.types.is_numeric_dtype(frac_df[col]):
+        # Coerce to nullable float. pandas 3's read_excel leaves some of these mixed
+        # columns as strings; pd.to_numeric still raises loudly on genuinely
+        # non-numeric junk, preserving the original guard's intent. Working in float
+        # also avoids a lossy in-place division on an integer column below.
+        try:
+            frac_df[col] = pd.to_numeric(frac_df[col]).astype("Float64")
+        except (ValueError, TypeError) as err:
             raise AssertionError(
                 f"{col}: Standardization method requires numeric dtype."
-            )
+            ) from err
         if "report_year" in frac_df:
             dates = (frac_df.report_year >= min(years_to_standardize)) & (
                 frac_df.report_year <= max(years_to_standardize)
@@ -1739,7 +1751,7 @@ def standardize_percentages_ratio(
             dates = (frac_df.report_date.dt.year >= min(years_to_standardize)) & (
                 frac_df.report_date.dt.year <= max(years_to_standardize)
             )
-        frac_df.loc[dates, col] /= 100
+        frac_df.loc[dates, col] = frac_df.loc[dates, col] / 100
         if frac_df[col].max() > 1:
             raise AssertionError(
                 f"{col}: Values >100pct observed: {frac_df.loc[frac_df[col] > 1][col].unique()}"
@@ -2004,9 +2016,12 @@ def convert_col_to_bool(
     # This is easier than building an input dictionary for pandas map or replace
     # functions.
     df = df.copy()
-    df.loc[df[col_name].isin(true_values), col_name] = True
-    df.loc[df[col_name].isin(false_values), col_name] = False
-    df[col_name] = df[col_name].astype("boolean")
+    # Build the boolean column as a whole rather than assigning True/False into the
+    # existing (possibly string) column, which pandas 3.0 rejects as a lossy setitem.
+    bool_col = pd.Series(pd.NA, index=df.index, dtype="boolean")
+    bool_col[df[col_name].isin(true_values)] = True
+    bool_col[df[col_name].isin(false_values)] = False
+    df[col_name] = bool_col
 
     return df
 
@@ -2169,8 +2184,13 @@ def scale_by_ownership(
             gens.copy().assign(fraction_owned=1, ownership_record_type="total"),
         ]
     )
-    gens.loc[:, scale_cols] = gens.loc[:, scale_cols].multiply(
-        gens["fraction_owned"], axis="index"
+    # Scaling by a fractional ownership share is inherently fractional, so cast the
+    # scaled columns to nullable Float64 before multiplying. pandas 3.0 raises on a
+    # lossy setitem that would write float results back into an integer column.
+    gens[scale_cols] = (
+        gens[scale_cols]
+        .astype("Float64")
+        .multiply(gens["fraction_owned"], axis="index")
     )
     return gens
 
@@ -2477,7 +2497,9 @@ def standardize_phone_column(df: pd.DataFrame, columns: list[str]) -> pd.DataFra
 
         # Replace invalid or empty phone numbers with NaN
         invalid_mask = (
-            (phone_main.isna()) | (phone_main.str.fullmatch(r"0+")) | (phone_main == "")
+            phone_main.isna().to_numpy(dtype=bool)
+            | phone_main.str.fullmatch(r"0+").fillna(False).to_numpy(dtype=bool)
+            | (phone_main == "").fillna(False).to_numpy(dtype=bool)
         )
         df[column] = df[column].mask(invalid_mask, pd.NA)
 

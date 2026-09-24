@@ -807,7 +807,7 @@ def test_standardize_percentages_ratio():
         date_df, mixed_cols=["mixed_col"], years_to_standardize=[1995, 1996, 1997]
     )
     standardized_expected = date_df
-    standardized_expected["mixed_col"] = [0.1, 0.1, 0.2, 0.1]
+    standardized_expected["mixed_col"] = pd.array([0.1, 0.1, 0.2, 0.1], dtype="Float64")
     assert_frame_equal(standardized, standardized_expected)
 
     year_df = pd.DataFrame(
@@ -821,7 +821,9 @@ def test_standardize_percentages_ratio():
         year_df, mixed_cols=["mixed_col"], years_to_standardize=[1995, 1996]
     )
     standardized_expected = year_df
-    standardized_expected["mixed_col"] = [0.1, 0.15, 1.0, 0.1]
+    standardized_expected["mixed_col"] = pd.array(
+        [0.1, 0.15, 1.0, 0.1], dtype="Float64"
+    )
     assert_frame_equal(standardized, standardized_expected)
 
     junk_df = pd.DataFrame(
