@@ -39,6 +39,7 @@ from pudl.helpers import (
     flatten_list,
     get_parquet_table,
     get_parquet_table_polars,
+    make_changelog,
     normalize_year_fragments,
     persist_table_as_parquet,
     remove_leading_zeros_from_numeric_strings,
@@ -1745,6 +1746,110 @@ def test_persist_table_as_parquet_duckdb_enum_written_as_dictionary(
     assert polars_result["code"].dtype == pl.Categorical
     assert polars_result["code"].to_list() == ["a", "b", "a"]
     assert set(polars_result["code"].unique().to_list()) == {"a", "b"}
+
+
+def _forensics_records() -> pd.DataFrame:
+    """Tall forensics-style records: several columns share one entity and date."""
+    rows = [
+        # (plant_id_eia, report_date, column_name, record_value)
+        (1, "2020-01-01", "state", "AK"),
+        (1, "2021-01-01", "state", "AK"),
+        (1, "2022-01-01", "state", "AK"),
+        (1, "2020-01-01", "county", "Kenai"),
+        (1, "2021-01-01", "county", "Kodiak"),
+        (1, "2022-01-01", "county", "Kodiak"),
+        (1, "2020-01-01", "zip_code", "99661"),
+        (1, "2021-01-01", "zip_code", "99662"),
+        (1, "2022-01-01", "zip_code", "99663"),
+        (2, "2020-01-01", "state", "WA"),
+        (2, "2021-01-01", "state", "WA"),
+    ]
+    df = pd.DataFrame(
+        rows, columns=["plant_id_eia", "report_date", "column_name", "record_value"]
+    )
+    df["report_date"] = pd.to_datetime(df["report_date"])
+    return df
+
+
+def test_make_changelog_valid_until_is_per_column():
+    """valid_until_date follows the next change in the same column, not other columns."""
+    out = make_changelog(_forensics_records(), ["plant_id_eia", "report_date"])
+    valid_until = {
+        (plant, column, value, start): end
+        for plant, column, value, start, end in zip(
+            out["plant_id_eia"],
+            out["column_name"],
+            out["record_value"],
+            out["report_date"].astype(str),
+            out["valid_until_date"].astype(str),
+            strict=True,
+        )
+    }
+    assert valid_until == {
+        # Unchanged values collapse to one record. With no later change in its own
+        # column it is valid until the entity's last report date.
+        (1, "state", "AK", "2020-01-01"): "2022-01-01",
+        (1, "county", "Kenai", "2020-01-01"): "2021-01-01",
+        (1, "county", "Kodiak", "2021-01-01"): "2022-01-01",
+        (1, "zip_code", "99661", "2020-01-01"): "2021-01-01",
+        (1, "zip_code", "99662", "2021-01-01"): "2022-01-01",
+        (1, "zip_code", "99663", "2022-01-01"): "2022-02-01",
+        (2, "state", "WA", "2020-01-01"): "2021-01-01",
+    }
+    assert (out["valid_until_date"] > out["report_date"]).all()
+
+
+@pytest.mark.parametrize("seed", range(5))
+def test_make_changelog_is_order_independent(seed: int):
+    """Shuffling the input rows must not change the changelog."""
+    ordered = make_changelog(_forensics_records(), ["plant_id_eia", "report_date"])
+    shuffled_in = _forensics_records().sample(frac=1, random_state=seed)
+    shuffled = make_changelog(shuffled_in, ["plant_id_eia", "report_date"])
+    assert_frame_equal(ordered.reset_index(drop=True), shuffled.reset_index(drop=True))
+
+
+def test_make_changelog_handles_mixed_record_value_types():
+    """record_value mixes floats, timestamps, strings and booleans across columns."""
+    df = pd.DataFrame(
+        {
+            "plant_id_eia": [1] * 8,
+            "report_date": pd.to_datetime(["2020-01-01", "2021-01-01"] * 4),
+            "column_name": ["capacity"] * 2
+            + ["operating_date"] * 2
+            + ["state"] * 2
+            + ["is_active"] * 2,
+            "record_value": pd.Series(
+                [
+                    1.5,
+                    2.5,
+                    pd.Timestamp("2001-01-01"),
+                    pd.Timestamp("2001-01-01"),
+                    "AK",
+                    None,
+                    True,
+                    False,
+                ],
+                dtype="object",
+            ),
+        }
+    )
+    idx = ["plant_id_eia", "report_date"]
+    out = make_changelog(df.copy(), idx).reset_index(drop=True)
+    # The unchanged operating date collapses to a single record.
+    assert out.groupby("column_name").size().to_dict() == {
+        "capacity": 2,
+        "operating_date": 1,
+        "state": 2,
+        "is_active": 2,
+    }
+    first_capacity = out[
+        (out.column_name == "capacity")
+        & (out.report_date == pd.Timestamp("2020-01-01"))
+    ]
+    assert first_capacity.valid_until_date.iloc[0] == pd.Timestamp("2021-01-01")
+    # Row order of the input doesn't matter.
+    shuffled = make_changelog(df.sample(frac=1, random_state=3), idx)
+    assert_frame_equal(out, shuffled.reset_index(drop=True))
 
 
 def test_persist_table_as_parquet_native_writer_round_trips_non_enum_relation(

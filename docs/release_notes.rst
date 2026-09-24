@@ -81,6 +81,12 @@ Bug Fixes & Data Cleaning
   now spans two ``plant_id_pudl`` values within a single ``plant_id_ferc1``, so we
   raised the tolerance in the corresponding dbt test. See issue :issue:`5609` and PR
   :pr:`5642`.
+* Fixed ``valid_until_date`` in the ``_core_eia__forensics_entity_resolution_*`` and
+  ``_core_rus*__forensics_entity_resolution_borrowers`` tables. Each record's end date
+  was being drawn from an unrelated column of the same entity, and ties were sorted
+  arbitrarily, so values were often wrong and changed between builds. It's now the next
+  change in the same column, and the output is deterministic. See :issue:`5608` and
+  :pr:`5641`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
