@@ -642,7 +642,8 @@ def nullify_outliers(col: pd.Series, params: ValidRange) -> pd.Series:
 
     The column is coerced to be numeric.
     """
-    col = pd.to_numeric(col, errors="coerce")
+    # pd.to_numeric() returns the same object, not a copy, when already numeric.
+    col = pd.to_numeric(col, errors="coerce").copy()
     col[~col.between(params.lower_bound, params.upper_bound)] = np.nan
     return col
 
