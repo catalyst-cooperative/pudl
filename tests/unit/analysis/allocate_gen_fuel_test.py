@@ -32,6 +32,19 @@ from pudl.metadata.dtypes import apply_pudl_dtypes
 #  generation_eia923 table
 
 
+def _plant_reporting_frequency(csv_text: str) -> pd.DataFrame:
+    """Build a plant-year reporting-frequency lookup from CSV text.
+
+    Routes through :func:`allocate_gen_fuel._get_plant_reporting_frequency` so
+    tests exercise the same dtype handling and missing-code fill logic used in
+    production, instead of hand-building the lookup frame.
+    """
+    plants = pd.read_csv(StringIO(csv_text)).pipe(
+        apply_pudl_dtypes, field_namespace="eia"
+    )
+    return allocate_gen_fuel._get_plant_reporting_frequency(plants)
+
+
 def test_distribute_annually_reported_data_to_months_if_annual():
     """Test :func:`distribute_annually_reported_data_to_months_if_annual`."""
     annual_2021 = 22_222.0
@@ -89,12 +102,24 @@ def test_distribute_annually_reported_data_to_months_if_annual():
     200,2020-12-01,B1,BIT,ST,{annual_2020}"""
         )
     ).pipe(apply_pudl_dtypes, field_namespace="eia")
+    # plant 41 reports monthly in both years; plant 200 is an annual reporter in
+    # both years. Reporting frequency is a plant-level attribute, so it's the same
+    # for every boiler/energy-source/prime-mover combo at a given plant.
+    plant_reporting_frequency = _plant_reporting_frequency(
+        """plant_id_eia,report_date,reporting_frequency_code
+41,2020-01-01,M
+41,2021-01-01,M
+200,2020-01-01,A
+200,2021-01-01,A
+"""
+    )
 
     out = allocate_gen_fuel.distribute_annually_reported_data_to_months_if_annual(
         df=bf_with_monthly_annual_mix,
         key_columns=allocate_gen_fuel.IDX_B_PM_ESC,
         data_column_name="fuel_consumed_mmbtu",
         freq="MS",
+        plant_reporting_frequency=plant_reporting_frequency,
     )
 
     out = out.sort_values(["plant_id_eia", "report_date"]).reset_index(drop=True)
@@ -115,7 +140,153 @@ def test_distribute_annually_reported_data_to_months_if_annual():
     pd.testing.assert_frame_equal(monthly_in, monthly_out)
 
 
+def test_distribute_annually_reported_data_sums_multiple_reported_months():
+    """An 'A'-coded plant-year with more than one non-null month is summed first.
+
+    The old data-pattern heuristic only ever flagged a plant-year as annual if
+    exactly one month had a non-null, non-zero value. Now that classification is
+    driven by ``reporting_frequency_code``, an annual reporter that happens to have
+    values in more than one month (e.g. a correction or a partial re-report) should
+    still have its total summed and spread evenly across all 12 months.
+    """
+    value_1 = 100.0
+    value_2 = 140.0
+    df = pd.read_csv(
+        StringIO(
+            f"""plant_id_eia,report_date,generator_id,net_generation_mwh
+70,2021-01-01,1,{value_1}
+70,2021-02-01,1,
+70,2021-03-01,1,
+70,2021-04-01,1,
+70,2021-05-01,1,
+70,2021-06-01,1,{value_2}
+70,2021-07-01,1,
+70,2021-08-01,1,
+70,2021-09-01,1,
+70,2021-10-01,1,
+70,2021-11-01,1,
+70,2021-12-01,1,
+"""
+        )
+    ).pipe(apply_pudl_dtypes, field_namespace="eia")
+    plant_reporting_frequency = _plant_reporting_frequency(
+        """plant_id_eia,report_date,reporting_frequency_code
+70,2021-01-01,A
+"""
+    )
+
+    out = allocate_gen_fuel.distribute_annually_reported_data_to_months_if_annual(
+        df=df,
+        key_columns=["plant_id_eia", "generator_id", "report_date"],
+        data_column_name="net_generation_mwh",
+        freq="MS",
+        plant_reporting_frequency=plant_reporting_frequency,
+    )
+    assert (out["net_generation_mwh"] == (value_1 + value_2) / 12).all()
+
+
+def test_distribute_annually_reported_data_am_code_left_untouched():
+    """'AM' plants report true monthly values, just filed once a year.
+
+    Unlike 'A' plants, their monthly values should be left alone, not summed and
+    redistributed.
+    """
+    reported_value = 500.0
+    df = pd.read_csv(
+        StringIO(
+            f"""plant_id_eia,report_date,generator_id,net_generation_mwh
+60,2021-01-01,1,{reported_value}
+60,2021-02-01,1,
+60,2021-03-01,1,
+60,2021-04-01,1,
+60,2021-05-01,1,
+60,2021-06-01,1,
+60,2021-07-01,1,
+60,2021-08-01,1,
+60,2021-09-01,1,
+60,2021-10-01,1,
+60,2021-11-01,1,
+60,2021-12-01,1,
+"""
+        )
+    ).pipe(apply_pudl_dtypes, field_namespace="eia")
+    plant_reporting_frequency = _plant_reporting_frequency(
+        """plant_id_eia,report_date,reporting_frequency_code
+60,2021-01-01,AM
+"""
+    )
+
+    out = allocate_gen_fuel.distribute_annually_reported_data_to_months_if_annual(
+        df=df,
+        key_columns=["plant_id_eia", "generator_id", "report_date"],
+        data_column_name="net_generation_mwh",
+        freq="MS",
+        plant_reporting_frequency=plant_reporting_frequency,
+    )
+    pd.testing.assert_frame_equal(df, out)
+
+
+def test_distribute_annually_reported_data_missing_code_defaults_to_annual(caplog):
+    """A plant-year with a missing or absent reporting_frequency_code is treated as annual."""
+    annual_total = 1200.0
+    df = pd.read_csv(
+        StringIO(
+            f"""plant_id_eia,report_date,generator_id,net_generation_mwh
+50,2021-01-01,1,{annual_total}
+50,2021-02-01,1,
+50,2021-03-01,1,
+50,2021-04-01,1,
+50,2021-05-01,1,
+50,2021-06-01,1,
+50,2021-07-01,1,
+50,2021-08-01,1,
+50,2021-09-01,1,
+50,2021-10-01,1,
+50,2021-11-01,1,
+50,2021-12-01,1,
+"""
+        )
+    ).pipe(apply_pudl_dtypes, field_namespace="eia")
+    # plant 50's code is explicitly null for this year.
+    plant_reporting_frequency = _plant_reporting_frequency(
+        """plant_id_eia,report_date,reporting_frequency_code
+50,2021-01-01,
+"""
+    )
+    assert "Filling 1" in caplog.text
+
+    out = allocate_gen_fuel.distribute_annually_reported_data_to_months_if_annual(
+        df=df,
+        key_columns=["plant_id_eia", "generator_id", "report_date"],
+        data_column_name="net_generation_mwh",
+        freq="MS",
+        plant_reporting_frequency=plant_reporting_frequency,
+    )
+    assert (out["net_generation_mwh"] == annual_total / 12).all()
+
+    # A plant-year entirely absent from the lookup is treated the same way.
+    out_no_match = (
+        allocate_gen_fuel.distribute_annually_reported_data_to_months_if_annual(
+            df=df,
+            key_columns=["plant_id_eia", "generator_id", "report_date"],
+            data_column_name="net_generation_mwh",
+            freq="MS",
+            plant_reporting_frequency=plant_reporting_frequency.iloc[0:0],
+        )
+    )
+    assert (out_no_match["net_generation_mwh"] == annual_total / 12).all()
+
+
 # Test data constants
+
+# Base plants EIA860 data
+PLANTS_EIA860_BASE = pd.read_csv(
+    StringIO(
+        """report_date,plant_id_eia,reporting_frequency_code
+2019-01-01,8023,M
+"""
+    ),
+).pipe(apply_pudl_dtypes, field_namespace="eia")
 
 # Base generators EIA860 data
 GENS_EIA860_BASE = pd.read_csv(
@@ -290,6 +461,9 @@ def test_allocate_gen_fuel_sums_match(gf, bf):
         gen=gen,
         bga=bga,
         gens=gens,
+        plant_reporting_frequency=allocate_gen_fuel._get_plant_reporting_frequency(
+            PLANTS_EIA860_BASE
+        ),
         freq="YS",
     )
 
@@ -311,7 +485,15 @@ def test_allocate_gen_fuel_dfo_ratios_match(gf):
         gens=GENS_EIA860_BASE,
     )
     allocated = allocate_gen_fuel.allocate_gen_fuel_by_generator_energy_source(
-        gf=gf_selected, bf=bf, gen=gen, bga=bga, gens=gens, freq="YS"
+        gf=gf_selected,
+        bf=bf,
+        gen=gen,
+        bga=bga,
+        gens=gens,
+        plant_reporting_frequency=allocate_gen_fuel._get_plant_reporting_frequency(
+            PLANTS_EIA860_BASE
+        ),
+        freq="YS",
     )
 
     assert gf.fuel_consumed_mmbtu.sum() == allocated.fuel_consumed_mmbtu.sum()
@@ -375,6 +557,9 @@ def test_allocate_gen_fuel_by_generator_drops_pm_data():
         gen=gen,
         bga=bga,
         gens=gens,
+        plant_reporting_frequency=allocate_gen_fuel._get_plant_reporting_frequency(
+            PLANTS_EIA860_BASE
+        ),
         freq="YS",
     )
 
