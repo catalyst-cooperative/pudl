@@ -92,6 +92,11 @@ Bug Fixes & Data Cleaning
   stripping whitespace. Only strings are stripped now, so a handful of previously null
   values in ``core_phmsagas__yearly_distribution_operators`` are preserved. See
   :issue:`5616` and :pr:`5630`.
+* Plant part record IDs for records with a null ``utility_id_eia`` now end in ``null``
+  instead of ``<NA>`` (or ``<na>``), consistent with the rest of the ID. This changes
+  ``record_id_eia`` and ``plant_part_id_eia`` in ``out_eia__yearly_plant_parts`` and the
+  related plant-part association tables for a few hundred records. See :issue:`5598` and
+  :pr:`5640`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^

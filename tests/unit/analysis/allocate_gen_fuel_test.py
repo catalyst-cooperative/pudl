@@ -1179,3 +1179,34 @@ def test_remove_inactive_generators_shared_group_heterogeneous_timing_no_loss(
         expected_net_gen, expected_fuel = expected_values[gen_id]
         assert row.net_generation_mwh_gf_tbl == expected_net_gen
         assert row.fuel_consumed_mmbtu_gf_tbl == expected_fuel
+
+
+def test_stack_generators__drops_null_energy_sources():
+    """Null energy source codes are not stacked into spurious records.
+
+    A generator reporting all 12 ``energy_source_code_N`` columns must not gain a
+    13th (null) record, which would violate the ``energy_source_code_num`` enum.
+    """
+    esc_cols: dict[str, list[str | None]] = {
+        "energy_source_code_1": ["NG", "BIT"],
+        **{f"energy_source_code_{n}": [f"ES{n}", None] for n in range(2, 13)},
+    }
+    gens = pd.DataFrame(
+        {
+            "report_date": pd.Timestamp("2024-01-01"),
+            "plant_id_eia": [1, 2],
+            "generator_id": ["a", "b"],
+            "capacity_mw": [10.0, 20.0],
+            **esc_cols,
+            "startup_source_code_1": [None, None],
+        }
+    ).astype(dict.fromkeys([*esc_cols, "startup_source_code_1"], "string"))
+
+    out = allocate_gen_fuel.stack_generators(gens)
+
+    assert out["energy_source_code"].notna().all()
+    counts = out.groupby("generator_id")["energy_source_code_num"].count()
+    assert counts.to_dict() == {"a": 12, "b": 1}
+    assert set(out["energy_source_code_num"]) <= {
+        f"energy_source_code_{n}" for n in range(1, 13)
+    }
