@@ -122,7 +122,12 @@ class PudlParquetIOManager(dg.ConfigurableIOManager):
 
         if isinstance(obj, geopandas.GeoDataFrame):
             gdf = res.enforce_schema(obj)
-            gdf.to_parquet(parquet_path, index=False)
+            gdf.to_parquet(
+                parquet_path,
+                index=False,
+                compression=pudl.PARQUET_COMPRESSION,
+                compression_level=pudl.PARQUET_GEOMETRY_COMPRESSION_LEVEL,
+            )
         elif isinstance(obj, pd.DataFrame):
             df = res.enforce_schema(obj)
             pa_schema = res.to_pyarrow()
@@ -130,12 +135,16 @@ class PudlParquetIOManager(dg.ConfigurableIOManager):
                 path=parquet_path,
                 index=False,
                 schema=pa_schema,
+                compression=pudl.PARQUET_COMPRESSION,
+                compression_level=pudl.PARQUET_COMPRESSION_LEVEL,
             )
         elif isinstance(obj, pl.DataFrame | pl.LazyFrame):
             obj.lazy().cast(res.to_polars_dtypes()).sink_parquet(
                 parquet_path,
                 engine="streaming",
                 row_group_size=100_000,
+                compression=pudl.PARQUET_COMPRESSION,
+                compression_level=pudl.PARQUET_COMPRESSION_LEVEL,
             )
         else:
             raise TypeError(

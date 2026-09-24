@@ -80,6 +80,17 @@ Performance Improvements
   anticipation of doing incremental per-file updates. The build VM was also bumped to
   ``c4d-standard-32`` after an out-of-memory crash. See issue :issue:`5317` and PR
   :pr:`5561`.
+* Sped up the :doc:`FERC EQR <data_sources/ferceqr>` batch ETL from ~45 minutes to
+  ~25 minutes: a standalone Dagster gRPC code server, newest-quarter-first
+  partitioning, and a bounded ``ferceqr_extract`` concurrency pool. Also fixed an
+  intermittent out-of-memory kill that silently dropped a quarter from the build, by
+  capping DuckDB's resource use per connection and streaming quarterly archive
+  downloads instead of reading them into memory. See issue :issue:`5318` and PR
+  :pr:`5595`.
+* Switched all of PUDL's Parquet outputs from snappy to zstd compression, which makes
+  the files substantially smaller. The codec and compression levels are now set in one
+  place (:data:`pudl.PARQUET_COMPRESSION` and related constants) and used by every
+  Parquet writer. See :issue:`5603` and :pr:`5604`.
 
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^
@@ -366,6 +377,13 @@ Performance Improvements
   using complex arithmetic in calculating eigenvalues due to floating point noise in the
   imaginary components of the matrix math we were doing in our timeseries imputations.
   See PR :pr:`5503`.
+* Sped up VCE RARE, EIA-930, and FERC EQR raw data extraction. VCE RARE's very wide CSVs
+  no longer make DuckDB sniff column types on every read, cutting extraction time from
+  about 5 to 1.5 minutes. EIA-930 and FERC EQR extraction switched back to DuckDB's
+  native multi-threaded Parquet writer for untyped/ENUM-free tables, undoing a
+  performance regression introduced in :pr:`5570` when we switched to the
+  single-threaded Arrow writer to preserve Categorical types. This change cuts
+  extraction time by ~25% on the largest tables. See PR :pr:`5575`.
 
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^

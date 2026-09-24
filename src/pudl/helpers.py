@@ -7,6 +7,7 @@ should probably live here. There are lost of transform type functions in here th
 with cleaning and restructuring dataframes.
 """
 
+import csv
 import itertools
 import os
 import pathlib
@@ -2137,7 +2138,7 @@ def scale_by_ownership(
             "fraction_owned",
         ]
         + list(operator_owner_col_map.values())
-    ].pipe(pudl.helpers.convert_cols_dtypes, "eia")
+    ].pipe(convert_cols_dtypes, "eia")
     # we're left merging BC we've removed the retired gens, which are
     # reported in the ownership table
     gens = gens.merge(
@@ -2526,28 +2527,54 @@ def persist_table_as_parquet(
     table_data: pd.DataFrame | pl.LazyFrame | duckdb.DuckDBPyRelation,
     table_name: str,
     partitions: dict[str, Any] | None = None,
-    compression: Literal["zstd", "snappy", "gzip", "brotli"] = "zstd",
+    use_native_duckdb_writer: bool = False,
+    allow_enum_columns: bool = False,
 ) -> ParquetData:
     """Write data from DataFrame or LazyFrame to disk as a parquet file.
 
     Offloading data to disk allows Polars and duckdb to perform highly efficient
     transforms.
 
+    The file is compressed with :data:`pudl.PARQUET_COMPRESSION` at
+    :data:`pudl.PARQUET_COMPRESSION_LEVEL`.
+
     Args:
         table_data: Tabular data to write to disk.
         table_name: Table name used to construct path to/name of parquet file.
         partitions: Optional partition dimension values indicating the data to be
             written.
+        use_native_duckdb_writer: Only used when ``table_data`` is a
+            ``DuckDBPyRelation``. If ``True``, use DuckDB's own multi-threaded
+            ``write_parquet()`` instead of the default Arrow-based batch writer.
+            This is faster, but flattens any ENUM columns down to plain strings,
+            losing the dictionary/Categorical type that the default writer
+            preserves for consistency with PUDL's pandas/Polars writers -- only
+            set this when ``table_data`` is known not to contain ENUM columns
+            (e.g. it's a raw-extraction relation with no metadata ``Resource``
+            declaring an intended categorical type), or when that dtype loss is
+            acceptable (see ``allow_enum_columns``).
+        allow_enum_columns: Only used when ``use_native_duckdb_writer`` is
+            ``True``. If ``True``, skips the ENUM-column check above and writes
+            with the native writer regardless, flattening any ENUM column to a
+            plain string.
+
+    Raises:
+        TypeError: If ``table_data`` isn't a ``pd.DataFrame``, ``pl.LazyFrame``, or
+            ``duckdb.DuckDBPyRelation``.
+        ValueError: If ``use_native_duckdb_writer`` is ``True``, ``table_data``
+            contains an ENUM column, and ``allow_enum_columns`` is ``False``.
     """
     # Create ParquetData class to get path to write parquet file
     parquet_data = ParquetData(table_name=table_name, partitions=partitions or {})
+    compression_options: dict[str, Any] = {
+        "compression": pudl.PARQUET_COMPRESSION,
+        "compression_level": pudl.PARQUET_COMPRESSION_LEVEL,
+    }
     if isinstance(table_data, pd.DataFrame):
-        table_data.to_parquet(parquet_data.parquet_path, compression=compression)
+        table_data.to_parquet(parquet_data.parquet_path, **compression_options)
     elif isinstance(table_data, pl.LazyFrame):
         table_data.sink_parquet(
-            parquet_data.parquet_path,
-            engine="streaming",
-            compression=compression,
+            parquet_data.parquet_path, engine="streaming", **compression_options
         )
     elif isinstance(table_data, duckdb.DuckDBPyRelation):
         # DuckDB's own to_parquet() writer flattens ENUM columns down to plain
@@ -2570,12 +2597,36 @@ def persist_table_as_parquet(
         # data is processed rarely and quarters are written in parallel, so the
         # wall-clock cost of any one partition writing more slowly matters less
         # than getting correct, cross-backend-readable categorical dtypes.
-        reader = table_data.to_arrow_reader(batch_size=100_000)
-        with pq.ParquetWriter(
-            str(parquet_data.parquet_path), reader.schema, compression=compression
-        ) as writer:
-            for batch in reader:
-                writer.write_batch(batch)
+        if use_native_duckdb_writer:
+            if not allow_enum_columns:
+                enum_cols = [
+                    col
+                    for col, dtype in zip(
+                        table_data.columns, table_data.types, strict=True
+                    )
+                    if str(dtype).startswith("ENUM")
+                ]
+                if enum_cols:
+                    raise ValueError(
+                        f"use_native_duckdb_writer=True was requested for {table_name}, "
+                        f"but it has ENUM column(s) {enum_cols} that would silently lose "
+                        "their dictionary type. Use the default Arrow-based writer "
+                        "instead, or pass allow_enum_columns=True if that loss is "
+                        "acceptable for this table."
+                    )
+            # DuckDB's write_parquet() has no compression_level parameter, unlike
+            # the pandas/Polars/pyarrow writers above and below.
+            table_data.write_parquet(
+                str(parquet_data.parquet_path),
+                compression=compression_options["compression"],
+            )
+        else:
+            reader = table_data.to_arrow_reader(batch_size=100_000)
+            with pq.ParquetWriter(
+                str(parquet_data.parquet_path), reader.schema, **compression_options
+            ) as writer:
+                for batch in reader:
+                    writer.write_batch(batch)
     else:
         raise TypeError(
             "table_data must be of type pd.DataFrame, pl.LazyFrame or duckdb.DuckDBPyRelation."
@@ -2614,10 +2665,42 @@ def df_from_parquet(
     return pd.read_parquet(parquet_data.parquet_path)
 
 
+def duckdb_connect(**overrides: str) -> duckdb.DuckDBPyConnection:
+    """Open a DuckDB connection with resource caps taken from the environment.
+
+    A DuckDB connection defaults to using every CPU core and ~80% of system RAM.
+    That is fine for one connection at a time, but PUDL runs many DuckDB-backed
+    assets concurrently -- most acutely the FERC EQR partition backfill, where a
+    dozen-plus partition runs each open their own connection. Left at the
+    defaults, N connections collectively oversubscribe the machine's cores and
+    can exhaust its memory (a load average in the hundreds, then an OOM).
+
+    ``PUDL_DUCKDB_THREADS``, ``PUDL_DUCKDB_MEMORY_LIMIT`` (e.g. ``"6GB"``), and
+    ``PUDL_DUCKDB_TEMP_DIRECTORY`` cap a single connection. When
+    ``memory_limit`` is hit DuckDB spills to ``temp_directory`` rather than
+    failing, so a too-low limit only slows a run down. All three are unset
+    outside the batch jobs, so local and CI single-asset runs keep DuckDB's
+    defaults. Explicit *overrides* win over the environment.
+    """
+    config: dict[str, Any] = {
+        key: value
+        for env_var, key in (
+            ("PUDL_DUCKDB_THREADS", "threads"),
+            ("PUDL_DUCKDB_MEMORY_LIMIT", "memory_limit"),
+            ("PUDL_DUCKDB_TEMP_DIRECTORY", "temp_directory"),
+        )
+        if (value := os.environ.get(env_var))
+    } | dict(overrides)
+    conn = duckdb.connect(config=config) if config else duckdb.connect()
+    # Disable DuckDB's progress bar, which is very noisy in non-interactive logs.
+    conn.execute("PRAGMA disable_progress_bar")
+    return conn
+
+
 @contextmanager
 def duckdb_relation_from_parquet(
     parquet_data: ParquetData, use_all_partitions: bool = False
-) -> tuple[duckdb.DuckDBPyRelation, duckdb.DuckDBPyConnection]:
+) -> Generator[tuple[duckdb.DuckDBPyRelation, duckdb.DuckDBPyConnection]]:
     """Create a duckdb relation to read from parquet files.
 
     This method is intended to be used as a context manager to keep the duckdb
@@ -2628,22 +2711,108 @@ def duckdb_relation_from_parquet(
         use_all_partitions: If true read the entire directory of parquet files.
             Otherwise only read data from the partition specified in parquet_data.
     """
-    with duckdb.connect() as conn:
-        # Disable DuckDB progress bar, as it is quite noisy in the logs.
-        conn.execute("PRAGMA disable_progress_bar")
+    with duckdb_connect() as conn:
         if use_all_partitions:
             yield conn.read_parquet(f"{parquet_data.parquet_directory}/*.parquet"), conn
         else:
             yield conn.read_parquet(str(parquet_data.parquet_path)), conn
 
 
+_DUCKDB_INTEGER_TYPES = frozenset(
+    {
+        "TINYINT",
+        "SMALLINT",
+        "INTEGER",
+        "INT",
+        "BIGINT",
+        "HUGEINT",
+        "UTINYINT",
+        "USMALLINT",
+        "UINTEGER",
+        "UBIGINT",
+        "UHUGEINT",
+    }
+)
+
+
+def _read_typed_csv_rejecting_narrowing(
+    conn: duckdb.DuckDBPyConnection, csv_path: Path, column_types: dict[str, str]
+) -> duckdb.DuckDBPyRelation:
+    """Read a CSV with explicit column types, without silently rounding bad data.
+
+    DuckDB's CSV reader raises a ``ConversionException`` when a value can't be
+    converted to its declared type at all (e.g. text into ``DOUBLE``), so those
+    mismatches already fail loudly. But for integer types it silently rounds
+    fractional values (e.g. ``"10.5"`` -> ``11``) instead of erroring, which would
+    let a caller's incorrect ``column_types`` mapping corrupt data unnoticed.
+
+    To catch that case, integer-typed columns are read as ``DOUBLE`` first, then cast
+    down to the declared integer type. The check for a nonzero fractional part is
+    fused into that same cast expression via DuckDB's ``error()`` function, so a bad
+    value raises during the same scan that produces the output, rather than requiring
+    a separate pass that would re-read the CSV from disk a second time.
+
+    Args:
+        conn: Open DuckDB connection to read with.
+        csv_path: Path to the CSV file on disk.
+        column_types: Mapping of cleaned column name to DuckDB type, as returned by
+            a ``duckdb_extract_zipped_csv`` ``column_types`` callable.
+
+    Returns:
+        A DuckDB relation with the given column names and types.
+
+    Raises:
+        duckdb.InvalidInputException: If an integer-typed column contains a
+            fractional value that DuckDB would otherwise silently round.
+    """
+    integer_cols = {
+        col: dtype
+        for col, dtype in column_types.items()
+        if dtype.upper() in _DUCKDB_INTEGER_TYPES
+    }
+    if not integer_cols:
+        return conn.read_csv(
+            str(csv_path), header=True, auto_detect=False, columns=column_types
+        )
+
+    read_types = {
+        col: ("DOUBLE" if col in integer_cols else dtype)
+        for col, dtype in column_types.items()
+    }
+    relation = conn.read_csv(
+        str(csv_path), header=True, auto_detect=False, columns=read_types
+    )
+
+    def _narrowing_expr(col: str, dtype: str) -> str:
+        # Calling DuckDB's error() from inside the CAST raises during the same
+        # scan that produces the output, instead of requiring a separate
+        # pre-check pass that would re-read the CSV from disk a second time.
+        message = (
+            f"{csv_path.name}: column {col!r} was declared as {dtype} but "
+            "contains a fractional value that DuckDB's CSV reader would "
+            "silently round."
+        ).replace("'", "''")
+        return (
+            f'CAST(CASE WHEN "{col}" IS NOT NULL AND "{col}" != TRUNC("{col}") '
+            f"THEN error('{message}') ELSE \"{col}\" END AS {dtype}) "
+            f'AS "{col}"'
+        )
+
+    projection = ", ".join(
+        _narrowing_expr(col, integer_cols[col]) if col in integer_cols else f'"{col}"'
+        for col in column_types
+    )
+    return relation.project(projection)
+
+
 def duckdb_extract_zipped_csv(
     dataset: str,
     partitions: dict[str, Any],
-    pages: list[str],
-    datasore,
+    pages: Iterable[str],
+    datastore,
     zip_path: Path = Path(),
-) -> tuple[str, ParquetData]:
+    column_types: Callable[[list[str]], dict[str, str]] | None = None,
+) -> Generator[tuple[str, duckdb.DuckDBPyRelation]]:
     """Extract data from zipped CSV page(s) in a data archive.
 
     A common pattern for raw PUDL data is a set of zipfiles with one zipfile per
@@ -2653,26 +2822,52 @@ def duckdb_extract_zipped_csv(
     each CSV file within a zipfile, allowing the caller to perform transforms using
     the relation before writing to disk with the ``offload_table`` function.
 
+    ``column_types``, when provided, allows the caller to avoid using DuckDB's CSV
+    column type auto-detection entirely in favor of providing an explicit schema. This
+    is useful because header/type sniffing is the dominant cost for very wide CSVs. When
+    omitted, the function falls back to DuckDB's normal auto-detection.
+
     Args:
         dataset: Name of dataset (required to get archive from datastore).
-        partition: Partitions of resource to extract data from.
+        partitions: Partitions of resource to extract data from.
         pages: List of csv files to extract from archive.
         datastore: Instance of PUDL datastore to get raw data.
         zip_path: Base path within zipfile that points to where CSV files are stored.
-            If not explicitly set, assume CSV files are at the top level of the zipfile.
+            If not explicitly set, assume CSV files are at the top level of the
+            zipfile.
+        column_types: Optional callable that takes the raw header row (as read
+            directly from the CSV, before any cleaning) and returns a mapping of
+            cleaned column name to DuckDB type.
+
+    Yields:
+        A ``(page, relation)`` tuple for each requested page, where ``page`` is the
+        CSV filename and ``relation`` is a DuckDB relation over its contents.
     """
+    pages = list(pages)
     with (
-        duckdb.connect() as conn,
-        datasore.get_zipfile_resource(dataset=dataset, **partitions) as zf,
+        duckdb_connect() as conn,
+        datastore.get_zipfile_resource(dataset=dataset, **partitions) as zf,
         tempfile.TemporaryDirectory() as tmp_dir,
     ):
-        # Disable DuckDB progress bar, as it is quite noisy in the logs.
-        conn.execute("PRAGMA disable_progress_bar")
         tmp_dir = Path(tmp_dir)
-        zf.extractall(tmp_dir)
+        # Only extract the members we actually need -- some archives (e.g. vcerare's
+        # 2024 vintage) bundle other files we never read, like a ~475 MB parquet file
+        # and __MACOSX/ junk.
+        zf.extractall(tmp_dir, members=[str(zip_path / page) for page in pages])
 
         for page in pages:
-            yield page, conn.read_csv(str(tmp_dir / zip_path / page))
+            csv_path = tmp_dir / zip_path / page
+            if column_types is None:
+                yield page, conn.read_csv(str(csv_path))
+            else:
+                with csv_path.open(newline="") as f:
+                    header_row = next(csv.reader(f))
+                yield (
+                    page,
+                    _read_typed_csv_rejecting_narrowing(
+                        conn, csv_path, column_types(header_row)
+                    ),
+                )
 
 
 def normalize_year_fragments(

@@ -2,4 +2,39 @@ run_coordinator:
   module: dagster
   class: QueuedRunCoordinator
   config:
-    max_concurrent_runs: 16
+    dequeue_use_threads: true
+    dequeue_num_workers: 2
+
+concurrency:
+  runs:
+    max_concurrent_runs: 32
+  pools:
+    # extract_ferceqr is tagged pool="ferceqr_extract" (see pudl.extract.ferceqr). This
+    # caps how many of those steps run simultaneously across all partition runs.
+    default_limit: 30
+    # Default granularity is "op": at most N copies of a pooled op/asset run at
+    # once, regardless of how many runs are in flight. That is what we want --
+    # the extract step is the memory-heavy phase, not the whole run.
+    granularity: op
+
+# Detect run workers that die without reporting a failure -- e.g. SIGKILL from the
+# kernel OOM-killer. Without this a crashed run sits in STARTED forever and the only
+# thing that notices is the deploy asset's missing-partition check.
+run_monitoring:
+  enabled: true
+  # Mark a run failed if it never leaves STARTING within this long (gRPC server
+  # backpressure during the cold-start wave can strand launches).
+  start_timeout_seconds: 600
+  # The DefaultRunLauncher can't resume a dead run worker in place, so this must
+  # be 0: run_monitoring marks the crashed run FAILED and `run_retries` below
+  # relaunches it as a fresh run.
+  max_resume_run_attempts: 0
+  poll_interval_seconds: 60
+  free_slots_after_run_end_seconds: 300
+
+# Automatically retry FAILED runs. A partition that gets OOM-killed in the cold start
+# wave is retried as a new run, which lands after the herd has desynced and the
+# ferceqr_extract pool has free slots -- so it should succeed the second time.
+run_retries:
+  enabled: true
+  max_retries: 1
