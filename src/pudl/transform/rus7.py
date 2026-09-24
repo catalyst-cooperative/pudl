@@ -5,7 +5,7 @@ from dagster import AssetIn, AssetOut, Output, asset, multi_asset
 
 import pudl.transform.rus as rus
 from pudl import logging_helpers
-from pudl.dagster.op_tags import ISLAND_OP_TAGS
+from pudl.dagster.op_tags import COLD_PATH_OP_TAGS
 from pudl.helpers import make_changelog, multi_index_stack
 from pudl.metadata.enums import (
     LOAN_STATUS_TYPES_RUS7,
@@ -24,7 +24,7 @@ from pudl.transform.eia import harvest_entity_tables
 logger = logging_helpers.get_logger(__name__)
 
 
-@asset(op_tags=ISLAND_OP_TAGS)
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus7__yearly_meeting_and_board(raw_rus7__meeting_and_board):
     """Transform the meeting and board (aka governance) table."""
     df = rus.early_transform(
@@ -42,7 +42,7 @@ def _core_rus7__yearly_meeting_and_board(raw_rus7__meeting_and_board):
     return df
 
 
-@asset(op_tags=ISLAND_OP_TAGS)
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus7__yearly_balance_sheet_assets(raw_rus7__balance_sheet):
     """Transform the balance sheet assets table."""
     df = rus.early_transform(raw_df=raw_rus7__balance_sheet)
@@ -62,7 +62,7 @@ def _core_rus7__yearly_balance_sheet_assets(raw_rus7__balance_sheet):
     return df
 
 
-@asset(op_tags=ISLAND_OP_TAGS)
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus7__yearly_balance_sheet_liabilities(raw_rus7__balance_sheet):
     """Transform the balance sheet liabilities table."""
     df = rus.early_transform(raw_df=raw_rus7__balance_sheet)
@@ -82,7 +82,7 @@ def _core_rus7__yearly_balance_sheet_liabilities(raw_rus7__balance_sheet):
     return df
 
 
-@asset(op_tags=ISLAND_OP_TAGS)
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus7__scd_borrowers(raw_rus7__borrowers):
     """Transform the borrowers table."""
     df = rus.early_transform(raw_df=raw_rus7__borrowers)
@@ -93,7 +93,7 @@ def _core_rus7__scd_borrowers(raw_rus7__borrowers):
     )
 
 
-@asset(op_tags=ISLAND_OP_TAGS)
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus7__yearly_employee_statistics(raw_rus7__employee_statistics):
     """Transform the employee statistics table."""
     df = rus.early_transform(raw_df=raw_rus7__employee_statistics)
@@ -101,7 +101,7 @@ def _core_rus7__yearly_employee_statistics(raw_rus7__employee_statistics):
     return df
 
 
-@asset(op_tags=ISLAND_OP_TAGS)
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus7__yearly_energy_efficiency(raw_rus7__energy_efficiency):
     """Transform the energy efficiency table."""
     df = rus.early_transform(raw_df=raw_rus7__energy_efficiency)
@@ -119,7 +119,7 @@ def _core_rus7__yearly_energy_efficiency(raw_rus7__energy_efficiency):
     return df
 
 
-@asset(op_tags=ISLAND_OP_TAGS)
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus7__power_requirements(raw_rus7__power_requirements):
     """Early transform an internal power_requirements table.
 
@@ -155,7 +155,7 @@ def _core_rus7__power_requirements(raw_rus7__power_requirements):
     return df
 
 
-@asset(op_tags=ISLAND_OP_TAGS)
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus7__yearly_power_requirements_electric_sales(
     _core_rus7__power_requirements: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -186,7 +186,7 @@ def _core_rus7__yearly_power_requirements_electric_sales(
     return df
 
 
-@asset(op_tags=ISLAND_OP_TAGS)
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus7__yearly_power_requirements_electric_customers(
     _core_rus7__power_requirements: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -210,7 +210,7 @@ def _core_rus7__yearly_power_requirements_electric_customers(
     return df
 
 
-@asset(op_tags=ISLAND_OP_TAGS)
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus7__yearly_power_requirements(
     _core_rus7__power_requirements: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -253,7 +253,7 @@ def _core_rus7__yearly_power_requirements(
     return df
 
 
-@asset(op_tags=ISLAND_OP_TAGS)
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus7__yearly_investments(
     raw_rus7__investments: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -267,7 +267,7 @@ def _core_rus7__yearly_investments(
     return df
 
 
-@asset(op_tags=ISLAND_OP_TAGS)
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus7__yearly_long_term_debt(
     raw_rus7__long_term_debt: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -277,7 +277,7 @@ def _core_rus7__yearly_long_term_debt(
     return df
 
 
-@asset(op_tags=ISLAND_OP_TAGS)
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus7__yearly_patronage_capital(
     raw_rus7__patronage_capital: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -308,7 +308,7 @@ def _core_rus7__yearly_patronage_capital(
     return df
 
 
-@asset(op_tags=ISLAND_OP_TAGS)
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus7__yearly_statement_of_operations(
     raw_rus7__statement_of_operations: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -337,7 +337,7 @@ def _core_rus7__yearly_statement_of_operations(
 
 
 @multi_asset(
-    op_tags=ISLAND_OP_TAGS,
+    op_tags=COLD_PATH_OP_TAGS,
     outs={
         "_core_rus7__yearly_owed_by_customers": AssetOut(),
         "_core_rus7__yearly_customer_energy_efficiency_and_conservation_loans": AssetOut(),
@@ -393,7 +393,7 @@ def _core_rus7__consumer_debt(raw_rus7__owed_by_customers: pd.DataFrame):
     )
 
 
-@asset(op_tags=ISLAND_OP_TAGS)
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus7__yearly_service_interruptions(
     raw_rus7__service_interruptions: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -415,7 +415,7 @@ def _core_rus7__yearly_service_interruptions(
 
 
 @multi_asset(
-    op_tags=ISLAND_OP_TAGS,
+    op_tags=COLD_PATH_OP_TAGS,
     outs={
         "_core_rus7__yearly_distribution_services": AssetOut(),
         "_core_rus7__yearly_transmission_and_distribution_mileage": AssetOut(),
@@ -469,7 +469,7 @@ def _core_rus7__transmission_and_distribution(
     )
 
 
-@asset(op_tags=ISLAND_OP_TAGS)
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus7__yearly_long_term_leases(
     raw_rus7__long_term_leases: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -497,7 +497,7 @@ def _core_rus7__yearly_long_term_leases(
     return df
 
 
-@asset(op_tags=ISLAND_OP_TAGS)
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus7__yearly_loans(
     raw_rus7__loan_guarantees: pd.DataFrame,
     raw_rus7__loans: pd.DataFrame,
@@ -557,7 +557,7 @@ def _core_rus7__yearly_loans(
     return df
 
 
-@asset(op_tags=ISLAND_OP_TAGS)
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus7__yearly_external_financial_risk_ratio(
     raw_rus7__external_financial_risk_ratio: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -567,7 +567,7 @@ def _core_rus7__yearly_external_financial_risk_ratio(
     return df
 
 
-@asset(op_tags=ISLAND_OP_TAGS)
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus7__yearly_energy_purchased(
     raw_rus7__energy_purchased: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -611,7 +611,7 @@ def _core_rus7__yearly_energy_purchased(
     return df
 
 
-@asset(op_tags=ISLAND_OP_TAGS)
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus7__yearly_materials_and_supplies(
     raw_rus7__materials_and_supplies: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -641,7 +641,7 @@ def _core_rus7__yearly_materials_and_supplies(
     return df
 
 
-@asset(op_tags=ISLAND_OP_TAGS)
+@asset(op_tags=COLD_PATH_OP_TAGS)
 def _core_rus7__yearly_utility_plant_changes(
     raw_rus7__utility_plant_changes: pd.DataFrame,
 ):
@@ -675,7 +675,7 @@ _CORE_RUS7_TABLES = [f"_{t}" for t in HARVESTED_CORE_TABLES_RUS7]
 
 
 @multi_asset(
-    op_tags=ISLAND_OP_TAGS,
+    op_tags=COLD_PATH_OP_TAGS,
     ins={
         table_name: AssetIn()
         for table_name in ["_core_rus7__scd_borrowers"] + _CORE_RUS7_TABLES

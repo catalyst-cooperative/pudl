@@ -7,7 +7,7 @@ import pandas as pd
 from dagster import AssetOut, Output, multi_asset
 
 import pudl.logging_helpers
-from pudl.dagster.op_tags import ISLAND_OP_TAGS
+from pudl.dagster.op_tags import COLD_PATH_OP_TAGS
 from pudl.extract import excel
 from pudl.extract.extractor import raw_df_factory
 
@@ -130,7 +130,7 @@ class Extractor(excel.ExcelExtractor):
 # this dataset acts as late-DAG filler rather than joining the thundering herd of
 # extractions at ETL startup.
 raw_phmsagas__all_dfs = raw_df_factory(
-    Extractor, name="phmsagas", op_tags=ISLAND_OP_TAGS
+    Extractor, name="phmsagas", op_tags=COLD_PATH_OP_TAGS
 )
 
 
@@ -158,7 +158,7 @@ raw_phmsagas__all_dfs = raw_df_factory(
         )
     },
     can_subset=True,
-    op_tags=ISLAND_OP_TAGS,
+    op_tags=COLD_PATH_OP_TAGS,
 )
 def extract_phmsagas(context, raw_phmsagas__all_dfs):
     """Extract raw PHMSA gas data from excel sheets into dataframes."""
