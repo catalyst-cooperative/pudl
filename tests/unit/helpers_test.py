@@ -1644,7 +1644,7 @@ def test_duckdb_extract_zipped_csv_raises_on_wrong_column_types(tmp_path, mocker
             col.lower(): "DOUBLE" for col in header_row[1:]
         }
 
-    with pytest.raises(duckdb.ConversionException):
+    def _consume_pages():
         for _page, relation in duckdb_extract_zipped_csv(
             dataset="test",
             partitions={"year": 2020},
@@ -1654,6 +1654,9 @@ def test_duckdb_extract_zipped_csv_raises_on_wrong_column_types(tmp_path, mocker
             column_types=column_types,
         ):
             relation.fetchall()
+
+    with pytest.raises(duckdb.ConversionException):
+        _consume_pages()
 
 
 def test_duckdb_extract_zipped_csv_raises_on_integer_narrowing(tmp_path, mocker):
@@ -1676,7 +1679,7 @@ def test_duckdb_extract_zipped_csv_raises_on_integer_narrowing(tmp_path, mocker)
             col.lower(): "BIGINT" for col in header_row[1:]
         }
 
-    with pytest.raises(duckdb.InvalidInputException, match="silently round"):
+    def _consume_pages():
         for _page, relation in duckdb_extract_zipped_csv(
             dataset="test",
             partitions={"year": 2020},
@@ -1686,6 +1689,9 @@ def test_duckdb_extract_zipped_csv_raises_on_integer_narrowing(tmp_path, mocker)
             column_types=column_types,
         ):
             relation.fetchall()
+
+    with pytest.raises(duckdb.InvalidInputException, match="silently round"):
+        _consume_pages()
 
 
 def test_persist_table_as_parquet_duckdb_enum_written_as_dictionary(
