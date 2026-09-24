@@ -5,6 +5,7 @@ All transformations include:
 """
 
 from collections.abc import Callable, Hashable
+from typing import overload
 
 import pandas as pd
 from dagster import AssetIn, AssetOut, Output, asset, multi_asset
@@ -1010,16 +1011,36 @@ def _pct_to_mw(df, pct_col):
     return mw_value
 
 
+_YN_TO_BOOL = {
+    "Y": True,
+    "y": True,
+    "X": True,  # Marked with an X, like a checked box on a form.
+    "x": True,
+    "N": False,
+    "n": False,
+    True: True,
+    False: False,
+}
+
+
+@overload
+def _make_yn_bool(df_object: pd.Series) -> pd.Series: ...
+
+
+@overload
+def _make_yn_bool(df_object: pd.DataFrame) -> pd.DataFrame: ...
+
+
 def _make_yn_bool(df_object):
-    """Turn Y/N reporting into True or False boolean statements for df or series."""
-    return df_object.replace(
-        {
-            "Y": True,
-            "y": True,
-            "N": False,
-            "n": False,
-        }
-    )
+    """Turn Y/N reporting into nullable booleans for a series or dataframe.
+
+    ``Y`` and ``X`` (a checked box) are ``True`` and ``N`` is ``False``. Existing
+    booleans are kept. Nulls and any other values (e.g. stray single-letter codes)
+    become ``pd.NA``.
+    """
+    if isinstance(df_object, pd.DataFrame):
+        return df_object.apply(_make_yn_bool)
+    return df_object.map(_YN_TO_BOOL).astype("boolean")
 
 
 def _thousand_to_one(df_object):
@@ -1929,6 +1950,19 @@ def core_eia861__yearly_distribution_systems(
     return df
 
 
+def _dynamic_pricing_flags_to_bool(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
+    """Convert the Y/N/X dynamic pricing flags in ``cols`` into nullable booleans.
+
+    ``X`` is treated as ``True``, as if the respondent had marked a checkbox with an X.
+    Any other unexpected code raises an ``AssertionError``.
+    """
+    for col in cols:
+        df = pudl.helpers.convert_col_to_bool(
+            df, col_name=col, true_values=["Y", "X"], false_values=["N"]
+        )
+    return df
+
+
 @asset(io_manager_key="parquet_io_manager")
 def core_eia861__yearly_dynamic_pricing(
     raw_eia861__dynamic_pricing: pd.DataFrame,
@@ -1959,11 +1993,8 @@ def core_eia861__yearly_dynamic_pricing(
         "variable_peak_pricing",
     ]
 
-    raw_dp = _pre_process(
-        raw_eia861__dynamic_pricing.assign(
-            short_form=lambda x: _make_yn_bool(x.short_form)
-        ),
-        idx_cols,
+    raw_dp = _pre_process(raw_eia861__dynamic_pricing, idx_cols).assign(
+        short_form=lambda x: _make_yn_bool(x.short_form)
     )
 
     ###########################################################################
@@ -1984,16 +2015,11 @@ def core_eia861__yearly_dynamic_pricing(
 
     ###########################################################################
     # Transform Values:
-    # * Make Y/N's into booleans and X values into pd.NA
+    # * Make Y/N/X's into booleans (X means True, like a checked box)
     ###########################################################################
 
     logger.info("Performing value transformations on EIA 861 Dynamic Pricing table.")
-    for col in class_attributes:
-        tidy_dp[col] = (
-            tidy_dp[col]
-            .replace({"Y": True, "N": False})
-            .apply(lambda x: x if x in [True, False] else pd.NA)
-        )
+    tidy_dp = _dynamic_pricing_flags_to_bool(tidy_dp, class_attributes)
 
     return _post_process(tidy_dp, name="core_eia861__yearly_dynamic_pricing")
 
@@ -2155,11 +2181,8 @@ def core_net_metering_eia861(raw_eia861__net_metering: pd.DataFrame):
     misc_cols = ["pv_current_flow_type"]
 
     # Pre-tidy clean specific to net_metering table
-    raw_nm = _pre_process(
-        raw_eia861__net_metering.assign(
-            short_form=lambda x: _make_yn_bool(x.short_form)
-        ),
-        idx_cols,
+    raw_nm = _pre_process(raw_eia861__net_metering, idx_cols).assign(
+        short_form=lambda x: _make_yn_bool(x.short_form)
     )
 
     # Separate customer class data from misc data (in this case just one col: current flow)
