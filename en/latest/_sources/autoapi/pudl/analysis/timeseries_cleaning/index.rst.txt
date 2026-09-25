@@ -110,6 +110,7 @@ Functions
    pudl.analysis.timeseries_cleaning._merge_imputed
    pudl.analysis.timeseries_cleaning._add_simulated_flag_col
    pudl.analysis.timeseries_cleaning.get_simulated_flag_mask
+   pudl.analysis.timeseries_cleaning._resolve_imputation_methods
    pudl.analysis.timeseries_cleaning.impute_timeseries_asset_factory
 
 
@@ -119,7 +120,7 @@ Module Contents
 .. py:data:: logger
 
 .. py:data:: STANDARD_UTC_OFFSETS
-   :type:  dict[str, str]
+   :type:  dict[str, int]
 
    Hour offset from Coordinated Universal Time (UTC) by time zone.
 
@@ -382,7 +383,7 @@ Module Contents
    (array([nan,  1., nan,  1.]), array([1, 2, 1, 1]))
 
 
-.. py:function:: insert_run_length(x: collections.abc.Sequence | numpy.ndarray, values: collections.abc.Sequence | numpy.ndarray, lengths: collections.abc.Sequence[int], mask: collections.abc.Sequence[bool] | None = None, padding: int = 0, intersect: bool = False) -> numpy.ndarray
+.. py:function:: insert_run_length(x: collections.abc.Sequence | numpy.ndarray, values: collections.abc.Sequence | numpy.ndarray, lengths: collections.abc.Sequence[int], mask: collections.abc.Sequence[bool] | None = None, padding: int = 0, intersect: bool = False, rng: numpy.random.Generator | None = None) -> numpy.ndarray
 
    Insert run-length encoded values into a vector.
 
@@ -394,6 +395,8 @@ Module Contents
    :param padding: Minimum space between inserted runs and,
                    if `mask` is provided, the edges of masked-out areas.
    :param intersect: Whether to allow inserted runs to intersect each other.
+   :param rng: Random number generator to use for choosing run positions. Defaults
+               to a seeded generator for reproducible results.
 
    :raises ValueError: Padding must zero or greater.
    :raises ValueError: Run length must be greater than zero.
@@ -463,7 +466,7 @@ Module Contents
    Singular value thresholding (SVT) truncated nuclear norm (TNN) minimization.
 
 
-.. py:function:: impute_latc_tnn(tensor: numpy.ndarray, lags: collections.abc.Sequence[int] = [1], alpha: collections.abc.Sequence[float] = [1 / 3, 1 / 3, 1 / 3], rho0: float = 1e-07, lambda0: float = 2e-07, theta: int = 20, epsilon: float = 1e-07, maxiter: int = 300) -> numpy.ndarray
+.. py:function:: impute_latc_tnn(tensor: numpy.ndarray, lags: collections.abc.Sequence[int] = [1], alpha: collections.abc.Sequence[float] = [1 / 3, 1 / 3, 1 / 3], rho0: float = 1e-07, lambda0: float = 2e-07, theta: int = 20, epsilon: float = 1e-07, max_iterations: int = 300, min_iterations: int = 50) -> numpy.ndarray
 
    Impute tensor values with LATC-TNN method by Chen and Sun (2020).
 
@@ -481,7 +484,12 @@ Module Contents
    :param lambda0:
    :param theta:
    :param epsilon: Convergence criterion. A smaller number will result in more iterations.
-   :param maxiter: Maximum number of iterations.
+   :param max_iterations: Maximum number of iterations.
+   :param min_iterations: Minimum number of iterations before the ``epsilon``
+                          convergence check is allowed to stop the loop. The relative change
+                          between iterations can dip transiently in the first few iterations
+                          without indicating genuine convergence, so `epsilon` alone is not a
+                          safe stopping criterion for iterations before this floor.
 
    :returns: Tensor with missing values in `tensor` replaced by imputed values.
 
@@ -491,7 +499,7 @@ Module Contents
    Tensor singular value thresholding (TSVT).
 
 
-.. py:function:: impute_latc_tubal(tensor: numpy.ndarray, lags: collections.abc.Sequence[int] = [1], rho0: float = 1e-07, lambda0: float = 2e-07, epsilon: float = 1e-07, maxiter: int = 300) -> numpy.ndarray
+.. py:function:: impute_latc_tubal(tensor: numpy.ndarray, lags: collections.abc.Sequence[int] = [1], rho0: float = 1e-07, lambda0: float = 2e-07, epsilon: float = 1e-07, max_iterations: int = 300, min_iterations: int = 50) -> numpy.ndarray
 
    Impute tensor values with LATC-Tubal method by Chen, Chen and Sun (2020).
 
@@ -508,7 +516,15 @@ Module Contents
    :param rho0:
    :param lambda0:
    :param epsilon: Convergence criterion. A smaller number will result in more iterations.
-   :param maxiter: Maximum number of iterations.
+   :param max_iterations: Maximum number of iterations.
+   :param min_iterations: Minimum number of iterations before the ``epsilon``
+                          convergence check is allowed to stop the loop. The relative change
+                          between iterations dips sharply in the first ~10 iterations, before
+                          bouncing back up by several orders of magnitude once the algorithm
+                          starts doing real work, and the internal basis (``phi``) is recomputed
+                          every 10 iterations thereafter, causing a smaller periodic
+                          dip-and-bounce for the rest of the run. `epsilon` alone is not a safe
+                          stopping criterion for iterations before this floor.
 
    :returns: Tensor with missing values in `tensor` replaced by imputed values.
 
@@ -749,7 +765,7 @@ Module Contents
    :param imputed_df: DataFrame
 
 
-.. py:function:: simulate_nulls(x: numpy.ndarray, lengths: collections.abc.Sequence[int] | None = None, padding: int = 1, intersect: bool = False, overlap: bool = False) -> numpy.ndarray
+.. py:function:: simulate_nulls(x: numpy.ndarray, lengths: collections.abc.Sequence[int] | None = None, padding: int = 1, intersect: bool = False, overlap: bool = False, rng: numpy.random.Generator | None = None) -> numpy.ndarray
 
    Find non-null values to null to match a run-length distribution.
 
@@ -762,6 +778,9 @@ Module Contents
    :param intersect: Whether simulated null runs can intersect each other.
    :param overlap: Whether simulated null runs can overlap existing null runs. If
                    ``True``, ``padding`` is ignored.
+   :param rng: Random number generator to use for choosing run positions. Pass a
+               seeded generator for reproducible output; defaults to a fresh,
+               unseeded generator.
 
    :returns: Boolean mask of current non-null values to set to null.
 
@@ -1056,6 +1075,22 @@ Module Contents
       Override stated imputation method for specific years.
 
 
+   .. py:attribute:: method_override_for_latest_year
+      :type:  Literal['tubal', 'tnn'] | None
+      :value: None
+
+
+      Override the imputation method for the most recent year in a given run.
+
+      Unlike ``method_overrides``, which is keyed by a specific calendar year and
+      so is fixed at settings-construction (module import) time, this override is
+      resolved at run time against the actual years being imputed (from
+      ``years_from_context``). Use this instead of hardcoding a year based on
+      wall-clock date -- e.g. ``date.today().year`` -- which makes two builds of
+      the same input data pick different methods depending on when they happen
+      to run.
+
+
    .. py:attribute:: simulate_flags_settings
       :type:  SimulateFlagsSettings | None
       :value: None
@@ -1064,6 +1099,11 @@ Module Contents
       Settings to simulate flagged values and score imputation.
 
       Defaults to None which will not do any simulation/scoring.
+
+
+.. py:function:: _resolve_imputation_methods(years: list[int], settings: ImputeTimeseriesSettings) -> dict[int, Literal['tubal', 'tnn']]
+
+   Map each year being imputed to the method that should be used for it.
 
 
 .. py:function:: impute_timeseries_asset_factory(input_asset_name: str, output_asset_name: str, years_from_context: collections.abc.Callable, id_col: str, value_col: str = 'demand_mwh', imputed_value_col: str = 'demand_imputed_mwh', reported_value_col: str = 'demand_reported_mwh', simulation_group_col: str | None = None, output_io_manager_key: str = 'parquet_io_manager', op_tags: dict[str, Any] | None = None, settings: ImputeTimeseriesSettings = ImputeTimeseriesSettings()) -> pandas.DataFrame

@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.analysis.timeseries_cleaning &#8212; PUDL 2026.9.1.dev22 documentation</title>
+    <title>pudl.analysis.timeseries_cleaning &#8212; PUDL 2026.9.1.dev23 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../_static/documentation_options.js?v=7a274438"></script>
+    <script src="../../../_static/documentation_options.js?v=d367305e"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev22 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev22 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev23 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -938,7 +938,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="STANDARD_UTC_OFFSETS">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/timeseries_cleaning/index.html#pudl.analysis.timeseries_cleaning.STANDARD_UTC_OFFSETS">[docs]</a>
-<span class="n">STANDARD_UTC_OFFSETS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+<span class="n">STANDARD_UTC_OFFSETS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">"Pacific/Honolulu"</span><span class="p">:</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span>
     <span class="s2">"America/Anchorage"</span><span class="p">:</span> <span class="o">-</span><span class="mi">9</span><span class="p">,</span>
     <span class="s2">"America/Los_Angeles"</span><span class="p">:</span> <span class="o">-</span><span class="mi">8</span><span class="p">,</span>
@@ -1174,14 +1174,18 @@ window.runMermaid = runMermaid;</script>
         <span class="n">flags</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FlaggedTimeseries</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Create a timeseries object from a dataframe."""</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-        <span class="n">flags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span> <span class="k">if</span> <span class="n">flags</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">flags</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">flags_array</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">flags</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="n">flags</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span>
             <span class="n">index</span><span class="o">=</span><span class="n">matrix</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
             <span class="n">columns</span><span class="o">=</span><span class="n">matrix</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span>
-            <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">,</span>
+            <span class="n">flags</span><span class="o">=</span><span class="n">flags_array</span><span class="p">,</span>
             <span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">(),</span>
         <span class="p">)</span></div>
 
@@ -1347,6 +1351,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">mask</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">padding</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">intersect</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">rng</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Insert run-length encoded values into a vector.</span>
 
@@ -1359,6 +1364,8 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        padding: Minimum space between inserted runs and,</span>
 <span class="sd">            if `mask` is provided, the edges of masked-out areas.</span>
 <span class="sd">        intersect: Whether to allow inserted runs to intersect each other.</span>
+<span class="sd">        rng: Random number generator to use for choosing run positions. Defaults</span>
+<span class="sd">            to a seeded generator for reproducible results.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError: Padding must zero or greater.</span>
@@ -1446,7 +1453,8 @@ window.runMermaid = runMermaid;</script>
         <span class="n">run_starts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">run_starts</span><span class="p">,</span> <span class="n">buffer</span><span class="p">))</span>
         <span class="n">run_lengths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">run_lengths</span><span class="p">,</span> <span class="n">buffer</span><span class="p">))</span>
     <span class="c1"># Initialize random number generator</span>
-    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">rng</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">20260925</span><span class="p">)</span>
     <span class="c1"># Sort insertions from longest to shortest</span>
     <span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">lengths</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">values</span><span class="p">)[</span><span class="n">order</span><span class="p">]</span>
@@ -1541,7 +1549,8 @@ window.runMermaid = runMermaid;</script>
     <span class="n">lambda0</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2e-7</span><span class="p">,</span>
     <span class="n">theta</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
     <span class="n">epsilon</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-7</span><span class="p">,</span>
-    <span class="n">maxiter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">300</span><span class="p">,</span>
+    <span class="n">max_iterations</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">300</span><span class="p">,</span>
+    <span class="n">min_iterations</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Impute tensor values with LATC-TNN method by Chen and Sun (2020).</span>
 
@@ -1560,12 +1569,16 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        lambda0:</span>
 <span class="sd">        theta:</span>
 <span class="sd">        epsilon: Convergence criterion. A smaller number will result in more iterations.</span>
-<span class="sd">        maxiter: Maximum number of iterations.</span>
+<span class="sd">        max_iterations: Maximum number of iterations.</span>
+<span class="sd">        min_iterations: Minimum number of iterations before the ``epsilon``</span>
+<span class="sd">            convergence check is allowed to stop the loop. The relative change</span>
+<span class="sd">            between iterations can dip transiently in the first few iterations</span>
+<span class="sd">            without indicating genuine convergence, so `epsilon` alone is not a</span>
+<span class="sd">            safe stopping criterion for iterations before this floor.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Tensor with missing values in `tensor` replaced by imputed values.</span>
 <span class="sd">    """</span>
-    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">()</span>
     <span class="n">tensor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">tensor</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">tensor</span><span class="p">)</span>
     <span class="n">dim</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">tensor</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
     <span class="n">dim_time</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span> <span class="o">/</span> <span class="n">dim</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
@@ -1577,7 +1590,10 @@ window.runMermaid = runMermaid;</script>
     <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">dim</span><span class="p">)))</span>
     <span class="n">z</span> <span class="o">=</span> <span class="n">mat</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">z</span><span class="p">[</span><span class="n">pos_missing</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">mat</span><span class="p">[</span><span class="n">mat</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">])</span>
-    <span class="n">a</span> <span class="o">=</span> <span class="mf">0.001</span> <span class="o">*</span> <span class="n">rng</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">d</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">([</span><span class="n">dim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">d</span><span class="p">])</span>
+    <span class="c1"># `a` is always overwritten by `a[m, :] = np.linalg.pinv(qm) @ ...` below</span>
+    <span class="c1"># before it is read, and is unused entirely when `lambda0 &lt;= 0`, so its</span>
+    <span class="c1"># initial value doesn't matter.</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">dim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">d</span><span class="p">))</span>
     <span class="n">it</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">d</span><span class="p">,</span> <span class="n">dim_time</span> <span class="o">-</span> <span class="n">max_lag</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
@@ -1619,10 +1635,11 @@ window.runMermaid = runMermaid;</script>
         <span class="n">tol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">((</span><span class="n">mat_hat</span> <span class="o">-</span> <span class="n">last_mat</span><span class="p">),</span> <span class="s2">"fro"</span><span class="p">)</span> <span class="o">/</span> <span class="n">snorm</span>
         <span class="n">last_mat</span> <span class="o">=</span> <span class="n">mat_hat</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">it</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Iteration: </span><span class="si">{</span><span class="n">it</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">"</span><span class="se">\r</span><span class="s2">"</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">tol</span> <span class="o">&lt;</span> <span class="n">epsilon</span> <span class="ow">or</span> <span class="n">it</span> <span class="o">&gt;=</span> <span class="n">maxiter</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">it</span> <span class="o">%</span> <span class="mi">25</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"impute_latc_tnn: iteration </span><span class="si">{</span><span class="n">it</span><span class="si">}</span><span class="s2">, tol=</span><span class="si">{</span><span class="n">tol</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">tol</span> <span class="o">&lt;</span> <span class="n">epsilon</span> <span class="ow">and</span> <span class="n">it</span> <span class="o">&gt;=</span> <span class="n">min_iterations</span><span class="p">)</span> <span class="ow">or</span> <span class="n">it</span> <span class="o">&gt;=</span> <span class="n">max_iterations</span><span class="p">:</span>
             <span class="k">break</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Iteration: </span><span class="si">{</span><span class="n">it</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"impute_latc_tnn: converged after </span><span class="si">{</span><span class="n">it</span><span class="si">}</span><span class="s2"> iterations (tol=</span><span class="si">{</span><span class="n">tol</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">tensor_hat</span></div>
 
 
@@ -1631,16 +1648,24 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/timeseries_cleaning/index.html#pudl.analysis.timeseries_cleaning._tsvt">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_tsvt</span><span class="p">(</span><span class="n">tensor</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">phi</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">tau</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Tensor singular value thresholding (TSVT)."""</span>
-    <span class="n">dim</span> <span class="o">=</span> <span class="n">tensor</span><span class="o">.</span><span class="n">shape</span>
-    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span>
     <span class="n">tensor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">"kt, ijk -&gt; ijt"</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="n">tensor</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dim</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
-        <span class="n">u</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">tensor</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">t</span><span class="p">],</span> <span class="n">full_matrices</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="n">r</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">s</span> <span class="o">&gt;</span> <span class="n">tau</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="k">if</span> <span class="n">r</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="p">[:</span><span class="n">r</span><span class="p">]</span>
-            <span class="n">s</span><span class="p">[:</span><span class="n">r</span><span class="p">]</span> <span class="o">=</span> <span class="n">s</span><span class="p">[:</span><span class="n">r</span><span class="p">]</span> <span class="o">-</span> <span class="n">tau</span>
-            <span class="n">x</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">u</span><span class="p">[:,</span> <span class="p">:</span><span class="n">r</span><span class="p">]</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">@</span> <span class="n">v</span><span class="p">[:</span><span class="n">r</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="c1"># Batch all dim[2] per-timestep SVDs into a single vectorized LAPACK call</span>
+    <span class="c1"># (np.linalg.svd supports a leading batch dimension) instead of looping</span>
+    <span class="c1"># over each timestep in Python. Reconstruct via broadcast-scaled batched</span>
+    <span class="c1"># matmul (`@`, which dispatches to BLAS's batched gemm) rather than</span>
+    <span class="c1"># np.einsum, which does not use BLAS for this contraction and is much</span>
+    <span class="c1"># slower. Soft-thresholding every singular value (zeroing those below</span>
+    <span class="c1"># tau) is equivalent to the previous top-r-then-subtract-tau approach,</span>
+    <span class="c1"># since np.linalg.svd already returns singular values sorted in</span>
+    <span class="c1"># descending order, and the full SVD (not just the top r components) is</span>
+    <span class="c1"># computed either way -- benchmarked ~3-7% faster on realistic</span>
+    <span class="c1"># (low-rank-plus-noise) synthetic data, bit-identical up to floating</span>
+    <span class="c1"># point noise. See PUDL issue #5649.</span>
+    <span class="n">batched</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># (t, i, j)</span>
+    <span class="n">u</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">batched</span><span class="p">,</span> <span class="n">full_matrices</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">s</span> <span class="o">&gt;</span> <span class="n">tau</span><span class="p">,</span> <span class="n">s</span> <span class="o">-</span> <span class="n">tau</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">u</span> <span class="o">*</span> <span class="n">s</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:])</span> <span class="o">@</span> <span class="n">v</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># back to (i, j, t)</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">"kt, ijt -&gt; ijk"</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span></div>
 
 
@@ -1653,7 +1678,8 @@ window.runMermaid = runMermaid;</script>
     <span class="n">rho0</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-7</span><span class="p">,</span>
     <span class="n">lambda0</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2e-7</span><span class="p">,</span>
     <span class="n">epsilon</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-7</span><span class="p">,</span>
-    <span class="n">maxiter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">300</span><span class="p">,</span>
+    <span class="n">max_iterations</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">300</span><span class="p">,</span>
+    <span class="n">min_iterations</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Impute tensor values with LATC-Tubal method by Chen, Chen and Sun (2020).</span>
 
@@ -1671,7 +1697,15 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        rho0:</span>
 <span class="sd">        lambda0:</span>
 <span class="sd">        epsilon: Convergence criterion. A smaller number will result in more iterations.</span>
-<span class="sd">        maxiter: Maximum number of iterations.</span>
+<span class="sd">        max_iterations: Maximum number of iterations.</span>
+<span class="sd">        min_iterations: Minimum number of iterations before the ``epsilon``</span>
+<span class="sd">            convergence check is allowed to stop the loop. The relative change</span>
+<span class="sd">            between iterations dips sharply in the first ~10 iterations, before</span>
+<span class="sd">            bouncing back up by several orders of magnitude once the algorithm</span>
+<span class="sd">            starts doing real work, and the internal basis (``phi``) is recomputed</span>
+<span class="sd">            every 10 iterations thereafter, causing a smaller periodic</span>
+<span class="sd">            dip-and-bounce for the rest of the run. `epsilon` alone is not a safe</span>
+<span class="sd">            stopping criterion for iterations before this floor.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Tensor with missing values in `tensor` replaced by imputed values.</span>
@@ -1691,7 +1725,10 @@ window.runMermaid = runMermaid;</script>
     <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span>
     <span class="n">z</span> <span class="o">=</span> <span class="n">mat</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">z</span><span class="p">[</span><span class="n">pos_missing</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">mat</span><span class="p">[</span><span class="n">mat</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">])</span>
-    <span class="n">a</span> <span class="o">=</span> <span class="mf">0.001</span> <span class="o">*</span> <span class="n">rng</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">d</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">([</span><span class="n">dim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">d</span><span class="p">])</span>
+    <span class="c1"># `a` is always overwritten by `a[m, :] = np.linalg.pinv(qm) @ ...` below</span>
+    <span class="c1"># before it is read, and is unused entirely when `lambda0 &lt;= 0`, so its</span>
+    <span class="c1"># initial value doesn't matter.</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">dim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">d</span><span class="p">))</span>
     <span class="n">it</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">d</span><span class="p">,</span> <span class="n">dim_time</span> <span class="o">-</span> <span class="n">max_lag</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int_</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
@@ -1705,9 +1742,13 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># downstream _tsvt() einsum/SVD calls into much slower complex arithmetic.</span>
     <span class="n">_</span><span class="p">,</span> <span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">temp1</span> <span class="o">@</span> <span class="n">temp1</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
     <span class="k">del</span> <span class="n">temp1</span>
-    <span class="k">if</span> <span class="n">dim_time</span> <span class="o">&gt;</span> <span class="mf">5e3</span> <span class="ow">and</span> <span class="n">dim_time</span> <span class="o">&lt;=</span> <span class="mf">1e4</span><span class="p">:</span>
+    <span class="c1"># A full year of hourly data (our largest current use case) has at most 8,784 time</span>
+    <span class="c1"># steps (leap year), so this makes the fit below deterministic for all current</span>
+    <span class="c1"># production imputation without removing the subsampling path for any future</span>
+    <span class="c1"># higher-resolution dataset that needs it.</span>
+    <span class="k">if</span> <span class="n">dim_time</span> <span class="o">&gt;</span> <span class="mf">1e4</span> <span class="ow">and</span> <span class="n">dim_time</span> <span class="o">&lt;=</span> <span class="mf">2e4</span><span class="p">:</span>
         <span class="n">sample_rate</span> <span class="o">=</span> <span class="mf">0.2</span>
-    <span class="k">elif</span> <span class="n">dim_time</span> <span class="o">&gt;</span> <span class="mf">1e4</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">dim_time</span> <span class="o">&gt;</span> <span class="mf">2e4</span><span class="p">:</span>
         <span class="n">sample_rate</span> <span class="o">=</span> <span class="mf">0.1</span>
     <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
         <span class="n">rho</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">rho</span> <span class="o">*</span> <span class="mf">1.05</span><span class="p">,</span> <span class="mf">1e5</span><span class="p">)</span>
@@ -1716,12 +1757,12 @@ window.runMermaid = runMermaid;</script>
         <span class="n">mat0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">dim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dim_time</span> <span class="o">-</span> <span class="n">max_lag</span><span class="p">))</span>
         <span class="n">temp2</span> <span class="o">=</span> <span class="n">_ten2mat</span><span class="p">(</span><span class="n">rho</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">t</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">lambda0</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">dim_time</span> <span class="o">&lt;=</span> <span class="mf">5e3</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dim_time</span> <span class="o">&lt;=</span> <span class="mf">1e4</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
                     <span class="n">qm</span> <span class="o">=</span> <span class="n">mat_hat</span><span class="p">[</span><span class="n">m</span><span class="p">,</span> <span class="n">ind</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
                     <span class="n">a</span><span class="p">[</span><span class="n">m</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="n">qm</span><span class="p">)</span> <span class="o">@</span> <span class="n">z</span><span class="p">[</span><span class="n">m</span><span class="p">,</span> <span class="n">max_lag</span><span class="p">:]</span>
                     <span class="n">mat0</span><span class="p">[</span><span class="n">m</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">qm</span> <span class="o">@</span> <span class="n">a</span><span class="p">[</span><span class="n">m</span><span class="p">,</span> <span class="p">:]</span>
-            <span class="k">elif</span> <span class="n">dim_time</span> <span class="o">&gt;</span> <span class="mf">5e3</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">dim_time</span> <span class="o">&gt;</span> <span class="mf">1e4</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
                     <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dim_time</span> <span class="o">-</span> <span class="n">max_lag</span><span class="p">)</span>
                     <span class="n">rng</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
@@ -1744,10 +1785,11 @@ window.runMermaid = runMermaid;</script>
             <span class="n">temp1</span> <span class="o">=</span> <span class="n">_ten2mat</span><span class="p">(</span><span class="n">_mat2ten</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">dim</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">t</span> <span class="o">/</span> <span class="n">rho</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
             <span class="n">_</span><span class="p">,</span> <span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">temp1</span> <span class="o">@</span> <span class="n">temp1</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
             <span class="k">del</span> <span class="n">temp1</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Iteration: </span><span class="si">{</span><span class="n">it</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">"</span><span class="se">\r</span><span class="s2">"</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">tol</span> <span class="o">&lt;</span> <span class="n">epsilon</span> <span class="ow">or</span> <span class="n">it</span> <span class="o">&gt;=</span> <span class="n">maxiter</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">it</span> <span class="o">%</span> <span class="mi">25</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"impute_latc_tubal: iteration </span><span class="si">{</span><span class="n">it</span><span class="si">}</span><span class="s2">, tol=</span><span class="si">{</span><span class="n">tol</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">tol</span> <span class="o">&lt;</span> <span class="n">epsilon</span> <span class="ow">and</span> <span class="n">it</span> <span class="o">&gt;=</span> <span class="n">min_iterations</span><span class="p">)</span> <span class="ow">or</span> <span class="n">it</span> <span class="o">&gt;=</span> <span class="n">max_iterations</span><span class="p">:</span>
             <span class="k">break</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Iteration: </span><span class="si">{</span><span class="n">it</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"impute_latc_tubal: converged after </span><span class="si">{</span><span class="n">it</span><span class="si">}</span><span class="s2"> iterations (tol=</span><span class="si">{</span><span class="n">tol</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">x</span></div>
 
 
@@ -2434,6 +2476,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">padding</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">intersect</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">overlap</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">rng</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Find non-null values to null to match a run-length distribution.</span>
 
@@ -2447,6 +2490,9 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        intersect: Whether simulated null runs can intersect each other.</span>
 <span class="sd">        overlap: Whether simulated null runs can overlap existing null runs. If</span>
 <span class="sd">            ``True``, ``padding`` is ignored.</span>
+<span class="sd">        rng: Random number generator to use for choosing run positions. Pass a</span>
+<span class="sd">            seeded generator for reproducible output; defaults to a fresh,</span>
+<span class="sd">            unseeded generator.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Boolean mask of current non-null values to set to null.</span>
@@ -2476,6 +2522,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">mask</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="n">overlap</span> <span class="k">else</span> <span class="o">~</span><span class="n">is_null</span><span class="p">,</span>
             <span class="n">padding</span><span class="o">=</span><span class="mi">0</span> <span class="k">if</span> <span class="n">overlap</span> <span class="k">else</span> <span class="n">padding</span><span class="p">,</span>
             <span class="n">intersect</span><span class="o">=</span><span class="n">intersect</span><span class="p">,</span>
+            <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">overlap</span><span class="p">:</span>
             <span class="n">is_new_null</span> <span class="o">&amp;=</span> <span class="o">~</span><span class="n">is_null</span>
@@ -2560,7 +2607,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        ValueError: Zero values present. Replace with very small value.</span>
 <span class="sd">    """</span>
     <span class="n">imputer</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"tubal"</span><span class="p">:</span> <span class="n">impute_latc_tubal</span><span class="p">,</span> <span class="s2">"tnn"</span><span class="p">:</span> <span class="n">impute_latc_tnn</span><span class="p">}[</span><span class="n">method</span><span class="p">]</span>
-    <span class="n">x</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Zero values present. Replace with very small value."</span><span class="p">)</span>
     <span class="n">tensor</span> <span class="o">=</span> <span class="n">fold_tensor</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">periods</span><span class="o">=</span><span class="n">periods</span><span class="p">)</span>
@@ -2568,7 +2615,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">ends</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">n</span> <span class="o">/</span> <span class="n">blocks</span><span class="p">))),</span> <span class="n">n</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">blocks</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">blocks</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Block: </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"impute: block </span><span class="si">{</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2"> of </span><span class="si">{</span><span class="n">blocks</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">idx</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="nb">slice</span><span class="p">(</span><span class="n">ends</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">ends</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]),</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
         <span class="n">tensor</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">imputer</span><span class="p">(</span><span class="n">tensor</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">unfold_tensor</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
@@ -2771,12 +2818,26 @@ window.runMermaid = runMermaid;</script>
     <span class="n">imputed_df</span> <span class="o">=</span> <span class="n">melt_imputed_timeseries_matrix</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">flags</span><span class="p">)</span>
 
     <span class="c1"># Merge back on core table</span>
-    <span class="k">return</span> <span class="n">aligned_df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+    <span class="n">merged</span> <span class="o">=</span> <span class="n">aligned_df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
         <span class="n">imputed_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">"value_col"</span><span class="p">:</span> <span class="s2">"imputed_value_col"</span><span class="p">}),</span>
         <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">"id_col"</span><span class="p">,</span> <span class="s2">"datetime"</span><span class="p">],</span>
         <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span>
         <span class="n">validate</span><span class="o">=</span><span class="s2">"one_to_one"</span><span class="p">,</span>
-    <span class="p">)</span></div>
+    <span class="p">)</span>
+
+    <span class="c1"># The tensor completion model reconstructs every cell, not just flagged</span>
+    <span class="c1"># ones, so its (very small, but nonzero) reconstruction error would</span>
+    <span class="c1"># otherwise leak into values that were never flagged for imputation. Use</span>
+    <span class="c1"># the original reported value wherever nothing was flagged, so the</span>
+    <span class="c1"># imputed column matches the reported column exactly outside the ~4% of</span>
+    <span class="c1"># rows that were actually imputed. Only applies where the row was part of</span>
+    <span class="c1"># the imputed matrix at all (`imputed_value_col` not null); rows dropped</span>
+    <span class="c1"># from the matrix entirely (e.g. all-null columns, or years/ids outside</span>
+    <span class="c1"># this run) are left as-is.</span>
+    <span class="n">unflagged</span> <span class="o">=</span> <span class="n">merged</span><span class="p">[</span><span class="s2">"flags"</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span> <span class="o">&amp;</span> <span class="n">merged</span><span class="p">[</span><span class="s2">"imputed_value_col"</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span>
+    <span class="n">merged</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">unflagged</span><span class="p">,</span> <span class="s2">"imputed_value_col"</span><span class="p">]</span> <span class="o">=</span> <span class="n">merged</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">unflagged</span><span class="p">,</span> <span class="s2">"value_col"</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">merged</span></div>
 
 
 
@@ -2992,6 +3053,20 @@ window.runMermaid = runMermaid;</script>
     <span class="n">method_overrides</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"tubal"</span><span class="p">,</span> <span class="s2">"tnn"</span><span class="p">]]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span></div>
 
 <span class="w">    </span><span class="sd">"""Override stated imputation method for specific years."""</span>
+<div class="viewcode-block" id="ImputeTimeseriesSettings.method_override_for_latest_year">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/timeseries_cleaning/index.html#pudl.analysis.timeseries_cleaning.ImputeTimeseriesSettings.method_override_for_latest_year">[docs]</a>
+    <span class="n">method_override_for_latest_year</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"tubal"</span><span class="p">,</span> <span class="s2">"tnn"</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+<span class="w">    </span><span class="sd">"""Override the imputation method for the most recent year in a given run.</span>
+
+<span class="sd">    Unlike ``method_overrides``, which is keyed by a specific calendar year and</span>
+<span class="sd">    so is fixed at settings-construction (module import) time, this override is</span>
+<span class="sd">    resolved at run time against the actual years being imputed (from</span>
+<span class="sd">    ``years_from_context``). Use this instead of hardcoding a year based on</span>
+<span class="sd">    wall-clock date -- e.g. ``date.today().year`` -- which makes two builds of</span>
+<span class="sd">    the same input data pick different methods depending on when they happen</span>
+<span class="sd">    to run.</span>
+<span class="sd">    """</span>
 <div class="viewcode-block" id="ImputeTimeseriesSettings.simulate_flags_settings">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/timeseries_cleaning/index.html#pudl.analysis.timeseries_cleaning.ImputeTimeseriesSettings.simulate_flags_settings">[docs]</a>
     <span class="n">simulate_flags_settings</span><span class="p">:</span> <span class="n">SimulateFlagsSettings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
@@ -3000,6 +3075,19 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    Defaults to None which will not do any simulation/scoring.</span>
 <span class="sd">    """</span></div>
+
+
+
+<div class="viewcode-block" id="_resolve_imputation_methods">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/timeseries_cleaning/index.html#pudl.analysis.timeseries_cleaning._resolve_imputation_methods">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_imputation_methods</span><span class="p">(</span>
+    <span class="n">years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">settings</span><span class="p">:</span> <span class="n">ImputeTimeseriesSettings</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"tubal"</span><span class="p">,</span> <span class="s2">"tnn"</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""Map each year being imputed to the method that should be used for it."""</span>
+    <span class="n">method</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">years</span><span class="p">,</span> <span class="n">settings</span><span class="o">.</span><span class="n">method</span><span class="p">)</span> <span class="o">|</span> <span class="n">settings</span><span class="o">.</span><span class="n">method_overrides</span>
+    <span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">method_override_for_latest_year</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">years</span><span class="p">:</span>
+        <span class="n">method</span><span class="p">[</span><span class="nb">max</span><span class="p">(</span><span class="n">years</span><span class="p">)]</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">method_override_for_latest_year</span>
+    <span class="k">return</span> <span class="n">method</span></div>
 
 
 
@@ -3100,15 +3188,19 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            and a ``id_col`` column index (e.g. 101, ..., 329).</span>
 <span class="sd">        """</span>
         <span class="c1"># Convert from datetime_utc to local datetime</span>
-        <span class="n">aligned_df</span> <span class="o">=</span> <span class="n">utc_dataframe_to_aligned</span><span class="p">(</span>
-            <span class="n">input_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
-                <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
-                    <span class="n">value_col</span><span class="p">:</span> <span class="s2">"value_col"</span><span class="p">,</span>
-                    <span class="n">id_col</span><span class="p">:</span> <span class="s2">"id_col"</span><span class="p">,</span>
-                    <span class="n">simulation_group_col</span><span class="p">:</span> <span class="s2">"simulation_group"</span><span class="p">,</span>
-                <span class="p">}</span>
-            <span class="p">)</span>
+        <span class="n">renamed_df</span> <span class="o">=</span> <span class="n">input_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+                <span class="n">value_col</span><span class="p">:</span> <span class="s2">"value_col"</span><span class="p">,</span>
+                <span class="n">id_col</span><span class="p">:</span> <span class="s2">"id_col"</span><span class="p">,</span>
+                <span class="n">simulation_group_col</span><span class="p">:</span> <span class="s2">"simulation_group"</span><span class="p">,</span>
+            <span class="p">}</span>
         <span class="p">)</span>
+        <span class="c1"># timezone may arrive as a categorical; the pandera input schema for</span>
+        <span class="c1"># utc_dataframe_to_aligned expects a plain string column.</span>
+        <span class="k">if</span> <span class="s2">"timezone"</span> <span class="ow">in</span> <span class="n">renamed_df</span><span class="p">:</span>
+            <span class="n">renamed_df</span><span class="p">[</span><span class="s2">"timezone"</span><span class="p">]</span> <span class="o">=</span> <span class="n">renamed_df</span><span class="p">[</span><span class="s2">"timezone"</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"string"</span><span class="p">)</span>
+        <span class="c1"># pandera validates/coerces the frame against UTCTimeseriesDataFrame at runtime.</span>
+        <span class="n">aligned_df</span> <span class="o">=</span> <span class="n">utc_dataframe_to_aligned</span><span class="p">(</span><span class="n">renamed_df</span><span class="p">)</span>  <span class="c1"># type: ignore[bad-argument-type]</span>
 
         <span class="c1"># If no simulation group column is specified, create one with a monolithic group</span>
         <span class="k">if</span> <span class="n">simulation_group_col</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -3178,7 +3270,7 @@ window.runMermaid = runMermaid;</script>
 <span class="w">        </span><span class="sd">"""Perform imputation and return TimeseriesMatrix with imputed values."""</span>
         <span class="c1"># Impute flagged/missing values</span>
         <span class="n">years</span> <span class="o">=</span> <span class="n">years_from_context</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
-        <span class="n">method</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">years</span><span class="p">,</span> <span class="n">settings</span><span class="o">.</span><span class="n">method</span><span class="p">)</span> <span class="o">|</span> <span class="n">settings</span><span class="o">.</span><span class="n">method_overrides</span>
+        <span class="n">method</span> <span class="o">=</span> <span class="n">_resolve_imputation_methods</span><span class="p">(</span><span class="n">years</span><span class="p">,</span> <span class="n">settings</span><span class="p">)</span>
         <span class="n">imputed_matrix</span> <span class="o">=</span> <span class="n">impute_flagged_values</span><span class="p">(</span>
             <span class="n">matrix</span><span class="p">,</span>
             <span class="n">years</span><span class="o">=</span><span class="n">years</span><span class="p">,</span>
@@ -3288,7 +3380,7 @@ window.runMermaid = runMermaid;</script>
 <span class="w">        </span><span class="sd">"""Perform imputation on asset with simulated flags and return :class:TimeseriesMatrix with imputed values."""</span>
         <span class="c1"># Impute flagged/missing values</span>
         <span class="n">years</span> <span class="o">=</span> <span class="n">years_from_context</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
-        <span class="n">method</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">years</span><span class="p">,</span> <span class="n">settings</span><span class="o">.</span><span class="n">method</span><span class="p">)</span> <span class="o">|</span> <span class="n">settings</span><span class="o">.</span><span class="n">method_overrides</span>
+        <span class="n">method</span> <span class="o">=</span> <span class="n">_resolve_imputation_methods</span><span class="p">(</span><span class="n">years</span><span class="p">,</span> <span class="n">settings</span><span class="p">)</span>
         <span class="n">imputed_matrix</span> <span class="o">=</span> <span class="n">impute_flagged_values</span><span class="p">(</span>
             <span class="n">matrix</span><span class="p">,</span>
             <span class="n">years</span><span class="o">=</span><span class="n">years</span><span class="p">,</span>

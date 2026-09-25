@@ -95,13 +95,14 @@ described at:
 | [`_merge_imputed`](#pudl.analysis.timeseries_cleaning._merge_imputed)(→ pandas.DataFrame)                         | Helper function to melt imputed timeseries matrix and merge back on input asset.                     |
 | [`_add_simulated_flag_col`](#pudl.analysis.timeseries_cleaning._add_simulated_flag_col)(...)                               | Return a modified `imputed_df` with a column indicating which rows should be flagged for simulation. |
 | [`get_simulated_flag_mask`](#pudl.analysis.timeseries_cleaning.get_simulated_flag_mask)(...)                               | Return a flag mask to flag values for simulated imputation.                                          |
+| [`_resolve_imputation_methods`](#pudl.analysis.timeseries_cleaning._resolve_imputation_methods)(→ dict[int, Literal[, ]])      | Map each year being imputed to the method that should be used for it.                                |
 | [`impute_timeseries_asset_factory`](#pudl.analysis.timeseries_cleaning.impute_timeseries_asset_factory)() → pandas.DataFrame)      | Produces assets to impute values for a given timeseries table/column.                                |
 
 ## Module Contents
 
 ### pudl.analysis.timeseries_cleaning.logger
 
-### pudl.analysis.timeseries_cleaning.STANDARD_UTC_OFFSETS *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
+### pudl.analysis.timeseries_cleaning.STANDARD_UTC_OFFSETS *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [int](https://docs.python.org/3/builtins/functions.html#int)]*
 
 Hour offset from Coordinated Universal Time (UTC) by time zone.
 
@@ -325,7 +326,7 @@ Encode vector with run-length encoding.
 (array([nan,  1., nan,  1.]), array([1, 2, 1, 1]))
 ```
 
-### pudl.analysis.timeseries_cleaning.insert_run_length(x: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence) | [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), values: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence) | [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), lengths: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/builtins/functions.html#int)], mask: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[bool](https://docs.python.org/3/builtins/functions.html#bool)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None, padding: [int](https://docs.python.org/3/builtins/functions.html#int) = 0, intersect: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
+### pudl.analysis.timeseries_cleaning.insert_run_length(x: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence) | [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), values: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence) | [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), lengths: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/builtins/functions.html#int)], mask: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[bool](https://docs.python.org/3/builtins/functions.html#bool)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None, padding: [int](https://docs.python.org/3/builtins/functions.html#int) = 0, intersect: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, rng: [numpy.random.Generator](https://numpy.org/doc/stable/reference/random/generator.html#numpy.random.Generator) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
 
 Insert run-length encoded values into a vector.
 
@@ -338,6 +339,8 @@ Insert run-length encoded values into a vector.
   * **padding** – Minimum space between inserted runs and,
     if mask is provided, the edges of masked-out areas.
   * **intersect** – Whether to allow inserted runs to intersect each other.
+  * **rng** – Random number generator to use for choosing run positions. Defaults
+    to a seeded generator for reproducible results.
 * **Raises:**
   * [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – Padding must zero or greater.
   * [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – Run length must be greater than zero.
@@ -411,7 +414,7 @@ Unfold tensor into a matrix.
 
 Singular value thresholding (SVT) truncated nuclear norm (TNN) minimization.
 
-### pudl.analysis.timeseries_cleaning.impute_latc_tnn(tensor: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), lags: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/builtins/functions.html#int)] = [1], alpha: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[float](https://docs.python.org/3/builtins/functions.html#float)] = [1 / 3, 1 / 3, 1 / 3], rho0: [float](https://docs.python.org/3/builtins/functions.html#float) = 1e-07, lambda0: [float](https://docs.python.org/3/builtins/functions.html#float) = 2e-07, theta: [int](https://docs.python.org/3/builtins/functions.html#int) = 20, epsilon: [float](https://docs.python.org/3/builtins/functions.html#float) = 1e-07, maxiter: [int](https://docs.python.org/3/builtins/functions.html#int) = 300) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
+### pudl.analysis.timeseries_cleaning.impute_latc_tnn(tensor: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), lags: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/builtins/functions.html#int)] = [1], alpha: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[float](https://docs.python.org/3/builtins/functions.html#float)] = [1 / 3, 1 / 3, 1 / 3], rho0: [float](https://docs.python.org/3/builtins/functions.html#float) = 1e-07, lambda0: [float](https://docs.python.org/3/builtins/functions.html#float) = 2e-07, theta: [int](https://docs.python.org/3/builtins/functions.html#int) = 20, epsilon: [float](https://docs.python.org/3/builtins/functions.html#float) = 1e-07, max_iterations: [int](https://docs.python.org/3/builtins/functions.html#int) = 300, min_iterations: [int](https://docs.python.org/3/builtins/functions.html#int) = 50) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
 
 Impute tensor values with LATC-TNN method by Chen and Sun (2020).
 
@@ -430,7 +433,12 @@ truncated nuclear norm (TNN) minimization.
   * **lambda0**
   * **theta**
   * **epsilon** – Convergence criterion. A smaller number will result in more iterations.
-  * **maxiter** – Maximum number of iterations.
+  * **max_iterations** – Maximum number of iterations.
+  * **min_iterations** – Minimum number of iterations before the `epsilon`
+    convergence check is allowed to stop the loop. The relative change
+    between iterations can dip transiently in the first few iterations
+    without indicating genuine convergence, so epsilon alone is not a
+    safe stopping criterion for iterations before this floor.
 * **Returns:**
   Tensor with missing values in tensor replaced by imputed values.
 
@@ -438,7 +446,7 @@ truncated nuclear norm (TNN) minimization.
 
 Tensor singular value thresholding (TSVT).
 
-### pudl.analysis.timeseries_cleaning.impute_latc_tubal(tensor: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), lags: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/builtins/functions.html#int)] = [1], rho0: [float](https://docs.python.org/3/builtins/functions.html#float) = 1e-07, lambda0: [float](https://docs.python.org/3/builtins/functions.html#float) = 2e-07, epsilon: [float](https://docs.python.org/3/builtins/functions.html#float) = 1e-07, maxiter: [int](https://docs.python.org/3/builtins/functions.html#int) = 300) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
+### pudl.analysis.timeseries_cleaning.impute_latc_tubal(tensor: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), lags: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/builtins/functions.html#int)] = [1], rho0: [float](https://docs.python.org/3/builtins/functions.html#float) = 1e-07, lambda0: [float](https://docs.python.org/3/builtins/functions.html#float) = 2e-07, epsilon: [float](https://docs.python.org/3/builtins/functions.html#float) = 1e-07, max_iterations: [int](https://docs.python.org/3/builtins/functions.html#int) = 300, min_iterations: [int](https://docs.python.org/3/builtins/functions.html#int) = 50) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
 
 Impute tensor values with LATC-Tubal method by Chen, Chen and Sun (2020).
 
@@ -456,7 +464,15 @@ with comparable accuracy.
   * **rho0**
   * **lambda0**
   * **epsilon** – Convergence criterion. A smaller number will result in more iterations.
-  * **maxiter** – Maximum number of iterations.
+  * **max_iterations** – Maximum number of iterations.
+  * **min_iterations** – Minimum number of iterations before the `epsilon`
+    convergence check is allowed to stop the loop. The relative change
+    between iterations dips sharply in the first ~10 iterations, before
+    bouncing back up by several orders of magnitude once the algorithm
+    starts doing real work, and the internal basis (`phi`) is recomputed
+    every 10 iterations thereafter, causing a smaller periodic
+    dip-and-bounce for the rest of the run. epsilon alone is not a safe
+    stopping criterion for iterations before this floor.
 * **Returns:**
   Tensor with missing values in tensor replaced by imputed values.
 
@@ -694,7 +710,7 @@ Summarize flagged values by flag, count and median.
 * **Parameters:**
   **imputed_df** – DataFrame
 
-### pudl.analysis.timeseries_cleaning.simulate_nulls(x: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), lengths: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/builtins/functions.html#int)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None, padding: [int](https://docs.python.org/3/builtins/functions.html#int) = 1, intersect: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, overlap: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
+### pudl.analysis.timeseries_cleaning.simulate_nulls(x: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), lengths: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/builtins/functions.html#int)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None, padding: [int](https://docs.python.org/3/builtins/functions.html#int) = 1, intersect: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, overlap: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, rng: [numpy.random.Generator](https://numpy.org/doc/stable/reference/random/generator.html#numpy.random.Generator) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
 
 Find non-null values to null to match a run-length distribution.
 
@@ -708,6 +724,9 @@ Find non-null values to null to match a run-length distribution.
   * **intersect** – Whether simulated null runs can intersect each other.
   * **overlap** – Whether simulated null runs can overlap existing null runs. If
     `True`, `padding` is ignored.
+  * **rng** – Random number generator to use for choosing run positions. Pass a
+    seeded generator for reproducible output; defaults to a fresh,
+    unseeded generator.
 * **Returns:**
   Boolean mask of current non-null values to set to null.
 * **Raises:**
@@ -949,11 +968,27 @@ Imputation method to use.
 
 Override stated imputation method for specific years.
 
+#### method_override_for_latest_year *: Literal['tubal', 'tnn'] | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
+
+Override the imputation method for the most recent year in a given run.
+
+Unlike `method_overrides`, which is keyed by a specific calendar year and
+so is fixed at settings-construction (module import) time, this override is
+resolved at run time against the actual years being imputed (from
+`years_from_context`). Use this instead of hardcoding a year based on
+wall-clock date – e.g. `date.today().year` – which makes two builds of
+the same input data pick different methods depending on when they happen
+to run.
+
 #### simulate_flags_settings *: [SimulateFlagsSettings](#pudl.analysis.timeseries_cleaning.SimulateFlagsSettings) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
 Settings to simulate flagged values and score imputation.
 
 Defaults to None which will not do any simulation/scoring.
+
+### pudl.analysis.timeseries_cleaning.\_resolve_imputation_methods(years: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[int](https://docs.python.org/3/builtins/functions.html#int)], settings: [ImputeTimeseriesSettings](#pudl.analysis.timeseries_cleaning.ImputeTimeseriesSettings)) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[int](https://docs.python.org/3/builtins/functions.html#int), Literal['tubal', 'tnn']]
+
+Map each year being imputed to the method that should be used for it.
 
 ### pudl.analysis.timeseries_cleaning.impute_timeseries_asset_factory(input_asset_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), output_asset_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), years_from_context: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable), id_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str), value_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'demand_mwh', imputed_value_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'demand_imputed_mwh', reported_value_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'demand_reported_mwh', simulation_group_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, output_io_manager_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'parquet_io_manager', op_tags: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any] | [None](https://docs.python.org/3/builtins/constants.html#None) = None, settings: [ImputeTimeseriesSettings](#pudl.analysis.timeseries_cleaning.ImputeTimeseriesSettings) = ImputeTimeseriesSettings()) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
