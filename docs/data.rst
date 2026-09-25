@@ -9,5 +9,5 @@ Data Resources
   data_sources/index
   data_access
   methodology/index
-  bibliography
+  citations_media/index
   Licensing <LICENSE>
