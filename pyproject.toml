@@ -636,10 +636,6 @@ filterwarnings = [
 # must not end with `--cov` since that will treat the first argument you pass
 # to pytest as a coverage source! see
 # https://github.com/catalyst-cooperative/pudl/issues/3609
-# If you need logs to be visible in the terminal, override log_cli:
-#   pytest -v -o log_cli=true tests/unit/foo_test.py
-# The prebuilt_outputs fixture streams the fast-ETL subprocess output to the
-# terminal directly (see tests/conftest.py) so progress is still visible there.
 addopts = [
     "--cov",
     "--cov-append",
