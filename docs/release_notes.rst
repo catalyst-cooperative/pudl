@@ -46,6 +46,18 @@ New Data Tests & Validations
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Made the :doc:`EIA-930 <data_sources/eia930>` and :doc:`FERC-714
+  <data_sources/ferc714>` hourly demand imputation deterministic. The underlying
+  tensor-completion algorithm previously relied on a unseeded random subsampling
+  mechanism which meant ``demand_imputed_pudl_mwh`` values could shift slightly from one
+  build to the next. For our hourly annual (8760) imputation blocks, the subsampling
+  wasn't any faster than using all the data points, so we removed it. Added a guard
+  against the algorithm stopping prematurely on a transient dip in its convergence
+  metric. This was never observed happening, but seemed uncomfortably close to the set
+  tolerance. Also stopped replacing values that were not flagged for imputation with the
+  values estimated by the tensor completion. They should match the original reported
+  value exactly now, rather than carrying tiny model reconstruction error. Tightened the
+  corresponding dbt tolerance tests accordingly. See :issue:`5649` and :pr:`5656`.
 * Fixed ``allocate_gen_fuel.py`` silently dropping legitimate generation and fuel
   data for generators transitioning between ``proposed``/``existing`` or
   ``existing``/``retired`` status across a multi-year ETL run. Unified the slightly
@@ -75,6 +87,18 @@ Bug Fixes & Data Cleaning
   now spans two ``plant_id_pudl`` values within a single ``plant_id_ferc1``, so we
   raised the tolerance in the corresponding dbt test. See issue :issue:`5609` and PR
   :pr:`5642`.
+* Fixed ``valid_until_date`` in the ``_core_eia__forensics_entity_resolution_*`` and
+  ``_core_rus*__forensics_entity_resolution_borrowers`` tables. Each record's end date
+  was being drawn from an unrelated column of the same entity, and ties were sorted
+  arbitrarily, so values were often wrong and changed between builds. It's now the next
+  change in the same column, and the output is deterministic. See :issue:`5608` and
+  :pr:`5641`.
+* Made the FERC 1 to EIA plant-parts record linkage reproducible. The splink model
+  sampled record pairs without a seed and broke ties between equally probable matches
+  arbitrarily, so about 1% of the matches in
+  :ref:`out_pudl__yearly_assn_eia_ferc1_plant_parts` changed on every run even with
+  identical inputs. The sampling is now seeded and ties are broken by EIA record ID. See
+  :issue:`5610` and :pr:`5643`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
