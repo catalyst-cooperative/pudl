@@ -397,9 +397,8 @@ def insert_run_length(  # noqa: C901
         padding: Minimum space between inserted runs and,
             if `mask` is provided, the edges of masked-out areas.
         intersect: Whether to allow inserted runs to intersect each other.
-        rng: Random number generator to use for choosing run positions. Pass a
-            seeded generator for reproducible output; defaults to a fresh,
-            unseeded generator.
+        rng: Random number generator to use for choosing run positions. Defaults
+            to a seeded generator for reproducible results.
 
     Raises:
         ValueError: Padding must zero or greater.
@@ -488,7 +487,7 @@ def insert_run_length(  # noqa: C901
         run_lengths = np.concatenate((run_lengths, buffer))
     # Initialize random number generator
     if rng is None:
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(20260925)
     # Sort insertions from longest to shortest
     order = np.argsort(lengths)[::-1]
     values = np.asarray(values)[order]
@@ -758,10 +757,9 @@ def impute_latc_tubal(  # noqa: C901
     # downstream _tsvt() einsum/SVD calls into much slower complex arithmetic.
     _, phi = np.linalg.eigh(temp1 @ temp1.T)
     del temp1
-    # Thresholds raised from 5e3/1e4 to 1e4/2e4. A full year of hourly data
-    # (our largest current use case) has at most 8,784 time steps (leap year),
-    # so this makes the fit below deterministic for all current production
-    # imputation without removing the subsampling path for any future
+    # A full year of hourly data (our largest current use case) has at most 8,784 time
+    # steps (leap year), so this makes the fit below deterministic for all current
+    # production imputation without removing the subsampling path for any future
     # higher-resolution dataset that needs it.
     if dim_time > 1e4 and dim_time <= 2e4:
         sample_rate = 0.2
