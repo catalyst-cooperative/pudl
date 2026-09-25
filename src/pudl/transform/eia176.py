@@ -159,6 +159,14 @@ OTHER_DISPOSITION_TYPE_MAP = {
         "no label - bad code",
         "no label - bad code 9001",
         "no label - bad code 9006",
+        # 1997-2000 line 18.4 (Disposition to Other) continuation records never
+        # captured a free-text description at all (raw reference_state and
+        # mode_of_transportation are blank too for these years) -- it's a gap in
+        # the raw source, not a value we can recover or infer from other columns.
+        # We still have a real, non-null volume_mcf for these records, so we
+        # categorize them as unknown rather than dropping them and understating
+        # disposition totals.
+        "not reported",
         *UNKNOWN_TYPES,
     ],
     "vented_flared": ["vented flared"],
@@ -859,8 +867,15 @@ def core_eia176__yearly_gas_disposition_other(
         core_pudl__codes_subdivisions,
         column="operating_state",
     )
+    # disposition_type is a primary key column and can't be null. A small number
+    # of 1997-2000 records never had a free-text description recorded at all (see
+    # the "not reported" entry in OTHER_DISPOSITION_TYPE_MAP); as of pandas 3.0
+    # cleanstrings_series's astype(str) call correctly preserves these as NA
+    # instead of masking them as the literal text "nan", so we now have to
+    # explicitly categorize them ourselves rather than relying on that accident.
     df["disposition_type"] = cleanstrings_series(
-        df["reference_company_or_line_description"], OTHER_DISPOSITION_TYPE_MAP
+        df["reference_company_or_line_description"].fillna("not reported"),
+        OTHER_DISPOSITION_TYPE_MAP,
     )
     df = df.drop(columns=["reference_company_or_line_description"])
     df["report_year"] = df["report_year"].astype("int64")
