@@ -88,6 +88,180 @@ def simulate_anomalies(
     return x.flat[indices] + values, indices
 
 
+def test_impute_latc_tubal_deterministic_below_subsample_threshold() -> None:
+    """Imputation is bitwise reproducible for series lengths that used to subsample.
+
+    A `dim_time` of ~7,200 (300 days * 24 hours) sat above the old 5,000-step
+    subsampling threshold but below the new 10,000-step threshold (PUDL issue
+    #5649). It's also representative of a full year of hourly data (<= 8,784
+    steps), our actual production use case.
+    """
+    x = simulate_series(n=3, periods=300, frequency=24, seed=20260922)
+    tensor = timeseries_cleaning.fold_tensor(x, periods=24)
+    assert tensor.shape[1] * tensor.shape[2] == 7200
+
+    result1 = timeseries_cleaning.impute_latc_tubal(
+        tensor.copy(), max_iterations=5, rho0=1
+    )
+    result2 = timeseries_cleaning.impute_latc_tubal(
+        tensor.copy(), max_iterations=5, rho0=1
+    )
+
+    np.testing.assert_array_equal(result1, result2)
+
+
+def test_impute_latc_tubal_still_stochastic_above_subsample_threshold() -> None:
+    """Subsampling still kicks in, and is still stochastic, above the new threshold.
+
+    Guards against a future edit silently raising the threshold further (or
+    deleting the subsampling branch) without anyone noticing: the branch
+    should still exist, and still be unseeded, for series long enough that a
+    future higher-resolution dataset might need it. See PUDL issue #5649.
+    """
+    x = simulate_series(n=2, periods=500, frequency=24, seed=20260922)
+    # A pure sinusoid repeats exactly every 24 hours, so a linear fit is
+    # insensitive to *which* 20% of timesteps get subsampled -- add a little
+    # noise so different subsamples actually produce different fits, the same
+    # way real, non-perfectly-periodic demand data would.
+    x = x + np.random.default_rng(20260922).normal(scale=0.05, size=x.shape)
+    # The subsampled fit is only used to fill missing (nulled) values, so
+    # without any actual gaps to fill, different subsamples are a no-op.
+    # Null out a chunk of values to give the subsampling something to do.
+    x[100:150, :] = np.nan
+    tensor = timeseries_cleaning.fold_tensor(x, periods=24)
+    assert tensor.shape[1] * tensor.shape[2] == 12000
+
+    result1 = timeseries_cleaning.impute_latc_tubal(
+        tensor.copy(), max_iterations=2, rho0=1
+    )
+    result2 = timeseries_cleaning.impute_latc_tubal(
+        tensor.copy(), max_iterations=2, rho0=1
+    )
+
+    assert not np.array_equal(result1, result2)
+
+
+@pytest.mark.parametrize(
+    "imputer",
+    [timeseries_cleaning.impute_latc_tubal, timeseries_cleaning.impute_latc_tnn],
+)
+def test_min_iterations_floor_delays_convergence_check(imputer) -> None:
+    """`epsilon` cannot stop the loop before `min_iterations`, even if trivially met.
+
+    Real convergence trajectories dip sharply in the first ~10 iterations
+    before bouncing back up by orders of magnitude once the algorithm starts
+    doing real work (see PUDL issue #5649) -- an early, transient dip below
+    `epsilon` does not mean the fit has actually converged. This uses a
+    trivially-satisfied `epsilon=1.0` (true from iteration 1 onward for any
+    real `tol`) to isolate the floor mechanism itself: the loop must still
+    run for `min_iterations` regardless.
+    """
+    x = simulate_series(n=3, periods=60, frequency=24, seed=20260923)
+    # Give the optimizer real work to do -- with no missing values there's
+    # nothing to fit, and both floor settings trivially "converge" at once.
+    x[100:150, :] = np.nan
+    tensor = timeseries_cleaning.fold_tensor(x, periods=24)
+
+    result_with_floor = imputer(
+        tensor.copy(), epsilon=1.0, min_iterations=10, max_iterations=300, rho0=1
+    )
+    result_no_floor = imputer(
+        tensor.copy(), epsilon=1.0, min_iterations=0, max_iterations=300, rho0=1
+    )
+
+    # With no floor, epsilon=1.0 is satisfied trivially at iteration 1, so
+    # the loop barely does any work and the result stays close to the naive
+    # mean-fill initialization. With the floor, the loop is forced to run
+    # for 10 iterations of real optimization first, producing a
+    # meaningfully different (and better-fit) result.
+    assert not np.allclose(result_with_floor, result_no_floor)
+
+
+def test_merge_imputed_preserves_reported_values_for_unflagged_cells() -> None:
+    """Unflagged cells keep the reported value, not the model's reconstruction."""
+    datetimes = pd.date_range("2025-01-01", periods=5, freq="h", name="datetime")
+
+    @pa.check_types
+    def _aligned_df() -> DataFrame[timeseries_cleaning.AlignedTimeseriesDataFrame]:
+        return pd.DataFrame(  # type: ignore[bad-return]
+            {
+                "id_col": ["A"] * 5,
+                "datetime": datetimes,
+                "value_col": pd.array([10.0, 11.0, 12.0, 13.0, 14.0], dtype="Float64"),
+            }
+        )
+
+    @pa.check_types
+    def _matrix() -> DataFrame[timeseries_cleaning.TimeseriesMatrix]:
+        # Simulate an imputation model that reconstructs every cell, including
+        # unflagged ones, with small deviations from the reported value.
+        matrix = pd.DataFrame(
+            {"A": [10.1, 50.0, 51.0, 13.05, 14.02]},
+            index=datetimes,
+        )
+        matrix.columns.name = "id_col"
+        return matrix
+
+    @pa.check_types
+    def _flags() -> DataFrame[timeseries_cleaning.TimeseriesMatrix]:
+        flags = pd.DataFrame(
+            {"A": [None, "missing_value", "missing_value", None, None]},
+            index=datetimes,
+        )
+        flags.columns.name = "id_col"
+        return flags
+
+    merged = timeseries_cleaning._merge_imputed(_aligned_df(), _matrix(), _flags())
+    merged = merged.set_index("datetime")["imputed_value_col"]
+
+    # Unflagged cells: reported value preserved, not the reconstruction.
+    assert merged.loc[datetimes[0]] == 10.0
+    assert merged.loc[datetimes[3]] == 13.0
+    assert merged.loc[datetimes[4]] == 14.0
+    # Flagged cells: reconstruction kept, since there's no reported value to
+    # fall back on.
+    assert merged.loc[datetimes[1]] == 50.0
+    assert merged.loc[datetimes[2]] == 51.0
+
+
+def test_splice_does_not_introduce_large_discontinuities() -> None:
+    """Splicing reported values back in shouldn't create visible boundary jumps.
+
+    Mirrors the boundary-jump check run against a production FERC-714 build
+    while evaluating PUDL issue #5649: compare the jump at a flagged/unflagged
+    boundary with and without splicing reported values back in for unflagged
+    cells, and confirm splicing adds only a small fraction of the series'
+    normal hour-to-hour variability.
+    """
+    x = simulate_series(n=5, periods=60, frequency=24, seed=20260922)
+    matrix = _to_timeseries_matrix(x, n=5, periods=60, frequency=24)
+    reported = matrix.copy()
+
+    # Flag a 48-hour run in the interior of one series.
+    start, end = 400, 448
+    flagged_matrix = matrix.copy()
+    flagged_matrix.iloc[start:end, 0] = np.nan
+
+    imputed = timeseries_cleaning.impute(
+        flagged_matrix, method="tubal", rho0=1, max_iterations=100
+    )
+    unflagged_mask = flagged_matrix.notna()
+    spliced = imputed.where(~unflagged_mask, reported)
+
+    col = matrix.columns[0]
+    baseline = reported[col].diff().abs().median()
+
+    for boundary_current, boundary_reported in [(start - 1, start), (end - 1, end)]:
+        current_jump = abs(
+            imputed[col].iloc[boundary_current] - imputed[col].iloc[boundary_reported]
+        )
+        spliced_jump = abs(
+            spliced[col].iloc[boundary_current] - spliced[col].iloc[boundary_reported]
+        )
+        extra_jump = abs(spliced_jump - current_jump)
+        assert extra_jump < 2 * baseline
+
+
 @pytest.mark.parametrize(
     "series_seed,anomalies_seed",
     [
@@ -135,10 +309,10 @@ def test_flags_and_imputes_anomalies(series_seed, anomalies_seed) -> None:
     for method in "tubal", "tnn":
         # Impute null values
         imputed0 = timeseries_cleaning.impute(
-            matrix, mask=mask, method=method, rho0=1, maxiter=1
+            matrix, mask=mask, method=method, rho0=1, max_iterations=1
         )
         imputed = timeseries_cleaning.impute(
-            matrix, mask=mask, method=method, rho0=1, maxiter=100
+            matrix, mask=mask, method=method, rho0=1, max_iterations=100
         )
         # Deviations between original and imputed values
         fit0 = timeseries_cleaning.summarize_imputed(matrix, imputed0, mask)
