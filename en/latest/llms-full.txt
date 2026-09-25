@@ -3376,6 +3376,7 @@ plant-parts.
 
 | [`logger`](autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html.md#pudl.analysis.record_linkage.eia_ferc1_record_linkage.logger)             |    |
 |---------------------------------------------------------------------|----|
+| [`U_ESTIMATION_SEED`](autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html.md#pudl.analysis.record_linkage.eia_ferc1_record_linkage.U_ESTIMATION_SEED)  |    |
 | [`MATCHING_COLS`](autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html.md#pudl.analysis.record_linkage.eia_ferc1_record_linkage.MATCHING_COLS)      |    |
 | [`ID_COL`](autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html.md#pudl.analysis.record_linkage.eia_ferc1_record_linkage.ID_COL)             |    |
 | [`EXTRA_COLS`](autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html.md#pudl.analysis.record_linkage.eia_ferc1_record_linkage.EXTRA_COLS)         |    |
@@ -3405,6 +3406,8 @@ plant-parts.
 ## Module Contents
 
 ### pudl.analysis.record_linkage.eia_ferc1_record_linkage.logger
+
+### pudl.analysis.record_linkage.eia_ferc1_record_linkage.U_ESTIMATION_SEED *= 20260919*
 
 ### pudl.analysis.record_linkage.eia_ferc1_record_linkage.MATCHING_COLS *= ['plant_name', 'utility_name', 'fuel_type_code_pudl', 'installation_year', 'construction_year',...*
 
@@ -81516,6 +81519,12 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
   [core_ferc1_\_yearly_cash_flows_sched120](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-cash-flows-sched120) without `row_type_xbrl`,
   `is_within_table_calc`, `balance`, or `ferc_account` metadata. See
   [#5587](https://github.com/catalyst-cooperative/pudl/issues/5587) and [#5588](https://github.com/catalyst-cooperative/pudl/pull/5588).
+* Made the FERC 1 to EIA plant-parts record linkage reproducible. The splink model
+  sampled record pairs without a seed and broke ties between equally probable matches
+  arbitrarily, so about 1% of the matches in
+  [out_pudl_\_yearly_assn_eia_ferc1_plant_parts](data_dictionaries/pudl_db.html.md#out-pudl-yearly-assn-eia-ferc1-plant-parts) changed on every run even with
+  identical inputs. The sampling is now seeded and ties are broken by EIA record ID. See
+  [#5610](https://github.com/catalyst-cooperative/pudl/issues/5610) and [#5643](https://github.com/catalyst-cooperative/pudl/pull/5643).
 
 ### Performance Improvements
 

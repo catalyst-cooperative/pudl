@@ -66,6 +66,12 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
   [core_ferc1_\_yearly_cash_flows_sched120](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-cash-flows-sched120) without `row_type_xbrl`,
   `is_within_table_calc`, `balance`, or `ferc_account` metadata. See
   [#5587](https://github.com/catalyst-cooperative/pudl/issues/5587) and [#5588](https://github.com/catalyst-cooperative/pudl/pull/5588).
+* Made the FERC 1 to EIA plant-parts record linkage reproducible. The splink model
+  sampled record pairs without a seed and broke ties between equally probable matches
+  arbitrarily, so about 1% of the matches in
+  [out_pudl_\_yearly_assn_eia_ferc1_plant_parts](data_dictionaries/pudl_db.html.md#out-pudl-yearly-assn-eia-ferc1-plant-parts) changed on every run even with
+  identical inputs. The sampling is now seeded and ties are broken by EIA record ID. See
+  [#5610](https://github.com/catalyst-cooperative/pudl/issues/5610) and [#5643](https://github.com/catalyst-cooperative/pudl/pull/5643).
 
 ### Performance Improvements
 
