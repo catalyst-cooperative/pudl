@@ -77,6 +77,16 @@ Bug Fixes & Data Cleaning
   :ref:`core_ferc1__yearly_cash_flows_sched120` without ``row_type_xbrl``,
   ``is_within_table_calc``, ``balance``, or ``ferc_account`` metadata. See
   :issue:`5587` and :pr:`5588`.
+* Made ``plant_id_ferc1`` reproducible. The cluster labels from the FERC 1 plant
+  matching model were numbered arbitrarily, so they were reshuffled by tiny changes in
+  input row order even when the plants themselves were unchanged. The model inputs are
+  now sorted by ``record_id`` and each plant's ID is derived from its earliest record,
+  so unrelated plants keep their IDs when others change, and IDs now start at 1 instead
+  of 0. IDs are still not stable across data updates and shouldn't be hard-coded. Making
+  the clustering independent of input row order changed the grouping of one plant which
+  now spans two ``plant_id_pudl`` values within a single ``plant_id_ferc1``, so we
+  raised the tolerance in the corresponding dbt test. See issue :issue:`5609` and PR
+  :pr:`5642`.
 * Fixed ``valid_until_date`` in the ``_core_eia__forensics_entity_resolution_*`` and
   ``_core_rus*__forensics_entity_resolution_borrowers`` tables. Each record's end date
   was being drawn from an unrelated column of the same entity, and ties were sorted

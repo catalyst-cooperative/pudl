@@ -6,7 +6,7 @@ from tempfile import TemporaryDirectory
 import mlflow
 import numpy as np
 import pandas as pd
-from dagster import Config, graph, op
+from dagster import Config, Out, graph, op
 from numba import njit
 from numba.typed import List
 from sklearn.cluster import DBSCAN, AgglomerativeClustering
@@ -296,13 +296,52 @@ def match_orphaned_records(
     return id_year_df
 
 
+def _sort_records_for_clustering(
+    df: pd.DataFrame, feature_matrix: FeatureMatrix
+) -> tuple[pd.DataFrame, FeatureMatrix]:
+    """Put records in a canonical order and give the feature matrix a matching one.
+
+    Clustering results depend on the order of the input rows, and the other ops in
+    this graph assume ``df`` and ``feature_matrix.matrix`` share a fresh RangeIndex
+    in the same row order. Rather than relying on every caller to have already
+    sorted ``df`` before embedding it (easy to forget, and silently wrong if
+    missed), sort here and use ``feature_matrix.index`` to reorder its rows to
+    match, regardless of what order they arrive in.
+    """
+    sorted_df = df.sort_values("record_id", kind="stable")
+    positions = feature_matrix.index.get_indexer(sorted_df.index)
+    sorted_matrix = feature_matrix.matrix[positions]
+    return sorted_df.reset_index(drop=True), FeatureMatrix(
+        # csr_matrix fancy indexing is typed as returning sparray in scipy's
+        # stubs, but actually returns another csr_matrix at runtime.
+        matrix=sorted_matrix,  # type: ignore[bad-argument-type]
+        index=pd.RangeIndex(len(sorted_df)),
+    )
+
+
+@op(out={"df": Out(), "feature_matrix": Out()})
+def sort_records_for_clustering(
+    df: pd.DataFrame, feature_matrix: FeatureMatrix
+) -> tuple[pd.DataFrame, FeatureMatrix]:
+    """Op wrapper around :func:`_sort_records_for_clustering`."""
+    return _sort_records_for_clustering(df, feature_matrix)
+
+
+@op
+def attach_record_labels(df: pd.DataFrame, id_year_df: pd.DataFrame) -> pd.DataFrame:
+    """Attach final cluster labels to the (sorted) records that were clustered."""
+    return df.assign(record_label=id_year_df["record_label"])
+
+
 @graph
 def link_ids_cross_year(
     df: pd.DataFrame,
     feature_matrix: FeatureMatrix,
     experiment_tracker: experiment_tracking.ExperimentTracker,
-):
-    """Apply model and return column of estimated record labels."""
+) -> pd.DataFrame:
+    """Apply model and return input records annotated with cluster labels."""
+    df, feature_matrix = sort_records_for_clustering(df, feature_matrix)
+
     # Compute distances and apply penalty for records from same year
     distance_matrix = compute_distance_with_year_penalty(feature_matrix, df)
 
@@ -311,4 +350,4 @@ def link_ids_cross_year(
     id_year_df = split_clusters(distance_matrix, id_year_df, experiment_tracker)
     id_year_df = match_orphaned_records(distance_matrix, id_year_df, experiment_tracker)
 
-    return id_year_df
+    return attach_record_labels(df, id_year_df)
