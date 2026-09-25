@@ -97,7 +97,7 @@ running the full ETL:
 
 .. code-block:: console
 
-    $ pixi run dg launch --assets "key:missing_plant_id_pudl_in_plants_ferc1+key:missing_plants_in_plants_ferc1+key:missing_plants_in_plants_eia+key:missing_utility_id_pudl_in_utilities_ferc1+key:missing_utility_id_ferc1_in_utilities_ferc1_dbf+key:missing_utility_id_ferc1_in_utilities_ferc1_xbrl+key:missing_utility_id_ferc1_in_plants_ferc1+key:missing_utility_id_ferc1_xbrl_in_raw_xbrl+key:missing_utility_id_ferc1_dbf_in_raw_dbf+key:missing_utility_id_eia_in_utilities_eia"
+    $ pixi run dg launch --assets "group:core_unmapped_ids"
 
 Each asset is written out as a CSV under ``$PUDL_OUTPUT`` (e.g.
 ``$PUDL_OUTPUT/missing_plants_in_plants_ferc1.csv``), so the results of every nightly
