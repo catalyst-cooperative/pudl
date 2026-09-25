@@ -72,7 +72,7 @@ class TestExcelExtractor:
             extractor=extractor,
             page="source_and_disposition",
             year=2025,
-            expected_name="EIA923_Schedules_6_7_NU_SourceNDisposition_2025_Early_Release_30JUN2026.xlsx",
+            expected_name="EIA923_Schedules_6_7_NU_SourceNDisposition_2025_Final.xlsx",
         )
 
     def test_extract_eia860(self, zenodo_datastore):
@@ -110,7 +110,6 @@ class TestExcelExtractor:
                 "plant_name_eia",
                 "plant_state",
                 "tolling_agreements_mwh",
-                "early_release",
                 "revenue_from_resale_1000_dollars",
                 "incoming_electricity_description",
                 "outgoing_electricity_description",
