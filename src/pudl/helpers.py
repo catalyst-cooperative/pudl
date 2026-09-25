@@ -25,7 +25,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, NamedTuple
 
 import duckdb
-import geopandas as gpd  # noqa: ICN002
+import geopandas as gpd
 import numpy as np
 import pandas as pd
 import polars as pl
@@ -597,7 +597,7 @@ def full_timeseries_date_merge(
     left_date_col: str = "report_date",
     right_date_col: str = "report_date",
     new_date_col: str = "report_date",
-    date_on: list[str] = ["year"],
+    date_on: list[str] | None = None,
     how: Literal["inner", "outer", "left", "right", "cross"] = "inner",
     report_at_start: bool = True,
     freq: str = "MS",
@@ -607,6 +607,8 @@ def full_timeseries_date_merge(
 
     Arguments: see arguments for ``date_merge`` and ``expand_timeseries``
     """
+    if date_on is None:
+        date_on = ["year"]
     out = date_merge(
         left=left,
         right=right,
@@ -929,12 +931,12 @@ def cleanstrings_series(
         col = (
             col.astype(str).str.strip().str.lower().str.replace(r"\s+", " ", regex=True)
         )
-        for k in str_map:
-            str_map[k] = [re.sub(r"\s+", " ", s.lower().strip()) for s in str_map[k]]
+        for k, v in str_map.items():
+            str_map[k] = [re.sub(r"\s+", " ", s.lower().strip()) for s in v]
 
-    for k in str_map:
-        if str_map[k]:
-            col = col.replace(str_map[k], k)
+    for k, v in str_map.items():
+        if v:
+            col = col.replace(v, k)
 
     if unmapped is not None:
         badstrings = np.setdiff1d(col.unique(), list(str_map.keys()))
@@ -2982,7 +2984,7 @@ def parse_address(addr: str):
     try:
         if pd.isna(addr):
             return (addr, None, None, None)
-        tagged, addr_type = usaddress.tag(addr)
+        tagged, _addr_type = usaddress.tag(addr)
 
         parsed = defaultdict(str)
         for key, val in tagged.items():
@@ -3021,7 +3023,7 @@ def parse_address(addr: str):
 
 def listify(x: Any) -> list[Any]:
     """Listify an input that is sometimes a list and sometimes not."""
-    return x if isinstance(x, list) else [x]  # noqa: E731
+    return x if isinstance(x, list) else [x]
 
 
 def env_var_is_true(env_var: str) -> bool:

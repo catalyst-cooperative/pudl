@@ -100,6 +100,10 @@ class TransformParams(BaseModel):
 
     ``TransformParams`` instances created without any arguments should have no effect
     when applied by their associated function.
+
+    Subclasses may declare fields with mutable defaults (``= {}``/``= []``); pydantic
+    deep-copies these per instance, so they don't share state the way a plain class's
+    mutable class attributes would. Such fields are marked ``# noqa: RUF012``.
     """
 
     model_config = ConfigDict(frozen=True, extra="forbid")
@@ -687,12 +691,9 @@ class UnitCorrections(TransformParams):
         This constraint is imposed so that the same unit conversion definitions can be
         re-used both for unit corrections and normal columnwise unit conversions.
         """
-        new_conversions = []
-        for uc in params:
-            new_conversions.append(
-                UnitConversion(multiplier=uc.multiplier, adder=uc.adder)
-            )
-        return new_conversions
+        return [
+            UnitConversion(multiplier=uc.multiplier, adder=uc.adder) for uc in params
+        ]
 
     @model_validator(mode="after")
     def distinct_domains(self: Self):
@@ -1097,7 +1098,7 @@ def cache_df(key: str = "main") -> Callable[..., pd.DataFrame]:
         def _wrapper(self: AbstractTableTransformer, *args, **kwargs) -> pd.DataFrame:
             df = func(self, *args, **kwargs)
             if not isinstance(df, pd.DataFrame):
-                raise ValueError(
+                raise TypeError(
                     f"{self.table_id.value}: The cache_df decorator only works on "
                     "methods that return a pandas dataframe. "
                     f"The method {func.__name__} returned a {type(df)}."
@@ -1170,7 +1171,7 @@ class AbstractTableTransformer(ABC):
     clear_cached_dfs: bool = True
     """Determines whether cached dataframes are deleted at the end of the transform."""
 
-    _cached_dfs: dict[str, pd.DataFrame] = {}
+    _cached_dfs: dict[str, pd.DataFrame]
     """Cached intermediate dataframes for use in development and debugging.
 
     The dictionary keys are the strings passed to the :func:`cache_df` method decorator.
@@ -1209,6 +1210,7 @@ class AbstractTableTransformer(ABC):
             self.params = params
         self.cache_dfs = cache_dfs
         self.clear_cached_dfs = clear_cached_dfs
+        self._cached_dfs = {}
 
     ################################################################################
     # Abstract methods that must be defined by subclasses

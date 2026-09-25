@@ -182,7 +182,7 @@ class CompanyNameCleaner(BaseModel):
         """
         clean_col = col
         # Iterate through the dictionary and apply each regex rule
-        for _, cleaning_rule in dict_regex_rules.items():
+        for cleaning_rule in dict_regex_rules.values():
             # First element is the replacement
             replacement = cleaning_rule[0]
             # Second element is the regex rule

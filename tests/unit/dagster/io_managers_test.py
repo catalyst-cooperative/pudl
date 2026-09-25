@@ -6,7 +6,7 @@ from importlib.metadata import version
 from pathlib import Path
 
 import duckdb
-import geopandas as gpd  # noqa: ICN002
+import geopandas as gpd
 import pandas as pd
 import polars as pl
 import pyarrow.parquet as pq
@@ -198,7 +198,7 @@ def test_ferc_dbf_io_manager_rejects_stale_provenance(mocker, caplog):
         caplog.at_level(logging.WARNING),
     ):
         manager.load_input(context)
-        assert "Zenodo DOI mismatch" in caplog.text
+    assert "Zenodo DOI mismatch" in caplog.text
 
     query.assert_not_called()
 
@@ -229,7 +229,7 @@ def test_ferc_dbf_io_manager_requires_provenance_metadata(mocker):
         instance=instance,
     )
 
-    with pytest.raises(RuntimeError, match="No Dagster provenance metadata"):
+    with pytest.raises(TypeError, match="No Dagster provenance metadata"):
         manager.load_input(context)
 
     query.assert_not_called()
@@ -280,7 +280,7 @@ def test_report_year_fixing_duration():
 
 
 @pytest.mark.parametrize(
-    "df, match",
+    ("df", "match"),
     [
         (
             pd.DataFrame.from_records(

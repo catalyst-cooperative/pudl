@@ -1994,9 +1994,9 @@ def adjust_msw_energy_source_codes(
             max_num_esc = (gens.unique_esc.str.count(",") + 1).max()
 
             # create a list of numbered fuel code columns
-            esc_columns_to_add = []
-            for n in range(1, max_num_esc + 1):
-                esc_columns_to_add.append(f"{esc_type}source_code_{n}")
+            esc_columns_to_add = [
+                f"{esc_type}source_code_{n}" for n in range(1, max_num_esc + 1)
+            ]
 
             # drop all of the existing energy source code columns
             gens = gens.drop(
@@ -2239,7 +2239,9 @@ def _test_frac(gen_pm_fuel: pd.DataFrame) -> pd.DataFrame:
 
 
 def test_gen_fuel_allocation(
-    gen: pd.DataFrame, net_gen_alloc: pd.DataFrame, ratio: float = 0.05
+    gen: pd.DataFrame,
+    net_gen_alloc: pd.DataFrame,
+    ratio: float = 0.05,  # noqa: PT028
 ) -> None:
     """Does the allocated MWh differ from the granular :ref:`core_eia923__monthly_generation`?
 

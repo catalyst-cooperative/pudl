@@ -5,7 +5,7 @@ from pudl.scripts import auto_match_utilities as amu
 
 
 @pytest.mark.parametrize(
-    "raw, expected_nonnull_count",
+    ("raw", "expected_nonnull_count"),
     [
         (
             [
@@ -45,7 +45,7 @@ def test_clean_utility_name_variations_param(raw, expected_nonnull_count):
 
 
 @pytest.mark.parametrize(
-    "eia_rows, ferc_rows, false_matches, expected_names",
+    ("eia_rows", "ferc_rows", "false_matches", "expected_names"),
     [
         # case: 'acme' already matched (same pudl ID), 'globex' differs -> only globex returned
         (
@@ -154,7 +154,7 @@ def test_match_utility_names_param(eia_rows, ferc_rows, false_matches, expected_
 
 
 @pytest.mark.parametrize(
-    "entity, overrides_rows, matches_rows, remaining_expected_ids",
+    ("entity", "overrides_rows", "matches_rows", "remaining_expected_ids"),
     [
         # Drop unmatched ferc (entity='ferc1')
         (
@@ -244,7 +244,7 @@ def test_drop_records_with_matches_param(
 
 
 @pytest.mark.parametrize(
-    "overrides_rows, matches_rows, expected_new_rows",
+    ("overrides_rows", "matches_rows", "expected_new_rows"),
     [
         # Two matches in same group -> single group increment assignment
         (
@@ -316,7 +316,7 @@ def test_add_new_matches_assigns_new_ids_and_notes_param(
 
 
 @pytest.mark.parametrize(
-    "overrides_rows, matches_rows",
+    ("overrides_rows", "matches_rows"),
     [
         # FERC and EIA present in overrides with different PUDL ids -> raise
         (
@@ -374,7 +374,7 @@ def test_add_new_matches_raises_on_complex_match_param(overrides_rows, matches_r
     existing_glue_df = pd.DataFrame(overrides_rows)
     matches_new = pd.DataFrame(matches_rows)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Found a complex match"):
         amu.add_new_matches_to_dataframe(
             matches_new=matches_new, existing_glue_df=existing_glue_df
         )

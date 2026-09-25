@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, NamedTuple
+from typing import Any, ClassVar, NamedTuple
 
 import boto3
 import botocore.exceptions
@@ -74,7 +74,7 @@ class UPathCache(AbstractCache):
         - file:///local/path
     """
 
-    supported_protocols: set[str] = {"s3", "gs", "file"}
+    supported_protocols: ClassVar[set[str]] = {"s3", "gs", "file"}
 
     def __init__(self, storage_upath: UPath, **kwargs: Any):
         """Constructs new cache using UPath for storage backend access.

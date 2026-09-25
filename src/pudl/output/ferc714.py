@@ -6,7 +6,7 @@ at :doc:`/methodology/timeseries_imputation`
 
 from typing import Any
 
-import geopandas as gpd  # noqa: ICN002
+import geopandas as gpd
 import numpy as np
 import pandas as pd
 from dagster import Field, asset

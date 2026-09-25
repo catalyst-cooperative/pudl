@@ -95,7 +95,7 @@ class GenericDataConfig(FrozenBaseModel):
         return self
 
     @property
-    def partitions(cls) -> list[None | dict[str, str]]:  # noqa: N805
+    def partitions(cls) -> list[dict[str, str] | None]:  # noqa: N805
         """Return list of dictionaries representing individual partitions.
 
         Convert a list of partitions into a list of dictionaries of partitions. This is

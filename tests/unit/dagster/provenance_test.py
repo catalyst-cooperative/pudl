@@ -124,7 +124,7 @@ def test_fetch_stored_ferc_sqlite_provenance_metadata(mocker):
     # First try to fetch before correctly mocking instance to mimick no provenance being available
     instance = mocker.MagicMock()
     with pytest.raises(
-        RuntimeError, match="No Dagster provenance metadata is available for"
+        TypeError, match="No Dagster provenance metadata is available for"
     ):
         FercSqliteProvenanceRecord.from_dagster_instance(
             instance=instance, dataset="ferc1", data_format="dbf"

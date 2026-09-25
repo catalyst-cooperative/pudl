@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-import geopandas as gpd  # noqa: ICN002
+import geopandas as gpd
 import pyarrow.parquet as pq
 from shapely.geometry import box
 

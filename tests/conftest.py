@@ -379,8 +379,8 @@ def _initialize_ferc_engine(
         asset_key=AssetKey(asset_key),
         instance=dagster_instance,
     )
-    _ = io_manager.metadata  # noqa: SLF001
-    io_manager._check_provenance(context)  # noqa: SLF001
+    _ = io_manager.metadata
+    io_manager._check_provenance(context)
     return io_manager.engine
 
 
@@ -817,7 +817,7 @@ def pudl_test_paths(tmp_path_factory, request) -> PudlPaths:
     # Temporary output path is used when not using live DBs. Unless we're on
     # GITHUB_ACTIONS where we need a predictable path for FERC caching.
     if not request.config.getoption("--live-pudl-output") and not os.getenv(
-        "GITHUB_ACTIONS", False
+        "GITHUB_ACTIONS"
     ):
         out_tmp = pudl_tmpdir / "output"
         out_tmp.mkdir()

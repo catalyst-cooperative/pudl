@@ -96,7 +96,11 @@ def test_dbt_schema_drift():
             for source in schema.sources or []
             for table in source.tables or []
         )
-    assert (
+    # Combined into one assertion (rather than four) because the failure message
+    # reports on all four drift categories together via a single call to
+    # generate_legible_output(); splitting these apart would mean losing that
+    # unified diagnostic or duplicating the call in each branch.
+    assert (  # noqa: PT018
         len(pudl_tables_not_in_dbt) == 0
         and len(pudl_fields_not_in_dbt) == 0
         and len(dbt_tables_not_in_pudl) == 0

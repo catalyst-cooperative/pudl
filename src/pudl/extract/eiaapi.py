@@ -48,14 +48,12 @@ def _filter_and_read_to_dataframe(raw_zipfile: Path) -> pd.DataFrame:
     This produces a dataframe with all text fields. The timeseries data is left as JSON
     strings in the 'data' column. The other columns are metadata.
     """
-    filtered = []
     # Use chunksize arg to reduce peak memory usage when reading in 1.1 GB file
     # For reference, the file has ~680k lines and we want around 8.5k
     with pd.read_json(
         raw_zipfile, compression="zip", lines=True, chunksize=10_000
     ) as reader:
-        for chunk in reader:
-            filtered.append(_filter_for_fuel_receipts_costs_series(chunk))
+        filtered = [_filter_for_fuel_receipts_costs_series(chunk) for chunk in reader]
     out = pd.concat(filtered, ignore_index=True)
     return out
 
@@ -116,7 +114,7 @@ def _extract(raw_zipfile) -> dict[str, pd.DataFrame]:
 
 
 def extract(
-    ds: Datastore, partition: dict[str, str] = {"data_set": "electricity"}
+    ds: Datastore, partition: dict[str, str] | None = None
 ) -> dict[str, pd.DataFrame]:
     """Extract metadata and timeseries from raw EIA bulk electricity data.
 
@@ -126,6 +124,8 @@ def extract(
     Returns:
         Dictionary of dataframes with keys 'metadata' and 'timeseries'
     """
+    if partition is None:
+        partition = {"data_set": "electricity"}
     raw_zipfile = ds.get_unique_resource("eiaapi", **partition)
     dfs = _extract(BytesIO(raw_zipfile))
     return dfs

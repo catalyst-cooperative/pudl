@@ -7,7 +7,7 @@ from io import StringIO
 from pathlib import Path
 
 import duckdb
-import geopandas as gpd  # noqa: ICN002
+import geopandas as gpd
 import numpy as np
 import pandas as pd
 import polars as pl
@@ -253,7 +253,7 @@ def test_monthly_attribute_merge():
 
 
 @pytest.mark.parametrize(
-    "partitions,expected_filename",
+    ("partitions", "expected_filename"),
     [
         ({}, "core_eia__plants.parquet"),
         ({"year": 2022, "state": "ca"}, "2022_ca.parquet"),
@@ -571,7 +571,7 @@ def test_convert_df_to_excel_file():
 
 
 @pytest.mark.parametrize(
-    "df,n_digits",
+    ("df", "n_digits"),
     [
         (
             pd.DataFrame(
@@ -903,7 +903,7 @@ plant_id_eia,energy_source_code,report_date,fuel_cost_per_mmbtu,fuel_cost_per_mm
     ).round(2)
     pd.testing.assert_frame_equal(test_rolled, out, check_exact=False)
     # reorder the input df using sample to make sure this works
-    # no matter how the input df is sorted
+    # no matter how the input df is sorted
     out_reordered = pudl.helpers.generate_rolling_avg(
         test_rolled.sample(frac=1).drop(columns=["fuel_cost_per_mmbtu_rolling"]),
         group_cols=["plant_id_eia", "energy_source_code"],
@@ -1030,7 +1030,7 @@ def test_standardize_phone_column():
 
 
 @pytest.mark.parametrize(
-    "raw_year,min_valid_year,max_valid_year,base_century,expected",
+    ("raw_year", "min_valid_year", "max_valid_year", "base_century", "expected"),
     [
         pytest.param(
             pd.Series(["05", "95", "2008", "1999"], dtype="string"),
@@ -1068,7 +1068,7 @@ def test_normalize_year_fragments_valid(
 
 
 @pytest.mark.parametrize(
-    "raw_year,min_valid_year,max_valid_year,base_century,error_match",
+    ("raw_year", "min_valid_year", "max_valid_year", "base_century", "error_match"),
     [
         pytest.param(
             pd.Series(["5", "1999"], dtype="string"),
@@ -1106,7 +1106,7 @@ def test_normalize_year_fragments_raises_invalid_values(
 
 
 @pytest.mark.parametrize(
-    "raw_year,min_valid_year,max_valid_year,base_century,error_match",
+    ("raw_year", "min_valid_year", "max_valid_year", "base_century", "error_match"),
     [
         pytest.param(
             pd.Series(["05"], dtype="string"),
@@ -1152,7 +1152,7 @@ def test_normalize_year_fragments_raises_invalid_arguments(
 
 
 @pytest.mark.parametrize(
-    "value,should_pass",
+    ("value", "should_pass"),
     [
         ("true", True),
         ("True", True),
@@ -1644,7 +1644,7 @@ def test_duckdb_extract_zipped_csv_raises_on_wrong_column_types(tmp_path, mocker
             col.lower(): "DOUBLE" for col in header_row[1:]
         }
 
-    with pytest.raises(duckdb.ConversionException):
+    def _consume_pages():
         for _page, relation in duckdb_extract_zipped_csv(
             dataset="test",
             partitions={"year": 2020},
@@ -1654,6 +1654,9 @@ def test_duckdb_extract_zipped_csv_raises_on_wrong_column_types(tmp_path, mocker
             column_types=column_types,
         ):
             relation.fetchall()
+
+    with pytest.raises(duckdb.ConversionException):
+        _consume_pages()
 
 
 def test_duckdb_extract_zipped_csv_raises_on_integer_narrowing(tmp_path, mocker):
@@ -1676,7 +1679,7 @@ def test_duckdb_extract_zipped_csv_raises_on_integer_narrowing(tmp_path, mocker)
             col.lower(): "BIGINT" for col in header_row[1:]
         }
 
-    with pytest.raises(duckdb.InvalidInputException, match="silently round"):
+    def _consume_pages():
         for _page, relation in duckdb_extract_zipped_csv(
             dataset="test",
             partitions={"year": 2020},
@@ -1686,6 +1689,9 @@ def test_duckdb_extract_zipped_csv_raises_on_integer_narrowing(tmp_path, mocker)
             column_types=column_types,
         ):
             relation.fetchall()
+
+    with pytest.raises(duckdb.InvalidInputException, match="silently round"):
+        _consume_pages()
 
 
 def test_persist_table_as_parquet_duckdb_enum_written_as_dictionary(

@@ -4,7 +4,7 @@ import io
 import json
 import re
 import zipfile
-from typing import Any
+from typing import Any, ClassVar
 
 import pytest
 import responses
@@ -164,7 +164,7 @@ class MockableZenodoFetcher(datastore.ZenodoFetcher):
 class TestZenodoFetcher:
     """Unit tests for ZenodoFetcher class."""
 
-    MOCK_EPACEMS_DEPOSITION = {
+    MOCK_EPACEMS_DEPOSITION: ClassVar[dict[str, Any]] = {
         "entries": [
             {"key": "random.zip"},
             {
@@ -174,7 +174,7 @@ class TestZenodoFetcher:
         ]
     }
 
-    MOCK_EPACEMS_DATAPACKAGE = {
+    MOCK_EPACEMS_DATAPACKAGE: ClassVar[dict[str, Any]] = {
         "resources": [
             {
                 "name": "first",

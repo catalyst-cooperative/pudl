@@ -863,7 +863,6 @@ def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.Da
     # For relative columns, take average weighted by fuel usage
     total_fuel: pd.Series = boiler_fuel_groups["fuel_consumed_units"].transform("sum")
     # division by zero -> NaN, so fill with 0 in those cases
-    print(f"Aggregate boilers: {duplicates.info()}")
     fuel_fraction = (
         duplicates["fuel_consumed_units"].div(total_fuel.to_numpy()).fillna(0.0)
     )
@@ -1090,7 +1089,7 @@ def _drop_duplicates__core_eia923__generation(
     # truly duplicate records from one plant (id 3405) from 2012 and 2013
     # and another (id 55088) from 2025 and 2026.
     # they are duplicate except for having different prime movers (which we
-    # very much don’t expect to be the primary key for this table)
+    # very much don't expect to be the primary key for this table)
     # we are going to find them... make sure they are the plant we expect... then
     # aggregate them and effectively drop their prime mover code bc that is
     # only column that differs in these records. We don't expect this table

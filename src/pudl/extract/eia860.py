@@ -40,7 +40,7 @@ class Extractor(excel.ExcelExtractor):
         """
         df = df.rename(columns=self._metadata.get_column_map(page, **partition))
         if "report_year" not in df.columns:
-            df["report_year"] = list(partition.values())[0]
+            df["report_year"] = next(iter(partition.values()))
         self.cols_added = ["report_year"]
         # Eventually we should probably make this a transform
         for col in ["generator_id", "boiler_id"]:

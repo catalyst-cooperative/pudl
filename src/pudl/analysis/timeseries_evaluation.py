@@ -501,11 +501,11 @@ def plot_flags(self, name: Any = 0) -> None:  # pragma: no cover
         "SINGLE_DELTA": "red",
         "ANOMALOUS_REGION": "orange",
     }
-    for flag in colors:
+    for flag, color in colors.items():
         mask = self.flags[:, col] == flag
         x, y = self.index[mask], self.xi[mask, col]
         # Set zorder manually to ensure flagged points are drawn on top
-        plt.scatter(x, y, c=colors[flag], label=flag, zorder=2)
+        plt.scatter(x, y, c=color, label=flag, zorder=2)
     plt.legend()
 
 

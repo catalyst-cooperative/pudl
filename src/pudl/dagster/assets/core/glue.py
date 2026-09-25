@@ -516,13 +516,13 @@ def _convert_global_id_to_composite_id(
             :func:`_subplant_ids_from_prepped_crosswalk`
 
     Raises:
-        ValueError: if crosswalk_with_ids has a MultiIndex
+        TypeError: if crosswalk_with_ids has a MultiIndex
 
     Returns:
         A copy of crosswalk_with_ids with an added column: ``subplant_id``
     """
     if isinstance(crosswalk_with_ids.index, pd.MultiIndex):
-        raise ValueError(
+        raise TypeError(
             f"Input crosswalk must have single level index. Given levels: {crosswalk_with_ids.index.names}"
         )
 
