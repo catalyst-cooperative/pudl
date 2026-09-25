@@ -1276,12 +1276,6 @@ class Exploder:
         # Keep only calculations in which ALL calculation components are in explosion
         # Restrict columns to the ones we actually need. Drop duplicates and order
         # things for legibility.
-        logger.info("Current table looks like!")
-        logger.info(calc_explode)
-        logger.info(self.table_names)
-        logger.info(self.root_table)
-        logger.info(parent_cols)
-        logger.info(calc_cols)
         calc_explode = (
             calc_explode[calc_explode.is_in_explosion]
             .loc[
