@@ -505,9 +505,14 @@ class MakeMegaGenTbl:
         """
         logger.info("Generating the mega generator table with ownership.")
 
+        # label_operator_utility must run before scale_by_ownership, which
+        # overwrites the utility_id_eia, utility_id_pudl and utility_name_eia
+        # columns it copies from with the owner's values. Reordering these two
+        # steps would silently label every record's owner as its operator.
         gens_mega = (
             self.get_gens_mega_table(mcoe)
             .pipe(self.label_operating_gens)
+            .pipe(self.label_operator_utility)
             .pipe(
                 pudl.helpers.scale_by_ownership,
                 own_eia860,
@@ -589,6 +594,36 @@ class MakeMegaGenTbl:
             "generators as non-operative."
         )
         return gen_df
+
+    @staticmethod
+    def label_operator_utility(gen_df: pd.DataFrame) -> pd.DataFrame:
+        """Preserve the operator utility's IDs and name before ownership is integrated.
+
+        The ``utility_id_eia``, ``utility_id_pudl`` and ``utility_name_eia`` columns
+        of the generators table identify the utility that operates each generator. Once
+        :func:`pudl.helpers.scale_by_ownership` runs, those columns describe each
+        generator's owners instead, so we stash the operator's IDs and name in
+        dedicated columns first. Jointly owned generators typically have a single operator
+        and several owners, and knowing who operates a generator makes it
+        possible to reconcile ownership-scaled generation with the utility-level
+        data reported in EIA-861.
+        See https://github.com/catalyst-cooperative/pudl/issues/5550
+
+        Args:
+            gen_df: annual table of all generators from EIA, with the operator
+                utility's ``utility_id_eia``, ``utility_id_pudl`` and
+                ``utility_name_eia``.
+
+        Returns:
+            The same table with ``operator_utility_id_eia``,
+            ``operator_utility_id_pudl`` and ``operator_utility_name_eia`` columns
+            added.
+        """
+        return gen_df.assign(
+            operator_utility_id_eia=gen_df["utility_id_eia"],
+            operator_utility_id_pudl=gen_df["utility_id_pudl"],
+            operator_utility_name_eia=gen_df["utility_name_eia"],
+        )
 
 
 class MakePlantParts:

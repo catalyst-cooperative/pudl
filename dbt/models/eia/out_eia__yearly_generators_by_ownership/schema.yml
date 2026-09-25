@@ -21,6 +21,13 @@ sources:
           - foreign_key:
               arguments:
                 fk_column_names:
+                  - operator_utility_id_eia
+                pk_table_name: source('pudl', 'core_eia__entity_utilities')
+                pk_column_names:
+                  - utility_id_eia
+          - foreign_key:
+              arguments:
+                fk_column_names:
                   - plant_id_eia
                   - generator_id
                   - report_date
@@ -52,6 +59,13 @@ sources:
                 pk_table_name: source('pudl', 'core_pudl__entity_utilities_pudl')
                 pk_column_names:
                   - utility_id_pudl
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - operator_utility_id_pudl
+                pk_table_name: source('pudl', 'core_pudl__entity_utilities_pudl')
+                pk_column_names:
+                  - utility_id_pudl
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
               arguments:
@@ -74,6 +88,19 @@ sources:
           - name: utility_id_eia
           - name: utility_id_pudl
           - name: utility_name_eia
+          - name: operator_utility_id_eia
+            data_tests:
+              - one_value_per_group:
+                  arguments:
+                    group_by_columns:
+                      - plant_id_eia
+                      - generator_id
+                      - report_date
+                  description: |-
+                    EIA reports a single operator per generator, so every ownership slice of a given
+                    generator-year should name the same operator utility.
+          - name: operator_utility_id_pudl
+          - name: operator_utility_name_eia
           - name: technology_description
           - name: energy_source_code_1
           - name: prime_mover_code
