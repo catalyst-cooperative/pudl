@@ -12753,7 +12753,7 @@ with cleaning and restructuring dataframes.
 | [`_read_typed_csv_rejecting_narrowing`](autoapi/pudl/helpers/index.html.md#pudl.helpers._read_typed_csv_rejecting_narrowing)(...)                 | Read a CSV with explicit column types, without silently rounding bad data.                                                                                                                                                                                        |
 | [`duckdb_extract_zipped_csv`](autoapi/pudl/helpers/index.html.md#pudl.helpers.duckdb_extract_zipped_csv)(, column_types, dict[str, ...) | Extract data from zipped CSV page(s) in a data archive.                                                                                                                                                                                                           |
 | [`normalize_year_fragments`](autoapi/pudl/helpers/index.html.md#pudl.helpers.normalize_year_fragments)(→ pandas.Series)                | Normalize year fragments into 4-digit years using a rolling-century rule.                                                                                                                                                                                         |
-| [`make_changelog`](autoapi/pudl/helpers/index.html.md#pudl.helpers.make_changelog)(df_all, idx)                              | Make a changelog table with unique instances of values over start report and max report date.                                                                                                                                                                     |
+| [`make_changelog`](autoapi/pudl/helpers/index.html.md#pudl.helpers.make_changelog)(→ pandas.DataFrame)                       | Make a changelog table with unique instances of values over time.                                                                                                                                                                                                 |
 | [`parse_address`](autoapi/pudl/helpers/index.html.md#pudl.helpers.parse_address)(addr)                                      | Parse a U.S. address into components.                                                                                                                                                                                                                             |
 | [`listify`](autoapi/pudl/helpers/index.html.md#pudl.helpers.listify)(→ list[Any])                                     | Listify an input that is sometimes a list and sometimes not.                                                                                                                                                                                                      |
 | [`env_var_is_true`](autoapi/pudl/helpers/index.html.md#pudl.helpers.env_var_is_true)(→ bool)                                  | Check that environment variable is a 'truthy' value.                                                                                                                                                                                                              |
@@ -14037,9 +14037,17 @@ For example, with `base_century=2000` and `max_valid_year=2026`:
   [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – If the valid year range is too wide to apply the rolling-century
   logic, or if any resulting year falls outside the valid range.
 
-### pudl.helpers.make_changelog(df_all: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), idx: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)])
+### pudl.helpers.make_changelog(df_all: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), idx: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
-Make a changelog table with unique instances of values over start report and max report date.
+Make a changelog table with unique instances of values over time.
+
+Each record is valid from its `report_date` until the `report_date` of the next
+distinct record in the same series. A series is a unique combination of the
+non-date `idx` columns and, if present, `column_name` (as in the “tall” forensics
+tables, where many different columns and values share one entity ID). Records
+reported on the entity’s last report date are valid for one more month.
+
+The output is fully sorted, so it doesn’t depend on the order of the input rows.
 
 ### pudl.helpers.parse_address(addr: [str](https://docs.python.org/3/builtins/stdtypes.html#str))
 
@@ -81519,6 +81527,12 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
   [core_ferc1_\_yearly_cash_flows_sched120](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-cash-flows-sched120) without `row_type_xbrl`,
   `is_within_table_calc`, `balance`, or `ferc_account` metadata. See
   [#5587](https://github.com/catalyst-cooperative/pudl/issues/5587) and [#5588](https://github.com/catalyst-cooperative/pudl/pull/5588).
+* Fixed `valid_until_date` in the `_core_eia__forensics_entity_resolution_*` and
+  `_core_rus*__forensics_entity_resolution_borrowers` tables. Each record’s end date
+  was being drawn from an unrelated column of the same entity, and ties were sorted
+  arbitrarily, so values were often wrong and changed between builds. It’s now the next
+  change in the same column, and the output is deterministic. See [#5608](https://github.com/catalyst-cooperative/pudl/issues/5608) and
+  [#5641](https://github.com/catalyst-cooperative/pudl/pull/5641).
 * Made the FERC 1 to EIA plant-parts record linkage reproducible. The splink model
   sampled record pairs without a seed and broke ties between equally probable matches
   arbitrarily, so about 1% of the matches in

@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="release_notes.html.md" />
-    <title>PUDL Release Notes &#8212; PUDL 2026.9.1.dev24 documentation</title>
+    <title>PUDL Release Notes &#8212; PUDL 2026.9.1.dev25 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="_static/documentation_options.js?v=3b4471ee"></script>
+    <script src="_static/documentation_options.js?v=92040588"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev24 documentation - Home"/>
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev24 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev25 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev25 documentation - Home"/>
   
   
 </a></div>
@@ -586,6 +586,12 @@ and <a class="reference external" href="https://github.com/catalyst-cooperative/
 <a class="reference internal" href="data_dictionaries/pudl_db.html#core-ferc1-yearly-cash-flows-sched120"><span class="std std-ref">core_ferc1__yearly_cash_flows_sched120</span></a> without <code class="docutils literal notranslate"><span class="pre">row_type_xbrl</span></code>,
 <code class="docutils literal notranslate"><span class="pre">is_within_table_calc</span></code>, <code class="docutils literal notranslate"><span class="pre">balance</span></code>, or <code class="docutils literal notranslate"><span class="pre">ferc_account</span></code> metadata. See
 <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/5587">#5587</a> and <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5588">#5588</a>.</p></li>
+<li><p>Fixed <code class="docutils literal notranslate"><span class="pre">valid_until_date</span></code> in the <code class="docutils literal notranslate"><span class="pre">_core_eia__forensics_entity_resolution_*</span></code> and
+<code class="docutils literal notranslate"><span class="pre">_core_rus*__forensics_entity_resolution_borrowers</span></code> tables. Each record’s end date
+was being drawn from an unrelated column of the same entity, and ties were sorted
+arbitrarily, so values were often wrong and changed between builds. It’s now the next
+change in the same column, and the output is deterministic. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/5608">#5608</a> and
+<a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5641">#5641</a>.</p></li>
 <li><p>Made the FERC 1 to EIA plant-parts record linkage reproducible. The splink model
 sampled record pairs without a seed and broke ties between equally probable matches
 arbitrarily, so about 1% of the matches in
