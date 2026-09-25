@@ -4,10 +4,10 @@
 Testing PUDL
 ===============================================================================
 
-We use `pytest <https://pytest.org>`__ to specify software unit, integration, and
-pipeline tests, including calling ``dbt build`` to run our
-:doc:`data_validation_quickstart` tests. Several common test commands are available as
-pixi tasks for convenience.
+We use `pytest <https://pytest.org>`__ to specify software unit and integration tests,
+as well as an end-to-end smoke test of the PUDL ETL pipeline and its outputs, including
+calling ``dbt build`` to run our :doc:`data_validation_quickstart` tests. Several common
+test commands are made available as pixi tasks for convenience.
 
 For day-to-day work, the most commonly used pixi testing tasks are:
 
@@ -16,8 +16,7 @@ For day-to-day work, the most commonly used pixi testing tasks are:
    $ pixi run pytest-unit         # runs in ~1 minute
    $ pixi run pytest-integration  # runs in ~2-5 minutes, no Dagster ETL required
 
-``pytest-unit`` also runs automatically as a pre-commit hook on every commit, and
-both ``pytest-unit`` and ``pytest-integration`` runs in GitHub Actions on every push.
+Both ``pytest-unit`` and ``pytest-integration`` run in GitHub Actions on every push.
 
 To run everything that's required before a PR can merge -- including the slower
 pipeline and data validation tests that only run in the merge queue -- use:
@@ -138,6 +137,20 @@ To run only the unit tests defined by a single test class within that module:
 .. code-block:: console
 
    $ pixi run pytest tests/unit/extract/excel_test.py::TestGenericExtractor
+
+Enabling pytest logging output in the terminal
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+By default, pytest captures all logging output and only shows it if a test fails. If you
+need logs to be visible in the terminal and want more verbose output, you might use a
+command like:
+
+.. code-block:: console
+
+   $ pixi run pytest --no-cov --verbose --log-level-cli=INFO tests/unit/helpers_test.py
+
+The ``prebuilt_outputs`` fixture streams the fast-ETL subprocess output to the terminal
+directly (see ``tests/conftest.py``) when preparing to run the PUDL pipeline tests so
+progress is still visible there.
 
 Custom PUDL pytest flags
 ^^^^^^^^^^^^^^^^^^^^^^^^
