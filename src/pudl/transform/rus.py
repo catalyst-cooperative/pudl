@@ -74,7 +74,7 @@ def convert_units(
             convert the units.
     """
     convert_cols = df.filter(regex=rf"_{old_unit}$").columns
-    df.loc[:, convert_cols] = df.loc[:, convert_cols].astype("float") * converter
+    df[convert_cols] = df[convert_cols].astype("float") * converter
     new_unit_to_add = ""
     if new_unit:
         new_unit_to_add = f"_{new_unit}"
