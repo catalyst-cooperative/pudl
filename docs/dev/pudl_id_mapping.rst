@@ -101,7 +101,8 @@ running the full ETL:
 
 Each asset is written out as a CSV under ``$PUDL_OUTPUT`` (e.g.
 ``$PUDL_OUTPUT/missing_plants_in_plants_ferc1.csv``), so the results of every nightly
-build are also available for download without having to run anything locally.
+build are also available for download from the gcloud builds.catalyst.coop bucket
+without having to run anything locally.
 
 Assigning PUDL IDs to Unmapped Records
 --------------------------------------
