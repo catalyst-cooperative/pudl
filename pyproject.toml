@@ -338,23 +338,23 @@ cmd = "pytest -n auto --no-cov --live-pudl-output tests/validate/data_test.py"
 description = "Run data validation tests (FK checks and dbt, no row counts) against existing PUDL_OUTPUT"
 
 [tool.pixi.tasks.pytest-unit-nightly]
-cmd = "pytest -n auto --no-cov --verbose --log-cli-level=INFO --dg-config $DG_NIGHTLY_CONFIG --doctest-modules src/pudl tests/unit"
+cmd = "pytest -n auto --no-cov --verbose --log-cli-level=INFO --capture=no --dg-config $DG_NIGHTLY_CONFIG --doctest-modules src/pudl tests/unit"
 description = "Run nightly-build unit tests with the nightly Dagster config"
 
 [tool.pixi.tasks.pytest-integration-nightly]
-cmd = "pytest -n auto --no-cov --verbose --log-cli-level=INFO --dg-config $DG_NIGHTLY_CONFIG tests/integration"
+cmd = "pytest -n auto --no-cov --verbose --log-cli-level=INFO --capture=no --dg-config $DG_NIGHTLY_CONFIG tests/integration"
 description = "Run nightly-build fast integration tests with the nightly Dagster config"
 
 [tool.pixi.tasks.pytest-pipeline-nightly]
-cmd = "pytest -n auto --no-cov --verbose --log-cli-level=INFO --live-pudl-output --dg-config $DG_NIGHTLY_CONFIG --ignore=tests/pipeline/ferceqr_test.py tests/pipeline"
+cmd = "pytest -n auto --no-cov --verbose --log-cli-level=INFO --live-pudl-output --capture=no --dg-config $DG_NIGHTLY_CONFIG --ignore=tests/pipeline/ferceqr_test.py tests/pipeline"
 description = "Run nightly-build pipeline tests against live nightly-style outputs"
 
 [tool.pixi.tasks.pytest-validate-nightly]
-cmd = "pytest -n auto --no-cov --verbose --log-cli-level=INFO --live-pudl-output --dg-config $DG_NIGHTLY_CONFIG tests/validate/data_test.py"
+cmd = "pytest -n auto --no-cov --verbose --log-cli-level=INFO --live-pudl-output --capture=no --dg-config $DG_NIGHTLY_CONFIG tests/validate/data_test.py"
 description = "Run nightly-build data validation tests (FK checks and dbt, excluding row counts) against live nightly-style outputs"
 
 [tool.pixi.tasks.pytest-validate-row-counts-nightly]
-cmd = "pytest --no-cov --verbose --log-cli-level=INFO --live-pudl-output --dg-config $DG_NIGHTLY_CONFIG tests/validate/row_counts_test.py"
+cmd = "pytest --no-cov --verbose --log-cli-level=INFO --live-pudl-output --capture=no --dg-config $DG_NIGHTLY_CONFIG tests/validate/row_counts_test.py"
 description = "Run nightly-build dbt row count checks as a separate stage against live nightly-style outputs"
 
 [tool.pixi.tasks.pytest-nightly]
