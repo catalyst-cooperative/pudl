@@ -412,7 +412,9 @@ logger.warning(f"Skipping {plant_id=} — missing required field.")
 - Raw data access must use the datastore pattern, not direct file I/O.
 - Use nullable pandas dtypes (`pd.Int64Dtype()`, `pd.StringDtype()`) to avoid
   generic `object` dtypes and mixed NULL values.
-- Parquet outputs use snappy compression and pyarrow dtypes.
+- Parquet outputs use the compression codec and level set by
+  `pudl.PARQUET_COMPRESSION` and `pudl.PARQUET_COMPRESSION_LEVEL` (zstd), and pyarrow
+  dtypes. Never hardcode a codec or level where Parquet is written.
 - For large datasets (>1GB), use polars or DuckDB to read data instead of pandas.
 
 ### API compatibility and refactoring scope
