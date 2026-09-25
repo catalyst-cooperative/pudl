@@ -364,12 +364,18 @@ def update_tables(
         "for local debugging of remote CI failures."
     ),
 )
+@click.option(
+    "--use-nightly-builds/--no-use-nightly-builds",
+    default=False,
+    help="Use nightly S3 parquet paths when running dbt validation.",
+)
 def validate(
     select: str | None = None,
     asset_select: str | None = None,
     exclude: str | None = None,
     dry_run: bool = False,
     override_target: str | None = None,
+    use_nightly_builds: bool = False,
 ) -> None:
     """Validate a selection of dbt nodes.
 
@@ -419,6 +425,7 @@ def validate(
         "node_selection": node_selection,
         "node_exclusion": exclude,
         "dbt_target": override_target if override_target else "etl-full",
+        "use_nightly_builds": use_nightly_builds,
     }
 
     if dry_run:

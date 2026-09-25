@@ -146,6 +146,7 @@ def build_with_context(
     node_selection: str,
     dbt_target: str,
     node_exclusion: str | None = None,
+    use_nightly_builds: bool = False,
 ) -> BuildResult:
     """Run the DBT build and get failure information back.
 
@@ -159,6 +160,16 @@ def build_with_context(
     cli_args = ["--target", dbt_target, "--select", node_selection]
     if node_exclusion is not None:
         cli_args += ["--exclude", node_exclusion]
+    if use_nightly_builds:
+        cli_args += [
+            "--vars",
+            json.dumps(
+                {
+                    "pudl_parquet_base_path": "s3://pudl.catalyst.coop/nightly",
+                    "ferceqr_parquet_base_path": "s3://pudl.catalyst.coop/ferceqr",
+                }
+            ),
+        ]
     dbt = install_dbt_deps()
 
     with _preserve_logging_propagation(), chdir(PUDL_DBT_PATH):
