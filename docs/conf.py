@@ -137,6 +137,7 @@ keep_generated_files = "PUDL_DOCS_KEEP_GENERATED_FILES" in os.environ
 redirects = {
     "data_dictionary": "data_dictionaries/pudl_db.html",
     "data_sources/wip_future": "future_data.html",
+    "bibliography": "citations_media/index.html",
 }
 
 # Automatically generate API documentation during the doc build:
