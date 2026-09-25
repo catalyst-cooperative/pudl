@@ -1852,6 +1852,50 @@ def test_make_changelog_handles_mixed_record_value_types():
     assert_frame_equal(out, shuffled.reset_index(drop=True))
 
 
+def test_make_changelog_without_record_value_column():
+    """Wide-format tables (one row per entity/date, no record_value/column_name)."""
+    df = pd.DataFrame(
+        {
+            "plant_id_eia": [1, 1, 2, 2],
+            "report_date": pd.to_datetime(
+                ["2020-01-01", "2021-01-01", "2020-01-01", "2021-01-01"]
+            ),
+            "state": ["AK", "AK", "WA", "WA"],
+            "county": ["Kenai", "Kodiak", "X", "X"],
+        }
+    )
+    idx = ["plant_id_eia", "report_date"]
+    out = make_changelog(df.copy(), idx).reset_index(drop=True)
+    assert "record_value" not in out.columns
+    assert "column_name" not in out.columns
+
+    valid_until = {
+        (plant, county, start): end
+        for plant, county, start, end in zip(
+            out["plant_id_eia"],
+            out["county"],
+            out["report_date"].astype(str),
+            out["valid_until_date"].astype(str),
+            strict=True,
+        )
+    }
+    assert valid_until == {
+        # Plant 1's county changes, so the first record is valid until the change
+        # (2021-01-01), and the changed record -- itself the entity's last report --
+        # is valid one more month past its own report date.
+        (1, "Kenai", "2020-01-01"): "2021-01-01",
+        (1, "Kodiak", "2021-01-01"): "2021-02-01",
+        # Plant 2's second report is an exact duplicate of the first and collapses
+        # away, so the surviving record is valid until the entity's last report date,
+        # without the extra month (it wasn't itself reported on that date).
+        (2, "X", "2020-01-01"): "2021-01-01",
+    }
+
+    # Row order of the input doesn't matter.
+    shuffled = make_changelog(df.sample(frac=1, random_state=3), idx)
+    assert_frame_equal(out, shuffled.reset_index(drop=True))
+
+
 def test_persist_table_as_parquet_native_writer_round_trips_non_enum_relation(
     tmp_path, monkeypatch
 ):
