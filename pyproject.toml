@@ -630,7 +630,7 @@ filterwarnings = [
     # `sum_numeric_values_when_strings_match` needs the grouping columns inside the
     # applied function (to detect NA-valued keys under dropna=False), so it can't
     # opt into `include_groups=False` without a nontrivial rewrite.
-    "ignore:DataFrameGroupBy.apply operated on the grouping columns:FutureWarning:pudl.transform.eia861",
+    "once:DataFrameGroupBy.apply operated on the grouping columns:FutureWarning:pudl.transform.eia861",
 ]
 
 # must not end with `--cov` since that will treat the first argument you pass
@@ -646,11 +646,9 @@ addopts = [
     "--cov-config=pyproject.toml",
     "--cov-report=",
     "-ra",
-    "--tb=short",
 ]
 log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
 log_date_format = "%Y-%m-%d %H:%M:%S"
-log_cli = false
 log_cli_level = "INFO"
 # Level for logs captured and shown on failing/xpassing tests ("Captured log call").
 # Without this pytest captures DEBUG too, which is pure noise in failure output.
