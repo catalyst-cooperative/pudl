@@ -387,7 +387,7 @@ macros:
       - name: max_differing_fuel_rate
         type: float
         description: Maximum acceptable fraction of units mapping to multiple fuels. (optional; default 0.01)
-  - name: expect_factoid_rate_base_category
+  - name: test_expect_factoid_rate_base_category
     description: >
       Check that XBRL factoids originating from a plant function correspond to values in
       a selected column (e.g., plant_function, rate_base_category).
