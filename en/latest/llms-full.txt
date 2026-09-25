@@ -42468,6 +42468,7 @@ df <- read_parquet(
 | **Field Name**        | **Type**   | **Unit**   | **Description**                                                                                                                                                                                                                                                                                                                              |
 |-----------------------|------------|------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | ending_balance        | number     | USD        | Account balance at end of year.                                                                                                                                                                                                                                                                                                              |
+| ferc_account          | string     |            | Actual FERC Account number (e.g. ‘359.1’) if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting.                                                                                                                                                                                                   |
 | in_rate_base          | boolean    |            | Whether or not a record from the detailed FERC1 accounting tables should be considered allowable in a utility’s rate base based on utility accounting standards. This flag was manually compiled by RMI utility accounting experts based on the xbrl_factoid and sometimes varies based on the utility_type, plant_status or plant_function. |
 | plant_function        | string     |            | Functional role played by utility plant (steam production, nuclear production, distribution, transmission, etc.).                                                                                                                                                                                                                            |
 | plant_status          | string     |            | Utility plant financial status (in service, future, leased, total).                                                                                                                                                                                                                                                                          |
@@ -42568,6 +42569,7 @@ df <- read_parquet(
 | **Field Name**        | **Type**   | **Unit**   | **Description**                                                                                                                                                                                                                                                                                                                              |
 |-----------------------|------------|------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | ending_balance        | number     | USD        | Account balance at end of year.                                                                                                                                                                                                                                                                                                              |
+| ferc_account          | string     |            | Actual FERC Account number (e.g. ‘359.1’) if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting.                                                                                                                                                                                                   |
 | in_rate_base          | boolean    |            | Whether or not a record from the detailed FERC1 accounting tables should be considered allowable in a utility’s rate base based on utility accounting standards. This flag was manually compiled by RMI utility accounting experts based on the xbrl_factoid and sometimes varies based on the utility_type, plant_status or plant_function. |
 | rate_base_category    | string     |            | A category of asset or liability that RMI compiled to use as a shorthand for various types of utility assets. These tags were compiled manually based on the xbrl_factoid and sometimes varies based on the utility_type, plant_function or plant_status as well.                                                                            |
 | report_year           | integer    |            | Four-digit year in which the data was reported.                                                                                                                                                                                                                                                                                              |
@@ -43780,7 +43782,7 @@ Here are the three direct upstream inputs - the two `detailed` tables have sever
 * [core_ferc1_\_yearly_operating_expenses_sched320](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-operating-expenses-sched320)
 
 We applied slight modifications to three columns (utility_type, plant_function & plant_status) as compared to the originally reported values in our core tables. The modifications were applied to either provide more specificity (i.e. we converted some total utility_type’s into electric) or to condense similar categories for easier analysis (i.e. creating a hydraulic_production plant_function by combining hydraulic_production_conventional and hydraulic_production_pumped_storage).
-See `pudl.output.ferc1.Exploder` for more details. This table was made entirely with support and direction from RMI.
+Note that in the 2025 taxonomy, additional plant functions (solar, wind, energy storage, other renewables) were added - these plant functions have not been retroactively applied to prior taxonomies, and will appear under ‘other_production’ in prior years. See `pudl.output.ferc1.Exploder` for more details. This table was made entirely with support and direction from RMI.
 
 ### Access methods
 
@@ -77862,6 +77864,31 @@ script in the terminal. From within the pudl repo directory, run:
 python src/pudl/transform/ferc1.py
 ```
 
+**4.B.7)** Update the rate base table. If any new XBRL factoids have been added, verify
+that they appear in the rate base table as expected (e.g., with correct
+`plant_function`). By default, tags will inherit the properties of factoids up and
+downstream of them - sometimes, this results in unexpected or undesired results.
+To fix any issues with the rate base table, update the following:
+
+* Factoid not in rate base when it should be, or vice versa? Update
+  `src/pudl/package_data/ferc1/xbrl_factoid_rate_base_tags.csv`
+* Missing calculation components: update
+  `src/pudl/package_data/ferc1/xbrl_calculation_component_fixes.csv`
+* Incorrect rate base category: update
+  `src/pudl/package_data/ferc1/xbrl_factoid_rate_base_category_tags.csv`
+* Incorrect plant function: update
+  `src/pudl/package_data/ferc1/xbrl_factoid_plant_function_tags.csv`
+* Incorrect plant status: update
+  `src/pudl/package_data/ferc1/xbrl_factoid_plant_status_tags.csv` (rarely overridden)
+* Incorrect utility type: update
+  `src/pudl/package_data/ferc1/xbrl_factoid_utility_type_tags.csv` (rarely overridden)
+* Incorrect revenue requirement tags: update
+  `src/pudl/package_data/ferc1/xbrl_factoid_revenue_requirement_tags.csv`
+  (rarely overridden)
+
+Make sure to update the `notes` column or add one to document the reasoning for your
+update.
+
 ### C. EPA CEMS
 
 **4.C.1)** Use dagster to materialize the `core_epacems` asset group and debug. The
@@ -81527,6 +81554,8 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
   [core_ferc1_\_yearly_cash_flows_sched120](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-cash-flows-sched120) without `row_type_xbrl`,
   `is_within_table_calc`, `balance`, or `ferc_account` metadata. See
   [#5587](https://github.com/catalyst-cooperative/pudl/issues/5587) and [#5588](https://github.com/catalyst-cooperative/pudl/pull/5588).
+* Fixed tags for new 2025 XBRL factoids and rescued the `ferc_account` field in
+  [out_ferc1_\_yearly_rate_base](data_dictionaries/pudl_db.html.md#out-ferc1-yearly-rate-base). See [#5520](https://github.com/catalyst-cooperative/pudl/issues/5520) and [#5597](https://github.com/catalyst-cooperative/pudl/pull/5597).
 * Fixed `valid_until_date` in the `_core_eia__forensics_entity_resolution_*` and
   `_core_rus*__forensics_entity_resolution_borrowers` tables. Each record’s end date
   was being drawn from an unrelated column of the same entity, and ties were sorted

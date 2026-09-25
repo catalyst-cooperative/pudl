@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="pudl_db.html.md" />
-    <title>PUDL Data Dictionary &#8212; PUDL 2026.9.1.dev25 documentation</title>
+    <title>PUDL Data Dictionary &#8212; PUDL 2026.9.1.dev26 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../_static/documentation_options.js?v=92040588"></script>
+    <script src="../_static/documentation_options.js?v=b2b59f63"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev25 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev25 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev26 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev26 documentation - Home"/>
   
   
 </a></div>
@@ -13984,72 +13984,77 @@ R</label><div class="sd-tab-content docutils">
 <td><p>USD</p></td>
 <td><p>Account balance at end of year.</p></td>
 </tr>
-<tr class="row-odd"><td><p>in_rate_base</p></td>
+<tr class="row-odd"><td><p>ferc_account</p></td>
+<td><p>string</p></td>
+<td></td>
+<td><p>Actual FERC Account number (e.g. ‘359.1’) if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting.</p></td>
+</tr>
+<tr class="row-even"><td><p>in_rate_base</p></td>
 <td><p>boolean</p></td>
 <td></td>
 <td><p>Whether or not a record from the detailed FERC1 accounting tables should be considered allowable in a utility’s rate base based on utility accounting standards. This flag was manually compiled by RMI utility accounting experts based on the xbrl_factoid and sometimes varies based on the utility_type, plant_status or plant_function.</p></td>
 </tr>
-<tr class="row-even"><td><p>plant_function</p></td>
+<tr class="row-odd"><td><p>plant_function</p></td>
 <td><p>string</p></td>
 <td></td>
 <td><p>Functional role played by utility plant (steam production, nuclear production, distribution, transmission, etc.).</p></td>
 </tr>
-<tr class="row-odd"><td><p>plant_status</p></td>
+<tr class="row-even"><td><p>plant_status</p></td>
 <td><p>string</p></td>
 <td></td>
 <td><p>Utility plant financial status (in service, future, leased, total).</p></td>
 </tr>
-<tr class="row-even"><td><p>rate_base_category</p></td>
+<tr class="row-odd"><td><p>rate_base_category</p></td>
 <td><p>string</p></td>
 <td></td>
 <td><p>A category of asset or liability that RMI compiled to use as a shorthand for various types of utility assets. These tags were compiled manually based on the xbrl_factoid and sometimes varies based on the utility_type, plant_function or plant_status as well.</p></td>
 </tr>
-<tr class="row-odd"><td><p>report_year</p></td>
+<tr class="row-even"><td><p>report_year</p></td>
 <td><p>integer</p></td>
 <td></td>
 <td><p>Four-digit year in which the data was reported.</p></td>
 </tr>
-<tr class="row-even"><td><p>table_name</p></td>
+<tr class="row-odd"><td><p>table_name</p></td>
 <td><p>string</p></td>
 <td></td>
 <td><p>The name of the PUDL database table where a given record originated from.</p></td>
 </tr>
-<tr class="row-odd"><td><p>utility_id_ferc1</p></td>
+<tr class="row-even"><td><p>utility_id_ferc1</p></td>
 <td><p>integer</p></td>
 <td></td>
 <td><p>PUDL-assigned utility ID, identifying a FERC1 utility. This is an auto-incremented ID and is not expected to be stable from year to year.</p></td>
 </tr>
-<tr class="row-even"><td><p>utility_id_ferc1_dbf</p></td>
+<tr class="row-odd"><td><p>utility_id_ferc1_dbf</p></td>
 <td><p>integer</p></td>
 <td></td>
 <td><p>FERC-assigned respondent_id from DBF reporting years, identifying the reporting entity. Stable from year to year.</p></td>
 </tr>
-<tr class="row-odd"><td><p>utility_id_ferc1_xbrl</p></td>
+<tr class="row-even"><td><p>utility_id_ferc1_xbrl</p></td>
 <td><p>string</p></td>
 <td></td>
 <td><p>FERC-assigned entity_id from XBRL reporting years, identifying the reporting entity. Stable from year to year.</p></td>
 </tr>
-<tr class="row-even"><td><p>utility_id_pudl</p></td>
+<tr class="row-odd"><td><p>utility_id_pudl</p></td>
 <td><p>integer</p></td>
 <td></td>
 <td><p>A manually assigned PUDL utility ID. May not be stable over time.</p></td>
 </tr>
-<tr class="row-odd"><td><p>utility_name_ferc1</p></td>
+<tr class="row-even"><td><p>utility_name_ferc1</p></td>
 <td><p>string</p></td>
 <td></td>
 <td><p>Name of the responding utility, as it is reported in FERC Form 1. For human readability only.</p></td>
 </tr>
-<tr class="row-even"><td><p>utility_type</p></td>
+<tr class="row-odd"><td><p>utility_type</p></td>
 <td><p>string</p></td>
 <td></td>
 <td><p>Listing of utility plant types. Examples include Electric Utility, Gas Utility, and Other Utility.</p></td>
 </tr>
-<tr class="row-odd"><td><p>utility_type_other</p></td>
+<tr class="row-even"><td><p>utility_type_other</p></td>
 <td><p>string</p></td>
 <td></td>
 <td><p>Freeform description of type of utility reported in one of the other three other utility_type sections in the core_ferc1__yearly_utility_plant_summary_sched200 table. This field is reported only in the DBF reporting years (1994-2020).</p></td>
 </tr>
-<tr class="row-even"><td><p>xbrl_factoid</p></td>
+<tr class="row-odd"><td><p>xbrl_factoid</p></td>
 <td><p>string</p></td>
 <td></td>
 <td><p>The name of type of value which is a derivative of the XBRL fact name.</p></td>
@@ -14159,57 +14164,62 @@ R</label><div class="sd-tab-content docutils">
 <td><p>USD</p></td>
 <td><p>Account balance at end of year.</p></td>
 </tr>
-<tr class="row-odd"><td><p>in_rate_base</p></td>
+<tr class="row-odd"><td><p>ferc_account</p></td>
+<td><p>string</p></td>
+<td></td>
+<td><p>Actual FERC Account number (e.g. ‘359.1’) if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting.</p></td>
+</tr>
+<tr class="row-even"><td><p>in_rate_base</p></td>
 <td><p>boolean</p></td>
 <td></td>
 <td><p>Whether or not a record from the detailed FERC1 accounting tables should be considered allowable in a utility’s rate base based on utility accounting standards. This flag was manually compiled by RMI utility accounting experts based on the xbrl_factoid and sometimes varies based on the utility_type, plant_status or plant_function.</p></td>
 </tr>
-<tr class="row-even"><td><p>rate_base_category</p></td>
+<tr class="row-odd"><td><p>rate_base_category</p></td>
 <td><p>string</p></td>
 <td></td>
 <td><p>A category of asset or liability that RMI compiled to use as a shorthand for various types of utility assets. These tags were compiled manually based on the xbrl_factoid and sometimes varies based on the utility_type, plant_function or plant_status as well.</p></td>
 </tr>
-<tr class="row-odd"><td><p>report_year</p></td>
+<tr class="row-even"><td><p>report_year</p></td>
 <td><p>integer</p></td>
 <td></td>
 <td><p>Four-digit year in which the data was reported.</p></td>
 </tr>
-<tr class="row-even"><td><p>table_name</p></td>
+<tr class="row-odd"><td><p>table_name</p></td>
 <td><p>string</p></td>
 <td></td>
 <td><p>The name of the PUDL database table where a given record originated from.</p></td>
 </tr>
-<tr class="row-odd"><td><p>utility_id_ferc1</p></td>
+<tr class="row-even"><td><p>utility_id_ferc1</p></td>
 <td><p>integer</p></td>
 <td></td>
 <td><p>PUDL-assigned utility ID, identifying a FERC1 utility. This is an auto-incremented ID and is not expected to be stable from year to year.</p></td>
 </tr>
-<tr class="row-even"><td><p>utility_id_ferc1_dbf</p></td>
+<tr class="row-odd"><td><p>utility_id_ferc1_dbf</p></td>
 <td><p>integer</p></td>
 <td></td>
 <td><p>FERC-assigned respondent_id from DBF reporting years, identifying the reporting entity. Stable from year to year.</p></td>
 </tr>
-<tr class="row-odd"><td><p>utility_id_ferc1_xbrl</p></td>
+<tr class="row-even"><td><p>utility_id_ferc1_xbrl</p></td>
 <td><p>string</p></td>
 <td></td>
 <td><p>FERC-assigned entity_id from XBRL reporting years, identifying the reporting entity. Stable from year to year.</p></td>
 </tr>
-<tr class="row-even"><td><p>utility_id_pudl</p></td>
+<tr class="row-odd"><td><p>utility_id_pudl</p></td>
 <td><p>integer</p></td>
 <td></td>
 <td><p>A manually assigned PUDL utility ID. May not be stable over time.</p></td>
 </tr>
-<tr class="row-odd"><td><p>utility_name_ferc1</p></td>
+<tr class="row-even"><td><p>utility_name_ferc1</p></td>
 <td><p>string</p></td>
 <td></td>
 <td><p>Name of the responding utility, as it is reported in FERC Form 1. For human readability only.</p></td>
 </tr>
-<tr class="row-even"><td><p>utility_type</p></td>
+<tr class="row-odd"><td><p>utility_type</p></td>
 <td><p>string</p></td>
 <td></td>
 <td><p>Listing of utility plant types. Examples include Electric Utility, Gas Utility, and Other Utility.</p></td>
 </tr>
-<tr class="row-odd"><td><p>xbrl_factoid</p></td>
+<tr class="row-even"><td><p>xbrl_factoid</p></td>
 <td><p>string</p></td>
 <td></td>
 <td><p>The name of type of value which is a derivative of the XBRL fact name.</p></td>
@@ -16514,7 +16524,7 @@ Here are the three direct upstream inputs - the two <code class="docutils litera
 <li><p><a class="reference internal" href="#core-ferc1-yearly-operating-expenses-sched320"><span class="std std-ref">core_ferc1__yearly_operating_expenses_sched320</span></a></p></li>
 </ul>
 <p>We applied slight modifications to three columns (utility_type, plant_function &amp; plant_status) as compared to the originally reported values in our core tables. The modifications were applied to either provide more specificity (i.e. we converted some <cite>total</cite> utility_type’s into <cite>electric</cite>) or to condense similar categories for easier analysis (i.e. creating a <cite>hydraulic_production</cite> plant_function by combining <cite>hydraulic_production_conventional</cite> and <cite>hydraulic_production_pumped_storage</cite>).
-See <code class="docutils literal notranslate"><span class="pre">pudl.output.ferc1.Exploder</span></code> for more details. This table was made entirely with support and direction from RMI.</p>
+Note that in the 2025 taxonomy, additional plant functions (solar, wind, energy storage, other renewables) were added - these plant functions have not been retroactively applied to prior taxonomies, and will appear under ‘other_production’ in prior years. See <code class="docutils literal notranslate"><span class="pre">pudl.output.ferc1.Exploder</span></code> for more details. This table was made entirely with support and direction from RMI.</p>
 </section>
 <section id="id363">
 <h3>Access methods<a class="headerlink" href="#id363" title="Link to this heading">#</a></h3>

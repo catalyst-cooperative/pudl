@@ -283,6 +283,31 @@ script in the terminal. From within the pudl repo directory, run:
 python src/pudl/transform/ferc1.py
 ```
 
+**4.B.7)** Update the rate base table. If any new XBRL factoids have been added, verify
+that they appear in the rate base table as expected (e.g., with correct
+`plant_function`). By default, tags will inherit the properties of factoids up and
+downstream of them - sometimes, this results in unexpected or undesired results.
+To fix any issues with the rate base table, update the following:
+
+* Factoid not in rate base when it should be, or vice versa? Update
+  `src/pudl/package_data/ferc1/xbrl_factoid_rate_base_tags.csv`
+* Missing calculation components: update
+  `src/pudl/package_data/ferc1/xbrl_calculation_component_fixes.csv`
+* Incorrect rate base category: update
+  `src/pudl/package_data/ferc1/xbrl_factoid_rate_base_category_tags.csv`
+* Incorrect plant function: update
+  `src/pudl/package_data/ferc1/xbrl_factoid_plant_function_tags.csv`
+* Incorrect plant status: update
+  `src/pudl/package_data/ferc1/xbrl_factoid_plant_status_tags.csv` (rarely overridden)
+* Incorrect utility type: update
+  `src/pudl/package_data/ferc1/xbrl_factoid_utility_type_tags.csv` (rarely overridden)
+* Incorrect revenue requirement tags: update
+  `src/pudl/package_data/ferc1/xbrl_factoid_revenue_requirement_tags.csv`
+  (rarely overridden)
+
+Make sure to update the `notes` column or add one to document the reasoning for your
+update.
+
 ### C. EPA CEMS
 
 **4.C.1)** Use dagster to materialize the `core_epacems` asset group and debug. The

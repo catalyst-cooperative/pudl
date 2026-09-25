@@ -66,6 +66,8 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
   [core_ferc1_\_yearly_cash_flows_sched120](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-cash-flows-sched120) without `row_type_xbrl`,
   `is_within_table_calc`, `balance`, or `ferc_account` metadata. See
   [#5587](https://github.com/catalyst-cooperative/pudl/issues/5587) and [#5588](https://github.com/catalyst-cooperative/pudl/pull/5588).
+* Fixed tags for new 2025 XBRL factoids and rescued the `ferc_account` field in
+  [out_ferc1_\_yearly_rate_base](data_dictionaries/pudl_db.html.md#out-ferc1-yearly-rate-base). See [#5520](https://github.com/catalyst-cooperative/pudl/issues/5520) and [#5597](https://github.com/catalyst-cooperative/pudl/pull/5597).
 * Fixed `valid_until_date` in the `_core_eia__forensics_entity_resolution_*` and
   `_core_rus*__forensics_entity_resolution_borrowers` tables. Each record’s end date
   was being drawn from an unrelated column of the same entity, and ties were sorted
