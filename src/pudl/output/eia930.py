@@ -4,8 +4,6 @@ For a narrative overview of the timeseries imputation process, see the documenta
 at :doc:`/methodology/timeseries_imputation`
 """
 
-from datetime import date
-
 import pandas as pd
 from dagster import AssetOut, Output, asset, multi_asset
 
@@ -126,9 +124,12 @@ imputed_combined_demand_assets = impute_timeseries_asset_factory(
     simulation_group_col="granularity",
     output_io_manager_key="io_manager",
     settings=ImputeTimeseriesSettings(
-        # The tnn method tends to work better when year is incomplete, so use
-        # when imputing current year
-        method_overrides={date.today().year: "tnn"},
+        # The tnn method tends to work better when a year is incomplete, so use
+        # it for the most recent (likely still-incomplete) year in the run.
+        # Resolved at run time against the configured years, not wall-clock
+        # date, so the choice doesn't depend on when the build happens to run.
+        # See PUDL issue #5649.
+        method_override_for_latest_year="tnn",
     ),
 )
 
