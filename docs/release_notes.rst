@@ -77,6 +77,12 @@ Bug Fixes & Data Cleaning
   :ref:`core_ferc1__yearly_cash_flows_sched120` without ``row_type_xbrl``,
   ``is_within_table_calc``, ``balance``, or ``ferc_account`` metadata. See
   :issue:`5587` and :pr:`5588`.
+* Fixed ``valid_until_date`` in the ``_core_eia__forensics_entity_resolution_*`` and
+  ``_core_rus*__forensics_entity_resolution_borrowers`` tables. Each record's end date
+  was being drawn from an unrelated column of the same entity, and ties were sorted
+  arbitrarily, so values were often wrong and changed between builds. It's now the next
+  change in the same column, and the output is deterministic. See :issue:`5608` and
+  :pr:`5641`.
 * Made the FERC 1 to EIA plant-parts record linkage reproducible. The splink model
   sampled record pairs without a seed and broke ties between equally probable matches
   arbitrarily, so about 1% of the matches in
