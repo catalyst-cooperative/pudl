@@ -105,14 +105,15 @@ class PudlParquetIOManager(dg.ConfigurableIOManager):
     def handle_output(
         self,
         context: dg.OutputContext,
-        obj: pd.DataFrame | geopandas.GeoDataFrame | pl.LazyFrame,
+        obj: pd.DataFrame | geopandas.GeoDataFrame | pl.DataFrame | pl.LazyFrame,
     ) -> None:
         """Writes a pudl dataframe to a Parquet file.
 
         GeoDataFrames are written as GeoParquet using native geopandas output,
         which produces spec-compliant CRS metadata readable by DuckDB >= 1.5.
-        Regular DataFrames and Polars LazyFrames use the PUDL PyArrow schema to
-        enforce exact column types on disk.
+        Regular DataFrames and Polars DataFrames/LazyFrames use the PUDL PyArrow
+        schema to enforce exact column types on disk. Polars DataFrames are lazified
+        so every Polars path goes through the same ``sink_parquet`` write.
         """
         table_name = get_table_name_from_context(context)
         res = Resource.from_id(table_name)
@@ -137,8 +138,8 @@ class PudlParquetIOManager(dg.ConfigurableIOManager):
                 compression=pudl.PARQUET_COMPRESSION,
                 compression_level=pudl.PARQUET_COMPRESSION_LEVEL,
             )
-        elif isinstance(obj, pl.LazyFrame):
-            obj.cast(res.to_polars_dtypes()).sink_parquet(
+        elif isinstance(obj, pl.DataFrame | pl.LazyFrame):
+            obj.lazy().cast(res.to_polars_dtypes()).sink_parquet(
                 parquet_path,
                 engine="streaming",
                 row_group_size=100_000,
@@ -148,7 +149,8 @@ class PudlParquetIOManager(dg.ConfigurableIOManager):
         else:
             raise TypeError(
                 "PudlParquetIOManager only supports pandas DataFrames, "
-                f"geopandas GeoDataFrames, and Polars LazyFrames, got {type(obj)}."
+                "geopandas GeoDataFrames, and Polars DataFrames/LazyFrames, "
+                f"got {type(obj)}."
             )
         self._record_parquet_file_metadata(context, parquet_path)
 
