@@ -32,7 +32,7 @@ The above authors applied their methods to the EIA-930 hourly electricity demand
 reported by balancing authorities (BAs). We re-implemented the anomaly detection
 heuristics in PUDL and now apply them to both EIA-930 and the very similar FERC-714
 demand data reported by electricity planning areas. The FERC-714 longer history (going
-back to 2006, vs.  2015 for the EIA-930).
+back to 2006, vs. 2015 for the EIA-930).
 
 ### Exploratory Notebooks
 

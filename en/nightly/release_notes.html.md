@@ -36,6 +36,17 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
 
 ### Bug Fixes & Data Cleaning
 
+* Made the [EIA-930](data_sources/eia930.html.md) and [FERC-714](data_sources/ferc714.html.md) hourly demand imputation deterministic. The underlying
+  tensor-completion algorithm previously relied on a unseeded random subsampling
+  mechanism which meant `demand_imputed_pudl_mwh` values could shift slightly from one
+  build to the next. For our hourly annual (8760) imputation blocks, the subsampling
+  wasn’t any faster than using all the data points, so we removed it. Added a guard
+  against the algorithm stopping prematurely on a transient dip in its convergence
+  metric. This was never observed happening, but seemed uncomfortably close to the set
+  tolerance. Also stopped replacing values that were not flagged for imputation with the
+  values estimated by the tensor completion. They should match the original reported
+  value exactly now, rather than carrying tiny model reconstruction error. Tightened the
+  corresponding dbt tolerance tests accordingly. See [#5649](https://github.com/catalyst-cooperative/pudl/issues/5649) and [#5656](https://github.com/catalyst-cooperative/pudl/pull/5656).
 * Fixed `allocate_gen_fuel.py` silently dropping legitimate generation and fuel
   data for generators transitioning between `proposed`/`existing` or
   `existing`/`retired` status across a multi-year ETL run. Unified the slightly
@@ -55,6 +66,20 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
   [core_ferc1_\_yearly_cash_flows_sched120](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-cash-flows-sched120) without `row_type_xbrl`,
   `is_within_table_calc`, `balance`, or `ferc_account` metadata. See
   [#5587](https://github.com/catalyst-cooperative/pudl/issues/5587) and [#5588](https://github.com/catalyst-cooperative/pudl/pull/5588).
+* Fixed tags for new 2025 XBRL factoids and rescued the `ferc_account` field in
+  [out_ferc1_\_yearly_rate_base](data_dictionaries/pudl_db.html.md#out-ferc1-yearly-rate-base). See [#5520](https://github.com/catalyst-cooperative/pudl/issues/5520) and [#5597](https://github.com/catalyst-cooperative/pudl/pull/5597).
+* Fixed `valid_until_date` in the `_core_eia__forensics_entity_resolution_*` and
+  `_core_rus*__forensics_entity_resolution_borrowers` tables. Each record’s end date
+  was being drawn from an unrelated column of the same entity, and ties were sorted
+  arbitrarily, so values were often wrong and changed between builds. It’s now the next
+  change in the same column, and the output is deterministic. See [#5608](https://github.com/catalyst-cooperative/pudl/issues/5608) and
+  [#5641](https://github.com/catalyst-cooperative/pudl/pull/5641).
+* Made the FERC 1 to EIA plant-parts record linkage reproducible. The splink model
+  sampled record pairs without a seed and broke ties between equally probable matches
+  arbitrarily, so about 1% of the matches in
+  [out_pudl_\_yearly_assn_eia_ferc1_plant_parts](data_dictionaries/pudl_db.html.md#out-pudl-yearly-assn-eia-ferc1-plant-parts) changed on every run even with
+  identical inputs. The sampling is now seeded and ties are broken by EIA record ID. See
+  [#5610](https://github.com/catalyst-cooperative/pudl/issues/5610) and [#5643](https://github.com/catalyst-cooperative/pudl/pull/5643).
 
 ### Performance Improvements
 

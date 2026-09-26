@@ -3376,6 +3376,7 @@ plant-parts.
 
 | [`logger`](autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html.md#pudl.analysis.record_linkage.eia_ferc1_record_linkage.logger)             |    |
 |---------------------------------------------------------------------|----|
+| [`U_ESTIMATION_SEED`](autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html.md#pudl.analysis.record_linkage.eia_ferc1_record_linkage.U_ESTIMATION_SEED)  |    |
 | [`MATCHING_COLS`](autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html.md#pudl.analysis.record_linkage.eia_ferc1_record_linkage.MATCHING_COLS)      |    |
 | [`ID_COL`](autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html.md#pudl.analysis.record_linkage.eia_ferc1_record_linkage.ID_COL)             |    |
 | [`EXTRA_COLS`](autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html.md#pudl.analysis.record_linkage.eia_ferc1_record_linkage.EXTRA_COLS)         |    |
@@ -3405,6 +3406,8 @@ plant-parts.
 ## Module Contents
 
 ### pudl.analysis.record_linkage.eia_ferc1_record_linkage.logger
+
+### pudl.analysis.record_linkage.eia_ferc1_record_linkage.U_ESTIMATION_SEED *= 20260919*
 
 ### pudl.analysis.record_linkage.eia_ferc1_record_linkage.MATCHING_COLS *= ['plant_name', 'utility_name', 'fuel_type_code_pudl', 'installation_year', 'construction_year',...*
 
@@ -4936,13 +4939,14 @@ described at:
 | [`_merge_imputed`](autoapi/pudl/analysis/timeseries_cleaning/index.html.md#pudl.analysis.timeseries_cleaning._merge_imputed)(→ pandas.DataFrame)                         | Helper function to melt imputed timeseries matrix and merge back on input asset.                     |
 | [`_add_simulated_flag_col`](autoapi/pudl/analysis/timeseries_cleaning/index.html.md#pudl.analysis.timeseries_cleaning._add_simulated_flag_col)(...)                               | Return a modified `imputed_df` with a column indicating which rows should be flagged for simulation. |
 | [`get_simulated_flag_mask`](autoapi/pudl/analysis/timeseries_cleaning/index.html.md#pudl.analysis.timeseries_cleaning.get_simulated_flag_mask)(...)                               | Return a flag mask to flag values for simulated imputation.                                          |
+| [`_resolve_imputation_methods`](autoapi/pudl/analysis/timeseries_cleaning/index.html.md#pudl.analysis.timeseries_cleaning._resolve_imputation_methods)(→ dict[int, Literal[, ]])      | Map each year being imputed to the method that should be used for it.                                |
 | [`impute_timeseries_asset_factory`](autoapi/pudl/analysis/timeseries_cleaning/index.html.md#pudl.analysis.timeseries_cleaning.impute_timeseries_asset_factory)() → pandas.DataFrame)      | Produces assets to impute values for a given timeseries table/column.                                |
 
 ## Module Contents
 
 ### pudl.analysis.timeseries_cleaning.logger
 
-### pudl.analysis.timeseries_cleaning.STANDARD_UTC_OFFSETS *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
+### pudl.analysis.timeseries_cleaning.STANDARD_UTC_OFFSETS *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [int](https://docs.python.org/3/builtins/functions.html#int)]*
 
 Hour offset from Coordinated Universal Time (UTC) by time zone.
 
@@ -5166,7 +5170,7 @@ Encode vector with run-length encoding.
 (array([nan,  1., nan,  1.]), array([1, 2, 1, 1]))
 ```
 
-### pudl.analysis.timeseries_cleaning.insert_run_length(x: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence) | [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), values: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence) | [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), lengths: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/builtins/functions.html#int)], mask: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[bool](https://docs.python.org/3/builtins/functions.html#bool)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None, padding: [int](https://docs.python.org/3/builtins/functions.html#int) = 0, intersect: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
+### pudl.analysis.timeseries_cleaning.insert_run_length(x: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence) | [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), values: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence) | [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), lengths: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/builtins/functions.html#int)], mask: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[bool](https://docs.python.org/3/builtins/functions.html#bool)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None, padding: [int](https://docs.python.org/3/builtins/functions.html#int) = 0, intersect: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, rng: [numpy.random.Generator](https://numpy.org/doc/stable/reference/random/generator.html#numpy.random.Generator) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
 
 Insert run-length encoded values into a vector.
 
@@ -5179,6 +5183,8 @@ Insert run-length encoded values into a vector.
   * **padding** – Minimum space between inserted runs and,
     if mask is provided, the edges of masked-out areas.
   * **intersect** – Whether to allow inserted runs to intersect each other.
+  * **rng** – Random number generator to use for choosing run positions. Defaults
+    to a seeded generator for reproducible results.
 * **Raises:**
   * [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – Padding must zero or greater.
   * [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – Run length must be greater than zero.
@@ -5252,7 +5258,7 @@ Unfold tensor into a matrix.
 
 Singular value thresholding (SVT) truncated nuclear norm (TNN) minimization.
 
-### pudl.analysis.timeseries_cleaning.impute_latc_tnn(tensor: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), lags: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/builtins/functions.html#int)] = [1], alpha: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[float](https://docs.python.org/3/builtins/functions.html#float)] = [1 / 3, 1 / 3, 1 / 3], rho0: [float](https://docs.python.org/3/builtins/functions.html#float) = 1e-07, lambda0: [float](https://docs.python.org/3/builtins/functions.html#float) = 2e-07, theta: [int](https://docs.python.org/3/builtins/functions.html#int) = 20, epsilon: [float](https://docs.python.org/3/builtins/functions.html#float) = 1e-07, maxiter: [int](https://docs.python.org/3/builtins/functions.html#int) = 300) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
+### pudl.analysis.timeseries_cleaning.impute_latc_tnn(tensor: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), lags: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/builtins/functions.html#int)] = [1], alpha: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[float](https://docs.python.org/3/builtins/functions.html#float)] = [1 / 3, 1 / 3, 1 / 3], rho0: [float](https://docs.python.org/3/builtins/functions.html#float) = 1e-07, lambda0: [float](https://docs.python.org/3/builtins/functions.html#float) = 2e-07, theta: [int](https://docs.python.org/3/builtins/functions.html#int) = 20, epsilon: [float](https://docs.python.org/3/builtins/functions.html#float) = 1e-07, max_iterations: [int](https://docs.python.org/3/builtins/functions.html#int) = 300, min_iterations: [int](https://docs.python.org/3/builtins/functions.html#int) = 50) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
 
 Impute tensor values with LATC-TNN method by Chen and Sun (2020).
 
@@ -5271,7 +5277,12 @@ truncated nuclear norm (TNN) minimization.
   * **lambda0**
   * **theta**
   * **epsilon** – Convergence criterion. A smaller number will result in more iterations.
-  * **maxiter** – Maximum number of iterations.
+  * **max_iterations** – Maximum number of iterations.
+  * **min_iterations** – Minimum number of iterations before the `epsilon`
+    convergence check is allowed to stop the loop. The relative change
+    between iterations can dip transiently in the first few iterations
+    without indicating genuine convergence, so epsilon alone is not a
+    safe stopping criterion for iterations before this floor.
 * **Returns:**
   Tensor with missing values in tensor replaced by imputed values.
 
@@ -5279,7 +5290,7 @@ truncated nuclear norm (TNN) minimization.
 
 Tensor singular value thresholding (TSVT).
 
-### pudl.analysis.timeseries_cleaning.impute_latc_tubal(tensor: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), lags: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/builtins/functions.html#int)] = [1], rho0: [float](https://docs.python.org/3/builtins/functions.html#float) = 1e-07, lambda0: [float](https://docs.python.org/3/builtins/functions.html#float) = 2e-07, epsilon: [float](https://docs.python.org/3/builtins/functions.html#float) = 1e-07, maxiter: [int](https://docs.python.org/3/builtins/functions.html#int) = 300) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
+### pudl.analysis.timeseries_cleaning.impute_latc_tubal(tensor: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), lags: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/builtins/functions.html#int)] = [1], rho0: [float](https://docs.python.org/3/builtins/functions.html#float) = 1e-07, lambda0: [float](https://docs.python.org/3/builtins/functions.html#float) = 2e-07, epsilon: [float](https://docs.python.org/3/builtins/functions.html#float) = 1e-07, max_iterations: [int](https://docs.python.org/3/builtins/functions.html#int) = 300, min_iterations: [int](https://docs.python.org/3/builtins/functions.html#int) = 50) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
 
 Impute tensor values with LATC-Tubal method by Chen, Chen and Sun (2020).
 
@@ -5297,7 +5308,15 @@ with comparable accuracy.
   * **rho0**
   * **lambda0**
   * **epsilon** – Convergence criterion. A smaller number will result in more iterations.
-  * **maxiter** – Maximum number of iterations.
+  * **max_iterations** – Maximum number of iterations.
+  * **min_iterations** – Minimum number of iterations before the `epsilon`
+    convergence check is allowed to stop the loop. The relative change
+    between iterations dips sharply in the first ~10 iterations, before
+    bouncing back up by several orders of magnitude once the algorithm
+    starts doing real work, and the internal basis (`phi`) is recomputed
+    every 10 iterations thereafter, causing a smaller periodic
+    dip-and-bounce for the rest of the run. epsilon alone is not a safe
+    stopping criterion for iterations before this floor.
 * **Returns:**
   Tensor with missing values in tensor replaced by imputed values.
 
@@ -5535,7 +5554,7 @@ Summarize flagged values by flag, count and median.
 * **Parameters:**
   **imputed_df** – DataFrame
 
-### pudl.analysis.timeseries_cleaning.simulate_nulls(x: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), lengths: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/builtins/functions.html#int)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None, padding: [int](https://docs.python.org/3/builtins/functions.html#int) = 1, intersect: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, overlap: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
+### pudl.analysis.timeseries_cleaning.simulate_nulls(x: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), lengths: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[int](https://docs.python.org/3/builtins/functions.html#int)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None, padding: [int](https://docs.python.org/3/builtins/functions.html#int) = 1, intersect: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, overlap: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, rng: [numpy.random.Generator](https://numpy.org/doc/stable/reference/random/generator.html#numpy.random.Generator) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
 
 Find non-null values to null to match a run-length distribution.
 
@@ -5549,6 +5568,9 @@ Find non-null values to null to match a run-length distribution.
   * **intersect** – Whether simulated null runs can intersect each other.
   * **overlap** – Whether simulated null runs can overlap existing null runs. If
     `True`, `padding` is ignored.
+  * **rng** – Random number generator to use for choosing run positions. Pass a
+    seeded generator for reproducible output; defaults to a fresh,
+    unseeded generator.
 * **Returns:**
   Boolean mask of current non-null values to set to null.
 * **Raises:**
@@ -5790,11 +5812,27 @@ Imputation method to use.
 
 Override stated imputation method for specific years.
 
+#### method_override_for_latest_year *: Literal['tubal', 'tnn'] | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
+
+Override the imputation method for the most recent year in a given run.
+
+Unlike `method_overrides`, which is keyed by a specific calendar year and
+so is fixed at settings-construction (module import) time, this override is
+resolved at run time against the actual years being imputed (from
+`years_from_context`). Use this instead of hardcoding a year based on
+wall-clock date – e.g. `date.today().year` – which makes two builds of
+the same input data pick different methods depending on when they happen
+to run.
+
 #### simulate_flags_settings *: [SimulateFlagsSettings](autoapi/pudl/analysis/timeseries_cleaning/index.html.md#pudl.analysis.timeseries_cleaning.SimulateFlagsSettings) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
 Settings to simulate flagged values and score imputation.
 
 Defaults to None which will not do any simulation/scoring.
+
+### pudl.analysis.timeseries_cleaning.\_resolve_imputation_methods(years: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[int](https://docs.python.org/3/builtins/functions.html#int)], settings: [ImputeTimeseriesSettings](autoapi/pudl/analysis/timeseries_cleaning/index.html.md#pudl.analysis.timeseries_cleaning.ImputeTimeseriesSettings)) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[int](https://docs.python.org/3/builtins/functions.html#int), Literal['tubal', 'tnn']]
+
+Map each year being imputed to the method that should be used for it.
 
 ### pudl.analysis.timeseries_cleaning.impute_timeseries_asset_factory(input_asset_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), output_asset_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), years_from_context: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable), id_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str), value_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'demand_mwh', imputed_value_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'demand_imputed_mwh', reported_value_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'demand_reported_mwh', simulation_group_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, output_io_manager_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'parquet_io_manager', op_tags: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any] | [None](https://docs.python.org/3/builtins/constants.html#None) = None, settings: [ImputeTimeseriesSettings](autoapi/pudl/analysis/timeseries_cleaning/index.html.md#pudl.analysis.timeseries_cleaning.ImputeTimeseriesSettings) = ImputeTimeseriesSettings()) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
@@ -12715,7 +12753,7 @@ with cleaning and restructuring dataframes.
 | [`_read_typed_csv_rejecting_narrowing`](autoapi/pudl/helpers/index.html.md#pudl.helpers._read_typed_csv_rejecting_narrowing)(...)                 | Read a CSV with explicit column types, without silently rounding bad data.                                                                                                                                                                                        |
 | [`duckdb_extract_zipped_csv`](autoapi/pudl/helpers/index.html.md#pudl.helpers.duckdb_extract_zipped_csv)(, column_types, dict[str, ...) | Extract data from zipped CSV page(s) in a data archive.                                                                                                                                                                                                           |
 | [`normalize_year_fragments`](autoapi/pudl/helpers/index.html.md#pudl.helpers.normalize_year_fragments)(→ pandas.Series)                | Normalize year fragments into 4-digit years using a rolling-century rule.                                                                                                                                                                                         |
-| [`make_changelog`](autoapi/pudl/helpers/index.html.md#pudl.helpers.make_changelog)(df_all, idx)                              | Make a changelog table with unique instances of values over start report and max report date.                                                                                                                                                                     |
+| [`make_changelog`](autoapi/pudl/helpers/index.html.md#pudl.helpers.make_changelog)(→ pandas.DataFrame)                       | Make a changelog table with unique instances of values over time.                                                                                                                                                                                                 |
 | [`parse_address`](autoapi/pudl/helpers/index.html.md#pudl.helpers.parse_address)(addr)                                      | Parse a U.S. address into components.                                                                                                                                                                                                                             |
 | [`listify`](autoapi/pudl/helpers/index.html.md#pudl.helpers.listify)(→ list[Any])                                     | Listify an input that is sometimes a list and sometimes not.                                                                                                                                                                                                      |
 | [`env_var_is_true`](autoapi/pudl/helpers/index.html.md#pudl.helpers.env_var_is_true)(→ bool)                                  | Check that environment variable is a 'truthy' value.                                                                                                                                                                                                              |
@@ -13999,9 +14037,17 @@ For example, with `base_century=2000` and `max_valid_year=2026`:
   [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – If the valid year range is too wide to apply the rolling-century
   logic, or if any resulting year falls outside the valid range.
 
-### pudl.helpers.make_changelog(df_all: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), idx: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)])
+### pudl.helpers.make_changelog(df_all: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), idx: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
-Make a changelog table with unique instances of values over start report and max report date.
+Make a changelog table with unique instances of values over time.
+
+Each record is valid from its `report_date` until the `report_date` of the next
+distinct record in the same series. A series is a unique combination of the
+non-date `idx` columns and, if present, `column_name` (as in the “tall” forensics
+tables, where many different columns and values share one entity ID). Records
+reported on the entity’s last report date are valid for one more month.
+
+The output is fully sorted, so it doesn’t depend on the order of the input rows.
 
 ### pudl.helpers.parse_address(addr: [str](https://docs.python.org/3/builtins/stdtypes.html#str))
 
@@ -42422,6 +42468,7 @@ df <- read_parquet(
 | **Field Name**        | **Type**   | **Unit**   | **Description**                                                                                                                                                                                                                                                                                                                              |
 |-----------------------|------------|------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | ending_balance        | number     | USD        | Account balance at end of year.                                                                                                                                                                                                                                                                                                              |
+| ferc_account          | string     |            | Actual FERC Account number (e.g. ‘359.1’) if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting.                                                                                                                                                                                                   |
 | in_rate_base          | boolean    |            | Whether or not a record from the detailed FERC1 accounting tables should be considered allowable in a utility’s rate base based on utility accounting standards. This flag was manually compiled by RMI utility accounting experts based on the xbrl_factoid and sometimes varies based on the utility_type, plant_status or plant_function. |
 | plant_function        | string     |            | Functional role played by utility plant (steam production, nuclear production, distribution, transmission, etc.).                                                                                                                                                                                                                            |
 | plant_status          | string     |            | Utility plant financial status (in service, future, leased, total).                                                                                                                                                                                                                                                                          |
@@ -42522,6 +42569,7 @@ df <- read_parquet(
 | **Field Name**        | **Type**   | **Unit**   | **Description**                                                                                                                                                                                                                                                                                                                              |
 |-----------------------|------------|------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | ending_balance        | number     | USD        | Account balance at end of year.                                                                                                                                                                                                                                                                                                              |
+| ferc_account          | string     |            | Actual FERC Account number (e.g. ‘359.1’) if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting.                                                                                                                                                                                                   |
 | in_rate_base          | boolean    |            | Whether or not a record from the detailed FERC1 accounting tables should be considered allowable in a utility’s rate base based on utility accounting standards. This flag was manually compiled by RMI utility accounting experts based on the xbrl_factoid and sometimes varies based on the utility_type, plant_status or plant_function. |
 | rate_base_category    | string     |            | A category of asset or liability that RMI compiled to use as a shorthand for various types of utility assets. These tags were compiled manually based on the xbrl_factoid and sometimes varies based on the utility_type, plant_function or plant_status as well.                                                                            |
 | report_year           | integer    |            | Four-digit year in which the data was reported.                                                                                                                                                                                                                                                                                              |
@@ -43734,7 +43782,7 @@ Here are the three direct upstream inputs - the two `detailed` tables have sever
 * [core_ferc1_\_yearly_operating_expenses_sched320](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-operating-expenses-sched320)
 
 We applied slight modifications to three columns (utility_type, plant_function & plant_status) as compared to the originally reported values in our core tables. The modifications were applied to either provide more specificity (i.e. we converted some total utility_type’s into electric) or to condense similar categories for easier analysis (i.e. creating a hydraulic_production plant_function by combining hydraulic_production_conventional and hydraulic_production_pumped_storage).
-See `pudl.output.ferc1.Exploder` for more details. This table was made entirely with support and direction from RMI.
+Note that in the 2025 taxonomy, additional plant functions (solar, wind, energy storage, other renewables) were added - these plant functions have not been retroactively applied to prior taxonomies, and will appear under ‘other_production’ in prior years. See `pudl.output.ferc1.Exploder` for more details. This table was made entirely with support and direction from RMI.
 
 ### Access methods
 
@@ -77816,6 +77864,31 @@ script in the terminal. From within the pudl repo directory, run:
 python src/pudl/transform/ferc1.py
 ```
 
+**4.B.7)** Update the rate base table. If any new XBRL factoids have been added, verify
+that they appear in the rate base table as expected (e.g., with correct
+`plant_function`). By default, tags will inherit the properties of factoids up and
+downstream of them - sometimes, this results in unexpected or undesired results.
+To fix any issues with the rate base table, update the following:
+
+* Factoid not in rate base when it should be, or vice versa? Update
+  `src/pudl/package_data/ferc1/xbrl_factoid_rate_base_tags.csv`
+* Missing calculation components: update
+  `src/pudl/package_data/ferc1/xbrl_calculation_component_fixes.csv`
+* Incorrect rate base category: update
+  `src/pudl/package_data/ferc1/xbrl_factoid_rate_base_category_tags.csv`
+* Incorrect plant function: update
+  `src/pudl/package_data/ferc1/xbrl_factoid_plant_function_tags.csv`
+* Incorrect plant status: update
+  `src/pudl/package_data/ferc1/xbrl_factoid_plant_status_tags.csv` (rarely overridden)
+* Incorrect utility type: update
+  `src/pudl/package_data/ferc1/xbrl_factoid_utility_type_tags.csv` (rarely overridden)
+* Incorrect revenue requirement tags: update
+  `src/pudl/package_data/ferc1/xbrl_factoid_revenue_requirement_tags.csv`
+  (rarely overridden)
+
+Make sure to update the `notes` column or add one to document the reasoning for your
+update.
+
 ### C. EPA CEMS
 
 **4.C.1)** Use dagster to materialize the `core_epacems` asset group and debug. The
@@ -81271,7 +81344,7 @@ The above authors applied their methods to the EIA-930 hourly electricity demand
 reported by balancing authorities (BAs). We re-implemented the anomaly detection
 heuristics in PUDL and now apply them to both EIA-930 and the very similar FERC-714
 demand data reported by electricity planning areas. The FERC-714 longer history (going
-back to 2006, vs.  2015 for the EIA-930).
+back to 2006, vs. 2015 for the EIA-930).
 
 ### Exploratory Notebooks
 
@@ -81451,6 +81524,17 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
 
 ### Bug Fixes & Data Cleaning
 
+* Made the [EIA-930](data_sources/eia930.html.md) and [FERC-714](data_sources/ferc714.html.md) hourly demand imputation deterministic. The underlying
+  tensor-completion algorithm previously relied on a unseeded random subsampling
+  mechanism which meant `demand_imputed_pudl_mwh` values could shift slightly from one
+  build to the next. For our hourly annual (8760) imputation blocks, the subsampling
+  wasn’t any faster than using all the data points, so we removed it. Added a guard
+  against the algorithm stopping prematurely on a transient dip in its convergence
+  metric. This was never observed happening, but seemed uncomfortably close to the set
+  tolerance. Also stopped replacing values that were not flagged for imputation with the
+  values estimated by the tensor completion. They should match the original reported
+  value exactly now, rather than carrying tiny model reconstruction error. Tightened the
+  corresponding dbt tolerance tests accordingly. See [#5649](https://github.com/catalyst-cooperative/pudl/issues/5649) and [#5656](https://github.com/catalyst-cooperative/pudl/pull/5656).
 * Fixed `allocate_gen_fuel.py` silently dropping legitimate generation and fuel
   data for generators transitioning between `proposed`/`existing` or
   `existing`/`retired` status across a multi-year ETL run. Unified the slightly
@@ -81470,6 +81554,20 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
   [core_ferc1_\_yearly_cash_flows_sched120](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-cash-flows-sched120) without `row_type_xbrl`,
   `is_within_table_calc`, `balance`, or `ferc_account` metadata. See
   [#5587](https://github.com/catalyst-cooperative/pudl/issues/5587) and [#5588](https://github.com/catalyst-cooperative/pudl/pull/5588).
+* Fixed tags for new 2025 XBRL factoids and rescued the `ferc_account` field in
+  [out_ferc1_\_yearly_rate_base](data_dictionaries/pudl_db.html.md#out-ferc1-yearly-rate-base). See [#5520](https://github.com/catalyst-cooperative/pudl/issues/5520) and [#5597](https://github.com/catalyst-cooperative/pudl/pull/5597).
+* Fixed `valid_until_date` in the `_core_eia__forensics_entity_resolution_*` and
+  `_core_rus*__forensics_entity_resolution_borrowers` tables. Each record’s end date
+  was being drawn from an unrelated column of the same entity, and ties were sorted
+  arbitrarily, so values were often wrong and changed between builds. It’s now the next
+  change in the same column, and the output is deterministic. See [#5608](https://github.com/catalyst-cooperative/pudl/issues/5608) and
+  [#5641](https://github.com/catalyst-cooperative/pudl/pull/5641).
+* Made the FERC 1 to EIA plant-parts record linkage reproducible. The splink model
+  sampled record pairs without a seed and broke ties between equally probable matches
+  arbitrarily, so about 1% of the matches in
+  [out_pudl_\_yearly_assn_eia_ferc1_plant_parts](data_dictionaries/pudl_db.html.md#out-pudl-yearly-assn-eia-ferc1-plant-parts) changed on every run even with
+  identical inputs. The sampling is now seeded and ties are broken by EIA record ID. See
+  [#5610](https://github.com/catalyst-cooperative/pudl/issues/5610) and [#5643](https://github.com/catalyst-cooperative/pudl/pull/5643).
 
 ### Performance Improvements
 

@@ -1445,9 +1445,17 @@ Module Contents
        logic, or if any resulting year falls outside the valid range.
 
 
-.. py:function:: make_changelog(df_all: pandas.DataFrame, idx: list[str])
+.. py:function:: make_changelog(df_all: pandas.DataFrame, idx: list[str]) -> pandas.DataFrame
 
-   Make a changelog table with unique instances of values over start report and max report date.
+   Make a changelog table with unique instances of values over time.
+
+   Each record is valid from its ``report_date`` until the ``report_date`` of the next
+   distinct record in the same series. A series is a unique combination of the
+   non-date ``idx`` columns and, if present, ``column_name`` (as in the "tall" forensics
+   tables, where many different columns and values share one entity ID). Records
+   reported on the entity's last report date are valid for one more month.
+
+   The output is fully sorted, so it doesn't depend on the order of the input rows.
 
 
 .. py:function:: parse_address(addr: str)

@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.resources.ferc1 &#8212; PUDL 2026.9.1.dev22 documentation</title>
+    <title>pudl.metadata.resources.ferc1 &#8212; PUDL 2026.9.1.dev26 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../../_static/documentation_options.js?v=7a274438"></script>
+    <script src="../../../../_static/documentation_options.js?v=b2b59f63"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev22 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev22 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev26 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev26 documentation - Home"/>
   
   
 </a></div>
@@ -3108,6 +3108,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="s2">"plant_status"</span><span class="p">,</span>
                 <span class="s2">"ending_balance"</span><span class="p">,</span>
                 <span class="s2">"utility_type_other"</span><span class="p">,</span>
+                <span class="s2">"ferc_account"</span><span class="p">,</span>
                 <span class="s2">"in_rate_base"</span><span class="p">,</span>
                 <span class="s2">"rate_base_category"</span><span class="p">,</span>
                 <span class="s2">"table_name"</span><span class="p">,</span>
@@ -3149,6 +3150,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="s2">"xbrl_factoid"</span><span class="p">,</span>
                 <span class="s2">"utility_type"</span><span class="p">,</span>
                 <span class="s2">"ending_balance"</span><span class="p">,</span>
+                <span class="s2">"ferc_account"</span><span class="p">,</span>
                 <span class="s2">"in_rate_base"</span><span class="p">,</span>
                 <span class="s2">"rate_base_category"</span><span class="p">,</span>
                 <span class="s2">"table_name"</span><span class="p">,</span>
@@ -3179,6 +3181,9 @@ window.runMermaid = runMermaid;</script>
                 <span class="s2">"some `total` utility_type's into `electric`) or to condense similar categories "</span>
                 <span class="s2">"for easier analysis (i.e. creating a `hydraulic_production` plant_function by "</span>
                 <span class="s2">"combining `hydraulic_production_conventional` and `hydraulic_production_pumped_storage`).</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"Note that in the 2025 taxonomy, additional plant functions (solar, wind, energy storage, "</span>
+                <span class="s2">"other renewables) were added - these plant functions have not been retroactively applied "</span>
+                <span class="s2">"to prior taxonomies, and will appear under 'other_production' in prior years. "</span>
                 <span class="s2">"See ``pudl.output.ferc1.Exploder`` for more details. This table was made entirely with "</span>
                 <span class="s2">"support and direction from RMI."</span>
             <span class="p">),</span>

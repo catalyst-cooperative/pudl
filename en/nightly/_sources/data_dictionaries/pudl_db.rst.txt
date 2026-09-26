@@ -12162,6 +12162,10 @@ Columns
     - number
     - USD
     - Account balance at end of year.
+  * - ferc_account
+    - string
+    - 
+    - Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting.
   * - in_rate_base
     - boolean
     - 
@@ -12329,6 +12333,10 @@ Columns
     - number
     - USD
     - Account balance at end of year.
+  * - ferc_account
+    - string
+    - 
+    - Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting.
   * - in_rate_base
     - boolean
     - 
@@ -14523,7 +14531,7 @@ Here are the three direct upstream inputs - the two ``detailed`` tables have sev
 * :ref:`core_ferc1__yearly_operating_expenses_sched320`
 
 We applied slight modifications to three columns (utility_type, plant_function & plant_status) as compared to the originally reported values in our core tables. The modifications were applied to either provide more specificity (i.e. we converted some `total` utility_type's into `electric`) or to condense similar categories for easier analysis (i.e. creating a `hydraulic_production` plant_function by combining `hydraulic_production_conventional` and `hydraulic_production_pumped_storage`).
-See ``pudl.output.ferc1.Exploder`` for more details. This table was made entirely with support and direction from RMI.
+Note that in the 2025 taxonomy, additional plant functions (solar, wind, energy storage, other renewables) were added - these plant functions have not been retroactively applied to prior taxonomies, and will appear under 'other_production' in prior years. See ``pudl.output.ferc1.Exploder`` for more details. This table was made entirely with support and direction from RMI.
 
 Access methods
 ^^^^^^^^^^^^^^^

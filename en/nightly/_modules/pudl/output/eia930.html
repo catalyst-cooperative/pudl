@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.output.eia930 &#8212; PUDL 2026.9.1.dev22 documentation</title>
+    <title>pudl.output.eia930 &#8212; PUDL 2026.9.1.dev26 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../_static/documentation_options.js?v=7a274438"></script>
+    <script src="../../../_static/documentation_options.js?v=b2b59f63"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev22 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev22 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev26 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev26 documentation - Home"/>
   
   
 </a></div>
@@ -876,8 +876,6 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">at :doc:`/methodology/timeseries_imputation`</span>
 <span class="sd">"""</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">date</span>
-
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="kn">import</span> <span class="n">AssetOut</span><span class="p">,</span> <span class="n">Output</span><span class="p">,</span> <span class="n">asset</span><span class="p">,</span> <span class="n">multi_asset</span>
 
@@ -1015,9 +1013,12 @@ window.runMermaid = runMermaid;</script>
     <span class="n">simulation_group_col</span><span class="o">=</span><span class="s2">"granularity"</span><span class="p">,</span>
     <span class="n">output_io_manager_key</span><span class="o">=</span><span class="s2">"io_manager"</span><span class="p">,</span>
     <span class="n">settings</span><span class="o">=</span><span class="n">ImputeTimeseriesSettings</span><span class="p">(</span>
-        <span class="c1"># The tnn method tends to work better when year is incomplete, so use</span>
-        <span class="c1"># when imputing current year</span>
-        <span class="n">method_overrides</span><span class="o">=</span><span class="p">{</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">year</span><span class="p">:</span> <span class="s2">"tnn"</span><span class="p">},</span>
+        <span class="c1"># The tnn method tends to work better when a year is incomplete, so use</span>
+        <span class="c1"># it for the most recent (likely still-incomplete) year in the run.</span>
+        <span class="c1"># Resolved at run time against the configured years, not wall-clock</span>
+        <span class="c1"># date, so the choice doesn't depend on when the build happens to run.</span>
+        <span class="c1"># See PUDL issue #5649.</span>
+        <span class="n">method_override_for_latest_year</span><span class="o">=</span><span class="s2">"tnn"</span><span class="p">,</span>
     <span class="p">),</span>
 <span class="p">)</span></div>
 

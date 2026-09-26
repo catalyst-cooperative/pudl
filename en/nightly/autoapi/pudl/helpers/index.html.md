@@ -95,7 +95,7 @@ with cleaning and restructuring dataframes.
 | [`_read_typed_csv_rejecting_narrowing`](#pudl.helpers._read_typed_csv_rejecting_narrowing)(...)                 | Read a CSV with explicit column types, without silently rounding bad data.                                                                                                                                                                                        |
 | [`duckdb_extract_zipped_csv`](#pudl.helpers.duckdb_extract_zipped_csv)(, column_types, dict[str, ...) | Extract data from zipped CSV page(s) in a data archive.                                                                                                                                                                                                           |
 | [`normalize_year_fragments`](#pudl.helpers.normalize_year_fragments)(→ pandas.Series)                | Normalize year fragments into 4-digit years using a rolling-century rule.                                                                                                                                                                                         |
-| [`make_changelog`](#pudl.helpers.make_changelog)(df_all, idx)                              | Make a changelog table with unique instances of values over start report and max report date.                                                                                                                                                                     |
+| [`make_changelog`](#pudl.helpers.make_changelog)(→ pandas.DataFrame)                       | Make a changelog table with unique instances of values over time.                                                                                                                                                                                                 |
 | [`parse_address`](#pudl.helpers.parse_address)(addr)                                      | Parse a U.S. address into components.                                                                                                                                                                                                                             |
 | [`listify`](#pudl.helpers.listify)(→ list[Any])                                     | Listify an input that is sometimes a list and sometimes not.                                                                                                                                                                                                      |
 | [`env_var_is_true`](#pudl.helpers.env_var_is_true)(→ bool)                                  | Check that environment variable is a 'truthy' value.                                                                                                                                                                                                              |
@@ -1379,9 +1379,17 @@ For example, with `base_century=2000` and `max_valid_year=2026`:
   [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – If the valid year range is too wide to apply the rolling-century
   logic, or if any resulting year falls outside the valid range.
 
-### pudl.helpers.make_changelog(df_all: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), idx: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)])
+### pudl.helpers.make_changelog(df_all: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), idx: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
-Make a changelog table with unique instances of values over start report and max report date.
+Make a changelog table with unique instances of values over time.
+
+Each record is valid from its `report_date` until the `report_date` of the next
+distinct record in the same series. A series is a unique combination of the
+non-date `idx` columns and, if present, `column_name` (as in the “tall” forensics
+tables, where many different columns and values share one entity ID). Records
+reported on the entity’s last report date are valid for one more month.
+
+The output is fully sorted, so it doesn’t depend on the order of the input rows.
 
 ### pudl.helpers.parse_address(addr: [str](https://docs.python.org/3/builtins/stdtypes.html#str))
 
