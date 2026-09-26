@@ -122,6 +122,20 @@ Bug Fixes & Data Cleaning
   every scaled value happened to be integral and ``float64`` otherwise. This affects the
   dtypes of ``out_eia__yearly_generators_by_ownership`` and the tables built from it.
   See :issue:`5613` and :pr:`5627`.
+* Fixed tags for new 2025 XBRL factoids and rescued the ``ferc_account`` field in
+  :ref:`out_ferc1__yearly_rate_base`. See :issue:`5520` and :pr:`5597`.
+* Fixed ``valid_until_date`` in the ``_core_eia__forensics_entity_resolution_*`` and
+  ``_core_rus*__forensics_entity_resolution_borrowers`` tables. Each record's end date
+  was being drawn from an unrelated column of the same entity, and ties were sorted
+  arbitrarily, so values were often wrong and changed between builds. It's now the next
+  change in the same column, and the output is deterministic. See :issue:`5608` and
+  :pr:`5641`.
+* Made the FERC 1 to EIA plant-parts record linkage reproducible. The splink model
+  sampled record pairs without a seed and broke ties between equally probable matches
+  arbitrarily, so about 1% of the matches in
+  :ref:`out_pudl__yearly_assn_eia_ferc1_plant_parts` changed on every run even with
+  identical inputs. The sampling is now seeded and ties are broken by EIA record ID. See
+  :issue:`5610` and :pr:`5643`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
