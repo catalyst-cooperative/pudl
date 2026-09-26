@@ -90,9 +90,7 @@ def _parse_data_column(elec_df: pd.DataFrame) -> pd.DataFrame:
         out.append(data_df)
     out = pd.concat(out, ignore_index=True, axis=0)
     out = out.convert_dtypes()
-    out["series_id"] = (
-        out["series_id"].astype("string", copy=False).astype("category", copy=False)
-    )
+    out["series_id"] = out["series_id"].astype("string").astype("category")
     return out.loc[:, ["series_id", "date", "value"]]  # reorder cols
 
 

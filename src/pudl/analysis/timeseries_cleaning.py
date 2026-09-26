@@ -149,7 +149,7 @@ def _shift_utc(utc: pd.Series, utc_offset: pd.Series) -> pd.Series:
         >>> _shift_utc(s, [-7, -6])
         0   2019-12-31 17:00:00
         1   2019-12-31 18:00:00
-        dtype: datetime64[ns]
+        dtype: datetime64[us]
     """
     return utc + pd.to_timedelta(utc_offset, unit="hours")
 

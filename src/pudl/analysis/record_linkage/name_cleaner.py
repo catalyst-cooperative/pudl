@@ -9,6 +9,7 @@ import pandas as pd
 from pydantic import BaseModel, Field, model_validator
 
 from pudl import PUDL_SETTINGS_PATH
+from pudl.helpers import UNICODE_WHITESPACE_REGEX
 from pudl.logging_helpers import get_logger
 
 logger = get_logger(__name__)
@@ -326,7 +327,7 @@ class CompanyNameCleaner(BaseModel):
 
         # Remove excess of white space that might be introduced during previous cleaning
         clean_col = clean_col.str.strip()
-        clean_col = clean_col.str.replace(r"\s+", " ", regex=True)
+        clean_col = clean_col.str.replace(UNICODE_WHITESPACE_REGEX, " ", regex=True)
 
         return clean_col
 

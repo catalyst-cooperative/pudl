@@ -22,6 +22,7 @@ from shapely.geometry import Point
 
 import pudl.helpers
 from pudl.helpers import (
+    UNICODE_WHITESPACE_REGEX,
     ParquetData,
     add_fips_ids,
     apply_pudl_dtypes,
@@ -40,10 +41,13 @@ from pudl.helpers import (
     get_parquet_table,
     get_parquet_table_polars,
     make_changelog,
+    month_year_to_date,
     normalize_year_fragments,
+    null_dates_outside_ns_bounds,
     persist_table_as_parquet,
     remove_leading_zeros_from_numeric_strings,
     retry,
+    simplify_strings,
     standardize_na_values,
     standardize_percentages_ratio,
     standardize_phone_column,
@@ -488,6 +492,50 @@ def test_convert_to_date():
     assert_frame_equal(out_df, expected_df)
 
 
+def test_null_dates_outside_ns_bounds():
+    """Dates that overflow nanosecond resolution are nulled, like they were in pandas 2."""
+    dates = pd.to_datetime(
+        pd.Series(["0006-03-29", "1677-09-21", "2001-04-11", None, "9650-06-01"]),
+        errors="coerce",
+    )
+    out = null_dates_outside_ns_bounds(dates)
+    assert out.dtype == dates.dtype
+    assert out.isna().tolist() == [True, True, False, True, True]
+    assert out[2] == pd.Timestamp("2001-04-11")
+
+
+def test_month_year_to_date_nulls_out_of_bounds_dates():
+    """Implausible operating years become NaT instead of a bogus timestamp."""
+    in_df = pd.DataFrame(
+        {
+            "boiler_operating_month": [6, 12, 3],
+            "boiler_operating_year": [9650, 1559, 2010],
+        }
+    )
+    out = month_year_to_date(in_df)
+    assert list(out.columns) == ["boiler_operating_date"]
+    assert out["boiler_operating_date"].isna().tolist() == [True, True, False]
+    assert out["boiler_operating_date"].iloc[2] == pd.Timestamp("2010-03-01")
+
+
+@pytest.mark.parametrize("dtype", [object, "string", str])
+def test_unicode_whitespace_regex(dtype):
+    """Unicode whitespace is collapsed for every string dtype, as it was in pandas 2."""
+    col = pd.Series(
+        ["4809\xa0Jefferson\xa0Highway", "a\u2009 b\u3000c", "d  e"], dtype=dtype
+    )
+    out = col.str.replace(UNICODE_WHITESPACE_REGEX, " ", regex=True)
+    assert out.tolist() == ["4809 Jefferson Highway", "a b c", "d e"]
+
+
+def test_simplify_strings_collapses_non_breaking_spaces():
+    """Non-breaking spaces are normalized like other whitespace."""
+    in_df = pd.DataFrame({"addr": ["  4809\xa0Jefferson\xa0\xa0Highway ", None]})
+    out_df = simplify_strings(in_df, columns=["addr"])
+    assert out_df["addr"].iloc[0] == "4809 jefferson highway"
+    assert pd.isna(out_df["addr"].iloc[1])
+
+
 def test_standardize_na_values():
     """Test cleanup of bad EIA spreadsheet NA values."""
     in_df = pd.DataFrame(
@@ -515,12 +563,12 @@ def test_standardize_na_values():
                 "0.",
                 ".0",
                 "..",
-                pd.NA,
-                pd.NA,
-                pd.NA,
-                pd.NA,
-                pd.NA,
-                pd.NA,
+                np.nan,
+                np.nan,
+                np.nan,
+                np.nan,
+                np.nan,
+                np.nan,
             ]
         }
     )
@@ -711,8 +759,13 @@ def test_diff_wide_tables():
     assert empty_diff.changed.empty
 
     def assert_diff_equal(observed, expected):
-        observed_reshaped = observed.droplevel(level=0, axis="columns")
-        expected_reshaped = expected.set_index(observed_reshaped.index.names)
+        # Under pandas 3.0 the melted value columns infer as the default string dtype
+        # (missing values as nan) rather than object (missing values as None); normalize
+        # both sides to nullable string so the comparison is about content, not sentinel.
+        observed_reshaped = observed.droplevel(level=0, axis="columns").astype("string")
+        expected_reshaped = expected.set_index(observed_reshaped.index.names).astype(
+            "string"
+        )
         assert_frame_equal(observed_reshaped, expected_reshaped)
 
     diff_output = diff_wide_tables(primary_key=["u_id", "year"], old=old, new=new)

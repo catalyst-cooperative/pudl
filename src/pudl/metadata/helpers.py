@@ -457,7 +457,7 @@ def groupby_apply(
         >>> report['y']
         x
         1    Not unique.
-        dtype: object
+        dtype: str
         >>> error = lambda x, e: (x.name, as_dict(x))
         >>> _, report = groupby_apply(**base, raised=False, error=error)
         >>> report['y']
@@ -589,5 +589,5 @@ def groupby_aggregate(
                 reports[col] = report
         result = result.where(~is_error)
     # Enforce original data types, which nulls and errors may have changed
-    result = result.astype(dtypes, copy=False)
+    result = result.astype(dtypes)
     return result, reports

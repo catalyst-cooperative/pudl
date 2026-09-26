@@ -177,6 +177,35 @@ Developer Experience
   in places where an object that might be ``None`` was subject to a regex match, dict
   lookup, or other operation that would fail on ``None``. See PR :pr:`5583`.
 
+Major Dependency Updates
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Pandas 3.0
+~~~~~~~~~~
+
+* Upgraded to ``pandas`` 3.x. PUDL's transform code was updated for the pandas 3.0
+  behavior changes it relied on: the new default string dtype (PDEP-14), the removal
+  of silent dtype upcasting on ``setitem`` (PDEP-6), mandatory Copy-on-Write, the
+  exclusion of grouping columns from ``groupby(...).apply`` (and removal of
+  ``include_groups``), and ``DataFrame.to_sql`` now wrapping database errors in
+  ``pandas.errors.DatabaseError``. Notably, columns scaled by an ownership fraction in
+  :func:`pudl.helpers.scale_by_ownership` (feeding
+  :ref:`out_eia__yearly_generators_by_ownership` and the plant parts list) are now
+  consistently nullable ``Float64``. See PR :pr:`5130`.
+* Kept missing EIA-860M ``generator_id`` and ``boiler_id`` values as the string
+  ``"nan"``, as they were under pandas 2, so the upgrade doesn't drop the plants,
+  utilities and EIA-923 data that only appear in records with no generator ID. See
+  issue :issue:`5645` and PR :pr:`5130`.
+* Kept dates outside the range pandas can represent with nanosecond resolution (years
+  before 1677 or after 2262) as ``NaT``, as they were under pandas 2, rather than
+  letting pandas 3 keep typos like the year ``0006``. This affects FERC 1 certification
+  dates and EIA-860 ``boiler_operating_date``. See issue :issue:`5644` and PR
+  :pr:`5130`.
+* Made whitespace normalization treat Unicode whitespace like the non-breaking space
+  as whitespace on pandas 3's default string dtype, whose regex engine only matches
+  ASCII whitespace with ``\s``. This fixes a ``street_address`` in
+  :ref:`core_ferc__entity_companies`. See issue :issue:`5646` and PR :pr:`5130`.
+
 .. _release-v2026.9.0:
 
 ---------------------------------------------------------------------------------------

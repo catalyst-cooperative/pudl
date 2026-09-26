@@ -731,4 +731,4 @@ def core_phmsagas__yearly_distribution_by_install_decade(
         lower=0
     )  # Based on communication from PHMSA on 08/26, negative mains/services values should be set to zero.
     _assert_install_decade_totals_match_expected(df)
-    return df.loc[non_total_decade_mask].copy()
+    return df.loc[non_total_decade_mask]

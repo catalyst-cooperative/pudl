@@ -766,8 +766,8 @@ def _tidy_class_dfs(
         rf"{class_list_regex}", n=1, expand=True
     ).set_names([class_type, None])
     # Now stack the customer classes into their own categorical column,
-    data_cols = data_cols.stack(level=0, future_stack=True).reset_index()
-    # future_stack=True doesn't unify heterogeneous per-column extension dtypes
+    data_cols = data_cols.stack(level=0).reset_index()
+    # The pandas 3 stack() doesn't unify heterogeneous per-column extension dtypes
     # (e.g. some class-suffixed source columns are Int64, others Float64) the way
     # the old stack() implementation did, so the stacked value columns can come
     # back as generic object dtype. Restore proper nullable dtypes so downstream
@@ -1526,9 +1526,7 @@ def core_eia861__yearly_demand_response(raw_eia861__demand_response: pd.DataFram
     raw_dr["short_form"] = _make_yn_bool(raw_dr.short_form)
 
     # Split data into tidy-able and not
-    raw_dr_water_heater = raw_dr[
-        idx_cols + ["num_water_heaters", "data_maturity"]
-    ].copy()
+    raw_dr_water_heater = raw_dr[idx_cols + ["num_water_heaters", "data_maturity"]]
     dr_water = _drop_dupes(
         df=raw_dr_water_heater, df_name="Demand Response Water Heater", subset=idx_cols
     )
@@ -1659,7 +1657,7 @@ def core_demand_side_management_eia861(
     ).drop(columns=["has_demand_side_management", "data_status"])
 
     # Separate dsm data into sales vs. other table (the latter of which can be tidied)
-    dsm_sales = transformed_dsm1[idx_cols + sales_cols].copy()
+    dsm_sales = transformed_dsm1[idx_cols + sales_cols]
     dsm_ee_dr = transformed_dsm1.drop(
         columns=[x for x in sales_cols if x != "data_maturity"]
     )
@@ -1684,8 +1682,8 @@ def core_demand_side_management_eia861(
     ###########################################################################
 
     # Split tidy dsm data into transformable chunks
-    tidy_dsm_bool = tidy_dsm[dsm_idx_cols + bool_cols].copy().set_index(dsm_idx_cols)
-    tidy_dsm_cost = tidy_dsm[dsm_idx_cols + cost_cols].copy().set_index(dsm_idx_cols)
+    tidy_dsm_bool = tidy_dsm[dsm_idx_cols + bool_cols].set_index(dsm_idx_cols)
+    tidy_dsm_cost = tidy_dsm[dsm_idx_cols + cost_cols].set_index(dsm_idx_cols)
     tidy_dsm_ee_dr = tidy_dsm.drop(columns=bool_cols + cost_cols)
 
     # Calculate transformations for each chunk
@@ -1717,7 +1715,7 @@ def core_demand_side_management_eia861(
         + program_cols
         + total_cost_cols
         + ["data_maturity"]
-    ].copy()
+    ]
     dsm_misc = transformed_dsm2.drop(
         columns=ee_cols + dr_cols + program_cols + total_cost_cols + ["customer_class"]
     )
@@ -1841,9 +1839,9 @@ def core_distributed_generation_eia861(
     )
 
     # Split into three tables: Capacity/tech-related, fuel-related, and misc.
-    raw_dg_tech = raw_dg[idx_cols + tech_cols].copy()
-    raw_dg_fuel = raw_dg[idx_cols + fuel_cols].copy()
-    raw_dg_misc = raw_dg[idx_cols + misc_cols].copy()
+    raw_dg_tech = raw_dg[idx_cols + tech_cols]
+    raw_dg_fuel = raw_dg[idx_cols + fuel_cols]
+    raw_dg_misc = raw_dg[idx_cols + misc_cols]
 
     ###########################################################################
     # Transform Values:
@@ -2207,8 +2205,8 @@ def core_net_metering_eia861(raw_eia861__net_metering: pd.DataFrame):
 
     # Separate customer class data from misc data (in this case just one col: current flow)
     # Could easily add this to tech_class if desired.
-    raw_nm_customer_fuel_class = raw_nm.drop(columns=misc_cols).copy()
-    raw_nm_misc = raw_nm[idx_cols + misc_cols + ["data_maturity"]].copy()
+    raw_nm_customer_fuel_class = raw_nm.drop(columns=misc_cols)
+    raw_nm_misc = raw_nm[idx_cols + misc_cols + ["data_maturity"]]
 
     # Check for duplicates before idx cols get changed
     _ = _check_for_dupes(raw_nm_misc, "Net Metering Current Flow Type PV", idx_cols)
@@ -2309,8 +2307,8 @@ def core_non_net_metering_eia861(raw_eia861__non_net_metering: pd.DataFrame):
         )
 
     # Separate customer class data from misc data
-    raw_nnm_customer_fuel_class = raw_nnm.drop(columns=misc_cols).copy()
-    raw_nnm_misc = (raw_nnm[idx_cols + misc_cols + ["data_maturity"]]).copy()
+    raw_nnm_customer_fuel_class = raw_nnm.drop(columns=misc_cols)
+    raw_nnm_misc = raw_nnm[idx_cols + misc_cols + ["data_maturity"]]
 
     # Check for duplicates before idx cols get changed
     _ = _check_for_dupes(
@@ -2431,9 +2429,7 @@ def core_operational_data_eia861(raw_eia861__operational_data: pd.DataFrame):
     #  * Misc. (other)
     revenue_cols = [col for col in transformed_od if "revenue" in col]
     transformed_od_misc = transformed_od.drop(columns=revenue_cols)
-    transformed_od_rev = transformed_od[
-        idx_cols + revenue_cols + ["data_maturity"]
-    ].copy()
+    transformed_od_rev = transformed_od[idx_cols + revenue_cols + ["data_maturity"]]
 
     # Wide-to-tall revenue columns
     tidy_od_rev, idx_cols = _tidy_class_dfs(
@@ -2586,9 +2582,9 @@ def core_utility_data_eia861(raw_eia861__utility_data: pd.DataFrame):
     ]
     logger.info(f"{misc_cols=}")
     # Make separate tables for nerc vs. rto vs. misc data
-    raw_ud_nerc = transformed_ud[idx_cols + nerc_cols].copy()
-    raw_ud_rto = transformed_ud[idx_cols + rto_cols].copy()
-    raw_ud_misc = transformed_ud[misc_cols].copy()
+    raw_ud_nerc = transformed_ud[idx_cols + nerc_cols]
+    raw_ud_rto = transformed_ud[idx_cols + rto_cols]
+    raw_ud_misc = transformed_ud[misc_cols]
 
     ###########################################################################
     # Tidy Data:

@@ -1067,7 +1067,7 @@ class HourlyPlanningAreaDemand:
         # Clean UTC offset codes
         df["utc_offset_code"] = df["utc_offset_code"].str.strip().str.upper()
         # We only need a couple of columns here:
-        codes = df[["respondent_id_ferc714", "utc_offset_code"]].copy()
+        codes = df[["respondent_id_ferc714", "utc_offset_code"]]
         # Set all blank "" missing UTC codes to np.nan
         codes["utc_offset_code"] = codes.utc_offset_code.mask(
             codes.utc_offset_code == ""

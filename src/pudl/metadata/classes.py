@@ -644,7 +644,7 @@ class Field(PudlMeta):
     Examples:
         >>> field = Field(name='x', type='string', description='X', constraints={'enum': ['x', 'y']})
         >>> field.to_pandas_dtype()
-        CategoricalDtype(categories=['x', 'y'], ordered=False, categories_dtype=object)
+        CategoricalDtype(categories=['x', 'y'], ordered=False, categories_dtype=str)
         >>> field.to_sql()
         Column('x', Enum('x', 'y'), CheckConstraint(...), table=None, comment='X')
         >>> field = Field.from_id('utility_id_eia')
@@ -2188,7 +2188,6 @@ class Resource(PudlMeta):
         if matches is None:
             # Primary key present but no matches were found
             return self.format_df()
-        df = df.copy()
         # Rename periodic key columns (if any) to the requested period
         df = df.rename(columns=matches)
         # Cast integer year fields to datetime
@@ -2212,9 +2211,9 @@ class Resource(PudlMeta):
                     )
         df = (
             # Reorder columns and insert missing columns
-            df.reindex(columns=dtypes.keys(), copy=False)
+            df.reindex(columns=dtypes.keys())
             # Coerce columns to correct data type
-            .astype(dtypes, copy=False)
+            .astype(dtypes)
         )
         # Convert periodic key columns to the requested period
         for df_key, key in matches.items():
@@ -2978,21 +2977,16 @@ class Package(PudlMeta):
                 assert encoders[field.name].ignored_codes == field.encoder.ignored_codes
         return encoders
 
-    def encode(self, df: pd.DataFrame, copy: bool = True) -> pd.DataFrame:
+    def encode(self, df: pd.DataFrame) -> pd.DataFrame:
         """Clean up all coded columns in a dataframe based on PUDL coding tables.
-
-        Running with ``copy=False`` is intended for memory-intensive data frames where no
-        upstream process retains a reference to the data. Use care with this option,
-        and keep an eye out for spooky data changes showing up in unexpected places.
 
         Args:
             df: DataFrame whose code columns are being cleaned up.
-            copy: (Default True) Return a copy, making no changes to the original data.
 
         Returns:
             A dataframe with clean code columns.
         """
-        encoded_df = df.copy() if copy else df
+        encoded_df = df.copy()
         for col in encoded_df.columns:
             if col in self.encoders:
                 encoded_df[col] = self.encoders[col].encode(

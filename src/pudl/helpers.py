@@ -57,6 +57,34 @@ otherwise we'll get unrealistic heat rates.
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
+UNICODE_WHITESPACE_REGEX = (
+    "[\\s\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\x85]+"
+)
+"""Regex matching a run of ASCII or Unicode whitespace characters.
+
+Python's :mod:`re` matches Unicode whitespace like the non-breaking space with ``\\s``,
+but the RE2 engine that pyarrow uses for pandas' default ``str`` dtype only matches
+ASCII whitespace. Listing the characters explicitly gives the same result for ``object``,
+``string`` and ``str`` columns.
+"""
+
+
+def null_dates_outside_ns_bounds(dates: pd.Series) -> pd.Series:
+    """Set datetimes that can't be represented with nanosecond resolution to ``NaT``.
+
+    Pandas 2 always parsed datetimes at nanosecond resolution, so implausible dates
+    outside of 1677-09-21 to 2262-04-11 (typically typos like the year ``0006``)
+    overflowed and were coerced to ``NaT``. Pandas 3 infers a coarser resolution
+    and keeps them. This preserves the original behavior.
+
+    Args:
+        dates: A datetime Series, e.g. from ``pd.to_datetime(..., errors="coerce")``.
+
+    Returns:
+        The Series with out-of-bounds datetimes replaced by ``NaT``.
+    """
+    return dates.where(dates.between(pd.Timestamp.min, pd.Timestamp.max))
+
 
 def run_git(args: list[str], cwd: Path | None = None) -> str:
     """Run a git subcommand and return its stdout, logging stderr on failure.
@@ -185,7 +213,7 @@ def multi_index_stack(
     df.columns = pd.MultiIndex.from_frame(
         df.columns.str.extract(pattern, expand=True)
     ).set_names(match_names)
-    df = df.stack(level=unstack_level, future_stack=True).reset_index()
+    df = df.stack(level=unstack_level).reset_index()
     # remove the remaining multi-index
     df.columns = df.columns.map("".join)
     df = df.dropna(subset=data_cols, how="all")
@@ -433,7 +461,7 @@ def clean_eia_counties(
         df[county_col]
         .str.strip()
         # Condense multiple whitespace chars.
-        .str.replace(r"\s+", " ", regex=True)
+        .str.replace(UNICODE_WHITESPACE_REGEX, " ", regex=True)
         .str.replace(r"^St ", "St. ", regex=True)  # Standardize abbreviation.
         # Standardize abbreviation.
         .str.replace(r"^Ste ", "Ste. ", regex=True)
@@ -829,7 +857,7 @@ def expand_timeseries(
         pd.concat([df, end_dates.reset_index()])
         .set_index(date_col)
         .groupby(key_cols)
-        .resample(freq, include_groups=False)
+        .resample(freq)
         .ffill()
         .reset_index()
     )
@@ -863,9 +891,7 @@ def organize_cols(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
     return df[organized_cols]
 
 
-def simplify_strings(
-    df: pd.DataFrame, columns: list[str], copy: bool = True
-) -> pd.DataFrame:
+def simplify_strings(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
     """Simplify the strings contained in a set of dataframe columns.
 
     Performs several operations to simplify strings for comparison and parsing purposes.
@@ -875,19 +901,14 @@ def simplify_strings(
 
     Leaves null values unaltered. Casts other values with astype(str).
 
-    Running with ``copy=False`` is intended for memory-intensive data frames where no
-    upstream process retains a reference to the data. Use care with this option,
-    and keep an eye out for spooky data changes showing up in unexpected places.
-
     Args:
         df: DataFrame whose columns are being cleaned up.
         columns: The labels of the string columns to be simplified.
-        copy: (Default True) Return a copy, making no changes to the original data.
 
     Returns:
         The whole DataFrame that was passed in, with the string columns cleaned up.
     """
-    out_df = df.copy() if copy else df
+    out_df = df.copy()
     for col in columns:
         if col in out_df.columns:
             mask = out_df[col].notnull()
@@ -898,7 +919,7 @@ def simplify_strings(
                     .str.replace(r"[\x00-\x1f\x7f-\x9f]", "", regex=True)
                     .str.strip()
                     .str.lower()
-                    .str.replace(r"\s+", " ", regex=True)
+                    .str.replace(UNICODE_WHITESPACE_REGEX, " ", regex=True)
                 )
     return out_df
 
@@ -931,7 +952,10 @@ def cleanstrings_series(
     """
     if simplify:
         col = (
-            col.astype(str).str.strip().str.lower().str.replace(r"\s+", " ", regex=True)
+            col.astype(str)
+            .str.strip()
+            .str.lower()
+            .str.replace(UNICODE_WHITESPACE_REGEX, " ", regex=True)
         )
         for k in str_map:
             str_map[k] = [re.sub(r"\s+", " ", s.lower().strip()) for s in str_map[k]]
@@ -1108,8 +1132,8 @@ def month_year_to_date(df: pd.DataFrame) -> pd.DataFrame:
         years = df.loc[date_mask, year_col]
         months = df.loc[date_mask, month_col]
 
-        df.loc[date_mask, date_col] = pd.to_datetime(
-            {"year": years, "month": months, "day": 1}, errors="coerce"
+        df.loc[date_mask, date_col] = null_dates_outside_ns_bounds(
+            pd.to_datetime({"year": years, "month": months, "day": 1}, errors="coerce")
         )
 
         # Now that we've replaced these fields with a date, we drop them.
@@ -1126,7 +1150,6 @@ def convert_to_date(
     day_col: str = "report_day",
     month_na_value: int = 1,
     day_na_value: int = 1,
-    copy: bool = True,
 ) -> pd.DataFrame:
     """Convert specified year, month or day columns into a datetime object.
 
@@ -1134,10 +1157,6 @@ def convert_to_date(
     conversion is applied, and the original dataframe is returned unchanged.
     Otherwise the constructed date is placed in that column, and the columns
     which were used to create the date are dropped.
-
-    Running with ``copy=False`` is intended for memory-intensive data frames where no
-    upstream process retains a reference to the data. Use care with this option,
-    and keep an eye out for spooky data changes showing up in unexpected places.
 
     Args:
         df: dataframe to convert
@@ -1148,14 +1167,12 @@ def convert_to_date(
         month_na_value: generated month if no month exists or if the month
             value is NA.
         day_na_value: generated day if no day exists or if the day value is NA.
-        copy: (default True) return a copy, making no changes to the original data.
 
     Returns:
         A DataFrame in which the year, month, day columns values have been converted
         into datetime objects.
     """
-    if copy:
-        df = df.copy()
+    df = df.copy()
     if date_col in df.columns:
         return df
 
@@ -1172,10 +1189,7 @@ def convert_to_date(
     df[date_col] = pd.to_datetime({"year": year, "month": month, "day": day})
     cols_to_drop = [x for x in [day_col, year_col, month_col] if x in df.columns]
 
-    if copy:
-        return df.drop(cols_to_drop, axis="columns")
-    df.drop(cols_to_drop, axis="columns", inplace=True)  # noqa: PD002
-    return df
+    return df.drop(cols_to_drop, axis="columns")
 
 
 def remove_leading_zeros_from_numeric_strings(
@@ -1261,7 +1275,7 @@ def simplify_columns(df: pd.DataFrame) -> pd.DataFrame:
         df.columns.str.replace(r"[^0-9a-zA-Z]+", " ", regex=True)
         .str.strip()
         .str.lower()
-        .str.replace(r"\s+", " ", regex=True)
+        .str.replace(UNICODE_WHITESPACE_REGEX, " ", regex=True)
         .str.replace(" ", "_")
     )
     return df
@@ -1549,7 +1563,7 @@ def cleanstrings_snake(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
             .astype(pd.StringDtype())
             .str.strip()
             .str.lower()
-            .str.replace(r"\s+", "_", regex=True)
+            .str.replace(UNICODE_WHITESPACE_REGEX, "_", regex=True)
         )
     return df
 
@@ -2181,7 +2195,7 @@ def scale_by_ownership(
     gens = pd.concat(
         [
             gens,
-            gens.copy().assign(fraction_owned=1, ownership_record_type="total"),
+            gens.assign(fraction_owned=1, ownership_record_type="total"),
         ]
     )
     # Scaling by a fractional ownership share is inherently fractional, so cast the

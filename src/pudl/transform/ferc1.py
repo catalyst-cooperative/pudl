@@ -385,7 +385,7 @@ def wide_to_tidy(df: pd.DataFrame, params: WideToTidy) -> pd.DataFrame:
     )
     df_out.columns = new_cols
     df_out = (
-        df_out.stack(params.stacked_column_name, future_stack=True)
+        df_out.stack(params.stacked_column_name)
         .loc[:, params.value_types]
         .reset_index()
     )
@@ -628,7 +628,7 @@ def select_dbf_rows_by_category(
     # now select only the rows which contain the categories we want to include in the
     # column that we care about. Copy bc this is a slice of the og dataframe.
     category_mask = processed_dbf[params.column_name].isin(categories_to_select)
-    return processed_dbf.loc[category_mask].copy()
+    return processed_dbf.loc[category_mask]
 
 
 class UnstackBalancesToReportYearInstantXbrl(TransformParams):
@@ -1539,9 +1539,7 @@ class ErrorMetric(BaseModel):
         """
         # return a df instead of a series
         df["is_not_close"] = self.is_not_close(df)
-        return df.groupby(by=self.groupby_cols(), observed=True).apply(
-            self.metric, include_groups=False
-        )
+        return df.groupby(by=self.groupby_cols(), observed=True).apply(self.metric)
 
     def _snake_case_metric_name(self: Self) -> str:
         """Convert the TitleCase class name to a snake_case string."""
@@ -1624,7 +1622,7 @@ class NullCalculatedValueFrequency(ErrorMetric):
         return (
             df[df.row_type_xbrl == "calculated_value"]
             .groupby(self.groupby_cols(), observed=True)
-            .apply(self.metric, include_groups=False)
+            .apply(self.metric)
         )
 
     def metric(self: Self, gb: DataFrameGroupBy) -> pd.Series:
@@ -1677,7 +1675,7 @@ def add_corrections(
             atol=is_close_tolerance.isclose_atol,
         )
         & calculated_df["abs_diff"].notnull()
-    ].copy()
+    ]
     # fill in the nulls with zeros so we get a correction for records
     corrections[value_col] = corrections[value_col].fillna(0.0) - corrections[
         "calculated_value"
@@ -2795,7 +2793,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         """
         if "report_prd" in df and list(df.report_prd.unique()) != [12]:
             len_og = len(df)
-            df = df[df.report_prd == 12].copy()
+            df = df[df.report_prd == 12]
             logger.info(
                 f"{self.table_id.value}: After selection of only annual records,"
                 f" we have {len(df) / len_og:.1%} of the original table."
@@ -3367,7 +3365,9 @@ class IdentificationCertificationTableTransformer(Ferc1AbstractTableTransformer)
 
         date_cols = ["attestation_date", "filing_date", "name_change_date"]
         for col in date_cols:
-            df[col] = pd.to_datetime(df[col], errors="coerce")
+            df[col] = pudl.helpers.null_dates_outside_ns_bounds(
+                pd.to_datetime(df[col], errors="coerce")
+            )
 
         to_null = [
             "",
@@ -3682,8 +3682,8 @@ class SteamPlantsFuelTableTransformer(Ferc1AbstractTableTransformer):
         dupe_mask = fuel_xbrl.duplicated(subset=pk_cols, keep=False)
         multi_unit_mask = fuel_xbrl.fuel_units_count != 1
 
-        fuel_pk_dupes = fuel_xbrl[dupe_mask & ~multi_unit_mask].copy()
-        fuel_multi_unit = fuel_xbrl[dupe_mask & multi_unit_mask].copy()
+        fuel_pk_dupes = fuel_xbrl[dupe_mask & ~multi_unit_mask]
+        fuel_multi_unit = fuel_xbrl[dupe_mask & multi_unit_mask]
         fuel_non_dupes = fuel_xbrl[~dupe_mask & ~multi_unit_mask]
 
         logger.info(
@@ -3832,7 +3832,7 @@ class HydroelectricPlantsTableTransformer(Ferc1AbstractTableTransformer):
         logger.debug(
             f"Dropping {len(dropping)} duplicate record with null data in {null_columns}"
         )
-        df = df.loc[~(dupe_mask & null_masks)].copy()
+        df = df.loc[~(dupe_mask & null_masks)]
         return df
 
 
@@ -4506,7 +4506,12 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
 
         util_groups = df.groupby(["utility_id_ferc1", "report_year"])
 
-        return util_groups.apply(lambda x: self._label_note_rows_group(x))
+        # As of pandas 3.0 groupby(...).apply() no longer includes the grouping
+        # columns in the result, only as index levels. Restore them as columns so
+        # downstream code can continue to group by utility_id_ferc1/report_year.
+        return util_groups.apply(lambda x: self._label_note_rows_group(x)).reset_index(
+            level=["utility_id_ferc1", "report_year"]
+        )
 
     def _label_total_rows(self, df: pd.DataFrame) -> pd.DataFrame:
         """Label total rows by adding ``total`` to ``row_type`` column.
@@ -4949,7 +4954,12 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
         )
         # Group by year and utility and run footnote association
         groups = df.groupby(["report_year", "utility_id_ferc1"])
-        sg_notes = groups.apply(lambda x: associate_notes_with_values_group(x))
+        # As of pandas 3.0 groupby(...).apply() no longer includes the grouping
+        # columns in the result, only as index levels. Restore them as columns so
+        # downstream code can continue to use report_year/utility_id_ferc1.
+        sg_notes = groups.apply(
+            lambda x: associate_notes_with_values_group(x)
+        ).reset_index(level=["report_year", "utility_id_ferc1"])
         # Remove footnote column now that rows are associated
         sg_notes = sg_notes.drop(columns=["footnote"])
 
@@ -5341,10 +5351,8 @@ class BalanceSheetLiabilitiesTableTransformer(Ferc1AbstractTableTransformer):
             "long_term_portion_of_derivative_instrument_liabilities",
             "long_term_portion_of_derivative_instrument_liabilities_hedges",
         ]
-        new_data = (
-            df[df.liability_type.isin(facts_to_duplicate)]
-            .copy()
-            .assign(liability_type=lambda x: "less_" + x.liability_type)
+        new_data = df[df.liability_type.isin(facts_to_duplicate)].assign(
+            liability_type=lambda x: "less_" + x.liability_type
         )
 
         return pd.concat([df, new_data])
@@ -5367,14 +5375,12 @@ class BalanceSheetLiabilitiesTableTransformer(Ferc1AbstractTableTransformer):
             "long_term_portion_of_derivative_instrument_liabilities",
             "long_term_portion_of_derivative_instrument_liabilities_hedges",
         ]
-        duplicated_facts = (
-            tbl_meta[tbl_meta.xbrl_factoid.isin(facts_to_duplicate)]
-            .copy()
-            .assign(
-                xbrl_factoid=lambda x: "less_" + x.xbrl_factoid,
-                xbrl_factoid_original=lambda x: "less_" + x.xbrl_factoid_original,
-                balance="credit",
-            )
+        duplicated_facts = tbl_meta[
+            tbl_meta.xbrl_factoid.isin(facts_to_duplicate)
+        ].assign(
+            xbrl_factoid=lambda x: "less_" + x.xbrl_factoid,
+            xbrl_factoid_original=lambda x: "less_" + x.xbrl_factoid_original,
+            balance="credit",
         )
         facts_to_add = [
             {
@@ -5419,10 +5425,8 @@ class BalanceSheetAssetsTableTransformer(Ferc1AbstractTableTransformer):
             "derivative_instrument_assets_long_term",
             "derivative_instrument_assets_hedges_long_term",
         ]
-        new_data = (
-            df[df.asset_type.isin(facts_to_duplicate)]
-            .copy()
-            .assign(asset_type=lambda x: "less_" + x.asset_type)
+        new_data = df[df.asset_type.isin(facts_to_duplicate)].assign(
+            asset_type=lambda x: "less_" + x.asset_type
         )
         return pd.concat([df, new_data])
 
@@ -5446,14 +5450,12 @@ class BalanceSheetAssetsTableTransformer(Ferc1AbstractTableTransformer):
             "derivative_instrument_assets_long_term",
             "derivative_instrument_assets_hedges_long_term",
         ]
-        duplicated_facts = (
-            tbl_meta[tbl_meta.xbrl_factoid.isin(facts_to_duplicate)]
-            .copy()
-            .assign(
-                xbrl_factoid=lambda x: "less_" + x.xbrl_factoid,
-                xbrl_factoid_original=lambda x: "less_" + x.xbrl_factoid_original,
-                balance="credit",
-            )
+        duplicated_facts = tbl_meta[
+            tbl_meta.xbrl_factoid.isin(facts_to_duplicate)
+        ].assign(
+            xbrl_factoid=lambda x: "less_" + x.xbrl_factoid,
+            xbrl_factoid_original=lambda x: "less_" + x.xbrl_factoid_original,
+            balance="credit",
         )
         facts_to_add = [
             {
@@ -5528,7 +5530,7 @@ class IncomeStatementsTableTransformer(Ferc1AbstractTableTransformer):
                 & (raw_dbf.report_year == 2003)
                 & (raw_dbf.row_number.isin(known_bad_income2_rows))
             )
-        ].copy()
+        ]
         logger.info(
             f"Dropped {len_og - len(raw_dbf)} records ({(len_og - len(raw_dbf)) / len_og:.1%} of"
             "total) records from 2003 from the f1_incm_stmnt_2 DBF table that have "
@@ -6407,7 +6409,7 @@ class OperatingRevenuesTableTransformer(Ferc1AbstractTableTransformer):
             & ((df.dollar_value == 3.33e8) | (df.dollar_value == 3.333e9))
         )
 
-        return df[~dupe_mask].copy()
+        return df[~dupe_mask]
 
 
 class CashFlowsTableTransformer(Ferc1AbstractTableTransformer):
@@ -6455,7 +6457,7 @@ class CashFlowsTableTransformer(Ferc1AbstractTableTransformer):
         )
         if (len_dupes := dupe_mask.value_counts().loc[True]) != 1:
             raise ValueError(f"Expected to find 1 duplicate record. Found {len_dupes}")
-        return df[~dupe_mask].copy()
+        return df[~dupe_mask]
 
     @cache_df("main")
     def validate_start_end_balance(self, df):
