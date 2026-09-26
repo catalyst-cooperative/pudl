@@ -50,6 +50,7 @@ from pudl.analysis.record_linkage.eia_ferc1_model_config import (
     BLOCKING_RULES,
     COMPARISONS,
 )
+from pudl.dagster.op_tags import HOT_PATH_OP_TAGS
 from pudl.metadata.classes import DataSource, Resource
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -137,7 +138,7 @@ col_cleaner = embed_dataframe.dataframe_cleaner_factory(
 )
 
 
-@op(tags={"dagster/priority": 10})
+@op(tags=HOT_PATH_OP_TAGS)
 def get_compiled_input_manager(plants_all_ferc1, fbp_ferc1, plant_parts_eia):
     """Get :class:`InputManager` object with compiled inputs for model."""
     inputs = InputManager(plants_all_ferc1, fbp_ferc1, plant_parts_eia)
@@ -148,7 +149,7 @@ def get_compiled_input_manager(plants_all_ferc1, fbp_ferc1, plant_parts_eia):
 
 @op(
     out={"eia_df": Out(), "ferc_df": Out()},
-    tags={"dagster/priority": 10},
+    tags=HOT_PATH_OP_TAGS,
 )
 def get_input_dfs(inputs):
     """Get EIA and FERC inputs for the model."""
@@ -178,7 +179,7 @@ def get_input_dfs(inputs):
 
 
 @op(
-    tags={"dagster/priority": 10},
+    tags=HOT_PATH_OP_TAGS,
 )
 def prepare_for_matching(df, transformed_df):
     """Prepare the input dataframes for matching with splink."""
@@ -201,7 +202,7 @@ def prepare_for_matching(df, transformed_df):
 
 
 @op(
-    tags={"dagster/priority": 10},
+    tags=HOT_PATH_OP_TAGS,
 )
 def get_training_data_df(inputs):
     """Get the manually created training data."""
@@ -218,7 +219,7 @@ def get_training_data_df(inputs):
 
 
 @op(
-    tags={"dagster/priority": 10},
+    tags=HOT_PATH_OP_TAGS,
 )
 def get_model_predictions(eia_df, ferc_df, train_df, experiment_tracker):
     """Train splink model and output predicted matches."""
@@ -253,7 +254,7 @@ def get_model_predictions(eia_df, ferc_df, train_df, experiment_tracker):
 
 
 @op(
-    tags={"dagster/priority": 10},
+    tags=HOT_PATH_OP_TAGS,
 )
 def get_best_matches(
     preds_df,
@@ -312,10 +313,7 @@ def get_best_matches(
             io_manager_key="parquet_io_manager"
         )
     },
-    tags={
-        "memory-use": "high",
-        "dagster/priority": 10,
-    },
+    tags={"memory-use": "high"} | HOT_PATH_OP_TAGS,
 )
 def get_full_records_with_overrides(best_match_df, inputs, experiment_tracker):
     """Join full dataframe onto matches to make usable and get stats.
