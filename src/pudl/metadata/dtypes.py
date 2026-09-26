@@ -13,8 +13,8 @@ When a concrete ``resource`` is provided to :func:`get_pudl_dtypes`, the resourc
 schema is authoritative. That means resource-specific field typing and enum/category
 information already encoded in ``PUDL_PACKAGE`` will be used directly where possible.
 
-Not every backend supports every canonical PUDL field type. In particular, some
-backends do not yet support PUDL's ``geometry`` fields. In those cases the dtype
+Not every backend supports every canonical PUDL field type. In particular, the SQLite
+and DuckDB backends do not support PUDL's ``geometry`` fields. In those cases the dtype
 helpers intentionally omit unsupported fields rather than returning an incompatible
 dtype mapping.
 
@@ -45,12 +45,16 @@ FIELD_DTYPES_POLARS: dict[str, type[pl.DataType] | pl.DataType] = {
     "boolean": polars_datatypes.Boolean,
     "date": polars_datatypes.Date,
     "datetime": polars_datatypes.Datetime(time_unit="us"),
+    "geometry": polars_datatypes.Binary,
     "integer": polars_datatypes.Int64,
     "number": polars_datatypes.Float64,
     "string": polars_datatypes.String,
     "year": polars_datatypes.Datetime(time_unit="us"),
 }
-"""Polars data type by simplified PUDL field type."""
+"""Polars data type by simplified PUDL field type.
+
+Polars has no geometry type, so geometry fields are WKB ``Binary`` columns.
+"""
 
 FIELD_DTYPES_DUCKDB: dict[str, duckdb.sqltypes.DuckDBPyType] = {
     "boolean": duckdb.sqltypes.BOOLEAN,
@@ -306,12 +310,11 @@ def _get_pudl_resource_dtypes(
             for field in resource_metadata.schema.fields
         }
     elif dtype_backend == "polars":
-        # For polars we need to build a mapping of only the fields which have
-        # dtypes defined, because it is missing the geometry dtype.
+        # Polars has no resource-level helper, but every PUDL field type has a Polars
+        # dtype. Geometry fields are WKB Binary.
         dtypes = {
             field.name: field.to_polars_dtype()
             for field in resource_metadata.schema.fields
-            if field.type in FIELD_DTYPES_POLARS
         }
     elif dtype_backend == "sqlite":
         # Similarly SQLite is also missing the geometry dtype.
