@@ -12,7 +12,13 @@ sources:
                 column_a: demand_reported_mwh
                 column_b: demand_imputed_pudl_mwh
                 row_condition: demand_imputed_pudl_mwh_imputation_code IS NULL
-                atol: 1.0
+          - dbt_expectations.expression_is_true:
+              arguments:
+                expression: demand_reported_mwh IS DISTINCT FROM demand_imputed_pudl_mwh
+                row_condition: >-
+                  demand_imputed_pudl_mwh_imputation_code IS NOT NULL
+                  AND demand_reported_mwh IS NOT NULL
+                  AND demand_imputed_pudl_mwh IS NOT NULL
         columns:
           - name: net_generation_reported_mwh
             data_tests:

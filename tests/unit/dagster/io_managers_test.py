@@ -9,12 +9,14 @@ import duckdb
 import geopandas as gpd  # noqa: ICN002
 import pandas as pd
 import polars as pl
+import pyarrow.parquet as pq
 import pytest
 from dagster import AssetKey, DagsterInstance, build_input_context, build_output_context
 from dagster._core.execution.context.input import InputContext
 from dagster._core.execution.context.output import OutputContext
 from shapely.geometry import Point
 
+import pudl
 from pudl.dagster.io_managers import (
     FercDbfSqliteIOManager,
     FercXbrlSqliteIOManager,
@@ -390,8 +392,6 @@ def test_geoparquet_output_has_valid_geo_metadata(
     geo_parquet_output_path: Path,
 ) -> None:
     """Written file must carry spec-compliant GeoParquet 1.0.0 metadata with PROJJSON CRS."""
-    import pyarrow.parquet as pq
-
     raw_meta = pq.read_metadata(geo_parquet_output_path).metadata
     assert b"geo" in raw_meta, "GeoParquet 'geo' metadata key is missing"
 
@@ -485,3 +485,68 @@ def test_parquet_io_manager_rejects_unsupported_output_type(
     context: OutputContext = build_output_context(asset_key=AssetKey("test_geo"))
     with pytest.raises(TypeError, match="PudlParquetIOManager only supports"):
         manager.handle_output(context, {"not": "a dataframe"})
+
+
+def test_geoparquet_output_is_zstd_compressed(geo_parquet_output_path: Path) -> None:
+    """Geometry tables are zstd-compressed, like PUDL's other Parquet outputs."""
+    row_group = pq.read_metadata(geo_parquet_output_path).row_group(0)
+
+    assert {row_group.column(i).compression for i in range(row_group.num_columns)} == {
+        "ZSTD"
+    }
+
+
+@pytest.mark.parametrize(
+    ("kind", "writer", "level_constant"),
+    [
+        ("pandas", (pd.DataFrame, "to_parquet"), "PARQUET_COMPRESSION_LEVEL"),
+        ("polars", (pl.LazyFrame, "sink_parquet"), "PARQUET_COMPRESSION_LEVEL"),
+        (
+            "geopandas",
+            (gpd.GeoDataFrame, "to_parquet"),
+            "PARQUET_GEOMETRY_COMPRESSION_LEVEL",
+        ),
+    ],
+)
+def test_parquet_io_manager_compression(
+    kind: str, writer: tuple[type, str], level_constant: str, tmp_path: Path, mocker
+) -> None:
+    """Every output path writes with the codec and level set centrally in ``pudl``.
+
+    Geometry tables compress much better, so they have their own, higher level. The
+    level isn't recorded in the Parquet file, so this sets the constants to unusual
+    values and checks what each underlying writer was called with, along with the codec
+    of the file it wrote.
+    """
+    mocker.patch("pudl.PARQUET_COMPRESSION_LEVEL", 7)
+    mocker.patch("pudl.PARQUET_GEOMETRY_COMPRESSION_LEVEL", 11)
+    fields = [{"name": "id", "type": "integer", "description": "id"}]
+    if kind == "geopandas":
+        fields.append({"name": "geometry", "type": "geometry", "description": "shape"})
+    resource = Resource(
+        name="test_compression",
+        schema={"fields": fields, "primary_key": ["id"]},
+        description="Test compression resource",
+    )
+    mocker.patch("pudl.dagster.io_managers.Resource.from_id", return_value=resource)
+    out_path = tmp_path / "test_compression.parquet"
+    mock_paths = mocker.MagicMock()
+    mock_paths.parquet_path.return_value = out_path
+    spy = mocker.spy(*writer)
+    ids = pd.array([1, 2], dtype="Int64")
+    obj = {
+        "pandas": lambda: pd.DataFrame({"id": ids}),
+        "polars": lambda: pl.LazyFrame({"id": [1, 2]}),
+        "geopandas": lambda: gpd.GeoDataFrame(
+            {"id": ids, "geometry": gpd.GeoSeries([Point(0, 0), Point(1, 1)], crs=4326)}
+        ),
+    }[kind]()
+
+    PudlParquetIOManager(pudl_paths=mock_paths).handle_output(
+        build_output_context(asset_key=AssetKey("test_compression")), obj
+    )
+
+    assert spy.call_args.kwargs["compression"] == pudl.PARQUET_COMPRESSION
+    assert spy.call_args.kwargs["compression_level"] == getattr(pudl, level_constant)
+    row_group = pq.read_metadata(out_path).row_group(0)
+    assert row_group.column(0).compression == pudl.PARQUET_COMPRESSION.upper()

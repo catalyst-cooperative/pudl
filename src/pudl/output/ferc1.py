@@ -916,17 +916,13 @@ def _out_ferc1__detailed_tags(_core_ferc1__table_dimensions) -> pd.DataFrame:
         utility_type_tags,
     ]
     tag_idx = list(NodeId._fields)
-    tags = (
-        pd.concat(
-            [df.set_index(tag_idx) for df in tag_dfs],
-            join="outer",
-            verify_integrity=True,
-            ignore_index=False,
-            axis="columns",
-        )
-        .reset_index()
-        .drop(columns=["notes"])
-    )
+    tags = pd.concat(
+        [df.set_index(tag_idx) for df in tag_dfs],
+        join="outer",
+        verify_integrity=True,
+        ignore_index=False,
+        axis="columns",
+    ).reset_index()
     # special case: condense the two hydro plant_functions from _core_ferc1__table_dimensions.
     # we didn't add yet the ability to change aggregatable_plant_function by
     # plant_function. we could but this seems simpler.
@@ -946,6 +942,7 @@ def _get_tags(
     tags_csv = PUDL_PACKAGE_DATA_PATH / "ferc1" / file_name
     tags_df = (
         pd.read_csv(tags_csv)
+        .drop(columns="notes", errors="ignore")  # Drop notes column if present
         .drop_duplicates()
         .dropna(subset=["table_name", "xbrl_factoid"], how="any")
         .astype(pd.StringDtype())
@@ -1285,7 +1282,12 @@ class Exploder:
                 :,
                 parent_cols
                 + calc_cols
-                + ["weight", "is_within_table_calc", "is_total_to_subdimensions_calc"],
+                + [
+                    "ferc_account",
+                    "weight",
+                    "is_within_table_calc",
+                    "is_total_to_subdimensions_calc",
+                ],
             ]
             .drop_duplicates()
             .set_index(parent_cols + calc_cols)
@@ -1350,6 +1352,7 @@ class Exploder:
                 # if they weren't we'd need to check within the group of
                 # the parent fact like in process_xbrl_metadata_calculations
                 is_within_table_calc=False,
+                ferc_account=pd.NA,
             )
             .drop(columns=["xbrl_factoid_off_by"])
         )
