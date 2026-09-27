@@ -1352,7 +1352,9 @@ class Exploder:
                 # if they weren't we'd need to check within the group of
                 # the parent fact like in process_xbrl_metadata_calculations
                 is_within_table_calc=False,
-                ferc_account=pd.NA,
+                # pandas-stubs' assign() signature doesn't include NAType in its
+                # accepted kwarg union, even though pd.NA is valid at runtime here.
+                ferc_account=pd.NA,  # type: ignore[bad-argument-type]
             )
             .drop(columns=["xbrl_factoid_off_by"])
         )
