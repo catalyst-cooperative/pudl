@@ -83,7 +83,8 @@ class TestForestSetup:
         annotated_forest = simple_forest.annotated_forest
         # ensure no nodes got dropped
         assert len(annotated_forest.nodes) == len(dedupe_n_flatten_list_of_lists(edges))
-        # networkx's stubs can't infer the node type from an unparameterized DiGraph.
+        # networkx's @_dispatchable decorator loses the graph's node TypeVar, so
+        # get_node_attributes() comes back untyped rather than as dict[NodeId, Any].
         return cast(
             "dict[NodeId, Any]", nx.get_node_attributes(annotated_forest, "tags")
         )
