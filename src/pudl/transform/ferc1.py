@@ -709,7 +709,6 @@ def unstack_balances_to_report_year_instant_xbrl(
         .unstack("balance_type")
     )
     # munge multi-index into flat index, separated by _
-    # Iterating a MultiIndex already yields flat tuples of its values.
     unstacked_by_year.columns = ["_".join(items) for items in unstacked_by_year.columns]
     return unstacked_by_year.reset_index()
 
