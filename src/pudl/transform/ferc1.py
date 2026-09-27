@@ -6812,11 +6812,18 @@ def other_dimensions(table_names: list[str]) -> list[str]:
 
 
 def table_to_xbrl_factoid_name() -> dict[str, str]:
-    """Build a dictionary of table name (keys) to ``xbrl_factoid`` column name."""
-    return {
-        table_name: transformer().params.xbrl_factoid_name
-        for (table_name, transformer) in FERC1_TFR_CLASSES.items()
-    }
+    """Build a dictionary of table name (keys) to ``xbrl_factoid`` column name.
+
+    Only includes tables whose ``merge_xbrl_metadata.on`` param is set — not every
+    FERC1 table participates in the XBRL metadata/calculation reconciliation, so
+    ``xbrl_factoid_name`` is undefined for the rest.
+    """
+    result: dict[str, str] = {}
+    for table_name, transformer in FERC1_TFR_CLASSES.items():
+        xbrl_factoid_name = transformer().params.merge_xbrl_metadata.on
+        if xbrl_factoid_name is not None:
+            result[table_name] = xbrl_factoid_name
+    return result
 
 
 def table_to_column_to_check() -> dict[str, str]:
@@ -6965,6 +6972,8 @@ def _core_ferc1__table_dimensions(**kwargs) -> pd.DataFrame:
         name: df.assign(table_name=name).rename(
             columns={table_to_xbrl_factoid_name_dict[name]: "xbrl_factoid"}
         )
+        if name in table_to_xbrl_factoid_name_dict
+        else df.assign(table_name=name)
         for (name, df) in kwargs.items()
     }
     tbls["core_ferc1__yearly_income_statements_sched114"] = (
