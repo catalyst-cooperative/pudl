@@ -166,11 +166,6 @@
       "concise_description": "Argument `Literal['ferc1']` is not assignable to parameter `dataset` with type `FercForm` in function `pudl.dagster.assets.raw.ferc_to_sqlite.ferc_to_sqlite_asset_factory`"
     },
     {
-      "path": "src/pudl/output/ferc1.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `Literal['utility_type']` is not assignable to parameter `dimension` with type `Literal['plant_function', 'plant_status']` in function `_aggregatable_dimension_tags`"
-    },
-    {
       "path": "src/pudl/analysis/fuel_by_plant.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `Literal[1]` is not assignable to parameter `axis` with type `Literal['index', 0] | None` in function `pandas.core.series.Series.sum`"
@@ -209,11 +204,6 @@
       "path": "src/pudl/analysis/ml_tools/models.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `NodeDefinition` is not assignable to parameter `node` with type `GraphDefinition | OpDefinition` in function `_get_default_from_ops`"
-    },
-    {
-      "path": "tests/unit/output/ferc1_test.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `NodeId` is not assignable to parameter `key` with type `_Node` in function `dict.get`"
     },
     {
       "path": "tests/unit/extract/excel_test.py",
@@ -264,11 +254,6 @@
       "path": "src/pudl/transform/sec10k.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `Series[str]` is not assignable to parameter `df` with type `DataFrame` in function `pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner.apply_name_cleaning`"
-    },
-    {
-      "path": "src/pudl/output/ferc1.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `Series` is not assignable to parameter `data` with type `dict[Unknown, Unknown] | list[dict[Unknown, Unknown]]` in function `pandas.io.json._normalize.json_normalize`"
     },
     {
       "path": "src/pudl/transform/sec10k.py",
@@ -361,26 +346,6 @@
       "concise_description": "Argument `dict[str, (x: Unknown) -> Unknown]` is not assignable to parameter `assign_col_dict` with type `dict[str, str] | None` in function `AddAttribute.__init__`"
     },
     {
-      "path": "src/pudl/output/ferc1.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `dict[str, DataFrame]` is not assignable to parameter `calculation_components_xbrl_ferc1` with type `DataFrame` in function `Exploder.__init__`"
-    },
-    {
-      "path": "src/pudl/output/ferc1.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `dict[str, DataFrame]` is not assignable to parameter `metadata_xbrl_ferc1` with type `DataFrame` in function `Exploder.__init__`"
-    },
-    {
-      "path": "src/pudl/output/ferc1.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `dict[str, DataFrame]` is not assignable to parameter `right` with type `DataFrame | Series` in function `pandas.core.frame.DataFrame.merge`"
-    },
-    {
-      "path": "src/pudl/output/ferc1.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `dict[str, DataFrame]` is not assignable to parameter `tags` with type `DataFrame` in function `Exploder.__init__`"
-    },
-    {
       "path": "src/pudl/dagster/io_managers.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `dict[str, DataType]` is not assignable to parameter `dtypes` with type `DataType | DataTypeClass | DataTypeExpr | Mapping[DataType | DataTypeClass | Selector | str, DataType | DataTypeClass | type[Decimal | bool | bytes | date | datetime | float | int | list[Any] | object | str | time | timedelta | tuple[Any, ...] | None]] | Schema` in function `polars.lazyframe.frame.LazyFrame.cast`"
@@ -414,11 +379,6 @@
       "path": "src/pudl/transform/classes.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `dict[str, bool] | None` is not assignable to parameter `params` with type `MultiColumnTransformParams` in function `MultiColumnTransformFunc.__call__`"
-    },
-    {
-      "path": "src/pudl/output/ferc1.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `dict[str, dict[str, DataFrame]]` is not assignable to parameter `tables_to_explode` with type `dict[str, DataFrame]` in function `Exploder.boom`"
     },
     {
       "path": "src/pudl/transform/rus12.py",
@@ -481,19 +441,9 @@
       "concise_description": "Argument `dict[str, str]` is not assignable to parameter `obj` with type `DataFrame | GeoDataFrame | LazyFrame` in function `pudl.dagster.io_managers.PudlParquetIOManager.handle_output`"
     },
     {
-      "path": "src/pudl/output/ferc1.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `dict_keys[Hashable, dict[Hashable, Any]]` is not assignable to parameter `tuples` with type `Iterable[tuple[Hashable, ...]]` in function `pandas.core.indexes.multi.MultiIndex.from_tuples`"
-    },
-    {
       "path": "src/pudl/metadata/classes.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `dict_keys[str, CategoricalDtype | str]` is not assignable to parameter `columns` with type `ExtensionArray | Index | SequenceNotStr[Any] | Series | ndarray | range | None` in function `pandas.core.frame.DataFrame.reindex`"
-    },
-    {
-      "path": "src/pudl/output/ferc1.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `dict_keys[str, dict[str, DataFrame]]` is not assignable to parameter `table_names` with type `list[str]` in function `Exploder.__init__`"
     },
     {
       "path": "src/pudl/analysis/state_demand.py",
@@ -516,11 +466,6 @@
       "concise_description": "Argument `list[DateOfBirthComparison | ExactMatch | NameComparison | dict[str, list[ElseLevel | NullLevel | PercentageDifferenceLevel] | str]]` is not assignable to parameter `comparisons` with type `list[ComparisonCreator | dict[str, Any]]` in function `splink.internals.settings_creator.SettingsCreator.__init__`"
     },
     {
-      "path": "src/pudl/output/ferc1.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `list[_Node]` is not assignable to parameter `path` with type `list[NodeId]` in function `XbrlCalculationForestFerc1._get_path_weight`"
-    },
-    {
       "path": "src/pudl/transform/eia861.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `list[dict[str, DataFrame]]` is not assignable to parameter `dfs` with type `list[DataFrame]` in function `_harvest_associations`"
@@ -534,11 +479,6 @@
       "path": "src/pudl/metadata/classes.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `list[str] | None` is not assignable to parameter `extrapaths` with type `list[str]` in function `frictionless.resource.resource.Resource.__init__`"
-    },
-    {
-      "path": "src/pudl/output/ferc1.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `list[str]` is not assignable to parameter `idx` with type `dict[int, int]` in function `Ferc1DetailedCheckSpec.__init__`"
     },
     {
       "path": "tests/pipeline/notebooks_test.py",
@@ -706,11 +646,6 @@
       "concise_description": "Argument `str` is not assignable to parameter `self` with type `Path` in function `pathlib.Path.unlink`"
     },
     {
-      "path": "src/pudl/output/ferc1.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `str` is not assignable to parameter `tag_name` with type `Literal['in_rate_base', 'rate_base_category']` in function `_propagate_tag`"
-    },
-    {
       "path": "tests/unit/extract/xbrl_test.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `test_convert_form.FakeDatastore` is not assignable to parameter `datastore` with type `FercXbrlDatastore` in function `pudl.extract.xbrl.convert_form`"
@@ -809,11 +744,6 @@
       "path": "src/pudl/analysis/timeseries_evaluation.py",
       "name": "bad-index",
       "concise_description": "Cannot index into `_LocIndexerFrame[DataFrame]`"
-    },
-    {
-      "path": "tests/unit/output/ferc1_test.py",
-      "name": "bad-index",
-      "concise_description": "Cannot index into `dict[_Node, Any]`"
     },
     {
       "path": "tests/pipeline/glue/glue_test.py",
@@ -969,21 +899,6 @@
       "path": "src/pudl/analysis/plant_parts_eia.py",
       "name": "bad-argument-type",
       "concise_description": "Keyword argument `ferc1_generator_agg_id` with type `NAType` is not assignable to parameter `**kwargs` with type `((DataFrame) -> ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None) | ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None` in function `pandas.core.frame.DataFrame.assign`"
-    },
-    {
-      "path": "tests/unit/output/ferc1_test.py",
-      "name": "bad-argument-type",
-      "concise_description": "Keyword argument `in_rate_base` with type `list[NAType | str]` is not assignable to parameter `**kwargs` with type `((DataFrame) -> ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None) | ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None` in function `pandas.core.frame.DataFrame.assign`"
-    },
-    {
-      "path": "tests/unit/output/ferc1_test.py",
-      "name": "bad-argument-type",
-      "concise_description": "Keyword argument `in_rate_base` with type `list[NAType]` is not assignable to parameter `**kwargs` with type `((DataFrame) -> ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None) | ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None` in function `pandas.core.frame.DataFrame.assign`"
-    },
-    {
-      "path": "tests/unit/output/ferc1_test.py",
-      "name": "bad-argument-type",
-      "concise_description": "Keyword argument `in_root_boose` with type `list[NAType | str]` is not assignable to parameter `**kwargs` with type `((DataFrame) -> ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None) | ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None` in function `pandas.core.frame.DataFrame.assign`"
     },
     {
       "path": "src/pudl/transform/eia860m.py",
@@ -1486,19 +1401,9 @@
       "concise_description": "Object of class `Properties` has no attribute `year`"
     },
     {
-      "path": "tests/unit/output/ferc1_test.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `TestForestSetup` has no attribute `parent`"
-    },
-    {
       "path": "tests/unit/metadata/harvest_test.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `dict` has no attribute `harvest`"
-    },
-    {
-      "path": "src/pudl/output/ferc1.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `dict` has no attribute `merge`"
     },
     {
       "path": "tests/unit/metadata/harvest_test.py",
@@ -1534,11 +1439,6 @@
       "path": "src/pudl/metadata/descriptions.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `int` has no attribute `year`"
-    },
-    {
-      "path": "src/pudl/output/ferc1.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `list` has no attribute `union`"
     },
     {
       "path": "src/pudl/analysis/record_linkage/embed_dataframe.py",
@@ -1731,11 +1631,6 @@
       "concise_description": "Returned type `defaultdict[str, list[Unknown]]` is not assignable to declared return type `dict[str, DataFrame]`"
     },
     {
-      "path": "src/pudl/output/ferc1.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `dict[Hashable, dict[Hashable, Any]]` is not assignable to declared return type `dict[NodeId, dict[str, dict[str, str]]]`"
-    },
-    {
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "name": "bad-return",
       "concise_description": "Returned type `dict[Scalar, float]` is not assignable to declared return type `dict[str, float]`"
@@ -1759,11 +1654,6 @@
       "path": "tests/unit/analysis/timeseries_cleaning_test.py",
       "name": "bad-return",
       "concise_description": "Returned type `pandas.core.frame.DataFrame` is not assignable to declared return type `pandera.typing.pandas.DataFrame[TimeseriesMatrix]`"
-    },
-    {
-      "path": "src/pudl/output/ferc1.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `str | None` is not assignable to declared return type `str`"
     },
     {
       "path": "src/pudl/workspace/datastore.py",
@@ -1804,41 +1694,6 @@
       "path": "src/pudl/transform/eia.py",
       "name": "bad-argument-type",
       "concise_description": "Unpacked keyword argument `((dirty_df: DataFrame, clean_df: DataFrame, entity_id_df: DataFrame, entity_idx: list[str], col: str, cols_to_consit: list[str], round_to: int = 2, **kwargs: Unknown) -> DataFrame) | ((dirty_df: DataFrame, clean_df: DataFrame, entity_id_df: DataFrame, entity_idx: list[str], col: str, cols_to_consit: list[str], **kwargs: Unknown) -> DataFrame) | int` is not assignable to parameter `round_to` with type `int` in function `_lat_long`"
-    },
-    {
-      "path": "src/pudl/output/ferc1.py",
-      "name": "bad-argument-type",
-      "concise_description": "Unpacked keyword argument `GroupMetricChecks | list[NodeId] | list[str] | list[Unknown] | str` is not assignable to parameter `group_metric_checks` with type `GroupMetricChecks` in function `exploded_table_asset_factory`"
-    },
-    {
-      "path": "src/pudl/output/ferc1.py",
-      "name": "bad-argument-type",
-      "concise_description": "Unpacked keyword argument `GroupMetricChecks | list[NodeId] | list[str] | list[Unknown] | str` is not assignable to parameter `io_manager_key` with type `str | None` in function `exploded_table_asset_factory`"
-    },
-    {
-      "path": "src/pudl/output/ferc1.py",
-      "name": "bad-argument-type",
-      "concise_description": "Unpacked keyword argument `GroupMetricChecks | list[NodeId] | list[str] | list[Unknown] | str` is not assignable to parameter `off_by_facts` with type `list[OffByFactoid]` in function `exploded_table_asset_factory`"
-    },
-    {
-      "path": "src/pudl/output/ferc1.py",
-      "name": "bad-argument-type",
-      "concise_description": "Unpacked keyword argument `GroupMetricChecks | list[NodeId] | list[str] | list[Unknown] | str` is not assignable to parameter `root_table` with type `str` in function `exploded_table_asset_factory`"
-    },
-    {
-      "path": "src/pudl/output/ferc1.py",
-      "name": "bad-argument-type",
-      "concise_description": "Unpacked keyword argument `GroupMetricChecks | list[NodeId] | list[str] | list[Unknown] | str` is not assignable to parameter `seed_nodes` with type `list[NodeId]` in function `exploded_table_asset_factory`"
-    },
-    {
-      "path": "src/pudl/output/ferc1.py",
-      "name": "bad-argument-type",
-      "concise_description": "Unpacked keyword argument `GroupMetricChecks | list[NodeId] | list[str] | list[Unknown] | str` is not assignable to parameter `table_names` with type `list[str]` in function `exploded_table_asset_factory`"
-    },
-    {
-      "path": "src/pudl/output/ferc1.py",
-      "name": "bad-argument-type",
-      "concise_description": "Unpacked keyword argument `NAType` is not assignable to parameter `**kwargs` with type `((DataFrame) -> ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None) | ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None` in function `pandas.core.frame.DataFrame.assign`"
     },
     {
       "path": "src/pudl/dagster/provenance.py",
