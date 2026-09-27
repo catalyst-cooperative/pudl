@@ -1501,7 +1501,7 @@ class ErrorMetric(BaseModel):
         return True
 
     @abstractmethod
-    def metric(self: Self, gb: pd.DataFrame) -> float:
+    def metric(self: Self, df: pd.DataFrame) -> float:
         """Metric function that will be applied to each group of values being checked."""
         ...
 
@@ -1580,10 +1580,10 @@ class ErrorMetric(BaseModel):
 class ErrorFrequency(ErrorMetric):
     """Check error frequency in XBRL calculations."""
 
-    def metric(self: Self, gb: pd.DataFrame) -> float:
+    def metric(self: Self, df: pd.DataFrame) -> float:
         """Calculate the frequency with which records are tagged as errors."""
         try:
-            out = gb[gb.is_not_close].shape[0] / gb.shape[0]
+            out = df[df.is_not_close].shape[0] / df.shape[0]
         except ZeroDivisionError:
             # Will only occur if all reported values are NaN when calculated values
             # exist, or vice versa.
@@ -1597,13 +1597,13 @@ class ErrorFrequency(ErrorMetric):
 class RelativeErrorMagnitude(ErrorMetric):
     """Check relative magnitude of errors in XBRL calculations."""
 
-    def metric(self: Self, gb: pd.DataFrame) -> float:
+    def metric(self: Self, df: pd.DataFrame) -> float:
         """Calculate the magnitude of the errors relative to total reported value."""
-        gb_value = np.nan
-        denom = gb["reported_value"].abs().sum(min_count=1)
+        df_value = np.nan
+        denom = df["reported_value"].abs().sum(min_count=1)
         if np.isclose(denom, 0) | np.isnan(denom):
-            gb_value = gb.abs_diff.abs().sum(min_count=1) / denom
-        return gb_value
+            df_value = df.abs_diff.abs().sum(min_count=1) / denom
+        return df_value
 
 
 class AbsoluteErrorMagnitude(ErrorMetric):
@@ -1613,9 +1613,9 @@ class AbsoluteErrorMagnitude(ErrorMetric):
     expected errors are provided here...
     """
 
-    def metric(self: Self, gb: pd.DataFrame) -> float:
+    def metric(self: Self, df: pd.DataFrame) -> float:
         """Calculate the absolute magnitude of XBRL calculation errors."""
-        return gb.abs_diff.abs().sum()
+        return df.abs_diff.abs().sum()
 
 
 class NullCalculatedValueFrequency(ErrorMetric):
@@ -1629,10 +1629,10 @@ class NullCalculatedValueFrequency(ErrorMetric):
             .apply(self.metric, include_groups=False)
         )
 
-    def metric(self: Self, gb: pd.DataFrame) -> float:
+    def metric(self: Self, df: pd.DataFrame) -> float:
         """Fraction of non-null reported values that have null corresponding calculated values."""
-        non_null_reported = gb["reported_value"].notnull()
-        null_calculated = gb["calculated_value"].isnull()
+        non_null_reported = df["reported_value"].notnull()
+        null_calculated = df["calculated_value"].isnull()
         try:
             return (non_null_reported & null_calculated).sum() / non_null_reported.sum()
         except ZeroDivisionError:
@@ -1642,9 +1642,9 @@ class NullCalculatedValueFrequency(ErrorMetric):
 class NullReportedValueFrequency(ErrorMetric):
     """Check the frequency of null reported values."""
 
-    def metric(self: Self, gb: pd.DataFrame) -> float:
+    def metric(self: Self, df: pd.DataFrame) -> float:
         """Frequency with which the reported values are Null."""
-        return gb["reported_value"].isnull().sum() / gb.shape[0]
+        return df["reported_value"].isnull().sum() / df.shape[0]
 
 
 def add_corrections(
