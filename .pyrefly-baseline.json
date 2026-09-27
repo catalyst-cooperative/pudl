@@ -161,24 +161,9 @@
       "concise_description": "Argument `Literal['data_dictionaries/code_csvs']` is not assignable to parameter `csv_subdir` with type `Path` in function `pudl.metadata.classes.CodeMetadata.to_rst`"
     },
     {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `Literal['dbf', 'xbrl', 'xbrl_duration', 'xbrl_instant'] | None` is not assignable to parameter `name` with type `str` in function `object.__getattribute__`"
-    },
-    {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `Literal['duration_xbrl']` is not assignable to parameter `rename_stage` with type `Literal['dbf', 'xbrl', 'xbrl_duration', 'xbrl_instant'] | None` in function `Ferc1AbstractTableTransformer.rename_columns`"
-    },
-    {
       "path": "tests/unit/extract/xbrl_test.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `Literal['ferc1']` is not assignable to parameter `dataset` with type `FercForm` in function `pudl.dagster.assets.raw.ferc_to_sqlite.ferc_to_sqlite_asset_factory`"
-    },
-    {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `Literal['instant_xbrl']` is not assignable to parameter `rename_stage` with type `Literal['dbf', 'xbrl', 'xbrl_duration', 'xbrl_instant'] | None` in function `Ferc1AbstractTableTransformer.rename_columns`"
     },
     {
       "path": "src/pudl/output/ferc1.py",
@@ -282,11 +267,6 @@
     },
     {
       "path": "src/pudl/output/ferc1.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `Series` is not assignable to parameter `data` with type `dict[Unknown, Unknown] | list[dict[Unknown, Unknown]]` in function `pandas.io.json._normalize.json_normalize`"
-    },
-    {
-      "path": "src/pudl/transform/ferc1.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `Series` is not assignable to parameter `data` with type `dict[Unknown, Unknown] | list[dict[Unknown, Unknown]]` in function `pandas.io.json._normalize.json_normalize`"
     },
@@ -544,11 +524,6 @@
       "path": "src/pudl/transform/eia861.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `list[dict[str, DataFrame]]` is not assignable to parameter `dfs` with type `list[DataFrame]` in function `_harvest_associations`"
-    },
-    {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `list[list[int] | ndarray[tuple[int]]]` is not assignable to parameter `iterables` with type `Sequence[Index | SequenceNotStr[Hashable] | Series | range]` in function `pandas.core.indexes.multi.MultiIndex.from_product`"
     },
     {
       "path": "tests/unit/analysis/plant_parts_eia_test.py",
@@ -836,11 +811,6 @@
       "concise_description": "Cannot index into `_LocIndexerFrame[DataFrame]`"
     },
     {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "bad-index",
-      "concise_description": "Cannot index into `_LocIndexerSeries`"
-    },
-    {
       "path": "tests/unit/output/ferc1_test.py",
       "name": "bad-index",
       "concise_description": "Cannot index into `dict[_Node, Any]`"
@@ -911,16 +881,6 @@
       "concise_description": "Cannot set item in `list[dict[str, Any]]`"
     },
     {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "bad-override-mutable-attribute",
-      "concise_description": "Class member `DepreciationByFunctionTableTransformer.transform_end` overrides parent class `Ferc1AbstractTableTransformer` in an inconsistent manner"
-    },
-    {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "bad-override-mutable-attribute",
-      "concise_description": "Class member `DepreciationFactorsTransformer.transform_main` overrides parent class `Ferc1AbstractTableTransformer` in an inconsistent manner"
-    },
-    {
       "path": "src/pudl/extract/excel.py",
       "name": "bad-override-mutable-attribute",
       "concise_description": "Class member `ExcelExtractor.METADATA` overrides parent class `GenericExtractor` in an inconsistent manner"
@@ -941,104 +901,9 @@
       "concise_description": "Class member `Ferc1AbstractTableTransformer.table_id` overrides parent class `AbstractTableTransformer` in an inconsistent manner"
     },
     {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "bad-override-mutable-attribute",
-      "concise_description": "Class member `Ferc1AbstractTableTransformer.transform_end` overrides parent class `AbstractTableTransformer` in an inconsistent manner"
-    },
-    {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "bad-override-mutable-attribute",
-      "concise_description": "Class member `Ferc1AbstractTableTransformer.transform_main` overrides parent class `AbstractTableTransformer` in an inconsistent manner"
-    },
-    {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "bad-override-mutable-attribute",
-      "concise_description": "Class member `Ferc1AbstractTableTransformer.transform_start` overrides parent class `AbstractTableTransformer` in an inconsistent manner"
-    },
-    {
-      "path": "src/pudl/glue/ferc1_eia.py",
-      "name": "bad-override-mutable-attribute",
-      "concise_description": "Class member `GenericPlantFerc1TableTransformer.transform_main` overrides parent class `Ferc1AbstractTableTransformer` in an inconsistent manner"
-    },
-    {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "bad-override-mutable-attribute",
-      "concise_description": "Class member `HydroelectricPlantsTableTransformer.transform_main` overrides parent class `Ferc1AbstractTableTransformer` in an inconsistent manner"
-    },
-    {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "bad-override-mutable-attribute",
-      "concise_description": "Class member `IdentificationCertificationTableTransformer.transform_main` overrides parent class `Ferc1AbstractTableTransformer` in an inconsistent manner"
-    },
-    {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "bad-override-mutable-attribute",
-      "concise_description": "Class member `IncomeStatementsTableTransformer.process_dbf` overrides parent class `Ferc1AbstractTableTransformer` in an inconsistent manner"
-    },
-    {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "bad-override-mutable-attribute",
-      "concise_description": "Class member `IncomeStatementsTableTransformer.transform_main` overrides parent class `Ferc1AbstractTableTransformer` in an inconsistent manner"
-    },
-    {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "bad-override-mutable-attribute",
-      "concise_description": "Class member `OtherRegulatoryAssetsTableTransformer.process_xbrl` overrides parent class `Ferc1AbstractTableTransformer` in an inconsistent manner"
-    },
-    {
       "path": "src/pudl/metadata/classes.py",
       "name": "bad-override-mutable-attribute",
       "concise_description": "Class member `Resource.schema` overrides parent class `PudlMeta` in an inconsistent manner"
-    },
-    {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "bad-override-mutable-attribute",
-      "concise_description": "Class member `RetainedEarningsTableTransformer.process_dbf` overrides parent class `Ferc1AbstractTableTransformer` in an inconsistent manner"
-    },
-    {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "bad-override-mutable-attribute",
-      "concise_description": "Class member `RetainedEarningsTableTransformer.transform_end` overrides parent class `Ferc1AbstractTableTransformer` in an inconsistent manner"
-    },
-    {
-      "path": "tests/unit/transform/classes_test.py",
-      "name": "bad-override-mutable-attribute",
-      "concise_description": "Class member `TableTransformer.transform_end` overrides parent class `AbstractTableTransformer` in an inconsistent manner"
-    },
-    {
-      "path": "tests/unit/transform/classes_test.py",
-      "name": "bad-override-mutable-attribute",
-      "concise_description": "Class member `TableTransformer.transform_main` overrides parent class `AbstractTableTransformer` in an inconsistent manner"
-    },
-    {
-      "path": "tests/unit/transform/classes_test.py",
-      "name": "bad-override-mutable-attribute",
-      "concise_description": "Class member `TableTransformer.transform_start` overrides parent class `AbstractTableTransformer` in an inconsistent manner"
-    },
-    {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "bad-override-mutable-attribute",
-      "concise_description": "Class member `TransmissionLinesTableTransformer.transform_main` overrides parent class `Ferc1AbstractTableTransformer` in an inconsistent manner"
-    },
-    {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "bad-override-mutable-attribute",
-      "concise_description": "Class member `UtilityPlantSummaryTableTransformer.process_xbrl` overrides parent class `Ferc1AbstractTableTransformer` in an inconsistent manner"
-    },
-    {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "bad-override-mutable-attribute",
-      "concise_description": "Class member `UtilityPlantSummaryTableTransformer.transform_main` overrides parent class `Ferc1AbstractTableTransformer` in an inconsistent manner"
-    },
-    {
-      "path": "src/pudl/glue/ferc1_eia.py",
-      "name": "not-callable",
-      "concise_description": "Expected a callable, got `DataFrame`"
-    },
-    {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "not-callable",
-      "concise_description": "Expected a callable, got `DataFrame`"
     },
     {
       "path": "src/pudl/analysis/ml_tools/models.py",
@@ -1059,11 +924,6 @@
       "path": "src/pudl/analysis/record_linkage/link_cross_year.py",
       "name": "not-callable",
       "concise_description": "Expected a callable, got `ModuleType`"
-    },
-    {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "not-callable",
-      "concise_description": "Expected a callable, got `SeriesGroupBy[Any, Unknown]`"
     },
     {
       "path": "src/pudl/output/eia.py",
@@ -1106,11 +966,6 @@
       "concise_description": "Invalid base class: `(...) -> Unknown`"
     },
     {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "bad-argument-type",
-      "concise_description": "Keyword argument `amount` with type `NAType` is not assignable to parameter `**kwargs` with type `((DataFrame) -> ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None) | ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None` in function `pandas.core.frame.DataFrame.assign`"
-    },
-    {
       "path": "src/pudl/analysis/plant_parts_eia.py",
       "name": "bad-argument-type",
       "concise_description": "Keyword argument `ferc1_generator_agg_id` with type `NAType` is not assignable to parameter `**kwargs` with type `((DataFrame) -> ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None) | ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None` in function `pandas.core.frame.DataFrame.assign`"
@@ -1131,19 +986,9 @@
       "concise_description": "Keyword argument `in_root_boose` with type `list[NAType | str]` is not assignable to parameter `**kwargs` with type `((DataFrame) -> ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None) | ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None` in function `pandas.core.frame.DataFrame.assign`"
     },
     {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "bad-argument-type",
-      "concise_description": "Keyword argument `license_id_ferc1` with type `(x: DataFrame) -> DataFrame` is not assignable to parameter `**kwargs` with type `((DataFrame) -> ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None) | ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None` in function `pandas.core.frame.DataFrame.assign`"
-    },
-    {
       "path": "src/pudl/transform/eia860m.py",
       "name": "bad-argument-type",
       "concise_description": "Keyword argument `operational_status_code` with type `NAType` is not assignable to parameter `**kwargs` with type `((DataFrame) -> ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None) | ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None` in function `pandas.core.frame.DataFrame.assign`"
-    },
-    {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "bad-argument-type",
-      "concise_description": "Keyword argument `record_id` with type `NAType` is not assignable to parameter `**kwargs` with type `((DataFrame) -> ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None) | ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None` in function `pandas.core.frame.DataFrame.assign`"
     },
     {
       "path": "src/pudl/transform/vcerare.py",
@@ -1159,16 +1004,6 @@
       "path": "src/pudl/transform/rus7.py",
       "name": "bad-argument-type",
       "concise_description": "Keyword argument `state` with type `(x: DataFrame) -> DataFrame` is not assignable to parameter `**kwargs` with type `((DataFrame) -> ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None) | ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None` in function `pandas.core.frame.DataFrame.assign`"
-    },
-    {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "bad-argument-type",
-      "concise_description": "Keyword argument `table_name` with type `NAType` is not assignable to parameter `**kwargs` with type `((DataFrame) -> ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None) | ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None` in function `pandas.core.frame.DataFrame.assign`"
-    },
-    {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "bad-argument-type",
-      "concise_description": "Keyword argument `xbrl_factoid` with type `NAType` is not assignable to parameter `**kwargs` with type `((DataFrame) -> ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None) | ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None` in function `pandas.core.frame.DataFrame.assign`"
     },
     {
       "path": "src/pudl/analysis/record_linkage/eia_ferc1_inputs.py",
@@ -1381,11 +1216,6 @@
       "concise_description": "Object of class `Index` has no attribute `levels`"
     },
     {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Index` has no attribute `to_flat_index`"
-    },
-    {
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `Index` has no attribute `year`"
@@ -1439,11 +1269,6 @@
       "path": "tests/unit/scripts/auto_match_utilities_test.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `NoneType` has no attribute `columns`"
-    },
-    {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `convert_dtypes`"
     },
     {
       "path": "src/pudl/metadata/classes.py",
@@ -1506,11 +1331,6 @@
       "concise_description": "Object of class `NoneType` has no attribute `ignored_codes`"
     },
     {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `items`"
-    },
-    {
       "path": "src/pudl/transform/classes.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `NoneType` has no attribute `keys`"
@@ -1546,11 +1366,6 @@
       "concise_description": "Object of class `NoneType` has no attribute `utility_id_pudl`"
     },
     {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `value`"
-    },
-    {
       "path": "tests/unit/extract/xbrl_test.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `NoneType` has no attribute `write_text`"
@@ -1576,22 +1391,12 @@
       "concise_description": "Object of class `Path` has no attribute `pudl_output`"
     },
     {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Properties` has no attribute `day`"
-    },
-    {
       "path": "src/pudl/transform/sec10k.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `Properties` has no attribute `days`"
     },
     {
       "path": "src/pudl/helpers.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Properties` has no attribute `month`"
-    },
-    {
-      "path": "src/pudl/transform/ferc1.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `Properties` has no attribute `month`"
     },
@@ -1662,11 +1467,6 @@
     },
     {
       "path": "src/pudl/transform/eia923.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Properties` has no attribute `year`"
-    },
-    {
-      "path": "src/pudl/transform/ferc1.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `Properties` has no attribute `year`"
     },
@@ -1816,11 +1616,6 @@
       "concise_description": "Object of type `Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` has no attribute `reset_index`"
     },
     {
-      "path": "src/pudl/transform/classes.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `(func: (...) -> DataFrame) -> (...) -> DataFrame` is not assignable to declared return type `(...) -> DataFrame`"
-    },
-    {
       "path": "src/pudl/analysis/ml_tools/models.py",
       "name": "bad-return",
       "concise_description": "Returned type `(model_graph: GraphDefinition) -> AssetsDefinition` is not assignable to declared return type `AssetsDefinition`"
@@ -1946,21 +1741,6 @@
       "concise_description": "Returned type `dict[Scalar, float]` is not assignable to declared return type `dict[str, float]`"
     },
     {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `dict[str, str | None]` is not assignable to declared return type `dict[str, list[str]]`"
-    },
-    {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `float | Unknown` is not assignable to declared return type `Series`"
-    },
-    {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `float` is not assignable to declared return type `Series`"
-    },
-    {
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "name": "bad-return",
       "concise_description": "Returned type `list[AssetsDefinition]` is not assignable to declared return type `DataFrame`"
@@ -1969,11 +1749,6 @@
       "path": "src/pudl/settings.py",
       "name": "bad-return",
       "concise_description": "Returned type `list[dict[str, Any]] | list[Unknown]` is not assignable to declared return type `list[dict[str, str] | None]`"
-    },
-    {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `list[str] | None` is not assignable to declared return type `list[str]`"
     },
     {
       "path": "src/pudl/analysis/timeseries_cleaning.py",
@@ -1991,19 +1766,9 @@
       "concise_description": "Returned type `str | None` is not assignable to declared return type `str`"
     },
     {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `str | None` is not assignable to declared return type `str`"
-    },
-    {
       "path": "src/pudl/workspace/datastore.py",
       "name": "bad-return",
       "concise_description": "Returned type `str` is not assignable to declared return type `HttpUrl`"
-    },
-    {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `tuple[DataFrame, DataFrame]` is not assignable to declared return type `DataFrame`"
     },
     {
       "path": "src/pudl/transform/eia861.py",
@@ -2071,17 +1836,7 @@
       "concise_description": "Unpacked keyword argument `GroupMetricChecks | list[NodeId] | list[str] | list[Unknown] | str` is not assignable to parameter `table_names` with type `list[str]` in function `exploded_table_asset_factory`"
     },
     {
-      "path": "src/pudl/transform/ferc1.py",
-      "name": "bad-argument-type",
-      "concise_description": "Unpacked keyword argument `NAType | str` is not assignable to parameter `**kwargs` with type `((DataFrame) -> ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None) | ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None` in function `pandas.core.frame.DataFrame.assign`"
-    },
-    {
       "path": "src/pudl/output/ferc1.py",
-      "name": "bad-argument-type",
-      "concise_description": "Unpacked keyword argument `NAType` is not assignable to parameter `**kwargs` with type `((DataFrame) -> ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None) | ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None` in function `pandas.core.frame.DataFrame.assign`"
-    },
-    {
-      "path": "src/pudl/transform/ferc1.py",
       "name": "bad-argument-type",
       "concise_description": "Unpacked keyword argument `NAType` is not assignable to parameter `**kwargs` with type `((DataFrame) -> ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None) | ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None` in function `pandas.core.frame.DataFrame.assign`"
     },

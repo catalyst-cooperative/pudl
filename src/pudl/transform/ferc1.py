@@ -384,8 +384,10 @@ def wide_to_tidy(df: pd.DataFrame, params: WideToTidy) -> pd.DataFrame:
         names=[params.stacked_column_name, "value_type"],
     )
     df_out.columns = new_cols
+    # pandas-stubs can't statically tell that stack() here returns a DataFrame
+    # rather than a Series, so .loc[:, ...] looks like Series-style indexing.
     df_out = (
-        df_out.stack(params.stacked_column_name, future_stack=True)
+        df_out.stack(params.stacked_column_name, future_stack=True)  # type: ignore[bad-index]
         .loc[:, params.value_types]
         .reset_index()
     )
@@ -452,6 +454,9 @@ def drop_duplicate_rows_dbf(
             the duplicates which contain actually unique data instead of raising
             assertion. Default is False.
     """
+    assert params.table_name is not None, (
+        "params.table_name must be set to drop duplicate DBF rows."
+    )
     pks = pudl.metadata.classes.Resource.from_id(
         params.table_name.value
     ).schema.primary_key
@@ -704,9 +709,8 @@ def unstack_balances_to_report_year_instant_xbrl(
         .unstack("balance_type")
     )
     # munge multi-index into flat index, separated by _
-    unstacked_by_year.columns = [
-        "_".join(items) for items in unstacked_by_year.columns.to_flat_index()
-    ]
+    # Iterating a MultiIndex already yields flat tuples of its values.
+    unstacked_by_year.columns = ["_".join(items) for items in unstacked_by_year.columns]
     return unstacked_by_year.reset_index()
 
 
@@ -975,6 +979,7 @@ class GroupMetricChecks(TransformParams):
         """Grouped tolerance should always be greater than or equal to ungrouped."""
         for group in self.groups_to_check:
             metric_tolerances = self.group_metric_tolerances.model_dump().get(group)
+            assert metric_tolerances is not None, f"Unknown metric group: {group}"
             for metric_name, tolerance in metric_tolerances.items():
                 ungrouped_tolerance = self.group_metric_tolerances.model_dump()[
                     "ungrouped"
@@ -1179,7 +1184,9 @@ def _calculation_components_subdimension_calculations(
 ) -> pd.DataFrame:
     """Add total to subdimension calculations into calculation components."""
     meta_w_dims = xbrl_metadata.assign(
-        **dict.fromkeys(dim_cols, pd.NA) | {"table_name": table_name}
+        # pandas-stubs' assign() signature doesn't include NAType in its
+        # accepted kwarg union, even though pd.NA is valid at runtime here.
+        **dict.fromkeys(dim_cols, pd.NA) | {"table_name": table_name}  # type: ignore[bad-argument-type]
     ).pipe(
         make_xbrl_factoid_dimensions_explicit,
         table_dimensions_ferc1=table_dims,
@@ -1495,7 +1502,7 @@ class ErrorMetric(BaseModel):
         return True
 
     @abstractmethod
-    def metric(self: Self, gb: DataFrameGroupBy) -> pd.Series:
+    def metric(self: Self, gb: pd.DataFrame) -> float:
         """Metric function that will be applied to each group of values being checked."""
         ...
 
@@ -1574,7 +1581,7 @@ class ErrorMetric(BaseModel):
 class ErrorFrequency(ErrorMetric):
     """Check error frequency in XBRL calculations."""
 
-    def metric(self: Self, gb: DataFrameGroupBy) -> pd.Series:
+    def metric(self: Self, gb: pd.DataFrame) -> float:
         """Calculate the frequency with which records are tagged as errors."""
         try:
             out = gb[gb.is_not_close].shape[0] / gb.shape[0]
@@ -1591,7 +1598,7 @@ class ErrorFrequency(ErrorMetric):
 class RelativeErrorMagnitude(ErrorMetric):
     """Check relative magnitude of errors in XBRL calculations."""
 
-    def metric(self: Self, gb: DataFrameGroupBy) -> pd.Series:
+    def metric(self: Self, gb: pd.DataFrame) -> float:
         """Calculate the magnitude of the errors relative to total reported value."""
         gb_value = np.nan
         denom = gb["reported_value"].abs().sum(min_count=1)
@@ -1607,7 +1614,7 @@ class AbsoluteErrorMagnitude(ErrorMetric):
     expected errors are provided here...
     """
 
-    def metric(self: Self, gb: DataFrameGroupBy) -> pd.Series:
+    def metric(self: Self, gb: pd.DataFrame) -> float:
         """Calculate the absolute magnitude of XBRL calculation errors."""
         return gb.abs_diff.abs().sum()
 
@@ -1623,7 +1630,7 @@ class NullCalculatedValueFrequency(ErrorMetric):
             .apply(self.metric, include_groups=False)
         )
 
-    def metric(self: Self, gb: DataFrameGroupBy) -> pd.Series:
+    def metric(self: Self, gb: pd.DataFrame) -> float:
         """Fraction of non-null reported values that have null corresponding calculated values."""
         non_null_reported = gb["reported_value"].notnull()
         null_calculated = gb["calculated_value"].isnull()
@@ -1636,7 +1643,7 @@ class NullCalculatedValueFrequency(ErrorMetric):
 class NullReportedValueFrequency(ErrorMetric):
     """Check the frequency of null reported values."""
 
-    def metric(self: Self, gb: DataFrameGroupBy) -> pd.Series:
+    def metric(self: Self, gb: pd.DataFrame) -> float:
         """Frequency with which the reported values are Null."""
         return gb["reported_value"].isnull().sum() / gb.shape[0]
 
@@ -1684,7 +1691,9 @@ def add_corrections(
         xbrl_factoid=lambda x: x["xbrl_factoid"] + "_" + correction_label,
         row_type_xbrl=correction_label,
         is_within_table_calc=False,
-        record_id=pd.NA,
+        # pandas-stubs' assign() signature doesn't include NAType in its
+        # accepted kwarg union, even though pd.NA is valid at runtime here.
+        record_id=pd.NA,  # type: ignore[bad-argument-type]
     )
     num_notnull_calcs = sum(calculated_df["abs_diff"].notnull())
     num_corrections = corrections.shape[0]
@@ -1740,6 +1749,9 @@ class Ferc1TableTransformParams(TableTransformParams):
     @property
     def xbrl_factoid_name(self) -> str:
         """Access the column name of the ``xbrl_factoid``."""
+        assert self.merge_xbrl_metadata.on is not None, (
+            "merge_xbrl_metadata.on must be set to determine the xbrl_factoid name."
+        )
         return self.merge_xbrl_metadata.on
 
     @property
@@ -1755,6 +1767,10 @@ class Ferc1TableTransformParams(TableTransformParams):
     @property
     def aligned_dbf_table_names(self) -> list[str]:
         """The list of DBF tables aligned by row number in this transform."""
+        assert self.align_row_numbers_dbf.dbf_table_names is not None, (
+            "align_row_numbers_dbf.dbf_table_names must be set to determine the "
+            "aligned DBF table names."
+        )
         return self.align_row_numbers_dbf.dbf_table_names
 
     @property
@@ -1781,13 +1797,15 @@ def select_current_year_annual_records_duration_xbrl(df: pd.DataFrame, table_nam
     """
     len_og = len(df)
     df = df.astype({"start_date": "datetime64[s]", "end_date": "datetime64[s]"})
+    # pandas-stubs' .dt accessor only defines year/month/day for datetime64[ns];
+    # datetime64[s] is valid at runtime but falls outside its typed overloads.
     df = df[
-        (df.start_date.dt.year == df.report_year)
-        & (df.start_date.dt.month == 1)
-        & (df.start_date.dt.day == 1)
-        & (df.end_date.dt.year == df.report_year)
-        & (df.end_date.dt.month == 12)
-        & (df.end_date.dt.day == 31)
+        (df.start_date.dt.year == df.report_year)  # type: ignore[missing-attribute]
+        & (df.start_date.dt.month == 1)  # type: ignore[missing-attribute]
+        & (df.start_date.dt.day == 1)  # type: ignore[missing-attribute]
+        & (df.end_date.dt.year == df.report_year)  # type: ignore[missing-attribute]
+        & (df.end_date.dt.month == 12)  # type: ignore[missing-attribute]
+        & (df.end_date.dt.day == 31)  # type: ignore[missing-attribute]
     ]
     len_out = len(df)
     logger.info(
@@ -1936,7 +1954,11 @@ def fill_dbf_to_xbrl_map(
     # Create an index containing all combinations of report_year and row_number
     idx_cols = ["report_year", "row_number", "sched_table_name"]
     idx = pd.MultiIndex.from_product(
-        [dbf_years, df.row_number.unique(), df.sched_table_name.unique()],
+        [
+            dbf_years,
+            df.row_number.unique().tolist(),
+            df.sched_table_name.unique().tolist(),
+        ],
         names=idx_cols,
     )
 
@@ -2488,7 +2510,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         # so make fake little parent facts with null children from all the add_mes
         null_calc_versions_of_add_mes = (
             add_me.reset_index()[["table_name_parent", "xbrl_factoid_parent"]]
-            .assign(table_name=pd.NA, xbrl_factoid=pd.NA)
+            # pandas-stubs' assign() signature doesn't include NAType in its
+            # accepted kwarg union, even though pd.NA is valid at runtime here.
+            .assign(table_name=pd.NA, xbrl_factoid=pd.NA)  # type: ignore[bad-argument-type]
             .set_index(calc_comp_idx)
         )
         remove_the_non_cals_from_add_mes = calc_components.index.difference(
@@ -2542,7 +2566,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         if all(metadata.calculations.isnull()):
             calc_comps = pd.DataFrame(columns=["name", "source_tables"])
         else:
-            calc_comps = pd.json_normalize(metadata.calculations)
+            calc_comps = pd.json_normalize(metadata.calculations.tolist())
 
         calc_comps = (
             calc_comps.explode("source_tables")
@@ -2690,7 +2714,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
 
     # TODO (04-2026): Would be nice to refactor to take raw_xbrl_instant_dfs and
     # raw_xbrl_duration_dfs rather than a dictionary.
-    def preprocess_xbrl(self, raw_xbrl_dfs: dict[str, pd.DataFrame]) -> pd.DataFrame:
+    def preprocess_xbrl(
+        self, raw_xbrl_dfs: dict[str, pd.DataFrame]
+    ) -> tuple[pd.DataFrame, pd.DataFrame]:
         """Pre-process XBRL inputs into one dataframe. Grab freshest data and concat by default."""
         assert self.pudl_paths is not None, (
             "pudl_paths must be set to preprocess XBRL data."
@@ -2765,10 +2791,10 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     def rename_columns(
         self,
         df: pd.DataFrame,
-        rename_stage: Literal["dbf", "xbrl", "xbrl_instant", "xbrl_duration"]
+        rename_stage: Literal["dbf", "xbrl", "instant_xbrl", "duration_xbrl"]
         | None = None,
         params: RenameColumns | None = None,
-    ):
+    ) -> pd.DataFrame:
         """Grab the params based on the rename stage and run default rename_columns.
 
         Args:
@@ -2778,6 +2804,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             params: Rename column parameters.
         """
         if not params:
+            assert rename_stage is not None, (
+                "Either rename_stage or params must be provided."
+            )
             params = self.params.rename_columns_ferc1.__getattribute__(rename_stage)
         df = super().rename_columns(df, params=params)
         return df
@@ -3230,7 +3259,9 @@ class IdentificationCertificationTableTransformer(Ferc1AbstractTableTransformer)
 
     table_id: TableIdFerc1 = TableIdFerc1.IDENTIFICATION_CERTIFICATION
 
-    def preprocess_xbrl(self, raw_xbrl_dfs: dict[str, pd.DataFrame]) -> pd.DataFrame:
+    def preprocess_xbrl(
+        self, raw_xbrl_dfs: dict[str, pd.DataFrame]
+    ) -> tuple[pd.DataFrame, pd.DataFrame]:
         """Pre-process XBRL inputs into one dataframe. Grab freshest data and concat by default."""
         assert self.pudl_paths is not None, (
             "pudl_paths must be set to preprocess XBRL data."
@@ -4147,7 +4178,7 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
         # in a new column as integers.
         out_df = df.assign(
             license_id_ferc1=lambda x: (
-                x.plant_name_ferc1.str.extract(r"(\d{3,})")
+                x.plant_name_ferc1.str.extract(r"(\d{3,})", expand=False)
                 .astype("float")
                 .astype("Int64")
             ),
@@ -4221,7 +4252,7 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
         return df
 
     def _find_note_clumps(
-        self, group: DataFrameGroupBy
+        self, group: pd.DataFrame
     ) -> tuple[DataFrameGroupBy, pd.DataFrame]:
         """Find groups of rows likely to be notes.
 
@@ -4395,9 +4426,7 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
 
         return df
 
-    def _label_note_rows_group(
-        self, util_year_group: DataFrameGroupBy
-    ) -> DataFrameGroupBy:
+    def _label_note_rows_group(self, util_year_group: pd.DataFrame) -> pd.DataFrame:
         """Label note rows by adding ``note`` to ``row_type`` column.
 
         Called within the wrapper function :func:`_label_note_rows`
@@ -4421,7 +4450,7 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
         hopefully there aren't very many of these.
 
         Params:
-            util_year_group: A groupby object that contains a single year and utility.
+            util_year_group: A DataFrame containing a single year and utility.
 
         Returns:
             The same input but with likely note rows containing the string ``note`` in
@@ -5829,7 +5858,9 @@ class RetainedEarningsTableTransformer(Ferc1AbstractTableTransformer):
         # then drop all of the _previous_year columns
         date_dupe_types = date_dupe_types.assign(
             ending_balance=lambda x: x.amount,
-            amount=pd.NA,
+            # pandas-stubs' assign() signature doesn't include NAType in its
+            # accepted kwarg union, even though pd.NA is valid at runtime here.
+            amount=pd.NA,  # type: ignore[bad-argument-type]
             starting_balance=lambda x: x.starting_balance.fillna(
                 x.amount_previous_year
             ),
@@ -6788,13 +6819,16 @@ def table_to_xbrl_factoid_name() -> dict[str, str]:
     }
 
 
-def table_to_column_to_check() -> dict[str, list[str]]:
+def table_to_column_to_check() -> dict[str, str]:
     """Build a dictionary of table name (keys) to column_to_check from reconcile_table_calculations."""
-    return {
-        table_name: transformer().params.reconcile_table_calculations.column_to_check
-        for (table_name, transformer) in FERC1_TFR_CLASSES.items()
-        if transformer().params.reconcile_table_calculations.column_to_check
-    }
+    result = {}
+    for table_name, transformer in FERC1_TFR_CLASSES.items():
+        column_to_check = (
+            transformer().params.reconcile_table_calculations.column_to_check
+        )
+        if column_to_check:
+            result[table_name] = column_to_check
+    return result
 
 
 def remove_rare_utility_type_subdimensions_rows(df: pd.DataFrame) -> pd.DataFrame:
@@ -6982,7 +7016,9 @@ def _core_ferc1_xbrl__metadata(**kwargs) -> pd.DataFrame:
     metadata_all = (
         pd.concat(tbl_metas)
         .reset_index(drop=True)
-        .assign(**dict.fromkeys(dimensions, pd.NA))
+        # pandas-stubs' assign() signature doesn't include NAType in its
+        # accepted kwarg union, even though pd.NA is valid at runtime here.
+        .assign(**dict.fromkeys(dimensions, pd.NA))  # type: ignore[bad-argument-type]
         .pipe(
             make_xbrl_factoid_dimensions_explicit,
             table_dimensions_ferc1=_core_ferc1__table_dimensions,
@@ -7008,10 +7044,14 @@ def _core_ferc1_xbrl__calculation_components(**kwargs) -> pd.DataFrame:
     # compile all of the calc comp tables.
     calc_metas = []
     for table_name, transformer in FERC1_TFR_CLASSES.items():
-        calc_meta = transformer(
+        xbrl_calculations = transformer(
             xbrl_metadata_json=_core_ferc1_xbrl__metadata_json[table_name]
-        ).xbrl_calculations.convert_dtypes()
-        calc_metas.append(calc_meta)
+        ).xbrl_calculations
+        assert xbrl_calculations is not None, (
+            f"{table_name}: Expected xbrl_calculations to be populated when "
+            "xbrl_metadata_json is provided."
+        )
+        calc_metas.append(xbrl_calculations.convert_dtypes())
     # squish all of the calc comp tables then add in the implicit table dimensions
     dimensions = other_dimensions(table_names=list(FERC1_TFR_CLASSES))
     calc_components = (
@@ -7314,7 +7354,11 @@ def assign_parent_dimensions(
         dimensions: list of dimension columns to check.
     """
     if calc_components.empty:
-        return calc_components.assign(**{f"{dim}_parent": pd.NA for dim in dimensions})
+        # pandas-stubs' assign() signature doesn't include NAType in its
+        # accepted kwarg union, even though pd.NA is valid at runtime here.
+        return calc_components.assign(
+            **{f"{dim}_parent": pd.NA for dim in dimensions}  # type: ignore[bad-argument-type]
+        )
     # desired: add parental dimension columns
     for dim in dimensions:
         # split the nulls and non-nulls. If the child dim is null, then we can run the
@@ -7325,7 +7369,9 @@ def assign_parent_dimensions(
         null_dim_mask = calc_components[dim].isnull()
         calc_components_null = make_xbrl_factoid_dimensions_explicit(
             df_w_xbrl_factoid=calc_components[null_dim_mask].assign(
-                **{f"{dim}_parent": pd.NA}
+                # pandas-stubs' assign() signature doesn't include NAType in its
+                # accepted kwarg union, even though pd.NA is valid at runtime here.
+                **{f"{dim}_parent": pd.NA}  # type: ignore[bad-argument-type]
             ),
             table_dimensions_ferc1=table_dimensions,
             dimensions=[dim],
