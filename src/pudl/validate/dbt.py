@@ -3,6 +3,7 @@
 import io
 import json
 import logging
+import os
 from contextlib import chdir, contextmanager, redirect_stdout
 from pathlib import Path
 from typing import NamedTuple, cast
@@ -161,15 +162,10 @@ def build_with_context(
     if node_exclusion is not None:
         cli_args += ["--exclude", node_exclusion]
     if use_nightly_builds:
-        cli_args += [
-            "--vars",
-            json.dumps(
-                {
-                    "pudl_parquet_base_path": "s3://pudl.catalyst.coop/nightly",
-                    "ferceqr_parquet_base_path": "s3://pudl.catalyst.coop/ferceqr",
-                }
-            ),
-        ]
+        # These will live on for the full python process, but won't persist beyond that
+        os.environ["PUDL_PARQUET_BASE_PATH"] = "s3://pudl.catalyst.coop/nightly"
+        os.environ["FERCEQR_PARQUET_BASE_PATH"] = "s3://pudl.catalyst.coop/ferceqr"
+
     dbt = install_dbt_deps()
 
     with _preserve_logging_propagation(), chdir(PUDL_DBT_PATH):

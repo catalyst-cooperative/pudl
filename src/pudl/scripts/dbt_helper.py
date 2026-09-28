@@ -23,6 +23,8 @@ logger = get_logger(__name__)
 
 
 ALL_TABLES = [r.name for r in PUDL_PACKAGE.resources]
+PUDL_PARQUET_BASE_PATH = "s3://pudl.catalyst.coop/nightly"
+FERCEQR_PARQUET_BASE_PATH = "s3://pudl.catalyst.coop/ferceqr"
 
 
 def insert_data_source(parent_dir: Path, table_name: str) -> Path:
@@ -52,11 +54,44 @@ def _get_existing_row_counts() -> pd.DataFrame:
     ).fillna(value="")
 
 
+def _ensure_s3_secret() -> None:
+    duckdb.sql("LOAD httpfs")
+    duckdb.sql(
+        """
+        CREATE OR REPLACE SECRET pudl_s3_secret (
+            TYPE S3,
+            REGION 'us-west-2',
+            URL_STYLE 'path',
+            PROVIDER config
+        )
+        """
+    )
+
+
+def _parquet_path(table_name: str, use_nightly_builds: bool) -> str:
+    if not use_nightly_builds:
+        return str(
+            PudlPaths().parquet_path(
+                table_name, partitioned_output="ferceqr" in table_name
+            )
+        )
+
+    if "ferceqr" in table_name:
+        path = f"{FERCEQR_PARQUET_BASE_PATH}/{table_name}/**/*.parquet"
+    else:
+        path = f"{PUDL_PARQUET_BASE_PATH}/{table_name}.parquet"
+    return path
+
+
 def _calculate_row_counts(
     table_name: str,
     partition_expr: str | None = None,
+    use_nightly_builds: bool = False,
 ) -> pd.DataFrame:
-    table_path = str(PudlPaths().parquet_path(table_name))
+    parquet_path = _parquet_path(table_name, use_nightly_builds)
+
+    if use_nightly_builds:
+        _ensure_s3_secret()
 
     if partition_expr is None:
         partition_expr_sql = "''"
@@ -69,18 +104,16 @@ def _calculate_row_counts(
 SELECT
     CAST(COALESCE(CAST({partition_expr_sql} AS VARCHAR), '') AS VARCHAR) AS partition,
     COUNT(*) AS row_count
-FROM '{table_path}' {group_by_clause}
+FROM read_parquet('{parquet_path}', union_by_name=true) {group_by_clause}
     """  # noqa: S608
 
-    new_row_counts = (
+    return (
         duckdb.sql(row_count_query)
         .df()
         .assign(table_name=table_name)
         .astype({"partition": "string", "table_name": "string"})
         .loc[:, ["table_name", "partition", "row_count"]]
     )
-
-    return new_row_counts
 
 
 def _combine_row_counts(existing: pd.DataFrame, new: pd.DataFrame) -> pd.DataFrame:
@@ -100,6 +133,7 @@ def update_row_counts(
     table_name: str,
     dbt_root: Path,
     clobber: bool = False,
+    use_nightly_builds: bool = False,
 ) -> UpdateResult:
     """Generate updated row counts per partition and write to csv file within dbt project."""
     schema_path = insert_data_source(dbt_root / "models", table_name) / "schema.yml"
@@ -153,7 +187,9 @@ def update_row_counts(
         )
 
     partition_expr = partition_expressions[0]  # TODO: support multiple partitions
-    new = _calculate_row_counts(table_name, partition_expr)
+    new = _calculate_row_counts(
+        table_name, partition_expr, use_nightly_builds=use_nightly_builds
+    )
 
     # Make old and new row counts comparable so we can detect changes
     row_count_idx = ["table_name", "partition"]
@@ -190,6 +226,28 @@ def maybe_schema_from_path(path: Path) -> DbtSchema:
     return DbtSchema.from_yaml(path)
 
 
+def add_external_location(schema: DbtSchema, table_name: str) -> DbtSchema:
+    """Add an external_location block to a generated dbt schema."""
+    if "ferceqr" in table_name:
+        external_location = (
+            "{{ env_var('FERCEQR_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}"
+            f"/{table_name}/**/*.parquet"
+        )
+    else:
+        external_location = (
+            "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}"
+            f"/{table_name}.parquet"
+        )
+
+    for source in schema.sources:
+        for table in source.tables:
+            if table.name == table_name:
+                table.external_location = external_location
+                return schema
+
+    raise ValueError(f"{table_name} not found in schema.")
+
+
 def update_table_schema(
     table_name: str,
     dbt_root: Path,
@@ -207,6 +265,7 @@ def update_table_schema(
     machine_schema = DbtSchema.from_table_name(table_name)
 
     merged_schema = merge_schema(machine_schema, human_schema)
+    merged_schema = add_external_location(merged_schema, table_name)
     model_outputs = insert_data_source(dbt_root / "models", table_name)
     model_outputs.mkdir(parents=True, exist_ok=True)
     merged_path = model_outputs / "schema.yml"
@@ -277,6 +336,11 @@ class TableUpdateArgs:
     help="Update source table row count expectations.",
 )
 @click.option(
+    "--use-nightly-builds/--no-use-nightly-builds",
+    default=False,
+    help="Use nightly build outputs to generate row counts.",
+)
+@click.option(
     "--clobber/--no-clobber",
     default=False,
     help="Overwrite existing table schema config and row counts. Otherwise, the script will fail if destructive changes are made.",
@@ -286,6 +350,7 @@ def update_tables(
     clobber: bool,
     schema: bool,
     row_counts: bool,
+    use_nightly_builds: bool,
 ):
     """Add or update dbt schema configs and row count expectations for PUDL tables.
 
@@ -324,6 +389,7 @@ def update_tables(
                     table_name=table_name,
                     dbt_root=PUDL_DBT_PATH,
                     clobber=args.clobber,
+                    use_nightly_builds=use_nightly_builds,
                 )
             )
 
@@ -367,7 +433,7 @@ def update_tables(
 @click.option(
     "--use-nightly-builds/--no-use-nightly-builds",
     default=False,
-    help="Use nightly S3 parquet paths when running dbt validation.",
+    help="Use nightly build outputs when running dbt validation.",
 )
 def validate(
     select: str | None = None,

@@ -67,10 +67,14 @@ class PudlPaths(BaseSettings):
             path.mkdir()
         return self
 
-    def parquet_path(self, table_name: str | None = None) -> Path:
+    def parquet_path(
+        self, table_name: str | None = None, partitioned_output: bool = False
+    ) -> Path:
         """Return path to parquet file for given database and table."""
         if table_name is None:
             return self.pudl_output / "parquet"
+        if partitioned_output:
+            return self.pudl_output / "parquet" / table_name / "**" / "*.parquet"
         return self.pudl_output / "parquet" / f"{table_name}.parquet"
 
     def sqlite_path(self, name: str) -> Path:
