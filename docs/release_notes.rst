@@ -33,7 +33,7 @@ EIA-860
 FERC Form 1
 ~~~~~~~~~~~
 * Integrated any updates or straggler filings from 2025 for
-  :doc:`EIA-860 <data_sources/ferc1>`. See PR :pr:`5668`.
+  :doc:`FERC Form 1 <data_sources/ferc1>`. See PR :pr:`5668`.
 
 Documentation
 ^^^^^^^^^^^^^
