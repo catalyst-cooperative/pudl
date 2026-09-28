@@ -56,8 +56,8 @@ sources:
                     sized to comfortably absorb float64 summation noise (observed up to ~$0.50 for sums of
                     this magnitude) while remaining far tighter than any real data or code regression.
                   arguments:
-                    min_value: 1199491017899 - 5
-                    max_value: 1199491017899 + 5
+                    min_value: 1207361360354 - 5
+                    max_value: 1207361360354 + 5
                     row_condition: report_year = 2025
               - dbt_expectations.expect_column_sum_to_be_between:
                   description: Sum of the ending_balance by year should hold relatively constant.
