@@ -222,7 +222,6 @@ class DbtTable(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     name: str
-    external_location: str | None = None
     description: _NormalizedDescription = None
     data_tests: _NormalizedDataTests = None
     columns: list[DbtColumn] | None = None

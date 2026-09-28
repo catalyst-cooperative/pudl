@@ -242,7 +242,7 @@ def add_external_location(schema: DbtSchema, table_name: str) -> DbtSchema:
     for source in schema.sources:
         for table in source.tables:
             if table.name == table_name:
-                table.external_location = external_location
+                table.meta = {"external_location": external_location}
                 return schema
 
     raise ValueError(f"{table_name} not found in schema.")

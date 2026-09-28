@@ -23,13 +23,3 @@ test-paths: ["tests/unit_tests"]
 vars:
   pudl_parquet_base_path: "{{ env_var('PUDL_OUTPUT') ~ '/parquet' }}"
   ferceqr_parquet_base_path: "{{ env_var('PUDL_OUTPUT') ~ '/parquet' }}"
-
-sources:
-  pudl_dbt:
-    +meta:
-      external_location: |
-        {%- if 'ferceqr' in name -%}
-        '{{ var("ferceqr_parquet_base_path") }}/{name}/**/*.parquet'
-        {%- else -%}
-        '{{ var("pudl_parquet_base_path") }}/{name}.parquet'
-        {%- endif -%}
