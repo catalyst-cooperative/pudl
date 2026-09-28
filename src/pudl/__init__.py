@@ -21,16 +21,6 @@ warnings.filterwarnings(
     category=FutureWarning,
 )
 
-# Every persisted output table has its dtypes forced back to the metadata-declared
-# schema by Resource.enforce_schema() before it's written, regardless of what
-# fillna()/where()/mask()/clip()/replace() may have done upstream. So opting into this
-# future behavior now shouldn't change *persisted* results. It stops pandas from
-# silently downcasting (and warning about it). However, it doesn't guarantee
-# identical behavior in intermediate operations between a call site and that final
-# coercion. This option is a pandas 2.x transitional shim. pandas 3.0 removes silent
-# downcasting entirely
-pd.set_option("future.no_silent_downcasting", True)
-
 configure_root_logger()
 
 # Paths to resources stored within the PUDL repository. Unlike PUDL_INPUT and
