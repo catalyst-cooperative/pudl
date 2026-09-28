@@ -1282,6 +1282,10 @@ def harvested_entity_asset_factory(
             "utility_name_eia": 0,
             "longitude": 0 if eia_data_config.eia860.eia860m else 0.7,
             "prime_mover_code": 0,
+            # Experimenting with relaxing the default 70% threshold for this column:
+            # see harvest-new-field.md. 0.5 requires a simple majority (strictly
+            # more than half of the contributing records must agree).
+            "reporting_frequency_code": 0.5,
         }
 
         entity_df, annual_df, _col_dfs = harvest_entity_tables(

@@ -927,7 +927,6 @@ def _core_eia923__boiler_fuel(raw_eia923__boiler_fuel: pd.DataFrame) -> pd.DataF
         "total_fuel_consumption_quantity",
         "balancing_authority_code_eia",
         "early_release",
-        "reporting_frequency_code",
         # "data_maturity",
     ]
     bf_df = bf_df.drop(cols_to_drop, axis=1)
