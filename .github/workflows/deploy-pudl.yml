@@ -168,7 +168,7 @@ jobs:
         uses: google-github-actions/setup-gcloud@v3
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@v10.1.0
+        uses: astral-sh/setup-uv@v10.2.0
 
       - name: Make GCP Batch config file
         run: |-
