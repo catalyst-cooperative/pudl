@@ -214,12 +214,14 @@ def core_epa__assn_eia_epacamd(
             core_eia__entity_generators[["plant_id_eia", "generator_id"]],
             on=["plant_id_eia", "generator_id"],
             how="inner",
+            validate="m:1",
         )
         crosswalk_clean = pd.merge(
             crosswalk_clean,
             core_eia__entity_boilers[["plant_id_eia", "boiler_id"]],
             on=["plant_id_eia", "boiler_id"],
             how="inner",
+            validate="m:1",
         )
     # TODO: Add manual crosswalk cleanup from @grgmiller
     return crosswalk_clean
@@ -496,7 +498,21 @@ def _subplant_ids_from_prepped_crosswalk(prepped: pd.DataFrame) -> pd.DataFrame:
             f"non-bipartite: i={i}, node_set={node_set}"
         )
         nx.set_edge_attributes(subgraph, name="global_subplant_id", values=i)
-    return nx.to_pandas_edgelist(graph)
+    edge_list = nx.to_pandas_edgelist(graph)
+    # nx.Graph silently collapses multiple edges between the same pair of nodes into
+    # one, keeping only the last edge's attributes. If prepped contains a duplicated
+    # (combustor_id, generator_id_unique) pair -- e.g. because upstream deduplication
+    # of the crosswalk failed to catch it -- that row disappears with no warning.
+    if len(edge_list) != len(prepped):
+        raise AssertionError(
+            "Expected make_subplant_ids to preserve row count, but networkx's graph "
+            f"construction collapsed {len(prepped) - len(edge_list)} duplicate "
+            "(combustor_id, generator_id_unique) edge(s). This likely means the "
+            "crosswalk contains a duplicated EPA unit/EIA generator association "
+            f"within a plant. Input had {len(prepped)} rows, output has "
+            f"{len(edge_list)}."
+        )
+    return edge_list
 
 
 def _convert_global_id_to_composite_id(
@@ -565,7 +581,12 @@ def make_subplant_ids(crosswalk: pd.DataFrame) -> pd.DataFrame:
     subplants, and 11% contain subplants with different technology types, such as a gas
     boiler and gas turbine (not in a combined cycle).
 
-    Any row filtering should be done before this step if desired.
+    Any row filtering should be done before this step if desired. Rows that are
+    duplicates with respect to the EPA unit/EIA generator association -- e.g. two
+    crosswalk rows that only differ in ``generator_id_epa`` or ``boiler_id``, neither
+    of which appears in the output -- are collapsed here explicitly, since silently
+    leaving that to the graph construction below would make its row-count guarantee
+    (see :func:`_subplant_ids_from_prepped_crosswalk`) fail on real data.
 
     Note that sub-plant ids should be used in conjunction with ``plant_id_eia`` rather
     than ``plant_id_epa`` because the former is more granular and integrated into CEMS
@@ -578,6 +599,15 @@ def make_subplant_ids(crosswalk: pd.DataFrame) -> pd.DataFrame:
         An edge list connecting EPA units to EIA generators, with connected pieces
         issued a subplant_id
     """
+    crosswalk = crosswalk.drop_duplicates(
+        subset=[
+            "plant_id_eia",
+            "plant_id_epa",
+            "emissions_unit_id_epa",
+            "generator_id",
+            "unit_id_pudl",
+        ]
+    )
     edge_list = _prep_for_networkx(crosswalk)
     edge_list = _subplant_ids_from_prepped_crosswalk(edge_list)
     edge_list = _convert_global_id_to_composite_id(edge_list)
@@ -609,33 +639,25 @@ def update_subplant_ids(subplant_crosswalk: pd.DataFrame) -> pd.DataFrame:
             :func:`make_subplant_ids`
 
     """
-    # Step 1: Create corrected versions of subplant_id and unit_id_pudl
-    # if multiple unit_id_pudl are connected by a single subplant_id,
-    # unit_id_pudl_connected groups these unit_id_pudl together
+    # If a unit_id_pudl value is shared by generators in more than one
+    # make_subplant_ids subplant_id, those subplant_id values refer to the same
+    # physical subplant and must be merged -- subplant_id_connected records the
+    # (lowest-numbered) merged subplant_id every row belongs to, including rows whose
+    # own unit_id_pudl is null (e.g. a generator with no BGA match sharing a combustor
+    # with one that does), since connect_ids broadcasts the replacement to every row
+    # sharing the same original subplant_id regardless of that row's own unit_id_pudl.
+    #
+    # There is deliberately no second, symmetric connect_ids call unifying unit_id_pudl
+    # by subplant_id: once two subplant_id values are known to be the same physical
+    # subplant, that's already reflected in subplant_id_connected, which is the only
+    # thing subplant_id_updated below depends on.
     subplant_crosswalk = connect_ids(
         subplant_crosswalk, id_to_update="unit_id_pudl", connecting_id="subplant_id"
     )
-    # if multiple subplant_id are connected by a single unit_id_pudl, group these
-    # subplant_id together
-    subplant_crosswalk = connect_ids(
-        subplant_crosswalk, id_to_update="subplant_id", connecting_id="unit_id_pudl"
-    )
-
-    # Step 2: Update the subplant ID based on these now known unit/subplant overlaps
     subplant_crosswalk = subplant_crosswalk.assign(
-        unit_id_pudl_filled=(
-            lambda x: x.unit_id_pudl_connected.fillna(
-                x.subplant_id_connected + x.unit_id_pudl_connected.max()
-            )
-        ),
-        # create a new unique subplant_id based on the connected subplant ids and the
-        # filled unit_id
-        subplant_id_updated=(
-            lambda x: x.groupby(
-                ["subplant_id_connected", "unit_id_pudl_filled"],
-                dropna=False,
-            ).ngroup()
-        ),
+        # Renumber the merged subplant_id_connected values into a compact, contiguous
+        # sequence starting at 0.
+        subplant_id_updated=lambda x: x.groupby("subplant_id_connected").ngroup()
     )
 
     return subplant_crosswalk
@@ -674,20 +696,22 @@ def connect_ids(
     subplant_crosswalk[f"{connecting_id}_connected"] = subplant_crosswalk[connecting_id]
     if len(duplicates) > 0:
         # find the lowest number subplant id associated with each duplicated unit_id_pudl
-        duplicates.loc[:, f"{connecting_id}_to_replace"] = (
-            duplicates.groupby([id_to_update])[connecting_id].min().iloc[0]
-        )
-        # merge this replacement subplant_id into the dataframe and use it to update the
-        # existing subplant id
-        subplant_crosswalk = subplant_crosswalk.merge(
-            duplicates,
-            how="left",
-            on=[id_to_update, connecting_id],
-            validate="m:1",
-        )
-        mask = subplant_crosswalk[f"{connecting_id}_to_replace"].notna()
-        subplant_crosswalk.loc[mask, f"{connecting_id}_connected"] = (
-            subplant_crosswalk.loc[mask, f"{connecting_id}_to_replace"]
+        duplicates.loc[:, f"{connecting_id}_to_replace"] = duplicates.groupby(
+            [id_to_update]
+        )[connecting_id].transform("min")
+        # Broadcast the replacement value to every row sharing that connecting_id, keyed
+        # on connecting_id alone E.g. if a combustor feeds a generator with a real
+        # unit_id_pudl (which triggers a merge into another subplant_id) and a second
+        # generator with no BGA match at all (unit_id_pudl is null), that second
+        # generator shares the same subplant_id and must move too, even though its own
+        # unit_id_pudl never appears in `duplicates`.
+        replacement_by_connecting_id = duplicates.groupby(connecting_id)[
+            f"{connecting_id}_to_replace"
+        ].min()
+        subplant_crosswalk[f"{connecting_id}_connected"] = (
+            subplant_crosswalk[connecting_id]
+            .map(replacement_by_connecting_id)
+            .fillna(subplant_crosswalk[connecting_id])
         )
     return subplant_crosswalk
 
