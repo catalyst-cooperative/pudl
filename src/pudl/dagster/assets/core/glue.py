@@ -537,17 +537,12 @@ def _convert_global_id_to_composite_id(
     else:
         idx_col = idx_name
 
-    composite_key: pd.Series = reindexed.groupby("plant_id_eia", as_index=False).apply(
-        lambda x: x.groupby("global_subplant_id").ngroup(), include_groups=False
-    )
-
-    # Recombine. Could use index join but I chose to reindex, sort and assign.
-    # Errors like mismatched length will raise exceptions, which is good.
-
-    # drop the outer group, leave the reindexed row index
-    composite_key = composite_key.reset_index(level=0, drop=True)
-    composite_key = composite_key.sort_index()  # put back in same order as reindexed
-    reindexed["subplant_id"] = composite_key
+    # Within each plant_id_eia, renumber the (plant-spanning) global_subplant_id
+    # values as a 0-indexed sequence ordered by global_subplant_id, so subplant_id is
+    # only unique in combination with plant_id_eia rather than on its own.
+    reindexed["subplant_id"] = reindexed.groupby("plant_id_eia")[
+        "global_subplant_id"
+    ].transform(lambda x: pd.factorize(x, sort=True)[0])
     # restore original index
     reindexed = reindexed.set_index(idx_col)  # restore values
     reindexed.index = reindexed.index.rename(idx_name)  # restore original name
