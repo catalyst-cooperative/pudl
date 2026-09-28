@@ -20,6 +20,7 @@ Stuff we are testing:
 
 import logging
 from io import StringIO
+from typing import Any, cast
 
 import networkx as nx
 import pandas as pd
@@ -37,6 +38,8 @@ logger = logging.getLogger(__name__)
 
 
 class TestForestSetup:
+    parent: NodeId
+
     def _exploded_calcs_from_edges(self, edges: list[tuple[NodeId, NodeId]]):
         records = []
         for parent, child in edges:
@@ -67,7 +70,7 @@ class TestForestSetup:
 
     def build_forest_and_annotated_tags(
         self, edges: list[tuple[NodeId, NodeId]], tags: pd.DataFrame, seeds=None
-    ):
+    ) -> dict[NodeId, Any]:
         """Build a forest, test forest nodes and return annotated tags.
 
         Args:
@@ -80,8 +83,11 @@ class TestForestSetup:
         annotated_forest = simple_forest.annotated_forest
         # ensure no nodes got dropped
         assert len(annotated_forest.nodes) == len(dedupe_n_flatten_list_of_lists(edges))
-        annotated_tags = nx.get_node_attributes(annotated_forest, "tags")
-        return annotated_tags
+        # networkx's @_dispatchable decorator loses the graph's node TypeVar, so
+        # get_node_attributes() comes back untyped rather than as dict[NodeId, Any].
+        return cast(
+            "dict[NodeId, Any]", nx.get_node_attributes(annotated_forest, "tags")
+        )
 
 
 class TestPrunedNode(TestForestSetup):
@@ -181,8 +187,9 @@ class TestTagPropagation(TestForestSetup):
 
     def test_leafward_prop_undecided_children(self):
         edges = [(self.parent, self.child1), (self.parent, self.child2)]
+        # pandas-stubs' assign() overloads don't include a bare scalar NAType.
         tags = pd.DataFrame([self.parent, self.child1, self.child2]).assign(
-            in_rate_base=["yes", pd.NA, pd.NA]
+            in_rate_base=["yes", pd.NA, pd.NA]  # type: ignore[bad-argument-type]
         )
         annotated_tags = self.build_forest_and_annotated_tags(edges, tags)
         assert annotated_tags[self.parent]["in_rate_base"] == "yes"
@@ -195,8 +202,9 @@ class TestTagPropagation(TestForestSetup):
     def test_leafward_prop_disagreeing_child(self):
         """Don't force the diagreeing child to follow the parent."""
         edges = [(self.parent, self.child1), (self.parent, self.child2)]
+        # pandas-stubs' assign() overloads don't include a bare scalar NAType.
         tags = pd.DataFrame([self.parent, self.child1, self.child2]).assign(
-            in_rate_base=["yes", "no", pd.NA]
+            in_rate_base=["yes", "no", pd.NA]  # type: ignore[bad-argument-type]
         )
         annotated_tags = self.build_forest_and_annotated_tags(edges, tags)
         assert annotated_tags[self.parent]["in_rate_base"] == "yes"
@@ -209,9 +217,10 @@ class TestTagPropagation(TestForestSetup):
     def test_leafward_prop_preserve_non_propagating_tags(self):
         """Only propagate tags that actually get inherited - i.e., not `in_root_boose`."""
         edges = [(self.parent, self.child1), (self.parent, self.child2)]
+        # pandas-stubs' assign() overloads don't include a bare scalar NAType.
         tags = pd.DataFrame([self.parent, self.child1, self.child2]).assign(
-            in_rate_base=["yes", "no", pd.NA],
-            in_root_boose=["yus", "nu", pd.NA],
+            in_rate_base=["yes", "no", pd.NA],  # type: ignore[bad-argument-type]
+            in_root_boose=["yus", "nu", pd.NA],  # type: ignore[bad-argument-type]
         )
         annotated_tags = self.build_forest_and_annotated_tags(edges, tags)
         assert annotated_tags[self.parent]["in_rate_base"] == "yes"
@@ -245,7 +254,10 @@ class TestTagPropagation(TestForestSetup):
         """
         edges = [(self.parent, self.child1), (self.parent, self.child2)]
         null_tag_edges = [self.parent, self.child1, self.child2]
-        tags = pd.DataFrame(null_tag_edges).assign(in_rate_base=[pd.NA, pd.NA, pd.NA])
+        # pandas-stubs' assign() overloads don't include a bare scalar NAType.
+        tags = pd.DataFrame(null_tag_edges).assign(
+            in_rate_base=[pd.NA, pd.NA, pd.NA]  # type: ignore[bad-argument-type]
+        )
         annotated_tags = self.build_forest_and_annotated_tags(edges, tags)
         for node in null_tag_edges:
             assert not annotated_tags.get(node)
@@ -255,8 +267,9 @@ class TestTagPropagation(TestForestSetup):
         for node in null_tag_edges:
             assert not annotated_tags.get(node)
 
+        # pandas-stubs' assign() overloads don't include a bare scalar NAType.
         tags = pd.DataFrame([self.parent, self.child1, self.child2]).assign(
-            in_rate_base=[pd.NA, pd.NA, pd.NA],
+            in_rate_base=[pd.NA, pd.NA, pd.NA],  # type: ignore[bad-argument-type]
             a_non_propped_tag=["hi", "hello", "what_am_i_doing_here_even"],
         )
         annotated_tags = self.build_forest_and_annotated_tags(edges, tags)

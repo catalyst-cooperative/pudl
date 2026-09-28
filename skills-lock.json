@@ -3,7 +3,7 @@
   "skills": {
     "dagster-expert": {
       "source": "dagster-io/skills",
-      "ref": "v1.13.23",
+      "ref": "v1.13.24",
       "sourceType": "github",
       "skillPath": "plugins/dagster-expert/skills/dagster-expert/SKILL.md",
       "computedHash": "255afd28bf2978c70185a54da749084cf406287aa81b75641a91f2a04ffc67c8"

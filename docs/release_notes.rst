@@ -87,6 +87,8 @@ Bug Fixes & Data Cleaning
   now spans two ``plant_id_pudl`` values within a single ``plant_id_ferc1``, so we
   raised the tolerance in the corresponding dbt test. See issue :issue:`5609` and PR
   :pr:`5642`.
+* Fixed tags for new 2025 XBRL factoids and rescued the ``ferc_account`` field in
+  :ref:`out_ferc1__yearly_rate_base`. See :issue:`5520` and :pr:`5597`.
 * Fixed ``valid_until_date`` in the ``_core_eia__forensics_entity_resolution_*`` and
   ``_core_rus*__forensics_entity_resolution_borrowers`` tables. Each record's end date
   was being drawn from an unrelated column of the same entity, and ties were sorted

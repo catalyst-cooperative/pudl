@@ -6,10 +6,22 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 partition_expr: report_year
-          - expect_columns_not_all_null:
-              description: ferc_account is entirely null. Seems like an error.
-              config:
-                severity: warn
+          - expect_columns_not_all_null
+          - expect_factoid_rate_base_category:
+              arguments:
+                column_name: "rate_base_category"
+                row_condition: xbrl_factoid != 'accumulated_depreciation' AND rate_base_category NOT IN ('asset_retirement_costs', 'other_deferred_debits_and_credits')
+              description: |-
+                Factoids ending with a rate-base category must have that same
+                value in rate_base_category, excluding a few known exceptions.
+          - expect_factoid_rate_base_category:
+              arguments:
+                column_name: "plant_function"
+                row_condition: plant_function != 'experimental'
+              description: |-
+                Factoids ending with a plant_function category must have that same
+                value in the plant_function column, excluding experimental factoids
+                which do not confirm to this pattern.
         columns:
           - name: ending_balance
             data_tests:
