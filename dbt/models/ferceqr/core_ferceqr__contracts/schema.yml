@@ -3,6 +3,11 @@ sources:
   - name: pudl
     tables:
       - name: core_ferceqr__contracts
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                partition_expr: year_quarter
         columns:
           - name: year_quarter
           - name: seller_company_id_ferc
@@ -36,3 +41,5 @@ sources:
           - name: point_of_delivery_specific_location
           - name: begin_date
           - name: end_date
+        meta:
+          external_location: "{{ env_var('FERCEQR_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_ferceqr__contracts/**/*.parquet"

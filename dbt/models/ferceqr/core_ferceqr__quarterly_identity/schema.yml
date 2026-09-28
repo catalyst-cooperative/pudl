@@ -3,6 +3,11 @@ sources:
   - name: pudl
     tables:
       - name: core_ferceqr__quarterly_identity
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                partition_expr: year_quarter
         columns:
           - name: year_quarter
           - name: company_id_ferc
@@ -18,3 +23,5 @@ sources:
           - name: contact_phone
           - name: contact_email
           - name: transactions_reported_to_index_price_publishers
+        meta:
+          external_location: "{{ env_var('FERCEQR_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_ferceqr__quarterly_identity/**/*.parquet"
