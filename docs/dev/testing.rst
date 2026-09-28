@@ -5,9 +5,10 @@ Testing PUDL
 ===============================================================================
 
 We use `pytest <https://pytest.org>`__ to specify software unit and integration tests,
-as well as an end-to-end smoke test of the PUDL ETL pipeline and its outputs, including
-calling ``dbt build`` to run our :doc:`data_validation_quickstart` tests. Several common
-test commands are made available as pixi tasks for convenience.
+as well as an end-to-end smoke test of the PUDL ETL pipeline and its outputs. After the
+fast ETL pipeline runs, pytest also calls ``dbt build`` to run our
+:doc:`data_validation_quickstart` tests. Several common test commands are made available
+as pixi tasks for convenience.
 
 For day-to-day work, the most commonly used pixi testing tasks are:
 
@@ -146,7 +147,7 @@ command like:
 
 .. code-block:: console
 
-   $ pixi run pytest --no-cov --verbose --log-level-cli=INFO tests/unit/helpers_test.py
+   $ pixi run pytest --no-cov --verbose --log-cli-level=INFO tests/unit/helpers_test.py
 
 The ``prebuilt_outputs`` fixture streams the fast-ETL subprocess output to the terminal
 directly (see ``tests/conftest.py``) when preparing to run the PUDL pipeline tests so
