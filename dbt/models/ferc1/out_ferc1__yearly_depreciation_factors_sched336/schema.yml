@@ -39,3 +39,5 @@ sources:
           - name: account_num
           - name: service_life_avg
           - name: remaining_life_avg
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/out_ferc1__yearly_depreciation_factors_sched336.parquet"

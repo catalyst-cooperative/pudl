@@ -21,3 +21,5 @@ sources:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_eia176__yearly_gas_exports.parquet"

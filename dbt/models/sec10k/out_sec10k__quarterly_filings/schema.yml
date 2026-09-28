@@ -17,3 +17,5 @@ sources:
           - name: exhibit_21_version
           - name: report_date
           - name: source_url
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/out_sec10k__quarterly_filings.parquet"

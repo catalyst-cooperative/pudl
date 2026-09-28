@@ -538,3 +538,5 @@ sources:
                   arguments:
                     min_value: -0.017
                     max_value: 0.0
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/out_epacems__yearly_operational_characteristics.parquet"

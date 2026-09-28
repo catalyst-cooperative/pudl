@@ -26,3 +26,5 @@ sources:
           - name: ferc_account
           - name: balance
           - name: row_type_xbrl
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_ferc1__yearly_balance_sheet_assets_sched110.parquet"

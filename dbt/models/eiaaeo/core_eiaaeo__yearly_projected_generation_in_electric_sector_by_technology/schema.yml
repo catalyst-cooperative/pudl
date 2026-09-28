@@ -19,3 +19,5 @@ sources:
           - name: summer_capacity_unplanned_additions_mw
           - name: summer_capacity_retirements_mw
           - name: gross_generation_mwh
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology.parquet"

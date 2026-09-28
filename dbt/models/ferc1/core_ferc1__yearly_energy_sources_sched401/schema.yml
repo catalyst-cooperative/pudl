@@ -22,3 +22,5 @@ sources:
           - name: row_type_xbrl
           - name: energy_mwh
           - name: record_id
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_ferc1__yearly_energy_sources_sched401.parquet"

@@ -9,3 +9,5 @@ sources:
         columns:
           - name: ferc_account_id
           - name: ferc_account_description
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_ferc__codes_accounts.parquet"

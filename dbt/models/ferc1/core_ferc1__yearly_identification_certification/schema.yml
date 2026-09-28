@@ -43,3 +43,5 @@ sources:
           - name: filing_software_vendor_name
           - name: report_filing_type
           - name: filing_date
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_ferc1__yearly_identification_certification.parquet"

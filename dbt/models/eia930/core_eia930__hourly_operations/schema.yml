@@ -21,3 +21,5 @@ sources:
           - name: demand_adjusted_mwh
           - name: demand_imputed_eia_mwh
           - name: demand_forecast_mwh
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_eia930__hourly_operations.parquet"

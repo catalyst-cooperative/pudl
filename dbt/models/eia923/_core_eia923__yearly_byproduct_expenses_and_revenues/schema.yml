@@ -102,3 +102,5 @@ sources:
           - name: revenues_fly_bottom_ash_intermingled
           - name: revenues_other_byproducts
           - name: revenues_total_byproduct
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/_core_eia923__yearly_byproduct_expenses_and_revenues.parquet"

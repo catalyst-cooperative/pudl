@@ -48,3 +48,5 @@ sources:
           - name: mail_zip_code_4
           - name: mail_postal_code
           - name: source_url
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/out_sec10k__quarterly_company_information.parquet"

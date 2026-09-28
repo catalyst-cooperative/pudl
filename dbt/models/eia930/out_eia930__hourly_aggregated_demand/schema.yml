@@ -13,3 +13,5 @@ sources:
           - name: aggregation_level
           - name: aggregation_group
           - name: demand_imputed_pudl_mwh
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/out_eia930__hourly_aggregated_demand.parquet"

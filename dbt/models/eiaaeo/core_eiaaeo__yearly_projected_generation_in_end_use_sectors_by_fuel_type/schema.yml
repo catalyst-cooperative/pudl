@@ -16,3 +16,5 @@ sources:
           - name: fuel_type_eiaaeo
           - name: summer_capacity_mw
           - name: gross_generation_mwh
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type.parquet"

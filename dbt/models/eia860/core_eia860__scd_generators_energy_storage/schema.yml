@@ -122,3 +122,5 @@ sources:
           - name: generator_id_direct_support_2
           - name: plant_id_eia_direct_support_3
           - name: generator_id_direct_support_3
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_eia860__scd_generators_energy_storage.parquet"

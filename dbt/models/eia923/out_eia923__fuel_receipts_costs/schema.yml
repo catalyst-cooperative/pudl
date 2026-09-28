@@ -473,3 +473,5 @@ sources:
           - name: mine_state
           - name: coalmine_county_id_fips
           - name: mine_type_code
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/out_eia923__fuel_receipts_costs.parquet"

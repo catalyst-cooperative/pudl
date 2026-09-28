@@ -59,3 +59,5 @@ sources:
           - name: opex_production_total
           - name: opex_per_mwh
           - name: asset_retirement_cost
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_ferc1__yearly_steam_plants_sched402.parquet"

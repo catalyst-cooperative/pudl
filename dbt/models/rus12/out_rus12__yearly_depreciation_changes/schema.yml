@@ -102,3 +102,5 @@ sources:
                     Check that most of the ending_balance's are positive - excluding the
                     retirement_work_in_progress.
           - name: is_total
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/out_rus12__yearly_depreciation_changes.parquet"

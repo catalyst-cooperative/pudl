@@ -194,3 +194,5 @@ sources:
           - name: total_mmbtu_ferc1
           - name: fuel_type_code_pudl_ferc1
           - name: unit_heat_rate_mmbtu_per_mwh_ferc1
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/out_pudl__yearly_assn_eia_ferc1_plant_parts.parquet"

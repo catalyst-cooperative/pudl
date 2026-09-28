@@ -43,3 +43,5 @@ sources:
                     min_value: 0.0
                   config:
                     error_if: ">24"
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/out_rus12__yearly_sources_and_distribution_by_plant_type.parquet"

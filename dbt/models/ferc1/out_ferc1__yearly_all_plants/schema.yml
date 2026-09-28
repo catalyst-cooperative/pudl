@@ -136,3 +136,5 @@ sources:
           - name: opex_production_before_pumping
           - name: opex_pumped_storage
           - name: opex_pumping
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/out_ferc1__yearly_all_plants.parquet"

@@ -82,3 +82,5 @@ sources:
           - name: plant_hours_connected_while_generating
           - name: plant_id_pudl
           - name: project_num
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/out_ferc1__yearly_pumped_storage_plants_sched408.parquet"

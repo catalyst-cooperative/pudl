@@ -47,3 +47,5 @@ sources:
           - name: data_maturity
             data_tests:
               - not_null
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_eia923__entity_coalmine.parquet"

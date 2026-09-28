@@ -20,3 +20,5 @@ sources:
           - name: balancing_authority_code_eia
           - name: balancing_authority_subregion_code_eia
           - name: demand_reported_mwh
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_eia930__hourly_subregion_demand.parquet"

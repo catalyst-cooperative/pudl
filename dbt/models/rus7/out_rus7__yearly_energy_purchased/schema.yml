@@ -51,3 +51,5 @@ sources:
           - name: supplier_code_rus
           - name: utility_name_eia
           - name: comments
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/out_rus7__yearly_energy_purchased.parquet"

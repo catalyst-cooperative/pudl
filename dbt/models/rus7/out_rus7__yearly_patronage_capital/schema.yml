@@ -95,3 +95,5 @@ sources:
                   arguments:
                     min_value: 0.0
           - name: is_total
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/out_rus7__yearly_patronage_capital.parquet"

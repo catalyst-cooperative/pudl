@@ -54,3 +54,5 @@ sources:
                   config:
                     error_if: ">5"
                   description: Investigate negative values.
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_rus7__yearly_long_term_debt.parquet"

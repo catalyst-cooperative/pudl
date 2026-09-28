@@ -55,3 +55,5 @@ sources:
                   arguments:
                     min_value: 0
           - name: region
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_eia191__monthly_gas_storage.parquet"

@@ -37,3 +37,5 @@ sources:
           - name: in_revenue_requirement
           - name: revenue_requirement_category
           - name: table_name
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/out_ferc1__yearly_detailed_income_statements.parquet"

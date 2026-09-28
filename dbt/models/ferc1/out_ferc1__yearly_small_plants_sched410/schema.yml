@@ -58,3 +58,5 @@ sources:
           - name: opex_total_nonfuel
           - name: peak_demand_mw
           - name: plant_type
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/out_ferc1__yearly_small_plants_sched410.parquet"

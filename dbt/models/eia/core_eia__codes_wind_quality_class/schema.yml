@@ -14,3 +14,5 @@ sources:
           - name: extreme_fifty_year_gust_ms
           - name: turbulence_intensity_a
           - name: turbulence_intensity_b
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_eia__codes_wind_quality_class.parquet"

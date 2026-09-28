@@ -19,3 +19,5 @@ sources:
           - name: respondent_id_ferc714_xbrl
           - name: respondent_name_ferc714
           - name: eia_code
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_ferc714__respondent_id.parquet"

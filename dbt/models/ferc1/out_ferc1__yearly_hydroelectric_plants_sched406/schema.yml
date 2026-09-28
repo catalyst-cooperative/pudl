@@ -78,3 +78,5 @@ sources:
           - name: plant_id_pudl
           - name: plant_type
           - name: project_num
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/out_ferc1__yearly_hydroelectric_plants_sched406.parquet"

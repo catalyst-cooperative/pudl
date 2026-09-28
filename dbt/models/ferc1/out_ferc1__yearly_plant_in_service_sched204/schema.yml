@@ -41,3 +41,5 @@ sources:
           - name: row_type_xbrl
           - name: starting_balance
           - name: transfers
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/out_ferc1__yearly_plant_in_service_sched204.parquet"

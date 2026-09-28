@@ -31,3 +31,5 @@ sources:
           - name: net_output_penalty
           - name: opex_fixed_per_kw
           - name: opex_variable_per_mwh
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_nrelatb__yearly_projected_cost_performance.parquet"

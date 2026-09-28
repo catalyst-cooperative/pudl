@@ -35,3 +35,5 @@ sources:
           - name: opex_maintenance
           - name: opex_rents
           - name: opex_total
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_ferc1__yearly_transmission_lines_sched422.parquet"

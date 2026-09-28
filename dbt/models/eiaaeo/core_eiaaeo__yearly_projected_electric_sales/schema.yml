@@ -15,3 +15,5 @@ sources:
           - name: projection_year
           - name: customer_class
           - name: sales_mwh
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_eiaaeo__yearly_projected_electric_sales.parquet"

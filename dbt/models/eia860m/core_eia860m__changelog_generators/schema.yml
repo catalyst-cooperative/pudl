@@ -85,3 +85,5 @@ sources:
           - name: summer_capacity_mw
           - name: technology_description
           - name: winter_capacity_mw
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_eia860m__changelog_generators.parquet"

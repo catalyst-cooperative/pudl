@@ -41,3 +41,5 @@ sources:
           - name: energy_charges
           - name: other_charges
           - name: total_settlement
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_ferc1__yearly_purchased_power_and_exchanges_sched326.parquet"

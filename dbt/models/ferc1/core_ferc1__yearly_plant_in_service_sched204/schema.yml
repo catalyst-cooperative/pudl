@@ -30,3 +30,5 @@ sources:
           - name: record_id
           - name: utility_type
           - name: plant_status
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_ferc1__yearly_plant_in_service_sched204.parquet"

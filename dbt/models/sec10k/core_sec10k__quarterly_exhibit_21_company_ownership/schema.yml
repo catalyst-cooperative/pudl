@@ -12,3 +12,5 @@ sources:
           - name: subsidiary_company_location
           - name: subsidiary_company_id_sec10k
           - name: fraction_owned
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_sec10k__quarterly_exhibit_21_company_ownership.parquet"

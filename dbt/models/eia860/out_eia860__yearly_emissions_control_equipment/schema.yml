@@ -82,3 +82,5 @@ sources:
           - name: emission_control_equipment_cost
           - name: emission_control_operating_date
           - name: emission_control_retirement_date
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/out_eia860__yearly_emissions_control_equipment.parquet"

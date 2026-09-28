@@ -32,3 +32,5 @@ sources:
                     min_value: 0.0
                   config:
                     error_if: ">176"
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_rus7__yearly_owed_by_customers.parquet"

@@ -60,3 +60,5 @@ sources:
           - name: asset_type
           - name: ending_balance
           - name: is_total
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/out_rus7__yearly_balance_sheet_assets.parquet"

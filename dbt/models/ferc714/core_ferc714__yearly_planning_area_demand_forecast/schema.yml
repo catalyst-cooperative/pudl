@@ -22,3 +22,5 @@ sources:
           - name: summer_peak_demand_forecast_mw
           - name: winter_peak_demand_forecast_mw
           - name: net_demand_forecast_mwh
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_ferc714__yearly_planning_area_demand_forecast.parquet"

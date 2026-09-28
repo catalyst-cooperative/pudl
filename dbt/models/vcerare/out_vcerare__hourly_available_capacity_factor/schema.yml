@@ -80,3 +80,5 @@ sources:
                   arguments:
                     min_value: 0.0
                     max_value: 1.0
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/out_vcerare__hourly_available_capacity_factor.parquet"

@@ -25,3 +25,5 @@ sources:
           - name: dollar_value
           - name: utility_type
           - name: row_type_xbrl
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_ferc1__yearly_depreciation_summary_sched336.parquet"

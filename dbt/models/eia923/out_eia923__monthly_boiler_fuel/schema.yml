@@ -214,3 +214,5 @@ sources:
                         max_value: 20.0
                     weight_column: fuel_consumed_units
           - name: data_maturity
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/out_eia923__monthly_boiler_fuel.parquet"

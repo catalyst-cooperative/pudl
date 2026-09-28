@@ -38,3 +38,5 @@ sources:
           - name: material
           - name: mains_miles
           - name: services
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/_core_phmsagas__yearly_distribution_by_material.parquet"

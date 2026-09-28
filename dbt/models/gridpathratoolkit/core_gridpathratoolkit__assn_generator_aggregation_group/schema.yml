@@ -21,3 +21,5 @@ sources:
           - name: aggregation_group
           - name: capacity_mw
           - name: include_generator
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_gridpathratoolkit__assn_generator_aggregation_group.parquet"

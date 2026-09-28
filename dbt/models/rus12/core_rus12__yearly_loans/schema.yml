@@ -49,3 +49,5 @@ sources:
                   description: Two instances of negative loan balance, which could be overpayment. Investigate.
           - name: for_rural_development
           - name: is_loan_guarantee
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_rus12__yearly_loans.parquet"

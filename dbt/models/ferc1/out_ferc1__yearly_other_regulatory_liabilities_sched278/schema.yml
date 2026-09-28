@@ -35,3 +35,5 @@ sources:
           - name: increase_in_other_regulatory_liabilities
           - name: account_detail
           - name: decrease_in_other_regulatory_liabilities
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/out_ferc1__yearly_other_regulatory_liabilities_sched278.parquet"

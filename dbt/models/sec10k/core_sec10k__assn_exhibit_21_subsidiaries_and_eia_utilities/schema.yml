@@ -18,3 +18,5 @@ sources:
             data_tests:
               - unique
           - name: utility_id_eia
+        meta:
+          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities.parquet"
