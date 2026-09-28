@@ -198,9 +198,14 @@ marimo = ">=0.23"
 
 [tool.pixi.feature.dev.target.osx-arm64.dependencies]
 marimo = ">=0.23"
+markitdown = ">=0.1.8"
 
 [tool.pixi.feature.dev.target.linux-64.dependencies]
 marimo = ">=0.23"
+markitdown = ">=0.1.8"
+
+[tool.pixi.feature.dev.target.linux-aarch64.dependencies]
+markitdown = ">=0.1.8"
 
 # pyrefly is a dev-only dependency (see above), so this task is scoped to the dev
 # feature rather than the default task table. That makes it uniquely defined in the
@@ -248,8 +253,9 @@ description = "Summarize remaining pyrefly errors by module and kind."
 cmd = "pyrefly_status coverage --sort-by untyped --top 20"
 description = "Summarize per-module pyrefly type coverage."
 
-[tool.pixi.environments]
-dev = { features = ["dev"], solve-group = "default" }
+[tool.pixi.environments.dev]
+features = ["dev"]
+solve-group = "default"
 
 [tool.pixi.activation.env]
 # Reusable variables for pixi tasks
