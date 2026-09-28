@@ -317,6 +317,23 @@ def _aggregate_generation_fuel_duplicates(
 
     duplicates = gen_fuel[is_duplicate].copy()
 
+    # These columns can come out of upstream extraction/transform steps as object
+    # dtype rather than a proper numeric dtype under pandas 3. Cast them explicitly
+    # so the select_dtypes(include="number") check below (and the aggregation and
+    # division further down) treat them as numeric instead of silently excluding
+    # or mishandling them. We use NumPy float64 (not nullable Float64) so that nulls
+    # are np.nan, which keeps the all-zero check below and the later concatenation
+    # with the object-dtype non-duplicate rows free of pd.NA.
+    numeric_value_cols = [
+        "fuel_consumed_units",
+        "fuel_consumed_for_electricity_units",
+        "fuel_consumed_mmbtu",
+        "fuel_consumed_for_electricity_mmbtu",
+        "net_generation_mwh",
+        "fuel_mmbtu_per_unit",
+    ]
+    duplicates[numeric_value_cols] = duplicates[numeric_value_cols].astype("float64")
+
     # Remove duplicates where all numeric fields are 0 (only if there are other,
     # non-zero duplicates)
     value_cols = duplicates.columns.difference(natural_key_fields + ["sector_id_eia"])
@@ -441,7 +458,7 @@ def _yearly_to_monthly_records(df: pd.DataFrame) -> pd.DataFrame:
     df = df.set_index(list(index_cols), append=True)
     # convert month names to numbers (january -> 1)
     col_df = multi_idx[ends_with_month_filter].to_frame(index=False)
-    col_df.loc[:, "report_month"] = col_df.loc[:, "report_month"].map(month_dict)
+    col_df["report_month"] = col_df["report_month"].map(month_dict)
     month_idx = pd.MultiIndex.from_frame(col_df).set_names([None, "report_month"])
     # reshape
     df.columns = month_idx
@@ -1626,8 +1643,10 @@ def _clean_emissions_control_dates(
 
     is_spot_fix = raw.isin(spot_fixes)
     # Apply table-specific corrections first so malformed one-offs don't need to be
-    # encoded in general parsing logic.
-    out.loc[is_spot_fix] = raw.loc[is_spot_fix].map(spot_fixes)
+    # encoded in general parsing logic. Guard on .any() because pandas 3.0 refuses to
+    # set an empty / non-datetime RHS into a datetime64[ns] column.
+    if is_spot_fix.any():
+        out.loc[is_spot_fix] = pd.to_datetime(raw.loc[is_spot_fix].map(spot_fixes))
 
     to_parse = ~(is_nullish | is_spot_fix)
 
@@ -1677,13 +1696,17 @@ def _clean_emissions_control_dates(
         (year_only, r"(?P<year>\d{4})", None, None),
     ]
     for mask, pattern, month_group, day_group in format_specs:
-        out.loc[mask] = _parse_emissions_control_date_subset(
-            raw_subset=raw.loc[mask],
-            pattern=pattern,
-            min_valid_year=min_valid_year,
-            max_valid_year=max_valid_year,
-            month_group=month_group,
-            day_group=day_group,
+        if not mask.any():
+            continue
+        out.loc[mask] = pd.to_datetime(
+            _parse_emissions_control_date_subset(
+                raw_subset=raw.loc[mask],
+                pattern=pattern,
+                min_valid_year=min_valid_year,
+                max_valid_year=max_valid_year,
+                month_group=month_group,
+                day_group=day_group,
+            )
         )
 
     return pd.to_datetime(out)
