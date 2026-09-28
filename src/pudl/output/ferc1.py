@@ -4,7 +4,7 @@ import re
 from copy import deepcopy
 from dataclasses import dataclass
 from functools import cached_property
-from typing import Any, Literal, NamedTuple, Self
+from typing import Literal, NamedTuple, Self, TypedDict, cast
 
 import networkx as nx
 import numpy as np
@@ -249,9 +249,7 @@ def ferc1_output_asset_factory(table_name: str) -> AssetsDefinition:
         compute_kind="Python",
         ins=ins,
     )
-    def _create_output_asset(
-        **kwargs: dict[str, pd.DataFrame],
-    ) -> pd.DataFrame:
+    def _create_output_asset(**kwargs: pd.DataFrame) -> pd.DataFrame:
         """Generate an output dataframe from the corresponding FERC1 core table.
 
         Merge in utility IDs from ``core_pudl__assn_ferc1_pudl_utilities``.
@@ -916,17 +914,13 @@ def _out_ferc1__detailed_tags(_core_ferc1__table_dimensions) -> pd.DataFrame:
         utility_type_tags,
     ]
     tag_idx = list(NodeId._fields)
-    tags = (
-        pd.concat(
-            [df.set_index(tag_idx) for df in tag_dfs],
-            join="outer",
-            verify_integrity=True,
-            ignore_index=False,
-            axis="columns",
-        )
-        .reset_index()
-        .drop(columns=["notes"])
-    )
+    tags = pd.concat(
+        [df.set_index(tag_idx) for df in tag_dfs],
+        join="outer",
+        verify_integrity=True,
+        ignore_index=False,
+        axis="columns",
+    ).reset_index()
     # special case: condense the two hydro plant_functions from _core_ferc1__table_dimensions.
     # we didn't add yet the ability to change aggregatable_plant_function by
     # plant_function. we could but this seems simpler.
@@ -946,6 +940,7 @@ def _get_tags(
     tags_csv = PUDL_PACKAGE_DATA_PATH / "ferc1" / file_name
     tags_df = (
         pd.read_csv(tags_csv)
+        .drop(columns="notes", errors="ignore")  # Drop notes column if present
         .drop_duplicates()
         .dropna(subset=["table_name", "xbrl_factoid"], how="any")
         .astype(pd.StringDtype())
@@ -960,7 +955,7 @@ def _get_tags(
 
 def _aggregatable_dimension_tags(
     _core_ferc1__table_dimensions: pd.DataFrame,
-    dimension: Literal["plant_status", "plant_function"],
+    dimension: Literal["plant_status", "plant_function", "utility_type"],
 ) -> pd.DataFrame:
     # make a new lil csv w the manually compiled plant status or dimension
     # add in the rest from the table_dims
@@ -971,7 +966,8 @@ def _aggregatable_dimension_tags(
     idx = list(NodeId._fields)
     tags_df = (
         pd.read_csv(tags_csv)
-        .assign(**dict.fromkeys(dimensions, pd.NA))
+        # pandas-stubs' assign() overloads don't include a bare scalar NAType.
+        .assign(**dict.fromkeys(dimensions, pd.NA))  # type: ignore[bad-argument-type]
         .astype(pd.StringDtype())
         .pipe(
             pudl.transform.ferc1.make_xbrl_factoid_dimensions_explicit,
@@ -994,6 +990,17 @@ def _aggregatable_dimension_tags(
     ).reset_index()
     tags_df[aggregatable_col] = tags_df[aggregatable_col].fillna(tags_df[dimension])
     return tags_df[tags_df[aggregatable_col] != "total"]
+
+
+class ExplosionArgs(TypedDict):
+    """Keyword arguments for :func:`exploded_table_asset_factory`."""
+
+    root_table: str
+    table_names: list[str]
+    seed_nodes: list[NodeId]
+    group_metric_checks: GroupMetricChecks
+    off_by_facts: list[OffByFactoid]
+    io_manager_key: str | None
 
 
 def exploded_table_asset_factory(
@@ -1029,7 +1036,7 @@ def exploded_table_asset_factory(
         io_manager_key=io_manager_key,
     )
     def exploded_tables_asset(
-        **kwargs: dict[str, pd.DataFrame],
+        **kwargs: pd.DataFrame,
     ) -> pd.DataFrame:
         _core_ferc1_xbrl__metadata = kwargs["_core_ferc1_xbrl__metadata"]
         _core_ferc1_xbrl__calculation_components = kwargs[
@@ -1052,7 +1059,7 @@ def exploded_table_asset_factory(
         }
         return (
             Exploder(
-                table_names=tables_to_explode.keys(),
+                table_names=list(tables_to_explode.keys()),
                 root_table=root_table,
                 metadata_xbrl_ferc1=_core_ferc1_xbrl__metadata,
                 calculation_components_xbrl_ferc1=_core_ferc1_xbrl__calculation_components,
@@ -1085,7 +1092,7 @@ def exploded_table_asset_factory(
     return exploded_tables_asset
 
 
-EXPLOSION_ARGS = [
+EXPLOSION_ARGS: list[ExplosionArgs] = [
     {
         "root_table": "core_ferc1__yearly_income_statements_sched114",
         "table_names": [
@@ -1285,7 +1292,12 @@ class Exploder:
                 :,
                 parent_cols
                 + calc_cols
-                + ["weight", "is_within_table_calc", "is_total_to_subdimensions_calc"],
+                + [
+                    "ferc_account",
+                    "weight",
+                    "is_within_table_calc",
+                    "is_total_to_subdimensions_calc",
+                ],
             ]
             .drop_duplicates()
             .set_index(parent_cols + calc_cols)
@@ -1350,6 +1362,9 @@ class Exploder:
                 # if they weren't we'd need to check within the group of
                 # the parent fact like in process_xbrl_metadata_calculations
                 is_within_table_calc=False,
+                # pandas-stubs' assign() signature doesn't include NAType in its
+                # accepted kwarg union, even though pd.NA is valid at runtime here.
+                ferc_account=pd.NA,  # type: ignore[bad-argument-type]
             )
             .drop(columns=["xbrl_factoid_off_by"])
         )
@@ -1506,6 +1521,7 @@ class Exploder:
                 f"{set(value_cols)}"
             )
         value_col = list(set(value_cols))[0]
+        assert value_col is not None, "Exploded tables must have a value column."
         return value_col
 
     @property
@@ -1942,7 +1958,7 @@ class XbrlCalculationForestFerc1(BaseModel):
     def exploded_calcs_to_digraph(
         self: Self,
         exploded_calcs: pd.DataFrame,
-    ) -> nx.DiGraph:
+    ) -> nx.DiGraph[NodeId]:
         """Construct :class:`networkx.DiGraph` of all calculations in exploded_calcs.
 
         First we construct a directed graph based on the calculation components. The
@@ -1986,8 +2002,10 @@ class XbrlCalculationForestFerc1(BaseModel):
         }
         node_attrs = (
             pd.DataFrame(
+                # pandas-stubs types from_tuples()'s dict_keys argument too narrowly.
                 index=pd.MultiIndex.from_tuples(
-                    clean_tags_dict.keys(), names=self.calc_cols
+                    clean_tags_dict.keys(),  # type: ignore[bad-argument-type]
+                    names=self.calc_cols,
                 ),
                 data={"tags": list(clean_tags_dict.values())},
             )
@@ -1996,10 +2014,14 @@ class XbrlCalculationForestFerc1(BaseModel):
             .astype({col: pd.StringDtype() for col in self.calc_cols})
             .assign(tags=lambda x: np.where(x["tags"].isna(), {}, x["tags"]))
         )
-        return node_attrs.set_index(self.calc_cols).to_dict(orient="index")
+        # pandas-stubs types to_dict(orient="index")'s keys as plain Hashable rather
+        # than preserving the index's actual (NodeId) type.
+        return node_attrs.set_index(self.calc_cols).to_dict(  # type: ignore[bad-return]
+            orient="index"
+        )
 
     @cached_property
-    def edge_attrs(self: Self) -> dict[Any, Any]:
+    def edge_attrs(self: Self) -> dict[tuple[NodeId, NodeId], dict[str, int]]:
         """Construct a dictionary of edge attributes for application to the forest.
 
         The only edge attribute is the calculation component weight.
@@ -2020,7 +2042,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         return edge_attrs
 
     @cached_property
-    def annotated_forest(self: Self) -> nx.DiGraph:
+    def annotated_forest(self: Self) -> nx.DiGraph[NodeId]:
         """Annotate the calculation forest with node calculation weights and tags.
 
         The annotated forest should have exactly the same structure as the forest, but
@@ -2041,7 +2063,9 @@ class XbrlCalculationForestFerc1(BaseModel):
         """
         annotated_forest = deepcopy(self.forest)
         nx.set_node_attributes(annotated_forest, self.node_attrs)
-        nx.set_edge_attributes(annotated_forest, self.edge_attrs)
+        # The no-`name` overload of set_edge_attributes() is typed as Graph[Hashable],
+        # which an invariant Graph[NodeId] can never satisfy, regardless of node type.
+        nx.set_edge_attributes(annotated_forest, self.edge_attrs)  # type: ignore[bad-argument-type]
 
         logger.info("Checking whether any pruned nodes were also tagged.")
         self.check_lost_tags(lost_nodes=self.pruned)
@@ -2051,7 +2075,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         annotated_forest = self.propagate_node_attributes(annotated_forest)
         return annotated_forest
 
-    def propagate_node_attributes(self: Self, annotated_forest: nx.DiGraph):
+    def propagate_node_attributes(self: Self, annotated_forest: nx.DiGraph[NodeId]):
         """Propagate tags.
 
         Propagate tag values root-ward, leaf-wards &  to the _correction nodes. We
@@ -2059,7 +2083,10 @@ class XbrlCalculationForestFerc1(BaseModel):
         tags for the leaf nodes, so we want to send the values for the leafy tags
         root-ward first before trying to send tags leaf-ward.
         """
-        tags_to_propagate = ["in_rate_base", "rate_base_category"]
+        tags_to_propagate: list[Literal["in_rate_base", "rate_base_category"]] = [
+            "in_rate_base",
+            "rate_base_category",
+        ]
         for tag in tags_to_propagate:
             # Root-ward propagation
             annotated_forest = _propagate_tag(annotated_forest, tag, "rootward")
@@ -2086,7 +2113,7 @@ class XbrlCalculationForestFerc1(BaseModel):
                 )
 
     @staticmethod
-    def check_conflicting_tags(annotated_forest: nx.DiGraph) -> None:
+    def check_conflicting_tags(annotated_forest: nx.DiGraph[NodeId]) -> None:
         """Check for conflicts between ancestor and descendant tags.
 
         This check should be applied before we have propagated tags via
@@ -2096,7 +2123,12 @@ class XbrlCalculationForestFerc1(BaseModel):
         """
         nodes = annotated_forest.nodes
         for ancestor in nodes:
-            for descendant in nx.descendants(annotated_forest, ancestor):
+            # networkx's @_dispatchable decorator loses the graph's node TypeVar, so
+            # descendants() comes back untyped rather than as set[NodeId].
+            descendants = cast(
+                "set[NodeId]", nx.descendants(annotated_forest, ancestor)
+            )
+            for descendant in descendants:
                 for tag in nodes[ancestor].get("tags", {}):
                     if tag in nodes[descendant].get("tags", {}):
                         ancestor_tag_value = nodes[ancestor]["tags"][tag]
@@ -2112,7 +2144,7 @@ class XbrlCalculationForestFerc1(BaseModel):
                             )
 
     @cached_property
-    def full_digraph(self: Self) -> nx.DiGraph:
+    def full_digraph(self: Self) -> nx.DiGraph[NodeId]:
         """A digraph of all calculations described by the exploded metadata."""
         full_digraph = self.exploded_calcs_to_digraph(
             exploded_calcs=self.exploded_calcs,
@@ -2129,7 +2161,7 @@ class XbrlCalculationForestFerc1(BaseModel):
             )
         return full_digraph
 
-    def prune_unrooted(self: Self, graph: nx.DiGraph) -> nx.DiGraph:
+    def prune_unrooted(self: Self, graph: nx.DiGraph[NodeId]) -> nx.DiGraph[NodeId]:
         """Prune those parts of the input graph that aren't reachable from the roots.
 
         Build a table of exploded calculations that includes only those nodes that
@@ -2145,9 +2177,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         seeded_nodes = set(self.seeds)
         for seed in self.seeds:
             # the seeds and all of their descendants from the graph
-            seeded_nodes = list(
-                seeded_nodes.union({seed}).union(nx.descendants(graph, seed))
-            )
+            seeded_nodes = seeded_nodes.union({seed}).union(nx.descendants(graph, seed))
         # Any seeded node that appears in the input graph and is also a parent.
         seeded_parents = [
             node
@@ -2174,7 +2204,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         return self.exploded_calcs_to_digraph(exploded_calcs=seeded_calcs)
 
     @cached_property
-    def seeded_digraph(self: Self) -> nx.DiGraph:
+    def seeded_digraph(self: Self) -> nx.DiGraph[NodeId]:
         """A digraph of all calculations that contribute to the seed values.
 
         Prune the full digraph to contain only those nodes in the :meth:`full_digraph`
@@ -2190,7 +2220,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         return self.prune_unrooted(self.full_digraph)
 
     @cached_property
-    def forest(self: Self) -> nx.DiGraph:
+    def forest(self: Self) -> nx.DiGraph[NodeId]:
         """A pruned version of the seeded digraph that should be one or more trees.
 
         This method contains any special logic that's required to convert the
@@ -2271,7 +2301,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         return forest
 
     @staticmethod
-    def roots(graph: nx.DiGraph) -> list[NodeId]:
+    def roots(graph: nx.DiGraph[NodeId]) -> list[NodeId]:
         """Identify all root nodes in a digraph."""
         return [n for n, d in graph.in_degree() if d == 0]
 
@@ -2291,7 +2321,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         return self.roots(graph=self.forest)
 
     @staticmethod
-    def leaves(graph: nx.DiGraph) -> list[NodeId]:
+    def leaves(graph: nx.DiGraph[NodeId]) -> list[NodeId]:
         """Identify all leaf nodes in a digraph."""
         return [n for n, d in graph.out_degree() if d == 0]
 
@@ -2334,11 +2364,11 @@ class XbrlCalculationForestFerc1(BaseModel):
         """List of all nodes that appear in the DAG but not in the pruned forest."""
         return list(set(self.full_digraph.nodes).difference(self.forest.nodes))
 
-    def stepchildren(self: Self, graph: nx.DiGraph) -> list[NodeId]:
+    def stepchildren(self: Self, graph: nx.DiGraph[NodeId]) -> list[NodeId]:
         """Find all nodes in the graph that have more than one parent."""
         return [n for n, d in graph.in_degree() if d > 1]
 
-    def stepparents(self: Self, graph: nx.DiGraph) -> list[NodeId]:
+    def stepparents(self: Self, graph: nx.DiGraph[NodeId]) -> list[NodeId]:
         """Find all nodes in the graph with children having more than one parent."""
         stepchildren = self.stepchildren(graph)
         stepparents = set()
@@ -2346,7 +2376,7 @@ class XbrlCalculationForestFerc1(BaseModel):
             stepparents = stepparents.union(graph.predecessors(stepchild))
         return list(stepparents)
 
-    def _get_path_weight(self, path: list[NodeId], graph: nx.DiGraph) -> float:
+    def _get_path_weight(self, path: list[NodeId], graph: nx.DiGraph[NodeId]) -> float:
         """Multiply all weights along a path together."""
         leaf_weight = 1.0
         for parent, child in zip(path, path[1:], strict=False):
@@ -2390,11 +2420,19 @@ class XbrlCalculationForestFerc1(BaseModel):
         leaf_rows = []
         for leaf in leaves:
             leaf_tags = {}
-            ancestors = list(nx.ancestors(self.annotated_forest, leaf)) + [leaf]
+            # networkx's @_dispatchable decorator loses the graph's node TypeVar, so
+            # ancestors() comes back untyped rather than as set[NodeId].
+            ancestors = cast(
+                "list[NodeId]", list(nx.ancestors(self.annotated_forest, leaf))
+            ) + [leaf]
             for node in ancestors:
                 leaf_tags |= self.annotated_forest.nodes[node].get("tags", {})
             all_leaf_weights = {
-                self._get_path_weight(path, self.annotated_forest)
+                # Same @_dispatchable limitation applies to all_simple_paths().
+                self._get_path_weight(
+                    path,  # type: ignore[bad-argument-type]
+                    self.annotated_forest,
+                )
                 for path in nx.all_simple_paths(
                     self.annotated_forest, leaf_to_root_map[leaf], leaf
                 )
@@ -2441,7 +2479,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         """Produce the list of tables involved in this explosion."""
         return list(self.exploded_calcs["table_name_parent"].unique())
 
-    def plot_graph(self: Self, graph: nx.DiGraph) -> None:
+    def plot_graph(self: Self, graph: nx.DiGraph[NodeId]) -> None:
         """Visualize a CalculationForest graph."""
         colors = ["red", "yellow", "green", "blue", "orange", "cyan", "purple"]
         color_map = dict(
@@ -2586,7 +2624,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         return df
 
 
-def nodes_to_df(calc_forest: nx.DiGraph, nodes: list[NodeId]) -> pd.DataFrame:
+def nodes_to_df(calc_forest: nx.DiGraph[NodeId], nodes: list[NodeId]) -> pd.DataFrame:
     """Construct a dataframe from a list of nodes, including their annotations.
 
     NodeIds that are not present in the calculation forest will be ignored.
@@ -2605,17 +2643,18 @@ def nodes_to_df(calc_forest: nx.DiGraph, nodes: list[NodeId]) -> pd.DataFrame:
     index = pd.DataFrame(node_dict.keys()).astype("string")
     data = pd.DataFrame(node_dict.values())
     try:
-        tags = pd.json_normalize(data.tags).astype("string")
+        # pandas-stubs' json_normalize() only types dict/list data, not a Series.
+        tags = pd.json_normalize(data.tags).astype("string")  # type: ignore[bad-argument-type]
     except AttributeError:
         tags = pd.DataFrame()
     return pd.concat([index, tags], axis="columns")
 
 
 def _propagate_tag(
-    annotated_forest: nx.DiGraph,
+    annotated_forest: nx.DiGraph[NodeId],
     tag_name: Literal["in_rate_base", "rate_base_category"],
     propagation_direction: Literal["rootward", "leafward"],
-) -> nx.DiGraph:
+) -> nx.DiGraph[NodeId]:
     """Set the tag for nodes when all of its successors or predecessorshave same tag.
 
     This function returns an updated annotated_forest with tags updated for nodes
@@ -2625,7 +2664,11 @@ def _propagate_tag(
     def _get_tag(annotated_forest, node, tag_name):
         return annotated_forest.nodes.get(node, {}).get("tags", {}).get(tag_name)
 
-    generations = list(nx.topological_generations(annotated_forest))
+    # networkx's @_dispatchable decorator loses the graph's node TypeVar, so
+    # topological_generations() comes back untyped rather than as list[list[NodeId]].
+    generations = cast(
+        "list[list[NodeId]]", list(nx.topological_generations(annotated_forest))
+    )
     directional_gens = (
         reversed(generations) if propagation_direction == "rootward" else generations
     )
@@ -2666,7 +2709,9 @@ def _propagate_tag(
     return annotated_forest
 
 
-def _propagate_tags_to_corrections(annotated_forest: nx.DiGraph) -> nx.DiGraph:
+def _propagate_tags_to_corrections(
+    annotated_forest: nx.DiGraph[NodeId],
+) -> nx.DiGraph[NodeId]:
     existing_tags = nx.get_node_attributes(annotated_forest, "tags")
     correction_nodes = [
         node for node in annotated_forest if node.xbrl_factoid.endswith("_correction")
@@ -2897,7 +2942,7 @@ class Ferc1DetailedCheckSpec:
 
     name: str
     asset: str
-    idx: dict[int, int]
+    idx: list[str]
 
 
 check_specs = [
