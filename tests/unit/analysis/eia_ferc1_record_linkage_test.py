@@ -1,16 +1,22 @@
 """Unit tests for :mod:`pudl.analysis.record_linkage.eia_ferc1_record_linkage`."""
 
+import jellyfish
 import pandas as pd
 import pytest
 from pandas.testing import assert_frame_equal
+from splink import DuckDBAPI
 
 from pudl.analysis.ml_tools.experiment_tracking import ExperimentTracker
 from pudl.analysis.record_linkage import eia_ferc1_record_linkage
+from pudl.analysis.record_linkage.eia_ferc1_model_config import get_comparisons
 from pudl.analysis.record_linkage.eia_ferc1_record_linkage import (
     U_ESTIMATION_SEED,
+    ModelPredictionsConfig,
     add_null_overrides,
     get_best_matches,
     get_model_predictions,
+    prepare_for_matching,
+    select_best_matches,
 )
 from pudl.metadata.classes import Resource
 
@@ -72,41 +78,83 @@ def _predictions() -> pd.DataFrame:
     )
 
 
-def _best_matches(preds: pd.DataFrame, mocker) -> pd.DataFrame:
-    inputs = mocker.MagicMock()
-    inputs.get_train_df.return_value = pd.DataFrame(
-        {"record_id_ferc1": ["f1"], "record_id_eia": ["e2"]}
-    ).set_index(["record_id_ferc1", "record_id_eia"])
-    return get_best_matches(preds, inputs, mocker.MagicMock(spec=ExperimentTracker))
+def _select_best(preds: pd.DataFrame) -> pd.DataFrame:
+    """Run :func:`select_best_matches` against a DuckDB table of predictions."""
+    predictions = DuckDBAPI().register(
+        preds.reset_index(drop=True), table_name="predictions"
+    )
+    return select_best_matches(predictions)
 
 
-def test_get_best_matches_picks_highest_probability_with_tie_break(mocker):
+def test_select_best_matches_picks_highest_probability_with_tie_break():
     """One match per FERC record: highest probability, ties go to the lowest EIA ID."""
-    best = _best_matches(_predictions(), mocker)
+    best = _select_best(_predictions())
     assert best["record_id_ferc1"].tolist() == ["f1", "f2", "f3"]
     assert best["record_id_eia"].tolist() == ["e2", "e3", "e5"]
 
 
 @pytest.mark.parametrize("reverse", [False, True])
 @pytest.mark.parametrize("seed", range(5))
-def test_get_best_matches_ignores_row_order(seed: int, reverse: bool, mocker):
+def test_select_best_matches_ignores_row_order(seed: int, reverse: bool):
     """Reordering the model output must not change which match is chosen."""
-    expected = _best_matches(_predictions(), mocker)
+    expected = _select_best(_predictions())
     reordered = _predictions().sample(frac=1, random_state=seed)
     if reverse:
         reordered = reordered.iloc[::-1]
-    assert_frame_equal(_best_matches(reordered, mocker), expected)
+    assert_frame_equal(_select_best(reordered), expected)
+
+
+def test_get_best_matches_reports_metrics(mocker):
+    """Metrics are computed from the best matches and returned for asset metadata."""
+    inputs = mocker.MagicMock()
+    inputs.get_train_df.return_value = pd.DataFrame(
+        {"record_id_ferc1": ["f1", "f2"], "record_id_eia": ["e2", "e9"]}
+    ).set_index(["record_id_ferc1", "record_id_eia"])
+    best = pd.DataFrame(
+        {"record_id_ferc1": ["f1", "f2"], "record_id_eia": ["e2", "e3"]}
+    )
+    _, metrics = get_best_matches(
+        best, inputs, mocker.MagicMock(spec=ExperimentTracker)
+    )
+    assert metrics == {"precision": 0.5, "recall": 1.0, "accuracy": 0.5}
+
+
+def test_prepare_metaphone_matches_rowwise_encoding():
+    """Encoding unique names once must match encoding each row, and keep nulls null."""
+    names = pd.Series(["Smith Creek", None, "Smith Creek", "Barry", pd.NA])
+    df = pd.DataFrame(dict.fromkeys(["plant_name", "utility_name"], names)).assign(
+        record_id="x",
+        fuel_type_code_pudl="gas",
+        installation_year=2000,
+        construction_year=2000,
+        capacity_mw=1.0,
+        net_generation_mwh=1.0,
+        report_year=2000,
+        plant_id_pudl=1,
+        utility_id_pudl=1,
+    )
+    out = prepare_for_matching.compute_fn.decorated_fn(df, pd.DataFrame())
+    expected = [None if pd.isnull(n) else jellyfish.metaphone(n) for n in names]
+    assert out["plant_name_mphone"].tolist() == expected
+
+
+def test_get_comparisons_returns_fresh_objects():
+    """Comparisons are configured in place, so they must not be shared."""
+    assert get_comparisons()[1] is not get_comparisons()[1]
 
 
 def test_get_model_predictions_seeds_u_estimation(mocker):
     """The random sampling used to estimate u probabilities must be seeded."""
     linker_cls = mocker.patch.object(eia_ferc1_record_linkage, "Linker")
     mocker.patch.object(eia_ferc1_record_linkage, "SettingsCreator")
+    mocker.patch.object(eia_ferc1_record_linkage, "DuckDBAPI")
+    mocker.patch.object(eia_ferc1_record_linkage, "select_best_matches")
     get_model_predictions(
         eia_df=pd.DataFrame({"record_id": ["e1", "e2"]}),
         ferc_df=pd.DataFrame({"record_id": ["f1"]}),
         train_df=mocker.MagicMock(),
         experiment_tracker=mocker.MagicMock(spec=ExperimentTracker),
+        config=ModelPredictionsConfig(),
     )
     training = linker_cls.return_value.training
     training.estimate_u_using_random_sampling.assert_called_once_with(
