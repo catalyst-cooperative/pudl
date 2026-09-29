@@ -226,28 +226,6 @@ def maybe_schema_from_path(path: Path) -> DbtSchema:
     return DbtSchema.from_yaml(path)
 
 
-def add_external_location(schema: DbtSchema, table_name: str) -> DbtSchema:
-    """Add an external_location block to a generated dbt schema."""
-    if "ferceqr" in table_name:
-        external_location = (
-            "{{ env_var('FERCEQR_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}"
-            f"/{table_name}/**/*.parquet"
-        )
-    else:
-        external_location = (
-            "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}"
-            f"/{table_name}.parquet"
-        )
-
-    for source in schema.sources:
-        for table in source.tables:
-            if table.name == table_name:
-                table.meta = {"external_location": external_location}
-                return schema
-
-    raise ValueError(f"{table_name} not found in schema.")
-
-
 def update_table_schema(
     table_name: str,
     dbt_root: Path,
@@ -265,7 +243,6 @@ def update_table_schema(
     machine_schema = DbtSchema.from_table_name(table_name)
 
     merged_schema = merge_schema(machine_schema, human_schema)
-    merged_schema = add_external_location(merged_schema, table_name)
     model_outputs = insert_data_source(dbt_root / "models", table_name)
     model_outputs.mkdir(parents=True, exist_ok=True)
     merged_path = model_outputs / "schema.yml"

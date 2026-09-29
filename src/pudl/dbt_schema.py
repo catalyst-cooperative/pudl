@@ -232,11 +232,23 @@ class DbtTable(BaseModel):
     @classmethod
     def from_table_name(cls, table_name: str) -> DbtTable:
         """Construct configuration defining table from PUDL metadata."""
+        if "ferceqr" in table_name:
+            external_location = (
+                "{{ env_var('FERCEQR_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}"
+                f"/{table_name}/**/*.parquet"
+            )
+        else:
+            external_location = (
+                "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}"
+                f"/{table_name}.parquet"
+            )
+
         resource = PUDL_PACKAGE.get_resource(table_name)
         return cls(
             name=table_name,
             data_tests=_foreign_key_data_tests(resource),
             columns=[DbtColumn(name=f.name) for f in resource.schema.fields],
+            meta={"external_location": external_location},
         )
 
 
