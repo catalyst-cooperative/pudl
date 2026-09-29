@@ -161,9 +161,15 @@ def test_get_best_matches_reports_metrics(mocker):
         best, inputs, mocker.MagicMock(spec=ExperimentTracker)
     )
     # precision: 2 of the 3 predictions on training records were right;
+    # recall: 2 of the 4 training records' true matches were found;
     # coverage: 3 of the 4 training records got a prediction;
     # accuracy: 2 of the 4 training records were predicted correctly.
-    assert metrics == {"precision": 0.667, "coverage": 0.75, "accuracy": 0.5}
+    assert metrics == {
+        "precision": 0.667,
+        "recall": 0.5,
+        "coverage": 0.75,
+        "accuracy": 0.5,
+    }
 
 
 def test_prepare_metaphone_matches_rowwise_encoding():
