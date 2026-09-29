@@ -487,8 +487,5 @@ def test_from_table_name_includes_foreign_key_data_tests(mocker):
                 }
             }
         ],
-        meta={
-            "external_location": "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/child.parquet"
-        },
         columns=[DbtColumn(name="id"), DbtColumn(name="fk_id")],
     )
