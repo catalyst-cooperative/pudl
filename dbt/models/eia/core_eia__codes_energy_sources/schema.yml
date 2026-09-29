@@ -17,5 +17,3 @@ sources:
           - name: fuel_phase
           - name: fuel_type_code_pudl
           - name: description
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_eia__codes_energy_sources.parquet"

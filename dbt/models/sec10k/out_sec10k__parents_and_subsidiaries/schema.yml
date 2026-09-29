@@ -57,5 +57,3 @@ sources:
           - name: subsidiary_company_industry_name_sic
           - name: subsidiary_company_industry_id_sic
           - name: subsidiary_company_taxpayer_id_irs
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/out_sec10k__parents_and_subsidiaries.parquet"

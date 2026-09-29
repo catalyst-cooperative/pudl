@@ -37,5 +37,3 @@ sources:
                   arguments:
                     min_value: 0.0
           - name: data_maturity
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_eia861__yearly_non_net_metering_misc.parquet"

@@ -35,5 +35,3 @@ sources:
           - name: zip_code
           - name: zip_code_4
           - name: data_maturity
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_eia861__yearly_mergers.parquet"

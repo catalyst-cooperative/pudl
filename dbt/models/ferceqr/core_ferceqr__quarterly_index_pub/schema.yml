@@ -1,6 +1,6 @@
 version: 2
 sources:
-  - name: pudl
+  - name: ferceqr
     tables:
       - name: core_ferceqr__quarterly_index_pub
         data_tests:
@@ -15,5 +15,3 @@ sources:
           - name: seller_company_name
           - name: index_price_publisher_name
           - name: transactions_reported
-        meta:
-          external_location: "{{ env_var('FERCEQR_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_ferceqr__quarterly_index_pub/**/*.parquet"

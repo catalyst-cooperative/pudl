@@ -1,6 +1,6 @@
 version: 2
 sources:
-  - name: pudl
+  - name: ferceqr
     tables:
       - name: core_ferceqr__contracts
         data_tests:
@@ -41,5 +41,3 @@ sources:
           - name: point_of_delivery_specific_location
           - name: begin_date
           - name: end_date
-        meta:
-          external_location: "{{ env_var('FERCEQR_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_ferceqr__contracts/**/*.parquet"

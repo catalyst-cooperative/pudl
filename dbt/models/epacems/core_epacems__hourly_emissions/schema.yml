@@ -32,5 +32,3 @@ sources:
           - name: nox_mass_measurement_code
           - name: co2_mass_tons
           - name: co2_mass_measurement_code
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_epacems__hourly_emissions.parquet"

@@ -68,5 +68,3 @@ sources:
           - name: opex_pumping
           - name: opex_total
           - name: opex_per_mwh
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_ferc1__yearly_pumped_storage_plants_sched408.parquet"

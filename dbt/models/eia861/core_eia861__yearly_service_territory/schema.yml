@@ -25,5 +25,3 @@ sources:
           - name: state_id_fips
           - name: county_id_fips
           - name: data_maturity
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_eia861__yearly_service_territory.parquet"

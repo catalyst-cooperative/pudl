@@ -1,6 +1,6 @@
 version: 2
 sources:
-  - name: pudl
+  - name: ferceqr
     tables:
       - name: core_ferceqr__transactions
         data_tests:
@@ -37,5 +37,3 @@ sources:
           - name: standardized_price
           - name: total_transmission_charge
           - name: total_transaction_charge
-        meta:
-          external_location: "{{ env_var('FERCEQR_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_ferceqr__transactions/**/*.parquet"

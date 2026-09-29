@@ -47,5 +47,3 @@ sources:
           - name: fuel_consumed_units
           - name: gross_generation_mwh
           - name: net_generation_mwh
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_eia923__monthly_energy_storage.parquet"

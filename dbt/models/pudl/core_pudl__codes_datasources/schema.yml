@@ -11,5 +11,3 @@ sources:
           - name: partitions
           - name: doi
           - name: pudl_version
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_pudl__codes_datasources.parquet"

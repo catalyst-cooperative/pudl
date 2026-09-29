@@ -29,5 +29,3 @@ sources:
                   config:
                     error_if: ">10"
                   description: No values should be negative here. Investigate.
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_rus12__yearly_lines_stations_labor_materials_cost.parquet"

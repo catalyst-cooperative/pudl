@@ -23,5 +23,3 @@ sources:
           - name: record_occurrences
           - name: consistent_rate
           - name: is_candidate
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/_core_eia__forensics_entity_resolution_plants.parquet"

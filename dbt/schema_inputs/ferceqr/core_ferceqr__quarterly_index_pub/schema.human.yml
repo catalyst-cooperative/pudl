@@ -1,6 +1,6 @@
 version: 2
 sources:
-  - name: pudl
+  - name: ferceqr
     tables:
       - name: core_ferceqr__quarterly_index_pub
         data_tests:

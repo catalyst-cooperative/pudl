@@ -24,5 +24,3 @@ sources:
           - name: utility_id_pudl
             data_tests:
               - not_null
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_pudl__assn_eia_pudl_utilities.parquet"

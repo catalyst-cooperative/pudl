@@ -105,5 +105,3 @@ sources:
                     error_if: ">19"
                   description: Check that most of the ending balances are positive.
           - name: is_total
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/out_rus12__yearly_utility_plant_changes.parquet"

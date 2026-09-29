@@ -118,8 +118,6 @@ sources:
                     A small number of records fall outside [0, 1] due to negative reported waste-heat costs
                     or rounding in the underlying FERC Form 1 fuel cost data.
           - name: waste_fraction_mmbtu
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/out_ferc1__yearly_steam_plants_fuel_by_plant_sched402.parquet"
 models:
   - name: validate_ferc1__yearly_steam_plants_fuel_by_plant_sched402
     description: |-

@@ -78,5 +78,3 @@ sources:
           - name: sulfur_content_pct
           - name: ash_content_pct
           - name: data_maturity
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/out_eia923__boiler_fuel.parquet"

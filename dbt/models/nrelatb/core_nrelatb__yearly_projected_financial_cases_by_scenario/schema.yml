@@ -34,5 +34,3 @@ sources:
           - name: fixed_charge_rate
           - name: wacc_nominal
           - name: wacc_real
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_nrelatb__yearly_projected_financial_cases_by_scenario.parquet"

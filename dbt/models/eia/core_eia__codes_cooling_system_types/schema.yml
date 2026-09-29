@@ -10,5 +10,3 @@ sources:
           - name: code
           - name: label
           - name: description
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_eia__codes_cooling_system_types.parquet"

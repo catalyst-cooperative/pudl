@@ -17,5 +17,3 @@ sources:
           - name: plant_id_eia
           - name: plant_name_eia
           - name: plant_id_pudl
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_pudl__assn_eia_pudl_plants.parquet"

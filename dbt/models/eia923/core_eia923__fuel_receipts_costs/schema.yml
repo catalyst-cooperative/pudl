@@ -100,5 +100,3 @@ sources:
                     physically impossible and appears to be a data entry error in the EIA-923 source data.
           - name: chlorine_content_ppm
           - name: data_maturity
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_eia923__fuel_receipts_costs.parquet"

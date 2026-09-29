@@ -16,5 +16,3 @@ sources:
         columns:
           - name: utility_id_ferc1
           - name: utility_id_ferc1_dbf
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_pudl__assn_ferc1_dbf_pudl_utilities.parquet"

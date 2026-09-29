@@ -9,5 +9,3 @@ sources:
         columns:
           - name: code
           - name: description
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_pudl__codes_imputation_reasons.parquet"

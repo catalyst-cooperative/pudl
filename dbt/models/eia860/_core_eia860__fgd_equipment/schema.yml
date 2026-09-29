@@ -179,5 +179,3 @@ sources:
           - name: plant_summer_capacity_mw
           - name: water_source
           - name: data_maturity
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/_core_eia860__fgd_equipment.parquet"

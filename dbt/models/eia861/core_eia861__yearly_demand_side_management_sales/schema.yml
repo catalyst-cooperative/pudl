@@ -32,5 +32,3 @@ sources:
           - name: state
           - name: utility_id_eia
           - name: data_maturity
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_eia861__yearly_demand_side_management_sales.parquet"

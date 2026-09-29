@@ -36,5 +36,3 @@ sources:
           - name: debits
           - name: credits_written_off_recovered
           - name: account_detail
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/out_ferc1__yearly_other_regulatory_assets_sched232.parquet"

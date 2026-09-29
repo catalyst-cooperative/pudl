@@ -64,5 +64,3 @@ sources:
           - name: opex_misc_plant
           - name: opex_total
           - name: opex_per_mwh
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_ferc1__yearly_hydroelectric_plants_sched406.parquet"

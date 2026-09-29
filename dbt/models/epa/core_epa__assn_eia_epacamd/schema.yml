@@ -34,5 +34,3 @@ sources:
           - name: plant_id_eia
           - name: boiler_id
           - name: generator_id
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_epa__assn_eia_epacamd.parquet"

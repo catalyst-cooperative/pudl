@@ -69,5 +69,3 @@ sources:
           - name: moisture_content_pct
           - name: chlorine_content_ppm
           - name: data_maturity
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/out_eia923__yearly_fuel_receipts_costs.parquet"

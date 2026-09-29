@@ -39,5 +39,3 @@ sources:
           - name: predominant_turbine_model
           - name: turbine_hub_height_feet
           - name: wind_quality_class
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_eia860__scd_generators_wind.parquet"

@@ -59,5 +59,3 @@ sources:
           - name: uses_material_thin_film_other
           - name: uses_material_other
           - name: uses_bifacial_panels
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_eia860__scd_generators_solar.parquet"

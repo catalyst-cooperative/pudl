@@ -144,5 +144,3 @@ sources:
                   row_condition: net_energy_received_mwh >= 0
                   config:
                     error_if: ">8"
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/out_rus12__yearly_sources_and_distribution.parquet"

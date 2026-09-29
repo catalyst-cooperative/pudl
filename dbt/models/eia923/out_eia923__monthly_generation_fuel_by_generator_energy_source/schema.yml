@@ -47,8 +47,6 @@ sources:
           - name: net_generation_mwh
           - name: fuel_consumed_mmbtu
           - name: fuel_consumed_for_electricity_mmbtu
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/out_eia923__monthly_generation_fuel_by_generator_energy_source.parquet"
 models:
   - name: validate_eia923__generation_fuel_allocation
     description: |-

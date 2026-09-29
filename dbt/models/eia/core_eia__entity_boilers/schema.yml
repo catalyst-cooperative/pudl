@@ -34,5 +34,3 @@ sources:
           - name: boiler_id
           - name: boiler_manufacturer
           - name: boiler_manufacturer_code
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_eia__entity_boilers.parquet"

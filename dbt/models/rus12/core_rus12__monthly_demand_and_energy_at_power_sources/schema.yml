@@ -33,5 +33,3 @@ sources:
                     min_value: 0.0
           - name: peak_demand_date
           - name: is_peak_coincident
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_rus12__monthly_demand_and_energy_at_power_sources.parquet"

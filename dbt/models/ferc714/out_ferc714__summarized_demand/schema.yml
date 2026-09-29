@@ -32,5 +32,3 @@ sources:
           - name: balancing_authority_name_eia
           - name: utility_id_eia
           - name: utility_name_eia
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/out_ferc714__summarized_demand.parquet"

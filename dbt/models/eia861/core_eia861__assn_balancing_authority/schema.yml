@@ -13,5 +13,3 @@ sources:
           - name: balancing_authority_id_eia
           - name: utility_id_eia
           - name: state
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_eia861__assn_balancing_authority.parquet"

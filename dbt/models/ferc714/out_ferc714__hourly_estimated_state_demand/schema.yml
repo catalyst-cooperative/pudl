@@ -13,5 +13,3 @@ sources:
           - name: datetime_utc
           - name: demand_mwh
           - name: scaled_demand_mwh
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/out_ferc714__hourly_estimated_state_demand.parquet"

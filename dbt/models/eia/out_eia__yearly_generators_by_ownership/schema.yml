@@ -97,5 +97,3 @@ sources:
           - name: capacity_eoy_mw
           - name: fraction_owned
           - name: ownership_record_type
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/out_eia__yearly_generators_by_ownership.parquet"

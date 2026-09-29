@@ -40,5 +40,3 @@ sources:
           - name: county
           - name: state_id_fips
           - name: county_id_fips
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/out_ferc714__respondents_with_fips.parquet"

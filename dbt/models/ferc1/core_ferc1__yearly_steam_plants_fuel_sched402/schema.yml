@@ -31,5 +31,3 @@ sources:
           - name: fuel_cost_per_unit_burned
           - name: fuel_cost_per_unit_delivered
           - name: fuel_cost_per_mmbtu
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_ferc1__yearly_steam_plants_fuel_sched402.parquet"

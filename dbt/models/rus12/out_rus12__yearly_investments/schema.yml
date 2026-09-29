@@ -33,5 +33,3 @@ sources:
           - name: excluded_investments
           - name: income_or_loss
           - name: for_rural_development
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/out_rus12__yearly_investments.parquet"

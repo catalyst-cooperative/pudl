@@ -8,5 +8,3 @@ sources:
           - check_row_counts_per_partition
         columns:
           - name: respondent_id_ferc714
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_pudl__assn_ferc714_pudl_respondents.parquet"

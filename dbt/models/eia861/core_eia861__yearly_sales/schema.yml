@@ -51,5 +51,3 @@ sources:
                     row_condition: utility_id_eia != 99999
                     error_if: ">300"
           - name: data_maturity
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_eia861__yearly_sales.parquet"

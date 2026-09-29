@@ -87,5 +87,3 @@ sources:
                     min_value: DATE '1950-01-01'
                     max_value: current_date
           - name: data_maturity
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/_core_eia923__yearly_fgd_operation_maintenance.parquet"

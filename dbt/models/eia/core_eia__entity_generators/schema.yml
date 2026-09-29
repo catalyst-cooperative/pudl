@@ -42,5 +42,3 @@ sources:
           - name: original_planned_generator_operating_date
           - name: can_switch_when_operating
           - name: previously_canceled
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_eia__entity_generators.parquet"

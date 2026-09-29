@@ -23,5 +23,3 @@ sources:
                     to: source('pudl', 'core_gridpathratoolkit__assn_generator_aggregation_group')
                     field: aggregation_group
           - name: capacity_factor
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/out_gridpathratoolkit__hourly_available_capacity_factor.parquet"

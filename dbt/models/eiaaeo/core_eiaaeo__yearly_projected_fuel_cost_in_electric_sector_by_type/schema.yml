@@ -17,5 +17,3 @@ sources:
           - name: fuel_cost_per_mmbtu
           - name: fuel_cost_real_per_mmbtu_eiaaeo
           - name: real_cost_basis_year
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type.parquet"

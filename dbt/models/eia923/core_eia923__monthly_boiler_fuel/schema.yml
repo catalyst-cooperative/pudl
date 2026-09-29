@@ -60,5 +60,3 @@ sources:
                     min_value: 0
                     max_value: 100
           - name: data_maturity
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_eia923__monthly_boiler_fuel.parquet"

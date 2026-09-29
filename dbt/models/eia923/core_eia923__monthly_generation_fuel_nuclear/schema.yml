@@ -73,5 +73,3 @@ sources:
                     min_fraction: 0.9999
                     max_fraction: 1.0
           - name: data_maturity
-        meta:
-          external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/core_eia923__monthly_generation_fuel_nuclear.parquet"
