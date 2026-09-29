@@ -3,6 +3,7 @@
 import io
 import json
 import logging
+import os
 from contextlib import chdir, contextmanager, redirect_stdout
 from pathlib import Path
 from typing import NamedTuple, cast
@@ -20,6 +21,21 @@ from pudl.workspace.setup import PudlPaths
 
 logger = get_logger(__name__)
 
+# Where to find the nightly build outputs for each dbt source. The base path of each
+# source is the ``<source>_parquet_base_path`` var in ``dbt_project.yml``.
+NIGHTLY_PARQUET_BASE_PATHS = {
+    "pudl": "s3://pudl.catalyst.coop/nightly",
+    "ferceqr": "s3://pudl.catalyst.coop/ferceqr",
+}
+
+# Tables with ``large: true`` in their meta config in ``dbt_project.yml`` are much
+# larger than the others, so we run them in a separate dbt invocation against a target
+# with its own DuckDB resource limits. This maps a target to the one that runs its
+# large tables. (We can't use a tag, because dbt ignores ``+tags`` for sources in
+# ``dbt_project.yml``.)
+LARGE_TABLE_SELECTOR = "config.meta.large:true"
+LARGE_TABLE_TARGETS = {"etl-full": "etl-full-large"}
+
 
 @contextmanager
 def _preserve_logging_propagation():
@@ -36,6 +52,67 @@ def _preserve_logging_propagation():
         yield
     finally:
         dagster_logger.propagate = original_propagate
+
+
+class DbtPass(NamedTuple):
+    """The arguments that define a single ``dbt build`` invocation."""
+
+    target: str
+    select: str
+    exclude: str | None
+
+
+def split_by_table_size(
+    node_selection: str, node_exclusion: str | None, dbt_target: str
+) -> list[DbtPass]:
+    """Split a dbt selection into the passes needed to give big tables their own target.
+
+    Tables marked ``large`` are built with the target in ``LARGE_TABLE_TARGETS``, and
+    everything else with ``dbt_target``. A target without an entry in
+    ``LARGE_TABLE_TARGETS`` gets a single pass with all of the tables.
+    """
+    large_target = LARGE_TABLE_TARGETS.get(dbt_target)
+    if large_target is None:
+        return [DbtPass(dbt_target, node_selection, node_exclusion)]
+
+    exclude_large = (
+        f"{node_exclusion} {LARGE_TABLE_SELECTOR}"
+        if node_exclusion
+        else LARGE_TABLE_SELECTOR
+    )
+    # dbt can only intersect single selectors, so intersect each of the space-separated
+    # (unioned) ones with the large tables.
+    select_large = " ".join(
+        f"{atom},{LARGE_TABLE_SELECTOR}" for atom in node_selection.split()
+    )
+    return [
+        DbtPass(dbt_target, node_selection, exclude_large),
+        DbtPass(large_target, select_large, node_exclusion),
+    ]
+
+
+def duckdb_settings(dbt_target: str) -> dict[str, str]:
+    """Get the DuckDB settings that dbt applies for a target.
+
+    This mirrors the ``configure_duckdb`` macro, which reads the same environment
+    variables. We need it to run failing test queries outside of dbt with the same
+    resource limits as the test itself, since tests on huge tables might otherwise
+    run out of memory a second time while we're trying to explain how they failed.
+    """
+    prefixes = ["PUDL_DBT_"]
+    if dbt_target in LARGE_TABLE_TARGETS.values():
+        prefixes.insert(0, "PUDL_DBT_LARGE_")
+
+    settings = {"preserve_insertion_order": "false"}
+    for setting, suffix in {
+        "memory_limit": "MEMORY_LIMIT",
+        "threads": "THREADS",
+        "temp_directory": "TEMP_DIR",
+    }.items():
+        values = (os.environ.get(prefix + suffix) for prefix in prefixes)
+        if value := next((v for v in values if v), None):
+            settings[setting] = value
+    return settings
 
 
 class NodeContext(NamedTuple):
@@ -77,7 +154,11 @@ def __get_failed_nodes(results: RunExecutionResult) -> list[GenericTestNode]:
 
 
 def __get_quantile_contexts(
-    nodes: list[GenericTestNode], dbt: dbtRunner, dbt_dir: Path
+    nodes: list[GenericTestNode],
+    dbt: dbtRunner,
+    dbt_dir: Path,
+    dbt_target: str,
+    vars_args: list[str],
 ) -> list[NodeContext]:
     """Run debug_quantile_constraints macro for failed quantile constraints.
 
@@ -105,7 +186,8 @@ def __get_quantile_contexts(
             "run-operation",
             "debug_quantile_constraints",
             "--target",
-            "etl-full",
+            dbt_target,
+            *vars_args,
             "--no-use-colors",
             "--args",
             json.dumps({"table": table_name, "test": node.name}),
@@ -121,11 +203,15 @@ def __get_quantile_contexts(
     return contexts
 
 
-def __get_compiled_sql_contexts(nodes: list[GenericTestNode]) -> list[NodeContext]:
+def __get_compiled_sql_contexts(
+    nodes: list[GenericTestNode], dbt_target: str
+) -> list[NodeContext]:
     """Run the compiled SQL against duckdb to get failure contexts."""
     contexts = []
     duckdb_path = PudlPaths().output_file("pudl_dbt_tests.duckdb")
     with duckdb.connect(duckdb_path) as con:
+        for setting, value in duckdb_settings(dbt_target).items():
+            con.execute(f"SET {setting} = '{value}'")
         for node in nodes:
             con.execute(node.compiled_code)
             node_df = con.fetchdf()
@@ -146,45 +232,63 @@ def build_with_context(
     node_selection: str,
     dbt_target: str,
     node_exclusion: str | None = None,
+    use_nightly_builds: bool = False,
 ) -> BuildResult:
     """Run the DBT build and get failure information back.
 
-    * run the DBT build using our selection, returning test failures
+    * run the DBT build using our selection, returning test failures. Tables marked
+      ``large`` are built in their own pass, see :func:`split_by_table_size`.
     * split the test failures by type - for most, we will just run the compiled
       SQL, but other tests such as the weighted quantile tests need extra
       handling
     * get contexts for various test failure types
     * print out test failure context
     """
-    cli_args = ["--target", dbt_target, "--select", node_selection]
-    if node_exclusion is not None:
-        cli_args += ["--exclude", node_exclusion]
+    vars_args = []
+    if use_nightly_builds:
+        base_paths = {
+            f"{source}_parquet_base_path": path
+            for source, path in NIGHTLY_PARQUET_BASE_PATHS.items()
+        }
+        vars_args = ["--vars", json.dumps(base_paths)]
+
     dbt = install_dbt_deps()
+    success = True
+    failure_contexts: list[NodeContext] = []
+    for dbt_pass in split_by_table_size(node_selection, node_exclusion, dbt_target):
+        cli_args = ["--target", dbt_pass.target, "--select", dbt_pass.select]
+        if dbt_pass.exclude is not None:
+            cli_args += ["--exclude", dbt_pass.exclude]
+        cli_args += vars_args
 
-    with _preserve_logging_propagation(), chdir(PUDL_DBT_PATH):
-        dbt.invoke(["deps"])
-        dbt.invoke(["seed"])
-        build_output: dbtRunnerResult = dbt.invoke(["build"] + cli_args)
-        build_results = cast(RunExecutionResult, build_output.result)
+        with _preserve_logging_propagation(), chdir(PUDL_DBT_PATH):
+            dbt.invoke(["deps"])
+            # The seed's column types can change (e.g. ``partition`` was all integers
+            # before FERC EQR quarters were added), and dbt won't recreate an existing
+            # table with new types unless we ask.
+            dbt.invoke(["seed", "--full-refresh"])
+            build_output: dbtRunnerResult = dbt.invoke(["build"] + cli_args)
+            build_results = cast(RunExecutionResult, build_output.result)
 
-    failed_nodes = __get_failed_nodes(build_results)
+        weighted_quantile_failures, compiled_sql_failures = [], []
+        for node in __get_failed_nodes(build_results):
+            if "expect_quantile_constraints_" in node.name:
+                weighted_quantile_failures.append(node)
+            else:
+                compiled_sql_failures.append(node)
 
-    weighted_quantile_failures, compiled_sql_failures = [], []
-    for node in failed_nodes:
-        if "expect_quantile_constraints_" in node.name:
-            weighted_quantile_failures.append(node)
-        else:
-            compiled_sql_failures.append(node)
+        success = success and build_output.success
+        failure_contexts += __get_compiled_sql_contexts(
+            compiled_sql_failures, dbt_pass.target
+        ) + __get_quantile_contexts(
+            weighted_quantile_failures,
+            dbt=dbt,
+            dbt_dir=PUDL_DBT_PATH,
+            dbt_target=dbt_pass.target,
+            vars_args=vars_args,
+        )
 
-    weighted_quantile_contexts = __get_quantile_contexts(
-        weighted_quantile_failures, dbt=dbt, dbt_dir=PUDL_DBT_PATH
-    )
-    compiled_sql_contexts = __get_compiled_sql_contexts(compiled_sql_failures)
-
-    return BuildResult(
-        success=build_output.success,
-        failure_contexts=compiled_sql_contexts + weighted_quantile_contexts,
-    )
+    return BuildResult(success=success, failure_contexts=failure_contexts)
 
 
 def dagster_to_dbt_selection(

@@ -1,7 +1,7 @@
 {% test check_row_counts_per_partition(model, partition_expr=none) %}
 
 {{ config(
-  enabled=(target.name == 'etl-full')
+  enabled=(target.name.startswith('etl-full'))
 ) }}
 
 -- note 2025-03-28: logic is in a macro so that we can test it.

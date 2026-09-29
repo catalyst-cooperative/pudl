@@ -74,6 +74,85 @@ aware of:
   you'll need to be connected to that database.
 
 
+.. _dbt_sources:
+
+-------------------------------------
+Sources, Parquet locations and vars
+-------------------------------------
+
+Every table we validate is a dbt source in the ``catalyst_coop`` dbt project (the
+project is named for the co-op, not for PUDL, since it isn't limited to PUDL's data).
+There are two sources, which differ in how the Parquet files for a table are laid out:
+
+* ``pudl``: one Parquet file per table, at ``$PUDL_OUTPUT/parquet/<table>.parquet``.
+* ``ferceqr``: the :doc:`FERC EQR </data_sources/ferceqr>` tables, which are
+  too big for a single file. Each table is a directory containing one Parquet file per
+  quarter, at ``$PUDL_OUTPUT/parquet/<table>/**/*.parquet``.
+
+The location for each source is configured once, in ``dbt/dbt_project.yml``, and not in
+every table's ``schema.yml``. The ``dbt_helper update-tables`` command puts each table
+in the right source, and the generated foreign key tests point at the source of the
+parent table. In your own macros and tests, use ``{{ source_for_table('table_name') }}``
+instead of hard-coding a source name.
+
+Each source's base directory defaults to ``$PUDL_OUTPUT/parquet``. To run against
+different Parquet files for a single ``dbt`` invocation, override the
+``pudl_parquet_base_path`` and ``ferceqr_parquet_base_path`` vars. Vars, unlike
+environment variables, are part of the dbt invocation, so nothing lingers after it ends:
+
+.. code-block:: bash
+
+   dbt build --vars '{pudl_parquet_base_path: s3://pudl.catalyst.coop/nightly}'
+
+``dbt_helper validate --use-nightly-builds`` does this for both sources.
+
+.. _dbt_resources:
+
+-----------------------------
+Tuning DuckDB resource usage
+-----------------------------
+
+Local development machines and our build VM have very different amounts of memory, and
+a few tables are so much bigger than the rest that they need their own limits. By
+default DuckDB uses 80% of the memory and all the cores of the machine. The following
+environment variables override that, and only the ones you set are changed:
+
+.. list-table::
+   :header-rows: 1
+
+   * - Environment variable
+     - DuckDB setting
+   * - ``PUDL_DBT_MEMORY_LIMIT``
+     - ``memory_limit``, e.g. ``16GB``
+   * - ``PUDL_DBT_THREADS``
+     - ``threads``, the number of DuckDB worker threads
+   * - ``PUDL_DBT_TEMP_DIR``
+     - ``temp_directory``, where DuckDB spills to disk when it runs out of memory
+
+Tables marked ``large: true`` in ``dbt/dbt_project.yml`` (currently
+``core_epacems__hourly_emissions`` and ``core_ferceqr__transactions``, which each have
+more than a billion rows) are validated in a second dbt invocation using the
+``etl-full-large`` target. It reads ``PUDL_DBT_LARGE_MEMORY_LIMIT``,
+``PUDL_DBT_LARGE_THREADS`` and ``PUDL_DBT_LARGE_TEMP_DIR``, each of which falls back to
+the general variable if it isn't set. For example, to give the big tables less memory
+and fewer threads than everything else on a laptop:
+
+.. code-block:: bash
+
+   export PUDL_DBT_MEMORY_LIMIT=24GB
+   export PUDL_DBT_LARGE_MEMORY_LIMIT=12GB
+   export PUDL_DBT_LARGE_THREADS=2
+   dbt_helper validate
+
+Both invocations happen automatically in ``dbt_helper validate``. If you use ``dbt``
+directly, use ``--target etl-full-large`` to select the large tables' settings, and
+``--select "config.meta.large:true"`` to select the large tables. Failing queries are
+re-run by ``dbt_helper`` under the same limits.
+
+Limits don't help if a test asks DuckDB to do something needlessly expensive with
+billions of rows, so write tests for the large tables to read as little as possible.
+Prefer checking one partition at a time, and selecting only the columns you need.
+
 .. _branch_builds:
 
 -------------
@@ -229,7 +308,7 @@ If you run this validation in ``dbt``, it tells you:
 * the test failed
 * there was 1 failure row
 * the compiled SQL query for the test is at
-  ``target/compiled/pudl_dbt/models/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql``
+  ``target/compiled/catalyst_coop/models/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql``
 
 & that's it:
 
@@ -253,7 +332,7 @@ If you run this validation in ``dbt``, it tells you:
     20:39:01  Failure in test source_expect_columns_not_all_null_pudl_out_eia__yearly_generators_False__EXTRACT_year_FROM_report_date_2008__[...]EXTRACT_year_FROM_report_date_2009 (models/eia/out_eia__yearly_generators/schema.yml)
     20:39:01    Got 1 result, configured to fail if != 0
     20:39:01
-    20:39:01    compiled code at target/compiled/pudl_dbt/models/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql
+    20:39:01    compiled code at target/compiled/catalyst_coop/models/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql
     20:39:01
     20:39:01  Done. PASS=0 WARN=0 ERROR=1 SKIP=0 NO-OP=0 TOTAL=1
 
@@ -275,7 +354,7 @@ it **also** runs the compiled SQL query and gives you the results:
     20:37:49  Failure in test source_expect_columns_not_all_null_pudl_out_eia__yearly_generators_False__EXTRACT_year_FROM_report_date_2008__[...]EXTRACT_year_FROM_report_date_2009 (models/eia/out_eia__yearly_generators/schema.yml)
     20:37:49    Got 1 result, configured to fail if != 0
     20:37:49
-    20:37:49    compiled code at target/compiled/pudl_dbt/models/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql
+    20:37:49    compiled code at target/compiled/catalyst_coop/models/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql
     20:37:49
     20:37:49  Done. PASS=0 WARN=0 ERROR=1 SKIP=0 NO-OP=0 TOTAL=1
     Traceback (most recent call last):
@@ -311,7 +390,7 @@ that looks like this:
 
 .. code-block:: console
 
-    20:37:49    compiled code at target/compiled/pudl_dbt/models/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql
+    20:37:49    compiled code at target/compiled/catalyst_coop/models/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql
 
 "Compiled" is important here because the source code for each test is merely
 a template. The template cannot directly be used to query the database. Each
@@ -334,7 +413,7 @@ the front of the compiled code path. Like this:
 
 .. code-block:: console
 
-    $ duckdb $PUDL_OUTPUT/pudl_dbt_tests.duckdb <dbt/target/compiled/pudl_dbt/models/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql
+    $ duckdb $PUDL_OUTPUT/pudl_dbt_tests.duckdb <dbt/target/compiled/catalyst_coop/models/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql
     ┌────────────────────────────┬────────────────┬─────────────────────────────────────────────────────────────────┬───────────────────────────────────────┬───────────────────────────────┬────────────────┐
     │         table_name         │ failing_column │                         failure_reason                          │             row_condition             │ total_rows_matching_condition │ non_null_count │
     │          varchar           │    varchar     │                             varchar                             │                varchar                │             int64             │     int64      │
@@ -353,7 +432,7 @@ argument to duckdb will execute a command before processing input provided using
 
 .. code-block:: console
 
-    $ duckdb -cmd '.mode line' $PUDL_OUTPUT/pudl_dbt_tests.duckdb <dbt/target/compiled/pudl_dbt/models/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql
+    $ duckdb -cmd '.mode line' $PUDL_OUTPUT/pudl_dbt_tests.duckdb <dbt/target/compiled/catalyst_coop/models/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql
                        table_name = out_eia__yearly_generators
                    failing_column = unit_id_pudl
                    failure_reason = Conditional check failed: EXTRACT(year FROM report_date) < 2008
@@ -375,7 +454,7 @@ code path using the duckdb ``.read`` command. Like this:
     $ duckdb $PUDL_OUTPUT/pudl_dbt_tests.duckdb
     v1.2.0 5f5512b827
     Enter ".help" for usage hints.
-    D .read dbt/target/compiled/pudl_dbt/models/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql
+    D .read dbt/target/compiled/catalyst_coop/models/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql
     ┌────────────────────────────┬────────────────┬─────────────────────────────────────────────────────────────────┬───────────────────────────────────────┬───────────────────────────────┬────────────────┐
     │         table_name         │ failing_column │                         failure_reason                          │             row_condition             │ total_rows_matching_condition │ non_null_count │
     │          varchar           │    varchar     │                             varchar                             │                varchar                │             int64             │     int64      │
@@ -403,7 +482,7 @@ Such as:
 
 .. code-block:: console
 
-    $ duckdb $PUDL_OUTPUT/pudl_dbt_tests.duckdb <target/compiled/pudl_dbt/models/eia/out_eia__yearly_generators/schema.yml/dbt_expectations_source_expect_33dc33ad0a260e896f11f41b4422dda8.sql
+    $ duckdb $PUDL_OUTPUT/pudl_dbt_tests.duckdb <target/compiled/catalyst_coop/models/eia/out_eia__yearly_generators/schema.yml/dbt_expectations_source_expect_33dc33ad0a260e896f11f41b4422dda8.sql
     ┌─────────────┐
     │ expression  │
     │   boolean   │
@@ -596,7 +675,7 @@ In this example, we're running quantile checks for ``out_eia__yearly_generators`
 
 .. code-block:: console
 
-    $ dbt_helper validate --select "source:pudl_dbt.pudl.out_eia__yearly_generators"
+    $ dbt_helper validate --select "source:catalyst_coop.pudl.out_eia__yearly_generators"
     [...]
     18:39:46  Finished running 24 data tests in 0 hours 0 minutes and 1.01 seconds (1.01s).
     18:39:46
@@ -605,7 +684,7 @@ In this example, we're running quantile checks for ``out_eia__yearly_generators`
     18:39:46  Failure in test source_expect_quantile_constraints_pudl_out_eia__yearly_generators_capacity_factor___quantile_0_65_min_value_0_5_max_value_0_6____quantile_0_15_min_value_0_005____quantile_0_95_max_value_0_95___fuel_type_code_pudl_gas_and_report_date_CAST_2015_01_01_AS_DATE_and_capacity_factor_0_0__capacity_mw (models/eia/out_eia__yearly_generators/schema.yml)
     18:39:46    Got 1 result, configured to fail if != 0
     18:39:46
-    18:39:46    compiled code at target/compiled/pudl_dbt/models/eia/out_eia__yearly_generators/schema.yml/source_expect_quantile_constra_392a2df5d1590fb6bc46821e0b879c86.sql
+    18:39:46    compiled code at target/compiled/catalyst_coop/models/eia/out_eia__yearly_generators/schema.yml/source_expect_quantile_constra_392a2df5d1590fb6bc46821e0b879c86.sql
     18:39:46
     18:39:46  Done. PASS=23 WARN=0 ERROR=1 SKIP=0 NO-OP=0 TOTAL=24
     Traceback (most recent call last):
@@ -632,7 +711,7 @@ In this example, we're running quantile checks for ``out_eia__yearly_generators`
     AssertionError: failure contexts:
     source_expect_quantile_constraints_pudl_out_eia__yearly_generators_capacity_factor___quantile_0_65_min_value_0_5_max_value_0_6____quantile_0_15_min_value_0_005____quantile_0_95_max_value_0_95___fuel_type_code_pudl_gas_and_report_date_CAST_2015_01_01_AS_DATE_and_capacity_factor_0_0__capacity_mw:
 
-     table: source.pudl_dbt.pudl.out_eia__yearly_generators
+     table: source.catalyst_coop.pudl.out_eia__yearly_generators
      test: expect_quantile_constraints
      column: capacity_factor
      row_condition: fuel_type_code_pudl='gas' and report_date>=CAST('2015-01-01' AS DATE) and capacity_factor<>0.0

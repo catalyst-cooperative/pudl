@@ -4,7 +4,7 @@ WITH
     compare_table AS (
         SELECT DISTINCT
             {{ ", ".join(compare_cols) }}
-        FROM {{ source('pudl', compare_table_name) }}
+        FROM {{ source_for_table(compare_table_name) }}
     ),
     model_table AS (
         SELECT DISTINCT
