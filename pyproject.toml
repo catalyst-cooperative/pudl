@@ -85,7 +85,7 @@ fsspec = ">=2026"
 gcsfs = ">=2026"
 gdal = ">=3.13.3"
 geoarrow-pyarrow = ">=0.2"
-geopandas = ">=1.1.4"
+geopandas = ">=1.2"
 google-cloud-sdk = ">=583"
 google-cloud-storage = ">=3.13"
 # grpcio packages all need to have same version to avoid conflicts.
