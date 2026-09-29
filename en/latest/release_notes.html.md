@@ -23,6 +23,11 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
 * Added final release data from 2025 for [EIA-860](data_sources/eia860.html.md). See
   issue [#5589](https://github.com/catalyst-cooperative/pudl/issues/5589) and PR [#5591](https://github.com/catalyst-cooperative/pudl/pull/5591).
 
+#### EIA-923
+
+* Added final release data from 2025 for [EIA-923](data_sources/eia923.html.md),
+  and monthly release from June 2026. See issue [#5594](https://github.com/catalyst-cooperative/pudl/issues/5594) and PR [#5599](https://github.com/catalyst-cooperative/pudl/pull/5599).
+
 #### FERC Form 1
 
 * Integrated any updates or straggler filings from 2025 for

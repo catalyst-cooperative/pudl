@@ -72959,7 +72959,7 @@ respective transform function.
 | Respondents                     | Electric, CHP plants, and sometimes fuel transfer terminals with either 1MW+ or the ability to receive and deliver power to the grid.                                                             |
 | Records Liberated               | ~5 million                                                                                                                                                                                        |
 | Source Format                   | Microsoft Excel (.xls/.xlsx)                                                                                                                                                                      |
-| Download Size                   | 380 MB                                                                                                                                                                                            |
+| Download Size                   | 383 MB                                                                                                                                                                                            |
 | Temporal Coverage               | 2001-2026                                                                                                                                                                                         |
 | PUDL Code                       | `eia923`                                                                                                                                                                                          |
 | Unprocessed Source Data Archive | [10.5281/zenodo.4127039](https://doi.org/10.5281/zenodo.4127039)                                                                                                                                  |
@@ -81618,6 +81618,11 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
 
 * Added final release data from 2025 for [EIA-860](data_sources/eia860.html.md). See
   issue [#5589](https://github.com/catalyst-cooperative/pudl/issues/5589) and PR [#5591](https://github.com/catalyst-cooperative/pudl/pull/5591).
+
+#### EIA-923
+
+* Added final release data from 2025 for [EIA-923](data_sources/eia923.html.md),
+  and monthly release from June 2026. See issue [#5594](https://github.com/catalyst-cooperative/pudl/issues/5594) and PR [#5599](https://github.com/catalyst-cooperative/pudl/pull/5599).
 
 #### FERC Form 1
 
