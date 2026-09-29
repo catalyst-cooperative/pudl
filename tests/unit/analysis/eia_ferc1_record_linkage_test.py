@@ -15,6 +15,7 @@ from pudl.analysis.record_linkage.eia_ferc1_record_linkage import (
     add_null_overrides,
     get_best_matches,
     get_model_predictions,
+    override_bad_predictions,
     prepare_for_matching,
     select_best_matches,
 )
@@ -65,6 +66,34 @@ def test_add_null_overrides_preserves_condensed_columns():
     assert pd.notna(overridden.plant_id_pudl)
     assert pd.notna(overridden.utility_id_pudl)
     assert pd.isna(overridden[eia_only_col])
+
+
+def test_override_bad_predictions_labels_and_logs_overridden_matches(caplog):
+    """Wrong predictions are labeled ``overridden`` and counted in the log."""
+    matches = pd.DataFrame(
+        {
+            "record_id_ferc1": ["f1", "f2", "f3"],
+            "record_id_eia": ["e1", "e2", "e3"],
+        }
+    )
+    train = pd.DataFrame(
+        {
+            "record_id_ferc1": ["f1", "f2", "f4"],
+            "record_id_eia": ["e1", "e9", "e4"],
+        }
+    ).set_index(["record_id_ferc1", "record_id_eia"])
+
+    with caplog.at_level("INFO"):
+        result = override_bad_predictions(matches, train).set_index("record_id_ferc1")
+
+    assert result["match_type"].to_dict() == {
+        "f1": "correct match",
+        "f2": "incorrect prediction; overridden",
+        "f3": "prediction; not in training data",
+        "f4": "incorrect prediction; no predicted match",
+    }
+    assert result.loc["f2", "record_id_eia"] == "e9"
+    assert "Percent of training data overridden in matches: 0.33" in caplog.text
 
 
 def _predictions() -> pd.DataFrame:
