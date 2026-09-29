@@ -1,5 +1,6 @@
 """Unit tests for :mod:`pudl.analysis.record_linkage.eia_ferc1_record_linkage`."""
 
+import duckdb
 import jellyfish
 import pandas as pd
 import pytest
@@ -13,6 +14,7 @@ from pudl.analysis.record_linkage.eia_ferc1_model_config import (
     blocking_rule_7,
     blocking_rule_10,
     get_comparisons,
+    get_year_comparison,
 )
 from pudl.analysis.record_linkage.eia_ferc1_record_linkage import (
     U_ESTIMATION_SEED,
@@ -229,6 +231,65 @@ def test_numeric_blocking_rules_block_on_rounded_values(rule, column, blocked_pa
         record_sample_proportion=1.0,
     )
     assert counts[0]["marginal_comparison_count"] == blocked_pairs
+
+
+@pytest.mark.parametrize(
+    ("year_l", "year_r", "level"),
+    [
+        (None, 2000, 0),
+        (2000, None, 0),
+        (2000, 2000, 1),
+        # A one year difference is a level regardless of leap days
+        (2000, 2001, 2),
+        (2001, 2000, 2),
+        (2000, 2002, 3),
+        # Years that differ by a single digit are no longer treated as similar
+        (2001, 2011, 4),
+        (1991, 2001, 4),
+        (2000, 2003, 4),
+    ],
+)
+def test_year_comparison_levels(year_l, year_r, level):
+    """Years are compared by their numeric difference."""
+    comparison = get_year_comparison("year").get_comparison("duckdb")
+    conditions = [lvl.sql_condition for lvl in comparison.comparison_levels]
+    con = duckdb.connect()
+    con.register(
+        "pair",
+        pd.DataFrame({"year_l": [year_l], "year_r": [year_r]}, dtype=pd.Int64Dtype()),
+    )
+
+    def _applies(condition: str) -> bool:
+        if condition == "ELSE":
+            return True
+        query = "SELECT " + condition.replace('"', "") + " FROM pair"  # noqa: S608
+        return bool(con.sql(query).fetchone()[0])
+
+    # Levels are ordered from most to least specific; the first true one applies.
+    assert next(i for i, cond in enumerate(conditions) if _applies(cond)) == level
+
+
+def test_prepare_for_matching_uses_integer_years():
+    """Installation and construction years are nullable integers, not datetimes."""
+    df = pd.DataFrame(
+        {
+            "record_id": ["x", "y"],
+            "plant_name": ["a", "b"],
+            "utility_name": ["a", "b"],
+            "fuel_type_code_pudl": ["gas", "gas"],
+            "installation_year": [2000.0, None],
+            "construction_year": [1999, 2001],
+            "capacity_mw": [1.0, 1.0],
+            "net_generation_mwh": [1.0, 1.0],
+            "report_year": [2000, 2000],
+            "plant_id_pudl": [1, 1],
+            "utility_id_pudl": [1, 1],
+        }
+    )
+    out = prepare_for_matching.compute_fn.decorated_fn(df, pd.DataFrame())
+    assert out["installation_year"].dtype == pd.Int64Dtype()
+    assert out["installation_year"].tolist() == [2000, pd.NA]
+    assert out["construction_year"].dtype == pd.Int64Dtype()
 
 
 def test_get_comparisons_returns_fresh_objects():

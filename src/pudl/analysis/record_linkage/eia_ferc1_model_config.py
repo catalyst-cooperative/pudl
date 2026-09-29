@@ -91,13 +91,22 @@ def get_net_gen_comparison() -> cl.CustomComparison:
     )
 
 
-def get_date_comparison(column_name: str) -> cl.DateOfBirthComparison:
-    """Get date comparison template for column."""
-    return cl.DateOfBirthComparison(
-        column_name,
-        input_is_string=False,
-        datetime_thresholds=[1, 2],
-        datetime_metrics=["year", "year"],
+def get_year_comparison(column_name: str) -> cl.CustomComparison:
+    """Get the comparison of a column of integer years.
+
+    The levels are: null, the same year, within one year, within two years, and
+    anything else.
+    """
+    return cl.CustomComparison(
+        output_column_name=column_name,
+        comparison_levels=[
+            cll.NullLevel(column_name),
+            cll.ExactMatchLevel(column_name),
+            cll.AbsoluteDifferenceLevel(column_name, 1),
+            cll.AbsoluteDifferenceLevel(column_name, 2),
+            cll.ElseLevel(),
+        ],
+        comparison_description="same year vs. 1 year different vs. 2 years different vs. anything else",
     )
 
 
@@ -112,8 +121,8 @@ def get_comparisons() -> list[cl.ComparisonCreator]:
         cl.NameComparison(
             "utility_name", jaro_winkler_thresholds=[0.9, 0.8, 0.7]
         ).configure(term_frequency_adjustments=True),
-        get_date_comparison("construction_year"),
-        get_date_comparison("installation_year"),
+        get_year_comparison("construction_year"),
+        get_year_comparison("installation_year"),
         get_capacity_comparison(),
         cl.ExactMatch("fuel_type_code_pudl").configure(term_frequency_adjustments=True),
         get_net_gen_comparison(),
