@@ -3,6 +3,8 @@
 {# Get the fully-qualified path to the table: #}
 {% if table.startswith("validate") %}
 {% set fq_table = "model.pudl_dbt." ~ table %}
+{% elif "ferceqr" in table %}
+{% set fq_table = "source.pudl_dbt.ferceqr." ~ table %}
 {% else %}
 {% set fq_table = "source.pudl_dbt.pudl." ~ table %}
 {% endif %}
@@ -23,6 +25,8 @@
         but jinja doesn't have an eval() function so we have to use this if statement
         instead #}
     {% set model = ref(table) %}
+    {% elif "ferceqr" in table %}
+    {% set model = get_where_subquery(source('ferceqr', table)) %}
     {% else %}
     {% set model = get_where_subquery(source('pudl', table)) %}
 {% endif %}
