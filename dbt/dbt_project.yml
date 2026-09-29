@@ -1,11 +1,11 @@
 # Name your project! Project names should contain only lowercase characters
 # and underscores. A good package name should reflect your organization's
 # name or the intended use of these models
-name: "pudl_dbt"
+name: "catalyst_coop"
 version: "1.0.0"
 
 # This setting configures which "profile" dbt uses for this project.
-profile: "pudl_dbt"
+profile: "catalyst_coop"
 
 # Opt out of telemetry
 flags:
@@ -20,8 +20,45 @@ macro-paths: ["macros", "tests/data_tests/generic_tests"]
 seed-paths: ["seeds"]
 test-paths: ["tests/unit_tests"]
 
+on-run-start:
+  - "{{ configure_duckdb() }}"
+
+# Every table in our Parquet outputs is a dbt source. There are two sources, which
+# differ only in how the Parquet files for a table are laid out:
+#
+# * ``pudl``: one Parquet file per table.
+# * ``ferceqr``: one directory per table, containing one Parquet file per quarter.
+#
+# ``{name}`` is filled in by dbt-duckdb with the name of the source table.
+#
+# Each source reads from a base path that defaults to the local $PUDL_OUTPUT directory,
+# and can be overridden for a single invocation with the ``<source>_parquet_base_path``
+# var, e.g. ``dbt build --vars '{pudl_parquet_base_path: s3://pudl.catalyst.coop/nightly}'``.
+# The defaults are written inline because a var can't be defined in this file and also
+# used to configure the sources in it.
+#
+# NOTE: the keys below under ``catalyst_coop`` are *not* source names. dbt matches them
+# against the fully qualified name of each source table, which is made of the project,
+# the directories containing its schema.yml, and only then the source and table names.
+# Our schema.yml files are in ``models/<data source>/<table name>/``, so the keys are
+# data source and table names. That is the same as the source name for ``ferceqr``,
+# but not for the ``pudl`` source, which spans all the other data sources.
 sources:
-  pudl_dbt:
+  catalyst_coop:
     +meta:
-      external_location: |
-        '{{ env_var('PUDL_OUTPUT') }}/parquet/{name}.parquet'
+      external_location: "{{ var('pudl_parquet_base_path', env_var('PUDL_OUTPUT') ~ '/parquet') }}/{name}.parquet"
+    ferceqr:
+      +meta:
+        external_location: "{{ var('ferceqr_parquet_base_path', env_var('PUDL_OUTPUT') ~ '/parquet') }}/{name}/**/*.parquet"
+
+      # Tables marked ``large`` are much bigger than the rest, and ``dbt_helper validate``
+      # runs them separately against the ``etl-full-large`` target so that their DuckDB
+      # resource limits can be tuned independently. See ``configure_duckdb`` in macros/.
+      # This is a meta flag and not a tag because dbt ignores ``+tags`` on sources here.
+      core_ferceqr__transactions:
+        +meta:
+          large: true
+    epacems:
+      core_epacems__hourly_emissions:
+        +meta:
+          large: true

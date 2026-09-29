@@ -11,6 +11,9 @@ from pudl.dbt_schema import (
     DbtSchema,
     DbtTable,
     _foreign_key_data_tests,
+    data_source_of,
+    dbt_source_name,
+    is_partitioned,
     merge_schema,
 )
 from pudl.metadata.classes import Resource
@@ -488,4 +491,72 @@ def test_from_table_name_includes_foreign_key_data_tests(mocker):
             }
         ],
         columns=[DbtColumn(name="id"), DbtColumn(name="fk_id")],
+    )
+
+
+@pytest.mark.parametrize(
+    "table_name,data_source",
+    [
+        ("core_eia860__scd_plants", "eia860"),
+        ("_core_vcerare__offshore_wind", "vcerare"),
+        ("core_ferceqr__transactions", "ferceqr"),
+        ("child", None),
+    ],
+)
+def test_data_source_of(table_name, data_source):
+    """The data source is the segment between the layer prefix and ``__``."""
+    assert data_source_of(table_name) == data_source
+
+
+@pytest.mark.parametrize(
+    "table_name,source_name,partitioned",
+    [
+        ("core_eia860__scd_plants", "pudl", False),
+        ("core_epacems__hourly_emissions", "pudl", False),
+        ("core_ferceqr__transactions", "ferceqr", True),
+        ("core_ferceqr__quarterly_identity", "ferceqr", True),
+        # Tables that aren't named like PUDL tables are plain ``pudl`` sources.
+        ("child", "pudl", False),
+    ],
+)
+def test_dbt_source_name(table_name, source_name, partitioned):
+    """Partitioned tables get a dbt source named after their data source."""
+    assert dbt_source_name(table_name) == source_name
+    assert is_partitioned(table_name) is partitioned
+
+
+def test_schema_from_table_name_uses_source_of_table():
+    """A table's generated schema is in the source that ``dbt_source_name`` says."""
+    schema = DbtSchema.from_table_name("core_ferceqr__quarterly_identity")
+
+    assert schema.sources is not None
+    assert [source.name for source in schema.sources] == ["ferceqr"]
+    tables = schema.sources[0].tables
+    assert tables is not None
+    assert [table.name for table in tables] == ["core_ferceqr__quarterly_identity"]
+    assert tables[0].meta is None
+
+
+def test_foreign_key_to_partitioned_table_uses_its_source():
+    """FKs must point at the source their parent table is in, not always ``pudl``."""
+    resource = _make_resource(
+        "child",
+        ["quarter_id"],
+        foreign_keys=[
+            {
+                "fields": ["quarter_id"],
+                "reference": {
+                    "resource": "core_ferceqr__quarterly_identity",
+                    "fields": ["id"],
+                },
+            }
+        ],
+    )
+    data_tests = _foreign_key_data_tests(resource)
+    assert data_tests is not None
+    (data_test,) = data_tests
+
+    assert (
+        data_test["foreign_key"]["arguments"]["pk_table_name"]
+        == "source('ferceqr', 'core_ferceqr__quarterly_identity')"
     )

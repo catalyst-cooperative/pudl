@@ -53,6 +53,17 @@ Documentation
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* The dbt data validations can now be run on the partitioned :doc:`FERC EQR
+  <data_sources/ferceqr>` tables, starting with per-quarter row counts, and can be run
+  against the nightly builds with ``dbt_helper validate --use-nightly-builds``. The
+  dbt project is now named ``catalyst_coop``, has separate ``pudl`` and ``ferceqr``
+  sources with their Parquet locations set once in ``dbt_project.yml`` instead of in
+  every ``schema.yml``, and macros look up the source of a table by name instead of
+  assuming ``pudl``. DuckDB memory, thread and temporary directory limits can be set
+  with ``PUDL_DBT_*`` environment variables, separately for the two tables with over a
+  billion rows (``core_epacems__hourly_emissions`` and ``core_ferceqr__transactions``).
+  See PR :pr:`5676`.
+
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 

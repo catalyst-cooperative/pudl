@@ -2,9 +2,9 @@
 
 {# Get the fully-qualified path to the table: #}
 {% if table.startswith("validate") %}
-{% set fq_table = "model.pudl_dbt." ~ table %}
+{% set fq_table = "model.catalyst_coop." ~ table %}
 {% else %}
-{% set fq_table = "source.pudl_dbt.pudl." ~ table %}
+{% set fq_table = find_source_node(table).unique_id %}
 {% endif %}
 
 {# Walk the dbt graph and find the nodes that are:
@@ -24,7 +24,7 @@
         instead #}
     {% set model = ref(table) %}
     {% else %}
-    {% set model = get_where_subquery(source('pudl', table)) %}
+    {% set model = get_where_subquery(source_for_table(table)) %}
 {% endif %}
 {% set column_name = kwargs.column_name %}
 {% set weight_column = kwargs.weight_column %}

@@ -1,10 +1,23 @@
-pudl_dbt:
+# DuckDB resource limits are applied by the ``configure_duckdb`` macro (see
+# ``macros/configure_duckdb.sql``), which runs at the start of every dbt invocation.
+# Tables marked ``large`` in ``dbt_project.yml`` are validated separately against the
+# ``etl-full-large`` target, so their limits can be tuned independently of the rest.
+catalyst_coop:
   outputs:
     # Define targets for local full/fast ETL outputs
-    etl-full:
+    etl-full: &etl-full
       threads: 1
       type: duckdb
       path: "{{ env_var('PUDL_OUTPUT') }}/pudl_dbt_tests.duckdb"
+      extensions:
+        - httpfs
+        - parquet
+      secrets:
+        - type: s3
+          region: us-west-2
+          url_style: path
+          provider: config
+    etl-full-large: *etl-full
     etl-fast:
       threads: 1
       type: duckdb

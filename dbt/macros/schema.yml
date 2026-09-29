@@ -10,6 +10,20 @@ macros:
       - name: test
         type: string
         description: Name of the failing test. You can copy this from the failed test output, or trace it back to the entry in schema.yml and set a more legible name there to use while you debug.
+  - name: configure_duckdb
+    description: Apply DuckDB resource limits (memory_limit, threads, temp_directory) from the PUDL_DBT_* environment variables. Runs at the start of every dbt invocation, and uses the PUDL_DBT_LARGE_* variables for the etl-full-large target. Settings whose variables are not set keep DuckDB's defaults.
+  - name: find_source_node
+    description: Find the dbt source node for a table by name, regardless of which source it belongs to. Only works at execution time, when the dbt graph is populated.
+    arguments:
+      - name: table_name
+        type: string
+        description: Name of the table.
+  - name: source_for_table
+    description: Return the relation for a table in whichever source it belongs to. Use this instead of hard-coding source names in macros and data tests.
+    arguments:
+      - name: table_name
+        type: string
+        description: Name of the table.
   - name: subcomponents_sum_to_total_check
     description: Logic behind the subcomponents_sum_to_total data test, which checks that subcomponent records sum to a reported total record within each group. Subcomponents and totals are identified by the values of one or more categorical columns.
     arguments:

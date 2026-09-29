@@ -15,7 +15,7 @@
 {% if ignore_eia860m_nulls %}
     {% set get_last_eia860_year_query %}
         SELECT EXTRACT(year FROM MAX(report_date)) as last_eia860_year
-        FROM {{ source('pudl', 'core_eia860__scd_ownership') }}
+        FROM {{ source_for_table('core_eia860__scd_ownership') }}
     {% endset %}
 
     {% if execute %}

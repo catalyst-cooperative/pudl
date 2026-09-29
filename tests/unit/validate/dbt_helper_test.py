@@ -18,6 +18,7 @@ from pudl.scripts.dbt_helper import (
     _combine_row_counts,
     _extract_row_count_partitions,
     _get_existing_row_counts,
+    _parquet_path,
     insert_data_source,
     update_row_counts,
     update_table_schema,
@@ -862,3 +863,33 @@ sources:
     ]
     expected_schema = DbtSchema(sources=[DbtSource(tables=[expected_table])])
     assert observed_schema == expected_schema
+
+
+@pytest.mark.parametrize(
+    "table_name,use_nightly_builds,expected",
+    [
+        ("core_eia__entity_plants", False, "core_eia__entity_plants.parquet"),
+        (
+            "core_ferceqr__transactions",
+            False,
+            "core_ferceqr__transactions/**/*.parquet",
+        ),
+        (
+            "core_eia__entity_plants",
+            True,
+            "s3://pudl.catalyst.coop/nightly/core_eia__entity_plants.parquet",
+        ),
+        (
+            "core_ferceqr__transactions",
+            True,
+            "s3://pudl.catalyst.coop/ferceqr/core_ferceqr__transactions/**/*.parquet",
+        ),
+    ],
+)
+def test_parquet_path(mocker, tmp_path, table_name, use_nightly_builds, expected):
+    """Partitioned tables are a glob of files in a directory, the rest a single file."""
+    mocker.patch.dict("os.environ", {"PUDL_OUTPUT": str(tmp_path)})
+    if not use_nightly_builds:
+        expected = f"{tmp_path}/parquet/{expected}"
+
+    assert _parquet_path(table_name, use_nightly_builds) == expected

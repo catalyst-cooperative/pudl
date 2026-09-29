@@ -1,8 +1,13 @@
 version: 2
 sources:
-  - name: pudl
+  - name: ferceqr
     tables:
       - name: core_ferceqr__transactions
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                partition_expr: year_quarter
         columns:
           - name: year_quarter
           - name: seller_company_id_ferc

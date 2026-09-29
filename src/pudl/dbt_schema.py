@@ -17,6 +17,30 @@ from pudl.metadata.classes import PUDL_PACKAGE, Resource
 
 _DESCRIPTION_WRAP_WIDTH = 88
 
+# Data sources whose tables are written as a directory of partitioned Parquet files
+# instead of a single file. Each table gets its own dbt source named after the data
+# source, so that ``dbt_project.yml`` can configure where the files are.
+PARTITIONED_DATA_SOURCES = frozenset({"ferceqr"})
+DEFAULT_DBT_SOURCE = "pudl"
+
+
+def data_source_of(table_name: str) -> str | None:
+    """Extract the data source from a ``<layer>_<source>__<...>`` table name, if any."""
+    match = re.match(r"_?([a-zA-Z0-9]+)_([a-zA-Z0-9]+)__", table_name)
+    return match.group(2) if match else None
+
+
+def is_partitioned(table_name: str) -> bool:
+    """Whether a table is stored as a directory of partitioned Parquet files."""
+    return data_source_of(table_name) in PARTITIONED_DATA_SOURCES
+
+
+def dbt_source_name(table_name: str) -> str:
+    """Name of the dbt source that a table belongs to."""
+    if is_partitioned(table_name):
+        return str(data_source_of(table_name))
+    return DEFAULT_DBT_SOURCE
+
 
 def _normalize_whitespace(text: str) -> str:
     """Collapse all whitespace (including blank lines) to single spaces."""
@@ -190,7 +214,10 @@ def _foreign_key_data_tests(resource: Resource) -> list[dict] | None:
             "foreign_key": {
                 "arguments": {
                     "fk_column_names": list(fk.fields),
-                    "pk_table_name": f"source('pudl', '{fk.reference.resource}')",
+                    "pk_table_name": (
+                        f"source('{dbt_source_name(fk.reference.resource)}', "
+                        f"'{fk.reference.resource}')"
+                    ),
                     "pk_column_names": list(fk.reference.fields),
                 }
             }
@@ -245,7 +272,7 @@ class DbtSource(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    name: str = "pudl"
+    name: str = DEFAULT_DBT_SOURCE
     tables: list[DbtTable] | None = None
     description: _NormalizedDescription = None
     meta: dict | None = None
@@ -266,6 +293,7 @@ class DbtSchema(BaseModel):
         return cls(
             sources=[
                 DbtSource(
+                    name=dbt_source_name(table_name),
                     tables=[DbtTable.from_table_name(table_name)],
                 )
             ],
