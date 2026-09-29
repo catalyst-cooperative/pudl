@@ -128,6 +128,10 @@ Return the canonical SQLite path for this dataset and data format.
 
 Return a cached SQLAlchemy engine for this FERC SQLite database.
 
+#### teardown_after_execution(context: [dagster.InitResourceContext](https://docs.dagster.io/api/dagster/resources/#dagster.InitResourceContext)) → [None](https://docs.python.org/3/builtins/constants.html#None)
+
+Dispose the cached engine when the resource’s lifecycle ends.
+
 #### *property* metadata *: sqlalchemy.MetaData*
 
 Return cached reflected metadata for this database.

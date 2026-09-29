@@ -18,12 +18,13 @@ A collection of denormalized FERC assets and helper functions.
 
 ## Classes
 
-| [`NodeId`](#pudl.output.ferc1.NodeId)                     | The primary keys which identify a node in a calculation tree.               |
-|-----------------------------------------------------------------------------|-----------------------------------------------------------------------------|
-| [`OffByFactoid`](#pudl.output.ferc1.OffByFactoid)               | A calculated factoid which is off by one other factoid.                     |
-| [`Exploder`](#pudl.output.ferc1.Exploder)                   | Get unique, granular datapoints from a set of related, nested FERC1 tables. |
-| [`XbrlCalculationForestFerc1`](#pudl.output.ferc1.XbrlCalculationForestFerc1) | A class for manipulating groups of hierarchically nested XBRL calculations. |
-| [`Ferc1DetailedCheckSpec`](#pudl.output.ferc1.Ferc1DetailedCheckSpec)     | Define some simple checks that can run on FERC 1 assets.                    |
+| [`NodeId`](#pudl.output.ferc1.NodeId)                     | The primary keys which identify a node in a calculation tree.                                          |
+|-----------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------|
+| [`OffByFactoid`](#pudl.output.ferc1.OffByFactoid)               | A calculated factoid which is off by one other factoid.                                                |
+| [`ExplosionArgs`](#pudl.output.ferc1.ExplosionArgs)              | Keyword arguments for [`exploded_table_asset_factory()`](#pudl.output.ferc1.exploded_table_asset_factory). |
+| [`Exploder`](#pudl.output.ferc1.Exploder)                   | Get unique, granular datapoints from a set of related, nested FERC1 tables.                            |
+| [`XbrlCalculationForestFerc1`](#pudl.output.ferc1.XbrlCalculationForestFerc1) | A class for manipulating groups of hierarchically nested XBRL calculations.                            |
+| [`Ferc1DetailedCheckSpec`](#pudl.output.ferc1.Ferc1DetailedCheckSpec)     | Define some simple checks that can run on FERC 1 assets.                                               |
 
 ## Functions
 
@@ -46,8 +47,8 @@ A collection of denormalized FERC assets and helper functions.
 | [`exploded_table_asset_factory`](#pudl.output.ferc1.exploded_table_asset_factory)(→ dagster.AssetsDefinition)    | Create an exploded table based on a set of related input tables.                      |
 | [`create_exploded_table_assets`](#pudl.output.ferc1.create_exploded_table_assets)(...)                           | Create a list of exploded FERC Form 1 assets.                                         |
 | [`nodes_to_df`](#pudl.output.ferc1.nodes_to_df)(→ pandas.DataFrame)                             | Construct a dataframe from a list of nodes, including their annotations.              |
-| [`_propagate_tag`](#pudl.output.ferc1._propagate_tag)(→ networkx.DiGraph)                          | Set the tag for nodes when all of its successors or predecessorshave same tag.        |
-| [`_propagate_tags_to_corrections`](#pudl.output.ferc1._propagate_tags_to_corrections)(→ networkx.DiGraph)          |                                                                                       |
+| [`_propagate_tag`](#pudl.output.ferc1._propagate_tag)(→ networkx.DiGraph[NodeId])                  | Set the tag for nodes when all of its successors or predecessorshave same tag.        |
+| [`_propagate_tags_to_corrections`](#pudl.output.ferc1._propagate_tags_to_corrections)(→ networkx.DiGraph[NodeId])  |                                                                                       |
 | [`check_tag_propagation_compared_to_compiled_tags`](#pudl.output.ferc1.check_tag_propagation_compared_to_compiled_tags)(df, ...)    | Check if tags got propagated.                                                         |
 | [`check_for_correction_xbrl_factoids_with_tag`](#pudl.output.ferc1.check_for_correction_xbrl_factoids_with_tag)(df, ...)        | Check if any correction records have tags.                                            |
 | [`make_check_tag_propagation`](#pudl.output.ferc1.make_check_tag_propagation)(→ dagster.AssetChecksDefinition) | Check the propagation of tags.                                                        |
@@ -254,13 +255,31 @@ Grab the stored tables of tags and add inferred dimension.
 
 Grab tags from a stored CSV file and apply `make_xbrl_factoid_dimensions_explicit()`.
 
-### pudl.output.ferc1.\_aggregatable_dimension_tags(\_core_ferc1_\_table_dimensions: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), dimension: Literal['plant_status', 'plant_function']) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.output.ferc1.\_aggregatable_dimension_tags(\_core_ferc1_\_table_dimensions: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), dimension: Literal['plant_status', 'plant_function', 'utility_type']) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+### *class* pudl.output.ferc1.ExplosionArgs
+
+Bases: `TypedDict`
+
+Keyword arguments for [`exploded_table_asset_factory()`](#pudl.output.ferc1.exploded_table_asset_factory).
+
+#### root_table *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
+
+#### table_names *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
+
+#### seed_nodes *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]*
+
+#### group_metric_checks *: [pudl.transform.ferc1.GroupMetricChecks](../../transform/ferc1/index.html.md#pudl.transform.ferc1.GroupMetricChecks)*
+
+#### off_by_facts *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[OffByFactoid](#pudl.output.ferc1.OffByFactoid)]*
+
+#### io_manager_key *: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)*
 
 ### pudl.output.ferc1.exploded_table_asset_factory(root_table: [str](https://docs.python.org/3/builtins/stdtypes.html#str), table_names: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], seed_nodes: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)], group_metric_checks: [pudl.transform.ferc1.GroupMetricChecks](../../transform/ferc1/index.html.md#pudl.transform.ferc1.GroupMetricChecks), off_by_facts: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[OffByFactoid](#pudl.output.ferc1.OffByFactoid)], io_manager_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
 
 Create an exploded table based on a set of related input tables.
 
-### pudl.output.ferc1.EXPLOSION_ARGS
+### pudl.output.ferc1.EXPLOSION_ARGS *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[ExplosionArgs](#pudl.output.ferc1.ExplosionArgs)]*
 
 ### pudl.output.ferc1.create_exploded_table_assets() → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)]
 
@@ -511,7 +530,7 @@ For some reason this validator is being run before exploded_calcs has been
 added to the values dictionary, which doesn’t make sense, since “seeds” is
 defined after exploded_calcs in the model.
 
-#### exploded_calcs_to_digraph(exploded_calcs: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)
+#### exploded_calcs_to_digraph(exploded_calcs: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)[[NodeId](#pudl.output.ferc1.NodeId)]
 
 Construct [`networkx.DiGraph`](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph) of all calculations in exploded_calcs.
 
@@ -530,13 +549,13 @@ Construct a dictionary of node attributes for application to the forest.
 
 Note attributes consist of the manually assigned tags.
 
-#### *property* edge_attrs *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[Any, Any]*
+#### *property* edge_attrs *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[NodeId](#pudl.output.ferc1.NodeId), [NodeId](#pudl.output.ferc1.NodeId)], [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [int](https://docs.python.org/3/builtins/functions.html#int)]]*
 
 Construct a dictionary of edge attributes for application to the forest.
 
 The only edge attribute is the calculation component weight.
 
-#### *property* annotated_forest *: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)*
+#### *property* annotated_forest *: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)[[NodeId](#pudl.output.ferc1.NodeId)]*
 
 Annotate the calculation forest with node calculation weights and tags.
 
@@ -556,7 +575,7 @@ If they do, then the final exploded data table may not capture all of the
 manually assigned metadata, and we either need to edit the metadata, or figure
 out why those nodes aren’t being included in the final calculation forest.
 
-#### propagate_node_attributes(annotated_forest: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph))
+#### propagate_node_attributes(annotated_forest: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)[[NodeId](#pudl.output.ferc1.NodeId)])
 
 Propagate tags.
 
@@ -572,7 +591,7 @@ Check whether any of the input lost nodes were also tagged nodes.
 It is not necessarily a problem if there are “lost” tags. This is mostly
 here as a debugging tool.
 
-#### *static* check_conflicting_tags(annotated_forest: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)) → [None](https://docs.python.org/3/builtins/constants.html#None)
+#### *static* check_conflicting_tags(annotated_forest: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)[[NodeId](#pudl.output.ferc1.NodeId)]) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Check for conflicts between ancestor and descendant tags.
 
@@ -581,11 +600,11 @@ This check should be applied before we have propagated tags via
 that we’ve manually compiled.These kinds of conflicts are probably due to
 errors in the tagging metadata, and should be investigated.
 
-#### *property* full_digraph *: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)*
+#### *property* full_digraph *: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)[[NodeId](#pudl.output.ferc1.NodeId)]*
 
 A digraph of all calculations described by the exploded metadata.
 
-#### prune_unrooted(graph: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)) → [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)
+#### prune_unrooted(graph: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)[[NodeId](#pudl.output.ferc1.NodeId)]) → [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)[[NodeId](#pudl.output.ferc1.NodeId)]
 
 Prune those parts of the input graph that aren’t reachable from the roots.
 
@@ -599,7 +618,7 @@ from the input graph, and so when selecting both parent and child nodes from
 the calculations, we need to make sure that they are present in the input graph,
 as well as the complete set of calculation components.
 
-#### *property* seeded_digraph *: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)*
+#### *property* seeded_digraph *: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)[[NodeId](#pudl.output.ferc1.NodeId)]*
 
 A digraph of all calculations that contribute to the seed values.
 
@@ -613,7 +632,7 @@ the pruned graph, and then use that list to select a subset of the exploded
 metadata to pass to [`exploded_calcs_to_digraph()`](#pudl.output.ferc1.XbrlCalculationForestFerc1.exploded_calcs_to_digraph), so that all of the
 associated metadata is also added to the pruned graph.
 
-#### *property* forest *: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)*
+#### *property* forest *: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)[[NodeId](#pudl.output.ferc1.NodeId)]*
 
 A pruned version of the seeded digraph that should be one or more trees.
 
@@ -627,7 +646,7 @@ but a forest with several root nodes might also be appropriate, since the root
 table may or may not have a top level summary value that includes all underlying
 calculated values of interest.
 
-#### *static* roots(graph: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]
+#### *static* roots(graph: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)[[NodeId](#pudl.output.ferc1.NodeId)]) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]
 
 Identify all root nodes in a digraph.
 
@@ -643,7 +662,7 @@ Find all roots in the seeded digraph.
 
 Find all roots in the pruned calculation forest.
 
-#### *static* leaves(graph: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]
+#### *static* leaves(graph: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)[[NodeId](#pudl.output.ferc1.NodeId)]) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]
 
 Identify all leaf nodes in a digraph.
 
@@ -670,15 +689,15 @@ the exploded_calcs, this should now never produce any orphans and is a bit redun
 
 List of all nodes that appear in the DAG but not in the pruned forest.
 
-#### stepchildren(graph: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]
+#### stepchildren(graph: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)[[NodeId](#pudl.output.ferc1.NodeId)]) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]
 
 Find all nodes in the graph that have more than one parent.
 
-#### stepparents(graph: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]
+#### stepparents(graph: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)[[NodeId](#pudl.output.ferc1.NodeId)]) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]
 
 Find all nodes in the graph with children having more than one parent.
 
-#### \_get_path_weight(path: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)], graph: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)) → [float](https://docs.python.org/3/builtins/functions.html#float)
+#### \_get_path_weight(path: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)], graph: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)[[NodeId](#pudl.output.ferc1.NodeId)]) → [float](https://docs.python.org/3/builtins/functions.html#float)
 
 Multiply all weights along a path together.
 
@@ -712,7 +731,7 @@ from the leaf values.
 
 Produce the list of tables involved in this explosion.
 
-#### plot_graph(graph: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)) → [None](https://docs.python.org/3/builtins/constants.html#None)
+#### plot_graph(graph: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)[[NodeId](#pudl.output.ferc1.NodeId)]) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Visualize a CalculationForest graph.
 
@@ -759,7 +778,7 @@ tabular representation of the calculation forest that can be inspected in Excel.
 Include inter-layer calculation weights and tags associated with the nodes pre
 propagation.
 
-### pudl.output.ferc1.nodes_to_df(calc_forest: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph), nodes: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.output.ferc1.nodes_to_df(calc_forest: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)[[NodeId](#pudl.output.ferc1.NodeId)], nodes: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Construct a dataframe from a list of nodes, including their annotations.
 
@@ -772,14 +791,14 @@ NodeIds that are not present in the calculation forest will be ignored.
   A tabular dataframe representation of the nodes, including their tags, extracted
   from the calculation forest.
 
-### pudl.output.ferc1.\_propagate_tag(annotated_forest: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph), tag_name: Literal['in_rate_base', 'rate_base_category'], propagation_direction: Literal['rootward', 'leafward']) → [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)
+### pudl.output.ferc1.\_propagate_tag(annotated_forest: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)[[NodeId](#pudl.output.ferc1.NodeId)], tag_name: Literal['in_rate_base', 'rate_base_category'], propagation_direction: Literal['rootward', 'leafward']) → [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)[[NodeId](#pudl.output.ferc1.NodeId)]
 
 Set the tag for nodes when all of its successors or predecessorshave same tag.
 
 This function returns an updated annotated_forest with tags updated for nodes
 when all down the tree when all children or parents of a node share the same tag.
 
-### pudl.output.ferc1.\_propagate_tags_to_corrections(annotated_forest: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)) → [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)
+### pudl.output.ferc1.\_propagate_tags_to_corrections(annotated_forest: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)[[NodeId](#pudl.output.ferc1.NodeId)]) → [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)[[NodeId](#pudl.output.ferc1.NodeId)]
 
 ### pudl.output.ferc1.check_tag_propagation_compared_to_compiled_tags(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), propagated_tag: Literal['in_rate_base'], \_out_ferc1_\_explosion_tags: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame))
 
@@ -859,7 +878,7 @@ Define some simple checks that can run on FERC 1 assets.
 
 #### asset *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### idx *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[int](https://docs.python.org/3/builtins/functions.html#int), [int](https://docs.python.org/3/builtins/functions.html#int)]*
+#### idx *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
 ### pudl.output.ferc1.check_specs
 

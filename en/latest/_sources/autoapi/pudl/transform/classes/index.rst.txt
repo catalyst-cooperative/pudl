@@ -950,7 +950,7 @@ Module Contents
 
 
 
-.. py:function:: cache_df(key: str = 'main') -> collections.abc.Callable[..., pandas.DataFrame]
+.. py:function:: cache_df(key: str = 'main') -> collections.abc.Callable[[collections.abc.Callable[..., pandas.DataFrame]], collections.abc.Callable[..., pandas.DataFrame]]
 
    A decorator for caching dataframes within an :class:`AbstractTableTransformer`.
 

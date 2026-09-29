@@ -38,33 +38,20 @@ from your fork to your local computer where you'll be editing the code or docs. 
 will download the whole history of the project, including the most recent version, and
 put it in a local directory where you can make changes.
 
-After cloning, you need to configure git to use the "ours" merge strategy for the
-lockfile. Run this command once from within the cloned repository:
-
-.. code-block:: console
-
-    $ git config --local merge.ours.driver true
-
 .. warning::
 
-   **Never manually merge pixi.lock!** The lockfile (``pixi.lock``) is a
-   generated file that must be regenerated programmatically. The git configuration
-   above will automatically keep your version of the lockfile during merge conflicts,
-   but you must then regenerate it to reflect the merged dependencies.
+   **Never manually merge pixi.lock!** The lockfile (``pixi.lock``) is a generated file
+   that must be regenerated programmatically. A conflicting merge or rebase keeps *your*
+   version of the file instead of attempting a textual merge that could corrupt it.
+   ``prek`` (see :ref:`linting` below) should automatically regenerate ``pixi.lock`` if
+   it is out of sync with ``pyproject.toml`` before you are allowed to commit or push
+   your changes.
 
-   After merging changes from another branch (e.g. ``main``) that modified
-   ``pyproject.toml``:
-
-   1. Complete the merge (the lockfile will keep your version due to the merge strategy)
-   2. Regenerate the lockfile to match the merged dependencies:
+   If you ever need to re-solve the lockfile by hand:
 
    .. code-block:: console
 
-      $ pixi update
-
-   3. Commit the regenerated lockfile
-
-   This ensures your lockfile is consistent with the merged dependency specifications.
+      $ pixi lock
 
 -------------------------------------------------------------------------------
 Create the PUDL Dev Environment

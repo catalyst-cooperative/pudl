@@ -110,7 +110,7 @@ transformations.
 | [`create_ferc1_transform_assets`](#pudl.transform.ferc1.create_ferc1_transform_assets)(...)                           | Create a list of transformed FERC Form 1 assets.                                                                                    |
 | [`other_dimensions`](#pudl.transform.ferc1.other_dimensions)(→ list[str])                                | Get a list of the other dimension columns across all of the transformers.                                                           |
 | [`table_to_xbrl_factoid_name`](#pudl.transform.ferc1.table_to_xbrl_factoid_name)(→ dict[str, str])                 | Build a dictionary of table name (keys) to `xbrl_factoid` column name.                                                              |
-| [`table_to_column_to_check`](#pudl.transform.ferc1.table_to_column_to_check)(→ dict[str, list[str]])             | Build a dictionary of table name (keys) to column_to_check from reconcile_table_calculations.                                       |
+| [`table_to_column_to_check`](#pudl.transform.ferc1.table_to_column_to_check)(→ dict[str, str])                   | Build a dictionary of table name (keys) to column_to_check from reconcile_table_calculations.                                       |
 | [`remove_rare_utility_type_subdimensions_rows`](#pudl.transform.ferc1.remove_rare_utility_type_subdimensions_rows)(...)             | Remove the rare, non-total utility types when all values are duplicated.                                                            |
 | [`_core_ferc1__table_dimensions`](#pudl.transform.ferc1._core_ferc1__table_dimensions)(→ pandas.DataFrame)            | Build a table of values of dimensions observed in the transformed data tables.                                                      |
 | [`_core_ferc1_xbrl__metadata`](#pudl.transform.ferc1._core_ferc1_xbrl__metadata)(→ pandas.DataFrame)               | Build a table of all of the tables' XBRL metadata.                                                                                  |
@@ -858,7 +858,7 @@ Tolerance for checking the metric within the `by` group.
 
 Check that the input dataframe has all required columns.
 
-#### *abstractmethod* metric(gb: pandas.core.groupby.DataFrameGroupBy) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
+#### *abstractmethod* metric(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [float](https://docs.python.org/3/builtins/functions.html#float)
 
 Metric function that will be applied to each group of values being checked.
 
@@ -898,7 +898,7 @@ Bases: [`ErrorMetric`](#pudl.transform.ferc1.ErrorMetric)
 
 Check error frequency in XBRL calculations.
 
-#### metric(gb: pandas.core.groupby.DataFrameGroupBy) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
+#### metric(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [float](https://docs.python.org/3/builtins/functions.html#float)
 
 Calculate the frequency with which records are tagged as errors.
 
@@ -908,7 +908,7 @@ Bases: [`ErrorMetric`](#pudl.transform.ferc1.ErrorMetric)
 
 Check relative magnitude of errors in XBRL calculations.
 
-#### metric(gb: pandas.core.groupby.DataFrameGroupBy) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
+#### metric(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [float](https://docs.python.org/3/builtins/functions.html#float)
 
 Calculate the magnitude of the errors relative to total reported value.
 
@@ -921,7 +921,7 @@ Check absolute magnitude of errors in XBRL calculations.
 These numbers may vary wildly from table to table so no default values for the
 expected errors are provided here…
 
-#### metric(gb: pandas.core.groupby.DataFrameGroupBy) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
+#### metric(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [float](https://docs.python.org/3/builtins/functions.html#float)
 
 Calculate the absolute magnitude of XBRL calculation errors.
 
@@ -935,7 +935,7 @@ Check the frequency of null calculated values.
 
 Only apply metric to rows that contain calculated values.
 
-#### metric(gb: pandas.core.groupby.DataFrameGroupBy) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
+#### metric(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [float](https://docs.python.org/3/builtins/functions.html#float)
 
 Fraction of non-null reported values that have null corresponding calculated values.
 
@@ -945,7 +945,7 @@ Bases: [`ErrorMetric`](#pudl.transform.ferc1.ErrorMetric)
 
 Check the frequency of null reported values.
 
-#### metric(gb: pandas.core.groupby.DataFrameGroupBy) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
+#### metric(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [float](https://docs.python.org/3/builtins/functions.html#float)
 
 Frequency with which the reported values are Null.
 
@@ -1344,7 +1344,7 @@ Wrapper function for [`drop_duplicate_rows_dbf()`](#pudl.transform.ferc1.drop_du
 
 Pre-process DBF inputs into one dataframe. Concats by default.
 
-#### preprocess_xbrl(raw_xbrl_dfs: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### preprocess_xbrl(raw_xbrl_dfs: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]
 
 Pre-process XBRL inputs into one dataframe. Grab freshest data and concat by default.
 
@@ -1356,7 +1356,7 @@ DBF-specific transformations that take place before concatenation.
 
 XBRL-specific transformations that take place before concatenation.
 
-#### rename_columns(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), rename_stage: Literal['dbf', 'xbrl', 'xbrl_instant', 'xbrl_duration'] | [None](https://docs.python.org/3/builtins/constants.html#None) = None, params: [pudl.transform.classes.RenameColumns](../classes/index.html.md#pudl.transform.classes.RenameColumns) | [None](https://docs.python.org/3/builtins/constants.html#None) = None)
+#### rename_columns(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), rename_stage: Literal['dbf', 'xbrl', 'instant_xbrl', 'duration_xbrl'] | [None](https://docs.python.org/3/builtins/constants.html#None) = None, params: [pudl.transform.classes.RenameColumns](../classes/index.html.md#pudl.transform.classes.RenameColumns) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Grab the params based on the rename stage and run default rename_columns.
 
@@ -1521,7 +1521,7 @@ Name of the PUDL database table that this table transformer produces.
 Must be defined in the database schema / metadata. This ID is used to instantiate
 the appropriate `TableTransformParams` object.
 
-#### preprocess_xbrl(raw_xbrl_dfs: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### preprocess_xbrl(raw_xbrl_dfs: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]
 
 Pre-process XBRL inputs into one dataframe. Grab freshest data and concat by default.
 
@@ -1953,7 +1953,7 @@ Params:
   `possible_header_or_note` that flags rows that might contain useful header
   or note information.
 
-#### \_find_note_clumps(group: pandas.core.groupby.DataFrameGroupBy) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[pandas.core.groupby.DataFrameGroupBy, [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]
+#### \_find_note_clumps(group: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[pandas.core.groupby.DataFrameGroupBy, [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]
 
 Find groups of rows likely to be notes.
 
@@ -2039,7 +2039,7 @@ Params:
   The same input DataFrame but with likely headers rows containing the string
   `header` in the `row_type` column.
 
-#### \_label_note_rows_group(util_year_group: pandas.core.groupby.DataFrameGroupBy) → pandas.core.groupby.DataFrameGroupBy
+#### \_label_note_rows_group(util_year_group: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Label note rows by adding `note` to `row_type` column.
 
@@ -2064,7 +2064,7 @@ and therefore be categorized as a note clump. I haven’t built a work around, b
 hopefully there aren’t very many of these.
 
 Params:
-: util_year_group: A groupby object that contains a single year and utility.
+: util_year_group: A DataFrame containing a single year and utility.
 
 * **Returns:**
   The same input but with likely note rows containing the string `note` in
@@ -3281,7 +3281,11 @@ Get a list of the other dimension columns across all of the transformers.
 
 Build a dictionary of table name (keys) to `xbrl_factoid` column name.
 
-### pudl.transform.ferc1.table_to_column_to_check() → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]]
+Only includes tables whose `merge_xbrl_metadata.on` param is set — not every
+FERC1 table participates in the XBRL metadata/calculation reconciliation, so
+`xbrl_factoid_name` is undefined for the rest.
+
+### pudl.transform.ferc1.table_to_column_to_check() → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]
 
 Build a dictionary of table name (keys) to column_to_check from reconcile_table_calculations.
 

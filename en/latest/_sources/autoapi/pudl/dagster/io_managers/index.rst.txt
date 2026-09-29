@@ -191,6 +191,12 @@ Module Contents
       Return a cached SQLAlchemy engine for this FERC SQLite database.
 
 
+   .. py:method:: teardown_after_execution(context: dagster.InitResourceContext) -> None
+
+      Dispose the cached engine when the resource's lifecycle ends.
+
+
+
    .. py:property:: metadata
       :type: sqlalchemy.MetaData
 

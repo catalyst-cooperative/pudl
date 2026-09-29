@@ -33,6 +33,7 @@ Classes
 
    pudl.output.ferc1.NodeId
    pudl.output.ferc1.OffByFactoid
+   pudl.output.ferc1.ExplosionArgs
    pudl.output.ferc1.Exploder
    pudl.output.ferc1.XbrlCalculationForestFerc1
    pudl.output.ferc1.Ferc1DetailedCheckSpec
@@ -315,7 +316,39 @@ Module Contents
    Grab tags from a stored CSV file and apply :func:`make_xbrl_factoid_dimensions_explicit`.
 
 
-.. py:function:: _aggregatable_dimension_tags(_core_ferc1__table_dimensions: pandas.DataFrame, dimension: Literal['plant_status', 'plant_function']) -> pandas.DataFrame
+.. py:function:: _aggregatable_dimension_tags(_core_ferc1__table_dimensions: pandas.DataFrame, dimension: Literal['plant_status', 'plant_function', 'utility_type']) -> pandas.DataFrame
+
+.. py:class:: ExplosionArgs
+
+   Bases: :py:obj:`TypedDict`
+
+
+   Keyword arguments for :func:`exploded_table_asset_factory`.
+
+
+   .. py:attribute:: root_table
+      :type:  str
+
+
+   .. py:attribute:: table_names
+      :type:  list[str]
+
+
+   .. py:attribute:: seed_nodes
+      :type:  list[NodeId]
+
+
+   .. py:attribute:: group_metric_checks
+      :type:  pudl.transform.ferc1.GroupMetricChecks
+
+
+   .. py:attribute:: off_by_facts
+      :type:  list[OffByFactoid]
+
+
+   .. py:attribute:: io_manager_key
+      :type:  str | None
+
 
 .. py:function:: exploded_table_asset_factory(root_table: str, table_names: list[str], seed_nodes: list[NodeId], group_metric_checks: pudl.transform.ferc1.GroupMetricChecks, off_by_facts: list[OffByFactoid], io_manager_key: str | None = None) -> dagster.AssetsDefinition
 
@@ -323,6 +356,7 @@ Module Contents
 
 
 .. py:data:: EXPLOSION_ARGS
+   :type:  list[ExplosionArgs]
 
 .. py:function:: create_exploded_table_assets() -> list[dagster.AssetsDefinition]
 
@@ -657,7 +691,7 @@ Module Contents
 
 
 
-   .. py:method:: exploded_calcs_to_digraph(exploded_calcs: pandas.DataFrame) -> networkx.DiGraph
+   .. py:method:: exploded_calcs_to_digraph(exploded_calcs: pandas.DataFrame) -> networkx.DiGraph[NodeId]
 
       Construct :class:`networkx.DiGraph` of all calculations in exploded_calcs.
 
@@ -682,7 +716,7 @@ Module Contents
 
 
    .. py:property:: edge_attrs
-      :type: dict[Any, Any]
+      :type: dict[tuple[NodeId, NodeId], dict[str, int]]
 
 
       Construct a dictionary of edge attributes for application to the forest.
@@ -691,7 +725,7 @@ Module Contents
 
 
    .. py:property:: annotated_forest
-      :type: networkx.DiGraph
+      :type: networkx.DiGraph[NodeId]
 
 
       Annotate the calculation forest with node calculation weights and tags.
@@ -713,7 +747,7 @@ Module Contents
       out why those nodes aren't being included in the final calculation forest.
 
 
-   .. py:method:: propagate_node_attributes(annotated_forest: networkx.DiGraph)
+   .. py:method:: propagate_node_attributes(annotated_forest: networkx.DiGraph[NodeId])
 
       Propagate tags.
 
@@ -733,7 +767,7 @@ Module Contents
 
 
 
-   .. py:method:: check_conflicting_tags(annotated_forest: networkx.DiGraph) -> None
+   .. py:method:: check_conflicting_tags(annotated_forest: networkx.DiGraph[NodeId]) -> None
       :staticmethod:
 
 
@@ -747,13 +781,13 @@ Module Contents
 
 
    .. py:property:: full_digraph
-      :type: networkx.DiGraph
+      :type: networkx.DiGraph[NodeId]
 
 
       A digraph of all calculations described by the exploded metadata.
 
 
-   .. py:method:: prune_unrooted(graph: networkx.DiGraph) -> networkx.DiGraph
+   .. py:method:: prune_unrooted(graph: networkx.DiGraph[NodeId]) -> networkx.DiGraph[NodeId]
 
       Prune those parts of the input graph that aren't reachable from the roots.
 
@@ -770,7 +804,7 @@ Module Contents
 
 
    .. py:property:: seeded_digraph
-      :type: networkx.DiGraph
+      :type: networkx.DiGraph[NodeId]
 
 
       A digraph of all calculations that contribute to the seed values.
@@ -787,7 +821,7 @@ Module Contents
 
 
    .. py:property:: forest
-      :type: networkx.DiGraph
+      :type: networkx.DiGraph[NodeId]
 
 
       A pruned version of the seeded digraph that should be one or more trees.
@@ -803,7 +837,7 @@ Module Contents
       calculated values of interest.
 
 
-   .. py:method:: roots(graph: networkx.DiGraph) -> list[NodeId]
+   .. py:method:: roots(graph: networkx.DiGraph[NodeId]) -> list[NodeId]
       :staticmethod:
 
 
@@ -832,7 +866,7 @@ Module Contents
       Find all roots in the pruned calculation forest.
 
 
-   .. py:method:: leaves(graph: networkx.DiGraph) -> list[NodeId]
+   .. py:method:: leaves(graph: networkx.DiGraph[NodeId]) -> list[NodeId]
       :staticmethod:
 
 
@@ -878,19 +912,19 @@ Module Contents
       List of all nodes that appear in the DAG but not in the pruned forest.
 
 
-   .. py:method:: stepchildren(graph: networkx.DiGraph) -> list[NodeId]
+   .. py:method:: stepchildren(graph: networkx.DiGraph[NodeId]) -> list[NodeId]
 
       Find all nodes in the graph that have more than one parent.
 
 
 
-   .. py:method:: stepparents(graph: networkx.DiGraph) -> list[NodeId]
+   .. py:method:: stepparents(graph: networkx.DiGraph[NodeId]) -> list[NodeId]
 
       Find all nodes in the graph with children having more than one parent.
 
 
 
-   .. py:method:: _get_path_weight(path: list[NodeId], graph: networkx.DiGraph) -> float
+   .. py:method:: _get_path_weight(path: list[NodeId], graph: networkx.DiGraph[NodeId]) -> float
 
       Multiply all weights along a path together.
 
@@ -935,7 +969,7 @@ Module Contents
       Produce the list of tables involved in this explosion.
 
 
-   .. py:method:: plot_graph(graph: networkx.DiGraph) -> None
+   .. py:method:: plot_graph(graph: networkx.DiGraph[NodeId]) -> None
 
       Visualize a CalculationForest graph.
 
@@ -996,7 +1030,7 @@ Module Contents
 
 
 
-.. py:function:: nodes_to_df(calc_forest: networkx.DiGraph, nodes: list[NodeId]) -> pandas.DataFrame
+.. py:function:: nodes_to_df(calc_forest: networkx.DiGraph[NodeId], nodes: list[NodeId]) -> pandas.DataFrame
 
    Construct a dataframe from a list of nodes, including their annotations.
 
@@ -1009,7 +1043,7 @@ Module Contents
              from the calculation forest.
 
 
-.. py:function:: _propagate_tag(annotated_forest: networkx.DiGraph, tag_name: Literal['in_rate_base', 'rate_base_category'], propagation_direction: Literal['rootward', 'leafward']) -> networkx.DiGraph
+.. py:function:: _propagate_tag(annotated_forest: networkx.DiGraph[NodeId], tag_name: Literal['in_rate_base', 'rate_base_category'], propagation_direction: Literal['rootward', 'leafward']) -> networkx.DiGraph[NodeId]
 
    Set the tag for nodes when all of its successors or predecessorshave same tag.
 
@@ -1017,7 +1051,7 @@ Module Contents
    when all down the tree when all children or parents of a node share the same tag.
 
 
-.. py:function:: _propagate_tags_to_corrections(annotated_forest: networkx.DiGraph) -> networkx.DiGraph
+.. py:function:: _propagate_tags_to_corrections(annotated_forest: networkx.DiGraph[NodeId]) -> networkx.DiGraph[NodeId]
 
 .. py:function:: check_tag_propagation_compared_to_compiled_tags(df: pandas.DataFrame, propagated_tag: Literal['in_rate_base'], _out_ferc1__explosion_tags: pandas.DataFrame)
 
@@ -1107,7 +1141,7 @@ Module Contents
 
 
    .. py:attribute:: idx
-      :type:  dict[int, int]
+      :type:  list[str]
 
 
 .. py:data:: check_specs

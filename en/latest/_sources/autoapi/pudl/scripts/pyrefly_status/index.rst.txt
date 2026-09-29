@@ -1,0 +1,99 @@
+pudl.scripts.pyrefly_status
+===========================
+
+.. py:module:: pudl.scripts.pyrefly_status
+
+.. autoapi-nested-parse::
+
+   Report on the current status of pyrefly typing in the repo.
+
+   Meant for the weekly baseline-ratcheting workflow: pick the module or error kind
+   with the biggest count, fix it, then shrink :file:`.pyrefly-baseline.json`.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.scripts.pyrefly_status._COVERAGE_COLUMNS
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.scripts.pyrefly_status._run_pyrefly
+   pudl.scripts.pyrefly_status._collect_live_errors
+   pudl.scripts.pyrefly_status._collect_coverage_report
+   pudl.scripts.pyrefly_status._print_counts
+   pudl.scripts.pyrefly_status._relative_path
+   pudl.scripts.pyrefly_status._print_coverage_table
+   pudl.scripts.pyrefly_status.main
+   pudl.scripts.pyrefly_status.errors
+   pudl.scripts.pyrefly_status.coverage
+
+
+Module Contents
+---------------
+
+.. py:function:: _run_pyrefly(args: list[str]) -> dict
+
+   Run a pyrefly subcommand and return its JSON stdout, parsed.
+
+   Raises ``click.ClickException`` if pyrefly can't be invoked or produces
+   unparsable output.
+
+
+.. py:function:: _collect_live_errors() -> list[dict]
+
+   Run pyrefly directly and return its full, per-occurrence error list.
+
+
+.. py:function:: _collect_coverage_report() -> dict
+
+   Run ``pyrefly coverage report`` on ``src/`` and return its parsed JSON.
+
+   Restricted to ``src/`` since test modules aren't expected to be fully typed. The
+   returned dict has ``module_reports`` (a list, one entry per module) and
+   ``summary`` (aggregate counts and coverage across all of ``src/``).
+
+
+.. py:function:: _print_counts(errors: list[dict], key: str, header: str, top: int | None) -> None
+
+.. py:function:: _relative_path(path: str) -> str
+
+   Display a coverage report path relative to the repo root when possible.
+
+
+.. py:data:: _COVERAGE_COLUMNS
+   :value: ['typable', 'typed', 'any', 'untyped', 'coverage']
+
+
+.. py:function:: _print_coverage_table(report: dict, sort_by: str, top: int | None) -> None
+
+.. py:function:: main() -> None
+
+   Report on the current status of pyrefly typing in the repo.
+
+   Meant for the weekly baseline-ratcheting workflow: pick the module or error kind
+   with the biggest count, fix it, then shrink .pyrefly-baseline.json.
+
+
+.. py:function:: errors(by: str, top: int | None) -> None
+
+   Summarize remaining pyrefly type errors by module and/or error kind.
+
+   Runs pyrefly itself to get an exact, per-occurrence error count.
+
+
+.. py:function:: coverage(sort_by: str, top: int | None) -> None
+
+   Summarize `pyrefly coverage report`'s per-module type coverage as a table.
+
+   Sorted by ascending coverage (worst first) by default, so the least-typed
+   modules -- the best ratcheting targets -- show up at the top.
+
+
