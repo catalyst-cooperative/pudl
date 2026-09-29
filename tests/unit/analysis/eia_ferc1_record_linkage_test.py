@@ -134,18 +134,31 @@ def test_select_best_matches_ignores_row_order(seed: int, reverse: bool):
 
 
 def test_get_best_matches_reports_metrics(mocker):
-    """Metrics are computed from the best matches and returned for asset metadata."""
+    """Metrics are computed from the best matches and returned for asset metadata.
+
+    Of four training records, f1 is predicted correctly, f2 is predicted wrongly, f3 is
+    correct, and f4 gets no prediction.
+    """
     inputs = mocker.MagicMock()
     inputs.get_train_df.return_value = pd.DataFrame(
-        {"record_id_ferc1": ["f1", "f2"], "record_id_eia": ["e2", "e9"]}
+        {
+            "record_id_ferc1": ["f1", "f2", "f3", "f4"],
+            "record_id_eia": ["e1", "e2", "e3", "e4"],
+        }
     ).set_index(["record_id_ferc1", "record_id_eia"])
     best = pd.DataFrame(
-        {"record_id_ferc1": ["f1", "f2"], "record_id_eia": ["e2", "e3"]}
+        {
+            "record_id_ferc1": ["f1", "f2", "f3", "f5"],
+            "record_id_eia": ["e1", "e9", "e3", "e5"],
+        }
     )
     _, metrics = get_best_matches(
         best, inputs, mocker.MagicMock(spec=ExperimentTracker)
     )
-    assert metrics == {"precision": 0.5, "recall": 1.0, "accuracy": 0.5}
+    # precision: 2 of the 3 predictions on training records were right;
+    # coverage: 3 of the 4 training records got a prediction;
+    # accuracy: 2 of the 4 training records were predicted correctly.
+    assert metrics == {"precision": 0.667, "coverage": 0.75, "accuracy": 0.5}
 
 
 def test_prepare_metaphone_matches_rowwise_encoding():
