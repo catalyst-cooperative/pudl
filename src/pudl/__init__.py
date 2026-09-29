@@ -4,6 +4,7 @@ import warnings
 from pathlib import Path
 from typing import Literal
 
+import pandas as pd
 from dagster import PreviewWarning
 from upath import UPath
 
