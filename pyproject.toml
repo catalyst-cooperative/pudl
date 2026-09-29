@@ -152,7 +152,6 @@ sphinx-reredirects = ">=1"
 sphinxcontrib-bibtex = ">=2.6"
 sphinxcontrib-googleanalytics = ">=0.4"
 sphinxcontrib-mermaid = ">=2.0"
-splink = ">=4.0.17,<5"
 sqlalchemy = ">=2"
 sqlite = ">=3.53"
 taplo = "==0.9.3" # Pinned to match version in VS Code extension
@@ -175,6 +174,7 @@ detect-secrets = ">=1.5"
 # conda-forge's duckdb-engine recipe pins duckdb<=1.0.0; PyPI's own metadata has no
 # such upper bound, and works fine with the newer python-duckdb pinned above.
 duckdb-engine = ">=0.17"
+splink = ">=5"
 
 [tool.pixi.feature.dev.dependencies]
 duckdb-cli = ">=1.5,<1.6"
