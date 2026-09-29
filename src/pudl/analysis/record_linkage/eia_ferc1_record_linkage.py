@@ -311,31 +311,32 @@ def get_best_matches(
 ):
     """Evaluate the best EIA match for each FERC record against the training data.
 
-    Returns the best matches unchanged, and the performance metrics (precision, recall
-    and accuracy), which are recorded as asset metadata.
+    Returns the best matches unchanged, and the performance metrics (precision,
+    coverage and accuracy), which are recorded as asset metadata.
     """
     train_df = inputs.get_train_df().reset_index()
     true_pos = get_true_pos(preds_df, train_df)
     false_pos = get_false_pos(preds_df, train_df)
-    false_neg = get_false_neg(preds_df, train_df)
+    no_pred = get_no_prediction(preds_df, train_df)
     logger.info(
         "Metrics before overrides:\n"
         f"   True positives:  {true_pos}\n"
         f"   False positives: {false_pos}\n"
-        f"   False negatives: {false_neg}\n"
+        f"   No prediction:   {no_pred}\n"
         f"   Precision:       {true_pos / (true_pos + false_pos):.03}\n"
-        f"   Recall:          {true_pos / (true_pos + false_neg):.03}\n"
+        f"   Coverage:        {1 - no_pred / len(train_df):.03}\n"
         f"   Accuracy:        {true_pos / len(train_df):.03}\n"
         "Precision = of the training data FERC records that the model predicted a match for, this percentage was correct.\n"
         "A measure of accuracy when the model makes a prediction.\n"
-        "Recall = of all of the training data FERC records, the model predicted a match for this percentage.\n"
+        "Coverage = of all of the training data FERC records, the model predicted a match for this percentage.\n"
         "A measure of the coverage of FERC records in the predictions.\n"
         "Accuracy = what percentage of the training data did the model correctly predict.\n"
-        "A measure of overall correctness."
+        "A measure of overall correctness. Since we keep only the best match for each FERC record, "
+        "a wrong prediction means the true match was not found, so this is also the recall."
     )
     metrics = {
         "precision": float(round(true_pos / (true_pos + false_pos), 3)),
-        "recall": float(round(true_pos / (true_pos + false_neg), 3)),
+        "coverage": float(round(1 - no_pred / len(train_df), 3)),
         "accuracy": float(round(true_pos / len(train_df), 3)),
     }
     experiment_tracker.execute_logging(lambda: mlflow.log_metrics(metrics))
@@ -462,7 +463,7 @@ def get_false_pos(pred_df, train_df):
 
 
 # FERC record is in training data but no prediction made
-def get_false_neg(pred_df, train_df):
+def get_no_prediction(pred_df, train_df):
     """Get the number of matches from the training data where no prediction is made."""
     return train_df.merge(
         pred_df, how="left", on=["record_id_ferc1"], indicator=True
