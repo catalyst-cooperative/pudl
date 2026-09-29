@@ -312,7 +312,7 @@ def get_best_matches(
     """Evaluate the best EIA match for each FERC record against the training data.
 
     Returns the best matches unchanged, and the performance metrics (precision,
-    coverage and accuracy), which are recorded as asset metadata.
+    recall, coverage and accuracy), which are recorded as asset metadata.
     """
     train_df = inputs.get_train_df().reset_index()
     true_pos = get_true_pos(preds_df, train_df)
@@ -324,18 +324,21 @@ def get_best_matches(
         f"   False positives: {false_pos}\n"
         f"   No prediction:   {no_pred}\n"
         f"   Precision:       {true_pos / (true_pos + false_pos):.03}\n"
+        f"   Recall:          {true_pos / len(train_df):.03}\n"
         f"   Coverage:        {1 - no_pred / len(train_df):.03}\n"
         f"   Accuracy:        {true_pos / len(train_df):.03}\n"
         "Precision = of the training data FERC records that the model predicted a match for, this percentage was correct.\n"
         "A measure of accuracy when the model makes a prediction.\n"
+        "Recall = of all of the training data FERC records, the model predicted the correct match for this percentage.\n"
+        "Since we keep only the best match for each FERC record, a wrong prediction means the true match was not found.\n"
         "Coverage = of all of the training data FERC records, the model predicted a match for this percentage.\n"
         "A measure of the coverage of FERC records in the predictions.\n"
         "Accuracy = what percentage of the training data did the model correctly predict.\n"
-        "A measure of overall correctness. Since we keep only the best match for each FERC record, "
-        "a wrong prediction means the true match was not found, so this is also the recall."
+        "A measure of overall correctness. With only one match kept for each FERC record, this is equal to the recall."
     )
     metrics = {
         "precision": float(round(true_pos / (true_pos + false_pos), 3)),
+        "recall": float(round(true_pos / len(train_df), 3)),
         "coverage": float(round(1 - no_pred / len(train_df), 3)),
         "accuracy": float(round(true_pos / len(train_df), 3)),
     }
