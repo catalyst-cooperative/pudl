@@ -327,24 +327,7 @@ def _pudl_etl(
         f"{env['PUDL_INPUT']=} {env['PUDL_OUTPUT']=} {env['DAGSTER_HOME']=}"
     )
 
-    # Stream subprocess output into pytest's live logging so progress is visible.
-    # Popen is used instead of run to allow streaming output. We also set text=True and
-    # line-buffered output to ensure logs are emitted in real time.
-    with subprocess.Popen(  # noqa: S603
-        cmd,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        text=True,
-        bufsize=1,
-        env=env,
-    ) as proc:
-        assert proc.stdout is not None
-        for line in proc.stdout:
-            logger.info(line.rstrip())
-
-        returncode = proc.wait()
-        if returncode != 0:
-            raise subprocess.CalledProcessError(returncode, cmd)
+    subprocess.run(cmd, stderr=subprocess.STDOUT, env=env, check=True)  # noqa: S603
 
     logger.info("Completed PUDL pytest ETL using dg launch.")
 
