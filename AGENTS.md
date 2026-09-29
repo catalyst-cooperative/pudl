@@ -261,11 +261,12 @@ Skills are defined in `skills-lock.json`. If not already installed, run
 
 - **`dagster-expert`** — Dagster and `dg` CLI reference. Use when adding or modifying
   assets, resources, IO managers, jobs, sensors, or any other Dagster construct.
-- **`datapackage`** -- Frictionless datapackage reference. Use when interpreting or
-  modifying datapackage metadata and JSON descriptors.
-- **`pudl`** -- PUDL (Public Utility Data Liberation) public-facing metadata reference.
-  Use when accessing or interpreting PUDL's published data and metadata. Not for
-  internal ETL or Dagster development.
+- **`datapackage`** -- Explains how to work with the Frictionless Datapackage
+  metadata standard, which uses a `datapackage.json` descriptor to annotate a
+  collection of data resources, including tabular data.
+- **`pudl`** -- PUDL data and metadata reference, which extends the Frictionless
+  Datapackage standard. Explains how to interpret PUDL metadata and how to
+  query and safely use PUDL data, both local and remote.
 
 ## Dagster architecture
 
@@ -411,7 +412,9 @@ logger.warning(f"Skipping {plant_id=} — missing required field.")
 - Raw data access must use the datastore pattern, not direct file I/O.
 - Use nullable pandas dtypes (`pd.Int64Dtype()`, `pd.StringDtype()`) to avoid
   generic `object` dtypes and mixed NULL values.
-- Parquet outputs use snappy compression and pyarrow dtypes.
+- Parquet outputs use the compression codec and level set by
+  `pudl.PARQUET_COMPRESSION` and `pudl.PARQUET_COMPRESSION_LEVEL` (zstd), and pyarrow
+  dtypes. Never hardcode a codec or level where Parquet is written.
 - For large datasets (>1GB), use polars or DuckDB to read data instead of pandas.
 
 ### API compatibility and refactoring scope
@@ -433,9 +436,9 @@ Metadata describing tables, columns, and data sources lives in `pudl.metadata`.
 
 ## PUDL developer reference docs
 
-The following files under `docs/dev/` and `docs/methodology/` cover PUDL-specific
-concepts and conventions. **Read the relevant file before working in that area** rather
-than guessing at conventions.
+The following files under `docs/dev/` and `docs/methodology/` cover
+PUDL-specific concepts and conventions. **Read the relevant file before working
+in that area** rather than guessing at conventions.
 
 | File | When to read it |
 | ---- | --------------- |

@@ -8,7 +8,7 @@ on:
       datasets:
         description: "Specific datasets to update (space separated)"
         required: false
-        default: "eia176 eia191 eia757a ferc2 ferc6 ferc60 ferccid eiaapi epacamd_eia epacems" # Default to all datasets that don't require any hand-mapping for now
+        default: "eia176 eia191 eia757a eia930 ferc2 ferc6 ferc60 ferccid eiaapi epacamd_eia epacems epamats phmsagas" # Default to all datasets that don't require any hand-mapping for now
 
 permissions:
   contents: write
@@ -17,6 +17,8 @@ permissions:
 jobs:
   update-dois:
     runs-on: ubuntu-latest
+    env:
+      DATASETS: ${{ inputs.datasets || 'eia176 eia191 eia757a eia930 ferc2 ferc6 ferc60 ferccid eiaapi epacamd_eia epacems epamats phmsagas'}}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -37,7 +39,7 @@ jobs:
       - name: Run Zenodo DOI updater
         id: update
         run: |
-          pixi run update_zenodo_dois ${{ github.event.inputs.datasets }}
+          pixi run update_zenodo_dois "$DATASETS"
 
           # Check if any changes were made
           if git diff --quiet; then
@@ -51,8 +53,6 @@ jobs:
       - name: Format datasets as labels
         id: format-datasets
         run: |
-          DATASETS="${{ github.event.inputs.datasets }}"
-          # shellcheck disable=SC2001
           LABELS=$(echo "$DATASETS" | sed -E 's/[[:space:]]+/, /g')
           echo "dataset_labels=$LABELS" >> "$GITHUB_OUTPUT"
 

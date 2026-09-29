@@ -7,6 +7,7 @@ from pathlib import Path
 import dagster as dg
 import duckdb
 import pytest
+from upath import UPath
 
 from pudl.dagster.resources import FercEqrArchiveResource
 from pudl.extract.ferceqr import (
@@ -14,6 +15,7 @@ from pudl.extract.ferceqr import (
     _clear_raw_table_partition,
     _csvs_to_parquet,
     _extract_other_table,
+    _get_csv,
     _get_rejected_record_counts,
     extract_ferceqr,
 )
@@ -412,6 +414,35 @@ def test_csvs_to_parquet_does_not_warn_when_all_other_tables_missing(tmp_path, m
 
     mock_logger.warning.assert_not_called()
     assert found_table_types == {"ident"}
+
+
+def test_get_csv_streams_archive_to_disk_without_reading_it_into_memory(
+    tmp_path, mocker
+):
+    """_get_csv downloads with the filesystem's streaming get_file, not read_bytes.
+
+    Quarterly archives are 3-4 GB and many partition runs download at once, so
+    holding a whole archive in memory before writing it out risks exhausting RAM.
+    """
+    archive_dir = UPath(tmp_path / "archive")
+    archive_dir.mkdir()
+    with zipfile.ZipFile(tmp_path / "archive" / "ferceqr-2024q1.zip", "w") as outer:
+        outer.writestr("filing1.zip", b"payload")
+    read_bytes = mocker.patch.object(
+        type(archive_dir), "read_bytes", side_effect=AssertionError("read into memory")
+    )
+    get_file = mocker.spy(archive_dir.fs, "get_file")
+
+    with _get_csv(archive_dir, "2024q1") as archive:
+        assert archive.namelist() == ["filing1.zip"]
+        assert archive.read("filing1.zip") == b"payload"
+        assert archive.filename is not None
+        local_zip = Path(archive.filename)
+
+    get_file.assert_called_once()
+    read_bytes.assert_not_called()
+    # The local copy lives in a temporary directory that is removed on exit.
+    assert not local_zip.exists()
 
 
 def test_get_rejected_record_counts(tmp_path):

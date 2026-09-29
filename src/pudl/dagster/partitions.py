@@ -13,8 +13,14 @@ import dagster as dg
 
 from pudl.metadata.classes import DataSource
 
+# Ordered newest quarter first. FERC EQR filing volume grows over time (recent
+# quarters are ~10x the early ones), and a backfill's wall time is bound by the
+# slowest run in its final wave -- so the heavy quarters must be processed up
+# front rather than bunched at the tail. Consumers use this only as a
+# ``partitions_def`` (keyed by partition name), so the order affects just
+# backfill/UI iteration, not materialization.
 ferceqr_year_quarters: dg.StaticPartitionsDefinition = dg.StaticPartitionsDefinition(
-    DataSource.from_id("ferceqr").working_partitions["year_quarters"]
+    list(reversed(DataSource.from_id("ferceqr").working_partitions["year_quarters"]))
 )
 
 __all__ = ["ferceqr_year_quarters"]

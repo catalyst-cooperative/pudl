@@ -279,7 +279,11 @@ def _save_geoparquet(
         output_dir = pathlib.Path.cwd()
     file_path = output_dir / f"{entity_type}_geometry{limited}{dissolved}.parquet"
     gdf.sort_values(["report_date", f"{entity_type}_id_eia"]).to_parquet(
-        file_path, row_group_size=512, compression="snappy", index=False
+        file_path,
+        row_group_size=512,
+        compression=pudl.PARQUET_COMPRESSION,
+        compression_level=pudl.PARQUET_GEOMETRY_COMPRESSION_LEVEL,
+        index=False,
     )
 
 
