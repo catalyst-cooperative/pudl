@@ -519,8 +519,8 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/orderly-set-5.5.0-pyhe01879c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/overrides-7.7.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/packaging-26.3-pyhc364b38_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-base-0.32.1-pyhcf101f3_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-polars-0.32.1-ha00cc4c_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-base-0.33.1-pyh5ded981_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-polars-0.33.1-h6cc47fd_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pandocfilters-1.5.0-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/paramiko-5.0.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/parsedatetime-2.4-py_1.tar.bz2
@@ -1169,8 +1169,8 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/orderly-set-5.5.0-pyhe01879c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/overrides-7.7.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/packaging-26.3-pyhc364b38_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-base-0.32.1-pyhcf101f3_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-polars-0.32.1-ha00cc4c_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-base-0.33.1-pyh5ded981_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-polars-0.33.1-h6cc47fd_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pandocfilters-1.5.0-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/paramiko-5.0.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/parsedatetime-2.4-py_1.tar.bz2
@@ -1545,8 +1545,8 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/orderly-set-5.5.0-pyhe01879c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/overrides-7.7.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/packaging-26.3-pyhc364b38_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-base-0.32.1-pyhcf101f3_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-polars-0.32.1-ha00cc4c_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-base-0.33.1-pyh5ded981_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-polars-0.33.1-h6cc47fd_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pandocfilters-1.5.0-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/paramiko-5.0.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/parsedatetime-2.4-py_1.tar.bz2
@@ -2160,8 +2160,8 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/orderly-set-5.5.0-pyhe01879c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/overrides-7.7.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/packaging-26.3-pyhc364b38_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-base-0.32.1-pyhcf101f3_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-polars-0.32.1-ha00cc4c_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-base-0.33.1-pyh5ded981_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-polars-0.33.1-h6cc47fd_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pandocfilters-1.5.0-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/paramiko-5.0.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/parsedatetime-2.4-py_1.tar.bz2
@@ -3100,8 +3100,8 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/orderly-set-5.5.0-pyhe01879c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/overrides-7.7.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/packaging-26.3-pyhc364b38_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-base-0.32.1-pyhcf101f3_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-polars-0.32.1-ha00cc4c_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-base-0.33.1-pyh5ded981_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-polars-0.33.1-h6cc47fd_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pandocfilters-1.5.0-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/paramiko-5.0.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/parsedatetime-2.4-py_1.tar.bz2
@@ -3800,8 +3800,8 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/orderly-set-5.5.0-pyhe01879c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/overrides-7.7.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/packaging-26.3-pyhc364b38_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-base-0.32.1-pyhcf101f3_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-polars-0.32.1-ha00cc4c_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-base-0.33.1-pyh5ded981_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-polars-0.33.1-h6cc47fd_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pandocfilters-1.5.0-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/paramiko-5.0.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/parsedatetime-2.4-py_1.tar.bz2
@@ -4187,8 +4187,8 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/orderly-set-5.5.0-pyhe01879c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/overrides-7.7.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/packaging-26.3-pyhc364b38_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-base-0.32.1-pyhcf101f3_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-polars-0.32.1-ha00cc4c_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-base-0.33.1-pyh5ded981_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-polars-0.33.1-h6cc47fd_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pandocfilters-1.5.0-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/paramiko-5.0.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/parsedatetime-2.4-py_1.tar.bz2
@@ -4825,8 +4825,8 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/orderly-set-5.5.0-pyhe01879c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/overrides-7.7.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/packaging-26.3-pyhc364b38_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-base-0.32.1-pyhcf101f3_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-polars-0.32.1-ha00cc4c_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-base-0.33.1-pyh5ded981_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-polars-0.33.1-h6cc47fd_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pandocfilters-1.5.0-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/paramiko-5.0.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/parsedatetime-2.4-py_1.tar.bz2
@@ -19425,11 +19425,11 @@ packages:
   run_exports: {}
   size: 116363
   timestamp: 1785888127370
-- conda: https://conda.anaconda.org/conda-forge/noarch/pandera-base-0.32.1-pyhcf101f3_0.conda
-  sha256: 81eb4d5f49a2f98b7dbeb60b134ecef4b90cdf21b2af8a024d5a0fe2858e914b
-  md5: c78daae943cb94e6e6b2eab16e16a18f
+- conda: https://conda.anaconda.org/conda-forge/noarch/pandera-base-0.33.1-pyh5ded981_0.conda
+  sha256: 617aaa9bce20ab08012fc547fe07a417937135939f92536b3041fd3943a92a38
+  md5: 165a66eefd8fcf5a227d25f8636f890d
   depends:
-  - python >=3.10
+  - python >=3.11
   - packaging >=20.0
   - pydantic
   - typeguard
@@ -19439,22 +19439,22 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/pandera?source=hash-mapping
+  - pkg:pypi/pandera?source=compressed-mapping
   run_exports: {}
-  size: 268608
-  timestamp: 1782916642380
-- conda: https://conda.anaconda.org/conda-forge/noarch/pandera-polars-0.32.1-ha00cc4c_0.conda
-  sha256: 447bb9372c49a51262b56a690be0641432359c2cb1f2e8ba340b79a849f5286c
-  md5: 9f33f3b2ff6f429f5dcc039df1b9936d
+  size: 303320
+  timestamp: 1790626033875
+- conda: https://conda.anaconda.org/conda-forge/noarch/pandera-polars-0.33.1-h6cc47fd_0.conda
+  sha256: 859c79755b67ee0e9c612d3801c754037421080acc1c64943e9e716d133495d9
+  md5: 2cbb31f6e692fb6d3f4125935b0b5c2a
   depends:
-  - pandera-base ==0.32.1 pyhcf101f3_0
-  - polars >=0.20.0
+  - pandera-base ==0.33.1 pyh5ded981_0
+  - polars >=1.20.0
   license: MIT
   license_family: MIT
   purls: []
   run_exports: {}
-  size: 4548
-  timestamp: 1782916642380
+  size: 4601
+  timestamp: 1790626033875
 - conda: https://conda.anaconda.org/conda-forge/noarch/pandocfilters-1.5.0-pyhd8ed1ab_0.tar.bz2
   sha256: 2bb9ba9857f4774b85900c2562f7e711d08dd48e2add9bee4e1612fbee27e16f
   md5: 457c2c8c08e54905d6954e79cb5b5db9
