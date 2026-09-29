@@ -207,8 +207,8 @@ def prepare_for_matching(df, transformed_df):
     # replace old cols with transformed cols
     for col in transformed_df.columns:
         df[col] = transformed_df[col]
-    df["installation_year"] = pd.to_datetime(df["installation_year"], format="%Y")
-    df["construction_year"] = pd.to_datetime(df["construction_year"], format="%Y")
+    df["installation_year"] = df["installation_year"].astype(pd.Int64Dtype())
+    df["construction_year"] = df["construction_year"].astype(pd.Int64Dtype())
     df["plant_name_mphone"] = _get_metaphone(df["plant_name"])
     df["utility_name_mphone"] = _get_metaphone(df["utility_name"])
     cols = ID_COL + MATCHING_COLS + EXTRA_COLS
