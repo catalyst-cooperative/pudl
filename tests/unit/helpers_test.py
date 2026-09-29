@@ -293,7 +293,7 @@ def test_quarterly_attribute_merge():
             "fuel_consumed_units": [0.0, 98085.0, 0.0, 4800000.0, 0.0],
             "data": [None, 4.0, 1.0, 2.0, None],
         }
-    ).astype({"report_date": "datetime64[ns]"})
+    ).assign(report_date=lambda df: pd.to_datetime(df["report_date"]))
 
     out = date_merge(
         left=MONTHLY_GEN_FUEL.copy(),
@@ -315,7 +315,7 @@ def test_same_temporal_gran():
         MONTHLY_OTHER,
         how="left",
         on=["report_date", "plant_id_eia"],
-    ).astype({"report_date": "datetime64[ns]"})
+    ).assign(report_date=lambda df: pd.to_datetime(df["report_date"]))
 
     out = date_merge(
         left=MONTHLY_GEN_FUEL.copy(),
@@ -515,12 +515,12 @@ def test_standardize_na_values():
                 "0.",
                 ".0",
                 "..",
-                pd.NA,
-                pd.NA,
-                pd.NA,
-                pd.NA,
-                pd.NA,
-                pd.NA,
+                np.nan,
+                np.nan,
+                np.nan,
+                np.nan,
+                np.nan,
+                np.nan,
             ]
         }
     )
@@ -713,6 +713,8 @@ def test_diff_wide_tables():
     def assert_diff_equal(observed, expected):
         observed_reshaped = observed.droplevel(level=0, axis="columns")
         expected_reshaped = expected.set_index(observed_reshaped.index.names)
+        # pandas 3 infers a str dtype for these columns, pandas 2 leaves object.
+        expected_reshaped = expected_reshaped.astype(observed_reshaped.dtypes)
         assert_frame_equal(observed_reshaped, expected_reshaped)
 
     diff_output = diff_wide_tables(primary_key=["u_id", "year"], old=old, new=new)
@@ -807,7 +809,7 @@ def test_standardize_percentages_ratio():
         date_df, mixed_cols=["mixed_col"], years_to_standardize=[1995, 1996, 1997]
     )
     standardized_expected = date_df
-    standardized_expected["mixed_col"] = [0.1, 0.1, 0.2, 0.1]
+    standardized_expected["mixed_col"] = pd.array([0.1, 0.1, 0.2, 0.1], dtype="float64")
     assert_frame_equal(standardized, standardized_expected)
 
     year_df = pd.DataFrame(
@@ -821,7 +823,9 @@ def test_standardize_percentages_ratio():
         year_df, mixed_cols=["mixed_col"], years_to_standardize=[1995, 1996]
     )
     standardized_expected = year_df
-    standardized_expected["mixed_col"] = [0.1, 0.15, 1.0, 0.1]
+    standardized_expected["mixed_col"] = pd.array(
+        [0.1, 0.15, 1.0, 0.1], dtype="float64"
+    )
     assert_frame_equal(standardized, standardized_expected)
 
     junk_df = pd.DataFrame(
