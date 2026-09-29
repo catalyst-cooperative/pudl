@@ -7,7 +7,6 @@ model.
 
 import splink.comparison_level_library as cll
 import splink.comparison_library as cl
-from splink import block_on
 from splink.blocking_rule_library import CustomRule
 
 blocking_rule_1 = CustomRule(
@@ -29,7 +28,7 @@ blocking_rule_6 = CustomRule(
     "l.report_year = r.report_year and l.construction_year = r.construction_year and substr(l.utility_name_mphone,1,2) = substr(r.utility_name_mphone,1,2)"
 )
 blocking_rule_7 = CustomRule(
-    "l.report_year = r.report_year and l.capacity_mw = r.capacity_mw and substr(l.plant_name_mphone,1,2) = substr(r.plant_name_mphone,1,2)"
+    "l.report_year = r.report_year and round(l.capacity_mw) = round(r.capacity_mw) and substr(l.plant_name_mphone,1,2) = substr(r.plant_name_mphone,1,2)"
 )
 blocking_rule_8 = CustomRule(
     "l.report_year = r.report_year and l.installation_year = r.installation_year and substr(l.plant_name_mphone,1,2) = substr(r.plant_name_mphone,1,2)"
@@ -37,7 +36,14 @@ blocking_rule_8 = CustomRule(
 blocking_rule_9 = CustomRule(
     "l.report_year = r.report_year and l.construction_year = r.construction_year and substr(l.plant_name_mphone,1,2) = substr(r.plant_name_mphone,1,2)"
 )
-blocking_rule_10 = block_on("report_year", "net_generation_mwh")
+blocking_rule_10 = CustomRule(
+    "l.report_year = r.report_year and round(l.net_generation_mwh) = round(r.net_generation_mwh)"
+)
+# Rules 7 and 10 block on values rounded to the nearest integer, rather than on exact
+# floating point equality. The same quantity is often reported at different precisions
+# (or summed in a different order) in EIA and FERC, so exactly equal floats miss many
+# true matches. The rounding is only used for blocking; the comparison levels still use
+# the unrounded values.
 BLOCKING_RULES = [
     blocking_rule_1,
     blocking_rule_2,

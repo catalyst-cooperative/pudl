@@ -5,10 +5,15 @@ import pandas as pd
 import pytest
 from pandas.testing import assert_frame_equal
 from splink import DuckDBAPI
+from splink.blocking_analysis import count_comparisons_from_blocking_rules
 
 from pudl.analysis.ml_tools.experiment_tracking import ExperimentTracker
 from pudl.analysis.record_linkage import eia_ferc1_record_linkage
-from pudl.analysis.record_linkage.eia_ferc1_model_config import get_comparisons
+from pudl.analysis.record_linkage.eia_ferc1_model_config import (
+    blocking_rule_7,
+    blocking_rule_10,
+    get_comparisons,
+)
 from pudl.analysis.record_linkage.eia_ferc1_record_linkage import (
     U_ESTIMATION_SEED,
     ModelPredictionsConfig,
@@ -178,6 +183,46 @@ def test_prepare_metaphone_matches_rowwise_encoding():
     out = prepare_for_matching.compute_fn.decorated_fn(df, pd.DataFrame())
     expected = [None if pd.isnull(n) else jellyfish.metaphone(n) for n in names]
     assert out["plant_name_mphone"].tolist() == expected
+
+
+@pytest.mark.parametrize(
+    ("rule", "column", "blocked_pairs"),
+    [
+        # 4.2 and 4.4 round to 4, 4.6 rounds to 5, and the null never blocks
+        (blocking_rule_7, "capacity_mw", 1),
+        (blocking_rule_10, "net_generation_mwh", 1),
+    ],
+)
+def test_numeric_blocking_rules_block_on_rounded_values(rule, column, blocked_pairs):
+    """Values that round to the same integer are compared; exact equality isn't needed."""
+    db_api = DuckDBAPI()
+    eia = pd.DataFrame(
+        {
+            "record_id": ["e1", "e2", "e3"],
+            "report_year": [2020, 2020, 2020],
+            column: [4.2, 4.6, None],
+            "plant_name_mphone": ["AB", "AB", "AB"],
+        }
+    )
+    ferc = pd.DataFrame(
+        {
+            "record_id": ["f1"],
+            "report_year": [2020],
+            column: [4.4],
+            "plant_name_mphone": ["AB"],
+        }
+    )
+    counts = count_comparisons_from_blocking_rules(
+        [
+            db_api.register(eia, dataset_display_name="eia_df"),
+            db_api.register(ferc, dataset_display_name="ferc_df"),
+        ],
+        blocking_rules=[rule],
+        link_type="link_only",
+        unique_id_column_name="record_id",
+        record_sample_proportion=1.0,
+    )
+    assert counts[0]["marginal_comparison_count"] == blocked_pairs
 
 
 def test_get_comparisons_returns_fresh_objects():
