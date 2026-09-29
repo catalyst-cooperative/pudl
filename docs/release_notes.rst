@@ -30,6 +30,11 @@ EIA-860
 * Added final release data from 2025 for :doc:`EIA-860 <data_sources/eia860>`. See
   issue :issue:`5589` and PR :pr:`5591`.
 
+FERC Form 1
+~~~~~~~~~~~
+* Integrated any updates or straggler filings from 2025 for
+  :doc:`FERC Form 1 <data_sources/ferc1>`. See PR :pr:`5668`.
+
 Documentation
 ^^^^^^^^^^^^^
 
@@ -77,6 +82,8 @@ Bug Fixes & Data Cleaning
   :ref:`core_ferc1__yearly_cash_flows_sched120` without ``row_type_xbrl``,
   ``is_within_table_calc``, ``balance``, or ``ferc_account`` metadata. See
   :issue:`5587` and :pr:`5588`.
+* Fixed tags for new 2025 XBRL factoids and rescued the ``ferc_account`` field in
+  :ref:`out_ferc1__yearly_rate_base`. See :issue:`5520` and :pr:`5597`.
 * Fixed ``valid_until_date`` in the ``_core_eia__forensics_entity_resolution_*`` and
   ``_core_rus*__forensics_entity_resolution_borrowers`` tables. Each record's end date
   was being drawn from an unrelated column of the same entity, and ties were sorted

@@ -240,6 +240,14 @@ line/column churn. Run after `pyrefly check --baseline .pyrefly-baseline.json \
 --update-baseline` to sanity-check the regenerated baseline before committing it.
 """
 
+[tool.pixi.feature.dev.tasks.pyrefly-status-errors]
+cmd = "pyrefly_status errors --top 20"
+description = "Summarize remaining pyrefly errors by module and kind."
+
+[tool.pixi.feature.dev.tasks.pyrefly-status-coverage]
+cmd = "pyrefly_status coverage --sort-by untyped --top 20"
+description = "Summarize per-module pyrefly type coverage."
+
 [tool.pixi.environments]
 dev = { features = ["dev"], solve-group = "default" }
 
@@ -492,6 +500,7 @@ zenodo_data_release = "pudl.scripts.zenodo_data_release:main"
 generate_ferc_provenance = "pudl.scripts.generate_ferc_provenance:main"
 batch_config = "pudl.scripts.batch_config:main"
 pyrefly_diff_baseline = "pudl.scripts.pyrefly_diff_baseline:main"
+pyrefly_status = "pudl.scripts.pyrefly_status:main"
 
 [tool.ruff]
 # Configurations that apply to both the `format` and `lint` subcommands.
@@ -652,7 +661,7 @@ doctest_optionflags = [
 
 [tool.coverage.run]
 source = ["src/pudl/", "tests/integration/", "tests/unit/", "tests/validate/"]
-omit = ["src/pudl/_version.py"]
+omit = ["src/pudl/_version.py", "src/pudl/scripts/pyrefly_status.py"]
 relative_files = true
 
 [tool.coverage.report]
