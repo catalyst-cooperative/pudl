@@ -23,7 +23,7 @@ threshold match probability to predict if records are a match or not.
 
 The model can return multiple EIA match options for each FERC1 record, so we rank the
 matches and choose the one with the highest score. Any matches identified by the model
-which are in conflict with our training data are overwritten with the manually
+which are in conflict with our training data are overridden with the manually
 assigned associations (see :func:`override_bad_predictions`). The final match results
 are the connections we keep as the matches between FERC1 plant records and EIA
 plant-parts.
@@ -664,7 +664,7 @@ def override_bad_predictions(
         indicator=True,
         validate="1:1",
     )
-    # construct new record_id_eia column with incorrect preds overwritten
+    # construct new record_id_eia column with incorrect preds overridden
     override_df["record_id_eia"] = np.where(
         override_df["_merge"] == "left_only",
         override_df["record_id_eia_pred"],
@@ -681,7 +681,7 @@ def override_bad_predictions(
     incorrect_rows = override_df._merge == "right_only"
 
     override_df.loc[:, "match_type"] = "prediction; not in training data"
-    override_df.loc[override_rows, "match_type"] = "incorrect prediction; overwritten"
+    override_df.loc[override_rows, "match_type"] = "incorrect prediction; overridden"
     override_df.loc[correct_rows, "match_type"] = "correct match"
     override_df.loc[incorrect_rows, "match_type"] = (
         "incorrect prediction; no predicted match"
@@ -690,13 +690,13 @@ def override_bad_predictions(
     percent_correct = len(override_df[override_df.match_type == "correct match"]) / len(
         train_df
     )
-    percent_overwritten = len(
+    percent_overridden = len(
         override_df[override_df.match_type == "incorrect prediction; overridden"]
     ) / len(train_df)
     logger.info(
         "Matches stats:\n"
         f"Percent of training data matches correctly predicted: {percent_correct:.02}\n"
-        f"Percent of training data overwritten in matches: {percent_overwritten:.02}\n"
+        f"Percent of training data overridden in matches: {percent_overridden:.02}\n"
     )
     override_df = override_df.drop(
         columns=["_merge", "record_id_eia_train", "record_id_eia_pred"]
