@@ -365,6 +365,14 @@ description = "Run nightly-build data validation tests (FK checks and dbt, exclu
 cmd = "pytest --no-cov --verbose --log-cli-level=INFO --live-pudl-output --capture=no --dg-config $DG_NIGHTLY_CONFIG tests/validate/row_counts_test.py --dbt-source=pudl"
 description = "Run nightly-build dbt row count checks as a separate stage against live nightly-style outputs"
 
+[tool.pixi.tasks.pytest-validate-ferceqr]
+cmd = "pytest -n auto --no-cov --verbose --log-cli-level=INFO --live-pudl-output --capture=no tests/validate/data_test.py --dbt-source=ferceqr"
+description = "Run ferceqr-build data validation tests (FK checks and dbt, excluding row counts) against build outputs"
+
+[tool.pixi.tasks.pytest-validate-row-counts-ferceqr]
+cmd = "pytest --no-cov --verbose --log-cli-level=INFO --live-pudl-output --capture=no tests/validate/row_counts_test.py --dbt-source=ferceqr"
+description = "Run ferceqr-build dbt row count checks as a separate stage against build outputs"
+
 [tool.pixi.tasks.pytest-nightly]
 cmd = "true"
 depends-on = [

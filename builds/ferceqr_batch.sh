@@ -130,6 +130,34 @@ function send_zulip_notification() {
     set -x
 }
 
+function run_ferceqr_validation_tests() {
+    # Run the dbt/pytest data validation suites against the FERC EQR outputs
+    echo "Running FERC EQR data validation tests"
+    local failures=()
+
+    if ! pixi run pytest-validate-ferceqr; then
+        echo "ERROR: pytest-validate-ferceqr failed." >&2
+        failures+=("pytest-validate-ferceqr")
+    fi
+
+    if ! pixi run pytest-validate-row-counts-ferceqr; then
+        echo "ERROR: pytest-validate-row-counts-ferceqr failed." >&2
+        failures+=("pytest-validate-row-counts-ferceqr")
+    fi
+
+    if ((${#failures[@]} > 0)); then
+        send_zulip_notification \
+            ":x: FERC EQR data validation failed for build \`${BUILD_ID}\`: $(
+                IFS=', '
+                echo "${failures[*]}"
+            )."
+        return 1
+    fi
+
+    send_zulip_notification \
+        ":check: FERC EQR data validation passed for build \`${BUILD_ID}\`."
+}
+
 function cleanup_on_exit() {
     local exit_code=$?
     # Send a Zulip notification if we failed before the ETL ever started,
@@ -248,3 +276,10 @@ if [ ! -f "${PUDL_OUTPUT}/FERCEQR_SUCCESS" ]; then
 fi
 
 echo "FERC EQR Build succeeded!"
+
+if ! run_ferceqr_validation_tests; then
+    echo "FERC EQR data validation failed!"
+    exit 1
+fi
+
+echo "FERC EQR data validation succeeded!"
