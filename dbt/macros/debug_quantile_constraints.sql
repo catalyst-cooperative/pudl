@@ -1,12 +1,10 @@
-{% macro debug_quantile_constraints(table, test) %}
+{% macro debug_quantile_constraints(table, test, source="pudl") %}
 
 {# Get the fully-qualified path to the table: #}
 {% if table.startswith("validate") %}
 {% set fq_table = "model.pudl_dbt." ~ table %}
-{% elif "ferceqr" in table %}
-{% set fq_table = "source.pudl_dbt.ferceqr." ~ table %}
 {% else %}
-{% set fq_table = "source.pudl_dbt.pudl." ~ table %}
+{% set fq_table = "source.pudl_dbt." ~ source ~ "." ~ table %}
 {% endif %}
 
 {# Walk the dbt graph and find the nodes that are:

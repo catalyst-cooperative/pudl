@@ -1,10 +1,10 @@
-{% test expect_includes_all_value_combinations_from(model, compare_table_name, compare_cols) %}
+{% test expect_includes_all_value_combinations_from(model, compare_table_name, compare_cols, compare_source="pudl") %}
 
 WITH
     compare_table AS (
         SELECT DISTINCT
             {{ ", ".join(compare_cols) }}
-        FROM {{ source('pudl', compare_table_name) }}
+        FROM {{ source(compare_source, compare_table_name) }}
     ),
     model_table AS (
         SELECT DISTINCT
