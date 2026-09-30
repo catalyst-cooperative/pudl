@@ -365,7 +365,6 @@ def get_best_matches(
         )
     },
     tags={
-        "memory-use": "high",
         "dagster/priority": 10,
     },
 )
