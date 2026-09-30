@@ -31,6 +31,15 @@ EIA-860 and EIA-923 data:
   :ref:`core_eia923__monthly_generation_fuel` table.
 
 """
+USAGE_WARNING_ANNUAL_REPORTERS = {
+    "type": "custom",
+    "description": (
+        "A small number of respondents only report annual totals rather than "
+        "true monthly values. PUDL identifies these plants using their reported "
+        "reporting_frequency_code (defaulting to annual if the code is missing) "
+        "and evenly distributes the annual total across all 12 months."
+    ),
+}
 KNOWN_DRAWBACKS_DESCRIPTION = (
     "This process does not distinguish between primary and secondary energy_sources for generators. "
     "Net generation is allocated equally between energy source codes, so if a "
@@ -51,10 +60,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = (
                     "estimated_values",
                     USAGE_WARNING_DRAWBACK,
                     "month_as_date",
-                    {
-                        "type": "custom",
-                        "description": "A small number of respondents only report annual fuel consumption, and all of it is reported in December.",
-                    },
+                    USAGE_WARNING_ANNUAL_REPORTERS,
                 ],
                 "additional_details_text": (
                     f"{UPSTREAM_ALLOCATION_CONTEXT}\n\n"
@@ -104,10 +110,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = (
                     "estimated_values",
                     USAGE_WARNING_DRAWBACK,
                     "month_as_date",
-                    {
-                        "type": "custom",
-                        "description": "A small number of respondents only report annual fuel consumption, and all of it is reported in December.",
-                    },
+                    USAGE_WARNING_ANNUAL_REPORTERS,
                     "harvested",
                 ],
                 "additional_details_text": (
