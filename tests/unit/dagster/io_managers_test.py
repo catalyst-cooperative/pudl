@@ -9,6 +9,7 @@ import duckdb
 import geopandas as gpd  # noqa: ICN002
 import pandas as pd
 import polars as pl
+import pyarrow as pa
 import pyarrow.parquet as pq
 import pytest
 import sqlalchemy as sa
@@ -27,6 +28,7 @@ from pudl.dagster.provenance import (
     FERC_TO_SQLITE_METADATA_KEY,
     FercSqliteProvenanceRecord,
 )
+from pudl.helpers import get_parquet_table
 from pudl.metadata.classes import Resource
 from pudl.settings import (
     Ferc1DataConfig,
@@ -378,6 +380,15 @@ def minimal_geo_resource() -> Resource:
         schema={
             "fields": [
                 {"name": "geo_id", "type": "integer", "description": "geo id"},
+                {"name": "report_date", "type": "date", "description": "date"},
+                {"name": "name", "type": "string", "description": "name"},
+                {
+                    "name": "kind",
+                    "type": "string",
+                    "description": "kind",
+                    "constraints": {"enum": ["a", "b"]},
+                },
+                {"name": "area", "type": "number", "description": "area"},
                 {"name": "geometry", "type": "geometry", "description": "shape"},
             ],
             "primary_key": ["geo_id"],
@@ -403,6 +414,10 @@ def geo_parquet_output_path(
     gdf = gpd.GeoDataFrame(
         {
             "geo_id": pd.array([1, 2], dtype="Int64"),
+            "report_date": pd.to_datetime(["2020-01-01", "2021-01-01"]),
+            "name": pd.array(["x", None], dtype="string"),
+            "kind": ["a", "b"],
+            "area": [1.5, 2.5],
             "geometry": gpd.GeoSeries(
                 [Point(0.0, 0.0), Point(1.0, 1.0)], crs="EPSG:4326"
             ),
@@ -581,3 +596,48 @@ def test_parquet_io_manager_compression(
     assert spy.call_args.kwargs["compression_level"] == getattr(pudl, level_constant)
     row_group = pq.read_metadata(out_path).row_group(0)
     assert row_group.column(0).compression == pudl.PARQUET_COMPRESSION.upper()
+
+
+def test_geoparquet_output_has_pudl_pyarrow_types(
+    geo_parquet_output_path: Path, minimal_geo_resource: Resource
+) -> None:
+    """Non-geometry columns must be written with the PUDL PyArrow types.
+
+    In particular dates must be ``date32`` rather than the ``timestamp`` that pandas'
+    ``datetime64`` would otherwise produce. Enums must be string dictionaries, though
+    the index width is whatever pandas' ``Categorical`` yields (int8) rather than the
+    int32 of the PUDL PyArrow schema.
+    """
+    on_disk = pq.read_schema(geo_parquet_output_path)
+    expected = minimal_geo_resource.to_pyarrow()
+    assert on_disk.names == expected.names
+    for name in expected.names:
+        if name == "kind":
+            assert pa.types.is_dictionary(on_disk.field(name).type)
+            assert on_disk.field(name).type.value_type == pa.string()
+        elif name != "geometry":
+            assert on_disk.field(name).type == expected.field(name).type, name
+
+
+def test_geoparquet_output_readable_by_polars_with_pudl_dtypes(
+    geo_parquet_output_path: Path, minimal_geo_resource: Resource
+) -> None:
+    """Polars must see the PUDL dtypes (Date, Binary geometry) in the written file."""
+    schema = pl.scan_parquet(geo_parquet_output_path).collect_schema()
+    assert schema["report_date"] == pl.Date
+    assert schema["geometry"] == pl.Binary
+
+
+def test_geoparquet_roundtrip_through_get_parquet_table(
+    geo_parquet_output_path: Path, minimal_geo_resource: Resource, mocker
+) -> None:
+    """Reading a written geo table back yields PUDL pandas dtypes and the CRS."""
+    mock_paths = mocker.MagicMock()
+    mock_paths.parquet_path.return_value = geo_parquet_output_path
+    gdf = get_parquet_table("test_geo", paths=mock_paths)
+    assert isinstance(gdf, gpd.GeoDataFrame)
+    assert gdf.crs is not None
+    assert gdf.crs.to_epsg() == 4326
+    assert gdf["report_date"].dtype == "datetime64[us]"
+    assert gdf["report_date"].dt.year.tolist() == [2020, 2021]
+    assert isinstance(gdf["kind"].dtype, pd.CategoricalDtype)
