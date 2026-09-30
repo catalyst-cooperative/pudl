@@ -3,6 +3,7 @@
 import duckdb
 import jellyfish
 import pandas as pd
+import polars as pl
 import pytest
 from pandas.testing import assert_frame_equal
 from splink import DuckDBAPI
@@ -10,6 +11,11 @@ from splink.blocking_analysis import count_comparisons_from_blocking_rules
 
 from pudl.analysis.ml_tools.experiment_tracking import ExperimentTracker
 from pudl.analysis.record_linkage import eia_ferc1_record_linkage
+from pudl.analysis.record_linkage.eia_ferc1_inputs import (
+    InputManager,
+    get_train_plant_ids_eia,
+    select_plant_parts_eia,
+)
 from pudl.analysis.record_linkage.eia_ferc1_model_config import (
     blocking_rule_7,
     blocking_rule_10,
@@ -314,3 +320,42 @@ def test_get_model_predictions_seeds_u_estimation(mocker):
     training.estimate_u_using_random_sampling.assert_called_once_with(
         max_pairs=1e7, seed=U_ESTIMATION_SEED
     )
+
+
+def test_get_train_plant_ids_eia():
+    """The training data's record IDs start with the EIA plant ID."""
+    plant_ids = get_train_plant_ids_eia()
+    assert plant_ids == sorted(set(plant_ids))
+    # La Cygne, which is in both the training and one-to-many training data
+    assert 2832 in plant_ids
+
+
+def test_select_plant_parts_eia_keeps_distinct_and_training_plants(mocker):
+    """Keep distinct records, and any record of a plant in the training data."""
+    mocker.patch(
+        "pudl.analysis.record_linkage.eia_ferc1_inputs.get_train_plant_ids_eia",
+        return_value=[2],
+    )
+    plant_parts = pl.LazyFrame(
+        {
+            "record_id_eia": ["distinct", "dupe", "other", "train_plant_dupe"],
+            "plant_id_eia": [1, 1, 3, 2],
+            "true_gran": [True, True, False, False],
+            "ownership_dupe": [False, True, False, True],
+        }
+    )
+    selected = select_plant_parts_eia(plant_parts).collect()
+    assert selected["record_id_eia"].to_list() == ["distinct", "train_plant_dupe"]
+
+
+def test_input_manager_release_raw_inputs():
+    """Only the raw tables are dropped, not the compiled inputs."""
+    inputs = InputManager.__new__(InputManager)
+    raw = pd.DataFrame({"a": [1]})
+    inputs.plant_parts_eia = inputs.plants_all_ferc1 = inputs.fbp_ferc1 = raw
+    inputs.train_df = pd.DataFrame({"a": [1]})
+    inputs.release_raw_inputs()
+    assert inputs.plant_parts_eia.empty
+    assert inputs.plants_all_ferc1.empty
+    assert inputs.fbp_ferc1.empty
+    assert len(inputs.train_df) == 1

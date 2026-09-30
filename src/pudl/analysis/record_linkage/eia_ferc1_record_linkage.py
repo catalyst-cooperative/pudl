@@ -35,6 +35,7 @@ import jellyfish
 import mlflow
 import numpy as np
 import pandas as pd
+import polars as pl
 from dagster import Config, OpExecutionContext, Out, graph, op
 from splink import DuckDBAPI, Linker, SettingsCreator
 from splink.internals.splink_dataframe import SplinkDataFrame
@@ -45,6 +46,7 @@ from pudl.analysis.ml_tools import experiment_tracking, models
 from pudl.analysis.record_linkage import embed_dataframe, name_cleaner
 from pudl.analysis.record_linkage.eia_ferc1_inputs import (
     InputManager,
+    load_plant_parts_eia,
     restrict_train_connections_on_date_range,
 )
 from pudl.analysis.record_linkage.eia_ferc1_model_config import (
@@ -139,11 +141,21 @@ col_cleaner = embed_dataframe.dataframe_cleaner_factory(
 
 
 @op(tags={"dagster/priority": 10})
-def get_compiled_input_manager(plants_all_ferc1, fbp_ferc1, plant_parts_eia):
-    """Get :class:`InputManager` object with compiled inputs for model."""
-    inputs = InputManager(plants_all_ferc1, fbp_ferc1, plant_parts_eia)
+def get_compiled_input_manager(
+    plants_all_ferc1, fbp_ferc1, plant_parts_eia: pl.LazyFrame
+):
+    """Get :class:`InputManager` object with compiled inputs for model.
+
+    The ``plant_parts_eia`` input is a LazyFrame, so that only the rows the model needs
+    are read into memory.
+    """
+    inputs = InputManager(
+        plants_all_ferc1, fbp_ferc1, load_plant_parts_eia(plant_parts_eia)
+    )
     # compile/cache inputs upfront. Hopefully we can catch any errors in inputs early.
     inputs.execute()
+    # Every later op loads this object, so don't carry the uncompiled tables along.
+    inputs.release_raw_inputs()
     return inputs
 
 
@@ -401,7 +413,7 @@ def ferc_to_eia(
     experiment_tracker: experiment_tracking.ExperimentTracker,
     out_ferc1__yearly_all_plants: pd.DataFrame,
     out_ferc1__yearly_steam_plants_fuel_by_plant_sched402: pd.DataFrame,
-    out_eia__yearly_plant_parts: pd.DataFrame,
+    out_eia__yearly_plant_parts: pl.LazyFrame,
 ) -> pd.DataFrame:
     """Using splink model the connection between FERC1 plants and EIA plant-parts.
 
