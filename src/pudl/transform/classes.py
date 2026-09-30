@@ -1059,7 +1059,9 @@ class TableTransformParams(TransformParams):
 #####################################################################################
 # Abstract Table Transformer classes
 #####################################################################################
-def cache_df(key: str = "main") -> Callable[..., pd.DataFrame]:
+def cache_df(
+    key: str = "main",
+) -> Callable[[Callable[..., pd.DataFrame]], Callable[..., pd.DataFrame]]:
     """A decorator for caching dataframes within an :class:`AbstractTableTransformer`.
 
     It's often useful during development or debugging to be able to track the evolution
