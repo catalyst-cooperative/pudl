@@ -341,8 +341,8 @@ cmd = "pytest --cov-fail-under=0 --verbose --log-cli-level=INFO --capture=no --i
 description = "Run pipeline tests (including the fast ETL) and non-row-count data validation tests."
 env = { PUDL_INTEGRATION_TESTS = "true" }
 
-[tool.pixi.tasks.pytest-validate]
-cmd = "pytest -n auto --no-cov --live-pudl-output tests/validate/data_test.py"
+[tool.pixi.tasks.pytest-validate-pudl]
+cmd = "pytest -n auto --no-cov --live-pudl-output tests/validate/data_test.py --dbt-source=pudl"
 description = "Run data validation tests (FK checks and dbt, no row counts) against existing PUDL_OUTPUT"
 
 [tool.pixi.tasks.pytest-unit-nightly]
@@ -358,12 +358,20 @@ cmd = "pytest -n auto --no-cov --verbose --log-cli-level=INFO --live-pudl-output
 description = "Run nightly-build pipeline tests against live nightly-style outputs"
 
 [tool.pixi.tasks.pytest-validate-nightly]
-cmd = "pytest -n auto --no-cov --verbose --log-cli-level=INFO --live-pudl-output --capture=no --dg-config $DG_NIGHTLY_CONFIG tests/validate/data_test.py"
+cmd = "pytest -n auto --no-cov --verbose --log-cli-level=INFO --live-pudl-output --capture=no --dg-config $DG_NIGHTLY_CONFIG tests/validate/data_test.py --dbt-source=pudl"
 description = "Run nightly-build data validation tests (FK checks and dbt, excluding row counts) against live nightly-style outputs"
 
 [tool.pixi.tasks.pytest-validate-row-counts-nightly]
-cmd = "pytest --no-cov --verbose --log-cli-level=INFO --live-pudl-output --capture=no --dg-config $DG_NIGHTLY_CONFIG tests/validate/row_counts_test.py"
+cmd = "pytest --no-cov --verbose --log-cli-level=INFO --live-pudl-output --capture=no --dg-config $DG_NIGHTLY_CONFIG tests/validate/row_counts_test.py --dbt-source=pudl"
 description = "Run nightly-build dbt row count checks as a separate stage against live nightly-style outputs"
+
+[tool.pixi.tasks.pytest-validate-ferceqr]
+cmd = "pytest -n auto --no-cov --verbose --log-cli-level=INFO --live-pudl-output --capture=no tests/validate/data_test.py --dbt-source=ferceqr"
+description = "Run ferceqr-build data validation tests (FK checks and dbt, excluding row counts) against build outputs"
+
+[tool.pixi.tasks.pytest-validate-row-counts-ferceqr]
+cmd = "pytest --no-cov --verbose --log-cli-level=INFO --live-pudl-output --capture=no tests/validate/row_counts_test.py --dbt-source=ferceqr"
+description = "Run ferceqr-build dbt row count checks as a separate stage against build outputs"
 
 [tool.pixi.tasks.pytest-nightly]
 cmd = "true"

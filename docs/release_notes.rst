@@ -53,6 +53,9 @@ Documentation
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* ``dbt`` data validation now supports FERC EQR data, and basic validations are applied
+  during FERC EQR builds.
+
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 

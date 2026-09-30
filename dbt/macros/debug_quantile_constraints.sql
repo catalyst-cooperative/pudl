@@ -1,10 +1,10 @@
-{% macro debug_quantile_constraints(table, test) %}
+{% macro debug_quantile_constraints(table, test, source="pudl") %}
 
 {# Get the fully-qualified path to the table: #}
 {% if table.startswith("validate") %}
 {% set fq_table = "model.pudl_dbt." ~ table %}
 {% else %}
-{% set fq_table = "source.pudl_dbt.pudl." ~ table %}
+{% set fq_table = "source.pudl_dbt." ~ source ~ "." ~ table %}
 {% endif %}
 
 {# Walk the dbt graph and find the nodes that are:
@@ -24,7 +24,7 @@
         instead #}
     {% set model = ref(table) %}
     {% else %}
-    {% set model = get_where_subquery(source('pudl', table)) %}
+    {% set model = get_where_subquery(source(source, table)) %}
 {% endif %}
 {% set column_name = kwargs.column_name %}
 {% set weight_column = kwargs.weight_column %}
