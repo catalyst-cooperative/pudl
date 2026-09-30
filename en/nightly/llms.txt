@@ -1,6 +1,6 @@
 # PUDL
 
-> PUDL 2026.9.1.dev26 documentation
+> PUDL 2026.9.1.dev31 documentation
 
 
 2016-2026, Catalyst Cooperative, CC-BY-4.0
@@ -213,6 +213,7 @@
 - [pudl.scripts.pudl_null_cols](autoapi/pudl/scripts/pudl_null_cols/index.html.md): A CLI tool for generating expect_column_not_all_null dbt test conditions.
 - [pudl.scripts.pudl_service_territories](autoapi/pudl/scripts/pudl_service_territories/index.html.md): CLI for compiling historical utility and balancing area service territory geometries.
 - [pudl.scripts.pyrefly_diff_baseline](autoapi/pudl/scripts/pyrefly_diff_baseline/index.html.md): Diff the pyrefly baseline against a git ref by content, not by raw JSON text.
+- [pudl.scripts.pyrefly_status](autoapi/pudl/scripts/pyrefly_status/index.html.md): Report on the current status of pyrefly typing in the repo.
 - [pudl.scripts.resource_description](autoapi/pudl/scripts/resource_description/index.html.md): Tiny CLI for showing table descriptions without building the full docs.
 - [pudl.scripts.update_zenodo_dois](autoapi/pudl/scripts/update_zenodo_dois/index.html.md): Script to check each DOI in zenodo_dois.yml against Zenodo’s /versions/latest endpoint.
 - [pudl.scripts.zenodo_data_release](autoapi/pudl/scripts/zenodo_data_release/index.html.md): Upload a prepared PUDL data release directory to Zenodo.
@@ -259,7 +260,7 @@
 - [Running the ETL Pipeline](dev/run_the_etl.html.md): So you want to run the PUDL data processing pipeline? This is the most involved way
 - [Troubleshooting Dagster](dev/troubleshooting_dagster.html.md): When a new asset is added in the code it is not automatically added to the DAG in the
 - [Project Management](dev/project_management.html.md): The people working on PUDL are distributed all over North America. Collaboration takes
-- [Testing PUDL](dev/testing.html.md): We use [pytest](https://pytest.org) to specify software unit, integration, and
+- [Testing PUDL](dev/testing.html.md): We use [pytest](https://pytest.org) to specify software unit and integration tests,
 - [Data validation quickstart](dev/data_validation_quickstart.html.md): The `dbt/` directory contains the PUDL dbt project which manages our [data tests](https://docs.getdb...
 - [Data validation reference](dev/data_validation_reference.html.md): In dbt, every data validation test is a SQL query meant to select rows that fail the
 - [Metadata editing guide](dev/metadata.html.md): In PUDL, a dataset is called a source. For each source we archive, we record

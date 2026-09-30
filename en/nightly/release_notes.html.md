@@ -23,6 +23,16 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
 * Added final release data from 2025 for [EIA-860](data_sources/eia860.html.md). See
   issue [#5589](https://github.com/catalyst-cooperative/pudl/issues/5589) and PR [#5591](https://github.com/catalyst-cooperative/pudl/pull/5591).
 
+#### EIA-923
+
+* Added final release data from 2025 for [EIA-923](data_sources/eia923.html.md),
+  and monthly release from June 2026. See issue [#5594](https://github.com/catalyst-cooperative/pudl/issues/5594) and PR [#5599](https://github.com/catalyst-cooperative/pudl/pull/5599).
+
+#### FERC Form 1
+
+* Integrated any updates or straggler filings from 2025 for
+  [FERC Form 1](data_sources/ferc1.html.md). See PR [#5668](https://github.com/catalyst-cooperative/pudl/pull/5668).
+
 ### Documentation
 
 * Fixed dbt macro argument documentation in `dbt/macros/schema.yml` and
@@ -118,6 +128,10 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
   of genuine typing gaps that the upgrade surfaced. Mostly this involved type narrowing
   in places where an object that might be `None` was subject to a regex match, dict
   lookup, or other operation that would fail on `None`. See PR [#5583](https://github.com/catalyst-cooperative/pudl/pull/5583).
+* Switched to using quieter, more compact `pytest` output instead of logging 1000s of
+  tests to the terminal. Fast ETL in pipeline tests will still log. Made `pixi.lock`
+  drift checking in pre-commit hooks more robust. Fixed open SQLite database warnings
+  coming from FERC SQLite IO Manager. See PR [#5573](https://github.com/catalyst-cooperative/pudl/pull/5573).
 
 <a id="release-v2026-9-0"></a>
 

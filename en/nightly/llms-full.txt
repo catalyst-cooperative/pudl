@@ -7450,6 +7450,10 @@ Return the canonical SQLite path for this dataset and data format.
 
 Return a cached SQLAlchemy engine for this FERC SQLite database.
 
+#### teardown_after_execution(context: [dagster.InitResourceContext](https://docs.dagster.io/api/dagster/resources/#dagster.InitResourceContext)) → [None](https://docs.python.org/3/builtins/constants.html#None)
+
+Dispose the cached engine when the resource’s lifecycle ends.
+
 #### *property* metadata *: sqlalchemy.MetaData*
 
 Return cached reflected metadata for this database.
@@ -19241,12 +19245,13 @@ A collection of denormalized FERC assets and helper functions.
 
 ## Classes
 
-| [`NodeId`](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.NodeId)                     | The primary keys which identify a node in a calculation tree.               |
-|-----------------------------------------------------------------------------|-----------------------------------------------------------------------------|
-| [`OffByFactoid`](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.OffByFactoid)               | A calculated factoid which is off by one other factoid.                     |
-| [`Exploder`](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.Exploder)                   | Get unique, granular datapoints from a set of related, nested FERC1 tables. |
-| [`XbrlCalculationForestFerc1`](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.XbrlCalculationForestFerc1) | A class for manipulating groups of hierarchically nested XBRL calculations. |
-| [`Ferc1DetailedCheckSpec`](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.Ferc1DetailedCheckSpec)     | Define some simple checks that can run on FERC 1 assets.                    |
+| [`NodeId`](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.NodeId)                     | The primary keys which identify a node in a calculation tree.                                          |
+|-----------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------|
+| [`OffByFactoid`](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.OffByFactoid)               | A calculated factoid which is off by one other factoid.                                                |
+| [`ExplosionArgs`](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.ExplosionArgs)              | Keyword arguments for [`exploded_table_asset_factory()`](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.exploded_table_asset_factory). |
+| [`Exploder`](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.Exploder)                   | Get unique, granular datapoints from a set of related, nested FERC1 tables.                            |
+| [`XbrlCalculationForestFerc1`](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.XbrlCalculationForestFerc1) | A class for manipulating groups of hierarchically nested XBRL calculations.                            |
+| [`Ferc1DetailedCheckSpec`](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.Ferc1DetailedCheckSpec)     | Define some simple checks that can run on FERC 1 assets.                                               |
 
 ## Functions
 
@@ -19269,8 +19274,8 @@ A collection of denormalized FERC assets and helper functions.
 | [`exploded_table_asset_factory`](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.exploded_table_asset_factory)(→ dagster.AssetsDefinition)    | Create an exploded table based on a set of related input tables.                      |
 | [`create_exploded_table_assets`](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.create_exploded_table_assets)(...)                           | Create a list of exploded FERC Form 1 assets.                                         |
 | [`nodes_to_df`](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.nodes_to_df)(→ pandas.DataFrame)                             | Construct a dataframe from a list of nodes, including their annotations.              |
-| [`_propagate_tag`](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1._propagate_tag)(→ networkx.DiGraph)                          | Set the tag for nodes when all of its successors or predecessorshave same tag.        |
-| [`_propagate_tags_to_corrections`](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1._propagate_tags_to_corrections)(→ networkx.DiGraph)          |                                                                                       |
+| [`_propagate_tag`](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1._propagate_tag)(→ networkx.DiGraph[NodeId])                  | Set the tag for nodes when all of its successors or predecessorshave same tag.        |
+| [`_propagate_tags_to_corrections`](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1._propagate_tags_to_corrections)(→ networkx.DiGraph[NodeId])  |                                                                                       |
 | [`check_tag_propagation_compared_to_compiled_tags`](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.check_tag_propagation_compared_to_compiled_tags)(df, ...)    | Check if tags got propagated.                                                         |
 | [`check_for_correction_xbrl_factoids_with_tag`](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.check_for_correction_xbrl_factoids_with_tag)(df, ...)        | Check if any correction records have tags.                                            |
 | [`make_check_tag_propagation`](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.make_check_tag_propagation)(→ dagster.AssetChecksDefinition) | Check the propagation of tags.                                                        |
@@ -19477,13 +19482,31 @@ Grab the stored tables of tags and add inferred dimension.
 
 Grab tags from a stored CSV file and apply `make_xbrl_factoid_dimensions_explicit()`.
 
-### pudl.output.ferc1.\_aggregatable_dimension_tags(\_core_ferc1_\_table_dimensions: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), dimension: Literal['plant_status', 'plant_function']) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.output.ferc1.\_aggregatable_dimension_tags(\_core_ferc1_\_table_dimensions: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), dimension: Literal['plant_status', 'plant_function', 'utility_type']) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+### *class* pudl.output.ferc1.ExplosionArgs
+
+Bases: `TypedDict`
+
+Keyword arguments for [`exploded_table_asset_factory()`](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.exploded_table_asset_factory).
+
+#### root_table *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
+
+#### table_names *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
+
+#### seed_nodes *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.NodeId)]*
+
+#### group_metric_checks *: [pudl.transform.ferc1.GroupMetricChecks](autoapi/pudl/transform/ferc1/index.html.md#pudl.transform.ferc1.GroupMetricChecks)*
+
+#### off_by_facts *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[OffByFactoid](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.OffByFactoid)]*
+
+#### io_manager_key *: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)*
 
 ### pudl.output.ferc1.exploded_table_asset_factory(root_table: [str](https://docs.python.org/3/builtins/stdtypes.html#str), table_names: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], seed_nodes: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.NodeId)], group_metric_checks: [pudl.transform.ferc1.GroupMetricChecks](autoapi/pudl/transform/ferc1/index.html.md#pudl.transform.ferc1.GroupMetricChecks), off_by_facts: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[OffByFactoid](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.OffByFactoid)], io_manager_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
 
 Create an exploded table based on a set of related input tables.
 
-### pudl.output.ferc1.EXPLOSION_ARGS
+### pudl.output.ferc1.EXPLOSION_ARGS *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[ExplosionArgs](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.ExplosionArgs)]*
 
 ### pudl.output.ferc1.create_exploded_table_assets() → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)]
 
@@ -19734,7 +19757,7 @@ For some reason this validator is being run before exploded_calcs has been
 added to the values dictionary, which doesn’t make sense, since “seeds” is
 defined after exploded_calcs in the model.
 
-#### exploded_calcs_to_digraph(exploded_calcs: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)
+#### exploded_calcs_to_digraph(exploded_calcs: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)[[NodeId](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.NodeId)]
 
 Construct [`networkx.DiGraph`](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph) of all calculations in exploded_calcs.
 
@@ -19753,13 +19776,13 @@ Construct a dictionary of node attributes for application to the forest.
 
 Note attributes consist of the manually assigned tags.
 
-#### *property* edge_attrs *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[Any, Any]*
+#### *property* edge_attrs *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[NodeId](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.NodeId), [NodeId](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.NodeId)], [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [int](https://docs.python.org/3/builtins/functions.html#int)]]*
 
 Construct a dictionary of edge attributes for application to the forest.
 
 The only edge attribute is the calculation component weight.
 
-#### *property* annotated_forest *: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)*
+#### *property* annotated_forest *: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)[[NodeId](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.NodeId)]*
 
 Annotate the calculation forest with node calculation weights and tags.
 
@@ -19779,7 +19802,7 @@ If they do, then the final exploded data table may not capture all of the
 manually assigned metadata, and we either need to edit the metadata, or figure
 out why those nodes aren’t being included in the final calculation forest.
 
-#### propagate_node_attributes(annotated_forest: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph))
+#### propagate_node_attributes(annotated_forest: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)[[NodeId](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.NodeId)])
 
 Propagate tags.
 
@@ -19795,7 +19818,7 @@ Check whether any of the input lost nodes were also tagged nodes.
 It is not necessarily a problem if there are “lost” tags. This is mostly
 here as a debugging tool.
 
-#### *static* check_conflicting_tags(annotated_forest: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)) → [None](https://docs.python.org/3/builtins/constants.html#None)
+#### *static* check_conflicting_tags(annotated_forest: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)[[NodeId](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.NodeId)]) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Check for conflicts between ancestor and descendant tags.
 
@@ -19804,11 +19827,11 @@ This check should be applied before we have propagated tags via
 that we’ve manually compiled.These kinds of conflicts are probably due to
 errors in the tagging metadata, and should be investigated.
 
-#### *property* full_digraph *: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)*
+#### *property* full_digraph *: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)[[NodeId](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.NodeId)]*
 
 A digraph of all calculations described by the exploded metadata.
 
-#### prune_unrooted(graph: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)) → [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)
+#### prune_unrooted(graph: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)[[NodeId](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.NodeId)]) → [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)[[NodeId](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.NodeId)]
 
 Prune those parts of the input graph that aren’t reachable from the roots.
 
@@ -19822,7 +19845,7 @@ from the input graph, and so when selecting both parent and child nodes from
 the calculations, we need to make sure that they are present in the input graph,
 as well as the complete set of calculation components.
 
-#### *property* seeded_digraph *: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)*
+#### *property* seeded_digraph *: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)[[NodeId](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.NodeId)]*
 
 A digraph of all calculations that contribute to the seed values.
 
@@ -19836,7 +19859,7 @@ the pruned graph, and then use that list to select a subset of the exploded
 metadata to pass to [`exploded_calcs_to_digraph()`](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.XbrlCalculationForestFerc1.exploded_calcs_to_digraph), so that all of the
 associated metadata is also added to the pruned graph.
 
-#### *property* forest *: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)*
+#### *property* forest *: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)[[NodeId](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.NodeId)]*
 
 A pruned version of the seeded digraph that should be one or more trees.
 
@@ -19850,7 +19873,7 @@ but a forest with several root nodes might also be appropriate, since the root
 table may or may not have a top level summary value that includes all underlying
 calculated values of interest.
 
-#### *static* roots(graph: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.NodeId)]
+#### *static* roots(graph: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)[[NodeId](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.NodeId)]) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.NodeId)]
 
 Identify all root nodes in a digraph.
 
@@ -19866,7 +19889,7 @@ Find all roots in the seeded digraph.
 
 Find all roots in the pruned calculation forest.
 
-#### *static* leaves(graph: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.NodeId)]
+#### *static* leaves(graph: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)[[NodeId](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.NodeId)]) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.NodeId)]
 
 Identify all leaf nodes in a digraph.
 
@@ -19893,15 +19916,15 @@ the exploded_calcs, this should now never produce any orphans and is a bit redun
 
 List of all nodes that appear in the DAG but not in the pruned forest.
 
-#### stepchildren(graph: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.NodeId)]
+#### stepchildren(graph: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)[[NodeId](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.NodeId)]) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.NodeId)]
 
 Find all nodes in the graph that have more than one parent.
 
-#### stepparents(graph: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.NodeId)]
+#### stepparents(graph: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)[[NodeId](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.NodeId)]) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.NodeId)]
 
 Find all nodes in the graph with children having more than one parent.
 
-#### \_get_path_weight(path: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.NodeId)], graph: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)) → [float](https://docs.python.org/3/builtins/functions.html#float)
+#### \_get_path_weight(path: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.NodeId)], graph: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)[[NodeId](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.NodeId)]) → [float](https://docs.python.org/3/builtins/functions.html#float)
 
 Multiply all weights along a path together.
 
@@ -19935,7 +19958,7 @@ from the leaf values.
 
 Produce the list of tables involved in this explosion.
 
-#### plot_graph(graph: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)) → [None](https://docs.python.org/3/builtins/constants.html#None)
+#### plot_graph(graph: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)[[NodeId](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.NodeId)]) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Visualize a CalculationForest graph.
 
@@ -19982,7 +20005,7 @@ tabular representation of the calculation forest that can be inspected in Excel.
 Include inter-layer calculation weights and tags associated with the nodes pre
 propagation.
 
-### pudl.output.ferc1.nodes_to_df(calc_forest: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph), nodes: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.NodeId)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.output.ferc1.nodes_to_df(calc_forest: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)[[NodeId](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.NodeId)], nodes: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.NodeId)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Construct a dataframe from a list of nodes, including their annotations.
 
@@ -19995,14 +20018,14 @@ NodeIds that are not present in the calculation forest will be ignored.
   A tabular dataframe representation of the nodes, including their tags, extracted
   from the calculation forest.
 
-### pudl.output.ferc1.\_propagate_tag(annotated_forest: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph), tag_name: Literal['in_rate_base', 'rate_base_category'], propagation_direction: Literal['rootward', 'leafward']) → [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)
+### pudl.output.ferc1.\_propagate_tag(annotated_forest: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)[[NodeId](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.NodeId)], tag_name: Literal['in_rate_base', 'rate_base_category'], propagation_direction: Literal['rootward', 'leafward']) → [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)[[NodeId](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.NodeId)]
 
 Set the tag for nodes when all of its successors or predecessorshave same tag.
 
 This function returns an updated annotated_forest with tags updated for nodes
 when all down the tree when all children or parents of a node share the same tag.
 
-### pudl.output.ferc1.\_propagate_tags_to_corrections(annotated_forest: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)) → [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)
+### pudl.output.ferc1.\_propagate_tags_to_corrections(annotated_forest: [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)[[NodeId](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.NodeId)]) → [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)[[NodeId](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.NodeId)]
 
 ### pudl.output.ferc1.check_tag_propagation_compared_to_compiled_tags(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), propagated_tag: Literal['in_rate_base'], \_out_ferc1_\_explosion_tags: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame))
 
@@ -20082,7 +20105,7 @@ Define some simple checks that can run on FERC 1 assets.
 
 #### asset *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### idx *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[int](https://docs.python.org/3/builtins/functions.html#int), [int](https://docs.python.org/3/builtins/functions.html#int)]*
+#### idx *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
 ### pudl.output.ferc1.check_specs
 
@@ -21339,6 +21362,7 @@ heavyweight initialisation at decoration time.
 * [pudl.scripts.pudl_null_cols](autoapi/pudl/scripts/pudl_null_cols/index.html.md)
 * [pudl.scripts.pudl_service_territories](autoapi/pudl/scripts/pudl_service_territories/index.html.md)
 * [pudl.scripts.pyrefly_diff_baseline](autoapi/pudl/scripts/pyrefly_diff_baseline/index.html.md)
+* [pudl.scripts.pyrefly_status](autoapi/pudl/scripts/pyrefly_status/index.html.md)
 * [pudl.scripts.resource_description](autoapi/pudl/scripts/resource_description/index.html.md)
 * [pudl.scripts.update_zenodo_dois](autoapi/pudl/scripts/update_zenodo_dois/index.html.md)
 * [pudl.scripts.zenodo_data_release](autoapi/pudl/scripts/zenodo_data_release/index.html.md)
@@ -21672,6 +21696,85 @@ deferring – not something your own change introduced.
 A pyrefly version bump can also surface “newly baselined” entries that are purely
 description-text reformatting of an existing error rather than a real new one; check
 the file and error code before assuming it’s a regression.
+
+
+# autoapi/pudl/scripts/pyrefly_status/index.html.md
+
+# pudl.scripts.pyrefly_status
+
+Report on the current status of pyrefly typing in the repo.
+
+Meant for the weekly baseline-ratcheting workflow: pick the module or error kind
+with the biggest count, fix it, then shrink `.pyrefly-baseline.json`.
+
+## Attributes
+
+| [`_COVERAGE_COLUMNS`](autoapi/pudl/scripts/pyrefly_status/index.html.md#pudl.scripts.pyrefly_status._COVERAGE_COLUMNS)   |    |
+|----------------------------------------------------------------------|----|
+
+## Functions
+
+| [`_run_pyrefly`](autoapi/pudl/scripts/pyrefly_status/index.html.md#pudl.scripts.pyrefly_status._run_pyrefly)(→ dict)               | Run a pyrefly subcommand and return its JSON stdout, parsed.             |
+|-------------------------------------------------------------------------------------|--------------------------------------------------------------------------|
+| [`_collect_live_errors`](autoapi/pudl/scripts/pyrefly_status/index.html.md#pudl.scripts.pyrefly_status._collect_live_errors)(→ list[dict]) | Run pyrefly directly and return its full, per-occurrence error list.     |
+| [`_collect_coverage_report`](autoapi/pudl/scripts/pyrefly_status/index.html.md#pudl.scripts.pyrefly_status._collect_coverage_report)(→ dict)   | Run `pyrefly coverage report` on `src/` and return its parsed JSON.      |
+| [`_print_counts`](autoapi/pudl/scripts/pyrefly_status/index.html.md#pudl.scripts.pyrefly_status._print_counts)(→ None)              |                                                                          |
+| [`_relative_path`](autoapi/pudl/scripts/pyrefly_status/index.html.md#pudl.scripts.pyrefly_status._relative_path)(→ str)              | Display a coverage report path relative to the repo root when possible.  |
+| [`_print_coverage_table`](autoapi/pudl/scripts/pyrefly_status/index.html.md#pudl.scripts.pyrefly_status._print_coverage_table)(→ None)      |                                                                          |
+| [`main`](autoapi/pudl/scripts/pyrefly_status/index.html.md#pudl.scripts.pyrefly_status.main)(→ None)                       | Report on the current status of pyrefly typing in the repo.              |
+| [`errors`](autoapi/pudl/scripts/pyrefly_status/index.html.md#pudl.scripts.pyrefly_status.errors)(→ None)                     | Summarize remaining pyrefly type errors by module and/or error kind.     |
+| [`coverage`](autoapi/pudl/scripts/pyrefly_status/index.html.md#pudl.scripts.pyrefly_status.coverage)(→ None)                   | Summarize pyrefly coverage report's per-module type coverage as a table. |
+
+## Module Contents
+
+### pudl.scripts.pyrefly_status.\_run_pyrefly(args: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)
+
+Run a pyrefly subcommand and return its JSON stdout, parsed.
+
+Raises `click.ClickException` if pyrefly can’t be invoked or produces
+unparsable output.
+
+### pudl.scripts.pyrefly_status.\_collect_live_errors() → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)]
+
+Run pyrefly directly and return its full, per-occurrence error list.
+
+### pudl.scripts.pyrefly_status.\_collect_coverage_report() → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)
+
+Run `pyrefly coverage report` on `src/` and return its parsed JSON.
+
+Restricted to `src/` since test modules aren’t expected to be fully typed. The
+returned dict has `module_reports` (a list, one entry per module) and
+`summary` (aggregate counts and coverage across all of `src/`).
+
+### pudl.scripts.pyrefly_status.\_print_counts(errors: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)], key: [str](https://docs.python.org/3/builtins/stdtypes.html#str), header: [str](https://docs.python.org/3/builtins/stdtypes.html#str), top: [int](https://docs.python.org/3/builtins/functions.html#int) | [None](https://docs.python.org/3/builtins/constants.html#None)) → [None](https://docs.python.org/3/builtins/constants.html#None)
+
+### pudl.scripts.pyrefly_status.\_relative_path(path: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
+
+Display a coverage report path relative to the repo root when possible.
+
+### pudl.scripts.pyrefly_status.\_COVERAGE_COLUMNS *= ['typable', 'typed', 'any', 'untyped', 'coverage']*
+
+### pudl.scripts.pyrefly_status.\_print_coverage_table(report: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict), sort_by: [str](https://docs.python.org/3/builtins/stdtypes.html#str), top: [int](https://docs.python.org/3/builtins/functions.html#int) | [None](https://docs.python.org/3/builtins/constants.html#None)) → [None](https://docs.python.org/3/builtins/constants.html#None)
+
+### pudl.scripts.pyrefly_status.main() → [None](https://docs.python.org/3/builtins/constants.html#None)
+
+Report on the current status of pyrefly typing in the repo.
+
+Meant for the weekly baseline-ratcheting workflow: pick the module or error kind
+with the biggest count, fix it, then shrink .pyrefly-baseline.json.
+
+### pudl.scripts.pyrefly_status.errors(by: [str](https://docs.python.org/3/builtins/stdtypes.html#str), top: [int](https://docs.python.org/3/builtins/functions.html#int) | [None](https://docs.python.org/3/builtins/constants.html#None)) → [None](https://docs.python.org/3/builtins/constants.html#None)
+
+Summarize remaining pyrefly type errors by module and/or error kind.
+
+Runs pyrefly itself to get an exact, per-occurrence error count.
+
+### pudl.scripts.pyrefly_status.coverage(sort_by: [str](https://docs.python.org/3/builtins/stdtypes.html#str), top: [int](https://docs.python.org/3/builtins/functions.html#int) | [None](https://docs.python.org/3/builtins/constants.html#None)) → [None](https://docs.python.org/3/builtins/constants.html#None)
+
+Summarize pyrefly coverage report’s per-module type coverage as a table.
+
+Sorted by ascending coverage (worst first) by default, so the least-typed
+modules – the best ratcheting targets – show up at the top.
 
 
 # autoapi/pudl/scripts/resource_description/index.html.md
@@ -23604,20 +23707,20 @@ defined in the per-dataset modules under [`pudl.transform.params`](autoapi/pudl/
 
 ## Functions
 
-| [`multicol_transform_factory`](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.multicol_transform_factory)(→ MultiColumnTransformFunc)      | Construct [`MultiColumnTransformFunc`](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.MultiColumnTransformFunc) from a [`ColumnTransformFunc`](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.ColumnTransformFunc).   |
-|--------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [`rename_columns`](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.rename_columns)(→ pandas.DataFrame)                          | Rename the whole collection of dataframe columns using input params.                                                                                               |
-| [`normalize_strings`](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.normalize_strings)(→ pandas.Series)                          | Derive a canonical, simplified version of the strings in the column.                                                                                               |
-| [`enforce_snake_case`](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.enforce_snake_case)(→ pandas.Series)                         | Enforce snake_case for a column.                                                                                                                                   |
-| [`strip_non_numeric_values`](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.strip_non_numeric_values)(→ pandas.Series)                   | Strip a column of any non numeric values.                                                                                                                          |
-| [`categorize_strings`](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.categorize_strings)(→ pandas.Series)                         | Impose a controlled vocabulary on a freeform string column.                                                                                                        |
-| [`convert_units`](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.convert_units)(→ pandas.Series)                              | Convert column units and rename the column to reflect the change.                                                                                                  |
-| [`nullify_outliers`](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.nullify_outliers)(→ pandas.Series)                           | Set any values outside the valid range to NA.                                                                                                                      |
-| [`correct_units`](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.correct_units)(→ pandas.DataFrame)                           | Correct outlying values based on inferred discrepancies in reported units.                                                                                         |
-| [`drop_invalid_rows`](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.drop_invalid_rows)(→ pandas.DataFrame)                       | Drop rows with only invalid values in all specified columns.                                                                                                       |
-| [`replace_with_na`](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.replace_with_na)(→ pandas.Series)                            | Replace specified values with NA.                                                                                                                                  |
-| [`spot_fix_values`](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.spot_fix_values)(→ pandas.DataFrame)                         | Manually fix one-off singular missing values and typos across a DataFrame.                                                                                         |
-| [`cache_df`](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.cache_df)(→ collections.abc.Callable[..., pandas.DataFrame]) | A decorator for caching dataframes within an [`AbstractTableTransformer`](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.AbstractTableTransformer).                                            |
+| [`multicol_transform_factory`](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.multicol_transform_factory)(→ MultiColumnTransformFunc)   | Construct [`MultiColumnTransformFunc`](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.MultiColumnTransformFunc) from a [`ColumnTransformFunc`](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.ColumnTransformFunc).   |
+|-----------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`rename_columns`](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.rename_columns)(→ pandas.DataFrame)                       | Rename the whole collection of dataframe columns using input params.                                                                                               |
+| [`normalize_strings`](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.normalize_strings)(→ pandas.Series)                       | Derive a canonical, simplified version of the strings in the column.                                                                                               |
+| [`enforce_snake_case`](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.enforce_snake_case)(→ pandas.Series)                      | Enforce snake_case for a column.                                                                                                                                   |
+| [`strip_non_numeric_values`](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.strip_non_numeric_values)(→ pandas.Series)                | Strip a column of any non numeric values.                                                                                                                          |
+| [`categorize_strings`](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.categorize_strings)(→ pandas.Series)                      | Impose a controlled vocabulary on a freeform string column.                                                                                                        |
+| [`convert_units`](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.convert_units)(→ pandas.Series)                           | Convert column units and rename the column to reflect the change.                                                                                                  |
+| [`nullify_outliers`](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.nullify_outliers)(→ pandas.Series)                        | Set any values outside the valid range to NA.                                                                                                                      |
+| [`correct_units`](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.correct_units)(→ pandas.DataFrame)                        | Correct outlying values based on inferred discrepancies in reported units.                                                                                         |
+| [`drop_invalid_rows`](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.drop_invalid_rows)(→ pandas.DataFrame)                    | Drop rows with only invalid values in all specified columns.                                                                                                       |
+| [`replace_with_na`](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.replace_with_na)(→ pandas.Series)                         | Replace specified values with NA.                                                                                                                                  |
+| [`spot_fix_values`](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.spot_fix_values)(→ pandas.DataFrame)                      | Manually fix one-off singular missing values and typos across a DataFrame.                                                                                         |
+| [`cache_df`](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.cache_df)(...)                                            | A decorator for caching dataframes within an [`AbstractTableTransformer`](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.AbstractTableTransformer).                                            |
 
 ## Module Contents
 
@@ -24241,7 +24344,7 @@ This is a shortcut, which allows us to constitute the parameter models based on
 the table they are associated with without having to pass in a potentially large
 nested data structure, which gets messy in Dagster.
 
-### pudl.transform.classes.cache_df(key: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'main') → [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[..., [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]
+### pudl.transform.classes.cache_df(key: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'main') → [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[..., [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]], [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[..., [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]]
 
 A decorator for caching dataframes within an [`AbstractTableTransformer`](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.AbstractTableTransformer).
 
@@ -27304,7 +27407,7 @@ transformations.
 | [`create_ferc1_transform_assets`](autoapi/pudl/transform/ferc1/index.html.md#pudl.transform.ferc1.create_ferc1_transform_assets)(...)                           | Create a list of transformed FERC Form 1 assets.                                                                                    |
 | [`other_dimensions`](autoapi/pudl/transform/ferc1/index.html.md#pudl.transform.ferc1.other_dimensions)(→ list[str])                                | Get a list of the other dimension columns across all of the transformers.                                                           |
 | [`table_to_xbrl_factoid_name`](autoapi/pudl/transform/ferc1/index.html.md#pudl.transform.ferc1.table_to_xbrl_factoid_name)(→ dict[str, str])                 | Build a dictionary of table name (keys) to `xbrl_factoid` column name.                                                              |
-| [`table_to_column_to_check`](autoapi/pudl/transform/ferc1/index.html.md#pudl.transform.ferc1.table_to_column_to_check)(→ dict[str, list[str]])             | Build a dictionary of table name (keys) to column_to_check from reconcile_table_calculations.                                       |
+| [`table_to_column_to_check`](autoapi/pudl/transform/ferc1/index.html.md#pudl.transform.ferc1.table_to_column_to_check)(→ dict[str, str])                   | Build a dictionary of table name (keys) to column_to_check from reconcile_table_calculations.                                       |
 | [`remove_rare_utility_type_subdimensions_rows`](autoapi/pudl/transform/ferc1/index.html.md#pudl.transform.ferc1.remove_rare_utility_type_subdimensions_rows)(...)             | Remove the rare, non-total utility types when all values are duplicated.                                                            |
 | [`_core_ferc1__table_dimensions`](autoapi/pudl/transform/ferc1/index.html.md#pudl.transform.ferc1._core_ferc1__table_dimensions)(→ pandas.DataFrame)            | Build a table of values of dimensions observed in the transformed data tables.                                                      |
 | [`_core_ferc1_xbrl__metadata`](autoapi/pudl/transform/ferc1/index.html.md#pudl.transform.ferc1._core_ferc1_xbrl__metadata)(→ pandas.DataFrame)               | Build a table of all of the tables' XBRL metadata.                                                                                  |
@@ -28052,7 +28155,7 @@ Tolerance for checking the metric within the `by` group.
 
 Check that the input dataframe has all required columns.
 
-#### *abstractmethod* metric(gb: pandas.core.groupby.DataFrameGroupBy) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
+#### *abstractmethod* metric(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [float](https://docs.python.org/3/builtins/functions.html#float)
 
 Metric function that will be applied to each group of values being checked.
 
@@ -28092,7 +28195,7 @@ Bases: [`ErrorMetric`](autoapi/pudl/transform/ferc1/index.html.md#pudl.transform
 
 Check error frequency in XBRL calculations.
 
-#### metric(gb: pandas.core.groupby.DataFrameGroupBy) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
+#### metric(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [float](https://docs.python.org/3/builtins/functions.html#float)
 
 Calculate the frequency with which records are tagged as errors.
 
@@ -28102,7 +28205,7 @@ Bases: [`ErrorMetric`](autoapi/pudl/transform/ferc1/index.html.md#pudl.transform
 
 Check relative magnitude of errors in XBRL calculations.
 
-#### metric(gb: pandas.core.groupby.DataFrameGroupBy) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
+#### metric(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [float](https://docs.python.org/3/builtins/functions.html#float)
 
 Calculate the magnitude of the errors relative to total reported value.
 
@@ -28115,7 +28218,7 @@ Check absolute magnitude of errors in XBRL calculations.
 These numbers may vary wildly from table to table so no default values for the
 expected errors are provided here…
 
-#### metric(gb: pandas.core.groupby.DataFrameGroupBy) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
+#### metric(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [float](https://docs.python.org/3/builtins/functions.html#float)
 
 Calculate the absolute magnitude of XBRL calculation errors.
 
@@ -28129,7 +28232,7 @@ Check the frequency of null calculated values.
 
 Only apply metric to rows that contain calculated values.
 
-#### metric(gb: pandas.core.groupby.DataFrameGroupBy) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
+#### metric(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [float](https://docs.python.org/3/builtins/functions.html#float)
 
 Fraction of non-null reported values that have null corresponding calculated values.
 
@@ -28139,7 +28242,7 @@ Bases: [`ErrorMetric`](autoapi/pudl/transform/ferc1/index.html.md#pudl.transform
 
 Check the frequency of null reported values.
 
-#### metric(gb: pandas.core.groupby.DataFrameGroupBy) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
+#### metric(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [float](https://docs.python.org/3/builtins/functions.html#float)
 
 Frequency with which the reported values are Null.
 
@@ -28538,7 +28641,7 @@ Wrapper function for [`drop_duplicate_rows_dbf()`](autoapi/pudl/transform/ferc1/
 
 Pre-process DBF inputs into one dataframe. Concats by default.
 
-#### preprocess_xbrl(raw_xbrl_dfs: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### preprocess_xbrl(raw_xbrl_dfs: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]
 
 Pre-process XBRL inputs into one dataframe. Grab freshest data and concat by default.
 
@@ -28550,7 +28653,7 @@ DBF-specific transformations that take place before concatenation.
 
 XBRL-specific transformations that take place before concatenation.
 
-#### rename_columns(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), rename_stage: Literal['dbf', 'xbrl', 'xbrl_instant', 'xbrl_duration'] | [None](https://docs.python.org/3/builtins/constants.html#None) = None, params: [pudl.transform.classes.RenameColumns](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.RenameColumns) | [None](https://docs.python.org/3/builtins/constants.html#None) = None)
+#### rename_columns(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), rename_stage: Literal['dbf', 'xbrl', 'instant_xbrl', 'duration_xbrl'] | [None](https://docs.python.org/3/builtins/constants.html#None) = None, params: [pudl.transform.classes.RenameColumns](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.RenameColumns) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Grab the params based on the rename stage and run default rename_columns.
 
@@ -28715,7 +28818,7 @@ Name of the PUDL database table that this table transformer produces.
 Must be defined in the database schema / metadata. This ID is used to instantiate
 the appropriate `TableTransformParams` object.
 
-#### preprocess_xbrl(raw_xbrl_dfs: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### preprocess_xbrl(raw_xbrl_dfs: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]
 
 Pre-process XBRL inputs into one dataframe. Grab freshest data and concat by default.
 
@@ -29147,7 +29250,7 @@ Params:
   `possible_header_or_note` that flags rows that might contain useful header
   or note information.
 
-#### \_find_note_clumps(group: pandas.core.groupby.DataFrameGroupBy) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[pandas.core.groupby.DataFrameGroupBy, [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]
+#### \_find_note_clumps(group: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[pandas.core.groupby.DataFrameGroupBy, [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]
 
 Find groups of rows likely to be notes.
 
@@ -29233,7 +29336,7 @@ Params:
   The same input DataFrame but with likely headers rows containing the string
   `header` in the `row_type` column.
 
-#### \_label_note_rows_group(util_year_group: pandas.core.groupby.DataFrameGroupBy) → pandas.core.groupby.DataFrameGroupBy
+#### \_label_note_rows_group(util_year_group: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Label note rows by adding `note` to `row_type` column.
 
@@ -29258,7 +29361,7 @@ and therefore be categorized as a note clump. I haven’t built a work around, b
 hopefully there aren’t very many of these.
 
 Params:
-: util_year_group: A groupby object that contains a single year and utility.
+: util_year_group: A DataFrame containing a single year and utility.
 
 * **Returns:**
   The same input but with likely note rows containing the string `note` in
@@ -30475,7 +30578,11 @@ Get a list of the other dimension columns across all of the transformers.
 
 Build a dictionary of table name (keys) to `xbrl_factoid` column name.
 
-### pudl.transform.ferc1.table_to_column_to_check() → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]]
+Only includes tables whose `merge_xbrl_metadata.on` param is set — not every
+FERC1 table participates in the XBRL metadata/calculation reconciliation, so
+`xbrl_factoid_name` is undefined for the rest.
+
+### pudl.transform.ferc1.table_to_column_to_check() → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]
 
 Build a dictionary of table name (keys) to column_to_check from reconcile_table_calculations.
 
@@ -72852,7 +72959,7 @@ respective transform function.
 | Respondents                     | Electric, CHP plants, and sometimes fuel transfer terminals with either 1MW+ or the ability to receive and deliver power to the grid.                                                             |
 | Records Liberated               | ~5 million                                                                                                                                                                                        |
 | Source Format                   | Microsoft Excel (.xls/.xlsx)                                                                                                                                                                      |
-| Download Size                   | 380 MB                                                                                                                                                                                            |
+| Download Size                   | 383 MB                                                                                                                                                                                            |
 | Temporal Coverage               | 2001-2026                                                                                                                                                                                         |
 | PUDL Code                       | `eia923`                                                                                                                                                                                          |
 | Unprocessed Source Data Archive | [10.5281/zenodo.4127039](https://doi.org/10.5281/zenodo.4127039)                                                                                                                                  |
@@ -73777,7 +73884,7 @@ respective transform function.
 | Respondents                     | Major electric utilities and licenses.                                                                                                                                                                                                                       |
 | Records Liberated               | ~13.2 million (116 raw tables), ~4.7 million (23 clean tables)                                                                                                                                                                                               |
 | Source Format                   | XBRL (.XBRL) and Visual FoxPro Database (.DBC/.DBF)                                                                                                                                                                                                          |
-| Download Size                   | 2116 MB                                                                                                                                                                                                                                                      |
+| Download Size                   | 2126 MB                                                                                                                                                                                                                                                      |
 | Temporal Coverage               | 1994-2025                                                                                                                                                                                                                                                    |
 | PUDL Code                       | `ferc1`                                                                                                                                                                                                                                                      |
 | Unprocessed Source Data Archive | [10.5281/zenodo.4127043](https://doi.org/10.5281/zenodo.4127043)                                                                                                                                                                                             |
@@ -77155,32 +77262,19 @@ from your fork to your local computer where you’ll be editing the code or docs
 will download the whole history of the project, including the most recent version, and
 put it in a local directory where you can make changes.
 
-After cloning, you need to configure git to use the “ours” merge strategy for the
-lockfile. Run this command once from within the cloned repository:
-
-```console
-$ git config --local merge.ours.driver true
-```
-
 #### WARNING
-**Never manually merge pixi.lock!** The lockfile (`pixi.lock`) is a
-generated file that must be regenerated programmatically. The git configuration
-above will automatically keep your version of the lockfile during merge conflicts,
-but you must then regenerate it to reflect the merged dependencies.
+**Never manually merge pixi.lock!** The lockfile (`pixi.lock`) is a generated file
+that must be regenerated programmatically. A conflicting merge or rebase keeps *your*
+version of the file instead of attempting a textual merge that could corrupt it.
+`prek` (see [Set Up Code Linting](dev/dev_setup.html.md#linting) below) should automatically regenerate `pixi.lock` if
+it is out of sync with `pyproject.toml` before you are allowed to commit or push
+your changes.
 
-After merging changes from another branch (e.g. `main`) that modified
-`pyproject.toml`:
-
-1. Complete the merge (the lockfile will keep your version due to the merge strategy)
-2. Regenerate the lockfile to match the merged dependencies:
+If you ever need to re-solve the lockfile by hand:
 
 ```console
-$ pixi update
+$ pixi lock
 ```
-
-1. Commit the regenerated lockfile
-
-This ensures your lockfile is consistent with the merged dependency specifications.
 
 ## Create the PUDL Dev Environment
 
@@ -80368,10 +80462,11 @@ validations using `dbt_helper`.
 
 # Testing PUDL
 
-We use [pytest](https://pytest.org) to specify software unit, integration, and
-pipeline tests, including calling `dbt build` to run our
-[Data validation quickstart](dev/data_validation_quickstart.html.md) tests. Several common test commands are available as
-pixi tasks for convenience.
+We use [pytest](https://pytest.org) to specify software unit and integration tests,
+as well as an end-to-end smoke test of the PUDL ETL pipeline and its outputs. After the
+fast ETL pipeline runs, pytest also calls `dbt build` to run our
+[Data validation quickstart](dev/data_validation_quickstart.html.md) tests. Several common test commands are made available
+as pixi tasks for convenience.
 
 For day-to-day work, the most commonly used pixi testing tasks are:
 
@@ -80380,8 +80475,7 @@ $ pixi run pytest-unit         # runs in ~1 minute
 $ pixi run pytest-integration  # runs in ~2-5 minutes, no Dagster ETL required
 ```
 
-`pytest-unit` also runs automatically as a pre-commit hook on every commit, and
-both `pytest-unit` and `pytest-integration` runs in GitHub Actions on every push.
+Both `pytest-unit` and `pytest-integration` run in GitHub Actions on every push.
 
 To run everything that’s required before a PR can merge – including the slower
 pipeline and data validation tests that only run in the merge queue – use:
@@ -80495,6 +80589,20 @@ To run only the unit tests defined by a single test class within that module:
 ```console
 $ pixi run pytest tests/unit/extract/excel_test.py::TestGenericExtractor
 ```
+
+### Enabling pytest logging output in the terminal
+
+By default, pytest captures all logging output and only shows it if a test fails. If you
+need logs to be visible in the terminal and want more verbose output, you might use a
+command like:
+
+```console
+$ pixi run pytest --no-cov --verbose --log-cli-level=INFO tests/unit/helpers_test.py
+```
+
+The `prebuilt_outputs` fixture streams the fast-ETL subprocess output to the terminal
+directly (see `tests/conftest.py`) when preparing to run the PUDL pipeline tests so
+progress is still visible there.
 
 ### Custom PUDL pytest flags
 
@@ -81511,6 +81619,16 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
 * Added final release data from 2025 for [EIA-860](data_sources/eia860.html.md). See
   issue [#5589](https://github.com/catalyst-cooperative/pudl/issues/5589) and PR [#5591](https://github.com/catalyst-cooperative/pudl/pull/5591).
 
+#### EIA-923
+
+* Added final release data from 2025 for [EIA-923](data_sources/eia923.html.md),
+  and monthly release from June 2026. See issue [#5594](https://github.com/catalyst-cooperative/pudl/issues/5594) and PR [#5599](https://github.com/catalyst-cooperative/pudl/pull/5599).
+
+#### FERC Form 1
+
+* Integrated any updates or straggler filings from 2025 for
+  [FERC Form 1](data_sources/ferc1.html.md). See PR [#5668](https://github.com/catalyst-cooperative/pudl/pull/5668).
+
 ### Documentation
 
 * Fixed dbt macro argument documentation in `dbt/macros/schema.yml` and
@@ -81606,6 +81724,10 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
   of genuine typing gaps that the upgrade surfaced. Mostly this involved type narrowing
   in places where an object that might be `None` was subject to a regex match, dict
   lookup, or other operation that would fail on `None`. See PR [#5583](https://github.com/catalyst-cooperative/pudl/pull/5583).
+* Switched to using quieter, more compact `pytest` output instead of logging 1000s of
+  tests to the terminal. Fast ETL in pipeline tests will still log. Made `pixi.lock`
+  drift checking in pre-commit hooks more robust. Fixed open SQLite database warnings
+  coming from FERC SQLite IO Manager. See PR [#5573](https://github.com/catalyst-cooperative/pudl/pull/5573).
 
 <a id="release-v2026-9-0"></a>
 
