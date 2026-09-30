@@ -36,6 +36,16 @@ EIA-860M
   addition of several dozen long-retired nuclear generation units. See issue
   :issue:`5677` and PR :pr:`5680`.
 
+EIA-923
+~~~~~~~
+* Added final release data from 2025 for :doc:`EIA-923 <data_sources/eia923>`,
+  and monthly release from June 2026. See issue :issue:`5594` and PR :pr:`5599`.
+
+FERC Form 1
+~~~~~~~~~~~
+* Integrated any updates or straggler filings from 2025 for
+  :doc:`FERC Form 1 <data_sources/ferc1>`. See PR :pr:`5668`.
+
 Documentation
 ^^^^^^^^^^^^^
 
@@ -137,6 +147,10 @@ Developer Experience
   of genuine typing gaps that the upgrade surfaced. Mostly this involved type narrowing
   in places where an object that might be ``None`` was subject to a regex match, dict
   lookup, or other operation that would fail on ``None``. See PR :pr:`5583`.
+* Switched to using quieter, more compact ``pytest`` output instead of logging 1000s of
+  tests to the terminal. Fast ETL in pipeline tests will still log. Made ``pixi.lock``
+  drift checking in pre-commit hooks more robust. Fixed open SQLite database warnings
+  coming from FERC SQLite IO Manager. See PR :pr:`5573`.
 
 .. _release-v2026.9.0:
 
