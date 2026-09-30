@@ -266,7 +266,7 @@ class DbtSchema(BaseModel):
         return cls(
             sources=[
                 DbtSource(
-                    name="ferceqr" if "ferceqr" in table_name else "pudl",
+                    name=PUDL_PACKAGE.get_resource(table_name).dbt_source,
                     tables=[DbtTable.from_table_name(table_name)],
                 )
             ],
