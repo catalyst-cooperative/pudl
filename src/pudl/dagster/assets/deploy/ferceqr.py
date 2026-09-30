@@ -785,14 +785,9 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
                 if not stage.result.success
             )
         )
-        # Notify inline before the exception propagates: the sensor-triggered
-        # failure asset never runs because the bash script kills the dagster
-        # daemon as soon as FERCEQR_FAILURE appears.
         _notify_ferceqr_outcome(
             context, zulip, outcome="FAILURE", validation_stages=validation_stages
         )
-        # Write the failure sentinel HERE so the log messages above are flushed
-        # before the sentinel triggers killall.
         _write_status_file("FERCEQR_FAILURE", pudl_paths)
         raise RuntimeError(
             f"FERC EQR data validation failed: {', '.join(failed)}. "
