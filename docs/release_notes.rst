@@ -30,6 +30,12 @@ EIA-860
 * Added final release data from 2025 for :doc:`EIA-860 <data_sources/eia860>`. See
   issue :issue:`5589` and PR :pr:`5591`.
 
+EIA-860M
+~~~~~~~~
+* Added :doc:`EIA-860m <data_sources/eia860>` data through August 2026, including the
+  addition of several dozen long-retired nuclear generation units. See issue
+  :issue:`5677` and PR :pr:`5680`.
+
 Documentation
 ^^^^^^^^^^^^^
 

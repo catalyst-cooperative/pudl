@@ -275,19 +275,40 @@ def _core_eia860__generators(
         "ferc_exempt_wholesale_generator",
         "ferc_qualifying_facility",
     ]
-    gens_df = (
-        # pandas complains when you pass in empty dfs, but it's surprisingly more
-        # memory-expensive to skip the empty dfs and manually add the columns
-        # we need from them back in, so the complainer stays.
-        pd.concat([ge_df, gp_df, gr_df, g_df], sort=True)
-        .pipe(pudl.helpers.standardize_na_values)
-        .dropna(subset=["generator_id", "plant_id_eia"])
-        .pipe(
-            pudl.helpers.fix_boolean_columns,
-            boolean_columns_to_fix=boolean_columns_to_fix,
-            inplace=True,
-        )
+
+    # pandas complains when you pass in empty dfs, but it's surprisingly more
+    # memory-expensive to skip the empty dfs and manually add the columns
+    # we need from them back in, so the complainer stays.
+    gens_df = pd.concat([ge_df, gp_df, gr_df, g_df], sort=True).pipe(
+        pudl.helpers.standardize_na_values
     )
+
+    # In August 2026, EIA started to report a series of much older nuclear generator
+    # retirements, some with no utility ID or plant ID assigned. They confirmed via
+    # email that they also don't intend to assign these generators IDs, and the
+    # data quality of these records is inconsistent with
+    # the rest of the EIA 860M data. We drop them at this stage, checking to ensure that
+    # they are still being reported first and that we aren't accidentally mass-dropping
+    # lots of records (12 records).
+    # The other type of record dropped at this stage are records with a generator ID
+    # that is literally the string "NA" (26 records).
+    null_ids = (
+        gens_df.loc[:, ["generator_id", "plant_id_eia", "utility_id_eia"]]
+        .isnull()
+        .any(axis=1)
+    )
+    assert sum(null_ids) <= 38, (
+        f"Expected to drop 0 records with null IDs, actually dropping {sum(null_ids)}\n: {gens_df.loc[null_ids, ['generator_id', 'plant_id_eia', 'utility_id_eia', 'report_year']]}"
+    )
+
+    gens_df = gens_df.dropna(
+        subset=["generator_id", "plant_id_eia", "utility_id_eia"]
+    ).pipe(
+        pudl.helpers.fix_boolean_columns,
+        boolean_columns_to_fix=boolean_columns_to_fix,
+        inplace=True,
+    )
+
     gens_df.replace(to_replace=nulls_replace_cols, inplace=True)  # noqa: PD002
     gens_df = (
         gens_df.pipe(pudl.helpers.month_year_to_date)
