@@ -879,10 +879,5 @@ def handle_ferceqr_failure(context: dg.AssetExecutionContext):
     zulip: ZulipNotificationResource = context.resources.zulip_notification
 
     logger.error("FERC EQR build failed. Notifying Zulip.")
-    notification_markdown = build_ferceqr_notification(context, outcome="FAILURE")
-    zulip.send_stream_message(
-        stream="pudl-deployments",
-        topic="build-deploy-ferceqr",
-        content=notification_markdown,
-    )
+    _notify_ferceqr_outcome(context=context, zulip=zulip, outcome="FAILURE")
     _write_status_file("FERCEQR_FAILURE", pudl_paths)
