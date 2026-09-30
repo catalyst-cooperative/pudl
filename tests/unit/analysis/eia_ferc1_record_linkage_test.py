@@ -200,29 +200,47 @@ def test_prepare_metaphone_matches_rowwise_encoding():
 
 
 @pytest.mark.parametrize(
-    ("rule", "column", "blocked_pairs"),
+    ("rule", "column", "eia_values", "ferc_value", "blocked_pairs"),
     [
-        # 4.2 and 4.4 round to 4, 4.6 rounds to 5, and the null never blocks
-        (blocking_rule_7, "capacity_mw", 1),
-        (blocking_rule_10, "net_generation_mwh", 1),
+        # Capacity buckets are about 10% wide: 100 and 104 share a bucket, 120 doesn't,
+        # 10 is far away, and the null and non-positive values never block.
+        (
+            blocking_rule_7,
+            "capacity_mw",
+            [100.0, 104.0, 120.0, 10.0, None, 0.0],
+            102.0,
+            2,
+        ),
+        # Net generation buckets are about 1% wide, and the sign is ignored.
+        (
+            blocking_rule_10,
+            "net_generation_mwh",
+            [1000.0, 1004.0, -1004.0, 1020.0, None],
+            1002.0,
+            3,
+        ),
+        # Small values aren't all lumped together, as they would be by rounding
+        (blocking_rule_10, "net_generation_mwh", [0.1, 0.3, 40.0], 0.1, 1),
     ],
 )
-def test_numeric_blocking_rules_block_on_rounded_values(rule, column, blocked_pairs):
-    """Values that round to the same integer are compared; exact equality isn't needed."""
+def test_numeric_blocking_rules_block_on_log_buckets(
+    rule, column, eia_values, ferc_value, blocked_pairs
+):
+    """Values in the same relative bucket are compared; exact equality isn't needed."""
     db_api = DuckDBAPI()
     eia = pd.DataFrame(
         {
-            "record_id": ["e1", "e2", "e3"],
-            "report_year": [2020, 2020, 2020],
-            column: [4.2, 4.6, None],
-            "plant_name_mphone": ["AB", "AB", "AB"],
+            "record_id": [f"e{i}" for i in range(len(eia_values))],
+            "report_year": [2020] * len(eia_values),
+            column: eia_values,
+            "plant_name_mphone": ["AB"] * len(eia_values),
         }
     )
     ferc = pd.DataFrame(
         {
             "record_id": ["f1"],
             "report_year": [2020],
-            column: [4.4],
+            column: [ferc_value],
             "plant_name_mphone": ["AB"],
         }
     )
