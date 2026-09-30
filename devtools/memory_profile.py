@@ -82,7 +82,10 @@ def cli(asset_selection, aggregate, directory):
         native_traces=True,
     ):
         materialize_assets(asset_selection)
-    run(["/usr/bin/env", "memray", "flamegraph", str(profile_location)])  # noqa: S603
+    run(  # noqa: S603
+        ["/usr/bin/env", "memray", "flamegraph", str(profile_location)],
+        check=False,
+    )
 
 
 if __name__ == "__main__":

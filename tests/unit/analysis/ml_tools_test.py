@@ -8,7 +8,7 @@ from pudl.analysis.ml_tools import experiment_tracking
 
 
 @pytest.mark.parametrize(
-    "input_dict,flattened_dict",
+    ("input_dict", "flattened_dict"),
     [
         (
             {
@@ -45,7 +45,7 @@ def test_flatten_model_config(input_dict: dict, flattened_dict: dict):
     assert experiment_tracking._flatten_model_config(input_dict) == flattened_dict
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def experiment_tracker_config(tmp_path) -> dict:
     """Return experiment tracker config with tracking uri pointing to temp dir."""
     return {
@@ -57,7 +57,7 @@ def experiment_tracker_config(tmp_path) -> dict:
 
 
 @pytest.mark.parametrize(
-    "tracking_enabled,experiment_name",
+    ("tracking_enabled", "experiment_name"),
     [(True, "test_run"), (False, "test_run_disabled")],
 )
 def test_create_experiment_tracker(

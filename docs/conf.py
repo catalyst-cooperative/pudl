@@ -17,6 +17,7 @@ import shutil
 from pybtex.plugin import register_plugin
 from pybtex.style.formatting.plain import Style as PlainStyle
 from pybtex.style.sorting import BaseSortingStyle
+from sphinx.util import logging as sphinx_logging
 
 from pudl import PUDL_DOCS_PATH
 from pudl.metadata.classes import (
@@ -30,6 +31,8 @@ from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.resources import RESOURCE_METADATA
 from pudl.workspace.datastore import Datastore
 from pudl.workspace.setup import PudlPaths
+
+logger = sphinx_logging.getLogger(__name__)
 
 # -- Path setup --------------------------------------------------------------
 # We are building and installing the pudl package in order to get access to
@@ -183,7 +186,7 @@ intersphinx_mapping = {
 # If PUDL_DOCS_DISABLE_INTERSPHINX is set, disable intersphinx lookups. This can speed
 # up the build and avoids issues with external sites being down.
 if "PUDL_DOCS_DISABLE_INTERSPHINX" in os.environ:
-    print("Disabling intersphinx lookups (PUDL_DOCS_DISABLE_INTERSPHINX is set).")
+    logger.info("Disabling intersphinx lookups (PUDL_DOCS_DISABLE_INTERSPHINX is set).")
     intersphinx_mapping = {}
 
 # Add any paths that contain templates here, relative to this directory.
@@ -285,7 +288,7 @@ html_static_path = ["_static"]
 def data_dictionary_metadata_to_rst(app):
     """Export data dictionary metadata to RST for inclusion in the documentation."""
     # Create an RST Data Dictionary for the PUDL DB:
-    print("Exporting PUDL DB data dictionary metadata to RST.")
+    logger.info("Exporting PUDL DB data dictionary metadata to RST.")
     skip_names = ["datasets", "accumulated_depreciation_ferc1"]
     names = [name for name in RESOURCE_METADATA if name not in skip_names]
     package = Package.from_resource_ids(resource_ids=tuple(sorted(names)))
@@ -328,7 +331,7 @@ INCLUDED_SOURCES = [
 
 def data_sources_metadata_to_rst(app):
     """Export data source metadata to RST for inclusion in the documentation."""
-    print("Exporting data source metadata to RST.")
+    logger.info("Exporting data source metadata to RST.")
     package = PUDL_PACKAGE
     extra_etl_groups = {
         "eia860": ["entity_eia"],

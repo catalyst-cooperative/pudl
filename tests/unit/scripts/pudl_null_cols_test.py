@@ -22,7 +22,7 @@ from pudl.scripts.pudl_null_cols import (
 
 
 @pytest.mark.parametrize(
-    "input_column,expected_output",
+    ("input_column", "expected_output"),
     [
         ("report_year", "report_year"),
         ("year", "year"),
@@ -58,7 +58,7 @@ def test_max_eia860_year(mocker):
 
 
 @pytest.mark.parametrize(
-    "null_years,available_years,date_column,expected_output",
+    ("null_years", "available_years", "date_column", "expected_output"),
     [
         # No data years
         (
@@ -157,7 +157,7 @@ def parquet_data():
 
 
 @pytest.mark.parametrize(
-    "column,expected_null_years",
+    ("column", "expected_null_years"),
     [
         ("column_a", [2021]),  # null in 2021
         ("column_b", [2020, 2022]),  # null in 2020, 2022

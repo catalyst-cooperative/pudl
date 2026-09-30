@@ -944,7 +944,7 @@ def clean_nerc(nerc_df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame:
         nerc_df["nerc_region"]
         .apply(lambda x: ([NERC_SPELLCHECK.get(i, i) for i in x]))
         .apply(lambda x: sorted(i if i in NERC_REGIONS else "UNK" for i in x))
-        .apply(lambda x: _remove_nerc_duplicates(x))
+        .apply(_remove_nerc_duplicates)
         .str.join("_")
     )
     return nerc_df
@@ -1141,7 +1141,7 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
     )
     # Guard against unexpectedly large data loss. The known drop counts per table
     # across all years (as of Aug 2025) are: BA: 1, OD: 16, Sales: 32, UD: 15, DP: 8.
-    # A threshold of 100 (~3× the historical max) catches genuine runaway cases
+    # A threshold of 100 (~3x the historical max) catches genuine runaway cases
     # without being sensitive to dataset size (full ETL vs. fast ETL subsets).
     len_diff = len(recombined_df) - len(df)
     if -len_diff > 100:

@@ -1,5 +1,6 @@
 """Tests for gathering Zenodo deposition metadata from repo sources."""
 
+import re
 import subprocess
 from pathlib import Path
 
@@ -126,7 +127,7 @@ def test_render_release_notes_html(docs_html_dir):
 
 def test_render_release_notes_html_missing_version_raises(docs_html_dir):
     """A version with no matching section should raise, not silently return nothing."""
-    with pytest.raises(ValueError, match="v9999.1.0"):
+    with pytest.raises(ValueError, match=re.escape("v9999.1.0")):
         render_release_notes_html(docs_html_dir, "v9999.1.0")
 
 

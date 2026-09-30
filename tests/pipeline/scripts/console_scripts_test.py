@@ -2,12 +2,12 @@
 
 from pathlib import Path
 
-import geopandas as gpd  # noqa: ICN002
+import geopandas as gpd
 import pytest
 
 
 @pytest.mark.parametrize(
-    "command,filename,expected_cols",
+    ("command", "filename", "expected_cols"),
     [
         (
             "pudl_service_territories --entity-type balancing_authority -y 2025 --limit-by-state --no-dissolve -o ",

@@ -366,7 +366,7 @@ def test_upload_outputs_raises_when_no_target_enabled(tmp_path):
 
 
 @pytest.mark.parametrize(
-    "git_tag,expected_gcs,expected_s3",
+    ("git_tag", "expected_gcs", "expected_s3"),
     [
         ("nightly-2026-07-05", True, True),
         ("v2026.7.0", True, True),
@@ -522,7 +522,7 @@ def test_update_git_branch_staging():
 
 
 @pytest.mark.parametrize(
-    "inputs,expected_json",
+    ("inputs", "expected_json"),
     [
         (None, {"ref": "main"}),
         (
@@ -572,7 +572,14 @@ def test_dispatch_github_workflow_raises_on_http_error():
 
 
 @pytest.mark.parametrize(
-    "deploy_type,build_ref,source_suffix,expected_env,expected_publish,expected_pudl_version",
+    (
+        "deploy_type",
+        "build_ref",
+        "source_suffix",
+        "expected_env",
+        "expected_publish",
+        "expected_pudl_version",
+    ),
     [
         (
             DeploymentType.NIGHTLY,
@@ -637,7 +644,7 @@ def test_trigger_zenodo_release_dispatches_expected_inputs(
 
 
 @pytest.mark.parametrize(
-    "environment,expected_workflow_file",
+    ("environment", "expected_workflow_file"),
     [
         ("staging", "build-deploy-staging.yml"),
         ("production", "build-deploy.yml"),
@@ -662,7 +669,7 @@ def test_update_pudl_viewer_selects_workflow_by_environment(
 
 
 @pytest.mark.parametrize(
-    "create_builds,build_successful,build_type,git_ref_name",
+    ("create_builds", "build_successful", "build_type", "git_ref_name"),
     [
         (create_builds, build_successful, *build_type_info)
         for create_builds in [True, False]
@@ -725,7 +732,7 @@ def test_get_build_from_tag(
 
 
 @pytest.mark.parametrize(
-    "git_tag,expected_type",
+    ("git_tag", "expected_type"),
     [
         ("v2026.7.0", DeploymentType.STABLE),
         ("v2026.7.10", DeploymentType.STABLE),
@@ -753,9 +760,18 @@ def test_get_deployment_type_from_tag_rejects_unrecognized_tags(git_tag):
 
 
 @pytest.mark.parametrize(
-    "git_tag,environment,expected_deploy_type,expected_suffixes,"
-    "expected_zenodo_suffix,expected_immutable_suffixes,expect_eel_hole,"
-    "expect_git,expect_zenodo,expect_hold",
+    (
+        "git_tag",
+        "environment",
+        "expected_deploy_type",
+        "expected_suffixes",
+        "expected_zenodo_suffix",
+        "expected_immutable_suffixes",
+        "expect_eel_hole",
+        "expect_git",
+        "expect_zenodo",
+        "expect_hold",
+    ),
     [
         (
             "nightly-2026-07-05",

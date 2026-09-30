@@ -1,6 +1,6 @@
-from collections import namedtuple
 from io import StringIO
 from pathlib import Path
+from typing import Any, NamedTuple
 
 import pandas as pd
 import pytest
@@ -26,7 +26,11 @@ from pudl.scripts.dbt_helper import (
 
 # Test helper machinery
 
-GivenExpect = namedtuple("GivenExpect", ["given", "expect"])
+
+class GivenExpect(NamedTuple):
+    given: Any
+    expect: Any
+
 
 TEMPLATE = {
     "data_col": "data",
@@ -99,7 +103,7 @@ def test_insert_data_source(table_name: str, expected_data_source: str, tmp_path
 @pytest.mark.parametrize("table_name", ["out", "_a_b_c", "", "____"])
 def test_insert_data_source_invalid(table_name: str, tmp_path: Path):
     """Test that our regex fails on bogus table names."""
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="has no data source segment"):
         insert_data_source(tmp_path, table_name)
 
 
@@ -149,7 +153,7 @@ my_table,2023,100
 
 
 @pytest.mark.parametrize(
-    "data_tests, expected",
+    ("data_tests", "expected"),
     [
         (
             [
@@ -597,7 +601,7 @@ GENERATE_QUANTILE_BOUNDS = [
 
 
 @pytest.mark.parametrize(
-    ["partition_definition", "test_data", "old_row_counts", "expected_row_counts"],
+    ("partition_definition", "test_data", "old_row_counts", "expected_row_counts"),
     [
         # The normal case -- just update with new row counts.
         (

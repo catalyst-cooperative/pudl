@@ -277,7 +277,7 @@ class TestUPathCache:
         new_res = PudlResourceKey("dataset", "doi", "new.txt")
         with pytest.raises(
             RuntimeError,
-            match="Cannot add .* to cache. The cache was explicitly initialized with read_only=True.",
+            match=r"Cannot add .* to cache. The cache was explicitly initialized with read_only=True.",
         ):
             ro_cache.add(new_res, b"content")
         assert not ro_cache.contains(new_res)
@@ -285,7 +285,7 @@ class TestUPathCache:
         # Delete should raise RuntimeError
         with pytest.raises(
             RuntimeError,
-            match="Cannot delete .* from cache. The cache was explicitly initialized with read_only=True.",
+            match=r"Cannot delete .* from cache. The cache was explicitly initialized with read_only=True.",
         ):
             ro_cache.delete(res)
         assert ro_cache.contains(res)
@@ -297,12 +297,12 @@ class TestUPathCache:
 
         assert s3_cache.is_read_only()
         with pytest.raises(
-            RuntimeError, match="Cannot add .* to cache. Only anonymous credentials"
+            RuntimeError, match=r"Cannot add .* to cache. Only anonymous credentials"
         ):
             s3_cache.add(res, b"content")
         with pytest.raises(
             RuntimeError,
-            match="Cannot delete .* from cache. Only anonymous credentials",
+            match=r"Cannot delete .* from cache. Only anonymous credentials",
         ):
             s3_cache.delete(res)
 
@@ -313,11 +313,11 @@ class TestUPathCache:
 
         assert gcs_cache.is_read_only()
         with pytest.raises(
-            RuntimeError, match="Cannot add .* to cache. Only anonymous credentials"
+            RuntimeError, match=r"Cannot add .* to cache. Only anonymous credentials"
         ):
             gcs_cache.add(res, b"content")
         with pytest.raises(
             RuntimeError,
-            match="Cannot delete .* from cache. Only anonymous credentials",
+            match=r"Cannot delete .* from cache. Only anonymous credentials",
         ):
             gcs_cache.delete(res)

@@ -32,7 +32,7 @@ def core_eia191__monthly_gas_storage(
 
     Args:
         raw_eia191__data: Concatenated raw CSV data from the PUDL EIA-191
-            Zenodo archive (RP8 monthly dataset, 2014–present).
+            Zenodo archive (RP8 monthly dataset, 2014-present).
 
     Returns:
         Cleaned monthly gas storage DataFrame with a combined report_date column.

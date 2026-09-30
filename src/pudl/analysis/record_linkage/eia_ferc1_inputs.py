@@ -212,7 +212,6 @@ class InputManager:
         # exist in the training data
         self.train_eia = self.get_train_eia(clobber=clobber)
         self.train_ferc1 = self.get_train_ferc1(clobber=clobber)
-        return
 
 
 def restrict_train_connections_on_date_range(

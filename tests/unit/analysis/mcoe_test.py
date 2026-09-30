@@ -27,7 +27,7 @@ def _call_check(spec: McoeCheckSpec, df: pd.DataFrame):
 
 
 @pytest.mark.parametrize(
-    "rows,max_null_fraction",
+    ("rows", "max_null_fraction"),
     [
         # No nulls at all
         ({"a": [1, 2], "b": [3, 4]}, 0.9),
@@ -44,7 +44,7 @@ def test_mcoe_check_passes_with_clean_data(rows, max_null_fraction):
 
 
 @pytest.mark.parametrize(
-    "rows,max_null_fraction,expected_count",
+    ("rows", "max_null_fraction", "expected_count"),
     [
         # Both columns null in first row: fraction 1.0 > 0.9 threshold
         ({"a": [None, 1], "b": [None, 2]}, 0.9, 1),

@@ -35,7 +35,7 @@ def test_ferc_schema(
     on the given reference year includes every single table and field that appears in the
     historical FERC Form N data.
     """
-    if os.getenv("GITHUB_ACTIONS", False):
+    if os.getenv("GITHUB_ACTIONS"):
         pytest.skip(
             reason="Downloading these datasets exceeds free GHA runner disk space."
         )

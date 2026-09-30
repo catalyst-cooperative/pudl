@@ -10,7 +10,6 @@ import logging
 import os
 import re
 import time
-import traceback
 import uuid
 from collections.abc import Callable
 from concurrent.futures import Future, ThreadPoolExecutor
@@ -328,8 +327,7 @@ def _remove_all_staging(targets: list[_DeploymentTarget]) -> None:
             target.staging.fs.rm(target.staging, recursive=True)
         except Exception:
             logger.warning(
-                f"Failed to clean up staging prefix {target.staging}:\n"
-                + traceback.format_exc()
+                f"Failed to clean up staging prefix {target.staging}", exc_info=True
             )
 
 
@@ -629,8 +627,7 @@ def deployment_status_asset(asset_fn: Callable) -> dg.AssetsDefinition:
             _clear_status_files(context.resources.pudl_paths)
             asset_fn(context)
         except Exception:
-            logger.error("FERC EQR deployment handler failed!")
-            logger.error(traceback.format_exc())
+            logger.exception("FERC EQR deployment handler failed!")
             _write_status_file("FERCEQR_FAILURE", context.resources.pudl_paths)
             raise
 
@@ -736,10 +733,7 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
                 future.result()
 
     except Exception:
-        logger.error(
-            "FERC EQR deployment failed; cleaning up staging prefixes.\n"
-            + traceback.format_exc()
-        )
+        logger.exception("FERC EQR deployment failed; cleaning up staging prefixes.")
         # Notify inline before the exception propagates: the sensor-triggered
         # failure asset never runs because the bash script kills the dagster
         # daemon as soon as FERCEQR_FAILURE appears.
@@ -750,9 +744,7 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
                 content=build_ferceqr_notification(context, outcome="FAILURE"),
             )
         except Exception:
-            logger.error(
-                "FERC EQR failure notification also failed:\n" + traceback.format_exc()
-            )
+            logger.exception("FERC EQR failure notification also failed")
         _remove_all_staging(targets)
         # Write the failure sentinel HERE so the log messages above are flushed
         # before the sentinel triggers killall.

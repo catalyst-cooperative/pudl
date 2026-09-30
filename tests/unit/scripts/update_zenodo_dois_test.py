@@ -39,7 +39,7 @@ def tmp_yaml(tmp_path: Path) -> Path:
     return path
 
 
-def test_updates_to_new_latest_doi(mocker, tmp_yaml: Path, capsys):
+def test_updates_to_new_latest_doi(mocker, tmp_yaml: Path):
     """When latest_id differs, DOI is updated and file rewritten only for new record."""
     # Mock get_latest_record_id to return a newer id for dataset_a
     mocker.patch(
@@ -70,16 +70,16 @@ def test_updates_to_new_latest_doi(mocker, tmp_yaml: Path, capsys):
     assert data_out["dataset_b"] == "10.5281/zenodo.222222"
     assert data_out["dataset_other"] == "10.5281/zenodo.333333"
 
-    # Logging and stdout message
+    # Logging messages
     mock_logger.info.assert_any_call(
         "dataset_a: Updating DOI from 10.5281/zenodo.111111 to 10.5281/zenodo.999999"
     )
-    captured = capsys.readouterr()
-    assert "Updated" in captured.out
-    assert "zenodo_dois.yml" in captured.out
+    update_message = mock_logger.info.call_args_list[-1].args[0]
+    assert "Updated" in update_message
+    assert "zenodo_dois.yml" in update_message
 
 
-def test_doi_already_current(mocker, tmp_yaml: Path, capsys):
+def test_doi_already_current(mocker, tmp_yaml: Path):
     """When latest_id == record_id, test log of 'already current' and no rewrite."""
     mocker.patch(
         "pudl.scripts.update_zenodo_dois.get_latest_record_id",
@@ -97,9 +97,10 @@ def test_doi_already_current(mocker, tmp_yaml: Path, capsys):
     assert data_out["dataset_a"] == "10.5281/zenodo.111111"
 
     mock_logger.info.assert_any_call("dataset_a: DOI already current.")
-    captured = capsys.readouterr()
-    # No success message printed when no updates
-    assert "Updated" not in captured.out
+    # No success message logged when no updates
+    assert not any(
+        "Updated" in call.args[0] for call in mock_logger.info.call_args_list
+    )
 
 
 def test_unexpected_latest_id_raises(mocker, tmp_yaml: Path):

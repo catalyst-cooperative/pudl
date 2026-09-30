@@ -13,10 +13,9 @@ import itertools
 import json
 import re
 from abc import abstractmethod
-from collections import namedtuple
 from collections.abc import Mapping
 from functools import reduce
-from typing import Annotated, Any, Literal, Self
+from typing import Annotated, Any, ClassVar, Literal, NamedTuple, Self
 
 import numpy as np
 import pandas as pd
@@ -330,8 +329,9 @@ class WideToTidySourceFerc1(TransformParams):
             if isinstance(wide_to_tidy, WideToTidy):
                 value_types.append(wide_to_tidy.value_types)
             elif isinstance(wide_to_tidy, list):
-                for rly_wide_to_tidy in wide_to_tidy:
-                    value_types.append(rly_wide_to_tidy.value_types)
+                value_types.extend(
+                    rly_wide_to_tidy.value_types for rly_wide_to_tidy in wide_to_tidy
+                )
         # remove None's & flatten/dedupe
         value_types = [v for v in value_types if v is not None]
         flattened_values = []
@@ -400,7 +400,7 @@ def wide_to_tidy(df: pd.DataFrame, params: WideToTidy) -> pd.DataFrame:
 class MergeXbrlMetadata(TransformParams):
     """Parameters for merging in XBRL metadata."""
 
-    rename_columns: dict[str, str] = {}
+    rename_columns: dict[str, str] = {}  # noqa: RUF012
     """Dictionary to rename columns in the normalized metadata before merging.
 
     This dictionary will be passed as :func:`pd.DataFrame.rename` ``columns`` parameter.
@@ -429,7 +429,7 @@ class DropDuplicateRowsDbf(TransformParams):
     table_name: TableIdFerc1 | None = None
     """Name of table used to grab primary keys of PUDL table to check for duplicates."""
 
-    data_columns: list = []
+    data_columns: list = []  # noqa: RUF012
     """List of data column names to ensure primary key duplicates have the same data."""
 
 
@@ -562,7 +562,7 @@ class SelectDbfRowsByCategory(TransformParams):
     If True, :func:`select_dbf_rows_by_category` will find the list of categories that
     exist in the passed in ``processed_xbrl`` to select by.
     """
-    additional_categories: list[str] = []
+    additional_categories: list[str] = []  # noqa: RUF012
     """List of additional categories to select by.
 
     If ``select_by_xbrl_categories`` is ``True``, these categories will be added to the
@@ -812,8 +812,8 @@ def combine_axis_columns_xbrl(
 class AssignQuarterlyDataToYearlyDbf(TransformParams):
     """Parameters for transferring quarterly reported data to annual columns."""
 
-    quarterly_to_yearly_column_map: dict[str, str] = {}
-    quarterly_filed_years: list[int] = []
+    quarterly_to_yearly_column_map: dict[str, str] = {}  # noqa: RUF012
+    quarterly_filed_years: list[int] = []  # noqa: RUF012
 
 
 def assign_quarterly_data_to_yearly_dbf(
@@ -854,7 +854,7 @@ class AddColumnWithUniformValue(TransformParams):
 class AddColumnsWithUniformValues(TransformParams):
     """Parameters for adding columns to a table with a single value."""
 
-    columns_to_add: dict[str, AddColumnWithUniformValue] = {}
+    columns_to_add: dict[str, AddColumnWithUniformValue] = {}  # noqa: RUF012
     "Dictionary of column names (keys) with :class:`AddColumnWithUniformValue` (values)"
 
     @property
@@ -954,13 +954,13 @@ class GroupMetricChecks(TransformParams):
         Literal[
             "ungrouped", "table_name", "xbrl_factoid", "utility_id_ferc1", "report_year"
         ]
-    ] = [
+    ] = [  # noqa: RUF012
         "ungrouped",
         "report_year",
         "xbrl_factoid",
         "utility_id_ferc1",
     ]
-    metrics_to_check: list[str] = [
+    metrics_to_check: list[str] = [  # noqa: RUF012
         "error_frequency",
         "relative_error_magnitude",
         "null_calculated_value_frequency",
@@ -3635,7 +3635,12 @@ class SteamPlantsFuelTableTransformer(Ferc1AbstractTableTransformer):
         """
         df = df.copy()
 
-        FuelFix = namedtuple("FuelFix", ["fuel", "from_unit", "to_unit", "mult"])
+        class FuelFix(NamedTuple):
+            fuel: str
+            from_unit: str
+            to_unit: str
+            mult: float
+
         fuel_fixes = [
             # US average coal heat content is 19.85 mmbtu/short ton
             FuelFix("coal", "mmbtu", "ton", (1.0 / 19.85)),
@@ -3669,7 +3674,10 @@ class SteamPlantsFuelTableTransformer(Ferc1AbstractTableTransformer):
             df.loc[(fuel_mask & unit_mask), "fuel_units"] = fix.to_unit
 
         # Set all remaining non-standard units and affected columns to NA.
-        FuelAllowedUnits = namedtuple("FuelAllowedUnits", ["fuel", "allowed_units"])
+        class FuelAllowedUnits(NamedTuple):
+            fuel: str
+            allowed_units: tuple[str, ...]
+
         fuel_allowed_units = [
             FuelAllowedUnits("coal", ("ton",)),
             FuelAllowedUnits("oil", ("bbl",)),
@@ -3995,8 +4003,8 @@ class PlantInServiceTableTransformer(Ferc1AbstractTableTransformer):
                 f"\n{null_balances}"
             )
         # Apply column weightings. Can this be done all at once in a vectorized way?
-        for col in column_weights:
-            df.loc[:, col] *= column_weights[col]
+        for col, weight in column_weights.items():
+            df.loc[:, col] *= weight
             df.loc[:, col] *= df["row_weight"]
 
         return df
@@ -4530,7 +4538,7 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
 
         util_groups = df.groupby(["utility_id_ferc1", "report_year"])
 
-        return util_groups.apply(lambda x: self._label_note_rows_group(x))
+        return util_groups.apply(self._label_note_rows_group)
 
     def _label_total_rows(self, df: pd.DataFrame) -> pd.DataFrame:
         """Label total rows by adding ``total`` to ``row_type`` column.
@@ -4968,7 +4976,7 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
         )
         # Group by year and utility and run footnote association
         groups = df.groupby(["report_year", "utility_id_ferc1"])
-        sg_notes = groups.apply(lambda x: associate_notes_with_values_group(x))
+        sg_notes = groups.apply(associate_notes_with_values_group)
         # Remove footnote column now that rows are associated
         sg_notes = sg_notes.drop(columns=["footnote"])
 
@@ -5580,11 +5588,11 @@ class RetainedEarningsTableTransformer(Ferc1AbstractTableTransformer):
     table_id: TableIdFerc1 = TableIdFerc1.RETAINED_EARNINGS
     has_unique_record_ids: bool = False
 
-    current_year_types: set[str] = {
+    current_year_types: ClassVar[set[str]] = {
         "unappropriated_undistributed_subsidiary_earnings",
         "unappropriated_retained_earnings",
     }
-    previous_year_types: set[str] = {
+    previous_year_types: ClassVar[set[str]] = {
         "unappropriated_undistributed_subsidiary_earnings_previous_year",
         "unappropriated_retained_earnings_previous_year",
     }
@@ -7623,7 +7631,7 @@ def _core_ferc1__calculation_metric_checks(**kwargs):
     transformed_ferc1_dfs = {
         name: df
         for (name, df) in kwargs.items()
-        if name not in ["_core_ferc1_xbrl__calculation_components"]
+        if name != "_core_ferc1_xbrl__calculation_components"
     }
     # standardize the two key columns we are going to use into generic names
     xbrl_factoid_name = table_to_xbrl_factoid_name()

@@ -65,7 +65,7 @@ def _hourly_cems_rows(
 
 
 @pytest.mark.parametrize(
-    "year_quarter,expected_ordinal",
+    ("year_quarter", "expected_ordinal"),
     [
         ("2024q1", 2024 * 4 + 0),
         ("2024q4", 2024 * 4 + 3),
@@ -727,7 +727,7 @@ def test_compute_minimum_stable_bin_threshold_and_selection():
 
 
 @pytest.mark.parametrize(
-    "compute_fn,extra_args",
+    ("compute_fn", "extra_args"),
     [
         (compute_heat_rate_at_max_load, ()),
         (

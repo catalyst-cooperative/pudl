@@ -1,10 +1,9 @@
 """Mechanisms and constants for setting standard resource descriptions."""
 
 import re
-from collections import namedtuple
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Self
+from typing import NamedTuple, Self
 
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, model_validator
@@ -60,7 +59,13 @@ SOURCE_DESCRIPTIONS: dict = {
 """Standard descriptive text to appear in the Source section of resource descriptions."""
 
 
-TableTypeFragments = namedtuple("TableTypeFragments", "subject conjunction")
+class TableTypeFragments(NamedTuple):
+    """Standard descriptive text fragments for a resource's table type."""
+
+    subject: str | None
+    conjunction: str | None
+
+
 TABLE_TYPE_FRAGMENTS: dict[str, TableTypeFragments] = {
     "assn": TableTypeFragments("Association table", "providing connections between"),
     "changelog": TableTypeFragments("Changelog table", "tracking changes in"),

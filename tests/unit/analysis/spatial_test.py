@@ -3,7 +3,7 @@
 import logging
 import re
 
-import geopandas as gpd  # noqa: ICN002
+import geopandas as gpd
 import numpy as np
 import pandas as pd
 import pytest
@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.mark.parametrize(
-    "gdf,exc,pattern",
+    ("gdf", "exc", "pattern"),
     [
         (None, TypeError, r"Object is not a GeoDataFrame"),
         (GeoDataFrame({"x": [0]}), AttributeError, r"GeoDataFrame has no geometry"),
@@ -79,9 +79,8 @@ def test_polygonize():
     assert result2.area == 2.0
 
     # Zero-area geometries are not permitted.
-    with pytest.raises(ValueError) as err:
-        _ = polygonize(ZERO_POLY)
-    assert err.match("Geometry has zero area")
+    with pytest.raises(ValueError, match="Geometry has zero area"):
+        polygonize(ZERO_POLY)
 
 
 def test_explode():

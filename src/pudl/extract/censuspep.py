@@ -35,7 +35,7 @@ class Extractor(excel.ExcelExtractor):
         """Apply necessary pre-processing to the dataframe."""
         df = df.rename(columns=self._metadata.get_column_map(page, **partition))
         if "report_year" not in df.columns:
-            df["report_year"] = list(partition.values())[0]
+            df["report_year"] = next(iter(partition.values()))
             self.cols_added.append("report_year")
         return df
 

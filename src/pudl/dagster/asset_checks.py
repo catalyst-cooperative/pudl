@@ -27,7 +27,7 @@ from typing import Any
 
 import dagster as dg
 import frictionless
-import geopandas as gpd  # noqa: ICN002
+import geopandas as gpd
 import pandas as pd
 import pandera.pandas as pr_pandas
 import pandera.polars as pr_polars
@@ -758,10 +758,10 @@ default_asset_checks.append(
 )
 
 __all__ = [
-    "valid_datapackage_check",
-    "valid_datapackage_unit_strings_check",
     "asset_check_from_schema",
-    "group_mean_continuity_check",
     "default_asset_checks",
     "duckdb_assets",
+    "group_mean_continuity_check",
+    "valid_datapackage_check",
+    "valid_datapackage_unit_strings_check",
 ]

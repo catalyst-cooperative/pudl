@@ -36,7 +36,7 @@ def _make_resource(
 
 
 @pytest.mark.parametrize(
-    "machine_yaml,human_yaml,expected_yaml",
+    ("machine_yaml", "human_yaml", "expected_yaml"),
     [
         pytest.param(
             # machine_yaml
@@ -131,7 +131,7 @@ def test_merge_schema(
 
 
 @pytest.mark.parametrize(
-    "machine_yaml,human_yaml,missing_name",
+    ("machine_yaml", "human_yaml", "missing_name"),
     [
         pytest.param(
             """
@@ -225,7 +225,7 @@ def test_validate_humanity():
 
 
 @pytest.mark.parametrize(
-    ["schema_yaml", "match"],
+    ("schema_yaml", "match"),
     [
         pytest.param(
             """

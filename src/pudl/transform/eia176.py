@@ -443,7 +443,7 @@ def core_eia176__yearly_gas_disposition_by_consumer(
             ``subdivision_code`` used to normalize ``operating_state``.
 
     Raises:
-        AssertionError: If component volumes don’t sum to totals, or if rows with
+        AssertionError: If component volumes don't sum to totals, or if rows with
             unknown ``operating_state`` contain non-zero values.
 
     Notes:

@@ -509,7 +509,7 @@ def _build_ferceqr_diagnostics_rows(
     # Deferred to break a circular import: pudl.dagster.asset_checks imports
     # pudl.dagster.assets, which imports every pudl.transform module -- including
     # this one -- to build the Dagster asset graph.
-    from pudl.dagster.asset_checks import summarize_check_failures  # noqa: PLC0415
+    from pudl.dagster.asset_checks import summarize_check_failures
 
     # Column sets are derived from the data itself (not a fixed schema) since
     # table types and rejection reasons can vary release to release; the core

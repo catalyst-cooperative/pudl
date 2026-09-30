@@ -7,12 +7,12 @@ from pudl.settings import GlobalDataConfig, PudlDataConfig
 
 
 @pytest.mark.parametrize(
-    "dataset, expected_years",
-    (
+    ("dataset", "expected_years"),
+    [
         ("eia860", set(range(2001, 2022))),
         ("eia861", set(range(2001, 2022))),
         ("eia923", set(range(2001, 2022))),
-    ),
+    ],
 )
 def test_years_from_data_config(dataset, expected_years):
     partitions_from_data_config = partitions_from_data_config_factory(dataset)

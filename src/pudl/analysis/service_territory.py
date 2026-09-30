@@ -11,7 +11,7 @@ import pathlib
 from collections.abc import Iterable
 from typing import Literal
 
-import geopandas as gpd  # noqa: ICN002
+import geopandas as gpd
 import pandas as pd
 from dagster import AssetsDefinition, Field, asset
 from matplotlib import pyplot as plt
@@ -299,7 +299,7 @@ def compile_geoms(
     output_dir: pathlib.Path | None = None,
     dissolve: bool = False,
     limit_by_state: bool = True,
-    years: list[int] = [],
+    years: list[int] | None = None,
 ) -> pd.DataFrame:
     """Compile all available utility or balancing authority geometries.
 
@@ -308,6 +308,8 @@ def compile_geoms(
     default, this returns only counties with observed EIA 861 data for a utility or
     balancing authority, with geometries available at the county level.
     """
+    if years is None:
+        years = []
     logger.info(
         f"Compiling {entity_type} geometries with {dissolve=}, {limit_by_state=}, "
         f"and {years=}."
