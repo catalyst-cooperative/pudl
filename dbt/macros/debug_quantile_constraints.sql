@@ -23,10 +23,8 @@
         but jinja doesn't have an eval() function so we have to use this if statement
         instead #}
     {% set model = ref(table) %}
-    {% elif "ferceqr" in table %}
-    {% set model = get_where_subquery(source('ferceqr', table)) %}
     {% else %}
-    {% set model = get_where_subquery(source('pudl', table)) %}
+    {% set model = get_where_subquery(source(source, table)) %}
 {% endif %}
 {% set column_name = kwargs.column_name %}
 {% set weight_column = kwargs.weight_column %}
