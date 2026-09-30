@@ -24,7 +24,6 @@ def test_dbt(dbt_target: str, dbt_source: str):
         node_selection=f"source:{dbt_source}+",
         node_exclusion="test_name:check_row_counts_per_partition",
         dbt_target=dbt_target,
-        use_nightly_builds=True,
     )
 
     if not test_result.success:
