@@ -2081,6 +2081,25 @@ class Resource(PudlMeta):
             metadata |= {"primary_key": ",".join(self.schema.primary_key)}
         return pa.schema(fields=fields, metadata=metadata)
 
+    def to_pandas_arrow_dtypes(self) -> dict[str, pd.ArrowDtype]:
+        """Return the pandas Arrow-backed dtype of fields that need one for writing.
+
+        ``GeoDataFrame.to_parquet()`` has no ``schema`` argument, so the on-disk types of
+        a geospatial table can only be set by casting its columns to Arrow-backed pandas
+        dtypes before writing. Two kinds of field are excluded:
+
+        * Geometry fields, which geopandas encodes itself along with the GeoParquet
+          ``geo`` metadata.
+        * Enum fields. Their pandas ``Categorical`` dtype is already written as an Arrow
+          dictionary, and an ``ArrowDtype`` dictionary column records a dtype string in
+          the file's pandas metadata that ``pd.read_parquet()`` cannot parse back.
+        """
+        return {
+            f.name: pd.ArrowDtype(f.to_pyarrow_dtype())
+            for f in self.schema.fields
+            if f.type != "geometry" and not f.constraints.enum
+        }
+
     def to_duckdb_dtypes(
         self, conn: duckdb.DuckDBPyConnection
     ) -> dict[str, duckdb.sqltypes.DuckDBPyType]:
