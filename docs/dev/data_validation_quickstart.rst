@@ -52,9 +52,10 @@ See ``dbt_helper validate --help`` for usage details.
 
    .. code-block:: bash
 
-      dbt_helper validate --asset-select "+key:out_eia__yearly_generators"
+      dbt_helper validate --asset-select "+key:out_eia__yearly_generators" --use-nightly-builds
 
-   To do this:
+   If you want to use outputs from a non-nightly path (like outputs from a branch build), you can
+   do the following:
 
    1. Download the Parquet files to ``<any_directory_you_want>/parquet/``.
    2. Set the ``PUDL_OUTPUT`` environment variable to ``<any_directory_you_want>``.
