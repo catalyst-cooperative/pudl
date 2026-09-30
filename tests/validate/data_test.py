@@ -7,7 +7,7 @@ from pudl.validate.dbt import build_with_context
 
 @pytest.mark.order(4)
 @pytest.mark.usefixtures("prebuilt_outputs", "test_dir")
-def test_dbt(dbt_target: str):
+def test_dbt(dbt_target: str, dbt_source: str):
     """Run the dbt data validations programmatically, excluding row count checks.
 
     Row count checks are run separately in ``test_dbt_row_counts`` so that their
@@ -21,9 +21,10 @@ def test_dbt(dbt_target: str):
     This test relies on the prebuilt outputs so the Parquet files are available.
     """
     test_result = build_with_context(
-        node_selection="*",
+        node_selection=f"source:{dbt_source}+",
         node_exclusion="test_name:check_row_counts_per_partition",
         dbt_target=dbt_target,
+        use_nightly_builds=True,
     )
 
     if not test_result.success:
