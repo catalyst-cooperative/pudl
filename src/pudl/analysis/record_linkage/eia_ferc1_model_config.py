@@ -82,16 +82,20 @@ blocking_rule_10 = CustomRule(
 # buckets are only used for blocking; the comparison levels still use the unrounded
 # values. Only bucket keys can be joined efficiently, so don't replace them with a
 # tolerance condition such as ``abs(l.x - r.x) < 0.05 * l.x``.
+# Rules 2, 4, 8 and 9 are disabled: without them only 1 of 34,420 best matches changes,
+# and they generate about 2 million of the 9.2 million candidate pairs. They are left
+# here so they can be restored. Rule 7 is kept for now, but dropping it too would cost
+# 22 of the best matches.
 BLOCKING_RULES = [
     blocking_rule_1,
-    blocking_rule_2,
+    # blocking_rule_2,
     blocking_rule_3,
-    blocking_rule_4,
+    # blocking_rule_4,
     blocking_rule_5,
     blocking_rule_6,
     blocking_rule_7,
-    blocking_rule_8,
-    blocking_rule_9,
+    # blocking_rule_8,
+    # blocking_rule_9,
     blocking_rule_10,
 ]
 
