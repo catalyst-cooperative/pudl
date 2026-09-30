@@ -11,7 +11,7 @@ import click
 import duckdb
 import pandas as pd
 
-from pudl import PUDL_DBT_PATH
+from pudl import FERCEQR_BUILDS_BASE_PATH, PUDL_DBT_PATH, PUDL_NIGHTLY_BUILDS_BASE_PATH
 from pudl.dagster.build import build_defs
 from pudl.dbt_schema import DbtSchema, DbtTable, merge_schema
 from pudl.logging_helpers import configure_root_logger, get_logger
@@ -23,8 +23,6 @@ logger = get_logger(__name__)
 
 
 ALL_TABLES = [r.name for r in PUDL_PACKAGE.resources]
-PUDL_PARQUET_BASE_PATH = "s3://pudl.catalyst.coop/nightly"
-FERCEQR_PARQUET_BASE_PATH = "s3://pudl.catalyst.coop/ferceqr"
 
 
 def insert_data_source(parent_dir: Path, table_name: str) -> Path:
@@ -77,9 +75,9 @@ def _parquet_path(table_name: str, use_nightly_builds: bool) -> str:
         )
 
     if "ferceqr" in table_name:
-        path = f"{FERCEQR_PARQUET_BASE_PATH}/{table_name}/**/*.parquet"
+        path = f"{FERCEQR_BUILDS_BASE_PATH}/{table_name}/**/*.parquet"
     else:
-        path = f"{PUDL_PARQUET_BASE_PATH}/{table_name}.parquet"
+        path = f"{PUDL_NIGHTLY_BUILDS_BASE_PATH}/{table_name}.parquet"
     return path
 
 

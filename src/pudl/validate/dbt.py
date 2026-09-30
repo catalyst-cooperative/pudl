@@ -15,7 +15,7 @@ from dbt.artifacts.schemas.run import RunExecutionResult
 from dbt.cli.main import dbtRunner, dbtRunnerResult
 from dbt.contracts.graph.nodes import GenericTestNode
 
-from pudl import PUDL_DBT_PATH
+from pudl import FERCEQR_BUILDS_BASE_PATH, PUDL_DBT_PATH, PUDL_NIGHTLY_BUILDS_BASE_PATH
 from pudl.logging_helpers import get_logger
 from pudl.workspace.setup import PudlPaths
 
@@ -163,8 +163,8 @@ def build_with_context(
         cli_args += ["--exclude", node_exclusion]
     if use_nightly_builds:
         # These will live on for the full python process, but won't persist beyond that
-        os.environ["PUDL_PARQUET_BASE_PATH"] = "s3://pudl.catalyst.coop/nightly"
-        os.environ["FERCEQR_PARQUET_BASE_PATH"] = "s3://pudl.catalyst.coop/ferceqr"
+        os.environ["PUDL_PARQUET_BASE_PATH"] = str(PUDL_NIGHTLY_BUILDS_BASE_PATH)
+        os.environ["FERCEQR_PARQUET_BASE_PATH"] = str(FERCEQR_BUILDS_BASE_PATH)
 
     dbt = install_dbt_deps()
 
