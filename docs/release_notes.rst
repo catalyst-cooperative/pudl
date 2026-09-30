@@ -30,6 +30,11 @@ EIA-860
 * Added final release data from 2025 for :doc:`EIA-860 <data_sources/eia860>`. See
   issue :issue:`5589` and PR :pr:`5591`.
 
+EIA-923
+~~~~~~~
+* Added final release data from 2025 for :doc:`EIA-923 <data_sources/eia923>`,
+  and monthly release from June 2026. See issue :issue:`5594` and PR :pr:`5599`.
+
 FERC Form 1
 ~~~~~~~~~~~
 * Integrated any updates or straggler filings from 2025 for
