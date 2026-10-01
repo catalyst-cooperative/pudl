@@ -29,10 +29,15 @@ sources:
 models:
   - name: validate_epacems__hourly_emissions_unmatched_units
     description: |-
-      One row per (year, plant_id_eia, emissions_unit_id_epa) unit reporting to CEMS in a
-      given year, with matched_plant_id_eia non-null iff that unit found a matching non-null
-      generator_id in the EPA/EIA subplant crosswalk. Exists so per-year match-rate
-      thresholds can be checked below with a plain dbt_utils.not_null_proportion test.
+      One row per (year, plant_id_eia, emissions_unit_id_epa) unit reporting to CEMS in
+      a given year, with matched_plant_id_eia non-null iff that unit found a matching
+      non-null generator_id in the EPA/EIA subplant crosswalk. Exists so per-year
+      match-rate thresholds can be checked below with a plain
+      dbt_utils.not_null_proportion test. Disabled outside of etl-full: the fast ETL
+      only processes a small subset of the CEMS data so the per-year thresholds below
+      don't apply. Disabling the model also disables all of the tests attached to it.
+    config:
+      enabled: "{{ target.name == 'etl-full' }}"
     columns:
       - name: year
       - name: plant_id_eia
