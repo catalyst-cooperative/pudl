@@ -1,16 +1,36 @@
 """Unit tests for :mod:`pudl.analysis.record_linkage.eia_ferc1_record_linkage`."""
 
+import duckdb
+import jellyfish
 import pandas as pd
+import polars as pl
 import pytest
 from pandas.testing import assert_frame_equal
+from splink import DuckDBAPI
+from splink.blocking_analysis import count_comparisons_from_blocking_rules
 
 from pudl.analysis.ml_tools.experiment_tracking import ExperimentTracker
 from pudl.analysis.record_linkage import eia_ferc1_record_linkage
+from pudl.analysis.record_linkage.eia_ferc1_inputs import (
+    InputManager,
+    get_train_plant_ids_eia,
+    select_plant_parts_eia,
+)
+from pudl.analysis.record_linkage.eia_ferc1_model_config import (
+    blocking_rule_7,
+    blocking_rule_10,
+    get_comparisons,
+    get_year_comparison,
+)
 from pudl.analysis.record_linkage.eia_ferc1_record_linkage import (
     U_ESTIMATION_SEED,
+    ModelPredictionsConfig,
     add_null_overrides,
     get_best_matches,
     get_model_predictions,
+    override_bad_predictions,
+    prepare_for_matching,
+    select_best_matches,
 )
 from pudl.metadata.classes import Resource
 
@@ -61,6 +81,34 @@ def test_add_null_overrides_preserves_condensed_columns():
     assert pd.isna(overridden[eia_only_col])
 
 
+def test_override_bad_predictions_labels_and_logs_overridden_matches(caplog):
+    """Wrong predictions are labeled ``overridden`` and counted in the log."""
+    matches = pd.DataFrame(
+        {
+            "record_id_ferc1": ["f1", "f2", "f3"],
+            "record_id_eia": ["e1", "e2", "e3"],
+        }
+    )
+    train = pd.DataFrame(
+        {
+            "record_id_ferc1": ["f1", "f2", "f4"],
+            "record_id_eia": ["e1", "e9", "e4"],
+        }
+    ).set_index(["record_id_ferc1", "record_id_eia"])
+
+    with caplog.at_level("INFO"):
+        result = override_bad_predictions(matches, train).set_index("record_id_ferc1")
+
+    assert result["match_type"].to_dict() == {
+        "f1": "correct match",
+        "f2": "incorrect prediction; overridden",
+        "f3": "prediction; not in training data",
+        "f4": "incorrect prediction; no predicted match",
+    }
+    assert result.loc["f2", "record_id_eia"] == "e9"
+    assert "Percent of training data overridden in matches: 0.33" in caplog.text
+
+
 def _predictions() -> pd.DataFrame:
     """Candidate matches, with a tie for FERC record f2 listed highest-ID first."""
     return pd.DataFrame(
@@ -72,43 +120,260 @@ def _predictions() -> pd.DataFrame:
     )
 
 
-def _best_matches(preds: pd.DataFrame, mocker) -> pd.DataFrame:
-    inputs = mocker.MagicMock()
-    inputs.get_train_df.return_value = pd.DataFrame(
-        {"record_id_ferc1": ["f1"], "record_id_eia": ["e2"]}
-    ).set_index(["record_id_ferc1", "record_id_eia"])
-    return get_best_matches(preds, inputs, mocker.MagicMock(spec=ExperimentTracker))
+def _select_best(preds: pd.DataFrame) -> pd.DataFrame:
+    """Run :func:`select_best_matches` against a DuckDB table of predictions."""
+    predictions = DuckDBAPI().register(
+        preds.reset_index(drop=True), table_name="predictions"
+    )
+    return select_best_matches(predictions)
 
 
-def test_get_best_matches_picks_highest_probability_with_tie_break(mocker):
+def test_select_best_matches_picks_highest_probability_with_tie_break():
     """One match per FERC record: highest probability, ties go to the lowest EIA ID."""
-    best = _best_matches(_predictions(), mocker)
+    best = _select_best(_predictions())
     assert best["record_id_ferc1"].tolist() == ["f1", "f2", "f3"]
     assert best["record_id_eia"].tolist() == ["e2", "e3", "e5"]
 
 
 @pytest.mark.parametrize("reverse", [False, True])
 @pytest.mark.parametrize("seed", range(5))
-def test_get_best_matches_ignores_row_order(seed: int, reverse: bool, mocker):
+def test_select_best_matches_ignores_row_order(seed: int, reverse: bool):
     """Reordering the model output must not change which match is chosen."""
-    expected = _best_matches(_predictions(), mocker)
+    expected = _select_best(_predictions())
     reordered = _predictions().sample(frac=1, random_state=seed)
     if reverse:
         reordered = reordered.iloc[::-1]
-    assert_frame_equal(_best_matches(reordered, mocker), expected)
+    assert_frame_equal(_select_best(reordered), expected)
+
+
+def test_get_best_matches_reports_metrics(mocker):
+    """Metrics are computed from the best matches and returned for asset metadata.
+
+    Of four training records, f1 is predicted correctly, f2 is predicted wrongly, f3 is
+    correct, and f4 gets no prediction.
+    """
+    inputs = mocker.MagicMock()
+    inputs.get_train_df.return_value = pd.DataFrame(
+        {
+            "record_id_ferc1": ["f1", "f2", "f3", "f4"],
+            "record_id_eia": ["e1", "e2", "e3", "e4"],
+        }
+    ).set_index(["record_id_ferc1", "record_id_eia"])
+    best = pd.DataFrame(
+        {
+            "record_id_ferc1": ["f1", "f2", "f3", "f5"],
+            "record_id_eia": ["e1", "e9", "e3", "e5"],
+        }
+    )
+    _, metrics = get_best_matches(
+        best, inputs, mocker.MagicMock(spec=ExperimentTracker)
+    )
+    # precision: 2 of the 3 predictions on training records were right;
+    # recall: 2 of the 4 training records' true matches were found;
+    # coverage: 3 of the 4 training records got a prediction;
+    # accuracy: 2 of the 4 training records were predicted correctly.
+    assert metrics == {
+        "precision": 0.667,
+        "recall": 0.5,
+        "coverage": 0.75,
+        "accuracy": 0.5,
+    }
+
+
+def test_prepare_metaphone_matches_rowwise_encoding():
+    """Encoding unique names once must match encoding each row, and keep nulls null."""
+    names = pd.Series(["Smith Creek", None, "Smith Creek", "Barry", pd.NA])
+    df = pd.DataFrame(dict.fromkeys(["plant_name", "utility_name"], names)).assign(
+        record_id="x",
+        fuel_type_code_pudl="gas",
+        installation_year=2000,
+        construction_year=2000,
+        capacity_mw=1.0,
+        net_generation_mwh=1.0,
+        report_year=2000,
+        plant_id_pudl=1,
+        utility_id_pudl=1,
+    )
+    out = prepare_for_matching.compute_fn.decorated_fn(df, pd.DataFrame())
+    expected = [None if pd.isnull(n) else jellyfish.metaphone(n) for n in names]
+    assert out["plant_name_mphone"].tolist() == expected
+
+
+@pytest.mark.parametrize(
+    ("rule", "column", "eia_values", "ferc_value", "blocked_pairs"),
+    [
+        # Capacity buckets are about 10% wide: 100 and 104 share a bucket, 120 doesn't,
+        # 10 is far away, and the null and non-positive values never block.
+        (
+            blocking_rule_7,
+            "capacity_mw",
+            [100.0, 104.0, 120.0, 10.0, None, 0.0],
+            102.0,
+            2,
+        ),
+        # Net generation buckets are about 1% wide, and the sign is ignored.
+        (
+            blocking_rule_10,
+            "net_generation_mwh",
+            [1000.0, 1004.0, -1004.0, 1020.0, None],
+            1002.0,
+            3,
+        ),
+        # Small values aren't all lumped together, as they would be by rounding
+        (blocking_rule_10, "net_generation_mwh", [0.1, 0.3, 40.0], 0.1, 1),
+    ],
+)
+def test_numeric_blocking_rules_block_on_log_buckets(
+    rule, column, eia_values, ferc_value, blocked_pairs
+):
+    """Values in the same relative bucket are compared; exact equality isn't needed."""
+    db_api = DuckDBAPI()
+    eia = pd.DataFrame(
+        {
+            "record_id": [f"e{i}" for i in range(len(eia_values))],
+            "report_year": [2020] * len(eia_values),
+            column: eia_values,
+            "plant_name_mphone": ["AB"] * len(eia_values),
+        }
+    )
+    ferc = pd.DataFrame(
+        {
+            "record_id": ["f1"],
+            "report_year": [2020],
+            column: [ferc_value],
+            "plant_name_mphone": ["AB"],
+        }
+    )
+    counts = count_comparisons_from_blocking_rules(
+        [
+            db_api.register(eia, dataset_display_name="eia_df"),
+            db_api.register(ferc, dataset_display_name="ferc_df"),
+        ],
+        blocking_rules=[rule],
+        link_type="link_only",
+        unique_id_column_name="record_id",
+        record_sample_proportion=1.0,
+    )
+    assert counts[0]["marginal_comparison_count"] == blocked_pairs
+
+
+@pytest.mark.parametrize(
+    ("year_l", "year_r", "level"),
+    [
+        (None, 2000, 0),
+        (2000, None, 0),
+        (2000, 2000, 1),
+        # A one year difference is a level regardless of leap days
+        (2000, 2001, 2),
+        (2001, 2000, 2),
+        (2000, 2002, 3),
+        # Years that differ by a single digit are no longer treated as similar
+        (2001, 2011, 4),
+        (1991, 2001, 4),
+        (2000, 2003, 4),
+    ],
+)
+def test_year_comparison_levels(year_l, year_r, level):
+    """Years are compared by their numeric difference."""
+    comparison = get_year_comparison("year").get_comparison("duckdb")
+    conditions = [lvl.sql_condition for lvl in comparison.comparison_levels]
+    con = duckdb.connect()
+    con.register(
+        "pair",
+        pd.DataFrame({"year_l": [year_l], "year_r": [year_r]}, dtype=pd.Int64Dtype()),
+    )
+
+    def _applies(condition: str) -> bool:
+        if condition == "ELSE":
+            return True
+        query = "SELECT " + condition.replace('"', "") + " FROM pair"  # noqa: S608
+        return bool(con.sql(query).fetchone()[0])
+
+    # Levels are ordered from most to least specific; the first true one applies.
+    assert next(i for i, cond in enumerate(conditions) if _applies(cond)) == level
+
+
+def test_prepare_for_matching_uses_integer_years():
+    """Installation and construction years are nullable integers, not datetimes."""
+    df = pd.DataFrame(
+        {
+            "record_id": ["x", "y"],
+            "plant_name": ["a", "b"],
+            "utility_name": ["a", "b"],
+            "fuel_type_code_pudl": ["gas", "gas"],
+            "installation_year": [2000.0, None],
+            "construction_year": [1999, 2001],
+            "capacity_mw": [1.0, 1.0],
+            "net_generation_mwh": [1.0, 1.0],
+            "report_year": [2000, 2000],
+            "plant_id_pudl": [1, 1],
+            "utility_id_pudl": [1, 1],
+        }
+    )
+    out = prepare_for_matching.compute_fn.decorated_fn(df, pd.DataFrame())
+    assert out["installation_year"].dtype == pd.Int64Dtype()
+    assert out["installation_year"].tolist() == [2000, pd.NA]
+    assert out["construction_year"].dtype == pd.Int64Dtype()
+
+
+def test_get_comparisons_returns_fresh_objects():
+    """Comparisons are configured in place, so they must not be shared."""
+    assert get_comparisons()[1] is not get_comparisons()[1]
 
 
 def test_get_model_predictions_seeds_u_estimation(mocker):
     """The random sampling used to estimate u probabilities must be seeded."""
     linker_cls = mocker.patch.object(eia_ferc1_record_linkage, "Linker")
     mocker.patch.object(eia_ferc1_record_linkage, "SettingsCreator")
+    mocker.patch.object(eia_ferc1_record_linkage, "DuckDBAPI")
+    mocker.patch.object(eia_ferc1_record_linkage, "select_best_matches")
     get_model_predictions(
         eia_df=pd.DataFrame({"record_id": ["e1", "e2"]}),
         ferc_df=pd.DataFrame({"record_id": ["f1"]}),
         train_df=mocker.MagicMock(),
         experiment_tracker=mocker.MagicMock(spec=ExperimentTracker),
+        config=ModelPredictionsConfig(),
     )
     training = linker_cls.return_value.training
     training.estimate_u_using_random_sampling.assert_called_once_with(
         max_pairs=1e7, seed=U_ESTIMATION_SEED
     )
+
+
+def test_get_train_plant_ids_eia():
+    """The training data's record IDs start with the EIA plant ID."""
+    plant_ids = get_train_plant_ids_eia()
+    assert plant_ids == sorted(set(plant_ids))
+    # La Cygne, which is in both the training and one-to-many training data
+    assert 2832 in plant_ids
+
+
+def test_select_plant_parts_eia_keeps_distinct_and_training_plants(mocker):
+    """Keep distinct records, and any record of a plant in the training data."""
+    mocker.patch(
+        "pudl.analysis.record_linkage.eia_ferc1_inputs.get_train_plant_ids_eia",
+        return_value=[2],
+    )
+    plant_parts = pl.LazyFrame(
+        {
+            "record_id_eia": ["distinct", "dupe", "other", "train_plant_dupe"],
+            "plant_id_eia": [1, 1, 3, 2],
+            "true_gran": [True, True, False, False],
+            "ownership_dupe": [False, True, False, True],
+        }
+    )
+    selected = select_plant_parts_eia(plant_parts).collect()
+    assert selected["record_id_eia"].to_list() == ["distinct", "train_plant_dupe"]
+
+
+def test_input_manager_release_raw_inputs():
+    """Only the raw tables are dropped, not the compiled inputs."""
+    inputs = InputManager.__new__(InputManager)
+    raw = pd.DataFrame({"a": [1]})
+    inputs.plant_parts_eia = inputs.plants_all_ferc1 = inputs.fbp_ferc1 = raw
+    inputs.train_df = pd.DataFrame({"a": [1]})
+    inputs.release_raw_inputs()
+    assert inputs.plant_parts_eia.empty
+    assert inputs.plants_all_ferc1.empty
+    assert inputs.fbp_ferc1.empty
+    assert len(inputs.train_df) == 1
