@@ -416,10 +416,10 @@ CITATION_TYPE_LABELS = {
     "phdthesis": "PhD Thesis",
     "mastersthesis": "Master's Thesis",
     "book": "Book",
-    "article": "Article",
+    "article": "Journal or News Article",
     "inproceedings": "Conference Paper",
     "techreport": "Report",
-    "misc": "Miscellaneous",
+    "misc": "Other",
 }
 
 
