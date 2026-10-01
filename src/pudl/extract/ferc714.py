@@ -10,6 +10,7 @@ import pandas as pd
 from dagster import AssetKey, AssetsDefinition, AssetSpec, asset
 
 import pudl.logging_helpers
+from pudl.dagster.op_tags import HOT_PATH_OP_TAGS
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -88,6 +89,16 @@ TABLE_NAME_MAP_FERC714: OrderedDict[str, dict[str, str]] = OrderedDict(
 """A mapping of PUDL DB table names to their XBRL and CSV source table names."""
 
 
+# Of the FERC 714 CSV tables, only the hourly planning-area demand and the
+# respondent IDs are consumed downstream -- they sit on the critical path that
+# runs through the long FERC 714 demand imputation and respondent georeferencing.
+# The rest are extracted but not yet transformed, so they get default priority and
+# don't crowd the critical path at ETL startup.
+_FERC714_CSV_CRITICAL_PATH_TABLES = frozenset(
+    {"hourly_planning_area_demand", "respondent_id"}
+)
+
+
 def raw_ferc714_csv_asset_factory(table_name: str) -> AssetsDefinition:
     """Generates an asset for building the raw CSV-based FERC 714 dataframe."""
     assert table_name in FERC714_CSV_ENCODING
@@ -96,6 +107,11 @@ def raw_ferc714_csv_asset_factory(table_name: str) -> AssetsDefinition:
         name=f"raw_ferc714_csv__{table_name}",
         required_resource_keys={"datastore", "global_data_config"},
         compute_kind="pandas",
+        op_tags=(
+            HOT_PATH_OP_TAGS
+            if table_name in _FERC714_CSV_CRITICAL_PATH_TABLES
+            else None
+        ),
     )
     def _extract_raw_ferc714_csv(context):
         """Extract the raw FERC Form 714 dataframes from their original CSV files.
