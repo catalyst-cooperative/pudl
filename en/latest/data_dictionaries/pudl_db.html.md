@@ -23491,7 +23491,7 @@ EPA CAMD IDs ensure there is complete coverage of EPA CAMD reporting units. The 
 table addition ensures there is also complete coverage of those units as well.
 
 For more information about the how this subplant_id is made, see the documentation for
-[`pudl.dagster.assets.core.glue.make_subplant_ids()`](../autoapi/pudl/dagster/assets/core/glue/index.html.md#pudl.dagster.assets.core.glue.make_subplant_ids) and [`pudl.dagster.assets.core.glue.update_subplant_ids()`](../autoapi/pudl/dagster/assets/core/glue/index.html.md#pudl.dagster.assets.core.glue.update_subplant_ids).
+[`pudl.dagster.assets.core.glue.make_subplant_ids()`](../autoapi/pudl/dagster/assets/core/glue/index.html.md#pudl.dagster.assets.core.glue.make_subplant_ids).
 
 But by analyzing the relationships between combustors and generators,
 as provided in the core_epa_\_assn_eia_epacamd crosswalk, we can identify distinct power plants.

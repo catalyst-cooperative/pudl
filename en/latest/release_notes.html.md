@@ -44,6 +44,14 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
 
 ### New Data Tests & Validations
 
+* Added unit tests for the ID assignment process that builds
+  [core_epa_\_assn_eia_epacamd_subplant_ids](data_dictionaries/pudl_db.html.md#core-epa-assn-eia-epacamd-subplant-ids). Fixed several bugs that those tests
+  exposed, including one that could split a physically connected group of generators
+  into separate subplants. Simplified the underlying ID assignment logic to be entirely
+  graph-based. See issue [#5675](https://github.com/catalyst-cooperative/pudl/pull/5675) and PR [#5543](https://github.com/catalyst-cooperative/pudl/pull/5543). Part of an effort to harmonize
+  the [Open Grid Emissions](https://github.com/singularity-energy/open-grid-emissions) initiative and PUDL.
+  See epic [#5439](https://github.com/catalyst-cooperative/pudl/issues/5439) which is tracking that effort.
+
 ### Bug Fixes & Data Cleaning
 
 * Made the [EIA-930](data_sources/eia930.html.md) and [FERC-714](data_sources/ferc714.html.md) hourly demand imputation deterministic. The underlying

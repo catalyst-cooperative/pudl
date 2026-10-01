@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.dagster.assets.core.glue &#8212; PUDL 2026.9.1.dev31 documentation</title>
+    <title>pudl.dagster.assets.core.glue &#8212; PUDL 2026.9.1.dev32 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../../../../../_static/documentation_options.js?v=feee5aca"></script>
+    <script src="../../../../../_static/documentation_options.js?v=de5fc021"></script>
     <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -495,8 +495,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev31 documentation - Home"/>
-    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev31 documentation - Home"/>
+    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev32 documentation - Home"/>
+    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev32 documentation - Home"/>
   
   
 </a></div>
@@ -880,6 +880,9 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">rather than the domain-specific transforms for any one source dataset.</span>
 <span class="sd">"""</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">collections</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">repeat</span>
+
 <span class="kn">import</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dg</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">networkx</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nx</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
@@ -1099,12 +1102,14 @@ window.runMermaid = runMermaid;</script>
             <span class="n">core_eia__entity_generators</span><span class="p">[[</span><span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"generator_id"</span><span class="p">]],</span>
             <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"generator_id"</span><span class="p">],</span>
             <span class="n">how</span><span class="o">=</span><span class="s2">"inner"</span><span class="p">,</span>
+            <span class="n">validate</span><span class="o">=</span><span class="s2">"m:1"</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">crosswalk_clean</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
             <span class="n">crosswalk_clean</span><span class="p">,</span>
             <span class="n">core_eia__entity_boilers</span><span class="p">[[</span><span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"boiler_id"</span><span class="p">]],</span>
             <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"boiler_id"</span><span class="p">],</span>
             <span class="n">how</span><span class="o">=</span><span class="s2">"inner"</span><span class="p">,</span>
+            <span class="n">validate</span><span class="o">=</span><span class="s2">"m:1"</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="c1"># TODO: Add manual crosswalk cleanup from @grgmiller</span>
     <span class="k">return</span> <span class="n">crosswalk_clean</span></div>
@@ -1205,7 +1210,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    :func:`core_epa__assn_eia_epacamd` asset due to its use of multiple years of raw</span>
 <span class="sd">    crosswalk outputs.</span>
 
-<span class="sd">    This function consists of three primary parts:</span>
+<span class="sd">    This function consists of two primary parts:</span>
 
 <span class="sd">    #.  Augment the EPA CAMD:EIA crosswalk with all IDs from EIA and EPA CAMD. Fill in</span>
 <span class="sd">        key IDs when possible. Because the published crosswalk was only meant to map</span>
@@ -1215,16 +1220,15 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        merging in the complete list of generators from EIA-860. This dataframe also</span>
 <span class="sd">        contains the complete list of ``unit_id_pudl`` mappings that will be necessary.</span>
 <span class="sd">    #.  :func:`make_subplant_ids`: Use graph analysis to identify distinct groupings of</span>
-<span class="sd">        EPA units and EIA generators based on 1:1, 1:m, m:1, or m:m relationships.</span>
-<span class="sd">    #.  :func:`update_subplant_ids`: Augment the ``subplant_id`` with the</span>
-<span class="sd">        ``unit_id_pudl`` and ``generator_id``.</span>
+<span class="sd">        EPA units, EIA generators, and EIA-860 boiler-generator ``unit_id_pudl``</span>
+<span class="sd">        associations, based on 1:1, 1:m, m:1, or m:m relationships.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        table of cems_ids and with subplant_id added</span>
 <span class="sd">    """</span>
     <span class="c1"># Ensure ALL relevant IDs are present. Basically just merge in all the IDs</span>
     <span class="c1"># Later note: As of April 2023, there is an experimental augmentation of the</span>
-    <span class="c1"># unit_id_pudl living in pudl.output.eia860.assign_unit_ids. It is currently non-</span>
+    <span class="c1"># unit_id_pudl living in pudl.output.eia.assign_unit_ids. It is currently non-</span>
     <span class="c1"># functioning (#2535) but when it is, ensure that it gets plugged into the dag</span>
     <span class="c1"># BEFORE this step so the subplant IDs can benefit from the more fleshed out units</span>
     <span class="n">epacamd_eia_complete</span> <span class="o">=</span> <span class="p">(</span>
@@ -1234,38 +1238,25 @@ window.runMermaid = runMermaid;</script>
         <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">augment_crosswalk_with_epacamd_ids</span><span class="p">,</span> <span class="n">_core_epacems__emissions_unit_ids</span><span class="p">)</span>
         <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">augment_crosswalk_with_bga_eia860</span><span class="p">,</span> <span class="n">core_eia860__assn_boiler_generator</span><span class="p">)</span>
     <span class="p">)</span>
-    <span class="c1"># use graph analysis to identify subplants</span>
-    <span class="n">subplant_ids</span> <span class="o">=</span> <span class="n">make_subplant_ids</span><span class="p">(</span><span class="n">epacamd_eia_complete</span><span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
+    <span class="c1"># use graph analysis to identify subplants. unit_id_pudl connectivity is folded</span>
+    <span class="c1"># directly into the graph (see _prep_for_networkx), so the resulting subplant_id</span>
+    <span class="c1"># already reflects any generators unit_id_pudl says are connected, even where the</span>
+    <span class="c1"># EPA crosswalk doesn't connect them directly.</span>
+    <span class="n">subplant_ids_updated</span> <span class="o">=</span> <span class="n">make_subplant_ids</span><span class="p">(</span><span class="n">epacamd_eia_complete</span><span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
         <span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="s2">"glue"</span>
     <span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-        <span class="s2">"After making the networkx generateds subplant_ids, "</span>
-        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">subplant_ids</span><span class="o">.</span><span class="n">subplant_id</span><span class="o">.</span><span class="n">notnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">subplant_ids</span><span class="p">)</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2"> of"</span>
+        <span class="s2">"After making the networkx generated subplant_ids, "</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">subplant_ids_updated</span><span class="o">.</span><span class="n">subplant_id</span><span class="o">.</span><span class="n">notnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">subplant_ids_updated</span><span class="p">)</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2"> of"</span>
         <span class="s2">" records have a subplant_id."</span>
     <span class="p">)</span>
-    <span class="c1"># update the subplant ids for each plant</span>
-    <span class="n">subplant_ids_updated</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">subplant_ids</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">])</span>
-        <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">update_subplant_ids</span><span class="p">,</span> <span class="n">include_groups</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="s2">"plant_id_eia"</span><span class="p">)</span>
-    <span class="p">)</span>
-    <span class="c1"># log differences between updated ids</span>
-    <span class="n">subplant_id_diff</span> <span class="o">=</span> <span class="n">subplant_ids_updated</span><span class="p">[</span>
-        <span class="n">subplant_ids_updated</span><span class="o">.</span><span class="n">subplant_id</span> <span class="o">!=</span> <span class="n">subplant_ids_updated</span><span class="o">.</span><span class="n">subplant_id_updated</span>
-    <span class="p">]</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-        <span class="s2">"Edited subplant_ids after update_subplant_ids: "</span>
-        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">subplant_id_diff</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">subplant_ids_updated</span><span class="p">)</span><span class="si">:</span><span class="s2">.1</span><span class="si">}</span><span class="s2">%"</span>
-    <span class="p">)</span>
-    <span class="c1"># overwrite the subplant ids and apply manual update</span>
-    <span class="n">subplant_ids_updated</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">subplant_ids_updated</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">subplant_id</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">subplant_id_updated</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">manually_update_subplant_id</span><span class="p">)</span>
-    <span class="p">)</span>
-    <span class="c1"># the subplant_ids are currently zero-indexed, which results in less intuitive</span>
-    <span class="c1"># alignments between subplant_ids and generator_ids. Increment all subplant_ids by 1</span>
+    <span class="c1"># The subplant_ids from make_subplant_ids are zero-indexed, which results in</span>
+    <span class="c1"># less intuitive alignments between subplant_ids and generator_ids. Increment all</span>
+    <span class="c1"># subplant_ids by 1 *before* applying manual overrides below, so those overrides</span>
+    <span class="c1"># can be expressed in terms of the final, user-facing subplant_id values rather</span>
+    <span class="c1"># than needing to track this internal zero-indexed implementation detail.</span>
     <span class="n">subplant_ids_updated</span><span class="p">[</span><span class="s2">"subplant_id"</span><span class="p">]</span> <span class="o">=</span> <span class="n">subplant_ids_updated</span><span class="p">[</span><span class="s2">"subplant_id"</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">subplant_ids_updated</span> <span class="o">=</span> <span class="n">manually_update_subplant_id</span><span class="p">(</span><span class="n">subplant_ids_updated</span><span class="p">)</span>
     <span class="c1"># check for duplicates in sudo-PKs. These are not the actual PKs because there are</span>
     <span class="c1"># some nulls in generator_id, so this won't be checked during the db construction</span>
     <span class="k">if</span> <span class="p">(</span>
@@ -1280,7 +1271,7 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span>
     <span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
         <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
-            <span class="s2">"Duplicates found in sudo primary keys of EPA CAMD/EIA subplant ID table "</span>
+            <span class="s2">"Duplicates found in pseudo primary keys of EPA CAMD/EIA subplant ID table "</span>
             <span class="s2">"when none are expected. Duplicates found: </span><span class="se">\n</span><span class="s2">"</span>
             <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">subplant_ids_updated</span><span class="p">[</span><span class="n">epacamd_eia_dupe_mask</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
@@ -1349,32 +1340,66 @@ window.runMermaid = runMermaid;</script>
 
 
 <span class="c1">######################</span>
-<span class="c1"># Nexworkx subplant_id</span>
+<span class="c1"># Networkx subplant_id</span>
 <span class="c1">######################</span>
 
 
 <div class="viewcode-block" id="_prep_for_networkx">
 <a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/core/glue/index.html#pudl.dagster.assets.core.glue._prep_for_networkx">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_prep_for_networkx</span><span class="p">(</span><span class="n">crosswalk</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Make surrogate keys for combustors and generators.</span>
+<span class="w">    </span><span class="sd">"""Build composite node identities for combustors, generators, and EIA units.</span>
+
+<span class="sd">    Node identities are plain ``(type_tag, plant_id_eia, natural_id)`` tuples rather</span>
+<span class="sd">    than numeric surrogates. networkx accepts any hashable object as a node, so</span>
+<span class="sd">    there's no need to invent a global integer ID space -- crosswalk associations</span>
+<span class="sd">    never connect two different plants, so embedding ``plant_id_eia`` directly in</span>
+<span class="sd">    each node is enough to keep every plant's subgraph naturally disjoint from every</span>
+<span class="sd">    other plant's, without ever computing a plant-spanning "global" ID.</span>
+<span class="sd">    ``type_tag`` (``"combustor"``/``"generator"``/``"unit"``) keeps otherwise-identical</span>
+<span class="sd">    IDs from colliding, e.g. a generator and a boiler that both happen to be named</span>
+<span class="sd">    ``"1"`` at the same plant, which is a common EIA naming convention.</span>
+
+<span class="sd">    A row missing its natural id (e.g. an EPA unit that never matched an EIA</span>
+<span class="sd">    generator) is keyed by its own row position instead of left null, so two such</span>
+<span class="sd">    rows are never accidentally treated as sharing an id.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        crosswalk: The :ref:`core_epa__assn_eia_epacamd` crosswalk</span>
+<span class="sd">        crosswalk: The :ref:`core_epa__assn_eia_epacamd` crosswalk, augmented with</span>
+<span class="sd">            ``unit_id_pudl`` (see :func:`augment_crosswalk_with_bga_eia860`).</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        A copy of :ref:`core_epa__assn_eia_epacamd` crosswalk with new surrogate ID</span>
-<span class="sd">        columns `combustor_id` and `generator_id`.</span>
+<span class="sd">        A copy of :ref:`core_epa__assn_eia_epacamd` crosswalk with new node-identity</span>
+<span class="sd">        columns ``combustor_node``, ``generator_node``, and ``unit_node``.</span>
 <span class="sd">    """</span>
-    <span class="n">prepped</span> <span class="o">=</span> <span class="n">crosswalk</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="c1"># networkx can't handle composite keys, so make surrogates</span>
-    <span class="n">prepped</span><span class="p">[</span><span class="s2">"combustor_id"</span><span class="p">]</span> <span class="o">=</span> <span class="n">prepped</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
-        <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"emissions_unit_id_epa"</span><span class="p">]</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">ngroup</span><span class="p">()</span>
-    <span class="c1"># node IDs can't overlap so add (max + 1)</span>
-    <span class="n">prepped</span><span class="p">[</span><span class="s2">"generator_id_unique"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">prepped</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"generator_id"</span><span class="p">])</span><span class="o">.</span><span class="n">ngroup</span><span class="p">()</span>
-        <span class="o">+</span> <span class="n">prepped</span><span class="p">[</span><span class="s2">"combustor_id"</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
-        <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">prepped</span> <span class="o">=</span> <span class="n">crosswalk</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">row_position</span> <span class="o">=</span> <span class="n">prepped</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">to_series</span><span class="p">()</span>
+    <span class="n">prepped</span><span class="p">[</span><span class="s2">"combustor_node"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+        <span class="nb">zip</span><span class="p">(</span>
+            <span class="n">repeat</span><span class="p">(</span><span class="s2">"combustor"</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">prepped</span><span class="p">)),</span>
+            <span class="n">prepped</span><span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">],</span>
+            <span class="n">prepped</span><span class="p">[</span><span class="s2">"emissions_unit_id_epa"</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">row_position</span><span class="p">),</span>
+            <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">prepped</span><span class="p">[</span><span class="s2">"generator_node"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+        <span class="nb">zip</span><span class="p">(</span>
+            <span class="n">repeat</span><span class="p">(</span><span class="s2">"generator"</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">prepped</span><span class="p">)),</span>
+            <span class="n">prepped</span><span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">],</span>
+            <span class="n">prepped</span><span class="p">[</span><span class="s2">"generator_id"</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">row_position</span><span class="p">),</span>
+            <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="c1"># unit_id_pudl is left null where missing rather than falling back to a</span>
+    <span class="c1"># per-row sentinel: rows with a null unit_id_pudl never get a unit_node edge</span>
+    <span class="c1"># added at all (see _subplant_ids_from_prepped_crosswalk), so there's no</span>
+    <span class="c1"># collision risk to guard against here.</span>
+    <span class="n">prepped</span><span class="p">[</span><span class="s2">"unit_node"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+        <span class="nb">zip</span><span class="p">(</span>
+            <span class="n">repeat</span><span class="p">(</span><span class="s2">"unit"</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">prepped</span><span class="p">)),</span>
+            <span class="n">prepped</span><span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">],</span>
+            <span class="n">prepped</span><span class="p">[</span><span class="s2">"unit_id_pudl"</span><span class="p">],</span>
+            <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">prepped</span></div>
 
@@ -1383,87 +1408,76 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_subplant_ids_from_prepped_crosswalk">
 <a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/core/glue/index.html#pudl.dagster.assets.core.glue._subplant_ids_from_prepped_crosswalk">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_subplant_ids_from_prepped_crosswalk</span><span class="p">(</span><span class="n">prepped</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Use networkx graph analysis to create subplant IDs from crosswalk edge list.</span>
+<span class="w">    </span><span class="sd">"""Use networkx graph analysis to assign a per-plant ``subplant_id``.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        prepped: ``core_epa__assn_eia_epacamd`` crosswalk passed through</span>
 <span class="sd">            :func:`_prep_for_networkx`</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        A copy of ``core_epa__assn_eia_epacamd`` crosswalk plus new column</span>
-<span class="sd">        ``global_subplant_id``</span>
+<span class="sd">        A copy of ``core_epa__assn_eia_epacamd`` crosswalk plus a new ``subplant_id``</span>
+<span class="sd">        column. ``subplant_id`` is already 0-indexed and contiguous within each</span>
+<span class="sd">        ``plant_id_eia`` -- no separate global-to-composite-ID conversion step is</span>
+<span class="sd">        needed, since node identities already embed ``plant_id_eia`` (see</span>
+<span class="sd">        :func:`_prep_for_networkx`) and crosswalk edges never connect two plants.</span>
 <span class="sd">    """</span>
     <span class="n">graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">from_pandas_edgelist</span><span class="p">(</span>
         <span class="n">prepped</span><span class="p">,</span>
-        <span class="n">source</span><span class="o">=</span><span class="s2">"combustor_id"</span><span class="p">,</span>
-        <span class="n">target</span><span class="o">=</span><span class="s2">"generator_id_unique"</span><span class="p">,</span>
+        <span class="n">source</span><span class="o">=</span><span class="s2">"combustor_node"</span><span class="p">,</span>
+        <span class="n">target</span><span class="o">=</span><span class="s2">"generator_node"</span><span class="p">,</span>
         <span class="n">edge_attr</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">node_set</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">nx</span><span class="o">.</span><span class="n">connected_components</span><span class="p">(</span><span class="n">graph</span><span class="p">)):</span>
-        <span class="n">subgraph</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">subgraph</span><span class="p">(</span><span class="n">node_set</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="n">nx</span><span class="o">.</span><span class="n">algorithms</span><span class="o">.</span><span class="n">bipartite</span><span class="o">.</span><span class="n">is_bipartite</span><span class="p">(</span><span class="n">subgraph</span><span class="p">),</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">"non-bipartite: i=</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">, node_set=</span><span class="si">{</span><span class="n">node_set</span><span class="si">}</span><span class="s2">"</span>
-        <span class="p">)</span>
-        <span class="n">nx</span><span class="o">.</span><span class="n">set_edge_attributes</span><span class="p">(</span><span class="n">subgraph</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"global_subplant_id"</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="n">i</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">nx</span><span class="o">.</span><span class="n">to_pandas_edgelist</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span></div>
-
-
-
-<div class="viewcode-block" id="_convert_global_id_to_composite_id">
-<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/core/glue/index.html#pudl.dagster.assets.core.glue._convert_global_id_to_composite_id">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">_convert_global_id_to_composite_id</span><span class="p">(</span>
-    <span class="n">crosswalk_with_ids</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Convert global_subplant_id to a composite key (plant_id_eia, subplant_id).</span>
-
-<span class="sd">    The composite key will be much more stable (though not fully stable!) in time.</span>
-<span class="sd">    The global ID changes if ANY unit or generator changes, whereas the</span>
-<span class="sd">    compound key only changes if units/generators change within that specific plant.</span>
-
-<span class="sd">    A global ID could also tempt users into using it as a crutch, even though it isn't</span>
-<span class="sd">    stable. A compound key should discourage that behavior.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        crosswalk_with_ids: crosswalk with ``global_subplant_id``, as from</span>
-<span class="sd">            :func:`_subplant_ids_from_prepped_crosswalk`</span>
-
-<span class="sd">    Raises:</span>
-<span class="sd">        ValueError: if crosswalk_with_ids has a MultiIndex</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        A copy of crosswalk_with_ids with an added column: ``subplant_id``</span>
-<span class="sd">    """</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">crosswalk_with_ids</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">"Input crosswalk must have single level index. Given levels: </span><span class="si">{</span><span class="n">crosswalk_with_ids</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="si">}</span><span class="s2">"</span>
-        <span class="p">)</span>
-
-    <span class="n">reindexed</span> <span class="o">=</span> <span class="n">crosswalk_with_ids</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>  <span class="c1"># copy</span>
-    <span class="n">idx_name</span> <span class="o">=</span> <span class="n">crosswalk_with_ids</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span>
-    <span class="k">if</span> <span class="n">idx_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="c1"># Indices with no name (None) are set to a pandas default name ('index'), which</span>
-        <span class="c1"># could (though probably won't) change.</span>
-        <span class="n">idx_col</span> <span class="o">=</span> <span class="n">reindexed</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">symmetric_difference</span><span class="p">(</span><span class="n">crosswalk_with_ids</span><span class="o">.</span><span class="n">columns</span><span class="p">)[</span>
-            <span class="mi">0</span>
-        <span class="p">]</span>  <span class="c1"># get index name</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">idx_col</span> <span class="o">=</span> <span class="n">idx_name</span>
-
-    <span class="n">composite_key</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span> <span class="o">=</span> <span class="n">reindexed</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
-        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"global_subplant_id"</span><span class="p">)</span><span class="o">.</span><span class="n">ngroup</span><span class="p">(),</span> <span class="n">include_groups</span><span class="o">=</span><span class="kc">False</span>
+    <span class="n">edge_list</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">to_pandas_edgelist</span><span class="p">(</span>
+        <span class="n">graph</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="s2">"combustor_node"</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">"generator_node"</span>
     <span class="p">)</span>
+    <span class="c1"># nx.Graph silently collapses multiple edges between the same pair of nodes into</span>
+    <span class="c1"># one, keeping only the last edge's attributes. If prepped contains a duplicated</span>
+    <span class="c1"># (combustor_node, generator_node) pair -- e.g. because upstream deduplication of</span>
+    <span class="c1"># the crosswalk failed to catch it -- that row disappears with no warning.</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">edge_list</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">prepped</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+            <span class="s2">"Expected make_subplant_ids to preserve row count, but networkx's graph "</span>
+            <span class="sa">f</span><span class="s2">"construction collapsed </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">prepped</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">edge_list</span><span class="p">)</span><span class="si">}</span><span class="s2"> duplicate "</span>
+            <span class="s2">"(combustor_node, generator_node) edge(s). This likely means the "</span>
+            <span class="s2">"crosswalk contains a duplicated EPA unit/EIA generator association "</span>
+            <span class="sa">f</span><span class="s2">"within a plant. Input had </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">prepped</span><span class="p">)</span><span class="si">}</span><span class="s2"> rows, output has "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">edge_list</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span>
+        <span class="p">)</span>
 
-    <span class="c1"># Recombine. Could use index join but I chose to reindex, sort and assign.</span>
-    <span class="c1"># Errors like mismatched length will raise exceptions, which is good.</span>
+    <span class="c1"># Fold in unit_id_pudl connectivity via a separate copy of the graph, purely to</span>
+    <span class="c1"># determine which combustor/generator components should be merged. These</span>
+    <span class="c1"># synthetic generator&lt;-&gt;unit edges must never appear in the crosswalk edge list</span>
+    <span class="c1"># returned above, since they don't correspond to a crosswalk row.</span>
+    <span class="n">connectivity_graph</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">unit_edges</span> <span class="o">=</span> <span class="n">prepped</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">prepped</span><span class="p">[</span><span class="s2">"unit_id_pudl"</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">(),</span> <span class="p">[</span><span class="s2">"generator_node"</span><span class="p">,</span> <span class="s2">"unit_node"</span><span class="p">]</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+    <span class="n">connectivity_graph</span><span class="o">.</span><span class="n">add_edges_from</span><span class="p">(</span><span class="n">unit_edges</span><span class="o">.</span><span class="n">itertuples</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">))</span>
 
-    <span class="c1"># drop the outer group, leave the reindexed row index</span>
-    <span class="n">composite_key</span> <span class="o">=</span> <span class="n">composite_key</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">composite_key</span> <span class="o">=</span> <span class="n">composite_key</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>  <span class="c1"># put back in same order as reindexed</span>
-    <span class="n">reindexed</span><span class="p">[</span><span class="s2">"subplant_id"</span><span class="p">]</span> <span class="o">=</span> <span class="n">composite_key</span>
-    <span class="c1"># restore original index</span>
-    <span class="n">reindexed</span> <span class="o">=</span> <span class="n">reindexed</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">idx_col</span><span class="p">)</span>  <span class="c1"># restore values</span>
-    <span class="n">reindexed</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">reindexed</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">idx_name</span><span class="p">)</span>  <span class="c1"># restore original name</span>
-    <span class="k">return</span> <span class="n">reindexed</span></div>
+    <span class="c1"># Assign subplant_id directly, per plant, as each connected component is</span>
+    <span class="c1"># discovered -- no plant-spanning "global" ID is ever created. Every node in a</span>
+    <span class="c1"># component shares one plant_id_eia (node identities embed it, and crosswalk</span>
+    <span class="c1"># edges never span plants), so pulling it off any single node in the component</span>
+    <span class="c1"># is enough to know which plant's counter to use.</span>
+    <span class="n">next_subplant_id</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">subplant_id_by_node</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">node_set</span> <span class="ow">in</span> <span class="n">nx</span><span class="o">.</span><span class="n">connected_components</span><span class="p">(</span><span class="n">connectivity_graph</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">nx</span><span class="o">.</span><span class="n">algorithms</span><span class="o">.</span><span class="n">bipartite</span><span class="o">.</span><span class="n">is_bipartite</span><span class="p">(</span>
+            <span class="n">connectivity_graph</span><span class="o">.</span><span class="n">subgraph</span><span class="p">(</span><span class="n">node_set</span><span class="p">)</span>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">"non-bipartite node_set=</span><span class="si">{</span><span class="n">node_set</span><span class="si">}</span><span class="s2">"</span>
+        <span class="c1"># networkx types graph nodes as opaque Hashable; ours are always the</span>
+        <span class="c1"># (type_tag, plant_id_eia, natural_id) tuples built in _prep_for_networkx.</span>
+        <span class="n">plant_id_eia</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">node_set</span><span class="p">))[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># type: ignore[bad-index]</span>
+        <span class="n">subplant_id</span> <span class="o">=</span> <span class="n">next_subplant_id</span><span class="p">[</span><span class="n">plant_id_eia</span><span class="p">]</span>
+        <span class="n">next_subplant_id</span><span class="p">[</span><span class="n">plant_id_eia</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">subplant_id_by_node</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">node_set</span><span class="p">,</span> <span class="n">subplant_id</span><span class="p">))</span>
+
+    <span class="c1"># Safe to map through a plain dict here: every node embeds a real plant_id_eia</span>
+    <span class="c1"># and, for rows missing a natural id, a per-row sentinel (see</span>
+    <span class="c1"># _prep_for_networkx), so no two distinct nodes are ever null/equal-looking in a</span>
+    <span class="c1"># way that could make pandas silently collapse them.</span>
+    <span class="n">edge_list</span><span class="p">[</span><span class="s2">"subplant_id"</span><span class="p">]</span> <span class="o">=</span> <span class="n">edge_list</span><span class="p">[</span><span class="s2">"combustor_node"</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">subplant_id_by_node</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">edge_list</span></div>
 
 
 
@@ -1472,20 +1486,28 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">make_subplant_ids</span><span class="p">(</span><span class="n">crosswalk</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Identify sub-plants in the EPA/EIA crosswalk graph.</span>
 
-<span class="sd">    In graph analysis terminology, the crosswalk is a list of edges between nodes</span>
-<span class="sd">    (combustors and generators) in a bipartite graph. The networkx python package</span>
-<span class="sd">    provides functions to analyze this edge list and extract disjoint subgraphs (groups</span>
-<span class="sd">    of combustors and generators that are connected to each other).  These are the</span>
-<span class="sd">    distinct power plants. To avoid a name collision with plant_id, we term these</span>
-<span class="sd">    collections 'subplants', and identify them with a subplant_id that is unique within</span>
-<span class="sd">    each plant_id. Subplants are thus identified with the composite key (plant_id,</span>
-<span class="sd">    subplant_id).</span>
+<span class="sd">    In graph analysis terminology, the crosswalk is a list of edges between nodes (EPA</span>
+<span class="sd">    emissions units and EIA generators) in a bipartite graph. A third node type, EIA-860</span>
+<span class="sd">    boiler-generator ``unit_id_pudl`` groupings, is folded into the same graph as well,</span>
+<span class="sd">    connecting generators that share a ``unit_id_pudl`` even where the EPA crosswalk</span>
+<span class="sd">    doesn't connect them directly (see :func:`_subplant_ids_from_prepped_crosswalk`).</span>
+<span class="sd">    The networkx python package provides functions to analyze this graph and extract</span>
+<span class="sd">    disjoint subgraphs (groups of units, generators, and unit_id_pudl groupings that are</span>
+<span class="sd">    connected to each other). These are the distinct power plants. To avoid a name</span>
+<span class="sd">    collision with plant_id, we term these collections 'subplants', and identify them</span>
+<span class="sd">    with a subplant_id that is unique within each plant_id. Subplants are thus</span>
+<span class="sd">    identified with the composite key (plant_id_eia, subplant_id).</span>
 
 <span class="sd">    Through this analysis, we found that 56% of plant_ids contain multiple distinct</span>
 <span class="sd">    subplants, and 11% contain subplants with different technology types, such as a gas</span>
 <span class="sd">    boiler and gas turbine (not in a combined cycle).</span>
 
-<span class="sd">    Any row filtering should be done before this step if desired.</span>
+<span class="sd">    Any row filtering should be done before this step if desired. Rows that are</span>
+<span class="sd">    duplicates with respect to the EPA unit/EIA generator association -- e.g. two</span>
+<span class="sd">    crosswalk rows that only differ in ``generator_id_epa`` or ``boiler_id``, neither</span>
+<span class="sd">    of which appears in the output -- are collapsed here explicitly, since silently</span>
+<span class="sd">    leaving that to the graph construction below would make its row-count guarantee</span>
+<span class="sd">    (see :func:`_subplant_ids_from_prepped_crosswalk`) fail on real data.</span>
 
 <span class="sd">    Note that sub-plant ids should be used in conjunction with ``plant_id_eia`` rather</span>
 <span class="sd">    than ``plant_id_epa`` because the former is more granular and integrated into CEMS</span>
@@ -1498,9 +1520,17 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        An edge list connecting EPA units to EIA generators, with connected pieces</span>
 <span class="sd">        issued a subplant_id</span>
 <span class="sd">    """</span>
+    <span class="n">crosswalk</span> <span class="o">=</span> <span class="n">crosswalk</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span>
+        <span class="n">subset</span><span class="o">=</span><span class="p">[</span>
+            <span class="s2">"plant_id_eia"</span><span class="p">,</span>
+            <span class="s2">"plant_id_epa"</span><span class="p">,</span>
+            <span class="s2">"emissions_unit_id_epa"</span><span class="p">,</span>
+            <span class="s2">"generator_id"</span><span class="p">,</span>
+            <span class="s2">"unit_id_pudl"</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
     <span class="n">edge_list</span> <span class="o">=</span> <span class="n">_prep_for_networkx</span><span class="p">(</span><span class="n">crosswalk</span><span class="p">)</span>
     <span class="n">edge_list</span> <span class="o">=</span> <span class="n">_subplant_ids_from_prepped_crosswalk</span><span class="p">(</span><span class="n">edge_list</span><span class="p">)</span>
-    <span class="n">edge_list</span> <span class="o">=</span> <span class="n">_convert_global_id_to_composite_id</span><span class="p">(</span><span class="n">edge_list</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">edge_list</span></div>
 
 
@@ -1508,115 +1538,6 @@ window.runMermaid = runMermaid;</script>
 <span class="c1">#############################</span>
 <span class="c1"># Augmentation of subplant_id</span>
 <span class="c1">#############################</span>
-
-
-<div class="viewcode-block" id="update_subplant_ids">
-<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/core/glue/index.html#pudl.dagster.assets.core.glue.update_subplant_ids">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">update_subplant_ids</span><span class="p">(</span><span class="n">subplant_crosswalk</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Ensure a complete and accurate subplant_id mapping for all generators.</span>
-
-<span class="sd">    This function is meant to be applied using a ``.groupby("plant_id_eia").apply()``</span>
-<span class="sd">    function. This function will only properly work when applied to a single</span>
-<span class="sd">    ``plant_id_eia`` at a time.</span>
-
-<span class="sd">    High-level overview of method:</span>
-<span class="sd">    ==============================</span>
-
-<span class="sd">    #.  Use the ``subplant_id`` derived from :func:`make_subplant_ids` if available. In</span>
-<span class="sd">        the case where a ``unit_id_pudl`` groups several subplants, we overwrite these</span>
-<span class="sd">        multiple existing subplant_id with a single ``subplant_id``.</span>
-<span class="sd">    #.  All of the new unique ids are renumbered in consecutive ascending order</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        subplant_crosswalk: a dataframe containing the output of</span>
-<span class="sd">            :func:`make_subplant_ids`</span>
-
-<span class="sd">    """</span>
-    <span class="c1"># Step 1: Create corrected versions of subplant_id and unit_id_pudl</span>
-    <span class="c1"># if multiple unit_id_pudl are connected by a single subplant_id,</span>
-    <span class="c1"># unit_id_pudl_connected groups these unit_id_pudl together</span>
-    <span class="n">subplant_crosswalk</span> <span class="o">=</span> <span class="n">connect_ids</span><span class="p">(</span>
-        <span class="n">subplant_crosswalk</span><span class="p">,</span> <span class="n">id_to_update</span><span class="o">=</span><span class="s2">"unit_id_pudl"</span><span class="p">,</span> <span class="n">connecting_id</span><span class="o">=</span><span class="s2">"subplant_id"</span>
-    <span class="p">)</span>
-    <span class="c1"># if multiple subplant_id are connected by a single unit_id_pudl, group these</span>
-    <span class="c1"># subplant_id together</span>
-    <span class="n">subplant_crosswalk</span> <span class="o">=</span> <span class="n">connect_ids</span><span class="p">(</span>
-        <span class="n">subplant_crosswalk</span><span class="p">,</span> <span class="n">id_to_update</span><span class="o">=</span><span class="s2">"subplant_id"</span><span class="p">,</span> <span class="n">connecting_id</span><span class="o">=</span><span class="s2">"unit_id_pudl"</span>
-    <span class="p">)</span>
-
-    <span class="c1"># Step 2: Update the subplant ID based on these now known unit/subplant overlaps</span>
-    <span class="n">subplant_crosswalk</span> <span class="o">=</span> <span class="n">subplant_crosswalk</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-        <span class="n">unit_id_pudl_filled</span><span class="o">=</span><span class="p">(</span>
-            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">unit_id_pudl_connected</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span>
-                <span class="n">x</span><span class="o">.</span><span class="n">subplant_id_connected</span> <span class="o">+</span> <span class="n">x</span><span class="o">.</span><span class="n">unit_id_pudl_connected</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
-            <span class="p">)</span>
-        <span class="p">),</span>
-        <span class="c1"># create a new unique subplant_id based on the connected subplant ids and the</span>
-        <span class="c1"># filled unit_id</span>
-        <span class="n">subplant_id_updated</span><span class="o">=</span><span class="p">(</span>
-            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
-                <span class="p">[</span><span class="s2">"subplant_id_connected"</span><span class="p">,</span> <span class="s2">"unit_id_pudl_filled"</span><span class="p">],</span>
-                <span class="n">dropna</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="p">)</span><span class="o">.</span><span class="n">ngroup</span><span class="p">()</span>
-        <span class="p">),</span>
-    <span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">subplant_crosswalk</span></div>
-
-
-
-<div class="viewcode-block" id="connect_ids">
-<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/core/glue/index.html#pudl.dagster.assets.core.glue.connect_ids">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">connect_ids</span><span class="p">(</span>
-    <span class="n">subplant_crosswalk</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">id_to_update</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">connecting_id</span><span class="p">:</span> <span class="nb">str</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Corrects an id value if it is connected by an id value in another column.</span>
-
-<span class="sd">    If multiple ``subplant_id`` are connected by a single ``unit_id_pudl``, this groups</span>
-<span class="sd">    these ``subplant_id`` together. If multiple ``unit_id_pudl`` are connected by a</span>
-<span class="sd">    single ``subplant_id``, this groups these ``unit_id_pudl`` together.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        subplant_crosswalk: dataframe containing columns of id_to_update</span>
-<span class="sd">            andconnecting_id</span>
-<span class="sd">        id_to_update: List of ID columns</span>
-<span class="sd">        connecting_id: ID column</span>
-
-<span class="sd">    """</span>
-    <span class="c1"># get a table with all unique subplant to unit pairs</span>
-    <span class="n">subplant_unit_pairs</span> <span class="o">=</span> <span class="n">subplant_crosswalk</span><span class="p">[</span>
-        <span class="p">[</span><span class="s2">"subplant_id"</span><span class="p">,</span> <span class="s2">"unit_id_pudl"</span><span class="p">]</span>
-    <span class="p">]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
-
-    <span class="c1"># identify if any non-NA id_to_update are duplicated, indicated that it is</span>
-    <span class="c1"># associated with multiple connecting_id</span>
-    <span class="n">duplicates</span> <span class="o">=</span> <span class="n">subplant_unit_pairs</span><span class="p">[</span>
-        <span class="p">(</span><span class="n">subplant_unit_pairs</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">id_to_update</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
-        <span class="o">&amp;</span> <span class="p">(</span><span class="o">~</span><span class="n">subplant_unit_pairs</span><span class="p">[</span><span class="n">id_to_update</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">())</span>
-    <span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-
-    <span class="c1"># if there are any duplicate units, indicating an incorrect id_to_update, fix the</span>
-    <span class="c1"># id_to_update</span>
-    <span class="n">subplant_crosswalk</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">connecting_id</span><span class="si">}</span><span class="s2">_connected"</span><span class="p">]</span> <span class="o">=</span> <span class="n">subplant_crosswalk</span><span class="p">[</span><span class="n">connecting_id</span><span class="p">]</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">duplicates</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="c1"># find the lowest number subplant id associated with each duplicated unit_id_pudl</span>
-        <span class="n">duplicates</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">connecting_id</span><span class="si">}</span><span class="s2">_to_replace"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">duplicates</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="n">id_to_update</span><span class="p">])[</span><span class="n">connecting_id</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="p">)</span>
-        <span class="c1"># merge this replacement subplant_id into the dataframe and use it to update the</span>
-        <span class="c1"># existing subplant id</span>
-        <span class="n">subplant_crosswalk</span> <span class="o">=</span> <span class="n">subplant_crosswalk</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
-            <span class="n">duplicates</span><span class="p">,</span>
-            <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span>
-            <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="n">id_to_update</span><span class="p">,</span> <span class="n">connecting_id</span><span class="p">],</span>
-            <span class="n">validate</span><span class="o">=</span><span class="s2">"m:1"</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">mask</span> <span class="o">=</span> <span class="n">subplant_crosswalk</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">connecting_id</span><span class="si">}</span><span class="s2">_to_replace"</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span>
-        <span class="n">subplant_crosswalk</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">connecting_id</span><span class="si">}</span><span class="s2">_connected"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">subplant_crosswalk</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">connecting_id</span><span class="si">}</span><span class="s2">_to_replace"</span><span class="p">]</span>
-        <span class="p">)</span>
-    <span class="k">return</span> <span class="n">subplant_crosswalk</span></div>
-
 
 
 <div class="viewcode-block" id="manually_update_subplant_id">
@@ -1631,7 +1552,7 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># set all generators in plant 1391 to the same subplant</span>
     <span class="n">subplant_crosswalk</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
         <span class="n">subplant_crosswalk</span><span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1391</span><span class="p">,</span> <span class="s2">"subplant_id"</span>
-    <span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
 
     <span class="k">return</span> <span class="n">subplant_crosswalk</span></div>
 
