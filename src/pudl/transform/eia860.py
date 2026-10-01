@@ -165,6 +165,7 @@ def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame
 
 @asset
 def _core_eia860__generators(
+    context,
     raw_eia860__generator_proposed: pd.DataFrame,
     raw_eia860__generator_existing: pd.DataFrame,
     raw_eia860__generator_retired: pd.DataFrame,
@@ -288,9 +289,18 @@ def _core_eia860__generators(
     # See https://web.archive.org/web/20260522053808/https://www.eia.gov/nuclear/reactors/shutdown/
     # They confirmed via email that they also don't intend to assign these generators
     # IDs, and the data quality of these records is inconsistent with
-    # the rest of the EIA 860M data. We drop them at this stage, checking to ensure that
-    # they are still being reported first and that we aren't accidentally mass-dropping
-    # lots of records (12 records).
+    # the rest of the EIA 860M data. We drop them all at this stage, identifying them
+    # by their retirement dates being outside of the range of 860M data.
+    old_nukes_mask = (
+        (gens_df.operational_status_code == "RE")
+        & (gens_df.report_year >= 2026)
+        & (gens_df.generator_retirement_year < 2002)
+        & (gens_df.data_maturity == "monthly_update")
+    )
+    if not gens_df[old_nukes_mask].empty:
+        assert len(gens_df[old_nukes_mask]) <= 28  # Check for an expected number
+        gens_df = gens_df.loc[~old_nukes_mask]  # Drop these weirdos
+
     # The other type of record dropped at this stage are records with a generator ID
     # that is literally the string "NA" (26 records).
     null_ids = (
@@ -298,8 +308,8 @@ def _core_eia860__generators(
         .isnull()
         .any(axis=1)
     )
-    assert sum(null_ids) <= 38, (
-        f"Expected to drop 0 records with null IDs, actually dropping {sum(null_ids)}\n: {gens_df.loc[null_ids, ['generator_id', 'plant_id_eia', 'utility_id_eia', 'report_year']]}"
+    assert sum(null_ids) <= 26, (
+        f"Expected to drop no more than 26 records with null IDs, actually dropping {sum(null_ids)}\n: {gens_df.loc[null_ids, ['generator_id', 'plant_id_eia', 'utility_id_eia', 'report_year']]}"
     )
 
     gens_df = gens_df.loc[~null_ids].pipe(
