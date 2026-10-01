@@ -27,31 +27,48 @@ def _net_generation_bucket(side: str) -> str:
 
 
 blocking_rule_1 = CustomRule(
-    "l.report_year = r.report_year and substr(l.plant_name_mphone,1,3) = substr(r.plant_name_mphone,1,3)"
+    "l.report_year = r.report_year and "
+    "substr(l.plant_name_mphone,1,3) = substr(r.plant_name_mphone,1,3)"
 )
 blocking_rule_2 = CustomRule(
-    "l.report_year = r.report_year and substr(l.utility_name_mphone,1,2) = substr(r.utility_name_mphone,1,2) and substr(l.plant_name_mphone,1,2) = substr(r.plant_name_mphone,1,2)"
+    "l.report_year = r.report_year and "
+    "substr(l.utility_name_mphone,1,2) = substr(r.utility_name_mphone,1,2) and "
+    "substr(l.plant_name_mphone,1,2) = substr(r.plant_name_mphone,1,2)"
 )
 blocking_rule_3 = CustomRule(
-    "l.report_year = r.report_year and l.installation_year = r.installation_year and substr(l.utility_name_mphone,1,2) = substr(r.utility_name_mphone,1,2)"
+    "l.report_year = r.report_year and "
+    "l.installation_year = r.installation_year and "
+    "substr(l.utility_name_mphone,1,2) = substr(r.utility_name_mphone,1,2)"
 )
 blocking_rule_4 = CustomRule(
-    "l.report_year = r.report_year and l.fuel_type_code_pudl = r.fuel_type_code_pudl and substr(l.plant_name_mphone,1,2) = substr(r.plant_name_mphone,1,2)"
+    "l.report_year = r.report_year and "
+    "l.fuel_type_code_pudl = r.fuel_type_code_pudl and "
+    "substr(l.plant_name_mphone,1,2) = substr(r.plant_name_mphone,1,2)"
 )
 blocking_rule_5 = CustomRule(
-    "l.report_year = r.report_year and l.fuel_type_code_pudl = r.fuel_type_code_pudl and substr(l.utility_name_mphone,1,3) = substr(r.utility_name_mphone,1,3)"
+    "l.report_year = r.report_year and "
+    "l.fuel_type_code_pudl = r.fuel_type_code_pudl and "
+    "substr(l.utility_name_mphone,1,3) = substr(r.utility_name_mphone,1,3)"
 )
 blocking_rule_6 = CustomRule(
-    "l.report_year = r.report_year and l.construction_year = r.construction_year and substr(l.utility_name_mphone,1,2) = substr(r.utility_name_mphone,1,2)"
+    "l.report_year = r.report_year and "
+    "l.construction_year = r.construction_year and "
+    "substr(l.utility_name_mphone,1,2) = substr(r.utility_name_mphone,1,2)"
 )
 blocking_rule_7 = CustomRule(
-    f"l.report_year = r.report_year and {_capacity_bucket('l')} = {_capacity_bucket('r')} and substr(l.plant_name_mphone,1,2) = substr(r.plant_name_mphone,1,2)"
+    "l.report_year = r.report_year and "
+    f"{_capacity_bucket('l')} = {_capacity_bucket('r')} and "
+    "substr(l.plant_name_mphone,1,2) = substr(r.plant_name_mphone,1,2)"
 )
 blocking_rule_8 = CustomRule(
-    "l.report_year = r.report_year and l.installation_year = r.installation_year and substr(l.plant_name_mphone,1,2) = substr(r.plant_name_mphone,1,2)"
+    "l.report_year = r.report_year and "
+    "l.installation_year = r.installation_year and "
+    "substr(l.plant_name_mphone,1,2) = substr(r.plant_name_mphone,1,2)"
 )
 blocking_rule_9 = CustomRule(
-    "l.report_year = r.report_year and l.construction_year = r.construction_year and substr(l.plant_name_mphone,1,2) = substr(r.plant_name_mphone,1,2)"
+    "l.report_year = r.report_year and "
+    "l.construction_year = r.construction_year and "
+    "substr(l.plant_name_mphone,1,2) = substr(r.plant_name_mphone,1,2)"
 )
 blocking_rule_10 = CustomRule(
     f"l.report_year = r.report_year and {_net_generation_bucket('l')} = {_net_generation_bucket('r')}"
