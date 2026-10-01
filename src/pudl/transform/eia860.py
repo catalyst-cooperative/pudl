@@ -301,9 +301,7 @@ def _core_eia860__generators(
         f"Expected to drop 0 records with null IDs, actually dropping {sum(null_ids)}\n: {gens_df.loc[null_ids, ['generator_id', 'plant_id_eia', 'utility_id_eia', 'report_year']]}"
     )
 
-    gens_df = gens_df.dropna(
-        subset=["generator_id", "plant_id_eia", "utility_id_eia"]
-    ).pipe(
+    gens_df = gens_df.loc[~null_ids].pipe(
         pudl.helpers.fix_boolean_columns,
         boolean_columns_to_fix=boolean_columns_to_fix,
         inplace=True,
