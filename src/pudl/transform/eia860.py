@@ -284,9 +284,10 @@ def _core_eia860__generators(
     )
 
     # In August 2026, EIA started to report a series of much older nuclear generator
-    # retirements, some with no utility ID or plant ID assigned. They confirmed via
-    # email that they also don't intend to assign these generators IDs, and the
-    # data quality of these records is inconsistent with
+    # retirements, some with no utility ID or plant ID assigned.
+    # See https://web.archive.org/web/20260522053808/https://www.eia.gov/nuclear/reactors/shutdown/
+    # They confirmed via email that they also don't intend to assign these generators
+    # IDs, and the data quality of these records is inconsistent with
     # the rest of the EIA 860M data. We drop them at this stage, checking to ensure that
     # they are still being reported first and that we aren't accidentally mass-dropping
     # lots of records (12 records).
