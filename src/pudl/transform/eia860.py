@@ -165,7 +165,6 @@ def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame
 
 @asset
 def _core_eia860__generators(
-    context,
     raw_eia860__generator_proposed: pd.DataFrame,
     raw_eia860__generator_existing: pd.DataFrame,
     raw_eia860__generator_retired: pd.DataFrame,
