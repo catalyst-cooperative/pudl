@@ -111,8 +111,9 @@ class PudlParquetIOManager(dg.ConfigurableIOManager):
 
         GeoDataFrames are written as GeoParquet using native geopandas output,
         which produces spec-compliant CRS metadata readable by DuckDB >= 1.5.
-        Regular DataFrames and Polars LazyFrames use the PUDL PyArrow schema to
-        enforce exact column types on disk.
+        All three paths enforce the column types of the PUDL PyArrow schema on
+        disk. Geopandas cannot take a schema, so GeoDataFrame columns are cast to
+        the equivalent Arrow-backed pandas dtypes first.
         """
         table_name = get_table_name_from_context(context)
         res = Resource.from_id(table_name)
@@ -120,10 +121,18 @@ class PudlParquetIOManager(dg.ConfigurableIOManager):
         parquet_path.parent.mkdir(parents=True, exist_ok=True)
 
         if isinstance(obj, geopandas.GeoDataFrame):
-            gdf = res.enforce_schema(obj)
+            # GeoDataFrame.to_parquet() has no schema argument, so cast the columns to
+            # the Arrow dtypes of the PUDL PyArrow schema (e.g. date32 for dates).
+            # See https://github.com/geopandas/geopandas/issues/3182
+            # Unlike the other paths this can't write the schema's field descriptions
+            # and table metadata, and enums are int8-indexed dictionaries, not int32.
+            gdf = res.enforce_schema(obj).astype(res.to_pandas_arrow_dtypes())
             gdf.to_parquet(
                 parquet_path,
                 index=False,
+                # Pinned rather than left to geopandas' default: GeoParquet 2.0 files
+                # use the native Parquet GEOMETRY type, which Polars cannot read yet.
+                schema_version="1.1.0",
                 compression=pudl.PARQUET_COMPRESSION,
                 compression_level=pudl.PARQUET_GEOMETRY_COMPRESSION_LEVEL,
             )
@@ -215,8 +224,9 @@ class FercSqliteIOManagerBase(dg.ConfigurableIOManager):
         """Dispose the cached engine when the resource's lifecycle ends."""
         if self._engine is not None:
             self._engine.dispose()
-            self._engine = None
-            self._metadata = None
+            # Mutating PrivateAttr fields is permitted on frozen Pydantic models.
+            self._engine = None  # type: ignore[read-only]
+            self._metadata = None  # type: ignore[read-only]
 
     @property
     def metadata(self) -> sa.MetaData:

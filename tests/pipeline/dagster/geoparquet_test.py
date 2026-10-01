@@ -1,7 +1,7 @@
 """Pipeline tests verifying GeoParquet outputs are spec-compliant.
 
 These tests check that geo assets written by PudlParquetIOManager produce valid
-GeoParquet 1.0.0 files readable by geopandas, pandas, polars, and DuckDB >= 1.5.
+GeoParquet 1.1.0 files readable by geopandas, pandas, polars, and DuckDB >= 1.5.
 
 The DuckDB test is the primary regression guard: before the CRS metadata format
 was switched from WKT to PROJJSON, DuckDB 1.5 raised "Geoparquet column
@@ -13,12 +13,14 @@ Run with --live-pudl-output to skip the ETL pre-build and use existing outputs:
     pixi run pytest --no-cov --live-pudl-output tests/pipeline/dagster/geoparquet_test.py
 """
 
+import json
 from pathlib import Path
 
 import duckdb
 import geopandas as gpd  # noqa: ICN002
 import pandas as pd
 import polars as pl
+import pyarrow.parquet as pq
 import pytest
 
 from pudl.workspace.setup import PudlPaths
@@ -38,6 +40,12 @@ def geo_parquet_path(request, prebuilt_outputs, pudl_test_paths: PudlPaths) -> P
     table_name: str = request.param
     path = pudl_test_paths.parquet_path(table_name)
     return path
+
+
+def test_geoparquet_metadata_version(geo_parquet_path: Path) -> None:
+    """GeoParquet outputs declare the pinned GeoParquet 1.1.0 metadata version."""
+    geo = json.loads(pq.read_metadata(geo_parquet_path).metadata[b"geo"])
+    assert geo["version"] == "1.1.0"
 
 
 def test_geoparquet_readable_by_geopandas(geo_parquet_path: Path) -> None:
