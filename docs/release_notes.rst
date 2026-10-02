@@ -110,6 +110,14 @@ Bug Fixes & Data Cleaning
   :ref:`out_pudl__yearly_assn_eia_ferc1_plant_parts` changed on every run even with
   identical inputs. The sampling is now seeded and ties are broken by EIA record ID. See
   :issue:`5610` and :pr:`5643`.
+* Made shared helpers in ``pudl.helpers`` behave identically under pandas 2 and 3.
+  ``standardize_percentages_ratio()`` now accepts numeric strings (as some Excel-sourced
+  columns arrive) and always returns ``float64``; genuinely non-numeric values still
+  raise. ``scale_by_ownership()`` now always returns ``float64`` for the scaled columns,
+  where the dtype previously depended on the data (``Int64`` if every value happened to
+  be integral). String-cleaning, boolean and phone-number helpers were also hardened
+  against pandas 3 dtype behavior changes. See :issue:`5613`, :issue:`5614`,
+  :issue:`5615` and :pr:`5662`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
