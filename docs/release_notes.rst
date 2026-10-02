@@ -32,8 +32,7 @@ EIA-860
 
 EIA-860M
 ~~~~~~~~
-* Added :doc:`EIA-860m <data_sources/eia860>` data through August 2026, including the
-  addition of several dozen long-retired nuclear generation units. See issue
+* Added :doc:`EIA-860m <data_sources/eia860>` data through August 2026. See issue
   :issue:`5677` and PR :pr:`5680`.
 
 EIA-923
