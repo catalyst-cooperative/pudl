@@ -89,7 +89,7 @@ from core assets using asset factories.
 * **Return type:**
   asset_description
 
-### pudl.output.ferc1.ferc1_output_asset_factory(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
+### pudl.output.ferc1.ferc1_output_asset_factory(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)
 
 Define an output asset for the FERC1 table by adding in utility IDs.
 
@@ -275,13 +275,13 @@ Keyword arguments for [`exploded_table_asset_factory()`](#pudl.output.ferc1.expl
 
 #### io_manager_key *: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)*
 
-### pudl.output.ferc1.exploded_table_asset_factory(root_table: [str](https://docs.python.org/3/builtins/stdtypes.html#str), table_names: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], seed_nodes: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)], group_metric_checks: [pudl.transform.ferc1.GroupMetricChecks](../../transform/ferc1/index.html.md#pudl.transform.ferc1.GroupMetricChecks), off_by_facts: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[OffByFactoid](#pudl.output.ferc1.OffByFactoid)], io_manager_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
+### pudl.output.ferc1.exploded_table_asset_factory(root_table: [str](https://docs.python.org/3/builtins/stdtypes.html#str), table_names: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], seed_nodes: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)], group_metric_checks: [pudl.transform.ferc1.GroupMetricChecks](../../transform/ferc1/index.html.md#pudl.transform.ferc1.GroupMetricChecks), off_by_facts: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[OffByFactoid](#pudl.output.ferc1.OffByFactoid)], io_manager_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)
 
 Create an exploded table based on a set of related input tables.
 
 ### pudl.output.ferc1.EXPLOSION_ARGS *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[ExplosionArgs](#pudl.output.ferc1.ExplosionArgs)]*
 
-### pudl.output.ferc1.create_exploded_table_assets() → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)]
+### pudl.output.ferc1.create_exploded_table_assets() → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)]
 
 Create a list of exploded FERC Form 1 assets.
 
@@ -836,11 +836,11 @@ Check if any correction records have tags.
 
 ### pudl.output.ferc1.check_specs_detailed_tables_tags
 
-### pudl.output.ferc1.make_check_tag_propagation(spec) → [dagster.AssetChecksDefinition](https://docs.dagster.io/api/dagster/asset-checks/#dagster.AssetChecksDefinition)
+### pudl.output.ferc1.make_check_tag_propagation(spec) → [dagster.AssetChecksDefinition](https://dagster.io/docs/api/dagster/asset-checks/#dagster.AssetChecksDefinition)
 
 Check the propagation of tags.
 
-### pudl.output.ferc1.make_check_correction_tags(spec) → [dagster.AssetChecksDefinition](https://docs.dagster.io/api/dagster/asset-checks/#dagster.AssetChecksDefinition)
+### pudl.output.ferc1.make_check_correction_tags(spec) → [dagster.AssetChecksDefinition](https://dagster.io/docs/api/dagster/asset-checks/#dagster.AssetChecksDefinition)
 
 Check the propagation of tags.
 
@@ -882,7 +882,7 @@ Define some simple checks that can run on FERC 1 assets.
 
 ### pudl.output.ferc1.check_specs
 
-### pudl.output.ferc1.make_idx_check(spec: [Ferc1DetailedCheckSpec](#pudl.output.ferc1.Ferc1DetailedCheckSpec)) → [dagster.AssetChecksDefinition](https://docs.dagster.io/api/dagster/asset-checks/#dagster.AssetChecksDefinition)
+### pudl.output.ferc1.make_idx_check(spec: [Ferc1DetailedCheckSpec](#pudl.output.ferc1.Ferc1DetailedCheckSpec)) → [dagster.AssetChecksDefinition](https://dagster.io/docs/api/dagster/asset-checks/#dagster.AssetChecksDefinition)
 
 Turn the Ferc1DetailedCheckSpec into an actual Dagster asset check.
 

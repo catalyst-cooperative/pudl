@@ -36,7 +36,7 @@ In addition there’s a table of daily weather data, which is also stored as a s
 
 ### pudl.extract.gridpathratoolkit.\_extract_capacity_factor(part: [str](https://docs.python.org/3/builtins/stdtypes.html#str), ds: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
-### pudl.extract.gridpathratoolkit.raw_gridpathratoolkit_asset_factory(part: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
+### pudl.extract.gridpathratoolkit.raw_gridpathratoolkit_asset_factory(part: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)
 
 An asset factory for GridPath RA Toolkit hourly generation profiles.
 

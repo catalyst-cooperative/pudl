@@ -63,7 +63,7 @@ True
 
 ### *class* pudl.analysis.ml_tools.experiment_tracking.ExperimentTrackerConfig(\*\*config_dict)
 
-Bases: [`dagster.Config`](https://docs.dagster.io/api/dagster/config/#dagster.Config)
+Bases: [`dagster.Config`](https://dagster.io/docs/api/dagster/config/#dagster.Config)
 
 Dagster config to setup experiment tracking with mlflow.
 

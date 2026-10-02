@@ -33,7 +33,7 @@ Dictionary mapping PUDL tables to FERC-714 CSV filenames and character encodings
 
 A mapping of PUDL DB table names to their XBRL and CSV source table names.
 
-### pudl.extract.ferc714.raw_ferc714_csv_asset_factory(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
+### pudl.extract.ferc714.raw_ferc714_csv_asset_factory(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)
 
 Generates an asset for building the raw CSV-based FERC 714 dataframe.
 
@@ -49,7 +49,7 @@ Extract the FERC 714 XBRL Taxonomy metadata we’ve stored as JSON.
   structure, with each row annotating a separate XBRL concept from the FERC 714
   filings.
 
-### pudl.extract.ferc714.create_raw_ferc714_xbrl_assets() → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dagster.AssetSpec](https://docs.dagster.io/api/dagster/assets/#dagster.AssetSpec)]
+### pudl.extract.ferc714.create_raw_ferc714_xbrl_assets() → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dagster.AssetSpec](https://dagster.io/docs/api/dagster/assets/#dagster.AssetSpec)]
 
 Create AssetSpecs for raw FERC 714 XBRL tables.
 

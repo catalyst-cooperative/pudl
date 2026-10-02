@@ -37,7 +37,7 @@ not partitioned upstream.
 * **Returns:**
   A dataframe containing the SEC 10-K data.
 
-### pudl.extract.sec10k.raw_sec10k_asset_factory(table) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
+### pudl.extract.sec10k.raw_sec10k_asset_factory(table) → [dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)
 
 An asset factory for extracting SEC 10-K data by table.
 

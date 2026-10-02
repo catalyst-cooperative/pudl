@@ -189,11 +189,11 @@ impact the overall concurrency of the DAG much.
   A dictionary of DataFrames keyed by page name, where the DataFrame contains that
   page’s data from all extracted years concatenated together.
 
-### pudl.extract.extractor.\_is_dict_str_strint(\_context: [dagster.TypeCheckContext](https://docs.dagster.io/api/dagster/execution/#dagster.TypeCheckContext), x: Any) → [bool](https://docs.python.org/3/builtins/functions.html#bool)
+### pudl.extract.extractor.\_is_dict_str_strint(\_context: [dagster.TypeCheckContext](https://dagster.io/docs/api/dagster/execution/#dagster.TypeCheckContext), x: Any) → [bool](https://docs.python.org/3/builtins/functions.html#bool)
 
 ### pudl.extract.extractor.dagster_dict_str_strint
 
-### pudl.extract.extractor.partition_extractor_factory(extractor_cls: [type](../../metadata/classes/index.html.md#pudl.metadata.classes.Field.type)[[GenericExtractor](#pudl.extract.extractor.GenericExtractor)], name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [dagster.OpDefinition](https://docs.dagster.io/api/dagster/ops/#dagster.OpDefinition)
+### pudl.extract.extractor.partition_extractor_factory(extractor_cls: [type](../../metadata/classes/index.html.md#pudl.metadata.classes.Field.type)[[GenericExtractor](#pudl.extract.extractor.GenericExtractor)], name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [dagster.OpDefinition](https://dagster.io/docs/api/dagster/ops/#dagster.OpDefinition)
 
 Construct a Dagster op that extracts one partition of data, given an extractor.
 
@@ -201,14 +201,14 @@ Construct a Dagster op that extracts one partition of data, given an extractor.
   * **extractor_cls** – Class of type `Extractor` used to extract the data.
   * **name** – Name of an Excel based dataset (e.g. “eia860”).
 
-### pudl.extract.extractor.partitions_from_data_config_factory(name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [dagster.OpDefinition](https://docs.dagster.io/api/dagster/ops/#dagster.OpDefinition)
+### pudl.extract.extractor.partitions_from_data_config_factory(name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [dagster.OpDefinition](https://dagster.io/docs/api/dagster/ops/#dagster.OpDefinition)
 
 Construct a Dagster op to get target partitions from data config in Dagster context.
 
 * **Parameters:**
   **name** – Name of an Excel based dataset (e.g. “eia860”).
 
-### pudl.extract.extractor.raw_df_factory(extractor_cls: [type](../../metadata/classes/index.html.md#pudl.metadata.classes.Field.type)[[GenericExtractor](#pudl.extract.extractor.GenericExtractor)], name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
+### pudl.extract.extractor.raw_df_factory(extractor_cls: [type](../../metadata/classes/index.html.md#pudl.metadata.classes.Field.type)[[GenericExtractor](#pudl.extract.extractor.GenericExtractor)], name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)
 
 Return a dagster graph asset to extract raw DataFrames from CSV or Excel files.
 

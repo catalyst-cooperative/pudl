@@ -44,7 +44,7 @@ the final table.
 * **Type:**
   List
 
-### pudl.analysis.mcoe.mcoe_asset_factory(freq: Literal['YS', 'MS'], op_tags: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)]
+### pudl.analysis.mcoe.mcoe_asset_factory(freq: Literal['YS', 'MS'], op_tags: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)]
 
 Build MCOE related assets at yearly and monthly frequencies.
 
@@ -62,7 +62,7 @@ A dataclass to hold the specification for a MCOE check.
 
 ### pudl.analysis.mcoe.mcoe_asset_check_specs
 
-### pudl.analysis.mcoe.mcoe_asset_check_factory(spec: [McoeCheckSpec](#pudl.analysis.mcoe.McoeCheckSpec)) → [dagster.AssetChecksDefinition](https://docs.dagster.io/api/dagster/asset-checks/#dagster.AssetChecksDefinition)
+### pudl.analysis.mcoe.mcoe_asset_check_factory(spec: [McoeCheckSpec](#pudl.analysis.mcoe.McoeCheckSpec)) → [dagster.AssetChecksDefinition](https://dagster.io/docs/api/dagster/asset-checks/#dagster.AssetChecksDefinition)
 
 Turn a MCOE check spec into an AssetChecksDefinition.
 

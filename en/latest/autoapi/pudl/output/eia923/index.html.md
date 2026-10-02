@@ -94,7 +94,7 @@ required later to calculate average heat content per unit of fuel.
 
 Denormalize the [core_eia923_\_fuel_receipts_costs](../../../../data_dictionaries/pudl_db.html.md#core-eia923-fuel-receipts-costs) table.
 
-### pudl.output.eia923.time_aggregated_eia923_asset_factory(freq: Literal['YS', 'MS'], io_manager_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)]
+### pudl.output.eia923.time_aggregated_eia923_asset_factory(freq: Literal['YS', 'MS'], io_manager_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)]
 
 Build EIA-923 asset definitions, aggregated by year or month.
 

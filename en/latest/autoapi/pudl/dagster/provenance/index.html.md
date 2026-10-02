@@ -36,7 +36,7 @@ For the closest Dagster concept, see
 
 ### pudl.dagster.provenance.FERC_TO_SQLITE_METADATA_KEY *= 'ferc_to_sqlite'*
 
-### pudl.dagster.provenance.\_get_ferc_to_sqlite_asset_key(dataset: [str](https://docs.python.org/3/builtins/stdtypes.html#str), data_format: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [dagster.AssetKey](https://docs.dagster.io/api/dagster/assets/#dagster.AssetKey)
+### pudl.dagster.provenance.\_get_ferc_to_sqlite_asset_key(dataset: [str](https://docs.python.org/3/builtins/stdtypes.html#str), data_format: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [dagster.AssetKey](https://dagster.io/docs/api/dagster/assets/#dagster.AssetKey)
 
 Return the asset key corresponding to a ferc_to_sqlite asset from dataset/format.
 
@@ -59,7 +59,7 @@ compatible FERC SQLite prerequisite must contain. Used by
 
 #### ferc_xbrl_extractor_version *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### *property* asset_key *: [dagster.AssetKey](https://docs.dagster.io/api/dagster/assets/#dagster.AssetKey)*
+#### *property* asset_key *: [dagster.AssetKey](https://dagster.io/docs/api/dagster/assets/#dagster.AssetKey)*
 
 The AssetKey corresponding to the extracted SQLite database.
 
@@ -85,7 +85,7 @@ Stored provenance + extra debugging fields from materialization time.
 
 #### ferc_xbrl_extractor_version *: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### *classmethod* from_dagster_instance(instance: [dagster.DagsterInstance](https://docs.dagster.io/api/dagster/internals/#dagster.DagsterInstance), dataset: [str](https://docs.python.org/3/builtins/stdtypes.html#str), data_format: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [FercSqliteProvenanceRecord](#pudl.dagster.provenance.FercSqliteProvenanceRecord)
+#### *classmethod* from_dagster_instance(instance: [dagster.DagsterInstance](https://dagster.io/docs/api/dagster/internals/#dagster.DagsterInstance), dataset: [str](https://docs.python.org/3/builtins/stdtypes.html#str), data_format: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [FercSqliteProvenanceRecord](#pudl.dagster.provenance.FercSqliteProvenanceRecord)
 
 Return FercSqliteProvenanceRecord from dagster metadata if available.
 

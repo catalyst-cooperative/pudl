@@ -241,7 +241,7 @@ A sentinel value for dealing with null or zero values.
    sentinel values. We avoid any negative values because there are instances of
    negative original values - especially negative net generation.
 
-### pudl.analysis.allocate_gen_fuel.allocate_gen_fuel_asset_factory(freq: [AllocationFrequency](#pudl.analysis.allocate_gen_fuel.AllocationFrequency), io_manager_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)]
+### pudl.analysis.allocate_gen_fuel.allocate_gen_fuel_asset_factory(freq: [AllocationFrequency](#pudl.analysis.allocate_gen_fuel.AllocationFrequency), io_manager_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)]
 
 Build yearly and monthly net generation & fuel consumption allocation assets.
 

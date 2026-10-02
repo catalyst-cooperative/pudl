@@ -3247,7 +3247,7 @@ and will break the pk expectations.
 
 ### pudl.transform.ferc1.\_FERC1_PLANT_TABLES
 
-### pudl.transform.ferc1.ferc1_transform_asset_factory(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), tfr_class: [Ferc1AbstractTableTransformer](#pudl.transform.ferc1.Ferc1AbstractTableTransformer), io_manager_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'parquet_io_manager', convert_dtypes: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True, generic: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, op_tags: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any] | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
+### pudl.transform.ferc1.ferc1_transform_asset_factory(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), tfr_class: [Ferc1AbstractTableTransformer](#pudl.transform.ferc1.Ferc1AbstractTableTransformer), io_manager_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'parquet_io_manager', convert_dtypes: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True, generic: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, op_tags: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any] | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)
 
 Create an asset that pulls in raw ferc Form 1 assets and applies transformations.
 
@@ -3264,7 +3264,7 @@ raw xbrl instant and duration tables and xbrl metadata.
 * **Returns:**
   An asset for the clean table.
 
-### pudl.transform.ferc1.create_ferc1_transform_assets() → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)]
+### pudl.transform.ferc1.create_ferc1_transform_assets() → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)]
 
 Create a list of transformed FERC Form 1 assets.
 

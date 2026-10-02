@@ -102,7 +102,7 @@ Run the DBT build and get failure information back.
 * get contexts for various test failure types
 * print out test failure context
 
-### pudl.validate.dbt.dagster_to_dbt_selection(selection: [str](https://docs.python.org/3/builtins/stdtypes.html#str), defs: [dagster.Definitions](https://docs.dagster.io/api/dagster/definitions/#dagster.Definitions), manifest=None) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
+### pudl.validate.dbt.dagster_to_dbt_selection(selection: [str](https://docs.python.org/3/builtins/stdtypes.html#str), defs: [dagster.Definitions](https://dagster.io/docs/api/dagster/definitions/#dagster.Definitions), manifest=None) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Translate dagster asset selection to db node selection.
 

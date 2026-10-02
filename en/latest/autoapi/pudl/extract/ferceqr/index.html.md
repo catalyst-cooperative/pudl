@@ -184,7 +184,7 @@ calling this function, the same way it does for the other four raw tables.
 `_get_rejected_record_counts`), so this uses `allow_enum_columns=True` to
 write with the fast native writer.
 
-### pudl.extract.ferceqr.extract_ferceqr(context: [dagster.AssetExecutionContext](https://docs.dagster.io/api/dagster/execution/#dagster.AssetExecutionContext), ferceqr_archive: [pudl.dagster.resources.FercEqrArchiveResource](../../dagster/resources/index.html.md#pudl.dagster.resources.FercEqrArchiveResource) = FercEqrArchiveResource())
+### pudl.extract.ferceqr.extract_ferceqr(context: [dagster.AssetExecutionContext](https://dagster.io/docs/api/dagster/execution/#dagster.AssetExecutionContext), ferceqr_archive: [pudl.dagster.resources.FercEqrArchiveResource](../../dagster/resources/index.html.md#pudl.dagster.resources.FercEqrArchiveResource) = FercEqrArchiveResource())
 
 Extract year quarter from CSVs and load to parquet files.
 

@@ -1119,7 +1119,7 @@ changes:
   Pydantic models to raw `run_config` dicts, which required keeping Dagster config
   schemas manually in sync with the Pydantic models.
 * **Updated Dagster resources and IO managers to use Pydantic-native**
-  [`dagster.ConfigurableResource`](https://docs.dagster.io/api/dagster/resources/#dagster.ConfigurableResource) **and** [`dagster.ConfigurableIOManager`](https://docs.dagster.io/api/dagster/io-managers/#dagster.ConfigurableIOManager)
+  [`dagster.ConfigurableResource`](https://dagster.io/docs/api/dagster/resources/#dagster.ConfigurableResource) **and** [`dagster.ConfigurableIOManager`](https://dagster.io/docs/api/dagster/io-managers/#dagster.ConfigurableIOManager)
   **base classes.**
   `pudl.workspace.datastore.DatastoreResource` and
   `pudl.workspace.datastore.ZenodoDoiSettingsResource` replace the legacy
@@ -1128,10 +1128,10 @@ changes:
   `pudl.io_managers.FercDbfSqliteIOManager`, and
   `pudl.io_managers.FercXbrlSqliteIOManager` replace the legacy
   `@io_manager` wrappers. Resources now receive settings via Pydantic field
-  injection rather than via [`dagster.build_init_resource_context()`](https://docs.dagster.io/api/dagster/resources/#dagster.build_init_resource_context) config dicts.
+  injection rather than via [`dagster.build_init_resource_context()`](https://dagster.io/docs/api/dagster/resources/#dagster.build_init_resource_context) config dicts.
 * **Added FERC SQLite provenance tracking** via the new
   `pudl.ferc_sqlite_provenance` module. Each time a FERC SQLite asset
-  materializes, it records a fingerprint as [`dagster.MaterializeResult`](https://docs.dagster.io/api/dagster/assets/#dagster.MaterializeResult)
+  materializes, it records a fingerprint as [`dagster.MaterializeResult`](https://dagster.io/docs/api/dagster/assets/#dagster.MaterializeResult)
   metadata: the Zenodo DOI of the source archive, the years included, and a hash of
   the ETL settings. When a downstream PUDL asset subsequently loads from that SQLite
   file, the IO manager checks the stored fingerprint against the current run’s
@@ -1151,7 +1151,7 @@ changes:
   the `pudl_io_manager` fixture are replaced by a single `prebuilt_outputs`
   fixture that runs the full `pudl_with_ferc_to_sqlite` job via `dg launch` as a
   subprocess, with coverage collection appended to the existing test coverage report.
-  A persistent [`dagster.DagsterInstance`](https://docs.dagster.io/api/dagster/internals/#dagster.DagsterInstance) fixture allows test code to read
+  A persistent [`dagster.DagsterInstance`](https://dagster.io/docs/api/dagster/internals/#dagster.DagsterInstance) fixture allows test code to read
   asset materialisation metadata written by that subprocess. Pytest CLI flags are
   renamed for clarity: `--live-dbs` → `--live-pudl-output`, `--tmp-data` →
   `--temp-pudl-input`, `--etl-settings` → `--dg-config`.

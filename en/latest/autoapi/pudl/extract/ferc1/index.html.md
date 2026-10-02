@@ -176,11 +176,11 @@ the table when we clone the database.
 
 Deduplicates records in f1_respondent_id table.
 
-### pudl.extract.ferc1.create_raw_ferc1_assets() → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dagster.AssetSpec](https://docs.dagster.io/api/dagster/assets/#dagster.AssetSpec)]
+### pudl.extract.ferc1.create_raw_ferc1_assets() → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dagster.AssetSpec](https://dagster.io/docs/api/dagster/assets/#dagster.AssetSpec)]
 
 Create AssetSpecs for raw ferc1 tables.
 
-An [`dagster.AssetSpec`](https://docs.dagster.io/api/dagster/assets/#dagster.AssetSpec) allows you to access assets that are generated
+An [`dagster.AssetSpec`](https://dagster.io/docs/api/dagster/assets/#dagster.AssetSpec) allows you to access assets that are generated
 elsewhere.  In our case, the xbrl and dbf database are created in a separate dagster
 Definition.
 

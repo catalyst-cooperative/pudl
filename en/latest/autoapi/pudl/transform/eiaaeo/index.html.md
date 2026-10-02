@@ -183,7 +183,7 @@ Define some simple checks that can run on any AEO asset.
 
 ### pudl.transform.eiaaeo.check_specs
 
-### pudl.transform.eiaaeo.make_check(spec: [AeoCheckSpec](#pudl.transform.eiaaeo.AeoCheckSpec)) → [dagster.AssetChecksDefinition](https://docs.dagster.io/api/dagster/asset-checks/#dagster.AssetChecksDefinition)
+### pudl.transform.eiaaeo.make_check(spec: [AeoCheckSpec](#pudl.transform.eiaaeo.AeoCheckSpec)) → [dagster.AssetChecksDefinition](https://dagster.io/docs/api/dagster/asset-checks/#dagster.AssetChecksDefinition)
 
 Turn the AeoCheckSpec into an actual Dagster asset check.
 

@@ -17,7 +17,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="run_the_etl.html.md" />
-    <title>Running the ETL Pipeline &#8212; PUDL 2026.9.1.dev32 documentation</title>
+    <title>Running the ETL Pipeline &#8212; PUDL 2026.9.1.dev33 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=de5fc021"></script>
+    <script src="../_static/documentation_options.js?v=771fb447"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev32 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev32 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev33 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev33 documentation - Home"/>
   
   
 </a></div>
@@ -846,7 +846,7 @@ contributors can edit the relevant layer directly:</p>
 <li><p><a class="reference internal" href="../autoapi/pudl/dagster/jobs/index.html#module-pudl.dagster.jobs" title="pudl.dagster.jobs"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.dagster.jobs</span></code></a> defines the standard PUDL jobs.</p></li>
 <li><p><a class="reference internal" href="../autoapi/pudl/dagster/sensors/index.html#module-pudl.dagster.sensors" title="pudl.dagster.sensors"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.dagster.sensors</span></code></a> defines Dagster sensors.</p></li>
 <li><p><a class="reference internal" href="../autoapi/pudl/dagster/config/index.html#module-pudl.dagster.config" title="pudl.dagster.config"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.dagster.config</span></code></a> contains reusable run-configuration helpers.</p></li>
-<li><p><a class="reference internal" href="../autoapi/pudl/dagster/build/index.html#module-pudl.dagster.build" title="pudl.dagster.build"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.dagster.build</span></code></a> assembles <a class="reference external" href="https://docs.dagster.io/api/dagster/definitions/#dagster.Definitions" title="(in Dagster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dagster.Definitions</span></code></a> via
+<li><p><a class="reference internal" href="../autoapi/pudl/dagster/build/index.html#module-pudl.dagster.build" title="pudl.dagster.build"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.dagster.build</span></code></a> assembles <a class="reference external" href="https://dagster.io/docs/api/dagster/definitions/#dagster.Definitions" title="(in Dagster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dagster.Definitions</span></code></a> via
 <code class="xref py py-func docutils literal notranslate"><span class="pre">pudl.dagster.build_defs()</span></code>.</p></li>
 </ul>
 </li>
@@ -920,7 +920,7 @@ specific usage examples:</p>
 <p>If you want to inspect asset values interactively from a notebook, REPL, or local
 script, use <a class="reference internal" href="../autoapi/pudl/dagster/build/index.html#pudl.dagster.build.build_interactive_defs" title="pudl.dagster.build.build_interactive_defs"><code class="xref py py-func docutils literal notranslate"><span class="pre">pudl.dagster.build.build_interactive_defs()</span></code></a> rather than the default
 <code class="docutils literal notranslate"><span class="pre">build_defs()</span></code> assembly. This helper constructs concrete FERC SQLite IO managers for
-interactive use, which allows <a class="reference external" href="https://docs.dagster.io/api/dagster/definitions/#dagster.Definitions.load_asset_value" title="(in Dagster)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">dagster.Definitions.load_asset_value()</span></code></a> to work
+interactive use, which allows <a class="reference external" href="https://dagster.io/docs/api/dagster/definitions/#dagster.Definitions.load_asset_value" title="(in Dagster)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">dagster.Definitions.load_asset_value()</span></code></a> to work
 outside a <code class="docutils literal notranslate"><span class="pre">dg</span></code>-spawned environment.</p>
 <p>For example, to load a raw FERC asset in a notebook:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="kn">import</span> <span class="n">AssetKey</span>

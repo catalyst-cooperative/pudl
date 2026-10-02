@@ -63,7 +63,7 @@ Enum for the different types of RUS entities.
 
 #### BORROWERS
 
-### pudl.transform.rus.finished_rus_asset_factory(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), \_core_table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), io_manager_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
+### pudl.transform.rus.finished_rus_asset_factory(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), \_core_table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), io_manager_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)
 
 An asset factory for finished RUS tables.
 

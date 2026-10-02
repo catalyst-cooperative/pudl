@@ -17,7 +17,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="release_notes.html.md" />
-    <title>PUDL Release Notes &#8212; PUDL 2026.9.1.dev32 documentation</title>
+    <title>PUDL Release Notes &#8212; PUDL 2026.9.1.dev33 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="_static/documentation_options.js?v=de5fc021"></script>
+    <script src="_static/documentation_options.js?v=771fb447"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
@@ -140,8 +140,8 @@
       
     
     
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev32 documentation - Home"/>
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev32 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev33 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev33 documentation - Home"/>
   
   
 </a></div>
@@ -1791,7 +1791,7 @@ loads a <code class="xref py py-class docutils literal notranslate"><span class=
 Pydantic models to raw <code class="docutils literal notranslate"><span class="pre">run_config</span></code> dicts, which required keeping Dagster config
 schemas manually in sync with the Pydantic models.</p></li>
 <li><p><strong>Updated Dagster resources and IO managers to use Pydantic-native</strong>
-<a class="reference external" href="https://docs.dagster.io/api/dagster/resources/#dagster.ConfigurableResource" title="(in Dagster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dagster.ConfigurableResource</span></code></a> <strong>and</strong> <a class="reference external" href="https://docs.dagster.io/api/dagster/io-managers/#dagster.ConfigurableIOManager" title="(in Dagster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dagster.ConfigurableIOManager</span></code></a>
+<a class="reference external" href="https://dagster.io/docs/api/dagster/resources/#dagster.ConfigurableResource" title="(in Dagster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dagster.ConfigurableResource</span></code></a> <strong>and</strong> <a class="reference external" href="https://dagster.io/docs/api/dagster/io-managers/#dagster.ConfigurableIOManager" title="(in Dagster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dagster.ConfigurableIOManager</span></code></a>
 <strong>base classes.</strong>
 <code class="xref py py-class docutils literal notranslate"><span class="pre">pudl.workspace.datastore.DatastoreResource</span></code> and
 <code class="xref py py-class docutils literal notranslate"><span class="pre">pudl.workspace.datastore.ZenodoDoiSettingsResource</span></code> replace the legacy
@@ -1800,10 +1800,10 @@ schemas manually in sync with the Pydantic models.</p></li>
 <code class="xref py py-class docutils literal notranslate"><span class="pre">pudl.io_managers.FercDbfSqliteIOManager</span></code>, and
 <code class="xref py py-class docutils literal notranslate"><span class="pre">pudl.io_managers.FercXbrlSqliteIOManager</span></code> replace the legacy
 <code class="docutils literal notranslate"><span class="pre">&#64;io_manager</span></code> wrappers. Resources now receive settings via Pydantic field
-injection rather than via <a class="reference external" href="https://docs.dagster.io/api/dagster/resources/#dagster.build_init_resource_context" title="(in Dagster)"><code class="xref py py-func docutils literal notranslate"><span class="pre">dagster.build_init_resource_context()</span></code></a> config dicts.</p></li>
+injection rather than via <a class="reference external" href="https://dagster.io/docs/api/dagster/resources/#dagster.build_init_resource_context" title="(in Dagster)"><code class="xref py py-func docutils literal notranslate"><span class="pre">dagster.build_init_resource_context()</span></code></a> config dicts.</p></li>
 <li><p><strong>Added FERC SQLite provenance tracking</strong> via the new
 <code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.ferc_sqlite_provenance</span></code> module. Each time a FERC SQLite asset
-materializes, it records a fingerprint as <a class="reference external" href="https://docs.dagster.io/api/dagster/assets/#dagster.MaterializeResult" title="(in Dagster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dagster.MaterializeResult</span></code></a>
+materializes, it records a fingerprint as <a class="reference external" href="https://dagster.io/docs/api/dagster/assets/#dagster.MaterializeResult" title="(in Dagster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dagster.MaterializeResult</span></code></a>
 metadata: the Zenodo DOI of the source archive, the years included, and a hash of
 the ETL settings. When a downstream PUDL asset subsequently loads from that SQLite
 file, the IO manager checks the stored fingerprint against the current run’s
@@ -1823,7 +1823,7 @@ hand-assemble Dagster <code class="docutils literal notranslate"><span class="pr
 the <code class="docutils literal notranslate"><span class="pre">pudl_io_manager</span></code> fixture are replaced by a single <code class="docutils literal notranslate"><span class="pre">prebuilt_outputs</span></code>
 fixture that runs the full <code class="docutils literal notranslate"><span class="pre">pudl_with_ferc_to_sqlite</span></code> job via <code class="docutils literal notranslate"><span class="pre">dg</span> <span class="pre">launch</span></code> as a
 subprocess, with coverage collection appended to the existing test coverage report.
-A persistent <a class="reference external" href="https://docs.dagster.io/api/dagster/internals/#dagster.DagsterInstance" title="(in Dagster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dagster.DagsterInstance</span></code></a> fixture allows test code to read
+A persistent <a class="reference external" href="https://dagster.io/docs/api/dagster/internals/#dagster.DagsterInstance" title="(in Dagster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dagster.DagsterInstance</span></code></a> fixture allows test code to read
 asset materialisation metadata written by that subprocess. Pytest CLI flags are
 renamed for clarity: <code class="docutils literal notranslate"><span class="pre">--live-dbs</span></code> → <code class="docutils literal notranslate"><span class="pre">--live-pudl-output</span></code>, <code class="docutils literal notranslate"><span class="pre">--tmp-data</span></code> →
 <code class="docutils literal notranslate"><span class="pre">--temp-pudl-input</span></code>, <code class="docutils literal notranslate"><span class="pre">--etl-settings</span></code> → <code class="docutils literal notranslate"><span class="pre">--dg-config</span></code>.</p></li>

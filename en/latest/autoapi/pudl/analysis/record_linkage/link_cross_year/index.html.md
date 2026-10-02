@@ -33,7 +33,7 @@ Define a record linkage model interface and implement common functionality.
 
 ### *class* pudl.analysis.record_linkage.link_cross_year.PenalizeReportYearDistanceConfig(\*\*config_dict)
 
-Bases: [`dagster.Config`](https://docs.dagster.io/api/dagster/config/#dagster.Config)
+Bases: [`dagster.Config`](https://dagster.io/docs/api/dagster/config/#dagster.Config)
 
 Compute distance between records and add penalty to records from same year.
 
@@ -66,7 +66,7 @@ Compute a distance matrix and penalize records from the same year.
 
 ### *class* pudl.analysis.record_linkage.link_cross_year.DBSCANConfig(\*\*config_dict)
 
-Bases: [`dagster.Config`](https://docs.dagster.io/api/dagster/config/#dagster.Config)
+Bases: [`dagster.Config`](https://dagster.io/docs/api/dagster/config/#dagster.Config)
 
 Configuration for DBSCAN step.
 
@@ -80,7 +80,7 @@ Generate initial IDs using DBSCAN algorithm.
 
 ### *class* pudl.analysis.record_linkage.link_cross_year.SplitClustersConfig(\*\*config_dict)
 
-Bases: [`dagster.Config`](https://docs.dagster.io/api/dagster/config/#dagster.Config)
+Bases: [`dagster.Config`](https://dagster.io/docs/api/dagster/config/#dagster.Config)
 
 Configuration for AgglomerativeClustering used to split overmerged clusters.
 
@@ -100,7 +100,7 @@ much faster and uses much less memory.
 
 ### *class* pudl.analysis.record_linkage.link_cross_year.MatchOrphanedRecordsConfig(\*\*config_dict)
 
-Bases: [`dagster.Config`](https://docs.dagster.io/api/dagster/config/#dagster.Config)
+Bases: [`dagster.Config`](https://dagster.io/docs/api/dagster/config/#dagster.Config)
 
 Configuration for [`match_orphaned_records()`](#pudl.analysis.record_linkage.link_cross_year.match_orphaned_records) op.
 

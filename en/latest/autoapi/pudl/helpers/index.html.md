@@ -945,7 +945,7 @@ Convert a [`pandas.DataFrame`](https://pandas.pydata.org/pandas-docs/stable/refe
 * **Returns:**
   The contents of the input DataFrame, represented as an ExcelFile.
 
-### pudl.helpers.get_asset_keys(assets: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)], exclude_asset_specs: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True) → [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[dagster.AssetKey](https://docs.dagster.io/api/dagster/assets/#dagster.AssetKey)]
+### pudl.helpers.get_asset_keys(assets: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)], exclude_asset_specs: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True) → [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[dagster.AssetKey](https://dagster.io/docs/api/dagster/assets/#dagster.AssetKey)]
 
 Get a set of asset keys from a list of asset definitions.
 
@@ -956,7 +956,7 @@ Get a set of asset keys from a list of asset definitions.
 * **Returns:**
   A set of asset keys.
 
-### pudl.helpers.get_asset_group_keys(asset_group: [str](https://docs.python.org/3/builtins/stdtypes.html#str), all_assets: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)]) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]
+### pudl.helpers.get_asset_group_keys(asset_group: [str](https://docs.python.org/3/builtins/stdtypes.html#str), all_assets: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)]) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]
 
 Get a list of asset names in a given asset group.
 
