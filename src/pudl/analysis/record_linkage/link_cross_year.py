@@ -296,7 +296,8 @@ def match_orphaned_records(
     return id_year_df
 
 
-def _sort_records_for_clustering(
+@op(out={"df": Out(), "feature_matrix": Out()})
+def sort_records_for_clustering(
     df: pd.DataFrame, feature_matrix: FeatureMatrix
 ) -> tuple[pd.DataFrame, FeatureMatrix]:
     """Put records in a canonical order and give the feature matrix a matching one.
@@ -317,14 +318,6 @@ def _sort_records_for_clustering(
         matrix=sorted_matrix,  # type: ignore[bad-argument-type]
         index=pd.RangeIndex(len(sorted_df)),
     )
-
-
-@op(out={"df": Out(), "feature_matrix": Out()})
-def sort_records_for_clustering(
-    df: pd.DataFrame, feature_matrix: FeatureMatrix
-) -> tuple[pd.DataFrame, FeatureMatrix]:
-    """Op wrapper around :func:`_sort_records_for_clustering`."""
-    return _sort_records_for_clustering(df, feature_matrix)
 
 
 @op

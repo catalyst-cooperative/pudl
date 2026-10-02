@@ -5,8 +5,8 @@ import pytest
 from pandas.testing import assert_frame_equal
 
 from pudl.analysis.record_linkage.classify_plants_ferc1 import (
-    _assign_plant_ids,
     _canonicalize_plant_ids,
+    assign_plant_ids,
 )
 
 
@@ -56,10 +56,10 @@ def test_canonicalize_plant_ids_unrelated_change_does_not_shift_ids():
     assert after[3] not in set(before)
 
 
-def test_assign_plant_ids_matches_on_record_id():
+def testassign_plant_ids_matches_on_record_id():
     """IDs land on the right steam records even if row order differs."""
     labeled_df = _records()
     steam = pd.DataFrame({"record_id": ["r6", "r1", "r4", "r2", "r3", "r5"]})
-    out = _assign_plant_ids(steam, labeled_df)
+    out = assign_plant_ids(steam, labeled_df)
     assert out["plant_id_ferc1"].tolist() == [3, 1, 2, 1, 2, 3]
     assert_frame_equal(out[["record_id"]], steam)

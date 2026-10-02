@@ -5,7 +5,7 @@ import pandas as pd
 from pandas.testing import assert_frame_equal
 
 from pudl.analysis.record_linkage.embed_dataframe import FeatureMatrix
-from pudl.analysis.record_linkage.link_cross_year import _sort_records_for_clustering
+from pudl.analysis.record_linkage.link_cross_year import sort_records_for_clustering
 
 
 def _df_and_matrix() -> tuple[pd.DataFrame, FeatureMatrix]:
@@ -18,18 +18,18 @@ def _df_and_matrix() -> tuple[pd.DataFrame, FeatureMatrix]:
     return df, FeatureMatrix(matrix=matrix, index=df.index)
 
 
-def test_sort_records_for_clustering_sorts_by_record_id():
+def testsort_records_for_clustering_sorts_by_record_id():
     """The sorted frame is ordered by primary key and has a fresh RangeIndex."""
     df, feature_matrix = _df_and_matrix()
-    sorted_df, _ = _sort_records_for_clustering(df, feature_matrix)
+    sorted_df, _ = sort_records_for_clustering(df, feature_matrix)
     assert sorted_df["record_id"].tolist() == ["r1", "r2", "r3"]
     assert sorted_df.index.equals(pd.RangeIndex(3))
 
 
-def test_sort_records_for_clustering_reorders_feature_matrix_to_match():
+def testsort_records_for_clustering_reorders_feature_matrix_to_match():
     """Feature matrix rows must follow their records through the sort."""
     df, feature_matrix = _df_and_matrix()
-    sorted_df, sorted_feature_matrix = _sort_records_for_clustering(df, feature_matrix)
+    sorted_df, sorted_feature_matrix = sort_records_for_clustering(df, feature_matrix)
     # r1, r2, r3 in that order -> feature rows [1.0], [2.0], [3.0]
     np.testing.assert_array_equal(
         sorted_feature_matrix.matrix, np.array([[1.0], [2.0], [3.0]])
@@ -37,7 +37,7 @@ def test_sort_records_for_clustering_reorders_feature_matrix_to_match():
     assert sorted_feature_matrix.index.equals(pd.RangeIndex(3))
 
 
-def test_sort_records_for_clustering_is_independent_of_input_order():
+def testsort_records_for_clustering_is_independent_of_input_order():
     """Shuffling df and feature_matrix together must not change the result."""
     df, feature_matrix = _df_and_matrix()
     shuffled_positions = [2, 0, 1]
@@ -47,8 +47,8 @@ def test_sort_records_for_clustering_is_independent_of_input_order():
         index=feature_matrix.index[shuffled_positions],
     )
 
-    sorted_df, sorted_feature_matrix = _sort_records_for_clustering(df, feature_matrix)
-    shuffled_sorted_df, shuffled_sorted_matrix = _sort_records_for_clustering(
+    sorted_df, sorted_feature_matrix = sort_records_for_clustering(df, feature_matrix)
+    shuffled_sorted_df, shuffled_sorted_matrix = sort_records_for_clustering(
         shuffled_df, shuffled_matrix
     )
 

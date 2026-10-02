@@ -117,17 +117,6 @@ def _canonicalize_plant_ids(labeled_df: pd.DataFrame) -> pd.Series:
     return plant_ids.reindex(labeled_df.index).rename("plant_id_ferc1")
 
 
-def _assign_plant_ids(
-    ferc1_steam_df: pd.DataFrame, labeled_df: pd.DataFrame
-) -> pd.DataFrame:
-    """Add canonical ``plant_id_ferc1`` to the steam table, matching on ``record_id``."""
-    plant_ids = _canonicalize_plant_ids(labeled_df)
-    plant_ids.index = labeled_df["record_id"]
-    return ferc1_steam_df.assign(
-        plant_id_ferc1=ferc1_steam_df["record_id"].map(plant_ids)
-    )
-
-
 @op(tags={"dagster/priority": 10})
 def assign_plant_ids(
     ferc1_steam_df: pd.DataFrame,
@@ -143,7 +132,11 @@ def assign_plant_ids(
     Returns:
         The steam dataframe with a ``plant_id_ferc1`` column added.
     """
-    return _assign_plant_ids(ferc1_steam_df, labeled_df)
+    plant_ids = _canonicalize_plant_ids(labeled_df)
+    plant_ids.index = labeled_df["record_id"]
+    return ferc1_steam_df.assign(
+        plant_id_ferc1=ferc1_steam_df["record_id"].map(plant_ids)
+    )
 
 
 @op(tags={"dagster/priority": 10})
