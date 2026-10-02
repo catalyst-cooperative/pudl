@@ -89,6 +89,14 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
   [core_ferc1_\_yearly_cash_flows_sched120](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-cash-flows-sched120) without `row_type_xbrl`,
   `is_within_table_calc`, `balance`, or `ferc_account` metadata. See
   [#5587](https://github.com/catalyst-cooperative/pudl/issues/5587) and [#5588](https://github.com/catalyst-cooperative/pudl/pull/5588).
+* Made `plant_id_ferc1` deterministic. The IDs assigned to FERC 1 steam plants used
+  to be reshuffled by tiny changes in the input data, even when the plants themselves
+  were unchanged. They now depend only on which records belong to each plant, so
+  unrelated plants keep their IDs and differences between runs reflect real changes. IDs
+  now start at 1 instead of 0, and are still not stable across data updates. We also
+  corrected several hand-assigned `plant_id_pudl` values that split one plant across
+  multiple IDs, which cut the number of `plant_id_ferc1` values spanning more than one
+  `plant_id_pudl` from 6 to 2. See issue [#5609](https://github.com/catalyst-cooperative/pudl/issues/5609) and PR [#5642](https://github.com/catalyst-cooperative/pudl/pull/5642).
 * Fixed tags for new 2025 XBRL factoids and rescued the `ferc_account` field in
   [out_ferc1_\_yearly_rate_base](data_dictionaries/pudl_db.html.md#out-ferc1-yearly-rate-base). See [#5520](https://github.com/catalyst-cooperative/pudl/issues/5520) and [#5597](https://github.com/catalyst-cooperative/pudl/pull/5597).
 * Fixed `valid_until_date` in the `_core_eia__forensics_entity_resolution_*` and

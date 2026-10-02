@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.analysis.record_linkage.link_cross_year &#8212; PUDL 2026.9.1.dev35 documentation</title>
+    <title>pudl.analysis.record_linkage.link_cross_year &#8212; PUDL 2026.9.1.dev36 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../../../../_static/documentation_options.js?v=367c8191"></script>
+    <script src="../../../../_static/documentation_options.js?v=16cd1b7a"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -495,8 +495,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev35 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev35 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev36 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev36 documentation - Home"/>
   
   
 </a></div>
@@ -877,7 +877,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="kn">import</span> <span class="n">Config</span><span class="p">,</span> <span class="n">graph</span><span class="p">,</span> <span class="n">op</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="kn">import</span> <span class="n">Config</span><span class="p">,</span> <span class="n">Out</span><span class="p">,</span> <span class="n">graph</span><span class="p">,</span> <span class="n">op</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">numba</span><span class="w"> </span><span class="kn">import</span> <span class="n">njit</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">numba.typed</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.cluster</span><span class="w"> </span><span class="kn">import</span> <span class="n">DBSCAN</span><span class="p">,</span> <span class="n">AgglomerativeClustering</span>
@@ -1227,6 +1227,42 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<span class="nd">@op</span><span class="p">(</span><span class="n">out</span><span class="o">=</span><span class="p">{</span><span class="s2">"df"</span><span class="p">:</span> <span class="n">Out</span><span class="p">(),</span> <span class="s2">"feature_matrix"</span><span class="p">:</span> <span class="n">Out</span><span class="p">()})</span>
+<div class="viewcode-block" id="sort_records_for_clustering">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/link_cross_year/index.html#pudl.analysis.record_linkage.link_cross_year.sort_records_for_clustering">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">sort_records_for_clustering</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">feature_matrix</span><span class="p">:</span> <span class="n">FeatureMatrix</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">FeatureMatrix</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Put records in a canonical order and give the feature matrix a matching one.</span>
+
+<span class="sd">    Clustering results depend on the order of the input rows, and the other ops in</span>
+<span class="sd">    this graph assume ``df`` and ``feature_matrix.matrix`` share a fresh RangeIndex</span>
+<span class="sd">    in the same row order. Rather than relying on every caller to have already</span>
+<span class="sd">    sorted ``df`` before embedding it (easy to forget, and silently wrong if</span>
+<span class="sd">    missed), sort here and use ``feature_matrix.index`` to reorder its rows to</span>
+<span class="sd">    match, regardless of what order they arrive in.</span>
+<span class="sd">    """</span>
+    <span class="n">sorted_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">"record_id"</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">"stable"</span><span class="p">)</span>
+    <span class="n">positions</span> <span class="o">=</span> <span class="n">feature_matrix</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_indexer</span><span class="p">(</span><span class="n">sorted_df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+    <span class="n">sorted_matrix</span> <span class="o">=</span> <span class="n">feature_matrix</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="n">positions</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">sorted_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">FeatureMatrix</span><span class="p">(</span>
+        <span class="c1"># csr_matrix fancy indexing is typed as returning sparray in scipy's</span>
+        <span class="c1"># stubs, but actually returns another csr_matrix at runtime.</span>
+        <span class="n">matrix</span><span class="o">=</span><span class="n">sorted_matrix</span><span class="p">,</span>  <span class="c1"># type: ignore[bad-argument-type]</span>
+        <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">RangeIndex</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sorted_df</span><span class="p">)),</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="nd">@op</span>
+<div class="viewcode-block" id="attach_record_labels">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/link_cross_year/index.html#pudl.analysis.record_linkage.link_cross_year.attach_record_labels">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">attach_record_labels</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">id_year_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Attach final cluster labels to the (sorted) records that were clustered."""</span>
+    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">record_label</span><span class="o">=</span><span class="n">id_year_df</span><span class="p">[</span><span class="s2">"record_label"</span><span class="p">])</span></div>
+
+
+
 <span class="nd">@graph</span>
 <div class="viewcode-block" id="link_ids_cross_year">
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/link_cross_year/index.html#pudl.analysis.record_linkage.link_cross_year.link_ids_cross_year">[docs]</a>
@@ -1234,8 +1270,10 @@ window.runMermaid = runMermaid;</script>
     <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">feature_matrix</span><span class="p">:</span> <span class="n">FeatureMatrix</span><span class="p">,</span>
     <span class="n">experiment_tracker</span><span class="p">:</span> <span class="n">experiment_tracking</span><span class="o">.</span><span class="n">ExperimentTracker</span><span class="p">,</span>
-<span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Apply model and return column of estimated record labels."""</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Apply model and return input records annotated with cluster labels."""</span>
+    <span class="n">df</span><span class="p">,</span> <span class="n">feature_matrix</span> <span class="o">=</span> <span class="n">sort_records_for_clustering</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">feature_matrix</span><span class="p">)</span>
+
     <span class="c1"># Compute distances and apply penalty for records from same year</span>
     <span class="n">distance_matrix</span> <span class="o">=</span> <span class="n">compute_distance_with_year_penalty</span><span class="p">(</span><span class="n">feature_matrix</span><span class="p">,</span> <span class="n">df</span><span class="p">)</span>
 
@@ -1244,7 +1282,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">id_year_df</span> <span class="o">=</span> <span class="n">split_clusters</span><span class="p">(</span><span class="n">distance_matrix</span><span class="p">,</span> <span class="n">id_year_df</span><span class="p">,</span> <span class="n">experiment_tracker</span><span class="p">)</span>
     <span class="n">id_year_df</span> <span class="o">=</span> <span class="n">match_orphaned_records</span><span class="p">(</span><span class="n">distance_matrix</span><span class="p">,</span> <span class="n">id_year_df</span><span class="p">,</span> <span class="n">experiment_tracker</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">id_year_df</span></div>
+    <span class="k">return</span> <span class="n">attach_record_labels</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">id_year_df</span><span class="p">)</span></div>
 
 </pre></div>
 

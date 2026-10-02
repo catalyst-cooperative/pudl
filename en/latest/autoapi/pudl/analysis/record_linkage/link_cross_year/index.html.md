@@ -18,14 +18,16 @@ Define a record linkage model interface and implement common functionality.
 
 ## Functions
 
-| [`get_cluster_distance_matrix`](#pudl.analysis.record_linkage.link_cross_year.get_cluster_distance_matrix)(→ numpy.ndarray)                | Return a distance matrix with only distances within a cluster.                          |
-|--------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
-| [`get_average_distance_matrix`](#pudl.analysis.record_linkage.link_cross_year.get_average_distance_matrix)(→ numpy.ndarray)                | Compute average distance between two clusters of records given indices of each cluster. |
-| [`compute_distance_with_year_penalty`](#pudl.analysis.record_linkage.link_cross_year.compute_distance_with_year_penalty)(→ DistanceMatrix)        | Compute a distance matrix and penalize records from the same year.                      |
-| [`cluster_records_dbscan`](#pudl.analysis.record_linkage.link_cross_year.cluster_records_dbscan)(→ pandas.DataFrame)                  | Generate initial IDs using DBSCAN algorithm.                                            |
-| [`split_clusters`](#pudl.analysis.record_linkage.link_cross_year.split_clusters)(→ pandas.DataFrame)                          | Split clusters with multiple records from same report_year.                             |
-| [`match_orphaned_records`](#pudl.analysis.record_linkage.link_cross_year.match_orphaned_records)(→ pandas.DataFrame)                  | DBSCAN assigns 'noisy' records a label of '-1', which will be labeled by this step.     |
-| [`link_ids_cross_year`](#pudl.analysis.record_linkage.link_cross_year.link_ids_cross_year)(df, feature_matrix, experiment_tracker) | Apply model and return column of estimated record labels.                               |
+| [`get_cluster_distance_matrix`](#pudl.analysis.record_linkage.link_cross_year.get_cluster_distance_matrix)(→ numpy.ndarray)               | Return a distance matrix with only distances within a cluster.                          |
+|-------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
+| [`get_average_distance_matrix`](#pudl.analysis.record_linkage.link_cross_year.get_average_distance_matrix)(→ numpy.ndarray)               | Compute average distance between two clusters of records given indices of each cluster. |
+| [`compute_distance_with_year_penalty`](#pudl.analysis.record_linkage.link_cross_year.compute_distance_with_year_penalty)(→ DistanceMatrix)       | Compute a distance matrix and penalize records from the same year.                      |
+| [`cluster_records_dbscan`](#pudl.analysis.record_linkage.link_cross_year.cluster_records_dbscan)(→ pandas.DataFrame)                 | Generate initial IDs using DBSCAN algorithm.                                            |
+| [`split_clusters`](#pudl.analysis.record_linkage.link_cross_year.split_clusters)(→ pandas.DataFrame)                         | Split clusters with multiple records from same report_year.                             |
+| [`match_orphaned_records`](#pudl.analysis.record_linkage.link_cross_year.match_orphaned_records)(→ pandas.DataFrame)                 | DBSCAN assigns 'noisy' records a label of '-1', which will be labeled by this step.     |
+| [`sort_records_for_clustering`](#pudl.analysis.record_linkage.link_cross_year.sort_records_for_clustering)(→ tuple[pandas.DataFrame, ...) | Put records in a canonical order and give the feature matrix a matching one.            |
+| [`attach_record_labels`](#pudl.analysis.record_linkage.link_cross_year.attach_record_labels)(→ pandas.DataFrame)                   | Attach final cluster labels to the (sorted) records that were clustered.                |
+| [`link_ids_cross_year`](#pudl.analysis.record_linkage.link_cross_year.link_ids_cross_year)(→ pandas.DataFrame)                    | Apply model and return input records annotated with cluster labels.                     |
 
 ## Module Contents
 
@@ -116,6 +118,21 @@ distance between each cluster, and is used in a round of agglomerative clusterin
 This will match orphaned records to existing clusters, or assign them unique ID’s if
 they don’t appear close enough to any existing clusters.
 
-### pudl.analysis.record_linkage.link_cross_year.link_ids_cross_year(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), feature_matrix: [pudl.analysis.record_linkage.embed_dataframe.FeatureMatrix](../embed_dataframe/index.html.md#pudl.analysis.record_linkage.embed_dataframe.FeatureMatrix), experiment_tracker: [pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker](../../ml_tools/experiment_tracking/index.html.md#pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker))
+### pudl.analysis.record_linkage.link_cross_year.sort_records_for_clustering(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), feature_matrix: [pudl.analysis.record_linkage.embed_dataframe.FeatureMatrix](../embed_dataframe/index.html.md#pudl.analysis.record_linkage.embed_dataframe.FeatureMatrix)) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [pudl.analysis.record_linkage.embed_dataframe.FeatureMatrix](../embed_dataframe/index.html.md#pudl.analysis.record_linkage.embed_dataframe.FeatureMatrix)]
 
-Apply model and return column of estimated record labels.
+Put records in a canonical order and give the feature matrix a matching one.
+
+Clustering results depend on the order of the input rows, and the other ops in
+this graph assume `df` and `feature_matrix.matrix` share a fresh RangeIndex
+in the same row order. Rather than relying on every caller to have already
+sorted `df` before embedding it (easy to forget, and silently wrong if
+missed), sort here and use `feature_matrix.index` to reorder its rows to
+match, regardless of what order they arrive in.
+
+### pudl.analysis.record_linkage.link_cross_year.attach_record_labels(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), id_year_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Attach final cluster labels to the (sorted) records that were clustered.
+
+### pudl.analysis.record_linkage.link_cross_year.link_ids_cross_year(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), feature_matrix: [pudl.analysis.record_linkage.embed_dataframe.FeatureMatrix](../embed_dataframe/index.html.md#pudl.analysis.record_linkage.embed_dataframe.FeatureMatrix), experiment_tracker: [pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker](../../ml_tools/experiment_tracking/index.html.md#pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Apply model and return input records annotated with cluster labels.
