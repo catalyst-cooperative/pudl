@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.extract.eia860m &#8212; PUDL 2026.9.1.dev34 documentation</title>
+    <title>pudl.extract.eia860m &#8212; PUDL 2026.9.1.dev35 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../../../_static/documentation_options.js?v=9f3cf5f7"></script>
+    <script src="../../../_static/documentation_options.js?v=367c8191"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -495,8 +495,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev34 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev34 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev35 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev35 documentation - Home"/>
   
   
 </a></div>
@@ -942,16 +942,6 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
                 <span class="n">df</span> <span class="o">=</span> <span class="n">remove_leading_zeros_from_numeric_strings</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">col_name</span><span class="o">=</span><span class="n">col</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span></div>
-
-
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Extractor.get_dtypes">
-<a class="viewcode-back" href="../../../autoapi/pudl/extract/eia860m/index.html#pudl.extract.eia860m.Extractor.get_dtypes">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_dtypes</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""Returns dtypes for plant id columns."""</span>
-        <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">"Plant ID"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Int64Dtype</span><span class="p">(),</span>
-        <span class="p">}</span></div>
 </div>
 
 

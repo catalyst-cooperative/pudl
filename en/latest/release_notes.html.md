@@ -23,6 +23,11 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
 * Added final release data from 2025 for [EIA-860](data_sources/eia860.html.md). See
   issue [#5589](https://github.com/catalyst-cooperative/pudl/issues/5589) and PR [#5591](https://github.com/catalyst-cooperative/pudl/pull/5591).
 
+#### EIA-860M
+
+* Added [EIA-860m](data_sources/eia860.html.md) data through August 2026. See issue
+  [#5677](https://github.com/catalyst-cooperative/pudl/issues/5677) and PR [#5680](https://github.com/catalyst-cooperative/pudl/pull/5680).
+
 #### EIA-923
 
 * Added final release data from 2025 for [EIA-923](data_sources/eia923.html.md),

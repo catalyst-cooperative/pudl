@@ -9927,10 +9927,6 @@ Instance of metadata object to use with this extractor.
 
 Adds source column and report_year column if missing.
 
-#### *static* get_dtypes(page, \*\*partition)
-
-Returns dtypes for plant id columns.
-
 ### pudl.extract.eia860m.append_eia860m(eia860_raw_dfs: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)], eia860m_raw_dfs: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]
 
 Append EIA 860M to EIA860 data.
@@ -72730,12 +72726,18 @@ reading the Form Instructions from different years, linked above.
 * The Boiler Generator tab of Schedule 6.1 describes the associations between boilers and
   generators. These associations are important for calculating generation unit heat rates and
   thus fuel costs, because in EIA 923 net generation is reported by generators and fuel
-  consumption is reported by boilers.
-
-Unfortunately, the reported associations are incomplete. We’ve been able to infer many
-more associations than those reported directly by EIA, and currently cover more than 95%
-of the generation reported in the [core_eia923_\_monthly_generation](data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation) table. The associations
-themselves are found in the [core_eia860_\_assn_boiler_generator](data_dictionaries/pudl_db.html.md#core-eia860-assn-boiler-generator) table.
+  consumption is reported by boilers. Unfortunately, the reported associations are
+  incomplete. We’ve been able to infer many
+  more associations than those reported directly by EIA, and currently cover more than
+  95% of the generation reported in the [core_eia923_\_monthly_generation](data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation) table.
+  The associations themselves are found in the [core_eia860_\_assn_boiler_generator](data_dictionaries/pudl_db.html.md#core-eia860-assn-boiler-generator)
+  table.
+* In August 2026, the EIA confirmed through email communication that they added data
+  from their [nuclear shutdown list](https://web.archive.org/web/20260522053808/https://www.eia.gov/nuclear/reactors/shutdown/)
+  to the retired generators tab of the EIA-860M data release. Some of these reactors
+  did not contain plant or utility IDs. All these records (several dozen) have been
+  dropped because their data collection did not occur through the submission of Form 860-M
+  by the operators, and EIA indicated that they would not be updating their IDs.
 
 ## PUDL Data Transformations
 
@@ -81586,6 +81588,11 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
 
 * Added final release data from 2025 for [EIA-860](data_sources/eia860.html.md). See
   issue [#5589](https://github.com/catalyst-cooperative/pudl/issues/5589) and PR [#5591](https://github.com/catalyst-cooperative/pudl/pull/5591).
+
+#### EIA-860M
+
+* Added [EIA-860m](data_sources/eia860.html.md) data through August 2026. See issue
+  [#5677](https://github.com/catalyst-cooperative/pudl/issues/5677) and PR [#5680](https://github.com/catalyst-cooperative/pudl/pull/5680).
 
 #### EIA-923
 
