@@ -1,0 +1,64 @@
+===============================================================================
+Further Reading
+===============================================================================
+Other research and publications relevant to the work we do.
+
+Book
+----
+.. bibliography:: /further_reading.bib
+    :list: enumerated
+
+    cullenward_making_2020
+    ilyas_data_2019
+    stokes_short_2020
+    von_meier_electric_2006
+
+
+Conference Paper
+----------------
+.. bibliography:: /further_reading.bib
+    :list: enumerated
+
+    sambasivan_everyone_2021
+
+
+Journal or News Article
+-----------------------
+.. bibliography:: /further_reading.bib
+    :list: enumerated
+
+    abernathey_cloud-native_2021
+    brown_high_2020
+    brown_shaping_2019-1
+    brown_spatial_2020
+    colgan_asset_2021
+    hirth_open_2020
+    rossol_analysis_2019
+
+
+Report
+------
+.. bibliography:: /further_reading.bib
+    :list: enumerated
+
+    donaghy_fossil_2021
+    drehobl_how_2020
+    group_datacite_2021
+    lehr_debt_2018
+    lehr_depreciation_2018
+    lehr_steel_2018
+    oboyle_comparing_2020
+    stacey_levelized_2016
+    stacey_levelized_2019
+    varadarajan_harnessing_2018
+
+
+Other
+-----
+.. bibliography:: /further_reading.bib
+    :list: enumerated
+
+    brown_shaping_2019
+    brown_spatial_2019
+    colorado_2021_2021
+
