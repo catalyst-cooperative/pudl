@@ -15,14 +15,8 @@ import pathlib
 import shutil
 
 from pudl import PUDL_DOCS_PATH
-from pudl.docs.citations import (
-    BIBTEX_DEFAULT_STYLE,
-    BIBTEX_FILES,
-    CITATIONS_MEDIA_PAGES,
-    citations_media_to_rst,
-)
-from pudl.docs.data_dictionary import codes_to_rst, data_dictionary_to_rst
-from pudl.docs.data_sources import INCLUDED_SOURCES, data_sources_to_rst
+from pudl.docs.build import generate_all, remove_generated_files
+from pudl.docs.citations import BIBTEX_DEFAULT_STYLE, BIBTEX_FILES
 
 # -- Path setup --------------------------------------------------------------
 # We are building and installing the pudl package in order to get access to
@@ -229,27 +223,12 @@ html_static_path = ["_static"]
 # -- Custom build operations -------------------------------------------------
 def generate_docs_content(app):
     """Generate the dynamic documentation pages before the build starts."""
-    data_dictionary_to_rst(PUDL_DOCS_PATH)
-    data_sources_to_rst(PUDL_DOCS_PATH)
-    citations_media_to_rst(PUDL_DOCS_PATH)
-    codes_to_rst(PUDL_DOCS_PATH)
+    generate_all(PUDL_DOCS_PATH)
 
 
-def cleanup_rsts(app, exception):
-    """Remove generated RST files when the build is finished."""
-    (PUDL_DOCS_PATH / "data_dictionaries/pudl_db.rst").unlink(missing_ok=True)
-    (PUDL_DOCS_PATH / "data_dictionaries/codes_and_labels.rst").unlink(missing_ok=True)
-    for name in INCLUDED_SOURCES:
-        (PUDL_DOCS_PATH / f"data_sources/{name}.rst").unlink(missing_ok=True)
-    for page in CITATIONS_MEDIA_PAGES:
-        (PUDL_DOCS_PATH / f"citations_media/{page['name']}.rst").unlink(missing_ok=True)
-
-
-def cleanup_csv_dir(app, exception):
-    """Remove generated CSV files when the build is finished."""
-    csv_dir = PUDL_DOCS_PATH / "data_dictionaries/code_csvs"
-    if csv_dir.exists() and csv_dir.is_dir():
-        shutil.rmtree(csv_dir)
+def cleanup_generated_files(app, exception):
+    """Remove generated files when the build is finished."""
+    remove_generated_files(PUDL_DOCS_PATH)
 
 
 def cleanup_docs_img_hack_dir(app, exception):
@@ -313,6 +292,5 @@ def setup(app):
     ):
         app.connect("html-page-context", add_markdown_alternate_link)
     if not keep_generated_files:
-        app.connect("build-finished", cleanup_rsts)
-        app.connect("build-finished", cleanup_csv_dir)
+        app.connect("build-finished", cleanup_generated_files)
         app.connect("build-finished", cleanup_docs_img_hack_dir)

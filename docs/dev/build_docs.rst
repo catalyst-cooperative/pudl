@@ -84,10 +84,9 @@ documentation in your text editor with appropriate plugins.
     need to be checked in to version control.
 
     Similarly the :doc:`../data_dictionaries/pudl_db` is generated dynamically
-    by the :mod:`pudl.scripts.metadata_to_rst` script that gets run by Sphinx during
-    the docs build.
+    by :mod:`pudl.docs`, which Sphinx calls during the docs build.
 
     ``pixi run docs-build`` will build and then delete all generated files via
-    ``cleanup_rsts`` and ``cleanup_csv_dir`` in ``docs/conf.py``. If you want to
+    :func:`pudl.docs.build.remove_generated_files`. If you want to
     preserve them for a one-off build, set
     ``PUDL_DOCS_KEEP_GENERATED_FILES=1`` in the environment when running docs-build.

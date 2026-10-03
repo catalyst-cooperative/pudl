@@ -268,27 +268,8 @@ PYTHONWARNINGS = "ignore::FutureWarning:google.api_core._python_package_support,
 # Documentation tasks
 [tool.pixi.tasks.docs-clean]
 cmd = """
-bash -c 'shopt -s nullglob; rm -rf \
-    docs/_build \
-    docs/autoapi \
-    docs/data_dictionaries/pudl_db.rst \
-    docs/data_dictionaries/codes_and_labels.rst \
-    docs/data_dictionaries/code_csvs \
-    docs/data_sources/census*.rst \
-    docs/data_sources/eia*.rst \
-    docs/data_sources/epacems*.rst \
-    docs/data_sources/epacamd*.rst \
-    docs/data_sources/ferc*.rst \
-    docs/data_sources/gridpathratoolkit*.rst \
-    docs/data_sources/nrelatb*.rst \
-    docs/data_sources/phmsagas*.rst \
-    docs/data_sources/rus*.rst \
-    docs/data_sources/sec10k*.rst \
-    docs/data_sources/vcerare*.rst \
-    docs/citations_media/catalyst_publications.rst \
-    docs/citations_media/citing_pudl.rst \
-    docs/citations_media/citing_cooperative.rst \
-    docs/citations_media/further_reading.rst'
+rm -rf docs/_build docs/autoapi && \
+python -c 'from pudl.docs.build import remove_generated_files; remove_generated_files()'
 """
 description = "Remove all generated documentation files"
 
