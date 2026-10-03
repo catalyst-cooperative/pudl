@@ -150,7 +150,7 @@ This parent classes’ method drops the whole df if all of the
 in empty required columns because we know that the real ETL adds columns during
 the full transform step.
 
-### pudl.glue.ferc1_eia.get_plants_ferc1_raw_job() → [dagster.JobDefinition](https://docs.dagster.io/api/dagster/jobs/#dagster.JobDefinition)
+### pudl.glue.ferc1_eia.get_plants_ferc1_raw_job() → [dagster.JobDefinition](https://dagster.io/docs/api/dagster/jobs/#dagster.JobDefinition)
 
 Pull all plants in the FERC Form 1 DBF and XBRL DB for given years.
 

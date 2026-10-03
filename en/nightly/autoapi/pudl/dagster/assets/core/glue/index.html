@@ -17,7 +17,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
-    <title>pudl.dagster.assets.core.glue &#8212; PUDL 2026.9.1.dev31 documentation</title>
+    <title>pudl.dagster.assets.core.glue &#8212; PUDL 2026.9.1.dev37 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../../../../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../../../../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../../../../../../_static/documentation_options.js?v=feee5aca"></script>
+    <script src="../../../../../../_static/documentation_options.js?v=bf8d6f1c"></script>
     <script src="../../../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="../../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev31 documentation - Home"/>
-    <img src="../../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev31 documentation - Home"/>
+    <img src="../../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev37 documentation - Home"/>
+    <img src="../../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev37 documentation - Home"/>
   
   
 </a></div>
@@ -855,24 +855,15 @@ rather than the domain-specific transforms for any one source dataset.</p>
 <td><p>Merge all EIA Unit IDs into the crosswalk.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.glue._prep_for_networkx" title="pudl.dagster.assets.core.glue._prep_for_networkx"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_prep_for_networkx</span></code></a>(→ pandas.DataFrame)</p></td>
-<td><p>Make surrogate keys for combustors and generators.</p></td>
+<td><p>Build composite node identities for combustors, generators, and EIA units.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.glue._subplant_ids_from_prepped_crosswalk" title="pudl.dagster.assets.core.glue._subplant_ids_from_prepped_crosswalk"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_subplant_ids_from_prepped_crosswalk</span></code></a>(→ pandas.DataFrame)</p></td>
-<td><p>Use networkx graph analysis to create subplant IDs from crosswalk edge list.</p></td>
+<td><p>Use networkx graph analysis to assign a per-plant <code class="docutils literal notranslate"><span class="pre">subplant_id</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.glue._convert_global_id_to_composite_id" title="pudl.dagster.assets.core.glue._convert_global_id_to_composite_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_convert_global_id_to_composite_id</span></code></a>(→ pandas.DataFrame)</p></td>
-<td><p>Convert global_subplant_id to a composite key (plant_id_eia, subplant_id).</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.glue.make_subplant_ids" title="pudl.dagster.assets.core.glue.make_subplant_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_subplant_ids</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.glue.make_subplant_ids" title="pudl.dagster.assets.core.glue.make_subplant_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_subplant_ids</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Identify sub-plants in the EPA/EIA crosswalk graph.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.glue.update_subplant_ids" title="pudl.dagster.assets.core.glue.update_subplant_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_subplant_ids</span></code></a>(→ pandas.DataFrame)</p></td>
-<td><p>Ensure a complete and accurate subplant_id mapping for all generators.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.glue.connect_ids" title="pudl.dagster.assets.core.glue.connect_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">connect_ids</span></code></a>(→ pandas.DataFrame)</p></td>
-<td><p>Corrects an id value if it is connected by an id value in another column.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.glue.manually_update_subplant_id" title="pudl.dagster.assets.core.glue.manually_update_subplant_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">manually_update_subplant_id</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.glue.manually_update_subplant_id" title="pudl.dagster.assets.core.glue.manually_update_subplant_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">manually_update_subplant_id</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Manually update the subplant_id for <code class="docutils literal notranslate"><span class="pre">plant_id_eia</span></code> 1391.</p></td>
 </tr>
 </tbody>
@@ -1014,7 +1005,7 @@ plant_id_eia 55248, when it should be mapped to id 2847.</p>
 doesn’t have to deal with duplicate matches that may be present in the
 <a class="reference internal" href="#pudl.dagster.assets.core.glue.core_epa__assn_eia_epacamd" title="pudl.dagster.assets.core.glue.core_epa__assn_eia_epacamd"><code class="xref py py-func docutils literal notranslate"><span class="pre">core_epa__assn_eia_epacamd()</span></code></a> asset due to its use of multiple years of raw
 crosswalk outputs.</p>
-<p>This function consists of three primary parts:</p>
+<p>This function consists of two primary parts:</p>
 <ol class="arabic simple">
 <li><p>Augment the EPA CAMD:EIA crosswalk with all IDs from EIA and EPA CAMD. Fill in
 key IDs when possible. Because the published crosswalk was only meant to map
@@ -1024,9 +1015,8 @@ subplant crosswalk, the crosswalk must be completed with all generators by outer
 merging in the complete list of generators from EIA-860. This dataframe also
 contains the complete list of <code class="docutils literal notranslate"><span class="pre">unit_id_pudl</span></code> mappings that will be necessary.</p></li>
 <li><p><a class="reference internal" href="#pudl.dagster.assets.core.glue.make_subplant_ids" title="pudl.dagster.assets.core.glue.make_subplant_ids"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_subplant_ids()</span></code></a>: Use graph analysis to identify distinct groupings of
-EPA units and EIA generators based on 1:1, 1:m, m:1, or m:m relationships.</p></li>
-<li><p><a class="reference internal" href="#pudl.dagster.assets.core.glue.update_subplant_ids" title="pudl.dagster.assets.core.glue.update_subplant_ids"><code class="xref py py-func docutils literal notranslate"><span class="pre">update_subplant_ids()</span></code></a>: Augment the <code class="docutils literal notranslate"><span class="pre">subplant_id</span></code> with the
-<code class="docutils literal notranslate"><span class="pre">unit_id_pudl</span></code> and <code class="docutils literal notranslate"><span class="pre">generator_id</span></code>.</p></li>
+EPA units, EIA generators, and EIA-860 boiler-generator <code class="docutils literal notranslate"><span class="pre">unit_id_pudl</span></code>
+associations, based on 1:1, 1:m, m:1, or m:m relationships.</p></li>
 </ol>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1064,14 +1054,27 @@ EPA units and EIA generators based on 1:1, 1:m, m:1, or m:m relationships.</p></
 <dl class="py function">
 <dt class="sig sig-object py" id="pudl.dagster.assets.core.glue._prep_for_networkx">
 <span class="sig-prename descclassname"><span class="pre">pudl.dagster.assets.core.glue.</span></span><span class="sig-name descname"><span class="pre">_prep_for_networkx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">crosswalk</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../../../_modules/pudl/dagster/assets/core/glue.html#_prep_for_networkx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.assets.core.glue._prep_for_networkx" title="Link to this definition">#</a></dt>
-<dd><p>Make surrogate keys for combustors and generators.</p>
+<dd><p>Build composite node identities for combustors, generators, and EIA units.</p>
+<p>Node identities are plain <code class="docutils literal notranslate"><span class="pre">(type_tag,</span> <span class="pre">plant_id_eia,</span> <span class="pre">natural_id)</span></code> tuples rather
+than numeric surrogates. networkx accepts any hashable object as a node, so
+there’s no need to invent a global integer ID space – crosswalk associations
+never connect two different plants, so embedding <code class="docutils literal notranslate"><span class="pre">plant_id_eia</span></code> directly in
+each node is enough to keep every plant’s subgraph naturally disjoint from every
+other plant’s, without ever computing a plant-spanning “global” ID.
+<code class="docutils literal notranslate"><span class="pre">type_tag</span></code> (<code class="docutils literal notranslate"><span class="pre">&quot;combustor&quot;</span></code>/<code class="docutils literal notranslate"><span class="pre">&quot;generator&quot;</span></code>/<code class="docutils literal notranslate"><span class="pre">&quot;unit&quot;</span></code>) keeps otherwise-identical
+IDs from colliding, e.g. a generator and a boiler that both happen to be named
+<code class="docutils literal notranslate"><span class="pre">&quot;1&quot;</span></code> at the same plant, which is a common EIA naming convention.</p>
+<p>A row missing its natural id (e.g. an EPA unit that never matched an EIA
+generator) is keyed by its own row position instead of left null, so two such
+rows are never accidentally treated as sharing an id.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>crosswalk</strong> – The <a class="reference internal" href="../../../../../../data_dictionaries/pudl_db.html#core-epa-assn-eia-epacamd"><span class="std std-ref">core_epa__assn_eia_epacamd</span></a> crosswalk</p>
+<dd class="field-odd"><p><strong>crosswalk</strong> – The <a class="reference internal" href="../../../../../../data_dictionaries/pudl_db.html#core-epa-assn-eia-epacamd"><span class="std std-ref">core_epa__assn_eia_epacamd</span></a> crosswalk, augmented with
+<code class="docutils literal notranslate"><span class="pre">unit_id_pudl</span></code> (see <a class="reference internal" href="#pudl.dagster.assets.core.glue.augment_crosswalk_with_bga_eia860" title="pudl.dagster.assets.core.glue.augment_crosswalk_with_bga_eia860"><code class="xref py py-func docutils literal notranslate"><span class="pre">augment_crosswalk_with_bga_eia860()</span></code></a>).</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A copy of <a class="reference internal" href="../../../../../../data_dictionaries/pudl_db.html#core-epa-assn-eia-epacamd"><span class="std std-ref">core_epa__assn_eia_epacamd</span></a> crosswalk with new surrogate ID
-columns <cite>combustor_id</cite> and <cite>generator_id</cite>.</p>
+<dd class="field-even"><p>A copy of <a class="reference internal" href="../../../../../../data_dictionaries/pudl_db.html#core-epa-assn-eia-epacamd"><span class="std std-ref">core_epa__assn_eia_epacamd</span></a> crosswalk with new node-identity
+columns <code class="docutils literal notranslate"><span class="pre">combustor_node</span></code>, <code class="docutils literal notranslate"><span class="pre">generator_node</span></code>, and <code class="docutils literal notranslate"><span class="pre">unit_node</span></code>.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1079,41 +1082,18 @@ columns <cite>combustor_id</cite> and <cite>generator_id</cite>.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="pudl.dagster.assets.core.glue._subplant_ids_from_prepped_crosswalk">
 <span class="sig-prename descclassname"><span class="pre">pudl.dagster.assets.core.glue.</span></span><span class="sig-name descname"><span class="pre">_subplant_ids_from_prepped_crosswalk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prepped</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../../../_modules/pudl/dagster/assets/core/glue.html#_subplant_ids_from_prepped_crosswalk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.assets.core.glue._subplant_ids_from_prepped_crosswalk" title="Link to this definition">#</a></dt>
-<dd><p>Use networkx graph analysis to create subplant IDs from crosswalk edge list.</p>
+<dd><p>Use networkx graph analysis to assign a per-plant <code class="docutils literal notranslate"><span class="pre">subplant_id</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>prepped</strong> – <code class="docutils literal notranslate"><span class="pre">core_epa__assn_eia_epacamd</span></code> crosswalk passed through
 <a class="reference internal" href="#pudl.dagster.assets.core.glue._prep_for_networkx" title="pudl.dagster.assets.core.glue._prep_for_networkx"><code class="xref py py-func docutils literal notranslate"><span class="pre">_prep_for_networkx()</span></code></a></p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A copy of <code class="docutils literal notranslate"><span class="pre">core_epa__assn_eia_epacamd</span></code> crosswalk plus new column
-<code class="docutils literal notranslate"><span class="pre">global_subplant_id</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pudl.dagster.assets.core.glue._convert_global_id_to_composite_id">
-<span class="sig-prename descclassname"><span class="pre">pudl.dagster.assets.core.glue.</span></span><span class="sig-name descname"><span class="pre">_convert_global_id_to_composite_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">crosswalk_with_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../../../_modules/pudl/dagster/assets/core/glue.html#_convert_global_id_to_composite_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.assets.core.glue._convert_global_id_to_composite_id" title="Link to this definition">#</a></dt>
-<dd><p>Convert global_subplant_id to a composite key (plant_id_eia, subplant_id).</p>
-<p>The composite key will be much more stable (though not fully stable!) in time.
-The global ID changes if ANY unit or generator changes, whereas the
-compound key only changes if units/generators change within that specific plant.</p>
-<p>A global ID could also tempt users into using it as a crutch, even though it isn’t
-stable. A compound key should discourage that behavior.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>crosswalk_with_ids</strong> – crosswalk with <code class="docutils literal notranslate"><span class="pre">global_subplant_id</span></code>, as from
-<a class="reference internal" href="#pudl.dagster.assets.core.glue._subplant_ids_from_prepped_crosswalk" title="pudl.dagster.assets.core.glue._subplant_ids_from_prepped_crosswalk"><code class="xref py py-func docutils literal notranslate"><span class="pre">_subplant_ids_from_prepped_crosswalk()</span></code></a></p>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – if crosswalk_with_ids has a MultiIndex</p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">subplant_id</span></code></p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>A copy of crosswalk_with_ids with an added column</p>
+<dd class="field-even"><p>A copy of <code class="docutils literal notranslate"><span class="pre">core_epa__assn_eia_epacamd</span></code> crosswalk plus a new <code class="docutils literal notranslate"><span class="pre">subplant_id</span></code>
+column. <code class="docutils literal notranslate"><span class="pre">subplant_id</span></code> is already 0-indexed and contiguous within each
+<code class="docutils literal notranslate"><span class="pre">plant_id_eia</span></code> – no separate global-to-composite-ID conversion step is
+needed, since node identities already embed <code class="docutils literal notranslate"><span class="pre">plant_id_eia</span></code> (see
+<a class="reference internal" href="#pudl.dagster.assets.core.glue._prep_for_networkx" title="pudl.dagster.assets.core.glue._prep_for_networkx"><code class="xref py py-func docutils literal notranslate"><span class="pre">_prep_for_networkx()</span></code></a>) and crosswalk edges never connect two plants.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1122,18 +1102,26 @@ stable. A compound key should discourage that behavior.</p>
 <dt class="sig sig-object py" id="pudl.dagster.assets.core.glue.make_subplant_ids">
 <span class="sig-prename descclassname"><span class="pre">pudl.dagster.assets.core.glue.</span></span><span class="sig-name descname"><span class="pre">make_subplant_ids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">crosswalk</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../../../_modules/pudl/dagster/assets/core/glue.html#make_subplant_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.assets.core.glue.make_subplant_ids" title="Link to this definition">#</a></dt>
 <dd><p>Identify sub-plants in the EPA/EIA crosswalk graph.</p>
-<p>In graph analysis terminology, the crosswalk is a list of edges between nodes
-(combustors and generators) in a bipartite graph. The networkx python package
-provides functions to analyze this edge list and extract disjoint subgraphs (groups
-of combustors and generators that are connected to each other).  These are the
-distinct power plants. To avoid a name collision with plant_id, we term these
-collections ‘subplants’, and identify them with a subplant_id that is unique within
-each plant_id. Subplants are thus identified with the composite key (plant_id,
-subplant_id).</p>
+<p>In graph analysis terminology, the crosswalk is a list of edges between nodes (EPA
+emissions units and EIA generators) in a bipartite graph. A third node type, EIA-860
+boiler-generator <code class="docutils literal notranslate"><span class="pre">unit_id_pudl</span></code> groupings, is folded into the same graph as well,
+connecting generators that share a <code class="docutils literal notranslate"><span class="pre">unit_id_pudl</span></code> even where the EPA crosswalk
+doesn’t connect them directly (see <a class="reference internal" href="#pudl.dagster.assets.core.glue._subplant_ids_from_prepped_crosswalk" title="pudl.dagster.assets.core.glue._subplant_ids_from_prepped_crosswalk"><code class="xref py py-func docutils literal notranslate"><span class="pre">_subplant_ids_from_prepped_crosswalk()</span></code></a>).
+The networkx python package provides functions to analyze this graph and extract
+disjoint subgraphs (groups of units, generators, and unit_id_pudl groupings that are
+connected to each other). These are the distinct power plants. To avoid a name
+collision with plant_id, we term these collections ‘subplants’, and identify them
+with a subplant_id that is unique within each plant_id. Subplants are thus
+identified with the composite key (plant_id_eia, subplant_id).</p>
 <p>Through this analysis, we found that 56% of plant_ids contain multiple distinct
 subplants, and 11% contain subplants with different technology types, such as a gas
 boiler and gas turbine (not in a combined cycle).</p>
-<p>Any row filtering should be done before this step if desired.</p>
+<p>Any row filtering should be done before this step if desired. Rows that are
+duplicates with respect to the EPA unit/EIA generator association – e.g. two
+crosswalk rows that only differ in <code class="docutils literal notranslate"><span class="pre">generator_id_epa</span></code> or <code class="docutils literal notranslate"><span class="pre">boiler_id</span></code>, neither
+of which appears in the output – are collapsed here explicitly, since silently
+leaving that to the graph construction below would make its row-count guarantee
+(see <a class="reference internal" href="#pudl.dagster.assets.core.glue._subplant_ids_from_prepped_crosswalk" title="pudl.dagster.assets.core.glue._subplant_ids_from_prepped_crosswalk"><code class="xref py py-func docutils literal notranslate"><span class="pre">_subplant_ids_from_prepped_crosswalk()</span></code></a>) fail on real data.</p>
 <p>Note that sub-plant ids should be used in conjunction with <code class="docutils literal notranslate"><span class="pre">plant_id_eia</span></code> rather
 than <code class="docutils literal notranslate"><span class="pre">plant_id_epa</span></code> because the former is more granular and integrated into CEMS
 during the transform process.</p>
@@ -1144,49 +1132,6 @@ during the transform process.</p>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>An edge list connecting EPA units to EIA generators, with connected pieces
 issued a subplant_id</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pudl.dagster.assets.core.glue.update_subplant_ids">
-<span class="sig-prename descclassname"><span class="pre">pudl.dagster.assets.core.glue.</span></span><span class="sig-name descname"><span class="pre">update_subplant_ids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subplant_crosswalk</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../../../_modules/pudl/dagster/assets/core/glue.html#update_subplant_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.assets.core.glue.update_subplant_ids" title="Link to this definition">#</a></dt>
-<dd><p>Ensure a complete and accurate subplant_id mapping for all generators.</p>
-<p>This function is meant to be applied using a <code class="docutils literal notranslate"><span class="pre">.groupby(&quot;plant_id_eia&quot;).apply()</span></code>
-function. This function will only properly work when applied to a single
-<code class="docutils literal notranslate"><span class="pre">plant_id_eia</span></code> at a time.</p>
-<section id="high-level-overview-of-method">
-<h3>High-level overview of method:<a class="headerlink" href="#high-level-overview-of-method" title="Link to this heading">#</a></h3>
-<ol class="arabic simple">
-<li><p>Use the <code class="docutils literal notranslate"><span class="pre">subplant_id</span></code> derived from <a class="reference internal" href="#pudl.dagster.assets.core.glue.make_subplant_ids" title="pudl.dagster.assets.core.glue.make_subplant_ids"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_subplant_ids()</span></code></a> if available. In
-the case where a <code class="docutils literal notranslate"><span class="pre">unit_id_pudl</span></code> groups several subplants, we overwrite these
-multiple existing subplant_id with a single <code class="docutils literal notranslate"><span class="pre">subplant_id</span></code>.</p></li>
-<li><p>All of the new unique ids are renumbered in consecutive ascending order</p></li>
-</ol>
-<dl class="field-list simple">
-<dt class="field-odd">param subplant_crosswalk<span class="colon">:</span></dt>
-<dd class="field-odd"><p>a dataframe containing the output of
-<a class="reference internal" href="#pudl.dagster.assets.core.glue.make_subplant_ids" title="pudl.dagster.assets.core.glue.make_subplant_ids"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_subplant_ids()</span></code></a></p>
-</dd>
-</dl>
-</section>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pudl.dagster.assets.core.glue.connect_ids">
-<span class="sig-prename descclassname"><span class="pre">pudl.dagster.assets.core.glue.</span></span><span class="sig-name descname"><span class="pre">connect_ids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subplant_crosswalk</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">id_to_update</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">connecting_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../../../_modules/pudl/dagster/assets/core/glue.html#connect_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.assets.core.glue.connect_ids" title="Link to this definition">#</a></dt>
-<dd><p>Corrects an id value if it is connected by an id value in another column.</p>
-<p>If multiple <code class="docutils literal notranslate"><span class="pre">subplant_id</span></code> are connected by a single <code class="docutils literal notranslate"><span class="pre">unit_id_pudl</span></code>, this groups
-these <code class="docutils literal notranslate"><span class="pre">subplant_id</span></code> together. If multiple <code class="docutils literal notranslate"><span class="pre">unit_id_pudl</span></code> are connected by a
-single <code class="docutils literal notranslate"><span class="pre">subplant_id</span></code>, this groups these <code class="docutils literal notranslate"><span class="pre">unit_id_pudl</span></code> together.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>subplant_crosswalk</strong> – dataframe containing columns of id_to_update
-andconnecting_id</p></li>
-<li><p><strong>id_to_update</strong> – List of ID columns</p></li>
-<li><p><strong>connecting_id</strong> – ID column</p></li>
-</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -1265,10 +1210,7 @@ for explanation of why.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.assets.core.glue.augment_crosswalk_with_bga_eia860"><code class="docutils literal notranslate"><span class="pre">augment_crosswalk_with_bga_eia860()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.assets.core.glue._prep_for_networkx"><code class="docutils literal notranslate"><span class="pre">_prep_for_networkx()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.assets.core.glue._subplant_ids_from_prepped_crosswalk"><code class="docutils literal notranslate"><span class="pre">_subplant_ids_from_prepped_crosswalk()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.assets.core.glue._convert_global_id_to_composite_id"><code class="docutils literal notranslate"><span class="pre">_convert_global_id_to_composite_id()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.assets.core.glue.make_subplant_ids"><code class="docutils literal notranslate"><span class="pre">make_subplant_ids()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.assets.core.glue.update_subplant_ids"><code class="docutils literal notranslate"><span class="pre">update_subplant_ids()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.assets.core.glue.connect_ids"><code class="docutils literal notranslate"><span class="pre">connect_ids()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.assets.core.glue.manually_update_subplant_id"><code class="docutils literal notranslate"><span class="pre">manually_update_subplant_id()</span></code></a></li>
 </ul>
 </li>

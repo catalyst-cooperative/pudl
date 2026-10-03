@@ -290,7 +290,7 @@ All the plant part ID columns must be in consistent attributes.
 
 Create mega generators table asset.
 
-### pudl.analysis.plant_parts_eia.plant_part_asset_factory(part_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
+### pudl.analysis.plant_parts_eia.plant_part_asset_factory(part_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)
 
 Asset factory to create assets for each individual plant part.
 

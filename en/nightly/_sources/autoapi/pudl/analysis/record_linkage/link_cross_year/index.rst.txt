@@ -40,6 +40,8 @@ Functions
    pudl.analysis.record_linkage.link_cross_year.cluster_records_dbscan
    pudl.analysis.record_linkage.link_cross_year.split_clusters
    pudl.analysis.record_linkage.link_cross_year.match_orphaned_records
+   pudl.analysis.record_linkage.link_cross_year.sort_records_for_clustering
+   pudl.analysis.record_linkage.link_cross_year.attach_record_labels
    pudl.analysis.record_linkage.link_cross_year.link_ids_cross_year
 
 
@@ -174,8 +176,25 @@ Module Contents
    they don't appear close enough to any existing clusters.
 
 
-.. py:function:: link_ids_cross_year(df: pandas.DataFrame, feature_matrix: pudl.analysis.record_linkage.embed_dataframe.FeatureMatrix, experiment_tracker: pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker)
+.. py:function:: sort_records_for_clustering(df: pandas.DataFrame, feature_matrix: pudl.analysis.record_linkage.embed_dataframe.FeatureMatrix) -> tuple[pandas.DataFrame, pudl.analysis.record_linkage.embed_dataframe.FeatureMatrix]
 
-   Apply model and return column of estimated record labels.
+   Put records in a canonical order and give the feature matrix a matching one.
+
+   Clustering results depend on the order of the input rows, and the other ops in
+   this graph assume ``df`` and ``feature_matrix.matrix`` share a fresh RangeIndex
+   in the same row order. Rather than relying on every caller to have already
+   sorted ``df`` before embedding it (easy to forget, and silently wrong if
+   missed), sort here and use ``feature_matrix.index`` to reorder its rows to
+   match, regardless of what order they arrive in.
+
+
+.. py:function:: attach_record_labels(df: pandas.DataFrame, id_year_df: pandas.DataFrame) -> pandas.DataFrame
+
+   Attach final cluster labels to the (sorted) records that were clustered.
+
+
+.. py:function:: link_ids_cross_year(df: pandas.DataFrame, feature_matrix: pudl.analysis.record_linkage.embed_dataframe.FeatureMatrix, experiment_tracker: pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker) -> pandas.DataFrame
+
+   Apply model and return input records annotated with cluster labels.
 
 

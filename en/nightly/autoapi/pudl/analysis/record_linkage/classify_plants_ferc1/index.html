@@ -17,7 +17,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
-    <title>pudl.analysis.record_linkage.classify_plants_ferc1 &#8212; PUDL 2026.9.1.dev31 documentation</title>
+    <title>pudl.analysis.record_linkage.classify_plants_ferc1 &#8212; PUDL 2026.9.1.dev37 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../../../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../../../../../_static/documentation_options.js?v=feee5aca"></script>
+    <script src="../../../../../_static/documentation_options.js?v=bf8d6f1c"></script>
     <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev31 documentation - Home"/>
-    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev31 documentation - Home"/>
+    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev37 documentation - Home"/>
+    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev37 documentation - Home"/>
   
   
 </a></div>
@@ -815,13 +815,13 @@ tools from scikit-learn</p>
 <h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.classify_plants_ferc1.logger" title="pudl.analysis.record_linkage.classify_plants_ferc1.logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logger</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.classify_plants_ferc1._FUEL_COLS" title="pudl.analysis.record_linkage.classify_plants_ferc1._FUEL_COLS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_FUEL_COLS</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.classify_plants_ferc1._FUEL_COLS" title="pudl.analysis.record_linkage.classify_plants_ferc1._FUEL_COLS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_FUEL_COLS</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.classify_plants_ferc1.ferc_dataframe_embedder" title="pudl.analysis.record_linkage.classify_plants_ferc1.ferc_dataframe_embedder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ferc_dataframe_embedder</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.classify_plants_ferc1.ferc_dataframe_embedder" title="pudl.analysis.record_linkage.classify_plants_ferc1.ferc_dataframe_embedder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ferc_dataframe_embedder</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.classify_plants_ferc1._CANONICAL_RECORD_ORDER" title="pudl.analysis.record_linkage.classify_plants_ferc1._CANONICAL_RECORD_ORDER"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_CANONICAL_RECORD_ORDER</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -832,13 +832,16 @@ tools from scikit-learn</p>
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.classify_plants_ferc1.plants_steam_validate_ids" title="pudl.analysis.record_linkage.classify_plants_ferc1.plants_steam_validate_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plants_steam_validate_ids</span></code></a>(→ pandas.DataFrame)</p></td>
-<td><p>Tests that plant_id_ferc1 timeseries includes one record per year.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.classify_plants_ferc1._canonicalize_plant_ids" title="pudl.analysis.record_linkage.classify_plants_ferc1._canonicalize_plant_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_canonicalize_plant_ids</span></code></a>(→ pandas.Series)</p></td>
+<td><p>Replace arbitrary cluster labels with IDs that depend only on the clusters.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.classify_plants_ferc1.merge_steam_fuel_dfs" title="pudl.analysis.record_linkage.classify_plants_ferc1.merge_steam_fuel_dfs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_steam_fuel_dfs</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.classify_plants_ferc1.assign_plant_ids" title="pudl.analysis.record_linkage.classify_plants_ferc1.assign_plant_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_plant_ids</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Add canonical <code class="docutils literal notranslate"><span class="pre">plant_id_ferc1</span></code> values to the steam table.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.classify_plants_ferc1.merge_steam_fuel_dfs" title="pudl.analysis.record_linkage.classify_plants_ferc1.merge_steam_fuel_dfs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_steam_fuel_dfs</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Merge steam plants and fuel dfs to prepare inputs for ferc plant matching.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.classify_plants_ferc1.ferc_to_ferc" title="pudl.analysis.record_linkage.classify_plants_ferc1.ferc_to_ferc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ferc_to_ferc</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.classify_plants_ferc1.ferc_to_ferc" title="pudl.analysis.record_linkage.classify_plants_ferc1.ferc_to_ferc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ferc_to_ferc</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Assign IDs to the large steam plants.</p></td>
 </tr>
 </tbody>
@@ -847,11 +850,6 @@ tools from scikit-learn</p>
 </section>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
-<dl class="py data">
-<dt class="sig sig-object py" id="pudl.analysis.record_linkage.classify_plants_ferc1.logger">
-<span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.classify_plants_ferc1.</span></span><span class="sig-name descname"><span class="pre">logger</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/classify_plants_ferc1.html#logger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.classify_plants_ferc1.logger" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
 <dl class="py data">
 <dt class="sig sig-object py" id="pudl.analysis.record_linkage.classify_plants_ferc1._FUEL_COLS">
 <span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.classify_plants_ferc1.</span></span><span class="sig-name descname"><span class="pre">_FUEL_COLS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['coal_fraction_mmbtu',</span> <span class="pre">'gas_fraction_mmbtu',</span> <span class="pre">'nuclear_fraction_mmbtu',</span> <span class="pre">'oil_fraction_mmbtu',...</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/classify_plants_ferc1.html#_FUEL_COLS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.classify_plants_ferc1._FUEL_COLS" title="Link to this definition">#</a></dt>
@@ -862,19 +860,48 @@ tools from scikit-learn</p>
 <span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.classify_plants_ferc1.</span></span><span class="sig-name descname"><span class="pre">ferc_dataframe_embedder</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/classify_plants_ferc1.html#ferc_dataframe_embedder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.classify_plants_ferc1.ferc_dataframe_embedder" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.classify_plants_ferc1._CANONICAL_RECORD_ORDER">
+<span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.classify_plants_ferc1.</span></span><span class="sig-name descname"><span class="pre">_CANONICAL_RECORD_ORDER</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['report_year',</span> <span class="pre">'utility_id_ferc1',</span> <span class="pre">'plant_name_ferc1',</span> <span class="pre">'record_id']</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/classify_plants_ferc1.html#_CANONICAL_RECORD_ORDER"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.classify_plants_ferc1._CANONICAL_RECORD_ORDER" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 <dl class="py function">
-<dt class="sig sig-object py" id="pudl.analysis.record_linkage.classify_plants_ferc1.plants_steam_validate_ids">
-<span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.classify_plants_ferc1.</span></span><span class="sig-name descname"><span class="pre">plants_steam_validate_ids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ferc_to_ferc_tracker</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../ml_tools/experiment_tracking/index.html#pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker" title="pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker"><span class="pre">pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ferc1_steam_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/classify_plants_ferc1.html#plants_steam_validate_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.classify_plants_ferc1.plants_steam_validate_ids" title="Link to this definition">#</a></dt>
-<dd><p>Tests that plant_id_ferc1 timeseries includes one record per year.</p>
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.classify_plants_ferc1._canonicalize_plant_ids">
+<span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.classify_plants_ferc1.</span></span><span class="sig-name descname"><span class="pre">_canonicalize_plant_ids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labeled_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.0.6)"><span class="pre">pandas.Series</span></a></span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/classify_plants_ferc1.html#_canonicalize_plant_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.classify_plants_ferc1._canonicalize_plant_ids" title="Link to this definition">#</a></dt>
+<dd><p>Replace arbitrary cluster labels with IDs that depend only on the clusters.</p>
+<p>The labels assigned by the clustering models are numbered by the internals of the
+algorithm, so they get permuted by tiny changes in the inputs even when the plants
+they describe are identical. Instead, give every cluster the position of its
+earliest record when all records are sorted by <a class="reference internal" href="#pudl.analysis.record_linkage.classify_plants_ferc1._CANONICAL_RECORD_ORDER" title="pudl.analysis.record_linkage.classify_plants_ferc1._CANONICAL_RECORD_ORDER"><code class="xref py py-data docutils literal notranslate"><span class="pre">_CANONICAL_RECORD_ORDER</span></code></a>.
+Because that only depends on the members of a cluster, splitting, merging, or adding
+a plant does not change the IDs of unrelated plants, and diffs between runs
+highlight real changes to the clusters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>labeled_df</strong> – The records that were clustered, with their cluster label in a
+<code class="docutils literal notranslate"><span class="pre">record_label</span></code> column. Must also contain the columns in
+<a class="reference internal" href="#pudl.analysis.record_linkage.classify_plants_ferc1._CANONICAL_RECORD_ORDER" title="pudl.analysis.record_linkage.classify_plants_ferc1._CANONICAL_RECORD_ORDER"><code class="xref py py-data docutils literal notranslate"><span class="pre">_CANONICAL_RECORD_ORDER</span></code></a>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A series of plant IDs, indexed like <code class="docutils literal notranslate"><span class="pre">labeled_df</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.classify_plants_ferc1.assign_plant_ids">
+<span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.classify_plants_ferc1.</span></span><span class="sig-name descname"><span class="pre">assign_plant_ids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ferc1_steam_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">labeled_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/classify_plants_ferc1.html#assign_plant_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.classify_plants_ferc1.assign_plant_ids" title="Link to this definition">#</a></dt>
+<dd><p>Add canonical <code class="docutils literal notranslate"><span class="pre">plant_id_ferc1</span></code> values to the steam table.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ferc1_steam_df</strong> – A DataFrame of the data from the FERC 1 Steam table.</p></li>
-<li><p><strong>label_df</strong> – A DataFrame containing column of newly assigned plant labels.</p></li>
+<li><p><strong>labeled_df</strong> – The records that were clustered, with a <code class="docutils literal notranslate"><span class="pre">record_label</span></code> column
+giving each record’s assigned cluster.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The input dataframe, to enable method chaining.</p>
+<dd class="field-even"><p>The steam dataframe with a <code class="docutils literal notranslate"><span class="pre">plant_id_ferc1</span></code> column added.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -944,10 +971,11 @@ tools from scikit-learn</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.classify_plants_ferc1.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.classify_plants_ferc1._FUEL_COLS"><code class="docutils literal notranslate"><span class="pre">_FUEL_COLS</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.classify_plants_ferc1.ferc_dataframe_embedder"><code class="docutils literal notranslate"><span class="pre">ferc_dataframe_embedder</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.classify_plants_ferc1.plants_steam_validate_ids"><code class="docutils literal notranslate"><span class="pre">plants_steam_validate_ids()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.classify_plants_ferc1._CANONICAL_RECORD_ORDER"><code class="docutils literal notranslate"><span class="pre">_CANONICAL_RECORD_ORDER</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.classify_plants_ferc1._canonicalize_plant_ids"><code class="docutils literal notranslate"><span class="pre">_canonicalize_plant_ids()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.classify_plants_ferc1.assign_plant_ids"><code class="docutils literal notranslate"><span class="pre">assign_plant_ids()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.classify_plants_ferc1.merge_steam_fuel_dfs"><code class="docutils literal notranslate"><span class="pre">merge_steam_fuel_dfs()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.classify_plants_ferc1.ferc_to_ferc"><code class="docutils literal notranslate"><span class="pre">ferc_to_ferc()</span></code></a></li>
 </ul>

@@ -218,7 +218,7 @@ defined for the `ferceqr` data source in `pudl.metadata.sources`.
 
 Format terminal step statuses as an asset-by-partition Markdown table.
 
-### pudl.dagster.assets.deploy.ferceqr.\_gather_step_statuses(context: [dagster.AssetExecutionContext](https://docs.dagster.io/api/dagster/execution/#dagster.AssetExecutionContext), source_run_id: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[StepStatusTable](#pudl.dagster.assets.deploy.ferceqr.StepStatusTable), [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)]
+### pudl.dagster.assets.deploy.ferceqr.\_gather_step_statuses(context: [dagster.AssetExecutionContext](https://dagster.io/docs/api/dagster/execution/#dagster.AssetExecutionContext), source_run_id: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[StepStatusTable](#pudl.dagster.assets.deploy.ferceqr.StepStatusTable), [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)]
 
 Collect step statuses and total elapsed time across all source runs.
 
@@ -230,11 +230,11 @@ The elapsed time is computed from the earliest `start_time` to the latest
 
 Return pointer to logs to send in Zulip message.
 
-### pudl.dagster.assets.deploy.ferceqr.\_compute_deploy_duration(context: [dagster.AssetExecutionContext](https://docs.dagster.io/api/dagster/execution/#dagster.AssetExecutionContext)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)
+### pudl.dagster.assets.deploy.ferceqr.\_compute_deploy_duration(context: [dagster.AssetExecutionContext](https://dagster.io/docs/api/dagster/execution/#dagster.AssetExecutionContext)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Return elapsed time since the current run started, or None on failure.
 
-### pudl.dagster.assets.deploy.ferceqr.build_ferceqr_notification(context: [dagster.AssetExecutionContext](https://docs.dagster.io/api/dagster/execution/#dagster.AssetExecutionContext), outcome: Literal['SUCCESS', 'FAILURE', 'SKIPPED']) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
+### pudl.dagster.assets.deploy.ferceqr.build_ferceqr_notification(context: [dagster.AssetExecutionContext](https://dagster.io/docs/api/dagster/execution/#dagster.AssetExecutionContext), outcome: Literal['SUCCESS', 'FAILURE', 'SKIPPED']) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Build a Markdown notification string for FERC EQR deployment outcomes.
 
@@ -242,7 +242,7 @@ Extracts all relevant information (source partitions, run ID, duration,
 step statuses, distribution paths, build ID) from the Dagster execution
 context and returns a formatted Markdown message ready for Zulip.
 
-### pudl.dagster.assets.deploy.ferceqr.deployment_status_asset(asset_fn: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
+### pudl.dagster.assets.deploy.ferceqr.deployment_status_asset(asset_fn: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)) → [dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)
 
 Create a custom decorator for deployment handler assets.
 
@@ -251,14 +251,14 @@ reason. When these assets fail, sometimes the logs don’t show up in the batch 
 appropriately, and the status file never gets created, so the job keeps running
 until it eventually times out.
 
-### pudl.dagster.assets.deploy.ferceqr.\_deploy_source_partitions(context: [dagster.AssetExecutionContext](https://docs.dagster.io/api/dagster/execution/#dagster.AssetExecutionContext)) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]
+### pudl.dagster.assets.deploy.ferceqr.\_deploy_source_partitions(context: [dagster.AssetExecutionContext](https://dagster.io/docs/api/dagster/execution/#dagster.AssetExecutionContext)) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]
 
 Read the built partitions from run tags, empty when invoked outside a run.
 
 Deploying only the *specific* partitions this build produced avoids sweeping
 up unrelated data left lying around, especially on local runs.
 
-### pudl.dagster.assets.deploy.ferceqr.deploy_ferceqr(context: [dagster.AssetExecutionContext](https://docs.dagster.io/api/dagster/execution/#dagster.AssetExecutionContext))
+### pudl.dagster.assets.deploy.ferceqr.deploy_ferceqr(context: [dagster.AssetExecutionContext](https://dagster.io/docs/api/dagster/execution/#dagster.AssetExecutionContext))
 
 Publish EQR outputs to configured deployment targets.
 
@@ -279,6 +279,6 @@ may leave the target with a mix of old and new files; `._ferceqr_previous`
 holds the prior build for a manual rollback. Targets are processed
 concurrently.
 
-### pudl.dagster.assets.deploy.ferceqr.handle_ferceqr_failure(context: [dagster.AssetExecutionContext](https://docs.dagster.io/api/dagster/execution/#dagster.AssetExecutionContext))
+### pudl.dagster.assets.deploy.ferceqr.handle_ferceqr_failure(context: [dagster.AssetExecutionContext](https://dagster.io/docs/api/dagster/execution/#dagster.AssetExecutionContext))
 
 Send notification if the FERC EQR build failed.

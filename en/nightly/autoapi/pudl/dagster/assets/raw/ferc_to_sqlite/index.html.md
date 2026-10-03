@@ -108,7 +108,7 @@ this function will immediately return `None`, triggering the normal extraction.
 * **Returns:**
   Compatible `FercSqliteProvenanceRecord` if one is found, otherwise `None`.
 
-### pudl.dagster.assets.raw.ferc_to_sqlite.ferc_to_sqlite_asset_factory(, dataset: [pudl.settings.FercForm](../../../../settings/index.html.md#pudl.settings.FercForm), data_format: Literal['dbf', 'xbrl'], extract_function: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[dagster.AssetExecutionContext](https://docs.dagster.io/api/dagster/execution/#dagster.AssetExecutionContext)], [None](https://docs.python.org/3/builtins/constants.html#None)], op_tags: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
+### pudl.dagster.assets.raw.ferc_to_sqlite.ferc_to_sqlite_asset_factory(, dataset: [pudl.settings.FercForm](../../../../settings/index.html.md#pudl.settings.FercForm), data_format: Literal['dbf', 'xbrl'], extract_function: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[dagster.AssetExecutionContext](https://dagster.io/docs/api/dagster/execution/#dagster.AssetExecutionContext)], [None](https://docs.python.org/3/builtins/constants.html#None)], op_tags: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)
 
 Create a FERC-to-SQLite prerequisite asset for a specific FERC dataset.
 

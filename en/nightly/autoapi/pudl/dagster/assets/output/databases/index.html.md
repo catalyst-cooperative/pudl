@@ -74,10 +74,10 @@ Human-readable report of every table that failed to write, and why.
 * **Return type:**
   A multi-line string
 
-### pudl.dagster.assets.output.databases.build_pudl_sqlite_asset(asset_keys: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[dagster.AssetKey](https://docs.dagster.io/api/dagster/assets/#dagster.AssetKey)]) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
+### pudl.dagster.assets.output.databases.build_pudl_sqlite_asset(asset_keys: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[dagster.AssetKey](https://dagster.io/docs/api/dagster/assets/#dagster.AssetKey)]) → [dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)
 
 Build the `pudl_sqlite` asset. Delete this once `pudl.sqlite` is retired.
 
-### pudl.dagster.assets.output.databases.build_pudl_duckdb_asset(asset_keys: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[dagster.AssetKey](https://docs.dagster.io/api/dagster/assets/#dagster.AssetKey)]) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
+### pudl.dagster.assets.output.databases.build_pudl_duckdb_asset(asset_keys: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[dagster.AssetKey](https://dagster.io/docs/api/dagster/assets/#dagster.AssetKey)]) → [dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)
 
 Build the `pudl_duckdb` asset.

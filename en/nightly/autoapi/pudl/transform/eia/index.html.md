@@ -359,13 +359,13 @@ the BA codes:
   `balancing_authority_code_eia` column and an updated corresponding
   `balancing_authority_name_eia` column.
 
-### pudl.transform.eia.harvested_entity_asset_factory(entity: [EiaEntity](#pudl.transform.eia.EiaEntity), io_manager_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
+### pudl.transform.eia.harvested_entity_asset_factory(entity: [EiaEntity](#pudl.transform.eia.EiaEntity), io_manager_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)
 
 Create an asset definition for the harvested entity tables.
 
 ### pudl.transform.eia.harvested_entities
 
-### pudl.transform.eia.finished_eia_asset_factory(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), \_core_table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), io_manager_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
+### pudl.transform.eia.finished_eia_asset_factory(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), \_core_table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), io_manager_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)
 
 An asset factory for finished EIA tables.
 

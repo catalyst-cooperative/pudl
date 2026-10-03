@@ -206,7 +206,7 @@ for. We do that by passing in `potential_parents` as a parameter.
 
 Get a specific table number and report year as a DataFrame.
 
-### pudl.extract.eiaaeo.raw_eiaaeo(context: [dagster.AssetExecutionContext](https://docs.dagster.io/api/dagster/execution/#dagster.AssetExecutionContext))
+### pudl.extract.eiaaeo.raw_eiaaeo(context: [dagster.AssetExecutionContext](https://dagster.io/docs/api/dagster/execution/#dagster.AssetExecutionContext))
 
 Extract tables from EIA’s Annual Energy Outlook.
 
@@ -227,6 +227,6 @@ such as a series name and units. Many different dimensions can be inferred
 from the series names, but the data is somewhat heterogeneous so we do not
 try to infer those here and leave that to the transformation step.
 
-### pudl.extract.eiaaeo.raw_table_54_invariants(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [dagster.AssetCheckResult](https://docs.dagster.io/api/dagster/asset-checks/#dagster.AssetCheckResult)
+### pudl.extract.eiaaeo.raw_table_54_invariants(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [dagster.AssetCheckResult](https://dagster.io/docs/api/dagster/asset-checks/#dagster.AssetCheckResult)
 
 Check that the AEO Table 54 raw data conforms to *some* assumptions.

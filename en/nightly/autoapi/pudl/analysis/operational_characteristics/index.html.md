@@ -55,7 +55,7 @@ for this analysis regardless of what’s actually present in the EPA CEMS data
 config, so the earliest feasible `report_year` in production (a 3-year /
 12-quarter trailing window) is 2000, not 1997.
 
-### pudl.analysis.operational_characteristics.\_get_heat_rate_analysis_config(context: [dagster.AssetExecutionContext](https://docs.dagster.io/api/dagster/execution/#dagster.AssetExecutionContext)) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [int](https://docs.python.org/3/builtins/functions.html#int)]
+### pudl.analysis.operational_characteristics.\_get_heat_rate_analysis_config(context: [dagster.AssetExecutionContext](https://dagster.io/docs/api/dagster/execution/#dagster.AssetExecutionContext)) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [int](https://docs.python.org/3/builtins/functions.html#int)]
 
 Extract heat rate analysis settings from Dagster asset config.
 
@@ -250,7 +250,7 @@ on the resulting eager `DataFrame`, in a fully vectorized manner across every
 unit at once – there’s no per-unit or per-batch Python looping, and no
 `pandas` fallback.
 
-### pudl.analysis.operational_characteristics.out_epacems_\_yearly_operational_characteristics(context: [dagster.AssetExecutionContext](https://docs.dagster.io/api/dagster/execution/#dagster.AssetExecutionContext), core_epacems_\_hourly_emissions: polars.LazyFrame) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.analysis.operational_characteristics.out_epacems_\_yearly_operational_characteristics(context: [dagster.AssetExecutionContext](https://dagster.io/docs/api/dagster/execution/#dagster.AssetExecutionContext), core_epacems_\_hourly_emissions: polars.LazyFrame) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Estimate EPA CEMS unit operational characteristics for every unit and year.
 

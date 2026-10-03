@@ -173,7 +173,7 @@ geometry column removed depending on the value of the save_format parameter. By
 default, this returns only counties with observed EIA 861 data for a utility or
 balancing authority, with geometries available at the county level.
 
-### pudl.analysis.service_territory.service_territory_asset_factory(entity_type: Literal['balancing_authority', 'utility'], io_manager_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)]
+### pudl.analysis.service_territory.service_territory_asset_factory(entity_type: Literal['balancing_authority', 'utility'], io_manager_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)]
 
 Build asset definitions for balancing authority and utility territories.
 

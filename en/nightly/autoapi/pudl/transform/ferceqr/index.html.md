@@ -64,7 +64,7 @@ re-materialized more than once – `fetch_materializations` returns
 most-recent-first, so the first record seen for each partition is already the
 one we want.
 
-### pudl.transform.ferceqr.\_CORE_FERCEQR_TABLE_LABELS *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[dagster.AssetKey](https://docs.dagster.io/api/dagster/assets/#dagster.AssetKey), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
+### pudl.transform.ferceqr.\_CORE_FERCEQR_TABLE_LABELS *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[dagster.AssetKey](https://dagster.io/docs/api/dagster/assets/#dagster.AssetKey), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
 ### pudl.transform.ferceqr.\_CHECK_EVALUATION_FETCH_LIMIT *= 2000*
 
@@ -139,7 +139,7 @@ Generates a `CASE WHEN` expression with one equality branch per entry in
   * **replace_mapping** – Maps each observed bad value (key) to its correct
     canonical replacement (value).
 
-### pudl.transform.ferceqr.core_ferceqr_\_quarterly_identity(context: [dagster.AssetExecutionContext](https://docs.dagster.io/api/dagster/execution/#dagster.AssetExecutionContext), raw_ferceqr_\_ident: [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData))
+### pudl.transform.ferceqr.core_ferceqr_\_quarterly_identity(context: [dagster.AssetExecutionContext](https://dagster.io/docs/api/dagster/execution/#dagster.AssetExecutionContext), raw_ferceqr_\_ident: [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData))
 
 Transform the raw FERC EQR filer identity table.
 
@@ -155,7 +155,7 @@ Transform the raw FERC EQR electricity contracts table.
 
 Transform the raw FERC EQR index price publisher table.
 
-### pudl.transform.ferceqr.\_latest_extraction_stats_by_quarter(instance: [dagster.DagsterInstance](https://docs.dagster.io/api/dagster/internals/#dagster.DagsterInstance)) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]]
+### pudl.transform.ferceqr.\_latest_extraction_stats_by_quarter(instance: [dagster.DagsterInstance](https://dagster.io/docs/api/dagster/internals/#dagster.DagsterInstance)) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]]
 
 Return `{year_quarter: extraction_stats}` from each partition’s latest run.
 
@@ -163,7 +163,7 @@ Reads the `extraction_stats` JSON metadata that `pudl.extract.ferceqr.
 extract_ferceqr()` attaches to `raw_ferceqr__extract_errors`, directly from this
 Dagster instance’s event log – no Parquet data is read.
 
-### pudl.transform.ferceqr.\_latest_check_evaluations_by_quarter(instance: [dagster.DagsterInstance](https://docs.dagster.io/api/dagster/internals/#dagster.DagsterInstance)) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), dagster.AssetCheckEvaluation]]
+### pudl.transform.ferceqr.\_latest_check_evaluations_by_quarter(instance: [dagster.DagsterInstance](https://dagster.io/docs/api/dagster/internals/#dagster.DagsterInstance)) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), dagster.AssetCheckEvaluation]]
 
 Return `{year_quarter: {table_label: evaluation}}` from each check’s latest run.
 
@@ -192,7 +192,7 @@ per-quarter table/reject-reason keys actually observed – so every row has
 the same shape and missing values show up as `0`/`None` rather than
 a missing column.
 
-### pudl.transform.ferceqr.ferceqr_pipeline_diagnostics(context: [dagster.AssetExecutionContext](https://docs.dagster.io/api/dagster/execution/#dagster.AssetExecutionContext)) → [dagster.MaterializeResult](https://docs.dagster.io/api/dagster/assets/#dagster.MaterializeResult)
+### pudl.transform.ferceqr.ferceqr_pipeline_diagnostics(context: [dagster.AssetExecutionContext](https://dagster.io/docs/api/dagster/execution/#dagster.AssetExecutionContext)) → [dagster.MaterializeResult](https://dagster.io/docs/api/dagster/assets/#dagster.MaterializeResult)
 
 Compile a cross-quarter summary of ferceqr extraction and schema-check anomalies.
 
@@ -206,7 +206,7 @@ the four `core_ferceqr__*` tables (row counts, primary-key violations, and
 other schema check failures).
 
 Depending on *all* partitions of several partitioned upstream assets via
-[`dagster.AllPartitionMapping`](https://docs.dagster.io/api/dagster/partitions/#dagster.AllPartitionMapping) means materializing this asset re-scans
+[`dagster.AllPartitionMapping`](https://dagster.io/docs/api/dagster/partitions/#dagster.AllPartitionMapping) means materializing this asset re-scans
 the full history already recorded in this Dagster instance’s event log each
 time – cheap, since it only reads metadata, never the underlying Parquet
 data.

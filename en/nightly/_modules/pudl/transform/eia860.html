@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.eia860 &#8212; PUDL 2026.9.1.dev31 documentation</title>
+    <title>pudl.transform.eia860 &#8212; PUDL 2026.9.1.dev37 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../../../_static/documentation_options.js?v=feee5aca"></script>
+    <script src="../../../_static/documentation_options.js?v=bf8d6f1c"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -495,8 +495,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev31 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev31 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev37 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev37 documentation - Home"/>
   
   
 </a></div>
@@ -1154,19 +1154,48 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">"ferc_exempt_wholesale_generator"</span><span class="p">,</span>
         <span class="s2">"ferc_qualifying_facility"</span><span class="p">,</span>
     <span class="p">]</span>
-    <span class="n">gens_df</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="c1"># pandas complains when you pass in empty dfs, but it's surprisingly more</span>
-        <span class="c1"># memory-expensive to skip the empty dfs and manually add the columns</span>
-        <span class="c1"># we need from them back in, so the complainer stays.</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">ge_df</span><span class="p">,</span> <span class="n">gp_df</span><span class="p">,</span> <span class="n">gr_df</span><span class="p">,</span> <span class="n">g_df</span><span class="p">],</span> <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">standardize_na_values</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">"generator_id"</span><span class="p">,</span> <span class="s2">"plant_id_eia"</span><span class="p">])</span>
-        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
-            <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">fix_boolean_columns</span><span class="p">,</span>
-            <span class="n">boolean_columns_to_fix</span><span class="o">=</span><span class="n">boolean_columns_to_fix</span><span class="p">,</span>
-            <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="p">)</span>
+
+    <span class="c1"># pandas complains when you pass in empty dfs, but it's surprisingly more</span>
+    <span class="c1"># memory-expensive to skip the empty dfs and manually add the columns</span>
+    <span class="c1"># we need from them back in, so the complainer stays.</span>
+    <span class="n">gens_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">ge_df</span><span class="p">,</span> <span class="n">gp_df</span><span class="p">,</span> <span class="n">gr_df</span><span class="p">,</span> <span class="n">g_df</span><span class="p">],</span> <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
+        <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">standardize_na_values</span>
     <span class="p">)</span>
+
+    <span class="c1"># In August 2026, EIA started to report a series of much older nuclear generator</span>
+    <span class="c1"># retirements, some with no utility ID or plant ID assigned.</span>
+    <span class="c1"># See https://web.archive.org/web/20260522053808/https://www.eia.gov/nuclear/reactors/shutdown/</span>
+    <span class="c1"># They confirmed via email that they also don't intend to assign these generators</span>
+    <span class="c1"># IDs, and the data quality of these records is inconsistent with</span>
+    <span class="c1"># the rest of the EIA 860M data. We drop them all at this stage, identifying them</span>
+    <span class="c1"># by their retirement dates being outside of the range of 860M data.</span>
+    <span class="n">old_nukes_mask</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">gens_df</span><span class="o">.</span><span class="n">operational_status_code</span> <span class="o">==</span> <span class="s2">"RE"</span><span class="p">)</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="n">gens_df</span><span class="o">.</span><span class="n">report_year</span> <span class="o">&gt;=</span> <span class="mi">2026</span><span class="p">)</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="n">gens_df</span><span class="o">.</span><span class="n">generator_retirement_year</span> <span class="o">&lt;</span> <span class="mi">2002</span><span class="p">)</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="n">gens_df</span><span class="o">.</span><span class="n">data_maturity</span> <span class="o">==</span> <span class="s2">"monthly_update"</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">gens_df</span><span class="p">[</span><span class="n">old_nukes_mask</span><span class="p">]</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">gens_df</span><span class="p">[</span><span class="n">old_nukes_mask</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="mi">28</span>  <span class="c1"># Check for an expected number</span>
+        <span class="n">gens_df</span> <span class="o">=</span> <span class="n">gens_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="o">~</span><span class="n">old_nukes_mask</span><span class="p">]</span>  <span class="c1"># Drop these weirdos</span>
+
+    <span class="c1"># The other type of record dropped at this stage are records with a generator ID</span>
+    <span class="c1"># that is literally the string "NA" (26 records).</span>
+    <span class="n">null_ids</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">gens_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">"generator_id"</span><span class="p">,</span> <span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"utility_id_eia"</span><span class="p">]]</span>
+        <span class="o">.</span><span class="n">isnull</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">sum</span><span class="p">(</span><span class="n">null_ids</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">26</span><span class="p">,</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"Expected to drop no more than 26 records with null IDs, actually dropping </span><span class="si">{</span><span class="nb">sum</span><span class="p">(</span><span class="n">null_ids</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">: </span><span class="si">{</span><span class="n">gens_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">null_ids</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s1">'generator_id'</span><span class="p">,</span><span class="w"> </span><span class="s1">'plant_id_eia'</span><span class="p">,</span><span class="w"> </span><span class="s1">'utility_id_eia'</span><span class="p">,</span><span class="w"> </span><span class="s1">'report_year'</span><span class="p">]]</span><span class="si">}</span><span class="s2">"</span>
+    <span class="p">)</span>
+
+    <span class="n">gens_df</span> <span class="o">=</span> <span class="n">gens_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="o">~</span><span class="n">null_ids</span><span class="p">]</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
+        <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">fix_boolean_columns</span><span class="p">,</span>
+        <span class="n">boolean_columns_to_fix</span><span class="o">=</span><span class="n">boolean_columns_to_fix</span><span class="p">,</span>
+        <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
     <span class="n">gens_df</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">to_replace</span><span class="o">=</span><span class="n">nulls_replace_cols</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># noqa: PD002</span>
     <span class="n">gens_df</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">gens_df</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">month_year_to_date</span><span class="p">)</span>

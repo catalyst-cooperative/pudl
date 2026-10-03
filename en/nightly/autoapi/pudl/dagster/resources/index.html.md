@@ -5,7 +5,7 @@ Dagster resources for PUDL.
 This module defines the configurable resources that PUDL assets depend on at runtime,
 such as data configuration, datastore access, and other run-scoped helpers, along with
 the default resource mapping used by the assembled code location. Add
-[`dagster.ConfigurableResource`](https://docs.dagster.io/api/dagster/resources/#dagster.ConfigurableResource) classes and configured singleton instances here
+[`dagster.ConfigurableResource`](https://dagster.io/docs/api/dagster/resources/#dagster.ConfigurableResource) classes and configured singleton instances here
 when they provide external services or shared runtime context to assets and jobs. Keep
 asset logic out of this module; it should focus on dependency injection and default
 resource wiring.
@@ -43,7 +43,7 @@ For the underlying Dagster concept, see
 
 ### *class* pudl.dagster.resources.PudlPathsResource
 
-Bases: [`dagster.ConfigurableResource`](https://docs.dagster.io/api/dagster/resources/#dagster.ConfigurableResource)
+Bases: [`dagster.ConfigurableResource`](https://dagster.io/docs/api/dagster/resources/#dagster.ConfigurableResource)
 
 Load the input/output paths used by Dagster-managed PUDL runs.
 
@@ -61,7 +61,7 @@ Create validated runtime path settings for the current Dagster run.
 
 ### *class* pudl.dagster.resources.FercXbrlRuntimeSettings
 
-Bases: [`dagster.ConfigurableResource`](https://docs.dagster.io/api/dagster/resources/#dagster.ConfigurableResource)
+Bases: [`dagster.ConfigurableResource`](https://dagster.io/docs/api/dagster/resources/#dagster.ConfigurableResource)
 
 Encodes runtime settings for the ferc_to_sqlite graphs.
 
@@ -73,7 +73,7 @@ Encodes runtime settings for the ferc_to_sqlite graphs.
 
 ### *class* pudl.dagster.resources.GlobalDataConfigResource
 
-Bases: [`dagster.ConfigurableResource`](https://docs.dagster.io/api/dagster/resources/#dagster.ConfigurableResource)
+Bases: [`dagster.ConfigurableResource`](https://dagster.io/docs/api/dagster/resources/#dagster.ConfigurableResource)
 
 Load validated PUDL data configuration from a shared ETL YAML file.
 
@@ -85,7 +85,7 @@ Create runtime data configuration from the configured YAML file.
 
 ### *class* pudl.dagster.resources.ZenodoDoiSettingsResource
 
-Bases: [`dagster.ConfigurableResource`](https://docs.dagster.io/api/dagster/resources/#dagster.ConfigurableResource)
+Bases: [`dagster.ConfigurableResource`](https://dagster.io/docs/api/dagster/resources/#dagster.ConfigurableResource)
 
 Load the canonical Zenodo DOI settings for Dagster-managed runs.
 
@@ -106,7 +106,7 @@ Create runtime DOI settings, optionally from an override YAML file.
 
 ### *class* pudl.dagster.resources.DatastoreResource
 
-Bases: [`dagster.ConfigurableResource`](https://docs.dagster.io/api/dagster/resources/#dagster.ConfigurableResource)
+Bases: [`dagster.ConfigurableResource`](https://dagster.io/docs/api/dagster/resources/#dagster.ConfigurableResource)
 
 Dagster resource to interact with Zenodo archives.
 
@@ -124,7 +124,7 @@ Create a configured datastore runtime object.
 
 ### *class* pudl.dagster.resources.FercEqrArchiveResource
 
-Bases: [`dagster.ConfigurableResource`](https://docs.dagster.io/api/dagster/resources/#dagster.ConfigurableResource)
+Bases: [`dagster.ConfigurableResource`](https://dagster.io/docs/api/dagster/resources/#dagster.ConfigurableResource)
 
 Configure which archived FERC EQR filings are available for extraction.
 
@@ -140,7 +140,7 @@ Return UPath pointing to archive base path.
 
 ### *class* pudl.dagster.resources.FercEqrDeploymentTargetConfig(\*\*config_dict)
 
-Bases: [`dagster.Config`](https://docs.dagster.io/api/dagster/config/#dagster.Config)
+Bases: [`dagster.Config`](https://dagster.io/docs/api/dagster/config/#dagster.Config)
 
 A single deployment destination for FERC EQR outputs.
 
@@ -161,7 +161,7 @@ Validate deployment targets as remote URLs or local directories.
 
 ### *class* pudl.dagster.resources.FercEqrDeploymentResource
 
-Bases: [`dagster.ConfigurableResource`](https://docs.dagster.io/api/dagster/resources/#dagster.ConfigurableResource)
+Bases: [`dagster.ConfigurableResource`](https://dagster.io/docs/api/dagster/resources/#dagster.ConfigurableResource)
 
 One or more deployment destinations for FERC EQR outputs.
 
@@ -190,7 +190,7 @@ provided `storage_options`.
 
 ### *class* pudl.dagster.resources.ZulipNotificationResource
 
-Bases: [`dagster.ConfigurableResource`](https://docs.dagster.io/api/dagster/resources/#dagster.ConfigurableResource)
+Bases: [`dagster.ConfigurableResource`](https://dagster.io/docs/api/dagster/resources/#dagster.ConfigurableResource)
 
 Send notifications to Zulip streams via the Zulip API.
 

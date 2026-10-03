@@ -76,14 +76,6 @@ Module Contents
 
 
 
-   .. py:method:: get_dtypes(page, **partition)
-      :staticmethod:
-
-
-      Returns dtypes for plant id columns.
-
-
-
 .. py:function:: append_eia860m(eia860_raw_dfs: dict[str, pandas.DataFrame], eia860m_raw_dfs: dict[str, pandas.DataFrame]) -> dict[str, pandas.DataFrame]
 
    Append EIA 860M to EIA860 data.

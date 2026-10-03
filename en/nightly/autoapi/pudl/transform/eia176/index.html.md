@@ -57,7 +57,7 @@ Module to perform data cleaning functions on EIA176 data tables.
 
 ### pudl.transform.eia176.MAX_NATIONAL_ADJUSTMENT_RECORDS *= 28*
 
-### pudl.transform.eia176.\_core_eia176_\_numeric_data(raw_eia176_\_numeric_data: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[dagster.Output](https://docs.dagster.io/api/dagster/ops/#dagster.Output), [dagster.Output](https://docs.dagster.io/api/dagster/ops/#dagster.Output)]
+### pudl.transform.eia176.\_core_eia176_\_numeric_data(raw_eia176_\_numeric_data: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[dagster.Output](https://dagster.io/docs/api/dagster/ops/#dagster.Output), [dagster.Output](https://dagster.io/docs/api/dagster/ops/#dagster.Output)]
 
 Process EIA 176 custom report data into company and aggregate outputs.
 
@@ -93,7 +93,7 @@ Classify EIA-176 continuation codes as subnational or national/other codes.
 
 Compare detailed continuation line totals with reported company-level totals.
 
-### pudl.transform.eia176.validate_totals(\_core_eia176_\_yearly_company_data: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), \_core_eia176_\_yearly_aggregate_data: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [dagster.AssetCheckResult](https://docs.dagster.io/api/dagster/asset-checks/#dagster.AssetCheckResult)
+### pudl.transform.eia176.validate_totals(\_core_eia176_\_yearly_company_data: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), \_core_eia176_\_yearly_aggregate_data: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [dagster.AssetCheckResult](https://dagster.io/docs/api/dagster/asset-checks/#dagster.AssetCheckResult)
 
 Compare reported and calculated totals for different geographical aggregates.
 

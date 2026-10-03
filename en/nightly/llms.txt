@@ -1,6 +1,6 @@
 # PUDL
 
-> PUDL 2026.9.1.dev31 documentation
+> PUDL 2026.9.1.dev37 documentation
 
 
 2016-2026, Catalyst Cooperative, CC-BY-4.0
@@ -45,7 +45,11 @@
 - [Timeseries Imputation](methodology/timeseries_imputation.html.md): In energy systems there are many instances of correlated timeseries data that have some
 - [SEC 10-K Ownership Data Extraction Modeling](methodology/sec10k_modeling.html.md): Utilities are often part of a nested hierarchy of holding companies and their
 - [Generator Operational Characteristics](methodology/operational_characteristics.html.md): Production cost models, capacity expansion models, and other power system planning
-- [Bibliography](bibliography.html.md): Data, software, and analyses that we have published for public use. We self-archive
+- [Citations & Media](citations_media/index.html.md): * [Catalyst Publications](catalyst_publications.html.md)
+- [Catalyst Publications](citations_media/catalyst_publications.html.md): Data, software, and analyses that we have published for public use. We self-archive all of our publi...
+- [Work Citing PUDL and other Catalyst Analyses](citations_media/citing_pudl.html.md): Academic, policy, and industry publications that reference PUDL and analyses done by Catalyst Cooper...
+- [Work Citing Catalyst Cooperative](citations_media/citing_cooperative.html.md): Academic, policy, and industry publications referencing Catalyst’s role as a worker-owned software c...
+- [Further Reading](citations_media/further_reading.html.md): Other research and publications relevant to the work we do.
 - [The MIT License](LICENSE.html.md): Copyright 2017-2026 Catalyst Cooperative
 - [Development Resources](code.html.md): * [API Reference](autoapi/pudl/index.html.md)
 - [pudl](autoapi/pudl/index.html.md): The Public Utility Data Liberation (PUDL) Project.

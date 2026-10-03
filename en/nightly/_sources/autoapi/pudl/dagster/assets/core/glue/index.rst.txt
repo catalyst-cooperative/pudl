@@ -38,10 +38,7 @@ Functions
    pudl.dagster.assets.core.glue.augment_crosswalk_with_bga_eia860
    pudl.dagster.assets.core.glue._prep_for_networkx
    pudl.dagster.assets.core.glue._subplant_ids_from_prepped_crosswalk
-   pudl.dagster.assets.core.glue._convert_global_id_to_composite_id
    pudl.dagster.assets.core.glue.make_subplant_ids
-   pudl.dagster.assets.core.glue.update_subplant_ids
-   pudl.dagster.assets.core.glue.connect_ids
    pudl.dagster.assets.core.glue.manually_update_subplant_id
 
 
@@ -166,7 +163,7 @@ Module Contents
    :func:`core_epa__assn_eia_epacamd` asset due to its use of multiple years of raw
    crosswalk outputs.
 
-   This function consists of three primary parts:
+   This function consists of two primary parts:
 
    #.  Augment the EPA CAMD:EIA crosswalk with all IDs from EIA and EPA CAMD. Fill in
        key IDs when possible. Because the published crosswalk was only meant to map
@@ -176,9 +173,8 @@ Module Contents
        merging in the complete list of generators from EIA-860. This dataframe also
        contains the complete list of ``unit_id_pudl`` mappings that will be necessary.
    #.  :func:`make_subplant_ids`: Use graph analysis to identify distinct groupings of
-       EPA units and EIA generators based on 1:1, 1:m, m:1, or m:m relationships.
-   #.  :func:`update_subplant_ids`: Augment the ``subplant_id`` with the
-       ``unit_id_pudl`` and ``generator_id``.
+       EPA units, EIA generators, and EIA-860 boiler-generator ``unit_id_pudl``
+       associations, based on 1:1, 1:m, m:1, or m:m relationships.
 
    :returns: table of cems_ids and with subplant_id added
 
@@ -203,63 +199,69 @@ Module Contents
 
 .. py:function:: _prep_for_networkx(crosswalk: pandas.DataFrame) -> pandas.DataFrame
 
-   Make surrogate keys for combustors and generators.
+   Build composite node identities for combustors, generators, and EIA units.
 
-   :param crosswalk: The :ref:`core_epa__assn_eia_epacamd` crosswalk
+   Node identities are plain ``(type_tag, plant_id_eia, natural_id)`` tuples rather
+   than numeric surrogates. networkx accepts any hashable object as a node, so
+   there's no need to invent a global integer ID space -- crosswalk associations
+   never connect two different plants, so embedding ``plant_id_eia`` directly in
+   each node is enough to keep every plant's subgraph naturally disjoint from every
+   other plant's, without ever computing a plant-spanning "global" ID.
+   ``type_tag`` (``"combustor"``/``"generator"``/``"unit"``) keeps otherwise-identical
+   IDs from colliding, e.g. a generator and a boiler that both happen to be named
+   ``"1"`` at the same plant, which is a common EIA naming convention.
 
-   :returns: A copy of :ref:`core_epa__assn_eia_epacamd` crosswalk with new surrogate ID
-             columns `combustor_id` and `generator_id`.
+   A row missing its natural id (e.g. an EPA unit that never matched an EIA
+   generator) is keyed by its own row position instead of left null, so two such
+   rows are never accidentally treated as sharing an id.
+
+   :param crosswalk: The :ref:`core_epa__assn_eia_epacamd` crosswalk, augmented with
+                     ``unit_id_pudl`` (see :func:`augment_crosswalk_with_bga_eia860`).
+
+   :returns: A copy of :ref:`core_epa__assn_eia_epacamd` crosswalk with new node-identity
+             columns ``combustor_node``, ``generator_node``, and ``unit_node``.
 
 
 .. py:function:: _subplant_ids_from_prepped_crosswalk(prepped: pandas.DataFrame) -> pandas.DataFrame
 
-   Use networkx graph analysis to create subplant IDs from crosswalk edge list.
+   Use networkx graph analysis to assign a per-plant ``subplant_id``.
 
    :param prepped: ``core_epa__assn_eia_epacamd`` crosswalk passed through
                    :func:`_prep_for_networkx`
 
-   :returns: A copy of ``core_epa__assn_eia_epacamd`` crosswalk plus new column
-             ``global_subplant_id``
-
-
-.. py:function:: _convert_global_id_to_composite_id(crosswalk_with_ids: pandas.DataFrame) -> pandas.DataFrame
-
-   Convert global_subplant_id to a composite key (plant_id_eia, subplant_id).
-
-   The composite key will be much more stable (though not fully stable!) in time.
-   The global ID changes if ANY unit or generator changes, whereas the
-   compound key only changes if units/generators change within that specific plant.
-
-   A global ID could also tempt users into using it as a crutch, even though it isn't
-   stable. A compound key should discourage that behavior.
-
-   :param crosswalk_with_ids: crosswalk with ``global_subplant_id``, as from
-                              :func:`_subplant_ids_from_prepped_crosswalk`
-
-   :raises ValueError: if crosswalk_with_ids has a MultiIndex
-
-   :returns: ``subplant_id``
-   :rtype: A copy of crosswalk_with_ids with an added column
+   :returns: A copy of ``core_epa__assn_eia_epacamd`` crosswalk plus a new ``subplant_id``
+             column. ``subplant_id`` is already 0-indexed and contiguous within each
+             ``plant_id_eia`` -- no separate global-to-composite-ID conversion step is
+             needed, since node identities already embed ``plant_id_eia`` (see
+             :func:`_prep_for_networkx`) and crosswalk edges never connect two plants.
 
 
 .. py:function:: make_subplant_ids(crosswalk: pandas.DataFrame) -> pandas.DataFrame
 
    Identify sub-plants in the EPA/EIA crosswalk graph.
 
-   In graph analysis terminology, the crosswalk is a list of edges between nodes
-   (combustors and generators) in a bipartite graph. The networkx python package
-   provides functions to analyze this edge list and extract disjoint subgraphs (groups
-   of combustors and generators that are connected to each other).  These are the
-   distinct power plants. To avoid a name collision with plant_id, we term these
-   collections 'subplants', and identify them with a subplant_id that is unique within
-   each plant_id. Subplants are thus identified with the composite key (plant_id,
-   subplant_id).
+   In graph analysis terminology, the crosswalk is a list of edges between nodes (EPA
+   emissions units and EIA generators) in a bipartite graph. A third node type, EIA-860
+   boiler-generator ``unit_id_pudl`` groupings, is folded into the same graph as well,
+   connecting generators that share a ``unit_id_pudl`` even where the EPA crosswalk
+   doesn't connect them directly (see :func:`_subplant_ids_from_prepped_crosswalk`).
+   The networkx python package provides functions to analyze this graph and extract
+   disjoint subgraphs (groups of units, generators, and unit_id_pudl groupings that are
+   connected to each other). These are the distinct power plants. To avoid a name
+   collision with plant_id, we term these collections 'subplants', and identify them
+   with a subplant_id that is unique within each plant_id. Subplants are thus
+   identified with the composite key (plant_id_eia, subplant_id).
 
    Through this analysis, we found that 56% of plant_ids contain multiple distinct
    subplants, and 11% contain subplants with different technology types, such as a gas
    boiler and gas turbine (not in a combined cycle).
 
-   Any row filtering should be done before this step if desired.
+   Any row filtering should be done before this step if desired. Rows that are
+   duplicates with respect to the EPA unit/EIA generator association -- e.g. two
+   crosswalk rows that only differ in ``generator_id_epa`` or ``boiler_id``, neither
+   of which appears in the output -- are collapsed here explicitly, since silently
+   leaving that to the graph construction below would make its row-count guarantee
+   (see :func:`_subplant_ids_from_prepped_crosswalk`) fail on real data.
 
    Note that sub-plant ids should be used in conjunction with ``plant_id_eia`` rather
    than ``plant_id_epa`` because the former is more granular and integrated into CEMS
@@ -269,40 +271,6 @@ Module Contents
 
    :returns: An edge list connecting EPA units to EIA generators, with connected pieces
              issued a subplant_id
-
-
-.. py:function:: update_subplant_ids(subplant_crosswalk: pandas.DataFrame) -> pandas.DataFrame
-
-   Ensure a complete and accurate subplant_id mapping for all generators.
-
-   This function is meant to be applied using a ``.groupby("plant_id_eia").apply()``
-   function. This function will only properly work when applied to a single
-   ``plant_id_eia`` at a time.
-
-   High-level overview of method:
-   ==============================
-
-   #.  Use the ``subplant_id`` derived from :func:`make_subplant_ids` if available. In
-       the case where a ``unit_id_pudl`` groups several subplants, we overwrite these
-       multiple existing subplant_id with a single ``subplant_id``.
-   #.  All of the new unique ids are renumbered in consecutive ascending order
-
-   :param subplant_crosswalk: a dataframe containing the output of
-                              :func:`make_subplant_ids`
-
-
-.. py:function:: connect_ids(subplant_crosswalk: pandas.DataFrame, id_to_update: str, connecting_id: str) -> pandas.DataFrame
-
-   Corrects an id value if it is connected by an id value in another column.
-
-   If multiple ``subplant_id`` are connected by a single ``unit_id_pudl``, this groups
-   these ``subplant_id`` together. If multiple ``unit_id_pudl`` are connected by a
-   single ``subplant_id``, this groups these ``unit_id_pudl`` together.
-
-   :param subplant_crosswalk: dataframe containing columns of id_to_update
-                              andconnecting_id
-   :param id_to_update: List of ID columns
-   :param connecting_id: ID column
 
 
 .. py:function:: manually_update_subplant_id(subplant_crosswalk: pandas.DataFrame) -> pandas.DataFrame

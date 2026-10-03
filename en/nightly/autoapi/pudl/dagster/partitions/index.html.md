@@ -17,4 +17,4 @@ For the underlying Dagster concept, see
 
 ## Module Contents
 
-### pudl.dagster.partitions.ferceqr_year_quarters *: [dagster.StaticPartitionsDefinition](https://docs.dagster.io/api/dagster/partitions/#dagster.StaticPartitionsDefinition)*
+### pudl.dagster.partitions.ferceqr_year_quarters *: [dagster.StaticPartitionsDefinition](https://dagster.io/docs/api/dagster/partitions/#dagster.StaticPartitionsDefinition)*

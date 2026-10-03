@@ -20,7 +20,7 @@ converts it into a `graph_asset`. Applying it to a `@graph` function does
 three things:
 
 1. **Collects configuration.** It walks the graph’s op tree, harvesting default
-   config values from each op’s [`Config`](https://docs.dagster.io/api/dagster/config/#dagster.Config) subclass. If
+   config values from each op’s [`Config`](https://dagster.io/docs/api/dagster/config/#dagster.Config) subclass. If
    `config_from_yaml=True`, it also merges overrides from
    `src/pudl/package_data/settings/pudl_models.yml`. The merged config is stored
    in the module-level `MODEL_CONFIGURATION` dict, which
@@ -65,10 +65,10 @@ Configuration precedence (lowest → highest):
 
 Load model configuration from yaml file.
 
-### pudl.analysis.ml_tools.models.get_default_config(model_graph: [dagster.GraphDefinition](https://docs.dagster.io/api/dagster/graphs/#dagster.GraphDefinition)) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)
+### pudl.analysis.ml_tools.models.get_default_config(model_graph: [dagster.GraphDefinition](https://dagster.io/docs/api/dagster/graphs/#dagster.GraphDefinition)) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)
 
 Get default config values for model.
 
-### pudl.analysis.ml_tools.models.pudl_model(asset_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), config_from_yaml: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
+### pudl.analysis.ml_tools.models.pudl_model(asset_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), config_from_yaml: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)
 
 Decorator for an ML model that will handle providing configuration to dagster.

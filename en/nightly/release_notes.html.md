@@ -23,6 +23,11 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
 * Added final release data from 2025 for [EIA-860](data_sources/eia860.html.md). See
   issue [#5589](https://github.com/catalyst-cooperative/pudl/issues/5589) and PR [#5591](https://github.com/catalyst-cooperative/pudl/pull/5591).
 
+#### EIA-860M
+
+* Added [EIA-860m](data_sources/eia860.html.md) data through August 2026. See issue
+  [#5677](https://github.com/catalyst-cooperative/pudl/issues/5677) and PR [#5680](https://github.com/catalyst-cooperative/pudl/pull/5680).
+
 #### EIA-923
 
 * Added final release data from 2025 for [EIA-923](data_sources/eia923.html.md),
@@ -43,6 +48,14 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
   dbt but were used inconsistently. See PR [#5593](https://github.com/catalyst-cooperative/pudl/pull/5593).
 
 ### New Data Tests & Validations
+
+* Added unit tests for the ID assignment process that builds
+  [core_epa_\_assn_eia_epacamd_subplant_ids](data_dictionaries/pudl_db.html.md#core-epa-assn-eia-epacamd-subplant-ids). Fixed several bugs that those tests
+  exposed, including one that could split a physically connected group of generators
+  into separate subplants. Simplified the underlying ID assignment logic to be entirely
+  graph-based. See issue [#5675](https://github.com/catalyst-cooperative/pudl/pull/5675) and PR [#5543](https://github.com/catalyst-cooperative/pudl/pull/5543). Part of an effort to harmonize
+  the [Open Grid Emissions](https://github.com/singularity-energy/open-grid-emissions) initiative and PUDL.
+  See epic [#5439](https://github.com/catalyst-cooperative/pudl/issues/5439) which is tracking that effort.
 
 ### Bug Fixes & Data Cleaning
 
@@ -76,6 +89,14 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
   [core_ferc1_\_yearly_cash_flows_sched120](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-cash-flows-sched120) without `row_type_xbrl`,
   `is_within_table_calc`, `balance`, or `ferc_account` metadata. See
   [#5587](https://github.com/catalyst-cooperative/pudl/issues/5587) and [#5588](https://github.com/catalyst-cooperative/pudl/pull/5588).
+* Made `plant_id_ferc1` deterministic. The IDs assigned to FERC 1 steam plants used
+  to be reshuffled by tiny changes in the input data, even when the plants themselves
+  were unchanged. They now depend only on which records belong to each plant, so
+  unrelated plants keep their IDs and differences between runs reflect real changes. IDs
+  now start at 1 instead of 0, and are still not stable across data updates. We also
+  corrected several hand-assigned `plant_id_pudl` values that split one plant across
+  multiple IDs, which cut the number of `plant_id_ferc1` values spanning more than one
+  `plant_id_pudl` from 6 to 2. See issue [#5609](https://github.com/catalyst-cooperative/pudl/issues/5609) and PR [#5642](https://github.com/catalyst-cooperative/pudl/pull/5642).
 * Fixed tags for new 2025 XBRL factoids and rescued the `ferc_account` field in
   [out_ferc1_\_yearly_rate_base](data_dictionaries/pudl_db.html.md#out-ferc1-yearly-rate-base). See [#5520](https://github.com/catalyst-cooperative/pudl/issues/5520) and [#5597](https://github.com/catalyst-cooperative/pudl/pull/5597).
 * Fixed `valid_until_date` in the `_core_eia__forensics_entity_resolution_*` and
@@ -1111,7 +1132,7 @@ changes:
   Pydantic models to raw `run_config` dicts, which required keeping Dagster config
   schemas manually in sync with the Pydantic models.
 * **Updated Dagster resources and IO managers to use Pydantic-native**
-  [`dagster.ConfigurableResource`](https://docs.dagster.io/api/dagster/resources/#dagster.ConfigurableResource) **and** [`dagster.ConfigurableIOManager`](https://docs.dagster.io/api/dagster/io-managers/#dagster.ConfigurableIOManager)
+  [`dagster.ConfigurableResource`](https://dagster.io/docs/api/dagster/resources/#dagster.ConfigurableResource) **and** [`dagster.ConfigurableIOManager`](https://dagster.io/docs/api/dagster/io-managers/#dagster.ConfigurableIOManager)
   **base classes.**
   `pudl.workspace.datastore.DatastoreResource` and
   `pudl.workspace.datastore.ZenodoDoiSettingsResource` replace the legacy
@@ -1120,10 +1141,10 @@ changes:
   `pudl.io_managers.FercDbfSqliteIOManager`, and
   `pudl.io_managers.FercXbrlSqliteIOManager` replace the legacy
   `@io_manager` wrappers. Resources now receive settings via Pydantic field
-  injection rather than via [`dagster.build_init_resource_context()`](https://docs.dagster.io/api/dagster/resources/#dagster.build_init_resource_context) config dicts.
+  injection rather than via [`dagster.build_init_resource_context()`](https://dagster.io/docs/api/dagster/resources/#dagster.build_init_resource_context) config dicts.
 * **Added FERC SQLite provenance tracking** via the new
   `pudl.ferc_sqlite_provenance` module. Each time a FERC SQLite asset
-  materializes, it records a fingerprint as [`dagster.MaterializeResult`](https://docs.dagster.io/api/dagster/assets/#dagster.MaterializeResult)
+  materializes, it records a fingerprint as [`dagster.MaterializeResult`](https://dagster.io/docs/api/dagster/assets/#dagster.MaterializeResult)
   metadata: the Zenodo DOI of the source archive, the years included, and a hash of
   the ETL settings. When a downstream PUDL asset subsequently loads from that SQLite
   file, the IO manager checks the stored fingerprint against the current run’s
@@ -1143,7 +1164,7 @@ changes:
   the `pudl_io_manager` fixture are replaced by a single `prebuilt_outputs`
   fixture that runs the full `pudl_with_ferc_to_sqlite` job via `dg launch` as a
   subprocess, with coverage collection appended to the existing test coverage report.
-  A persistent [`dagster.DagsterInstance`](https://docs.dagster.io/api/dagster/internals/#dagster.DagsterInstance) fixture allows test code to read
+  A persistent [`dagster.DagsterInstance`](https://dagster.io/docs/api/dagster/internals/#dagster.DagsterInstance) fixture allows test code to read
   asset materialisation metadata written by that subprocess. Pytest CLI flags are
   renamed for clarity: `--live-dbs` → `--live-pudl-output`, `--tmp-data` →
   `--temp-pudl-input`, `--etl-settings` → `--dg-config`.
