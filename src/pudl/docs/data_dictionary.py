@@ -5,7 +5,7 @@ from pathlib import Path
 import pudl.logging_helpers
 from pudl import PUDL_DOCS_PATH
 from pudl.docs.templates import get_environment
-from pudl.metadata.classes import PUDL_PACKAGE, CodeMetadata, Encoder, Package
+from pudl.metadata.classes import PUDL_PACKAGE, Encoder, Package
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.resources import RESOURCE_METADATA
 from pudl.metadata.warnings import USAGE_WARNINGS
@@ -82,12 +82,12 @@ def encoder_to_rst(
     return rendered
 
 
-def codemetadata_to_rst(
-    codemetadata: CodeMetadata, top_dir: Path, csv_subdir: Path, rst_path: str
+def encoders_to_rst(
+    encoders: list[Encoder], top_dir: Path, csv_subdir: Path, rst_path: str
 ) -> None:
     """Iterate through encoders and output to an RST file."""
     with Path(rst_path).open("w") as f:
-        for idx, encoder in enumerate(codemetadata.encoder_list):
+        for idx, encoder in enumerate(encoders):
             header = idx == 0
             rendered = encoder_to_rst(
                 encoder, top_dir=top_dir, csv_subdir=csv_subdir, is_header=header
@@ -106,7 +106,7 @@ def codes_to_rst(docs_dir: Path = PUDL_DOCS_PATH) -> None:
 
     Args:
         docs_dir: The documentation source directory. It must contain the
-            templates that :func:`codemetadata_to_rst` renders and an existing
+            templates that :func:`encoders_to_rst` renders and an existing
             ``data_dictionaries/`` output directory.
 
     Raises:
@@ -117,9 +117,9 @@ def codes_to_rst(docs_dir: Path = PUDL_DOCS_PATH) -> None:
     """
     logger.info("Exporting code and label tables to RST.")
     (docs_dir / CODES_CSV_SUBDIR).mkdir(parents=True, exist_ok=True)
-    codemetadata = CodeMetadata.from_code_ids(sorted(CODE_METADATA.keys()))
-    codemetadata_to_rst(
-        codemetadata,
+    encoders = [Encoder.from_code_id(name) for name in sorted(CODE_METADATA)]
+    encoders_to_rst(
+        encoders,
         top_dir=docs_dir,
         csv_subdir=CODES_CSV_SUBDIR,
         rst_path=str(docs_dir / CODES_RST),

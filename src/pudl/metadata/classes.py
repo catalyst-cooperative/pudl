@@ -2999,26 +2999,3 @@ some of the class definitions below, but having it defined in the middle of this
 is kind of obscure, so it is imported in the __init__.py for this subpackage and then
 imported in other modules from that more prominent location.
 """
-
-
-class CodeMetadata(PudlMeta):
-    """A list of Encoders for standardizing and documenting categorical codes.
-
-    Used to export static coding metadata to PUDL documentation automatically
-    """
-
-    encoder_list: list[Encoder] = []
-
-    @classmethod
-    def from_code_ids(cls, code_ids: Iterable[str]) -> CodeMetadata:
-        """Construct a list of encoders from code dictionaries.
-
-        Args:
-            code_ids: A list of Code PUDL identifiers, keys to entries in the
-                CODE_METADATA dictionary.
-        """
-        encoder_list = []
-        for name in code_ids:
-            if name in CODE_METADATA:
-                encoder_list.append(Encoder.from_code_id(name))
-        return cls(encoder_list=encoder_list)
