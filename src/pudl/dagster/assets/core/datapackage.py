@@ -24,25 +24,11 @@ from typing import Any, TypedDict
 import dagster as dg
 
 import pudl.logging_helpers
-from pudl import PUDL_ROOT_PATH
+from pudl.docs.data_sources import INCLUDED_SOURCES
 from pudl.metadata.classes import Package
 from pudl.workspace.datastore import ZenodoDoiSettings
 
 logger = pudl.logging_helpers.get_logger(__name__)
-
-# Discover which data sources have a dedicated PUDL docs page by scanning for
-# *_child.rst.jinja templates.  The template filename prefix is the source name.
-# If the docs/templates directory is not present (e.g. in a non-editable install
-# that omitted the docs tree), the set is empty and no docs URLs are added.
-_TEMPLATES_DIR = PUDL_ROOT_PATH / "docs" / "templates"
-_SOURCES_WITH_DOCS: frozenset[str] = (
-    frozenset(
-        p.name.removesuffix("_child.rst.jinja")
-        for p in _TEMPLATES_DIR.glob("*_child.rst.jinja")
-    )
-    if _TEMPLATES_DIR.is_dir()
-    else frozenset()
-)
 
 
 HASH_MAX_WORKERS = min(32, os.process_cpu_count() or 1)
@@ -152,9 +138,10 @@ def _enrich_sources(
     """Inject Zenodo DOIs and PUDL docs URLs into each source entry in-place.
 
     A ``doi`` field (resolvable ``https://doi.org/…`` URL) is added for every source
-    whose short name is registered in *zenodo_dois*.  A ``docs`` field pointing to the
-    PUDL documentation page is added for sources whose name matches a
-    ``*_child.rst.jinja`` template under ``docs/templates/``.
+    whose short name is registered in *zenodo_dois*.  A ``documentation`` field pointing
+    to the PUDL documentation page is added for every source in
+    :data:`pudl.docs.data_sources.INCLUDED_SOURCES`, which is the list of sources that
+    have a generated page under ``data_sources/``.
     """
     for source in descriptor.get("sources", []):
         source_name = source.get("name", "")
@@ -163,7 +150,7 @@ def _enrich_sources(
             source["doi"] = f"https://doi.org/{doi}"
         except KeyError:
             pass
-        if source_name in _SOURCES_WITH_DOCS:
+        if source_name in INCLUDED_SOURCES:
             source["documentation"] = (
                 f"https://docs.catalyst.coop/pudl/en/{version_slug}"
                 f"/data_sources/{source_name}.html"
