@@ -16,17 +16,11 @@ import shutil
 
 from pudl import PUDL_DOCS_PATH
 from pudl.docs.citations import CITATIONS_MEDIA_PAGES, citations_media_to_rst
-from pudl.metadata.classes import (
-    PUDL_PACKAGE,
-    CodeMetadata,
-    DataSource,
-    Package,
-    Resource,
+from pudl.docs.data_dictionary import (
+    data_dictionary_metadata_to_rst,
+    static_dfs_to_rst,
 )
-from pudl.metadata.codes import CODE_METADATA
-from pudl.metadata.resources import RESOURCE_METADATA
-from pudl.workspace.datastore import Datastore
-from pudl.workspace.setup import PudlPaths
+from pudl.docs.data_sources import INCLUDED_SOURCES, data_sources_metadata_to_rst
 
 # -- Path setup --------------------------------------------------------------
 # We are building and installing the pudl package in order to get access to
@@ -236,96 +230,6 @@ html_static_path = ["_static"]
 
 
 # -- Custom build operations -------------------------------------------------
-def data_dictionary_metadata_to_rst(app):
-    """Export data dictionary metadata to RST for inclusion in the documentation."""
-    # Create an RST Data Dictionary for the PUDL DB:
-    print("Exporting PUDL DB data dictionary metadata to RST.")
-    skip_names = ["datasets", "accumulated_depreciation_ferc1"]
-    names = [name for name in RESOURCE_METADATA if name not in skip_names]
-    package = Package.from_resource_ids(resource_ids=tuple(sorted(names)))
-    # Sort fields within each resource by name:
-    for resource in package.resources:
-        resource.schema.fields = sorted(resource.schema.fields, key=lambda x: x.name)
-    package.to_rst(
-        docs_dir=PUDL_DOCS_PATH,
-        path=str(PUDL_DOCS_PATH / "data_dictionaries/pudl_db.rst"),
-    )
-
-
-# When adding a new data source add it here and ALSO in pyproject.toml in the
-# docs-clean pixi task so generated files are removed.
-INCLUDED_SOURCES = [
-    "censusdp1tract",
-    "censuspep",
-    "eiaapi",
-    "eia176",
-    "eia191",
-    "eia860",
-    "eia861",
-    "eia923",
-    "eia930",
-    "eiaaeo",
-    "ferc1",
-    "ferc714",
-    "ferceqr",
-    "epacems",
-    "epacamd_eia",
-    "phmsagas",
-    "rus12",
-    "rus7",
-    "sec10k",
-    "gridpathratoolkit",
-    "nrelatb",
-    "vcerare",
-]
-
-
-def data_sources_metadata_to_rst(app):
-    """Export data source metadata to RST for inclusion in the documentation."""
-    print("Exporting data source metadata to RST.")
-    package = PUDL_PACKAGE
-    extra_etl_groups = {
-        "eia860": ["entity_eia"],
-        "ferc1": ["glue"],
-        "epacamd_eia": ["glue"],
-    }
-    datastore = Datastore(local_cache_path=PudlPaths().pudl_input)
-    for name in INCLUDED_SOURCES:
-        source = DataSource.from_id(name)
-        source_resources = [res for res in package.resources if res.etl_group == name]
-        extra_resources: list[Resource] = []
-        if name in extra_etl_groups:
-            # get resources for this source from extra etl groups
-            extra_resources = [
-                res
-                for res in package.resources
-                if res.etl_group in extra_etl_groups[name]
-                and name in [src.name for src in res.sources]
-            ]
-        source.to_rst(
-            docs_dir=PUDL_DOCS_PATH,
-            output_path=str(PUDL_DOCS_PATH / f"data_sources/{name}.rst"),
-            source_resources=source_resources,
-            extra_resources=extra_resources,
-            datastore=datastore,
-        )
-
-
-def static_dfs_to_rst(app):
-    """Export static code labeling dataframes to RST for inclusion in documentation."""
-    # Sphinx csv-table directive wants an absolute path relative to source directory,
-    # but pandas to_csv wants a true absolute path
-    csv_subdir = "data_dictionaries/code_csvs"
-    abs_csv_dir_path = PUDL_DOCS_PATH / csv_subdir
-    abs_csv_dir_path.mkdir(parents=True, exist_ok=True)
-    codemetadata = CodeMetadata.from_code_ids(sorted(CODE_METADATA.keys()))
-    codemetadata.to_rst(
-        top_dir=PUDL_DOCS_PATH,
-        csv_subdir=csv_subdir,
-        rst_path=str(PUDL_DOCS_PATH / "data_dictionaries/codes_and_labels.rst"),
-    )
-
-
 def cleanup_rsts(app, exception):
     """Remove generated RST files when the build is finished."""
     (PUDL_DOCS_PATH / "data_dictionaries/pudl_db.rst").unlink(missing_ok=True)
