@@ -24,7 +24,27 @@ USAGE_WARNINGS_RST = "data_dictionaries/usage_warnings.rst"
 
 
 def package_to_rst(package: Package, docs_dir: Path, path: str) -> None:
-    """Output to an RST file."""
+    """Render a data package as the data dictionary page and write it to a file.
+
+    Renders ``package.rst.jinja``, which writes a heading and then, for each
+    resource in :meth:`~pudl.metadata.classes.Package.get_sorted_resources`, a
+    Sphinx reference label followed by ``resource.rst.jinja`` (including the
+    per-table access examples). The caller controls which tables are included
+    and how their fields are ordered by what it puts in ``package``.
+
+    Args:
+        package: The data package to document.
+        docs_dir: The documentation source directory. It must contain
+            ``package.rst.jinja``, ``resource.rst.jinja`` and the
+            ``access_examples/`` templates they include, under ``templates/``.
+        path: File to write the RST to. An existing file is overwritten, and its
+            parent directory must already exist.
+
+    Raises:
+        FileNotFoundError: If the parent directory of ``path`` doesn't exist.
+        jinja2.TemplateNotFound: If a required template is missing from
+            ``docs_dir``.
+    """
     template = get_environment(docs_dir / "templates").get_template("package.rst.jinja")
     rendered = template.render(package=package)
     Path(path).write_text(rendered)
@@ -62,9 +82,34 @@ def data_dictionary_to_rst(docs_dir: Path = PUDL_DOCS_PATH) -> None:
 def encoder_to_rst(
     encoder: Encoder, top_dir: Path, csv_subdir: Path, is_header: bool
 ) -> str:
-    """Output dataframe to a csv for use in jinja template.
+    """Render one code table as an RST section and write its CSV file.
 
-    Then output to an RST file.
+    The table's codes, labels and descriptions are written to
+    ``<top_dir>/<csv_subdir>/<encoder.name>.csv``, overwriting any existing file.
+    The section is rendered from ``codemetadata.rst.jinja``. It embeds that CSV
+    with a ``csv-table`` directive, using a path relative to the Sphinx source
+    root. If the encoder has non-standard codes that get fixed, they are listed
+    in a second table. The section's introduction is the first paragraph of the
+    description of the table with the same name in ``PUDL_PACKAGE``.
+
+    Args:
+        encoder: The encoder for the code table to document. Its name must be the
+            name of a table in ``PUDL_PACKAGE``.
+        top_dir: The documentation source directory. It must contain
+            ``codemetadata.rst.jinja`` under ``templates/``.
+        csv_subdir: Directory for the CSV file, relative to ``top_dir``. It must
+            already exist.
+        is_header: Whether to start the output with the page title and
+            introduction. This should be true only for the first section on a
+            page.
+
+    Returns:
+        The rendered RST for this table's section.
+
+    Raises:
+        FileNotFoundError: If ``top_dir / csv_subdir`` doesn't exist.
+        ValueError: If ``encoder.name`` isn't a table in ``PUDL_PACKAGE``.
+        jinja2.TemplateNotFound: If the template is missing from ``top_dir``.
     """
     encoder.df.to_csv(Path(top_dir) / csv_subdir / f"{encoder.name}.csv", index=False)
     template = get_environment(top_dir / "templates").get_template(
@@ -85,7 +130,26 @@ def encoder_to_rst(
 def encoders_to_rst(
     encoders: list[Encoder], top_dir: Path, csv_subdir: Path, rst_path: str
 ) -> None:
-    """Iterate through encoders and output to an RST file."""
+    """Render a list of code tables into a single RST page.
+
+    Each encoder is rendered with :func:`encoder_to_rst`, in the order given. The
+    page title and introduction are included once, with the first encoder. Each
+    encoder's CSV file is also written. An empty list produces an empty file.
+
+    Args:
+        encoders: The encoders for the code tables to document.
+        top_dir: The documentation source directory. It must contain
+            ``codemetadata.rst.jinja`` under ``templates/``.
+        csv_subdir: Directory for the CSV files, relative to ``top_dir``. It must
+            already exist.
+        rst_path: File to write the RST to. An existing file is overwritten.
+
+    Raises:
+        FileNotFoundError: If ``top_dir / csv_subdir`` or the parent directory of
+            ``rst_path`` doesn't exist.
+        ValueError: If an encoder's name isn't a table in ``PUDL_PACKAGE``.
+        jinja2.TemplateNotFound: If the template is missing from ``top_dir``.
+    """
     with Path(rst_path).open("w") as f:
         for idx, encoder in enumerate(encoders):
             header = idx == 0
