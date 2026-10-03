@@ -597,28 +597,6 @@ class Encoder(PudlMeta):
         """Construct an Encoder by looking up name of coding table in codes metadata."""
         return cls(**copy.deepcopy(CODE_METADATA[x]), name=x)
 
-    def to_rst(
-        self, top_dir: DirectoryPath, csv_subdir: DirectoryPath, is_header: StrictBool
-    ) -> String:
-        """Output dataframe to a csv for use in jinja template.
-
-        Then output to an RST file.
-        """
-        self.df.to_csv(Path(top_dir) / csv_subdir / f"{self.name}.csv", index=False)
-        template = _get_jinja_environment(top_dir).get_template(
-            "codemetadata.rst.jinja"
-        )
-        rendered = template.render(
-            Encoder=self,
-            # just get the resolved resource summary & drop all the other sections of the description
-            description=PUDL_PACKAGE.get_resource(self.name).description.partition(
-                "\n\n"
-            )[0],
-            csv_filepath=(Path("/") / csv_subdir / f"{self.name}.csv"),
-            is_header=is_header,
-        )
-        return rendered
-
     def generate_encodable_data(self: Self, size: int = 10) -> pd.Series:
         """Produce a series of data which can be encoded by this encoder.
 
@@ -3060,15 +3038,3 @@ class CodeMetadata(PudlMeta):
             if name in CODE_METADATA:
                 encoder_list.append(Encoder.from_code_id(name))
         return cls(encoder_list=encoder_list)
-
-    def to_rst(
-        self, top_dir: DirectoryPath, csv_subdir: DirectoryPath, rst_path: str
-    ) -> None:
-        """Iterate through encoders and output to an RST file."""
-        with Path(rst_path).open("w") as f:
-            for idx, encoder in enumerate(self.encoder_list):
-                header = idx == 0
-                rendered = encoder.to_rst(
-                    top_dir=top_dir, csv_subdir=csv_subdir, is_header=header
-                )
-                f.write(rendered)

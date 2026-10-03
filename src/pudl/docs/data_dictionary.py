@@ -5,7 +5,7 @@ from pathlib import Path
 import pudl.logging_helpers
 from pudl import PUDL_DOCS_PATH
 from pudl.docs.templates import get_environment
-from pudl.metadata.classes import CodeMetadata, Package
+from pudl.metadata.classes import PUDL_PACKAGE, CodeMetadata, Encoder, Package
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.resources import RESOURCE_METADATA
 from pudl.metadata.warnings import USAGE_WARNINGS
@@ -51,6 +51,42 @@ def data_dictionary_to_rst(docs_dir: Path = PUDL_DOCS_PATH) -> None:
     package.to_rst(docs_dir=docs_dir, path=str(docs_dir / DATA_DICTIONARY_RST))
 
 
+def encoder_to_rst(
+    encoder: Encoder, top_dir: Path, csv_subdir: Path, is_header: bool
+) -> str:
+    """Output dataframe to a csv for use in jinja template.
+
+    Then output to an RST file.
+    """
+    encoder.df.to_csv(Path(top_dir) / csv_subdir / f"{encoder.name}.csv", index=False)
+    template = get_environment(top_dir / "templates").get_template(
+        "codemetadata.rst.jinja"
+    )
+    rendered = template.render(
+        Encoder=encoder,
+        # just get the resolved resource summary & drop all the other sections of the description
+        description=PUDL_PACKAGE.get_resource(encoder.name).description.partition(
+            "\n\n"
+        )[0],
+        csv_filepath=(Path("/") / csv_subdir / f"{encoder.name}.csv"),
+        is_header=is_header,
+    )
+    return rendered
+
+
+def codemetadata_to_rst(
+    codemetadata: CodeMetadata, top_dir: Path, csv_subdir: Path, rst_path: str
+) -> None:
+    """Iterate through encoders and output to an RST file."""
+    with Path(rst_path).open("w") as f:
+        for idx, encoder in enumerate(codemetadata.encoder_list):
+            header = idx == 0
+            rendered = encoder_to_rst(
+                encoder, top_dir=top_dir, csv_subdir=csv_subdir, is_header=header
+            )
+            f.write(rendered)
+
+
 def codes_to_rst(docs_dir: Path = PUDL_DOCS_PATH) -> None:
     """Write the code and label tables as RST, with a CSV file for each table.
 
@@ -62,7 +98,7 @@ def codes_to_rst(docs_dir: Path = PUDL_DOCS_PATH) -> None:
 
     Args:
         docs_dir: The documentation source directory. It must contain the
-            templates that ``CodeMetadata.to_rst`` renders and an existing
+            templates that :func:`codemetadata_to_rst` renders and an existing
             ``data_dictionaries/`` output directory.
 
     Raises:
@@ -74,7 +110,8 @@ def codes_to_rst(docs_dir: Path = PUDL_DOCS_PATH) -> None:
     logger.info("Exporting code and label tables to RST.")
     (docs_dir / CODES_CSV_SUBDIR).mkdir(parents=True, exist_ok=True)
     codemetadata = CodeMetadata.from_code_ids(sorted(CODE_METADATA.keys()))
-    codemetadata.to_rst(
+    codemetadata_to_rst(
+        codemetadata,
         top_dir=docs_dir,
         csv_subdir=CODES_CSV_SUBDIR,
         rst_path=str(docs_dir / CODES_RST),
