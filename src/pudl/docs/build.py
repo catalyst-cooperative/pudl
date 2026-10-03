@@ -9,8 +9,10 @@ from pudl.docs.data_dictionary import (
     CODES_CSV_SUBDIR,
     CODES_RST,
     DATA_DICTIONARY_RST,
+    USAGE_WARNINGS_RST,
     codes_to_rst,
     data_dictionary_to_rst,
+    usage_warnings_to_rst,
 )
 from pudl.docs.data_sources import data_source_page_paths, data_sources_to_rst
 
@@ -18,8 +20,8 @@ from pudl.docs.data_sources import data_source_page_paths, data_sources_to_rst
 def generate_all(docs_dir: Path = PUDL_DOCS_PATH) -> None:
     """Generate all dynamic documentation content under ``docs_dir``.
 
-    Runs, in order, the data dictionary, data source, Citations & Media and code
-    table generators. Everything written here is listed by
+    Runs, in order, the data dictionary, data source, Citations & Media, code table
+    and usage warnings generators. Everything written here is listed by
     :func:`generated_files` (plus the CSV directory removed by
     :func:`remove_generated_files`), so a new generator must be added to both
     this function and that registry. Existing generated files are overwritten.
@@ -37,6 +39,7 @@ def generate_all(docs_dir: Path = PUDL_DOCS_PATH) -> None:
     data_sources_to_rst(docs_dir)
     citations_media_to_rst(docs_dir)
     codes_to_rst(docs_dir)
+    usage_warnings_to_rst(docs_dir)
 
 
 def generated_files(docs_dir: Path = PUDL_DOCS_PATH) -> list[Path]:
@@ -57,6 +60,7 @@ def generated_files(docs_dir: Path = PUDL_DOCS_PATH) -> list[Path]:
     return [
         docs_dir / DATA_DICTIONARY_RST,
         docs_dir / CODES_RST,
+        docs_dir / USAGE_WARNINGS_RST,
         *data_source_page_paths(docs_dir),
         *citations_media_page_paths(docs_dir),
     ]
