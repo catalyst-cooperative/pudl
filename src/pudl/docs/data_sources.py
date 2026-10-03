@@ -12,8 +12,8 @@ from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
-# When adding a new data source add it here and ALSO in pyproject.toml in the
-# docs-clean pixi task so generated files are removed.
+# Each source needs a ``<name>_child.rst.jinja`` template in ``docs/templates``.
+# Generated pages are removed by :func:`pudl.docs.build.remove_generated_files`.
 INCLUDED_SOURCES = [
     "censusdp1tract",
     "censuspep",
@@ -39,7 +39,6 @@ INCLUDED_SOURCES = [
     "vcerare",
 ]
 
-
 # Resources from these additional ETL groups are also described on a source's page.
 EXTRA_ETL_GROUPS = {
     "eia860": ["entity_eia"],
@@ -49,7 +48,19 @@ EXTRA_ETL_GROUPS = {
 
 
 def data_source_page_paths(docs_dir: Path = PUDL_DOCS_PATH) -> list[Path]:
-    """Return the paths of all generated data source pages."""
+    """Return the paths of all generated data source pages.
+
+    There is one page per name in :data:`INCLUDED_SOURCES`, in the same order.
+    This is the single source of truth for where those pages are written and
+    removed.
+
+    Args:
+        docs_dir: The documentation source directory.
+
+    Returns:
+        Paths of the form ``<docs_dir>/data_sources/<source name>.rst``. The
+        files need not exist yet.
+    """
     return [docs_dir / "data_sources" / f"{name}.rst" for name in INCLUDED_SOURCES]
 
 
@@ -61,7 +72,33 @@ def data_source_to_rst(
     output_path: str | None = None,
     datastore: Datastore | None = None,
 ) -> None:
-    """Output a representation of the data source in RST for documentation."""
+    """Render one data source's documentation page as RST.
+
+    Fetches the source's file metadata from the datastore (which mutates
+    ``source``) and renders ``<source.name>_child.rst.jinja`` from
+    ``docs_dir/templates``. Raw documentation files found under
+    ``docs_dir/data_sources/<source.name>/`` (PDFs and HTML, plus ``.txt`` files
+    for PHMSA gas) are passed to the template as links, sorted by path.
+
+    Args:
+        source: The data source to document.
+        docs_dir: The documentation source directory.
+        source_resources: Tables whose ETL group is this data source.
+        extra_resources: Tables from other ETL groups that are also described
+            on this source's page (see :data:`EXTRA_ETL_GROUPS`).
+        output_path: File to write the RST to, overwriting any existing file. If
+            None, the RST is written to standard output instead.
+        datastore: Datastore to read source file metadata from. If None, one is
+            created using the local PUDL input directory.
+
+    Raises:
+        jinja2.TemplateNotFound: If there is no child template for the source in
+            ``docs_dir/templates``.
+        OSError: If ``output_path`` can't be written.
+
+    Any error raised by the datastore while fetching metadata propagates
+    unchanged.
+    """
     source.add_datastore_metadata(datastore=datastore)
     template = get_environment(docs_dir / "templates").get_template(
         f"{source.name}_child.rst.jinja"
@@ -98,7 +135,26 @@ def data_source_to_rst(
 def data_sources_to_rst(
     docs_dir: Path = PUDL_DOCS_PATH, datastore: Datastore | None = None
 ) -> None:
-    """Export data source metadata to RST for inclusion in the documentation."""
+    """Write a documentation page for every source in :data:`INCLUDED_SOURCES`.
+
+    For each source, gathers its tables from ``PUDL_PACKAGE`` (those with a
+    matching ETL group, plus tables from the groups listed in
+    :data:`EXTRA_ETL_GROUPS` that cite the source) and renders them with
+    :func:`data_source_to_rst` into the paths from :func:`data_source_page_paths`.
+    Existing pages are overwritten. A single datastore is shared across all
+    sources.
+
+    Args:
+        docs_dir: The documentation source directory. It must contain a child
+            template for every included source and an existing ``data_sources/``
+            output directory.
+        datastore: Datastore to read source file metadata from. If None, one is
+            created using the local PUDL input directory.
+
+    Raises:
+        FileNotFoundError: If the ``data_sources/`` output directory is missing.
+        jinja2.TemplateNotFound: If a source has no child template.
+    """
     logger.info("Exporting data source metadata to RST.")
     package = PUDL_PACKAGE
     if datastore is None:

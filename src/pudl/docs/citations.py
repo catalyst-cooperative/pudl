@@ -13,16 +13,28 @@ from pudl.docs.templates import get_environment
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
+
 # Handle bibtex formatting to produce a numbered list
 # without labels and sorted by descending date in document
 # we can't use any default style because there are multiple bibs on one page
-
-
 class YearDescendingSortingStyle(BaseSortingStyle):
     """Create style that sorts by descending year."""
 
     def sorting_key(self, entry):
-        """Return sorting key that descends by year."""
+        """Return a sorting key that orders entries by descending year.
+
+        Entries are ordered newest first. Ties on year are broken by the first
+        author's name and then by title, both ascending. An entry whose ``year``
+        field is missing or isn't an integer (e.g. ``"in press"``) is treated as
+        year 0, so it sorts after every dated entry.
+
+        Args:
+            entry: The pybtex entry to compute a key for.
+
+        Returns:
+            A ``(-year, first_author, title)`` tuple. Comparing these tuples
+            yields the descending-year order.
+        """
         year_str = entry.fields.get("year", "0")
         try:
             year = int(year_str)
@@ -42,7 +54,18 @@ class NoLabelStyle(PlainStyle):
     default_sorting_style = "year_desc"
 
     def format_label(self, entry):
-        """Override default label."""
+        """Return an empty label for every entry.
+
+        The Citations & Media pages render each bibliography as an enumerated
+        list, which supplies its own numbering, so the style's default labels
+        (e.g. ``[Smi20]``) would be redundant.
+
+        Args:
+            entry: The pybtex entry being formatted. Unused.
+
+        Returns:
+            The empty string.
+        """
         return ""
 
 
@@ -60,13 +83,11 @@ register_plugin(
 
 BIBTEX_DEFAULT_STYLE = "nolabel"
 
-
 # One generated page per .bib file. `description` is plain RST and may contain
 # markup (e.g. hyperlinks); it's inserted into the page without escaping (see
 # autoescape=False below), so keep it trusted, hand-written text, never user-
-# or data-derived content.
-# When adding a new page here, ALSO add its output path to the docs-clean pixi
-# task in pyproject.toml so the generated file gets removed.
+# or data-derived content. Generated pages are removed by
+# :func:`pudl.docs.build.remove_generated_files`.
 CITATIONS_MEDIA_PAGES = [
     {
         "name": "catalyst_publications",
@@ -127,7 +148,20 @@ CITATION_TYPE_LABELS = {
 
 
 def citations_media_page_paths(docs_dir: Path = PUDL_DOCS_PATH) -> list[Path]:
-    """Return the paths of all generated Citations & Media pages."""
+    """Return the paths of all generated Citations & Media pages.
+
+    There is one page per entry in :data:`CITATIONS_MEDIA_PAGES`, in the same
+    order. This is the single source of truth for where those pages are written
+    and removed, so :func:`citations_media_to_rst` and the cleanup in
+    :mod:`pudl.docs.build` can't disagree about it.
+
+    Args:
+        docs_dir: The documentation source directory.
+
+    Returns:
+        Paths of the form ``<docs_dir>/citations_media/<page name>.rst``. The
+        files need not exist yet.
+    """
     return [
         docs_dir / "citations_media" / f"{page['name']}.rst"
         for page in CITATIONS_MEDIA_PAGES
@@ -145,6 +179,16 @@ def _bibtex_entry_heading(entry) -> str:
     than the entry's bare BibTeX kind (``@techreport``, ``@misc``, ...), so
     prefer it, stripped of the protective braces. Entries without a ``type``
     field fall back to a label for their BibTeX kind.
+
+    Args:
+        entry: A pybtex ``Entry``. Only its ``type`` attribute (the BibTeX kind)
+            and ``type`` field are used.
+
+    Returns:
+        The section heading for the entry. This is the cleaned ``type`` field if
+        present, else the label in :data:`CITATION_TYPE_LABELS` for the entry's
+        kind, else the kind itself with underscores replaced by spaces and
+        title-cased.
     """
     type_field = entry.fields.get("type", "").replace("{", "").replace("}", "").strip()
     if type_field:
@@ -163,6 +207,24 @@ def citations_media_to_rst(docs_dir: Path = PUDL_DOCS_PATH) -> None:
     that land on the same heading -- whether because they share a BibTeX kind
     or happen to share an explicit ``type`` field -- are grouped into a single
     section rather than repeating the heading.
+
+    Sections are sorted alphabetically by heading, except that the "Other"
+    section for ``@misc`` entries always comes last. The generated pages don't
+    contain the citations themselves. They contain ``bibliography`` directives
+    listing citation keys, which ``sphinxcontrib.bibtex`` expands at build time
+    using the style registered in this module. Existing pages are overwritten.
+
+    Args:
+        docs_dir: The documentation source directory. It must contain every .bib
+            file named in :data:`CITATIONS_MEDIA_PAGES`, the
+            ``citations_media_page.rst.jinja`` template under ``templates/``, and
+            an existing ``citations_media/`` output directory.
+
+    Raises:
+        FileNotFoundError: If a .bib file or the ``citations_media`` output
+            directory is missing.
+        jinja2.TemplateNotFound: If the page template is missing.
+        pybtex.database.PybtexError: If a .bib file can't be parsed.
     """
     logger.info("Generating Citations & Media pages from bibliography files.")
     # autoescape=False: this template produces RST, not HTML, so escaping
