@@ -2612,12 +2612,6 @@ class Resource(PudlMeta):
             return self.aggregate_df(df, **aggregate_kwargs)
         return df, {}
 
-    def to_rst(self, docs_dir: DirectoryPath, path: str) -> None:
-        """Output to an RST file."""
-        template = _get_jinja_environment(docs_dir).get_template("resource.rst.jinja")
-        rendered = template.render(resource=self)
-        Path(path).write_text(rendered)
-
     def encode(self, df: pd.DataFrame) -> pd.DataFrame:
         """Standardize coded columns using the foreign column they refer to."""
         for field in self.schema.fields:

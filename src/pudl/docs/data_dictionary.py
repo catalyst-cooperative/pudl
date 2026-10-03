@@ -1,6 +1,5 @@
 """Generate the PUDL data dictionary pages."""
 
-import sys
 from pathlib import Path
 
 import pudl.logging_helpers
@@ -28,10 +27,7 @@ def package_to_rst(package: Package, docs_dir: Path, path: str) -> None:
     """Output to an RST file."""
     template = get_environment(docs_dir / "templates").get_template("package.rst.jinja")
     rendered = template.render(package=package)
-    if path:
-        Path(path).write_text(rendered)
-    else:
-        sys.stdout.write(rendered)
+    Path(path).write_text(rendered)
 
 
 def data_dictionary_to_rst(docs_dir: Path = PUDL_DOCS_PATH) -> None:
