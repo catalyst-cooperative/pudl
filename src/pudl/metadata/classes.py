@@ -1322,47 +1322,6 @@ class DataSource(PudlMeta):
             partitions["year_month"] = max(partitions["year_month"])
         self.source_file_dict["download_size"] = dp_desc.get_download_size()
 
-    def to_rst(
-        self,
-        docs_dir: DirectoryPath,
-        source_resources: list[Resource],
-        extra_resources: list[Resource],
-        output_path: str | None = None,
-        datastore: Datastore | None = None,
-    ) -> None:
-        """Output a representation of the data source in RST for documentation."""
-        self.add_datastore_metadata(datastore=datastore)
-        template = _get_jinja_environment(docs_dir).get_template(
-            f"{self.name}_child.rst.jinja"
-        )
-        data_source_dir = docs_dir / "data_sources"
-        download_paths = [
-            path.relative_to(data_source_dir)
-            for path in (
-                list((data_source_dir / self.name).glob("*.pdf"))
-                + list((data_source_dir / self.name).glob("*.html"))
-            )
-            if path.is_file()
-        ]
-        # If PHMSA, also include .txt files in documentation
-        if self.name == "phmsagas":
-            download_paths += [
-                path.relative_to(data_source_dir)
-                for path in (list((data_source_dir / self.name).glob("*.txt")))
-                if path.is_file()
-            ]
-        download_paths = sorted(download_paths)
-        rendered = template.render(
-            source=self,
-            source_resources=source_resources,
-            extra_resources=extra_resources,
-            download_paths=download_paths,
-        )
-        if output_path:
-            Path(output_path).write_text(rendered)
-        else:
-            sys.stdout.write(rendered)
-
     def to_frictionless(self) -> dict:
         """Serialize to a frictionless data source descriptor.
 
