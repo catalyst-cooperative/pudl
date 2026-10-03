@@ -1,12 +1,17 @@
 """Generate the Citations & Media pages from the project's BibTeX files."""
 
-import jinja2
+from pathlib import Path
+
 from pybtex.database import parse_file as parse_bibtex_file
 from pybtex.plugin import register_plugin
 from pybtex.style.formatting.plain import Style as PlainStyle
 from pybtex.style.sorting import BaseSortingStyle
 
+import pudl.logging_helpers
 from pudl import PUDL_DOCS_PATH
+from pudl.docs.templates import get_environment
+
+logger = pudl.logging_helpers.get_logger(__name__)
 
 # Handle bibtex formatting to produce a numbered list
 # without labels and sorted by descending date in document
@@ -53,6 +58,8 @@ register_plugin(
     NoLabelStyle,
 )
 
+BIBTEX_DEFAULT_STYLE = "nolabel"
+
 
 # One generated page per .bib file. `description` is plain RST and may contain
 # markup (e.g. hyperlinks); it's inserted into the page without escaping (see
@@ -98,6 +105,8 @@ CITATIONS_MEDIA_PAGES = [
     },
 ]
 
+BIBTEX_FILES = [page["bibfile"] for page in CITATIONS_MEDIA_PAGES]
+
 # Human-readable labels for known BibTeX entry kinds, used as a section
 # heading when an entry has no explicit `type` field. Any entry kind found in
 # a .bib file that isn't listed here still gets its own section (titlecased
@@ -115,6 +124,14 @@ CITATION_TYPE_LABELS = {
     "techreport": "Report",
     "misc": "Other",
 }
+
+
+def citations_media_page_paths(docs_dir: Path = PUDL_DOCS_PATH) -> list[Path]:
+    """Return the paths of all generated Citations & Media pages."""
+    return [
+        docs_dir / "citations_media" / f"{page['name']}.rst"
+        for page in CITATIONS_MEDIA_PAGES
+    ]
 
 
 def _bibtex_entry_heading(entry) -> str:
@@ -136,7 +153,7 @@ def _bibtex_entry_heading(entry) -> str:
     return CITATION_TYPE_LABELS.get(kind, kind.replace("_", " ").title())
 
 
-def citations_media_to_rst(app):
+def citations_media_to_rst(docs_dir: Path = PUDL_DOCS_PATH) -> None:
     """Generate the Citations & Media pages, grouped by citation heading.
 
     Each page gets one section per heading (see `_bibtex_entry_heading`) that
@@ -147,17 +164,16 @@ def citations_media_to_rst(app):
     or happen to share an explicit ``type`` field -- are grouped into a single
     section rather than repeating the heading.
     """
-    print("Generating Citations & Media pages from bibliography files.")
+    logger.info("Generating Citations & Media pages from bibliography files.")
     # autoescape=False: this template produces RST, not HTML, so escaping
     # would corrupt both the hand-written hyperlink markup in `description`
     # and any heading containing an apostrophe (e.g. "Master's Theses").
-    env = jinja2.Environment(
-        loader=jinja2.FileSystemLoader(PUDL_DOCS_PATH / "templates"),
-        autoescape=False,  # noqa: S701
-    )
+    env = get_environment(docs_dir / "templates", autoescape=False)
     template = env.get_template("citations_media_page.rst.jinja")
-    for page in CITATIONS_MEDIA_PAGES:
-        bibdata = parse_bibtex_file(str(PUDL_DOCS_PATH / page["bibfile"]))
+    for page, out_path in zip(
+        CITATIONS_MEDIA_PAGES, citations_media_page_paths(docs_dir), strict=True
+    ):
+        bibdata = parse_bibtex_file(str(docs_dir / page["bibfile"]))
         groups: dict[str, list[str]] = {}
         for key, entry in bibdata.entries.items():
             heading = _bibtex_entry_heading(entry)
@@ -188,5 +204,4 @@ def citations_media_to_rst(app):
             bibfile=page["bibfile"],
             sections=sections,
         )
-        out_path = PUDL_DOCS_PATH / f"citations_media/{page['name']}.rst"
         out_path.write_text(rendered)
