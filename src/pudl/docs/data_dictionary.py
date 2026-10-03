@@ -21,7 +21,24 @@ CODES_CSV_SUBDIR = Path("data_dictionaries/code_csvs")
 
 
 def data_dictionary_to_rst(docs_dir: Path = PUDL_DOCS_PATH) -> None:
-    """Export data dictionary metadata to RST for inclusion in the documentation."""
+    """Write the PUDL database data dictionary page as RST.
+
+    Builds a :class:`~pudl.metadata.classes.Package` from every table in
+    ``RESOURCE_METADATA`` except those in :data:`SKIPPED_TABLES`, sorts the
+    fields of each table by name, and renders the package with its ``to_rst``
+    method into :data:`DATA_DICTIONARY_RST`. An existing file is overwritten.
+
+    Args:
+        docs_dir: The documentation source directory. It must contain the
+            templates that ``Package.to_rst`` renders and an existing
+            ``data_dictionaries/`` output directory.
+
+    Raises:
+        FileNotFoundError: If the ``data_dictionaries/`` output directory is
+            missing.
+        jinja2.TemplateNotFound: If a required template is missing from
+            ``docs_dir``.
+    """
     logger.info("Exporting PUDL DB data dictionary metadata to RST.")
     names = [name for name in RESOURCE_METADATA if name not in SKIPPED_TABLES]
     package = Package.from_resource_ids(resource_ids=tuple(sorted(names)))
@@ -32,7 +49,25 @@ def data_dictionary_to_rst(docs_dir: Path = PUDL_DOCS_PATH) -> None:
 
 
 def codes_to_rst(docs_dir: Path = PUDL_DOCS_PATH) -> None:
-    """Export static code labeling dataframes to RST for inclusion in documentation."""
+    """Write the code and label tables as RST, with a CSV file for each table.
+
+    Renders every table in ``CODE_METADATA`` into :data:`CODES_RST`. Each table
+    is also written as a CSV file under :data:`CODES_CSV_SUBDIR`, which the RST
+    pulls in with ``csv-table`` directives. The CSV directory is created if it
+    doesn't exist. It's removed again by
+    :func:`pudl.docs.build.remove_generated_files`.
+
+    Args:
+        docs_dir: The documentation source directory. It must contain the
+            templates that ``CodeMetadata.to_rst`` renders and an existing
+            ``data_dictionaries/`` output directory.
+
+    Raises:
+        FileNotFoundError: If the ``data_dictionaries/`` output directory is
+            missing.
+        jinja2.TemplateNotFound: If a required template is missing from
+            ``docs_dir``.
+    """
     logger.info("Exporting code and label tables to RST.")
     (docs_dir / CODES_CSV_SUBDIR).mkdir(parents=True, exist_ok=True)
     codemetadata = CodeMetadata.from_code_ids(sorted(CODE_METADATA.keys()))
