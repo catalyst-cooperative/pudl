@@ -3079,26 +3079,3 @@ def find_resource(name: str) -> Resource:
         f"Unknown resource {name!r} is not part of any registered data package "
         f"({', '.join(DATAPACKAGES)})."
     )
-
-
-class CodeMetadata(PudlMeta):
-    """A list of Encoders for standardizing and documenting categorical codes.
-
-    Used to export static coding metadata to PUDL documentation automatically
-    """
-
-    encoder_list: list[Encoder] = []
-
-    @classmethod
-    def from_code_ids(cls, code_ids: Iterable[str]) -> CodeMetadata:
-        """Construct a list of encoders from code dictionaries.
-
-        Args:
-            code_ids: A list of Code PUDL identifiers, keys to entries in the
-                CODE_METADATA dictionary.
-        """
-        encoder_list = []
-        for name in code_ids:
-            if name in CODE_METADATA:
-                encoder_list.append(Encoder.from_code_id(name))
-        return cls(encoder_list=encoder_list)
