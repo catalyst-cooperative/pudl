@@ -105,7 +105,7 @@ def test_enrich_sources_adds_doi_and_documentation(
     zenodo_dois.get_doi.side_effect = lambda name: {
         "eia860": "10.5281/zenodo.12345",
     }[name]
-    mocker.patch.object(datapackage, "_SOURCES_WITH_DOCS", frozenset({"eia860"}))
+    mocker.patch.object(datapackage, "INCLUDED_SOURCES", ["eia860"])
 
     _enrich_sources(descriptor, zenodo_dois, "v2026.5.1")
 

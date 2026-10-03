@@ -14,24 +14,9 @@ import os
 import pathlib
 import shutil
 
-import jinja2
-from pybtex.database import parse_file as parse_bibtex_file
-from pybtex.plugin import register_plugin
-from pybtex.style.formatting.plain import Style as PlainStyle
-from pybtex.style.sorting import BaseSortingStyle
-
 from pudl import PUDL_DOCS_PATH
-from pudl.metadata.classes import (
-    PUDL_PACKAGE,
-    CodeMetadata,
-    DataSource,
-    Package,
-    Resource,
-)
-from pudl.metadata.codes import CODE_METADATA
-from pudl.metadata.resources import RESOURCE_METADATA
-from pudl.workspace.datastore import Datastore
-from pudl.workspace.setup import PudlPaths
+from pudl.docs.build import generate_all, remove_generated_files
+from pudl.docs.citations import BIBTEX_DEFAULT_STYLE, BIBTEX_FILES
 
 # -- Path setup --------------------------------------------------------------
 # We are building and installing the pudl package in order to get access to
@@ -76,59 +61,10 @@ googleanalytics_id = "G-EXWBBTVMWK"
 googleanalytics_enabled = True
 
 todo_include_todos = True
-bibtex_bibfiles = [
-    "cooperative_cites.bib",
-    "catalyst_pubs.bib",
-    "catalyst_cites.bib",
-    "further_reading.bib",
-]
+bibtex_bibfiles = BIBTEX_FILES
 
-# Handle bibtex formatting to produce a numbered list
-# without labels and sorted by descending date in document
-# we can't use any default style because there are multiple bibs on one page
-
-
-class YearDescendingSortingStyle(BaseSortingStyle):
-    """Create style that sorts by descending year."""
-
-    def sorting_key(self, entry):
-        """Return sorting key that descends by year."""
-        year_str = entry.fields.get("year", "0")
-        try:
-            year = int(year_str)
-        except ValueError:
-            year = 0
-
-        author = entry.persons.get("author", [])
-        author_key = str(author[0]) if author else ""
-        title = entry.fields.get("title", "")
-
-        return (-year, author_key, title)
-
-
-class NoLabelStyle(PlainStyle):
-    """Create citation style without label and sorting on descending year."""
-
-    default_sorting_style = "year_desc"
-
-    def format_label(self, entry):
-        """Override default label."""
-        return ""
-
-
-register_plugin(
-    "pybtex.style.sorting",
-    "year_desc",
-    YearDescendingSortingStyle,
-)
-
-register_plugin(
-    "pybtex.style.formatting",
-    "nolabel",
-    NoLabelStyle,
-)
-
-bibtex_default_style = "nolabel"
+# The style is defined and registered in pudl.docs.citations.
+bibtex_default_style = BIBTEX_DEFAULT_STYLE
 
 # If PUDL_DOCS_KEEP_GENERATED_FILES is defined, don't clean up generated files after the
 # docs build. Useful for debugging formatting of generated RST files, but be sure to
@@ -285,249 +221,14 @@ html_static_path = ["_static"]
 
 
 # -- Custom build operations -------------------------------------------------
-def data_dictionary_metadata_to_rst(app):
-    """Export data dictionary metadata to RST for inclusion in the documentation."""
-    # Create an RST Data Dictionary for the PUDL DB:
-    print("Exporting PUDL DB data dictionary metadata to RST.")
-    skip_names = ["datasets", "accumulated_depreciation_ferc1"]
-    names = [name for name in RESOURCE_METADATA if name not in skip_names]
-    package = Package.from_resource_ids(resource_ids=tuple(sorted(names)))
-    # Sort fields within each resource by name:
-    for resource in package.resources:
-        resource.schema.fields = sorted(resource.schema.fields, key=lambda x: x.name)
-    package.to_rst(
-        docs_dir=PUDL_DOCS_PATH,
-        path=str(PUDL_DOCS_PATH / "data_dictionaries/pudl_db.rst"),
-    )
+def generate_docs_content(app):
+    """Generate the dynamic documentation pages before the build starts."""
+    generate_all(PUDL_DOCS_PATH)
 
 
-# When adding a new data source add it here and ALSO in pyproject.toml in the
-# docs-clean pixi task so generated files are removed.
-INCLUDED_SOURCES = [
-    "censusdp1tract",
-    "censuspep",
-    "eiaapi",
-    "eia176",
-    "eia191",
-    "eia860",
-    "eia861",
-    "eia923",
-    "eia930",
-    "eiaaeo",
-    "ferc1",
-    "ferc714",
-    "ferceqr",
-    "epacems",
-    "epacamd_eia",
-    "phmsagas",
-    "rus12",
-    "rus7",
-    "sec10k",
-    "gridpathratoolkit",
-    "nrelatb",
-    "vcerare",
-]
-
-
-def data_sources_metadata_to_rst(app):
-    """Export data source metadata to RST for inclusion in the documentation."""
-    print("Exporting data source metadata to RST.")
-    package = PUDL_PACKAGE
-    extra_etl_groups = {
-        "eia860": ["entity_eia"],
-        "ferc1": ["glue"],
-        "epacamd_eia": ["glue"],
-    }
-    datastore = Datastore(local_cache_path=PudlPaths().pudl_input)
-    for name in INCLUDED_SOURCES:
-        source = DataSource.from_id(name)
-        source_resources = [res for res in package.resources if res.etl_group == name]
-        extra_resources: list[Resource] = []
-        if name in extra_etl_groups:
-            # get resources for this source from extra etl groups
-            extra_resources = [
-                res
-                for res in package.resources
-                if res.etl_group in extra_etl_groups[name]
-                and name in [src.name for src in res.sources]
-            ]
-        source.to_rst(
-            docs_dir=PUDL_DOCS_PATH,
-            output_path=str(PUDL_DOCS_PATH / f"data_sources/{name}.rst"),
-            source_resources=source_resources,
-            extra_resources=extra_resources,
-            datastore=datastore,
-        )
-
-
-# One generated page per .bib file. `description` is plain RST and may contain
-# markup (e.g. hyperlinks); it's inserted into the page without escaping (see
-# autoescape=False below), so keep it trusted, hand-written text, never user-
-# or data-derived content.
-# When adding a new page here, ALSO add its output path to the docs-clean pixi
-# task in pyproject.toml so the generated file gets removed.
-CITATIONS_MEDIA_PAGES = [
-    {
-        "name": "catalyst_publications",
-        "title": "Catalyst Publications",
-        "bibfile": "catalyst_pubs.bib",
-        "description": (
-            "Data, software, and analyses that we have published for public use. "
-            "We self-archive all of our publications and the input data for PUDL "
-            "in the `Catalyst Cooperative Zenodo Community "
-            "<https://zenodo.org/communities/catalyst-cooperative/>`__."
-        ),
-    },
-    {
-        "name": "citing_pudl",
-        "title": "Work Citing PUDL and other Catalyst Analyses",
-        "bibfile": "catalyst_cites.bib",
-        "description": (
-            "Academic, policy, and industry publications that reference PUDL and "
-            "analyses done by Catalyst Cooperative."
-        ),
-    },
-    {
-        "name": "citing_cooperative",
-        "title": "Work Citing Catalyst Cooperative",
-        "bibfile": "cooperative_cites.bib",
-        "description": (
-            "Academic, policy, and industry publications referencing Catalyst's "
-            "role as a worker-owned software cooperative."
-        ),
-    },
-    {
-        "name": "further_reading",
-        "title": "Further Reading",
-        "bibfile": "further_reading.bib",
-        "description": "Other research and publications relevant to the work we do.",
-    },
-]
-
-# Human-readable labels for known BibTeX entry kinds, used as a section
-# heading when an entry has no explicit `type` field. Any entry kind found in
-# a .bib file that isn't listed here still gets its own section (titlecased
-# from the raw name) -- so a newly introduced reference kind is still
-# rendered somewhere instead of silently vanishing because it didn't match a
-# hardcoded filter. Sections are displayed alphabetically by heading (see
-# citations_media_to_rst), with "misc" always sorted last, so this dict's
-# order doesn't otherwise matter.
-CITATION_TYPE_LABELS = {
-    "phdthesis": "PhD Thesis",
-    "mastersthesis": "Master's Thesis",
-    "book": "Book",
-    "article": "Journal or News Article",
-    "inproceedings": "Conference Paper",
-    "techreport": "Report",
-    "misc": "Other",
-}
-
-
-def _bibtex_entry_heading(entry) -> str:
-    """Pick a section heading for a pybtex entry.
-
-    BibTeX exports (e.g. from Zotero) often carry a free-text ``type`` field
-    that elaborates on the entry's kind -- e.g. an ``@techreport`` with
-    ``type = {Working Paper}``, or an ``@misc`` with
-    ``type = {{SSRN} {Scholarly} {Paper}}`` (braces protect capitalization).
-    When that field is present, it makes a more specific and useful heading
-    than the entry's bare BibTeX kind (``@techreport``, ``@misc``, ...), so
-    prefer it, stripped of the protective braces. Entries without a ``type``
-    field fall back to a label for their BibTeX kind.
-    """
-    type_field = entry.fields.get("type", "").replace("{", "").replace("}", "").strip()
-    if type_field:
-        return type_field
-    kind = entry.type.lower()
-    return CITATION_TYPE_LABELS.get(kind, kind.replace("_", " ").title())
-
-
-def citations_media_to_rst(app):
-    """Generate the Citations & Media pages, grouped by citation heading.
-
-    Each page gets one section per heading (see `_bibtex_entry_heading`) that
-    is actually in use by its .bib file -- never an empty section for a
-    heading with no (or no longer any) entries, and never an entry silently
-    dropped for having a kind or ``type`` field we hadn't seen before. Entries
-    that land on the same heading -- whether because they share a BibTeX kind
-    or happen to share an explicit ``type`` field -- are grouped into a single
-    section rather than repeating the heading.
-    """
-    print("Generating Citations & Media pages from bibliography files.")
-    # autoescape=False: this template produces RST, not HTML, so escaping
-    # would corrupt both the hand-written hyperlink markup in `description`
-    # and any heading containing an apostrophe (e.g. "Master's Theses").
-    env = jinja2.Environment(
-        loader=jinja2.FileSystemLoader(PUDL_DOCS_PATH / "templates"),
-        autoescape=False,  # noqa: S701
-    )
-    template = env.get_template("citations_media_page.rst.jinja")
-    for page in CITATIONS_MEDIA_PAGES:
-        bibdata = parse_bibtex_file(str(PUDL_DOCS_PATH / page["bibfile"]))
-        groups: dict[str, list[str]] = {}
-        for key, entry in bibdata.entries.items():
-            heading = _bibtex_entry_heading(entry)
-            groups.setdefault(heading, []).append(key)
-
-        misc_label = CITATION_TYPE_LABELS["misc"]
-        ordered_headings = sorted(h for h in groups if h != misc_label)
-        if misc_label in groups:
-            ordered_headings.append(misc_label)
-
-        sections = [
-            {
-                "heading": heading,
-                # Underline must be computed per-heading (rather than a
-                # fixed-width constant) since headings can be derived from
-                # arbitrary, unbounded ``type`` field text.
-                "heading_underline": "-" * len(heading),
-                # Named `citation_keys`, not `keys`: a plain dict's built-in
-                # `.keys` method would otherwise shadow this entry when Jinja
-                # resolves `section.keys` via attribute access.
-                "citation_keys": sorted(groups[heading]),
-            }
-            for heading in ordered_headings
-        ]
-        rendered = template.render(
-            title=page["title"],
-            description=page["description"],
-            bibfile=page["bibfile"],
-            sections=sections,
-        )
-        out_path = PUDL_DOCS_PATH / f"citations_media/{page['name']}.rst"
-        out_path.write_text(rendered)
-
-
-def static_dfs_to_rst(app):
-    """Export static code labeling dataframes to RST for inclusion in documentation."""
-    # Sphinx csv-table directive wants an absolute path relative to source directory,
-    # but pandas to_csv wants a true absolute path
-    csv_subdir = "data_dictionaries/code_csvs"
-    abs_csv_dir_path = PUDL_DOCS_PATH / csv_subdir
-    abs_csv_dir_path.mkdir(parents=True, exist_ok=True)
-    codemetadata = CodeMetadata.from_code_ids(sorted(CODE_METADATA.keys()))
-    codemetadata.to_rst(
-        top_dir=PUDL_DOCS_PATH,
-        csv_subdir=csv_subdir,
-        rst_path=str(PUDL_DOCS_PATH / "data_dictionaries/codes_and_labels.rst"),
-    )
-
-
-def cleanup_rsts(app, exception):
-    """Remove generated RST files when the build is finished."""
-    (PUDL_DOCS_PATH / "data_dictionaries/pudl_db.rst").unlink(missing_ok=True)
-    (PUDL_DOCS_PATH / "data_dictionaries/codes_and_labels.rst").unlink(missing_ok=True)
-    for name in INCLUDED_SOURCES:
-        (PUDL_DOCS_PATH / f"data_sources/{name}.rst").unlink(missing_ok=True)
-    for page in CITATIONS_MEDIA_PAGES:
-        (PUDL_DOCS_PATH / f"citations_media/{page['name']}.rst").unlink(missing_ok=True)
-
-
-def cleanup_csv_dir(app, exception):
-    """Remove generated CSV files when the build is finished."""
-    csv_dir = PUDL_DOCS_PATH / "data_dictionaries/code_csvs"
-    if csv_dir.exists() and csv_dir.is_dir():
-        shutil.rmtree(csv_dir)
+def cleanup_generated_files(app, exception):
+    """Remove generated files when the build is finished."""
+    remove_generated_files(PUDL_DOCS_PATH)
 
 
 def cleanup_docs_img_hack_dir(app, exception):
@@ -583,10 +284,7 @@ def setup(app):
     """Add custom CSS defined in _static/custom.css."""
     app.add_css_file("custom.css")
     app.connect("builder-inited", _create_readme_image_symlink)
-    app.connect("builder-inited", data_dictionary_metadata_to_rst)
-    app.connect("builder-inited", data_sources_metadata_to_rst)
-    app.connect("builder-inited", citations_media_to_rst)
-    app.connect("builder-inited", static_dfs_to_rst)
+    app.connect("builder-inited", generate_docs_content)
     # Only advertise markdown alternates if sphinx_llm.txt is actually
     # installed, loaded, and not explicitly disabled via llms_txt_enabled.
     if "sphinx_llm.txt" in app.extensions and getattr(
@@ -594,6 +292,5 @@ def setup(app):
     ):
         app.connect("html-page-context", add_markdown_alternate_link)
     if not keep_generated_files:
-        app.connect("build-finished", cleanup_rsts)
-        app.connect("build-finished", cleanup_csv_dir)
+        app.connect("build-finished", cleanup_generated_files)
         app.connect("build-finished", cleanup_docs_img_hack_dir)

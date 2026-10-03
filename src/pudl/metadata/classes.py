@@ -3,7 +3,6 @@
 import copy
 import datetime
 import re
-import sys
 import warnings
 from collections.abc import Callable, Iterable
 from functools import cached_property, lru_cache
@@ -34,7 +33,6 @@ from pydantic import (
     AnyHttpUrl,
     BaseModel,
     ConfigDict,
-    DirectoryPath,
     EmailStr,
     StrictBool,
     StrictFloat,
@@ -174,16 +172,17 @@ def _format_for_sql(x: Any, identifier: bool = False) -> str:  # noqa: C901
     return f"'{x}'"
 
 
-def _get_jinja_environment(template_dir: DirectoryPath | None = None):
-    if template_dir:
-        path = template_dir / "templates"
-    else:
-        path = Path(__file__).parent.resolve() / "templates"
-    environment = jinja2.Environment(
-        loader=jinja2.FileSystemLoader(path),
+def _get_jinja_environment() -> jinja2.Environment:
+    """Return a Jinja environment for the templates packaged with this module.
+
+    These are the templates, in ``pudl/metadata/templates``, used to assemble
+    table descriptions. The documentation templates live in ``docs/templates`` and
+    are loaded by :mod:`pudl.docs`.
+    """
+    return jinja2.Environment(
+        loader=jinja2.FileSystemLoader(Path(__file__).parent.resolve() / "templates"),
         autoescape=True,
     )
-    return environment
 
 
 # ---- Class attribute types ---- #
@@ -596,28 +595,6 @@ class Encoder(PudlMeta):
     def from_code_id(cls, x: str) -> Encoder:
         """Construct an Encoder by looking up name of coding table in codes metadata."""
         return cls(**copy.deepcopy(CODE_METADATA[x]), name=x)
-
-    def to_rst(
-        self, top_dir: DirectoryPath, csv_subdir: DirectoryPath, is_header: StrictBool
-    ) -> String:
-        """Output dataframe to a csv for use in jinja template.
-
-        Then output to an RST file.
-        """
-        self.df.to_csv(Path(top_dir) / csv_subdir / f"{self.name}.csv", index=False)
-        template = _get_jinja_environment(top_dir).get_template(
-            "codemetadata.rst.jinja"
-        )
-        rendered = template.render(
-            Encoder=self,
-            # just get the resolved resource summary & drop all the other sections of the description
-            description=PUDL_PACKAGE.get_resource(self.name).description.partition(
-                "\n\n"
-            )[0],
-            csv_filepath=(Path("/") / csv_subdir / f"{self.name}.csv"),
-            is_header=is_header,
-        )
-        return rendered
 
     def generate_encodable_data(self: Self, size: int = 10) -> pd.Series:
         """Produce a series of data which can be encoded by this encoder.
@@ -1321,47 +1298,6 @@ class DataSource(PudlMeta):
         elif "year_month" in partitions:
             partitions["year_month"] = max(partitions["year_month"])
         self.source_file_dict["download_size"] = dp_desc.get_download_size()
-
-    def to_rst(
-        self,
-        docs_dir: DirectoryPath,
-        source_resources: list[Resource],
-        extra_resources: list[Resource],
-        output_path: str | None = None,
-        datastore: Datastore | None = None,
-    ) -> None:
-        """Output a representation of the data source in RST for documentation."""
-        self.add_datastore_metadata(datastore=datastore)
-        template = _get_jinja_environment(docs_dir).get_template(
-            f"{self.name}_child.rst.jinja"
-        )
-        data_source_dir = docs_dir / "data_sources"
-        download_paths = [
-            path.relative_to(data_source_dir)
-            for path in (
-                list((data_source_dir / self.name).glob("*.pdf"))
-                + list((data_source_dir / self.name).glob("*.html"))
-            )
-            if path.is_file()
-        ]
-        # If PHMSA, also include .txt files in documentation
-        if self.name == "phmsagas":
-            download_paths += [
-                path.relative_to(data_source_dir)
-                for path in (list((data_source_dir / self.name).glob("*.txt")))
-                if path.is_file()
-            ]
-        download_paths = sorted(download_paths)
-        rendered = template.render(
-            source=self,
-            source_resources=source_resources,
-            extra_resources=extra_resources,
-            download_paths=download_paths,
-        )
-        if output_path:
-            Path(output_path).write_text(rendered)
-        else:
-            sys.stdout.write(rendered)
 
     def to_frictionless(self) -> dict:
         """Serialize to a frictionless data source descriptor.
@@ -2676,12 +2612,6 @@ class Resource(PudlMeta):
             return self.aggregate_df(df, **aggregate_kwargs)
         return df, {}
 
-    def to_rst(self, docs_dir: DirectoryPath, path: str) -> None:
-        """Output to an RST file."""
-        template = _get_jinja_environment(docs_dir).get_template("resource.rst.jinja")
-        rendered = template.render(resource=self)
-        Path(path).write_text(rendered)
-
     def encode(self, df: pd.DataFrame) -> pd.DataFrame:
         """Standardize coded columns using the foreign column they refer to."""
         for field in self.schema.fields:
@@ -2883,15 +2813,6 @@ class Package(PudlMeta):
             )
         return self.resources[names.index(name)]
 
-    def to_rst(self, docs_dir: DirectoryPath, path: str) -> None:
-        """Output to an RST file."""
-        template = _get_jinja_environment(docs_dir).get_template("package.rst.jinja")
-        rendered = template.render(package=self)
-        if path:
-            Path(path).write_text(rendered)
-        else:
-            sys.stdout.write(rendered)
-
     def to_sql(
         self,
         dialect: Literal["sqlite", "duckdb"] = "sqlite",
@@ -3078,38 +2999,3 @@ some of the class definitions below, but having it defined in the middle of this
 is kind of obscure, so it is imported in the __init__.py for this subpackage and then
 imported in other modules from that more prominent location.
 """
-
-
-class CodeMetadata(PudlMeta):
-    """A list of Encoders for standardizing and documenting categorical codes.
-
-    Used to export static coding metadata to PUDL documentation automatically
-    """
-
-    encoder_list: list[Encoder] = []
-
-    @classmethod
-    def from_code_ids(cls, code_ids: Iterable[str]) -> CodeMetadata:
-        """Construct a list of encoders from code dictionaries.
-
-        Args:
-            code_ids: A list of Code PUDL identifiers, keys to entries in the
-                CODE_METADATA dictionary.
-        """
-        encoder_list = []
-        for name in code_ids:
-            if name in CODE_METADATA:
-                encoder_list.append(Encoder.from_code_id(name))
-        return cls(encoder_list=encoder_list)
-
-    def to_rst(
-        self, top_dir: DirectoryPath, csv_subdir: DirectoryPath, rst_path: str
-    ) -> None:
-        """Iterate through encoders and output to an RST file."""
-        with Path(rst_path).open("w") as f:
-            for idx, encoder in enumerate(self.encoder_list):
-                header = idx == 0
-                rendered = encoder.to_rst(
-                    top_dir=top_dir, csv_subdir=csv_subdir, is_header=header
-                )
-                f.write(rendered)
