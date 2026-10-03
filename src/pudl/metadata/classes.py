@@ -3,7 +3,6 @@
 import copy
 import datetime
 import re
-import sys
 import warnings
 from collections.abc import Callable, Iterable
 from functools import cached_property, lru_cache
@@ -2819,15 +2818,6 @@ class Package(PudlMeta):
                 f"Unknown resource {name!r} is not part of the {self.name!r} data package."
             )
         return self.resources[names.index(name)]
-
-    def to_rst(self, docs_dir: DirectoryPath, path: str) -> None:
-        """Output to an RST file."""
-        template = _get_jinja_environment(docs_dir).get_template("package.rst.jinja")
-        rendered = template.render(package=self)
-        if path:
-            Path(path).write_text(rendered)
-        else:
-            sys.stdout.write(rendered)
 
     def to_sql(
         self,

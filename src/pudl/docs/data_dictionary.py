@@ -1,5 +1,6 @@
 """Generate the PUDL data dictionary pages."""
 
+import sys
 from pathlib import Path
 
 import pudl.logging_helpers
@@ -23,17 +24,28 @@ CODES_CSV_SUBDIR = Path("data_dictionaries/code_csvs")
 USAGE_WARNINGS_RST = "data_dictionaries/usage_warnings.rst"
 
 
+def package_to_rst(package: Package, docs_dir: Path, path: str) -> None:
+    """Output to an RST file."""
+    template = get_environment(docs_dir / "templates").get_template("package.rst.jinja")
+    rendered = template.render(package=package)
+    if path:
+        Path(path).write_text(rendered)
+    else:
+        sys.stdout.write(rendered)
+
+
 def data_dictionary_to_rst(docs_dir: Path = PUDL_DOCS_PATH) -> None:
     """Write the PUDL database data dictionary page as RST.
 
     Builds a :class:`~pudl.metadata.classes.Package` from every table in
     ``RESOURCE_METADATA`` except those in :data:`SKIPPED_TABLES`, sorts the
-    fields of each table by name, and renders the package with its ``to_rst``
-    method into :data:`DATA_DICTIONARY_RST`. An existing file is overwritten.
+    fields of each table by name, and renders the package with
+    :func:`package_to_rst` into :data:`DATA_DICTIONARY_RST`. An existing file is
+    overwritten.
 
     Args:
         docs_dir: The documentation source directory. It must contain the
-            templates that ``Package.to_rst`` renders and an existing
+            templates that :func:`package_to_rst` renders and an existing
             ``data_dictionaries/`` output directory.
 
     Raises:
@@ -48,7 +60,7 @@ def data_dictionary_to_rst(docs_dir: Path = PUDL_DOCS_PATH) -> None:
     # Sort fields within each resource by name:
     for resource in package.resources:
         resource.schema.fields = sorted(resource.schema.fields, key=lambda x: x.name)
-    package.to_rst(docs_dir=docs_dir, path=str(docs_dir / DATA_DICTIONARY_RST))
+    package_to_rst(package, docs_dir=docs_dir, path=str(docs_dir / DATA_DICTIONARY_RST))
 
 
 def encoder_to_rst(
