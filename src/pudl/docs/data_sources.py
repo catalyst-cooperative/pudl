@@ -137,7 +137,7 @@ def data_sources_to_rst(
 ) -> None:
     """Write a documentation page for every source in :data:`INCLUDED_SOURCES`.
 
-    For each source, gathers its tables from ``PUDL_PACKAGE`` (those with a
+    For each source, gathers its tables from :func:`~pudl.metadata.classes.all_resources` (those with a
     matching ETL group, plus tables from the groups listed in
     :data:`EXTRA_ETL_GROUPS` that cite the source) and renders them with
     :func:`data_source_to_rst` into the paths from :func:`data_source_page_paths`.
