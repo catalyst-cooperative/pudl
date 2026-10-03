@@ -193,6 +193,10 @@ Documentation
   long list of spurious ``dbt parse`` warnings. Also standardized on the long-form
   ``string`` type name (rather than ``str``) throughout, since both are accepted by
   dbt but were used inconsistently. See PR :pr:`5593`.
+* The :doc:`usage warnings <data_dictionaries/usage_warnings>` page is now generated
+  from the same definitions that supply the warnings in table descriptions, so the two
+  can no longer drift apart. It now includes two harvesting-related warnings that were
+  previously missing. See PR :pr:`5684`.
 
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -340,6 +344,11 @@ Developer Experience
   new API (registering inputs with ``DuckDBAPI.register()``, and using ``CustomRule``
   and ``CustomComparison``). The model's behavior is not intentionally changed. See PR
   :pr:`5698`.
+* The code that generates our dynamic documentation pages now lives in a new
+  :mod:`pudl.docs` subpackage, rather than in ``docs/conf.py`` and the metadata classes.
+  It no longer depends on Sphinx, has unit tests, and tracks the files it generates in
+  one place for cleanup. Removed the unused ``metadata_to_rst`` script. See PR
+  :pr:`5684`.
 
 .. _release-v2026.9.0:
 
