@@ -15,12 +15,14 @@ import pathlib
 import shutil
 
 from pudl import PUDL_DOCS_PATH
-from pudl.docs.citations import CITATIONS_MEDIA_PAGES, citations_media_to_rst
-from pudl.docs.data_dictionary import (
-    data_dictionary_metadata_to_rst,
-    static_dfs_to_rst,
+from pudl.docs.citations import (
+    BIBTEX_DEFAULT_STYLE,
+    BIBTEX_FILES,
+    CITATIONS_MEDIA_PAGES,
+    citations_media_to_rst,
 )
-from pudl.docs.data_sources import INCLUDED_SOURCES, data_sources_metadata_to_rst
+from pudl.docs.data_dictionary import codes_to_rst, data_dictionary_to_rst
+from pudl.docs.data_sources import INCLUDED_SOURCES, data_sources_to_rst
 
 # -- Path setup --------------------------------------------------------------
 # We are building and installing the pudl package in order to get access to
@@ -65,15 +67,10 @@ googleanalytics_id = "G-EXWBBTVMWK"
 googleanalytics_enabled = True
 
 todo_include_todos = True
-bibtex_bibfiles = [
-    "cooperative_cites.bib",
-    "catalyst_pubs.bib",
-    "catalyst_cites.bib",
-    "further_reading.bib",
-]
+bibtex_bibfiles = BIBTEX_FILES
 
-# The "nolabel" style is defined and registered in pudl.docs.citations.
-bibtex_default_style = "nolabel"
+# The style is defined and registered in pudl.docs.citations.
+bibtex_default_style = BIBTEX_DEFAULT_STYLE
 
 # If PUDL_DOCS_KEEP_GENERATED_FILES is defined, don't clean up generated files after the
 # docs build. Useful for debugging formatting of generated RST files, but be sure to
@@ -230,6 +227,14 @@ html_static_path = ["_static"]
 
 
 # -- Custom build operations -------------------------------------------------
+def generate_docs_content(app):
+    """Generate the dynamic documentation pages before the build starts."""
+    data_dictionary_to_rst(PUDL_DOCS_PATH)
+    data_sources_to_rst(PUDL_DOCS_PATH)
+    citations_media_to_rst(PUDL_DOCS_PATH)
+    codes_to_rst(PUDL_DOCS_PATH)
+
+
 def cleanup_rsts(app, exception):
     """Remove generated RST files when the build is finished."""
     (PUDL_DOCS_PATH / "data_dictionaries/pudl_db.rst").unlink(missing_ok=True)
@@ -300,10 +305,7 @@ def setup(app):
     """Add custom CSS defined in _static/custom.css."""
     app.add_css_file("custom.css")
     app.connect("builder-inited", _create_readme_image_symlink)
-    app.connect("builder-inited", data_dictionary_metadata_to_rst)
-    app.connect("builder-inited", data_sources_metadata_to_rst)
-    app.connect("builder-inited", citations_media_to_rst)
-    app.connect("builder-inited", static_dfs_to_rst)
+    app.connect("builder-inited", generate_docs_content)
     # Only advertise markdown alternates if sphinx_llm.txt is actually
     # installed, loaded, and not explicitly disabled via llms_txt_enabled.
     if "sphinx_llm.txt" in app.extensions and getattr(
