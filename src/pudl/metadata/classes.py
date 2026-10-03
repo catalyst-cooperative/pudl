@@ -33,7 +33,6 @@ from pydantic import (
     AnyHttpUrl,
     BaseModel,
     ConfigDict,
-    DirectoryPath,
     EmailStr,
     StrictBool,
     StrictFloat,
@@ -173,16 +172,17 @@ def _format_for_sql(x: Any, identifier: bool = False) -> str:  # noqa: C901
     return f"'{x}'"
 
 
-def _get_jinja_environment(template_dir: DirectoryPath | None = None):
-    if template_dir:
-        path = template_dir / "templates"
-    else:
-        path = Path(__file__).parent.resolve() / "templates"
-    environment = jinja2.Environment(
-        loader=jinja2.FileSystemLoader(path),
+def _get_jinja_environment() -> jinja2.Environment:
+    """Return a Jinja environment for the templates packaged with this module.
+
+    These are the templates, in ``pudl/metadata/templates``, used to assemble
+    table descriptions. The documentation templates live in ``docs/templates`` and
+    are loaded by :mod:`pudl.docs`.
+    """
+    return jinja2.Environment(
+        loader=jinja2.FileSystemLoader(Path(__file__).parent.resolve() / "templates"),
         autoescape=True,
     )
-    return environment
 
 
 # ---- Class attribute types ---- #
