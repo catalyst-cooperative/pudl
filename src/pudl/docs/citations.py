@@ -18,7 +18,13 @@ logger = pudl.logging_helpers.get_logger(__name__)
 # without labels and sorted by descending date in document
 # we can't use any default style because there are multiple bibs on one page
 class YearDescendingSortingStyle(BaseSortingStyle):
-    """Create style that sorts by descending year."""
+    """Sort bibliography entries by descending year.
+
+    Registered as the ``year_desc`` pybtex sorting style. Sphinx's bibliography
+    directive uses it, through :class:`NoLabelStyle`, to list the newest
+    publications first. See :meth:`sorting_key` for how ties and undated entries
+    are handled.
+    """
 
     def sorting_key(self, entry):
         """Return a sorting key that orders entries by descending year.
@@ -49,7 +55,14 @@ class YearDescendingSortingStyle(BaseSortingStyle):
 
 
 class NoLabelStyle(PlainStyle):
-    """Create citation style without label and sorting on descending year."""
+    """Format citations like pybtex's plain style, but without labels.
+
+    Registered as the ``nolabel`` pybtex formatting style, and used as the default
+    bibtex style for the docs. The Citations & Media pages show each bibliography
+    as an enumerated list that supplies its own numbering, and combine several
+    .bib files on one page, so none of the built-in styles fit. Entries are sorted
+    with :class:`YearDescendingSortingStyle`, newest first.
+    """
 
     default_sorting_style = "year_desc"
 
