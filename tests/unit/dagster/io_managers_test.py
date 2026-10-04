@@ -109,8 +109,10 @@ def test_ferc_sqlite_io_manager_teardown_disposes_engine(mocker):
         dataset="ferc1",
     )
     engine = sa.create_engine("sqlite://")
-    manager._engine = engine  # noqa: SLF001 - stand in for the lazily cached engine
-    manager._metadata = mocker.MagicMock()  # noqa: SLF001
+    # Pydantic permits mutating PrivateAttr fields on frozen models; pyrefly
+    # doesn't yet model that exception.
+    manager._engine = engine  # type: ignore[read-only]  # noqa: SLF001
+    manager._metadata = mocker.MagicMock()  # type: ignore[read-only]  # noqa: SLF001
     dispose = mocker.spy(engine, "dispose")
 
     manager.teardown_after_execution(mocker.MagicMock())

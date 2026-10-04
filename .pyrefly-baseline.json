@@ -761,11 +761,6 @@
       "concise_description": "Cannot index into `object`"
     },
     {
-      "path": "tests/unit/transform/glue_test.py",
-      "name": "bad-index",
-      "concise_description": "Cannot index into `object`"
-    },
-    {
       "path": "src/pudl/analysis/record_linkage/link_cross_year.py",
       "name": "bad-index",
       "concise_description": "Cannot index into `tuple[ndarray, ndarray]`"
@@ -1001,11 +996,6 @@
       "concise_description": "No matching overload found for function `dict.get` called with arguments: (Unknown | None, TableTypeFragments)"
     },
     {
-      "path": "src/pudl/dagster/assets/core/glue.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `networkx.classes.function.set_edge_attributes` called with arguments: (Graph[Any], name=Literal['global_subplant_id'], values=int)"
-    },
-    {
       "path": "tests/unit/transform/ferc1_test.py",
       "name": "no-matching-overload",
       "concise_description": "No matching overload found for function `numpy._core.multiarray.where` called with arguments: (Unknown, Literal['calculated_value'], NAType)"
@@ -1019,11 +1009,6 @@
       "path": "src/pudl/glue/ferc1_eia.py",
       "name": "no-matching-overload",
       "concise_description": "No matching overload found for function `pandas.core.generic.NDFrame.pipe` called with arguments: (MultiColumnTransformFunc, dict[str, StringNormalization])"
-    },
-    {
-      "path": "src/pudl/dagster/assets/core/glue.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `pandas.core.groupby.generic.DataFrameGroupBy.apply` called with arguments: ((subplant_crosswalk: DataFrame) -> DataFrame, include_groups=Literal[False])"
     },
     {
       "path": "tests/unit/validate/dbt_helper_test.py",
@@ -1784,11 +1769,6 @@
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "name": "bad-assignment",
       "concise_description": "`DataFrame[AlignedTimeseriesDataFrame]` is not assignable to variable `simulation_df` with type `DataFrame[SimulationDataFrame]`"
-    },
-    {
-      "path": "src/pudl/dagster/assets/core/glue.py",
-      "name": "bad-assignment",
-      "concise_description": "`DataFrame` is not assignable to `Series`"
     },
     {
       "path": "tests/unit/analysis/ml_tools_test.py",
