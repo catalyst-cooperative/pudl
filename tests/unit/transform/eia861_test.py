@@ -104,3 +104,18 @@ def test__combine_88888_values(actual, expected):
     idx_cols = ["report_date", "utility_id_eia", "state"]
     observed_outcome = eia861._combine_88888_values(actual, idx_cols)
     pd.testing.assert_frame_equal(expected, observed_outcome)
+
+
+def test_clean_nerc_numeric_code():
+    """Integer NERC region codes are mapped rather than becoming UNK."""
+    idx_cols = ["utility_id_eia", "nerc_region"]
+    raw = pd.DataFrame(
+        {
+            "utility_id_eia": [1, 2, 3, 4],
+            "nerc_region": pd.Series(
+                [25470, "5-MISE", "spp & ercot", None], dtype=object
+            ),
+        }
+    )
+    out = eia861.clean_nerc(raw, idx_cols)
+    assert out["nerc_region"].tolist() == ["MRO", "MISO", "ERCOT_SPP", "UNK"]

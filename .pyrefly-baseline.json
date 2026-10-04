@@ -121,31 +121,6 @@
       "concise_description": "Argument `GeometrySequence[GeometryCollection[Polygon]]` is not assignable to parameter `data` with type `Buffer | Geometry | IndexOpsMixin | Mapping[int, Geometry] | Mapping[str, Geometry] | Sequence[Geometry] | _NestedSequence[bytes | complex | str] | _NestedSequence[_SupportsArray[dtype]] | _SupportsArray[dtype] | bytes | complex | str | None` in function `geopandas.geoseries.GeoSeries.__new__`"
     },
     {
-      "path": "src/pudl/transform/eia861.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `Hashable` is not assignable to parameter `df` with type `DataFrame` in function `_check_for_dupes`"
-    },
-    {
-      "path": "src/pudl/transform/eia861.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `Hashable` is not assignable to parameter `df` with type `DataFrame` in function `_post_process`"
-    },
-    {
-      "path": "src/pudl/transform/eia861.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `Hashable` is not assignable to parameter `df` with type `DataFrame` in function `_tidy_class_dfs`"
-    },
-    {
-      "path": "src/pudl/transform/eia861.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `Hashable` is not assignable to parameter `idx_cols` with type `list[str]` in function `_tidy_class_dfs`"
-    },
-    {
-      "path": "src/pudl/transform/eia861.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `Hashable` is not assignable to parameter `subset` with type `list[str]` in function `_check_for_dupes`"
-    },
-    {
       "path": "src/pudl/helpers.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `Iterable[str]` is not assignable to parameter `id_vars` with type `Sequence[Unknown] | ndarray | tuple[Unknown, ...] | None` in function `pandas.core.frame.DataFrame.melt`"
@@ -466,11 +441,6 @@
       "concise_description": "Argument `list[DateOfBirthComparison | ExactMatch | NameComparison | dict[str, list[ElseLevel | NullLevel | PercentageDifferenceLevel] | str]]` is not assignable to parameter `comparisons` with type `list[ComparisonCreator | dict[str, Any]]` in function `splink.internals.settings_creator.SettingsCreator.__init__`"
     },
     {
-      "path": "src/pudl/transform/eia861.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `list[dict[str, DataFrame]]` is not assignable to parameter `dfs` with type `list[DataFrame]` in function `_harvest_associations`"
-    },
-    {
       "path": "tests/unit/analysis/plant_parts_eia_test.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `list[list[int]]` is not assignable to parameter `keys` with type `Hashable | Index | Iterator[Hashable] | Sequence[Hashable] | Series | ndarray | None` in function `pandas.core.frame.DataFrame.set_index`"
@@ -727,11 +697,6 @@
     },
     {
       "path": "src/pudl/transform/eia.py",
-      "name": "bad-index",
-      "concise_description": "Cannot index into `Hashable`"
-    },
-    {
-      "path": "src/pudl/transform/eia861.py",
       "name": "bad-index",
       "concise_description": "Cannot index into `Hashable`"
     },
@@ -1101,16 +1066,6 @@
       "concise_description": "Object of class `GenericMetadata` has no attribute `get_skiprows`"
     },
     {
-      "path": "src/pudl/transform/eia861.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Hashable` has no attribute `assign`"
-    },
-    {
-      "path": "src/pudl/transform/eia861.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Hashable` has no attribute `drop`"
-    },
-    {
       "path": "src/pudl/transform/eia176.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `Index` has no attribute `levels`"
@@ -1396,11 +1351,6 @@
       "concise_description": "Object of class `dict` has no attribute `name`"
     },
     {
-      "path": "src/pudl/transform/eia861.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `dict` has no attribute `query`"
-    },
-    {
       "path": "tests/unit/metadata/harvest_test.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `dict` has no attribute `schema`"
@@ -1646,11 +1596,6 @@
       "concise_description": "Returned type `str` is not assignable to declared return type `HttpUrl`"
     },
     {
-      "path": "src/pudl/transform/eia861.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `tuple[DataFrame, list[str]]` is not assignable to declared return type `DataFrame`"
-    },
-    {
       "path": "src/pudl/extract/vcerare.py",
       "name": "bad-return",
       "concise_description": "Returned type `tuple[dict[Unknown, Unknown], ...]` is not assignable to declared return type `tuple[dict[int, ParquetData], dict[int, ParquetData], dict[int, ParquetData]]`"
@@ -1781,11 +1726,6 @@
       "concise_description": "`LiteralString` is not assignable to variable `layer` with type `Literal['county', 'state', 'tract']`"
     },
     {
-      "path": "src/pudl/transform/eia861.py",
-      "name": "bad-assignment",
-      "concise_description": "`Literal[25470]` is not assignable to dict key type `str`"
-    },
-    {
       "path": "src/pudl/extract/excel.py",
       "name": "bad-assignment",
       "concise_description": "`None` is not assignable to `ExcelMetadata`"
@@ -1886,31 +1826,6 @@
       "concise_description": "`in` is not supported between `Literal['control_id_eia']` and `Hashable`"
     },
     {
-      "path": "src/pudl/transform/eia861.py",
-      "name": "not-iterable",
-      "concise_description": "`in` is not supported between `Literal['energy_efficiency']` and `Hashable`"
-    },
-    {
-      "path": "src/pudl/transform/eia861.py",
-      "name": "not-iterable",
-      "concise_description": "`in` is not supported between `Literal['load_management']` and `Hashable`"
-    },
-    {
-      "path": "src/pudl/transform/eia861.py",
-      "name": "not-iterable",
-      "concise_description": "`in` is not supported between `Literal['nerc_region_operation']` and `Hashable`"
-    },
-    {
-      "path": "src/pudl/transform/eia861.py",
-      "name": "not-iterable",
-      "concise_description": "`in` is not supported between `Literal['revenue']` and `Hashable`"
-    },
-    {
-      "path": "src/pudl/transform/eia861.py",
-      "name": "not-iterable",
-      "concise_description": "`in` is not supported between `Literal['rto_operation']` and `Hashable`"
-    },
-    {
       "path": "src/pudl/transform/classes.py",
       "name": "unbound-name",
       "concise_description": "`items` may be uninitialized"
@@ -1939,16 +1854,6 @@
       "path": "src/pudl/transform/eia860.py",
       "name": "not-iterable",
       "concise_description": "`not in` is not supported between `Literal['control_id_eia']` and `Hashable`"
-    },
-    {
-      "path": "src/pudl/transform/eia861.py",
-      "name": "not-iterable",
-      "concise_description": "`not in` is not supported between `Literal['nerc_region_operation']` and `Hashable`"
-    },
-    {
-      "path": "src/pudl/transform/eia861.py",
-      "name": "not-iterable",
-      "concise_description": "`not in` is not supported between `Literal['rto_operation']` and `Hashable`"
     },
     {
       "path": "src/pudl/analysis/record_linkage/eia_ferc1_train.py",

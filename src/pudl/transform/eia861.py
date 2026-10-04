@@ -526,12 +526,17 @@ NERC_SPELLCHECK: dict[str, str] = {
     "VACAR": "SERC",  # VACAR is a subregion of SERC
     "GATEWAY": "SERC",  # GATEWAY is a subregion of SERC
     "TERR": "GU",
-    25470: "MRO",
     "TX": "TRE",
     "NY": "NPCC",
     "NEW": "NPCC",
     "YORK": "NPCC",
     "MISE": "MISO",
+}
+
+# Some utilities report an integer code instead of a NERC region acronym. Because it
+# isn't a string, the string handling in clean_nerc() would turn it into NA -> UNK.
+NERC_NUMERIC_CODES: dict[int, str] = {
+    25470: "MRO",  # Roughrider Electric Cooperative (utility_id_eia=55959)
 }
 
 
@@ -690,7 +695,7 @@ def _tidy_class_dfs(
     class_list: list[str],
     class_type: str,
     keep_totals: bool = False,
-) -> pd.DataFrame:
+) -> tuple[pd.DataFrame, list[str]]:
     """Stack multiple data columns and create a categorical column for filtering.
 
     Many EIA-861 tables are reported in a wide format, with several columns reporting
@@ -910,7 +915,12 @@ def clean_nerc(nerc_df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame:
     # Make nerc values into lists to see how many separate values are stuffed into one row (ex: 'SPP & ERCOT' --> ['SPP', 'ERCOT'])
     nerc_df = nerc_df.assign(
         nerc_region=(
-            lambda x: x.nerc_region.str.upper().fillna("UNK").str.findall(r"[A-Z]+")
+            lambda x: (
+                x.nerc_region.replace(NERC_NUMERIC_CODES)
+                .str.upper()
+                .fillna("UNK")
+                .str.findall(r"[A-Z]+")
+            )
         )
     )
 
@@ -1664,8 +1674,8 @@ def core_demand_side_management_eia861(
     )
 
     # Split into final tables
-    ee_cols = [col for col in transformed_dsm2 if "energy_efficiency" in col]
-    dr_cols = [col for col in transformed_dsm2 if "load_management" in col]
+    ee_cols = [col for col in transformed_dsm2 if "energy_efficiency" in str(col)]
+    dr_cols = [col for col in transformed_dsm2 if "load_management" in str(col)]
     program_cols = ["price_responsiveness_customers", "time_responsiveness_customers"]
     total_cost_cols = ["annual_indirect_program_cost", "annual_total_cost"]
 
@@ -2386,7 +2396,7 @@ def core_operational_data_eia861(raw_eia861__operational_data: pd.DataFrame):
     # Split data into 2 tables:
     #  * Revenue (wide-to-tall)
     #  * Misc. (other)
-    revenue_cols = [col for col in transformed_od if "revenue" in col]
+    revenue_cols = [col for col in transformed_od if "revenue" in str(col)]
     transformed_od_misc = transformed_od.drop(columns=revenue_cols)
     transformed_od_rev = transformed_od[
         idx_cols + revenue_cols + ["data_maturity"]
@@ -2530,16 +2540,18 @@ def core_utility_data_eia861(raw_eia861__utility_data: pd.DataFrame):
     )
 
     # Establish columns that are nerc regions vs. rtos
-    nerc_cols = [col for col in raw_ud if "nerc_region_operation" in col] + [
+    nerc_cols = [col for col in raw_ud if "nerc_region_operation" in str(col)] + [
         "data_maturity"
     ]
     logger.info(f"{nerc_cols=}")
-    rto_cols = [col for col in raw_ud if "rto_operation" in col] + ["data_maturity"]
+    rto_cols = [col for col in raw_ud if "rto_operation" in str(col)] + [
+        "data_maturity"
+    ]
     logger.info(f"{rto_cols=}")
     misc_cols = [
         col
         for col in raw_ud
-        if "nerc_region_operation" not in col and "rto_operation" not in col
+        if "nerc_region_operation" not in str(col) and "rto_operation" not in str(col)
     ]
     logger.info(f"{misc_cols=}")
     # Make separate tables for nerc vs. rto vs. misc data
@@ -2672,7 +2684,7 @@ def core_utility_data_eia861(raw_eia861__utility_data: pd.DataFrame):
     },
     io_manager_key="parquet_io_manager",
 )
-def core_eia861__assn_utility(**data_dfs: dict[str, pd.DataFrame]) -> pd.DataFrame:
+def core_eia861__assn_utility(**data_dfs: pd.DataFrame) -> pd.DataFrame:
     """Harvest a Utility-Date-State Association Table."""
     logger.info("Building an EIA 861 Util-State-Date association table.")
     df = _harvest_associations(
@@ -2714,7 +2726,7 @@ def core_eia861__assn_utility(**data_dfs: dict[str, pd.DataFrame]) -> pd.DataFra
     io_manager_key="parquet_io_manager",
 )
 def core_eia861__assn_balancing_authority(
-    **dfs: dict[str, pd.DataFrame],
+    **dfs: pd.DataFrame,
 ) -> pd.DataFrame:
     """Compile a balancing authority, utility, state association table.
 
