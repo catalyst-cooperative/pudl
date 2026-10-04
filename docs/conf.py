@@ -158,6 +158,9 @@ autoapi_add_toctree_entry = False
 # dynamic file generation and cleanup, this results in a race condition and
 # conflicts between the two builds, so we disable the parallel build.
 llms_txt_build_parallel = False
+# Not every Sphinx node type (especially those added via extensions) can be rendered by
+# the markdown builder. This is expected. Suppress warnings about those nodes.
+llms_txt_suppress_unknown_node_warnings = True
 
 # GitHub repo
 issues_github_path = "catalyst-cooperative/pudl"
