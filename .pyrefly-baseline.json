@@ -246,16 +246,6 @@
       "concise_description": "Argument `Series` is not assignable to parameter `util_ids` with type `list[int]` in function `categorize_eia_code`"
     },
     {
-      "path": "src/pudl/analysis/timeseries_cleaning.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `SimulateFlagsSettings | None` is not assignable to parameter `settings` with type `SimulateFlagsSettings` in function `get_simulated_flag_mask`"
-    },
-    {
-      "path": "src/pudl/analysis/timeseries_cleaning.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `UUID` is not assignable to parameter `uuid` with type `str` in function `FlaggedTimeseries.__init__`"
-    },
-    {
       "path": "src/pudl/metadata/descriptions.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `Unknown | None` is not assignable to parameter `description` with type `bytearray | bytes | str` in function `ResourceTrait.__init__`"
@@ -456,11 +446,6 @@
       "concise_description": "Argument `nbformat.v1.nbbase.NotebookNode | list[nbformat.v1.nbbase.NotebookNode | list[nbformat.v1.nbbase.NotebookNode | list[Unknown] | Unknown] | Unknown] | Unknown` is not assignable to parameter `nb` with type `nbformat.notebooknode.NotebookNode` in function `nbconvert.preprocessors.execute.ExecutePreprocessor.preprocess`"
     },
     {
-      "path": "src/pudl/analysis/timeseries_cleaning.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `ndarray | None` is not assignable to parameter `mask` with type `Sequence[bool] | None` in function `insert_run_length`"
-    },
-    {
       "path": "src/pudl/analysis/record_linkage/embed_dataframe.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `ndarray | spmatrix` is not assignable to parameter `matrix` with type `csr_matrix | ndarray` in function `FeatureMatrix.__init__`"
@@ -489,36 +474,6 @@
       "path": "tests/unit/transform/eia923_test.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `object` is not assignable to parameter `obj` with type `Sized` in function `len`"
-    },
-    {
-      "path": "src/pudl/analysis/timeseries_cleaning.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `pandas.core.frame.DataFrame` is not assignable to parameter `aligned_df` with type `pandera.typing.pandas.DataFrame[AlignedTimeseriesDataFrame]` in function `_merge_imputed`"
-    },
-    {
-      "path": "src/pudl/analysis/timeseries_cleaning.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `pandas.core.frame.DataFrame` is not assignable to parameter `df` with type `pandera.typing.pandas.DataFrame[TimeseriesMatrix]` in function `impute_flagged_values`"
-    },
-    {
-      "path": "src/pudl/analysis/timeseries_cleaning.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `pandas.core.frame.DataFrame` is not assignable to parameter `flags` with type `pandera.typing.pandas.DataFrame[TimeseriesMatrix]` in function `_merge_imputed`"
-    },
-    {
-      "path": "src/pudl/analysis/timeseries_cleaning.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `pandas.core.frame.DataFrame` is not assignable to parameter `imputed_df` with type `pandera.typing.pandas.DataFrame[AlignedTimeseriesDataFrame]` in function `get_simulated_flag_mask`"
-    },
-    {
-      "path": "src/pudl/analysis/timeseries_cleaning.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `pandas.core.frame.DataFrame` is not assignable to parameter `simulation_df` with type `pandera.typing.pandas.DataFrame[SimulationDataFrame]` in function `_add_simulated_flag_col`"
-    },
-    {
-      "path": "src/pudl/analysis/timeseries_cleaning.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `pandas.core.frame.DataFrame` is not assignable to parameter `timeseries_matrix` with type `pandera.typing.pandas.DataFrame[TimeseriesMatrix]` in function `flag_ruggles`"
     },
     {
       "path": "src/pudl/analysis/timeseries_evaluation.py",
@@ -1071,11 +1026,6 @@
       "concise_description": "Object of class `Index` has no attribute `levels`"
     },
     {
-      "path": "src/pudl/analysis/timeseries_cleaning.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Index` has no attribute `year`"
-    },
-    {
       "path": "tests/unit/dagster/asset_checks_test.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `MetadataValue` has no attribute `data`"
@@ -1196,11 +1146,6 @@
       "concise_description": "Object of class `NoneType` has no attribute `make_datasources_table`"
     },
     {
-      "path": "src/pudl/analysis/timeseries_cleaning.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `mape_threshold`"
-    },
-    {
       "path": "tests/unit/extract/xbrl_test.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `NoneType` has no attribute `read_bytes`"
@@ -1266,11 +1211,6 @@
       "concise_description": "Object of class `Properties` has no attribute `strftime`"
     },
     {
-      "path": "src/pudl/analysis/timeseries_cleaning.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Properties` has no attribute `to_period`"
-    },
-    {
       "path": "src/pudl/analysis/allocate_gen_fuel.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `Properties` has no attribute `year`"
@@ -1287,11 +1227,6 @@
     },
     {
       "path": "src/pudl/analysis/service_territory.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Properties` has no attribute `year`"
-    },
-    {
-      "path": "src/pudl/analysis/timeseries_cleaning.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `Properties` has no attribute `year`"
     },
@@ -1466,21 +1401,6 @@
       "concise_description": "Returned type `DataFrameBase[AEOTable]` is not assignable to declared return type `DataFrame`"
     },
     {
-      "path": "src/pudl/analysis/timeseries_cleaning.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `DataFrame[AlignedTimeseriesDataFrame]` is not assignable to declared return type `DataFrame[TimeseriesMatrix]`"
-    },
-    {
-      "path": "src/pudl/analysis/timeseries_cleaning.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `DataFrame[TimeseriesMatrix]` is not assignable to declared return type `DataFrame[AlignedTimeseriesDataFrame]`"
-    },
-    {
-      "path": "src/pudl/analysis/timeseries_cleaning.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `DataFrame[UTCTimeseriesDataFrame]` is not assignable to declared return type `DataFrame[AlignedTimeseriesDataFrame]`"
-    },
-    {
       "path": "src/pudl/transform/ferc714.py",
       "name": "bad-return",
       "concise_description": "Returned type `DataFrame` is not assignable to declared return type `Series`"
@@ -1566,24 +1486,9 @@
       "concise_description": "Returned type `defaultdict[str, list[Unknown]]` is not assignable to declared return type `dict[str, DataFrame]`"
     },
     {
-      "path": "src/pudl/analysis/timeseries_cleaning.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `dict[Scalar, float]` is not assignable to declared return type `dict[str, float]`"
-    },
-    {
-      "path": "src/pudl/analysis/timeseries_cleaning.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `list[AssetsDefinition]` is not assignable to declared return type `DataFrame`"
-    },
-    {
       "path": "src/pudl/settings.py",
       "name": "bad-return",
       "concise_description": "Returned type `list[dict[str, Any]] | list[Unknown]` is not assignable to declared return type `list[dict[str, str] | None]`"
-    },
-    {
-      "path": "src/pudl/analysis/timeseries_cleaning.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `pandas.core.frame.DataFrame` is not assignable to declared return type `pandera.typing.pandas.DataFrame[TimeseriesMatrix]`"
     },
     {
       "path": "tests/unit/analysis/timeseries_cleaning_test.py",
@@ -1599,16 +1504,6 @@
       "path": "src/pudl/extract/vcerare.py",
       "name": "bad-return",
       "concise_description": "Returned type `tuple[dict[Unknown, Unknown], ...]` is not assignable to declared return type `tuple[dict[int, ParquetData], dict[int, ParquetData], dict[int, ParquetData]]`"
-    },
-    {
-      "path": "src/pudl/analysis/timeseries_cleaning.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `tuple[list[AssetsDefinition], AssetChecksDefinition]` is not assignable to declared return type `DataFrame`"
-    },
-    {
-      "path": "src/pudl/analysis/timeseries_cleaning.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `tuple[pandas.core.frame.DataFrame, pandas.core.frame.DataFrame]` is not assignable to declared return type `tuple[pandera.typing.pandas.DataFrame[TimeseriesMatrix], pandera.typing.pandas.DataFrame[TimeseriesMatrix]]`"
     },
     {
       "path": "src/pudl/metadata/classes.py",
@@ -1711,11 +1606,6 @@
       "concise_description": "`/` is not supported between `None` and `Literal['test2.parquet']`"
     },
     {
-      "path": "src/pudl/analysis/timeseries_cleaning.py",
-      "name": "bad-assignment",
-      "concise_description": "`DataFrame[AlignedTimeseriesDataFrame]` is not assignable to variable `simulation_df` with type `DataFrame[SimulationDataFrame]`"
-    },
-    {
       "path": "tests/unit/analysis/ml_tools_test.py",
       "name": "bad-assignment",
       "concise_description": "`ExperimentTrackerConfig` is not assignable to variable `experiment_tracker_config` with type `dict[Unknown, Unknown]`"
@@ -1754,11 +1644,6 @@
       "path": "src/pudl/metadata/descriptions.py",
       "name": "bad-assignment",
       "concise_description": "`Timestamp` is not assignable to variable `offset` with type `int`"
-    },
-    {
-      "path": "src/pudl/analysis/timeseries_cleaning.py",
-      "name": "bad-assignment",
-      "concise_description": "`UUID` is not assignable to attribute `uuid` with type `str`"
     },
     {
       "path": "src/pudl/analysis/record_linkage/eia_ferc1_train.py",
@@ -1841,11 +1726,6 @@
       "concise_description": "`list[dict[str, str]]` is not assignable to dict value type `dict[str, str] | list[str]`"
     },
     {
-      "path": "src/pudl/analysis/timeseries_cleaning.py",
-      "name": "bad-assignment",
-      "concise_description": "`ndarray` is not assignable to variable `lengths` with type `Sequence[int]`"
-    },
-    {
       "path": "src/pudl/analysis/timeseries_evaluation.py",
       "name": "bad-assignment",
       "concise_description": "`ndarray` is not assignable to variable `lengths` with type `Sequence[int]`"
@@ -1864,11 +1744,6 @@
       "path": "src/pudl/transform/eia.py",
       "name": "unbound-name",
       "concise_description": "`ratio` may be uninitialized"
-    },
-    {
-      "path": "src/pudl/analysis/timeseries_cleaning.py",
-      "name": "unbound-name",
-      "concise_description": "`sample_rate` may be uninitialized"
     },
     {
       "path": "src/pudl/transform/eia.py",
