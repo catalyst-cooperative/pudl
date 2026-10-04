@@ -420,12 +420,12 @@ def test_parquet_io_manager_writes_geodataframe(geo_parquet_output_path: Path) -
 def test_geoparquet_output_has_valid_geo_metadata(
     geo_parquet_output_path: Path,
 ) -> None:
-    """Written file must carry spec-compliant GeoParquet 1.0.0 metadata with PROJJSON CRS."""
+    """Written file must carry spec-compliant GeoParquet 1.1.0 metadata with PROJJSON CRS."""
     raw_meta = pq.read_metadata(geo_parquet_output_path).metadata
     assert b"geo" in raw_meta, "GeoParquet 'geo' metadata key is missing"
 
     geo = json.loads(raw_meta[b"geo"].decode())
-    assert geo.get("version") == "1.0.0"
+    assert geo.get("version") == "1.1.0"
     assert geo["primary_column"] == "geometry"
     col_meta = geo["columns"]["geometry"]
     assert col_meta["encoding"] == "WKB"
