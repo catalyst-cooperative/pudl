@@ -1,0 +1,48 @@
+# PUDL
+
+> PUDL 2026.9.1.dev38 documentation
+
+
+2016-2026, Catalyst Cooperative, CC-BY-4.0
+
+## Pages in this subsection
+
+- [pudl.extract](index.html.md): Modules implementing the “Extract” step of the PUDL ETL pipeline.
+- [pudl.extract.censusdp1tract](censusdp1tract/index.html.md): Extract the US Census DP1 ESRI GeoDatabase into an SQLite Database.
+- [pudl.extract.censuspep](censuspep/index.html.md): Retrieve data from Census PEP spreadsheets.
+- [pudl.extract.csv](csv/index.html.md): Extractor for CSV data.
+- [pudl.extract.dbf](dbf/index.html.md): Generalized DBF extractor for FERC data.
+- [pudl.extract.eia176](eia176/index.html.md): Extract EIA Form 176 data from CSVs.
+- [pudl.extract.eia191](eia191/index.html.md): Extract EIA Form 191 data from CSVs.
+- [pudl.extract.eia757a](eia757a/index.html.md): Extract EIA Form 757a data from CSVs.
+- [pudl.extract.eia860](eia860/index.html.md): Retrieve data from EIA Form 860 spreadsheets for analysis.
+- [pudl.extract.eia860m](eia860m/index.html.md): Retrieve data from EIA Form 860M spreadsheets for analysis.
+- [pudl.extract.eia861](eia861/index.html.md): Retrieve data from EIA Form 861 spreadsheets for analysis.
+- [pudl.extract.eia923](eia923/index.html.md): Retrieves data from EIA Form 923 spreadsheets for analysis.
+- [pudl.extract.eia930](eia930/index.html.md): Extract EIA Form 930 data from CSVs.
+- [pudl.extract.eiaaeo](eiaaeo/index.html.md): Extract EIA AEO data from the bulk JSON.
+- [pudl.extract.eiaapi](eiaapi/index.html.md): Module to extract aggregate data from the EIA bulk electricity download.
+- [pudl.extract.epacems](epacems/index.html.md): Retrieve data from EPA CEMS hourly zipped CSVs.
+- [pudl.extract.epamats](epamats/index.html.md): Retrieve data from EPA MATS hourly zipped CSVs.
+- [pudl.extract.excel](excel/index.html.md): Load excel metadata CSV files form a python data package.
+- [pudl.extract.extractor](extractor/index.html.md): Generic functionality for extractors.
+- [pudl.extract.ferc](ferc/index.html.md): Hooks to integrate ferc to sqlite functionality into dagster graph.
+- [pudl.extract.ferc1](ferc1/index.html.md): Extract FERC Form 1 data from SQLite DBs derived from original DBF or XBRL files.
+- [pudl.extract.ferc2](ferc2/index.html.md): Extract FERC Form 2 data from SQLite DBs derived from original DBF files.
+- [pudl.extract.ferc6](ferc6/index.html.md): Extract FERC Form 6 data from DBF archives.
+- [pudl.extract.ferc60](ferc60/index.html.md): Extract FERC Form 60 data from DBF archives.
+- [pudl.extract.ferc714](ferc714/index.html.md): Routines used for extracting the raw FERC 714 data.
+- [pudl.extract.ferccid](ferccid/index.html.md): This module extracts the raw FERC Company Identifier (CID) table.
+- [pudl.extract.ferceqr](ferceqr/index.html.md): Extract FERC EQR data.
+- [pudl.extract.gridpathratoolkit](gridpathratoolkit/index.html.md): Extract GridPath RA Toolkit renewable energy generation profiles from zipped CSVs.
+- [pudl.extract.nrelatb](nrelatb/index.html.md): Routines used for extracting the raw NREL ATB data.
+- [pudl.extract.phmsagas](phmsagas/index.html.md): Retrieves data from PHMSA natural gas spreadsheets for analysis.
+- [pudl.extract.rus12](rus12/index.html.md): Extract USDA RUS Form 12 data from CSVs.
+- [pudl.extract.rus7](rus7/index.html.md): Extract USDA RUS Form 7 data from CSVs.
+- [pudl.extract.sec10k](sec10k/index.html.md): Load pre-processed SEC 10-K assets from Google Cloud Storage.
+- [pudl.extract.vcerare](vcerare/index.html.md): Extract VCE Resource Adequacy Renewable Energy (RARE) Power Dataset.
+- [pudl.extract.xbrl](xbrl/index.html.md): Generic extractor for all FERC XBRL data.
+
+## Optional
+
+- [Top-level llms.txt](../../../llms.txt): Complete documentation index.

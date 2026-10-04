@@ -1,0 +1,15 @@
+# PUDL
+
+> PUDL 2026.9.1.dev38 documentation
+
+
+2016-2026, Catalyst Cooperative, CC-BY-4.0
+
+## Pages in this subsection
+
+- [pudl.dagster.assets.output](index.html.md): Output Dagster asset-definition modules for PUDL.
+- [pudl.dagster.assets.output.databases](databases/index.html.md): Dagster assets that assemble pudl.sqlite and pudl.duckdb from the Parquet outputs.
+
+## Optional
+
+- [Top-level llms.txt](../../../../../llms.txt): Complete documentation index.

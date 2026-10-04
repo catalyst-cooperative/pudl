@@ -13,6 +13,7 @@ All transformations include:
 | [`EIA_FIPS_COUNTY_FIXES`](#pudl.transform.eia861.EIA_FIPS_COUNTY_FIXES) |    |
 | [`BA_NAME_FIXES`](#pudl.transform.eia861.BA_NAME_FIXES)         |    |
 | [`NERC_SPELLCHECK`](#pudl.transform.eia861.NERC_SPELLCHECK)       |    |
+| [`NERC_NUMERIC_CODES`](#pudl.transform.eia861.NERC_NUMERIC_CODES)    |    |
 
 ## Functions
 
@@ -24,7 +25,7 @@ All transformations include:
 | [`add_backfilled_ba_code_column`](#pudl.transform.eia861.add_backfilled_ba_code_column)(→ pandas.DataFrame)           | Make a backfilled Balancing Authority Code column based on codes in later years. |
 | [`backfill_ba_codes_by_ba_id`](#pudl.transform.eia861.backfill_ba_codes_by_ba_id)(→ pandas.DataFrame)              | Fill in missing BA Codes by backfilling based on BA ID.                          |
 | [`_dedupe_cols_agg`](#pudl.transform.eia861._dedupe_cols_agg)(→ dict)                                    | Sum numeric duplicates and keep non-null value for non-numeric columns.          |
-| [`_tidy_class_dfs`](#pudl.transform.eia861._tidy_class_dfs)(→ pandas.DataFrame)                         | Stack multiple data columns and create a categorical column for filtering.       |
+| [`_tidy_class_dfs`](#pudl.transform.eia861._tidy_class_dfs)(→ tuple[pandas.DataFrame, list[str]])       | Stack multiple data columns and create a categorical column for filtering.       |
 | [`_drop_dupes`](#pudl.transform.eia861._drop_dupes)(df, df_name, subset)                            |                                                                                  |
 | [`_check_for_dupes`](#pudl.transform.eia861._check_for_dupes)(→ pandas.DataFrame)                        |                                                                                  |
 | [`_compare_totals`](#pudl.transform.eia861._compare_totals)(data_cols, idx_cols, class_type, df_name)   | Compare reported totals with sum of component columns.                           |
@@ -68,6 +69,8 @@ All transformations include:
 ### pudl.transform.eia861.BA_NAME_FIXES *: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)*
 
 ### pudl.transform.eia861.NERC_SPELLCHECK *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
+
+### pudl.transform.eia861.NERC_NUMERIC_CODES *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[int](https://docs.python.org/3/builtins/functions.html#int), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
 ### pudl.transform.eia861.\_pre_process(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), idx_cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
@@ -124,7 +127,7 @@ retained.
 
 Sum numeric duplicates and keep non-null value for non-numeric columns.
 
-### pudl.transform.eia861.\_tidy_class_dfs(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), df_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), idx_cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], class_list: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], class_type: [str](https://docs.python.org/3/builtins/stdtypes.html#str), keep_totals: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.transform.eia861.\_tidy_class_dfs(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), df_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), idx_cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], class_list: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], class_type: [str](https://docs.python.org/3/builtins/stdtypes.html#str), keep_totals: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]]
 
 Stack multiple data columns and create a categorical column for filtering.
 
@@ -482,11 +485,11 @@ Transformations include:
   non-consolidateable qualitative information. See \_combine_88888_values and
   \_pre_process for details.
 
-### pudl.transform.eia861.core_eia861_\_assn_utility(\*\*data_dfs: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.transform.eia861.core_eia861_\_assn_utility(\*\*data_dfs: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Harvest a Utility-Date-State Association Table.
 
-### pudl.transform.eia861.core_eia861_\_assn_balancing_authority(\*\*dfs: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.transform.eia861.core_eia861_\_assn_balancing_authority(\*\*dfs: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Compile a balancing authority, utility, state association table.
 

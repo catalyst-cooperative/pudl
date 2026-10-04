@@ -1,0 +1,14 @@
+# PUDL
+
+> PUDL 2026.9.1.dev38 documentation
+
+
+2016-2026, Catalyst Cooperative, CC-BY-4.0
+
+## Pages in this subsection
+
+- [pudl.scripts.update_zenodo_dois](index.html.md): Script to check each DOI in zenodo_dois.yml against Zenodo’s /versions/latest endpoint.
+
+## Optional
+
+- [Top-level llms.txt](../../../../llms.txt): Complete documentation index.

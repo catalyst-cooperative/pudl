@@ -1,0 +1,14 @@
+# PUDL
+
+> PUDL 2026.9.1.dev38 documentation
+
+
+2016-2026, Catalyst Cooperative, CC-BY-4.0
+
+## Pages in this subsection
+
+- [pudl.analysis.fuel_by_plant](index.html.md): Calculates useful FERC Form 1 fuel metrics on a per plant-year basis.
+
+## Optional
+
+- [Top-level llms.txt](../../../../llms.txt): Complete documentation index.

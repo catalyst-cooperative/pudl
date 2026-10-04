@@ -1,0 +1,32 @@
+# PUDL
+
+> PUDL 2026.9.1.dev38 documentation
+
+
+2016-2026, Catalyst Cooperative, CC-BY-4.0
+
+## Pages in this subsection
+
+- [pudl.scripts](index.html.md): Command line interface scripts for PUDL.
+- [pudl.scripts.auto_match_utilities](auto_match_utilities/index.html.md): A CLI tool for matching FERC and EIA utilities.
+- [pudl.scripts.batch_config](batch_config/index.html.md): Generate a Google Batch Job configuration file.
+- [pudl.scripts.check_path_permissions](check_path_permissions/index.html.md): Check read, write, and delete permissions for local or remote paths.
+- [pudl.scripts.dbt_helper](dbt_helper/index.html.md): A basic CLI to autogenerate dbt data test configurations.
+- [pudl.scripts.dghome](dghome/index.html.md): Manage UUID-named directories in a Dagster storage directory.
+- [pudl.scripts.generate_ferc_provenance](generate_ferc_provenance/index.html.md): CLI for generating FERC SQLite provenance requirements for caching.
+- [pudl.scripts.generate_pudl_duckdb](generate_pudl_duckdb/index.html.md): Basic script to generate a duckdb file with views to local/nightly parquet files.
+- [pudl.scripts.metadata_to_rst](metadata_to_rst/index.html.md): Export PUDL table and field metadata to RST for use in documentation.
+- [pudl.scripts.pudl_check_for_build](pudl_check_for_build/index.html.md): Check if there are build outputs associated with a git tag.
+- [pudl.scripts.pudl_datastore](pudl_datastore/index.html.md): CLI for managing raw data inputs to the PUDL data processing pipeline.
+- [pudl.scripts.pudl_deploy](pudl_deploy/index.html.md): Deploy PUDL ETL outputs to cloud storage and update git branches.
+- [pudl.scripts.pudl_null_cols](pudl_null_cols/index.html.md): A CLI tool for generating expect_column_not_all_null dbt test conditions.
+- [pudl.scripts.pudl_service_territories](pudl_service_territories/index.html.md): CLI for compiling historical utility and balancing area service territory geometries.
+- [pudl.scripts.pyrefly_diff_baseline](pyrefly_diff_baseline/index.html.md): Diff the pyrefly baseline against a git ref by content, not by raw JSON text.
+- [pudl.scripts.pyrefly_status](pyrefly_status/index.html.md): Report on the current status of pyrefly typing in the repo.
+- [pudl.scripts.resource_description](resource_description/index.html.md): Tiny CLI for showing table descriptions without building the full docs.
+- [pudl.scripts.update_zenodo_dois](update_zenodo_dois/index.html.md): Script to check each DOI in zenodo_dois.yml against Zenodo’s /versions/latest endpoint.
+- [pudl.scripts.zenodo_data_release](zenodo_data_release/index.html.md): Upload a prepared PUDL data release directory to Zenodo.
+
+## Optional
+
+- [Top-level llms.txt](../../../llms.txt): Complete documentation index.

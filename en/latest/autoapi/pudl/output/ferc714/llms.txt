@@ -1,0 +1,14 @@
+# PUDL
+
+> PUDL 2026.9.1.dev38 documentation
+
+
+2016-2026, Catalyst Cooperative, CC-BY-4.0
+
+## Pages in this subsection
+
+- [pudl.output.ferc714](index.html.md): Functions &amp; classes for compiling derived aspects of the FERC Form 714 data.
+
+## Optional
+
+- [Top-level llms.txt](../../../../llms.txt): Complete documentation index.

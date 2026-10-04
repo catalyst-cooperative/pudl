@@ -1,0 +1,18 @@
+# PUDL
+
+> PUDL 2026.9.1.dev38 documentation
+
+
+2016-2026, Catalyst Cooperative, CC-BY-4.0
+
+## Pages in this subsection
+
+- [Citations &amp; Media](index.html.md): &#42; Catalyst Publications
+- [Catalyst Publications](catalyst_publications.html.md): Data, software, and analyses that we have published for public use. We self-archive all of our publi...
+- [Work Citing PUDL and other Catalyst Analyses](citing_pudl.html.md): Academic, policy, and industry publications that reference PUDL and analyses done by Catalyst Cooper...
+- [Work Citing Catalyst Cooperative](citing_cooperative.html.md): Academic, policy, and industry publications referencing Catalyst’s role as a worker-owned software c...
+- [Further Reading](further_reading.html.md): Other research and publications relevant to the work we do.
+
+## Optional
+
+- [Top-level llms.txt](../llms.txt): Complete documentation index.

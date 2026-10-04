@@ -1,0 +1,14 @@
+# PUDL
+
+> PUDL 2026.9.1.dev38 documentation
+
+
+2016-2026, Catalyst Cooperative, CC-BY-4.0
+
+## Pages in this subsection
+
+- [pudl.output.eia860](index.html.md): Denormalized versions of the EIA 860 tables.
+
+## Optional
+
+- [Top-level llms.txt](../../../../llms.txt): Complete documentation index.

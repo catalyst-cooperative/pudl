@@ -1,0 +1,14 @@
+# PUDL
+
+> PUDL 2026.9.1.dev38 documentation
+
+
+2016-2026, Catalyst Cooperative, CC-BY-4.0
+
+## Pages in this subsection
+
+- [pudl.analysis.record_linkage.eia_ferc1_record_linkage](index.html.md): Connect FERC1 plant tables to EIA’s plant-parts with record linkage.
+
+## Optional
+
+- [Top-level llms.txt](../../../../../llms.txt): Complete documentation index.

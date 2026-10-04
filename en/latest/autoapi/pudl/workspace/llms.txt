@@ -1,0 +1,17 @@
+# PUDL
+
+> PUDL 2026.9.1.dev38 documentation
+
+
+2016-2026, Catalyst Cooperative, CC-BY-4.0
+
+## Pages in this subsection
+
+- [pudl.workspace](index.html.md): Tools for acquiring PUDL’s original input data and organizing it locally.
+- [pudl.workspace.datastore](datastore/index.html.md): Datastore manages file retrieval for PUDL datasets.
+- [pudl.workspace.resource_cache](resource_cache/index.html.md): Implementations of datastore resource caches.
+- [pudl.workspace.setup](setup/index.html.md): Tools for setting up and managing PUDL workspaces.
+
+## Optional
+
+- [Top-level llms.txt](../../../llms.txt): Complete documentation index.

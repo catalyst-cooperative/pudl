@@ -1,0 +1,59 @@
+# PUDL
+
+> PUDL 2026.9.1.dev38 documentation
+
+
+2016-2026, Catalyst Cooperative, CC-BY-4.0
+
+## Pages in this subsection
+
+- [pudl.metadata](index.html.md): Metadata constants and methods.
+- [pudl.metadata.classes](classes/index.html.md): Metadata data classes.
+- [pudl.metadata.codes](codes/index.html.md): Metadata for cleaning, re-encoding, and documenting coded data columns.
+- [pudl.metadata.constants](constants/index.html.md): Metadata and operational constants.
+- [pudl.metadata.descriptions](descriptions/index.html.md): Mechanisms and constants for setting standard resource descriptions.
+- [pudl.metadata.dfs](dfs/index.html.md): Static database tables.
+- [pudl.metadata.dtypes](dtypes/index.html.md): Canonical PUDL dtype mappings and dtype-application helpers.
+- [pudl.metadata.enums](enums/index.html.md): Enumerations of valid field values.
+- [pudl.metadata.fields](fields/index.html.md): Field metadata.
+- [pudl.metadata.helpers](helpers/index.html.md): Functions for manipulating metadata constants.
+- [pudl.metadata.labels](labels/index.html.md): Descriptive labels for coded field values.
+- [pudl.metadata.patterns](patterns/index.html.md): Reusable regex pattern constraints for fields in the PUDL metadata.
+- [pudl.metadata.resource_helpers](resource_helpers/index.html.md): Functions for resource metadata.
+- [pudl.metadata.resources](resources/index.html.md): A subpackage to define and organize PUDL database tables by data group.
+- [pudl.metadata.resources.allocate_gen_fuel](resources/allocate_gen_fuel/index.html.md): Resource metadata for the allocate_gen_fuel tables.
+- [pudl.metadata.resources.censusdp1tract](resources/censusdp1tract/index.html.md): Resources derived from the US Census Demographic Profile 1 dataset.
+- [pudl.metadata.resources.eia](resources/eia/index.html.md): Definitions of data tables primarily coming from EIA 860/861/923.
+- [pudl.metadata.resources.eia176](resources/eia176/index.html.md): Definitions of data tables primarily coming from EIA-176.
+- [pudl.metadata.resources.eia191](resources/eia191/index.html.md): Definitions of data tables primarily coming from EIA-191.
+- [pudl.metadata.resources.eia860](resources/eia860/index.html.md): Definitions of data tables primarily coming from EIA-860.
+- [pudl.metadata.resources.eia860m](resources/eia860m/index.html.md): Definitions of data tables primarily coming from EIA-860m.
+- [pudl.metadata.resources.eia861](resources/eia861/index.html.md): Definitions of data tables primarily coming from EIA-861.
+- [pudl.metadata.resources.eia923](resources/eia923/index.html.md): Definitions of data tables primarily coming from EIA-923.
+- [pudl.metadata.resources.eia930](resources/eia930/index.html.md): Definitions of data tables derived from the EIA-930.
+- [pudl.metadata.resources.eiaaeo](resources/eiaaeo/index.html.md): Table definitions for EIA AEO resources.
+- [pudl.metadata.resources.eiaapi](resources/eiaapi/index.html.md): Tables definitions for data from the EIA bulk electricity aggregates.
+- [pudl.metadata.resources.epacems](resources/epacems/index.html.md): Table definitions for the EPA CEMS data group.
+- [pudl.metadata.resources.epamats](resources/epamats/index.html.md): Table definitions for the EPA MATS data group.
+- [pudl.metadata.resources.ferc1](resources/ferc1/index.html.md): Table definitions for the FERC Form 1 data group.
+- [pudl.metadata.resources.ferc1_eia_record_linkage](resources/ferc1_eia_record_linkage/index.html.md): Definitions for the connection between FERC1 and EIA.
+- [pudl.metadata.resources.ferc714](resources/ferc714/index.html.md): Tables definitions for data coming from the FERC Form 714.
+- [pudl.metadata.resources.ferccid](resources/ferccid/index.html.md): Table definitions for the FERC Company Identifier table.
+- [pudl.metadata.resources.ferceqr](resources/ferceqr/index.html.md): Table definitions for the FERC EQR data group.
+- [pudl.metadata.resources.glue](resources/glue/index.html.md): Definitions for the glue/crosswalk tables that connect data groups.
+- [pudl.metadata.resources.gridpathratoolkit](resources/gridpathratoolkit/index.html.md): Table definitions for data coming from the GridPath Resource Adequacy Toolkit.
+- [pudl.metadata.resources.nrelatb](resources/nrelatb/index.html.md): Table definitions for the NREL ATB data .
+- [pudl.metadata.resources.phmsagas](resources/phmsagas/index.html.md): Tables definitions for data coming from PHMSA natural gas data.
+- [pudl.metadata.resources.pudl](resources/pudl/index.html.md): Definitions for the connection between PUDL-specific IDs and other datasets.
+- [pudl.metadata.resources.rus](resources/rus/index.html.md): Table definitions for the RUS tables.
+- [pudl.metadata.resources.rus12](resources/rus12/index.html.md): Table definitions for the RUS12 tables.
+- [pudl.metadata.resources.rus7](resources/rus7/index.html.md): Table definitions for the RUS7 tables.
+- [pudl.metadata.resources.sec10k](resources/sec10k/index.html.md): Table definitions for the SEC10k tables.
+- [pudl.metadata.resources.vcerare](resources/vcerare/index.html.md): Table definitions for data coming from the Vibrant Clean Energy Renewable Generation Profiles.
+- [pudl.metadata.sources](sources/index.html.md): Metadata and operational constants.
+- [pudl.metadata.units](units/index.html.md): PUDL unit registry built on top of Pint’s default registry.
+- [pudl.metadata.warnings](warnings/index.html.md): Standard usage warnings to reference in dynamic table descriptions.
+
+## Optional
+
+- [Top-level llms.txt](../../../llms.txt): Complete documentation index.

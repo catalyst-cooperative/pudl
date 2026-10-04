@@ -1,0 +1,18 @@
+# PUDL
+
+> PUDL 2026.9.1.dev38 documentation
+
+
+2016-2026, Catalyst Cooperative, CC-BY-4.0
+
+## Pages in this subsection
+
+- [pudl.dagster.assets.core](index.html.md): Core Dagster asset-definition modules for PUDL.
+- [pudl.dagster.assets.core.datapackage](datapackage/index.html.md): Dagster asset that generates the PUDL frictionless datapackage descriptor.
+- [pudl.dagster.assets.core.eiaapi_electricity](eiaapi_electricity/index.html.md): Dagster assets for EIA API electricity aggregates.
+- [pudl.dagster.assets.core.glue](glue/index.html.md): Dagster assets for cross-dataset glue tables.
+- [pudl.dagster.assets.core.static](static/index.html.md): Dagster assets for static reference tables.
+
+## Optional
+
+- [Top-level llms.txt](../../../../../llms.txt): Complete documentation index.

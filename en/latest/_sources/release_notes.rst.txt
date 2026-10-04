@@ -123,6 +123,9 @@ Bug Fixes & Data Cleaning
   :ref:`out_pudl__yearly_assn_eia_ferc1_plant_parts` changed on every run even with
   identical inputs. The sampling is now seeded and ties are broken by EIA record ID. See
   :issue:`5610` and :pr:`5643`.
+* Fixed the integer NERC region code ``25470`` reported by utility 55959 in 2013 and
+  2014 in the EIA-861 tables, which was becoming ``UNK`` instead of ``MRO``. See PR
+  :pr:`5685`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^

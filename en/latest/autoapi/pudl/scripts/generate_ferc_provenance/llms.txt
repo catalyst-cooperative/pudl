@@ -1,0 +1,14 @@
+# PUDL
+
+> PUDL 2026.9.1.dev38 documentation
+
+
+2016-2026, Catalyst Cooperative, CC-BY-4.0
+
+## Pages in this subsection
+
+- [pudl.scripts.generate_ferc_provenance](index.html.md): CLI for generating FERC SQLite provenance requirements for caching.
+
+## Optional
+
+- [Top-level llms.txt](../../../../llms.txt): Complete documentation index.

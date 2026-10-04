@@ -1,0 +1,16 @@
+# PUDL
+
+> PUDL 2026.9.1.dev38 documentation
+
+
+2016-2026, Catalyst Cooperative, CC-BY-4.0
+
+## Pages in this subsection
+
+- [pudl.glue](index.html.md): Tools for integrating &amp; reconciling different PUDL datasets with each other.
+- [pudl.glue.ferc1_eia](ferc1_eia/index.html.md): Extract and transform glue tables between FERC Form 1 and EIA 860/923.
+- [pudl.glue.ferc714](ferc714/index.html.md): Extract and transform glue tables between FERC Form 714’s CSV and XBRL raw sources.
+
+## Optional
+
+- [Top-level llms.txt](../../../llms.txt): Complete documentation index.

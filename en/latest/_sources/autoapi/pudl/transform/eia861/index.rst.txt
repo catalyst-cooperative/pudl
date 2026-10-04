@@ -22,6 +22,7 @@ Attributes
    pudl.transform.eia861.EIA_FIPS_COUNTY_FIXES
    pudl.transform.eia861.BA_NAME_FIXES
    pudl.transform.eia861.NERC_SPELLCHECK
+   pudl.transform.eia861.NERC_NUMERIC_CODES
 
 
 Functions
@@ -87,6 +88,9 @@ Module Contents
 .. py:data:: NERC_SPELLCHECK
    :type:  dict[str, str]
 
+.. py:data:: NERC_NUMERIC_CODES
+   :type:  dict[int, str]
+
 .. py:function:: _pre_process(df: pandas.DataFrame, idx_cols: list[str]) -> pandas.DataFrame
 
    Pre-processing applied to all EIA-861 dataframes.
@@ -144,7 +148,7 @@ Module Contents
    Sum numeric duplicates and keep non-null value for non-numeric columns.
 
 
-.. py:function:: _tidy_class_dfs(df: pandas.DataFrame, df_name: str, idx_cols: list[str], class_list: list[str], class_type: str, keep_totals: bool = False) -> pandas.DataFrame
+.. py:function:: _tidy_class_dfs(df: pandas.DataFrame, df_name: str, idx_cols: list[str], class_list: list[str], class_type: str, keep_totals: bool = False) -> tuple[pandas.DataFrame, list[str]]
 
    Stack multiple data columns and create a categorical column for filtering.
 
@@ -526,12 +530,12 @@ Module Contents
      _pre_process for details.
 
 
-.. py:function:: core_eia861__assn_utility(**data_dfs: dict[str, pandas.DataFrame]) -> pandas.DataFrame
+.. py:function:: core_eia861__assn_utility(**data_dfs: pandas.DataFrame) -> pandas.DataFrame
 
    Harvest a Utility-Date-State Association Table.
 
 
-.. py:function:: core_eia861__assn_balancing_authority(**dfs: dict[str, pandas.DataFrame]) -> pandas.DataFrame
+.. py:function:: core_eia861__assn_balancing_authority(**dfs: pandas.DataFrame) -> pandas.DataFrame
 
    Compile a balancing authority, utility, state association table.
 

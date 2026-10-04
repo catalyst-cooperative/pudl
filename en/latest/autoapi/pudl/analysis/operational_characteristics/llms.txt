@@ -1,0 +1,14 @@
+# PUDL
+
+> PUDL 2026.9.1.dev38 documentation
+
+
+2016-2026, Catalyst Cooperative, CC-BY-4.0
+
+## Pages in this subsection
+
+- [pudl.analysis.operational_characteristics](index.html.md): Use EPA CEMS and EIA data to estimate generator operational characteristics.
+
+## Optional
+
+- [Top-level llms.txt](../../../../llms.txt): Complete documentation index.

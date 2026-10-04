@@ -1,0 +1,35 @@
+# PUDL
+
+> PUDL 2026.9.1.dev38 documentation
+
+
+2016-2026, Catalyst Cooperative, CC-BY-4.0
+
+## Pages in this subsection
+
+- [pudl.dagster](index.html.md): Top-level Dagster orchestration package for PUDL.
+- [pudl.dagster.asset_checks](asset_checks/index.html.md): Programmatically defined Dagster asset checks for PUDL.
+- [pudl.dagster.assets](assets/index.html.md): Dagster asset loading and grouping for PUDL.
+- [pudl.dagster.assets.core](assets/core/index.html.md): Core Dagster asset-definition modules for PUDL.
+- [pudl.dagster.assets.core.datapackage](assets/core/datapackage/index.html.md): Dagster asset that generates the PUDL frictionless datapackage descriptor.
+- [pudl.dagster.assets.core.eiaapi_electricity](assets/core/eiaapi_electricity/index.html.md): Dagster assets for EIA API electricity aggregates.
+- [pudl.dagster.assets.core.glue](assets/core/glue/index.html.md): Dagster assets for cross-dataset glue tables.
+- [pudl.dagster.assets.core.static](assets/core/static/index.html.md): Dagster assets for static reference tables.
+- [pudl.dagster.assets.deploy](assets/deploy/index.html.md): Dagster assets dedicated to deploying data build products.
+- [pudl.dagster.assets.deploy.ferceqr](assets/deploy/ferceqr/index.html.md): Define deployment helper assets for publishing FERC EQR outputs.
+- [pudl.dagster.assets.output](assets/output/index.html.md): Output Dagster asset-definition modules for PUDL.
+- [pudl.dagster.assets.output.databases](assets/output/databases/index.html.md): Dagster assets that assemble pudl.sqlite and pudl.duckdb from the Parquet outputs.
+- [pudl.dagster.assets.raw](assets/raw/index.html.md): Raw Dagster asset-definition modules for PUDL.
+- [pudl.dagster.assets.raw.ferc_to_sqlite](assets/raw/ferc_to_sqlite/index.html.md): Dagster asset definitions for granular FERC-to-SQLite extraction.
+- [pudl.dagster.build](build/index.html.md): Assembles Dagster Definitions from default values and specified overrides.
+- [pudl.dagster.config](config/index.html.md): Dagster run configuration helpers for PUDL.
+- [pudl.dagster.io_managers](io_managers/index.html.md): Dagster IO managers used by PUDL assets.
+- [pudl.dagster.jobs](jobs/index.html.md): Dagster jobs for PUDL.
+- [pudl.dagster.partitions](partitions/index.html.md): Dagster partition definitions for PUDL.
+- [pudl.dagster.provenance](provenance/index.html.md): Helpers for recording asset provenance and checking compatibility.
+- [pudl.dagster.resources](resources/index.html.md): Dagster resources for PUDL.
+- [pudl.dagster.sensors](sensors/index.html.md): Dagster sensors for PUDL.
+
+## Optional
+
+- [Top-level llms.txt](../../../llms.txt): Complete documentation index.

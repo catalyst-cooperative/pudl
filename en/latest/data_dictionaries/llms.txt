@@ -1,0 +1,18 @@
+# PUDL
+
+> PUDL 2026.9.1.dev38 documentation
+
+
+2016-2026, Catalyst Cooperative, CC-BY-4.0
+
+## Pages in this subsection
+
+- [Data Dictionaries](index.html.md): The PUDL data dictionary provides detailed metadata for the tables
+- [PUDL Data Dictionary](pudl_db.html.md): The following data tables have been cleaned and transformed by our ETL process.
+- [Raw FERC Form 1 Data Dictionary](ferc1_db.html.md): We have mapped the Visual FoxPro DBF files to their corresponding FERC Form 1
+- [PUDL Code Metadata](codes_and_labels.html.md): The following tables map from codes used in raw data to labels used in the PUDL database.
+- [PUDL Usage Warnings](usage_warnings.html.md): The following warnings apply to one or more tables in PUDL. This page tabulates
+
+## Optional
+
+- [Top-level llms.txt](../llms.txt): Complete documentation index.
