@@ -84,8 +84,8 @@ frictionless = ">=5,<6"
 fsspec = ">=2026"
 gcsfs = ">=2026"
 gdal = ">=3.13.3"
-geoarrow-pyarrow = ">=0.2"
-geopandas = ">=1.1.4"
+geoarrow-pyarrow = ">=0.3"
+geopandas = ">=1.2"
 google-cloud-sdk = ">=583"
 google-cloud-storage = ">=3.13"
 # grpcio packages all need to have same version to avoid conflicts.
@@ -147,12 +147,12 @@ sphinx = ">=9"
 sphinx-autoapi = ">=3.8"
 sphinx-design = ">=0.7.0"
 sphinx-issues = ">=5"
-sphinx-llm = ">=1,<1.1"
+sphinx-llm = ">=1.1"
 sphinx-reredirects = ">=1"
 sphinxcontrib-bibtex = ">=2.6"
 sphinxcontrib-googleanalytics = ">=0.4"
 sphinxcontrib-mermaid = ">=2.0"
-splink = ">=4.0.17"
+splink = ">=4.0.17,<5"
 sqlalchemy = ">=2"
 sqlite = ">=3.53"
 taplo = "==0.9.3" # Pinned to match version in VS Code extension
@@ -284,7 +284,11 @@ bash -c 'shopt -s nullglob; rm -rf \
     docs/data_sources/phmsagas*.rst \
     docs/data_sources/rus*.rst \
     docs/data_sources/sec10k*.rst \
-    docs/data_sources/vcerare*.rst'
+    docs/data_sources/vcerare*.rst \
+    docs/citations_media/catalyst_publications.rst \
+    docs/citations_media/citing_pudl.rst \
+    docs/citations_media/citing_cooperative.rst \
+    docs/citations_media/further_reading.rst'
 """
 description = "Remove all generated documentation files"
 
