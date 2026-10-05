@@ -1,0 +1,14 @@
+# PUDL
+
+> PUDL 2026.9.1.dev38 documentation
+
+
+2016-2026, Catalyst Cooperative, CC-BY-4.0
+
+## Pages in this subsection
+
+- [pudl.metadata.codes](index.html.md): Metadata for cleaning, re-encoding, and documenting coded data columns.
+
+## Optional
+
+- [Top-level llms.txt](../../../../llms.txt): Complete documentation index.

@@ -1,0 +1,22 @@
+# PUDL
+
+> PUDL 2026.9.1.dev38 documentation
+
+
+2016-2026, Catalyst Cooperative, CC-BY-4.0
+
+## Pages in this subsection
+
+- [pudl.analysis.record_linkage](index.html.md): This module implements models for various forms of record linkage.
+- [pudl.analysis.record_linkage.classify_plants_ferc1](classify_plants_ferc1/index.html.md): Scikit-Learn classification pipeline for identifying related FERC 1 plant records.
+- [pudl.analysis.record_linkage.eia_ferc1_inputs](eia_ferc1_inputs/index.html.md): Prepare the inputs to the FERC1 to EIA record linkage model.
+- [pudl.analysis.record_linkage.eia_ferc1_model_config](eia_ferc1_model_config/index.html.md): The model parameters for the FERC1 to EIA splink record linkage model.
+- [pudl.analysis.record_linkage.eia_ferc1_record_linkage](eia_ferc1_record_linkage/index.html.md): Connect FERC1 plant tables to EIA’s plant-parts with record linkage.
+- [pudl.analysis.record_linkage.eia_ferc1_train](eia_ferc1_train/index.html.md): Create spreadsheets for manually mapping FERC-EIA records and validate matches.
+- [pudl.analysis.record_linkage.embed_dataframe](embed_dataframe/index.html.md): Tools for embedding a DataFrame to create feature matrix for models.
+- [pudl.analysis.record_linkage.link_cross_year](link_cross_year/index.html.md): Define a record linkage model interface and implement common functionality.
+- [pudl.analysis.record_linkage.name_cleaner](name_cleaner/index.html.md): This module contains the implementation of CompanyNameCleaner class from OS-Climate’s financial-enti...
+
+## Optional
+
+- [Top-level llms.txt](../../../../llms.txt): Complete documentation index.

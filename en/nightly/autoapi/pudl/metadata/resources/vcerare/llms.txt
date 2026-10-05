@@ -1,0 +1,14 @@
+# PUDL
+
+> PUDL 2026.9.1.dev38 documentation
+
+
+2016-2026, Catalyst Cooperative, CC-BY-4.0
+
+## Pages in this subsection
+
+- [pudl.metadata.resources.vcerare](index.html.md): Table definitions for data coming from the Vibrant Clean Energy Renewable Generation Profiles.
+
+## Optional
+
+- [Top-level llms.txt](../../../../../llms.txt): Complete documentation index.

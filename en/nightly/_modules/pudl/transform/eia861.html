@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.eia861 &#8212; PUDL 2026.9.1.dev37 documentation</title>
+    <title>pudl.transform.eia861 &#8212; PUDL 2026.9.1.dev38 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../../../_static/documentation_options.js?v=bf8d6f1c"></script>
+    <script src="../../../_static/documentation_options.js?v=1dfa9e5b"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -495,8 +495,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev37 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev37 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev38 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev38 documentation - Home"/>
   
   
 </a></div>
@@ -1411,12 +1411,20 @@ window.runMermaid = runMermaid;</script>
     <span class="s2">"VACAR"</span><span class="p">:</span> <span class="s2">"SERC"</span><span class="p">,</span>  <span class="c1"># VACAR is a subregion of SERC</span>
     <span class="s2">"GATEWAY"</span><span class="p">:</span> <span class="s2">"SERC"</span><span class="p">,</span>  <span class="c1"># GATEWAY is a subregion of SERC</span>
     <span class="s2">"TERR"</span><span class="p">:</span> <span class="s2">"GU"</span><span class="p">,</span>
-    <span class="mi">25470</span><span class="p">:</span> <span class="s2">"MRO"</span><span class="p">,</span>
     <span class="s2">"TX"</span><span class="p">:</span> <span class="s2">"TRE"</span><span class="p">,</span>
     <span class="s2">"NY"</span><span class="p">:</span> <span class="s2">"NPCC"</span><span class="p">,</span>
     <span class="s2">"NEW"</span><span class="p">:</span> <span class="s2">"NPCC"</span><span class="p">,</span>
     <span class="s2">"YORK"</span><span class="p">:</span> <span class="s2">"NPCC"</span><span class="p">,</span>
     <span class="s2">"MISE"</span><span class="p">:</span> <span class="s2">"MISO"</span><span class="p">,</span>
+<span class="p">}</span></div>
+
+
+<span class="c1"># Some utilities report an integer code instead of a NERC region acronym. Because it</span>
+<span class="c1"># isn't a string, the string handling in clean_nerc() would turn it into NA -&gt; UNK.</span>
+<div class="viewcode-block" id="NERC_NUMERIC_CODES">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eia861/index.html#pudl.transform.eia861.NERC_NUMERIC_CODES">[docs]</a>
+<span class="n">NERC_NUMERIC_CODES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">25470</span><span class="p">:</span> <span class="s2">"MRO"</span><span class="p">,</span>  <span class="c1"># Roughrider Electric Cooperative (utility_id_eia=55959)</span>
 <span class="p">}</span></div>
 
 
@@ -1599,7 +1607,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">class_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">class_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">keep_totals</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">"""Stack multiple data columns and create a categorical column for filtering.</span>
 
 <span class="sd">    Many EIA-861 tables are reported in a wide format, with several columns reporting</span>
@@ -1831,7 +1839,12 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># Make nerc values into lists to see how many separate values are stuffed into one row (ex: 'SPP &amp; ERCOT' --&gt; ['SPP', 'ERCOT'])</span>
     <span class="n">nerc_df</span> <span class="o">=</span> <span class="n">nerc_df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
         <span class="n">nerc_region</span><span class="o">=</span><span class="p">(</span>
-            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">nerc_region</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s2">"UNK"</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[A-Z]+"</span><span class="p">)</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span>
+                <span class="n">x</span><span class="o">.</span><span class="n">nerc_region</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">NERC_NUMERIC_CODES</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+                <span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s2">"UNK"</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[A-Z]+"</span><span class="p">)</span>
+            <span class="p">)</span>
         <span class="p">)</span>
     <span class="p">)</span>
 
@@ -2624,8 +2637,8 @@ window.runMermaid = runMermaid;</script>
     <span class="p">)</span>
 
     <span class="c1"># Split into final tables</span>
-    <span class="n">ee_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">transformed_dsm2</span> <span class="k">if</span> <span class="s2">"energy_efficiency"</span> <span class="ow">in</span> <span class="n">col</span><span class="p">]</span>
-    <span class="n">dr_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">transformed_dsm2</span> <span class="k">if</span> <span class="s2">"load_management"</span> <span class="ow">in</span> <span class="n">col</span><span class="p">]</span>
+    <span class="n">ee_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">transformed_dsm2</span> <span class="k">if</span> <span class="s2">"energy_efficiency"</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">col</span><span class="p">)]</span>
+    <span class="n">dr_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">transformed_dsm2</span> <span class="k">if</span> <span class="s2">"load_management"</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">col</span><span class="p">)]</span>
     <span class="n">program_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"price_responsiveness_customers"</span><span class="p">,</span> <span class="s2">"time_responsiveness_customers"</span><span class="p">]</span>
     <span class="n">total_cost_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"annual_indirect_program_cost"</span><span class="p">,</span> <span class="s2">"annual_total_cost"</span><span class="p">]</span>
 
@@ -3373,7 +3386,7 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># Split data into 2 tables:</span>
     <span class="c1">#  * Revenue (wide-to-tall)</span>
     <span class="c1">#  * Misc. (other)</span>
-    <span class="n">revenue_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">transformed_od</span> <span class="k">if</span> <span class="s2">"revenue"</span> <span class="ow">in</span> <span class="n">col</span><span class="p">]</span>
+    <span class="n">revenue_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">transformed_od</span> <span class="k">if</span> <span class="s2">"revenue"</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">col</span><span class="p">)]</span>
     <span class="n">transformed_od_misc</span> <span class="o">=</span> <span class="n">transformed_od</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">revenue_cols</span><span class="p">)</span>
     <span class="n">transformed_od_rev</span> <span class="o">=</span> <span class="n">transformed_od</span><span class="p">[</span>
         <span class="n">idx_cols</span> <span class="o">+</span> <span class="n">revenue_cols</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"data_maturity"</span><span class="p">]</span>
@@ -3523,16 +3536,18 @@ window.runMermaid = runMermaid;</script>
     <span class="p">)</span>
 
     <span class="c1"># Establish columns that are nerc regions vs. rtos</span>
-    <span class="n">nerc_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">raw_ud</span> <span class="k">if</span> <span class="s2">"nerc_region_operation"</span> <span class="ow">in</span> <span class="n">col</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span>
+    <span class="n">nerc_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">raw_ud</span> <span class="k">if</span> <span class="s2">"nerc_region_operation"</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">col</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[</span>
         <span class="s2">"data_maturity"</span>
     <span class="p">]</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">nerc_cols</span><span class="si">=}</span><span class="s2">"</span><span class="p">)</span>
-    <span class="n">rto_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">raw_ud</span> <span class="k">if</span> <span class="s2">"rto_operation"</span> <span class="ow">in</span> <span class="n">col</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"data_maturity"</span><span class="p">]</span>
+    <span class="n">rto_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">raw_ud</span> <span class="k">if</span> <span class="s2">"rto_operation"</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">col</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[</span>
+        <span class="s2">"data_maturity"</span>
+    <span class="p">]</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">rto_cols</span><span class="si">=}</span><span class="s2">"</span><span class="p">)</span>
     <span class="n">misc_cols</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">col</span>
         <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">raw_ud</span>
-        <span class="k">if</span> <span class="s2">"nerc_region_operation"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">col</span> <span class="ow">and</span> <span class="s2">"rto_operation"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">col</span>
+        <span class="k">if</span> <span class="s2">"nerc_region_operation"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">"rto_operation"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
     <span class="p">]</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">misc_cols</span><span class="si">=}</span><span class="s2">"</span><span class="p">)</span>
     <span class="c1"># Make separate tables for nerc vs. rto vs. misc data</span>
@@ -3668,7 +3683,7 @@ window.runMermaid = runMermaid;</script>
 <span class="p">)</span>
 <div class="viewcode-block" id="core_eia861__assn_utility">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/eia861/index.html#pudl.transform.eia861.core_eia861__assn_utility">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">core_eia861__assn_utility</span><span class="p">(</span><span class="o">**</span><span class="n">data_dfs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">core_eia861__assn_utility</span><span class="p">(</span><span class="o">**</span><span class="n">data_dfs</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Harvest a Utility-Date-State Association Table."""</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Building an EIA 861 Util-State-Date association table."</span><span class="p">)</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">_harvest_associations</span><span class="p">(</span>
@@ -3713,7 +3728,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="core_eia861__assn_balancing_authority">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/eia861/index.html#pudl.transform.eia861.core_eia861__assn_balancing_authority">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">core_eia861__assn_balancing_authority</span><span class="p">(</span>
-    <span class="o">**</span><span class="n">dfs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
+    <span class="o">**</span><span class="n">dfs</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Compile a balancing authority, utility, state association table.</span>
 

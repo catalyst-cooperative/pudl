@@ -1,0 +1,14 @@
+# PUDL
+
+> PUDL 2026.9.1.dev38 documentation
+
+
+2016-2026, Catalyst Cooperative, CC-BY-4.0
+
+## Pages in this subsection
+
+- [pudl.scripts.check_path_permissions](index.html.md): Check read, write, and delete permissions for local or remote paths.
+
+## Optional
+
+- [Top-level llms.txt](../../../../llms.txt): Complete documentation index.

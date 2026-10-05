@@ -1,0 +1,14 @@
+# PUDL
+
+> PUDL 2026.9.1.dev38 documentation
+
+
+2016-2026, Catalyst Cooperative, CC-BY-4.0
+
+## Pages in this subsection
+
+- [pudl.extract.dbf](index.html.md): Generalized DBF extractor for FERC data.
+
+## Optional
+
+- [Top-level llms.txt](../../../../llms.txt): Complete documentation index.

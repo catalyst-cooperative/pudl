@@ -1,0 +1,35 @@
+# PUDL
+
+> PUDL 2026.9.1.dev38 documentation
+
+
+2016-2026, Catalyst Cooperative, CC-BY-4.0
+
+## Pages in this subsection
+
+- [Developer Guide](index.html.md): &#42; Development Setup
+- [Development Setup](dev_setup.html.md): This page will walk you through what you need to do if you want to be able to contribute
+- [Running the ETL Pipeline](run_the_etl.html.md): So you want to run the PUDL data processing pipeline? This is the most involved way
+- [Troubleshooting Dagster](troubleshooting_dagster.html.md): When a new asset is added in the code it is not automatically added to the DAG in the
+- [Project Management](project_management.html.md): The people working on PUDL are distributed all over North America. Collaboration takes
+- [Testing PUDL](testing.html.md): We use pytest to specify software unit and integration tests,
+- [Data validation quickstart](data_validation_quickstart.html.md): The &#96;dbt/&#96; directory contains the PUDL dbt project which manages our data tests. dbt is part of the ...
+- [Data validation reference](data_validation_reference.html.md): In dbt, every data validation test is a SQL query meant to select rows that fail the
+- [Metadata editing guide](metadata.html.md): In PUDL, a dataset is called a source. For each source we archive, we record
+- [Building the Documentation](build_docs.html.md): We use Sphinx to build our documentation, and
+- [Working with the Datastore](datastore.html.md): The input data that PUDL processes comes from a variety of US government
+- [Converting raw FERC data to SQLite](clone_ferc1.html.md): FERC publishes its data (e.g. FERC Form 1 – Annual Report of Major Electric Utilities) in particular...
+- [Existing Data Updates](existing_data_updates.html.md): Many of the raw data inputs for PUDL are published on an annual or monthly basis. These
+- [Run a Versioned Release](run_a_release.html.md): So the time has come and we would like to release a &#96;stable&#96; version of our
+- [PUDL ID Mapping](pudl_id_mapping.html.md): Many of the same utilities are reporting data to FERC and EIA, but there is no official
+- [Naming Conventions](naming_conventions.html.md): &gt; &#42;There are only two hard problems in computer science: caching,
+- [Best practices for working with LLMs](llm_best_practices.html.md): &#42; Do not use agents for reasoning about data. Reasoning requires domain
+- [Data and ETL Design Guidelines](data_guidelines.html.md): Here we list some technical norms and expectations that we strive to adhere to
+- [Nightly Data Builds](nightly_data_builds.html.md): The complete ETL and tests are run each night on a Google Batch-managed VM
+- [FERC EQR Data Builds](ferceqr_data_builds.html.md): The FERC EQR ETL uses a very similar setup for running remote cloud builds as the
+- [Infrastructure as Code](infrastructure_as_code.html.md): We use terraform to manage some
+- [Managing External Contributions](managing_external_contributions.html.md): Looking to contribute to PUDL? The guidelines for external contributors can be found at
+
+## Optional
+
+- [Top-level llms.txt](../llms.txt): Complete documentation index.

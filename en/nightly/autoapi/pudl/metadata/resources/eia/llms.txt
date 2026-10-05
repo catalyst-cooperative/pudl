@@ -1,0 +1,14 @@
+# PUDL
+
+> PUDL 2026.9.1.dev38 documentation
+
+
+2016-2026, Catalyst Cooperative, CC-BY-4.0
+
+## Pages in this subsection
+
+- [pudl.metadata.resources.eia](index.html.md): Definitions of data tables primarily coming from EIA 860/861/923.
+
+## Optional
+
+- [Top-level llms.txt](../../../../../llms.txt): Complete documentation index.

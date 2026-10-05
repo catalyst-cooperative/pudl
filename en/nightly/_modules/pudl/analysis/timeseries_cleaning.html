@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.analysis.timeseries_cleaning &#8212; PUDL 2026.9.1.dev37 documentation</title>
+    <title>pudl.analysis.timeseries_cleaning &#8212; PUDL 2026.9.1.dev38 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../../../_static/documentation_options.js?v=bf8d6f1c"></script>
+    <script src="../../../_static/documentation_options.js?v=1dfa9e5b"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -495,8 +495,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev37 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev37 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev38 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev38 documentation - Home"/>
   
   
 </a></div>
@@ -906,7 +906,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Sequence</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">bottleneck</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">bn</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -915,8 +915,10 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">import</span><span class="w"> </span><span class="nn">scipy.stats</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">AssetCheckResult</span><span class="p">,</span>
+    <span class="n">AssetChecksDefinition</span><span class="p">,</span>
     <span class="n">AssetIn</span><span class="p">,</span>
     <span class="n">AssetOut</span><span class="p">,</span>
+    <span class="n">AssetsDefinition</span><span class="p">,</span>
     <span class="n">Output</span><span class="p">,</span>
     <span class="n">asset</span><span class="p">,</span>
     <span class="n">asset_check</span><span class="p">,</span>
@@ -1084,8 +1086,9 @@ window.runMermaid = runMermaid;</script>
     <span class="p">)</span>
 
     <span class="c1"># List timezone by year for each respondent by the datetime</span>
-    <span class="n">input_df</span><span class="p">[</span><span class="s2">"year"</span><span class="p">]</span> <span class="o">=</span> <span class="n">input_df</span><span class="p">[</span><span class="s2">"datetime"</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span>
-    <span class="k">return</span> <span class="n">input_df</span></div>
+    <span class="n">input_df</span><span class="p">[</span><span class="s2">"year"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">input_df</span><span class="p">[</span><span class="s2">"datetime"</span><span class="p">])</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span>
+    <span class="c1"># Columns were added in place above; pandera validates the new schema at runtime.</span>
+    <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">DataFrame</span><span class="p">[</span><span class="n">AlignedTimeseriesDataFrame</span><span class="p">],</span> <span class="n">input_df</span><span class="p">)</span></div>
 
 
 
@@ -1110,7 +1113,8 @@ window.runMermaid = runMermaid;</script>
     <span class="n">all_hours</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s2">"h"</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"datetime"</span><span class="p">)</span>
 
     <span class="c1"># Reindex matrix with all hours. This will fill in any missing hours with NULLS</span>
-    <span class="k">return</span> <span class="n">matrix</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">all_hours</span><span class="p">)</span></div>
+    <span class="c1"># pivot() is typed as preserving the input schema; it's really a TimeseriesMatrix.</span>
+    <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">DataFrame</span><span class="p">[</span><span class="n">TimeseriesMatrix</span><span class="p">],</span> <span class="n">matrix</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">all_hours</span><span class="p">))</span></div>
 
 
 
@@ -1126,7 +1130,8 @@ window.runMermaid = runMermaid;</script>
     <span class="n">flags</span> <span class="o">=</span> <span class="n">flag_matrix</span><span class="o">.</span><span class="n">melt</span><span class="p">(</span><span class="n">value_name</span><span class="o">=</span><span class="s2">"flags"</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
 
     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">flags</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">"id_col"</span><span class="p">,</span> <span class="s2">"datetime"</span><span class="p">],</span> <span class="n">validate</span><span class="o">=</span><span class="s2">"one_to_one"</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">df</span></div>
+    <span class="c1"># melt() is typed as preserving the input schema; it's really an aligned dataframe.</span>
+    <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">DataFrame</span><span class="p">[</span><span class="n">AlignedTimeseriesDataFrame</span><span class="p">],</span> <span class="n">df</span><span class="p">)</span></div>
 
 
 
@@ -1185,7 +1190,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">index</span><span class="o">=</span><span class="n">matrix</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
             <span class="n">columns</span><span class="o">=</span><span class="n">matrix</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span>
             <span class="n">flags</span><span class="o">=</span><span class="n">flags_array</span><span class="p">,</span>
-            <span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">(),</span>
+            <span class="n">uuid</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()),</span>
         <span class="p">)</span></div>
 
 
@@ -1218,7 +1223,7 @@ window.runMermaid = runMermaid;</script>
         <span class="bp">self</span><span class="o">.</span><span class="n">flags</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">flag</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="c1"># Null flagged values</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 </div>
 
@@ -1347,7 +1352,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">x</span><span class="p">:</span> <span class="n">Sequence</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">values</span><span class="p">:</span> <span class="n">Sequence</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">lengths</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
-    <span class="n">mask</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">mask</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">padding</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">intersect</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">rng</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1457,8 +1462,8 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># Sort insertions from longest to shortest</span>
     <span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">lengths</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">values</span><span class="p">)[</span><span class="n">order</span><span class="p">]</span>
-    <span class="n">lengths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">lengths</span><span class="p">)[</span><span class="n">order</span><span class="p">]</span>
-    <span class="k">for</span> <span class="n">value</span><span class="p">,</span> <span class="n">length</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">lengths</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="n">sorted_lengths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">lengths</span><span class="p">)[</span><span class="n">order</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">value</span><span class="p">,</span> <span class="n">length</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">sorted_lengths</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">length</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Run length must be greater than zero"</span><span class="p">)</span>
         <span class="c1"># Choose runs of adequate length</span>
@@ -1745,6 +1750,8 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># steps (leap year), so this makes the fit below deterministic for all current</span>
     <span class="c1"># production imputation without removing the subsampling path for any future</span>
     <span class="c1"># higher-resolution dataset that needs it.</span>
+    <span class="c1"># Only read when ``dim_time &gt; 1e4``, where one of the branches below applies.</span>
+    <span class="n">sample_rate</span> <span class="o">=</span> <span class="mf">1.0</span>
     <span class="k">if</span> <span class="n">dim_time</span> <span class="o">&gt;</span> <span class="mf">1e4</span> <span class="ow">and</span> <span class="n">dim_time</span> <span class="o">&lt;=</span> <span class="mf">2e4</span><span class="p">:</span>
         <span class="n">sample_rate</span> <span class="o">=</span> <span class="mf">0.2</span>
     <span class="k">elif</span> <span class="n">dim_time</span> <span class="o">&gt;</span> <span class="mf">2e4</span><span class="p">:</span>
@@ -2345,15 +2352,15 @@ window.runMermaid = runMermaid;</script>
     <span class="n">has_data</span> <span class="o">=</span> <span class="o">~</span><span class="n">df</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span>
     <span class="n">coverage</span> <span class="o">=</span> <span class="p">(</span>
         <span class="c1"># Last timestamp with demand in year</span>
-        <span class="n">has_data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">year</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">idxmax</span><span class="p">()</span>
+        <span class="n">has_data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">year</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">idxmax</span><span class="p">()</span>
         <span class="o">-</span>
         <span class="c1"># First timestamp with demand in year</span>
-        <span class="n">has_data</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">year</span><span class="p">)</span><span class="o">.</span><span class="n">idxmax</span><span class="p">()</span>
+        <span class="n">has_data</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">year</span><span class="p">)</span><span class="o">.</span><span class="n">idxmax</span><span class="p">()</span>
     <span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">x</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">days</span> <span class="o">*</span> <span class="mi">24</span> <span class="o">+</span> <span class="n">x</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">seconds</span> <span class="o">/</span> <span class="mi">3600</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-    <span class="n">fraction</span> <span class="o">=</span> <span class="n">has_data</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">year</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">coverage</span>
+    <span class="n">fraction</span> <span class="o">=</span> <span class="n">has_data</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">year</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">coverage</span>
     <span class="n">has_flags</span> <span class="o">=</span> <span class="p">(</span><span class="n">flags</span><span class="o">.</span><span class="n">notnull</span><span class="p">()</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">flags</span> <span class="o">!=</span> <span class="s2">"missing_value"</span><span class="p">))</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
-        <span class="n">flags</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">year</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">flags</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">year</span>
     <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span>
 
     <span class="c1"># Get mask of respondent-years for which there are fewer than min_data non-null hours</span>
@@ -2378,7 +2385,7 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span>
 
     <span class="c1"># Set all values in short or bad respondent-years to null</span>
-    <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">short</span> <span class="o">|</span> <span class="n">bad</span><span class="p">)</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">year</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">short</span> <span class="o">|</span> <span class="n">bad</span><span class="p">)</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">year</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">ts</span><span class="o">.</span><span class="n">flag</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">ImputationReasonCodes</span><span class="o">.</span><span class="n">BAD_YEAR</span><span class="p">)</span></div>
 
 
@@ -2443,7 +2450,11 @@ window.runMermaid = runMermaid;</script>
     <span class="p">)</span>
     <span class="n">ts</span> <span class="o">=</span> <span class="n">flag_anomalous_region</span><span class="p">(</span><span class="n">ts</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="n">window</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.15</span><span class="p">)</span>
     <span class="n">ts</span> <span class="o">=</span> <span class="n">flag_bad_years</span><span class="p">(</span><span class="n">ts</span><span class="p">,</span> <span class="n">min_data</span><span class="p">,</span> <span class="n">min_data_fraction</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">ts</span><span class="o">.</span><span class="n">to_dataframes</span><span class="p">()</span></div>
+    <span class="c1"># Plain frames from FlaggedTimeseries; pandera validates them as matrices on return.</span>
+    <span class="k">return</span> <span class="n">cast</span><span class="p">(</span>
+        <span class="nb">tuple</span><span class="p">[</span><span class="n">DataFrame</span><span class="p">[</span><span class="n">TimeseriesMatrix</span><span class="p">],</span> <span class="n">DataFrame</span><span class="p">[</span><span class="n">TimeseriesMatrix</span><span class="p">]],</span>
+        <span class="n">ts</span><span class="o">.</span><span class="n">to_dataframes</span><span class="p">(),</span>
+    <span class="p">)</span></div>
 
 
 
@@ -2618,7 +2629,11 @@ window.runMermaid = runMermaid;</script>
         <span class="n">idx</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="nb">slice</span><span class="p">(</span><span class="n">ends</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">ends</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]),</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
         <span class="n">tensor</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">imputer</span><span class="p">(</span><span class="n">tensor</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">unfold_tensor</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span></div>
+    <span class="c1"># Plain frame with the same index/columns as the input matrix.</span>
+    <span class="k">return</span> <span class="n">cast</span><span class="p">(</span>
+        <span class="n">DataFrame</span><span class="p">[</span><span class="n">TimeseriesMatrix</span><span class="p">],</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">),</span>
+    <span class="p">)</span></div>
 
 
 
@@ -2707,7 +2722,7 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># the newer years of data first. This is so we can see early if</span>
     <span class="c1"># new data causes any failures.</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_index</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">year</span><span class="p">,</span> <span class="n">gdf</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">year</span><span class="p">,</span> <span class="n">gdf</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="c1"># remove the records o/s of the working years because some</span>
         <span class="c1"># respondents report one record of midnight of January first</span>
         <span class="c1"># of the next year (report_date.dt.year + 1). and</span>
@@ -2718,8 +2733,9 @@ window.runMermaid = runMermaid;</script>
 
             <span class="c1"># Drop completely empty columns and impute</span>
             <span class="n">blank</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">gdf</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">()]</span>
+            <span class="c1"># groupby() chunks of a TimeseriesMatrix are still timeseries matrices.</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">impute</span><span class="p">(</span>
-                <span class="n">gdf</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">blank</span><span class="p">),</span>
+                <span class="n">cast</span><span class="p">(</span><span class="n">DataFrame</span><span class="p">[</span><span class="n">TimeseriesMatrix</span><span class="p">],</span> <span class="n">gdf</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">blank</span><span class="p">)),</span>
                 <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">[</span><span class="n">year</span><span class="p">],</span>
                 <span class="n">periods</span><span class="o">=</span><span class="n">periods</span><span class="p">,</span>
                 <span class="n">blocks</span><span class="o">=</span><span class="n">blocks</span><span class="p">,</span>
@@ -2728,7 +2744,7 @@ window.runMermaid = runMermaid;</script>
             <span class="c1"># Add empty columns back and save result</span>
             <span class="n">result</span><span class="p">[</span><span class="n">blank</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
             <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">results</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">DataFrame</span><span class="p">[</span><span class="n">TimeseriesMatrix</span><span class="p">],</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">results</span><span class="p">))</span></div>
 
 
 
@@ -2867,11 +2883,13 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    """</span>
     <span class="c1"># Add a column to both dataframes, which contains the start date of the month</span>
     <span class="c1"># In the ``datetime`` column.</span>
-    <span class="n">simulation_df</span><span class="p">[</span><span class="s2">"period"</span><span class="p">]</span> <span class="o">=</span> <span class="n">simulation_df</span><span class="p">[</span><span class="s2">"reference_month"</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">to_period</span><span class="p">(</span><span class="s2">"M"</span><span class="p">)</span>
-    <span class="n">imputed_df</span><span class="p">[</span><span class="s2">"period"</span><span class="p">]</span> <span class="o">=</span> <span class="n">imputed_df</span><span class="p">[</span><span class="s2">"datetime"</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">to_period</span><span class="p">(</span><span class="s2">"M"</span><span class="p">)</span>
+    <span class="n">simulation_df</span><span class="p">[</span><span class="s2">"period"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
+        <span class="n">simulation_df</span><span class="p">[</span><span class="s2">"reference_month"</span><span class="p">]</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">to_period</span><span class="p">(</span><span class="s2">"M"</span><span class="p">)</span>
+    <span class="n">imputed_df</span><span class="p">[</span><span class="s2">"period"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">imputed_df</span><span class="p">[</span><span class="s2">"datetime"</span><span class="p">])</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">to_period</span><span class="p">(</span><span class="s2">"M"</span><span class="p">)</span>
 
     <span class="c1"># Merge on month and ID to get a DataFrame with all hours in the reference months</span>
-    <span class="n">simulation_df</span> <span class="o">=</span> <span class="n">imputed_df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+    <span class="n">merged_df</span> <span class="o">=</span> <span class="n">imputed_df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
         <span class="n">simulation_df</span><span class="p">,</span>
         <span class="n">left_on</span><span class="o">=</span><span class="p">[</span><span class="s2">"id_col"</span><span class="p">,</span> <span class="s2">"period"</span><span class="p">],</span>
         <span class="n">right_on</span><span class="o">=</span><span class="p">[</span><span class="s2">"reference_id_col"</span><span class="p">,</span> <span class="s2">"period"</span><span class="p">],</span>
@@ -2880,7 +2898,7 @@ window.runMermaid = runMermaid;</script>
     <span class="p">)</span>
 
     <span class="c1"># Filter to hours where values were flagged (NULL) in reference month</span>
-    <span class="n">flagged</span> <span class="o">=</span> <span class="n">simulation_df</span><span class="p">[</span><span class="n">simulation_df</span><span class="p">[</span><span class="s2">"flags"</span><span class="p">]</span><span class="o">.</span><span class="n">notnull</span><span class="p">()]</span>
+    <span class="n">flagged</span> <span class="o">=</span> <span class="n">merged_df</span><span class="p">[</span><span class="n">merged_df</span><span class="p">[</span><span class="s2">"flags"</span><span class="p">]</span><span class="o">.</span><span class="n">notnull</span><span class="p">()]</span>
 
     <span class="c1"># For each flagged value in a reference month, get the number of hours after midnight</span>
     <span class="c1"># of the first day of the month for this value. Then, use this timedelta to find</span>
@@ -2892,8 +2910,8 @@ window.runMermaid = runMermaid;</script>
 
     <span class="c1"># Drop hours that crossed over into the next month</span>
     <span class="n">flagged</span> <span class="o">=</span> <span class="n">flagged</span><span class="p">[</span>
-        <span class="n">flagged</span><span class="p">[</span><span class="s2">"simulation_datetime"</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">to_period</span><span class="p">(</span><span class="s2">"M"</span><span class="p">)</span>
-        <span class="o">==</span> <span class="n">flagged</span><span class="p">[</span><span class="s2">"simulation_month"</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">to_period</span><span class="p">(</span><span class="s2">"M"</span><span class="p">)</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">flagged</span><span class="p">[</span><span class="s2">"simulation_datetime"</span><span class="p">])</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">to_period</span><span class="p">(</span><span class="s2">"M"</span><span class="p">)</span>
+        <span class="o">==</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">flagged</span><span class="p">[</span><span class="s2">"simulation_month"</span><span class="p">])</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">to_period</span><span class="p">(</span><span class="s2">"M"</span><span class="p">)</span>
     <span class="p">]</span>
 
     <span class="c1"># Append column with simulated flags to imputed dataframe</span>
@@ -2997,14 +3015,16 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># Use reference month to get hours which should be flagged in simulation month</span>
     <span class="n">imputed_df</span> <span class="o">=</span> <span class="n">_add_simulated_flag_col</span><span class="p">(</span>
         <span class="n">imputed_df</span><span class="p">,</span>
-        <span class="n">simulation_df</span><span class="p">,</span>
+        <span class="n">cast</span><span class="p">(</span><span class="n">DataFrame</span><span class="p">[</span><span class="n">SimulationDataFrame</span><span class="p">],</span> <span class="n">simulation_df</span><span class="p">),</span>  <span class="c1"># built by pd.concat</span>
     <span class="p">)</span>
 
     <span class="c1"># Pivot simulated flag column to get mask which can be used to flag a timeseries matrix</span>
     <span class="n">flags</span> <span class="o">=</span> <span class="n">pivot_aligned_timeseries_dataframe</span><span class="p">(</span><span class="n">imputed_df</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">"simulated_flags"</span><span class="p">)</span>
     <span class="n">flags</span><span class="p">[</span><span class="n">flags</span><span class="o">.</span><span class="n">isna</span><span class="p">()]</span> <span class="o">=</span> <span class="kc">False</span>
 
-    <span class="k">return</span> <span class="n">flags</span><span class="p">,</span> <span class="nb">set</span><span class="p">(</span><span class="n">simulation_df</span><span class="p">[</span><span class="s2">"simulation_month"</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span></div>
+    <span class="k">return</span> <span class="n">flags</span><span class="p">,</span> <span class="nb">set</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">simulation_df</span><span class="p">[</span><span class="s2">"simulation_month"</span><span class="p">])</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+    <span class="p">)</span></div>
 
 
 
@@ -3104,7 +3124,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">output_io_manager_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"parquet_io_manager"</span><span class="p">,</span>
     <span class="n">op_tags</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">settings</span><span class="p">:</span> <span class="n">ImputeTimeseriesSettings</span> <span class="o">=</span> <span class="n">ImputeTimeseriesSettings</span><span class="p">(),</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">AssetsDefinition</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">AssetsDefinition</span><span class="p">],</span> <span class="n">AssetChecksDefinition</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Produces assets to impute values for a given timeseries table/column.</span>
 
 <span class="sd">    This factory function produces a set of assets which perform timeseries imputation</span>
@@ -3233,8 +3253,9 @@ window.runMermaid = runMermaid;</script>
         <span class="n">matrix</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Flag/Null anomalous and missing values."""</span>
+        <span class="c1"># Assets receive plain frames from the IO manager; pandera validates on call.</span>
         <span class="n">matrix</span><span class="p">,</span> <span class="n">flags</span> <span class="o">=</span> <span class="n">flag_ruggles</span><span class="p">(</span>
-            <span class="n">matrix</span><span class="p">,</span>
+            <span class="n">cast</span><span class="p">(</span><span class="n">DataFrame</span><span class="p">[</span><span class="n">TimeseriesMatrix</span><span class="p">],</span> <span class="n">matrix</span><span class="p">),</span>
             <span class="n">min_data</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">min_data</span><span class="p">,</span>
             <span class="n">min_data_fraction</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">min_data_fraction</span><span class="p">,</span>
         <span class="p">)</span>
@@ -3270,15 +3291,20 @@ window.runMermaid = runMermaid;</script>
         <span class="c1"># Impute flagged/missing values</span>
         <span class="n">years</span> <span class="o">=</span> <span class="n">years_from_context</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
         <span class="n">method</span> <span class="o">=</span> <span class="n">_resolve_imputation_methods</span><span class="p">(</span><span class="n">years</span><span class="p">,</span> <span class="n">settings</span><span class="p">)</span>
+        <span class="c1"># Assets receive plain frames from the IO manager; pandera validates on call.</span>
         <span class="n">imputed_matrix</span> <span class="o">=</span> <span class="n">impute_flagged_values</span><span class="p">(</span>
-            <span class="n">matrix</span><span class="p">,</span>
+            <span class="n">cast</span><span class="p">(</span><span class="n">DataFrame</span><span class="p">[</span><span class="n">TimeseriesMatrix</span><span class="p">],</span> <span class="n">matrix</span><span class="p">),</span>
             <span class="n">years</span><span class="o">=</span><span class="n">years</span><span class="p">,</span>
             <span class="n">periods</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">periods</span><span class="p">,</span>
             <span class="n">blocks</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">blocks</span><span class="p">,</span>
             <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">_merge_imputed</span><span class="p">(</span><span class="n">aligned_df</span><span class="p">,</span> <span class="n">imputed_matrix</span><span class="p">,</span> <span class="n">flags</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_merge_imputed</span><span class="p">(</span>
+            <span class="n">cast</span><span class="p">(</span><span class="n">DataFrame</span><span class="p">[</span><span class="n">AlignedTimeseriesDataFrame</span><span class="p">],</span> <span class="n">aligned_df</span><span class="p">),</span>
+            <span class="n">imputed_matrix</span><span class="p">,</span>
+            <span class="n">cast</span><span class="p">(</span><span class="n">DataFrame</span><span class="p">[</span><span class="n">TimeseriesMatrix</span><span class="p">],</span> <span class="n">flags</span><span class="p">),</span>
+        <span class="p">)</span>
 
     <span class="nd">@asset</span><span class="p">(</span>
         <span class="n">ins</span><span class="o">=</span><span class="p">{</span>
@@ -3330,12 +3356,17 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        years that contain simulated flags, as we do imputation 1 year at a time, so</span>
 <span class="sd">        including years without simulated data would have no impact on the results.</span>
 <span class="sd">        """</span>
+        <span class="c1"># These assets are only returned when simulation settings are provided.</span>
+        <span class="n">simulate_flags_settings</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">simulate_flags_settings</span>
+        <span class="k">assert</span> <span class="n">simulate_flags_settings</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="n">simulated_years</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="n">ts</span> <span class="o">=</span> <span class="n">FlaggedTimeseries</span><span class="o">.</span><span class="n">from_timeseries_matrix</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">simulation_group</span> <span class="ow">in</span> <span class="n">imputed_df</span><span class="p">[</span><span class="s2">"simulation_group"</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
             <span class="c1"># Get simulated flag mask for simulation group and set of years with simulated flags</span>
             <span class="n">mask</span><span class="p">,</span> <span class="n">years</span> <span class="o">=</span> <span class="n">get_simulated_flag_mask</span><span class="p">(</span>
-                <span class="n">settings</span><span class="o">.</span><span class="n">simulate_flags_settings</span><span class="p">,</span> <span class="n">imputed_df</span><span class="p">,</span> <span class="n">simulation_group</span>
+                <span class="n">simulate_flags_settings</span><span class="p">,</span>
+                <span class="n">cast</span><span class="p">(</span><span class="n">DataFrame</span><span class="p">[</span><span class="n">AlignedTimeseriesDataFrame</span><span class="p">],</span> <span class="n">imputed_df</span><span class="p">),</span>
+                <span class="n">simulation_group</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">simulated_years</span> <span class="o">|=</span> <span class="n">years</span>
 
@@ -3352,11 +3383,11 @@ window.runMermaid = runMermaid;</script>
         <span class="k">return</span> <span class="p">(</span>
             <span class="n">Output</span><span class="p">(</span>
                 <span class="n">output_name</span><span class="o">=</span><span class="n">simulated_timeseries_matrix_asset</span><span class="p">,</span>
-                <span class="n">value</span><span class="o">=</span><span class="n">matrix</span><span class="p">[</span><span class="n">matrix</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">year</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">simulated_years</span><span class="p">)],</span>
+                <span class="n">value</span><span class="o">=</span><span class="n">matrix</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">year</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">simulated_years</span><span class="p">)],</span>
             <span class="p">),</span>
             <span class="n">Output</span><span class="p">(</span>
                 <span class="n">output_name</span><span class="o">=</span><span class="n">simulated_flags_asset</span><span class="p">,</span>
-                <span class="n">value</span><span class="o">=</span><span class="n">flags</span><span class="p">[</span><span class="n">flags</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">year</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">simulated_years</span><span class="p">)],</span>
+                <span class="n">value</span><span class="o">=</span><span class="n">flags</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">flags</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">year</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">simulated_years</span><span class="p">)],</span>
             <span class="p">),</span>
         <span class="p">)</span>
 
@@ -3380,14 +3411,19 @@ window.runMermaid = runMermaid;</script>
         <span class="c1"># Impute flagged/missing values</span>
         <span class="n">years</span> <span class="o">=</span> <span class="n">years_from_context</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
         <span class="n">method</span> <span class="o">=</span> <span class="n">_resolve_imputation_methods</span><span class="p">(</span><span class="n">years</span><span class="p">,</span> <span class="n">settings</span><span class="p">)</span>
+        <span class="c1"># Assets receive plain frames from the IO manager; pandera validates on call.</span>
         <span class="n">imputed_matrix</span> <span class="o">=</span> <span class="n">impute_flagged_values</span><span class="p">(</span>
-            <span class="n">matrix</span><span class="p">,</span>
+            <span class="n">cast</span><span class="p">(</span><span class="n">DataFrame</span><span class="p">[</span><span class="n">TimeseriesMatrix</span><span class="p">],</span> <span class="n">matrix</span><span class="p">),</span>
             <span class="n">years</span><span class="o">=</span><span class="n">years</span><span class="p">,</span>
             <span class="n">periods</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">periods</span><span class="p">,</span>
             <span class="n">blocks</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">blocks</span><span class="p">,</span>
             <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="n">_merge_imputed</span><span class="p">(</span><span class="n">aligned_df</span><span class="p">,</span> <span class="n">imputed_matrix</span><span class="p">,</span> <span class="n">flags</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_merge_imputed</span><span class="p">(</span>
+            <span class="n">cast</span><span class="p">(</span><span class="n">DataFrame</span><span class="p">[</span><span class="n">AlignedTimeseriesDataFrame</span><span class="p">],</span> <span class="n">aligned_df</span><span class="p">),</span>
+            <span class="n">imputed_matrix</span><span class="p">,</span>
+            <span class="n">cast</span><span class="p">(</span><span class="n">DataFrame</span><span class="p">[</span><span class="n">TimeseriesMatrix</span><span class="p">],</span> <span class="n">flags</span><span class="p">),</span>
+        <span class="p">)</span>
 
     <span class="nd">@asset</span><span class="p">(</span>
         <span class="n">ins</span><span class="o">=</span><span class="p">{</span>
@@ -3431,8 +3467,9 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        metric used is ``mean_absolute_percentage_error`` as percent error is more</span>
 <span class="sd">        robust to magnitude changes in the underlying data than total error.</span>
 <span class="sd">        """</span>
-        <span class="n">mape_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">mape_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">gdf</span> <span class="ow">in</span> <span class="n">simulated_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"simulation_group"</span><span class="p">):</span>
+            <span class="n">group_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">group_name</span><span class="p">)</span>
             <span class="c1"># Get just rows where we simultated NULLS</span>
             <span class="n">simulated_gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="n">gdf</span><span class="p">[</span><span class="s2">"flags"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"simulated"</span><span class="p">]</span>
 
@@ -3461,9 +3498,12 @@ window.runMermaid = runMermaid;</script>
         <span class="n">blocking</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_check_score</span><span class="p">(</span><span class="n">mape_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]):</span>
+        <span class="c1"># This check is only returned when simulation settings are provided.</span>
+        <span class="n">simulate_flags_settings</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">simulate_flags_settings</span>
+        <span class="k">assert</span> <span class="n">simulate_flags_settings</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="n">AssetCheckResult</span><span class="p">(</span>
             <span class="n">passed</span><span class="o">=</span><span class="nb">all</span><span class="p">(</span>
-                <span class="n">mape</span> <span class="o">&lt;</span> <span class="n">settings</span><span class="o">.</span><span class="n">simulate_flags_settings</span><span class="o">.</span><span class="n">mape_threshold</span>
+                <span class="n">mape</span> <span class="o">&lt;</span> <span class="n">simulate_flags_settings</span><span class="o">.</span><span class="n">mape_threshold</span>
                 <span class="k">for</span> <span class="n">mape</span> <span class="ow">in</span> <span class="n">mape_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
             <span class="p">),</span>
             <span class="n">metadata</span><span class="o">=</span><span class="n">mape_dict</span><span class="p">,</span>

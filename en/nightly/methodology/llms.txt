@@ -1,0 +1,18 @@
+# PUDL
+
+> PUDL 2026.9.1.dev38 documentation
+
+
+2016-2026, Catalyst Cooperative, CC-BY-4.0
+
+## Pages in this subsection
+
+- [Methodology](index.html.md): This section of the PUDL documentation describes our methodologies for more involved
+- [Entity Resolution](entity_resolution.html.md): Many of the datasets PUDL processes report the same information about individual
+- [Timeseries Imputation](timeseries_imputation.html.md): In energy systems there are many instances of correlated timeseries data that have some
+- [SEC 10-K Ownership Data Extraction Modeling](sec10k_modeling.html.md): Utilities are often part of a nested hierarchy of holding companies and their
+- [Generator Operational Characteristics](operational_characteristics.html.md): Production cost models, capacity expansion models, and other power system planning
+
+## Optional
+
+- [Top-level llms.txt](../llms.txt): Complete documentation index.

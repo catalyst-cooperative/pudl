@@ -1,0 +1,14 @@
+# PUDL
+
+> PUDL 2026.9.1.dev38 documentation
+
+
+2016-2026, Catalyst Cooperative, CC-BY-4.0
+
+## Pages in this subsection
+
+- [pudl.transform.vcerare](index.html.md): Transformations of the Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset.
+
+## Optional
+
+- [Top-level llms.txt](../../../../llms.txt): Complete documentation index.

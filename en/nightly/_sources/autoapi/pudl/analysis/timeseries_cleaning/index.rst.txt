@@ -383,7 +383,7 @@ Module Contents
    (array([nan,  1., nan,  1.]), array([1, 2, 1, 1]))
 
 
-.. py:function:: insert_run_length(x: collections.abc.Sequence | numpy.ndarray, values: collections.abc.Sequence | numpy.ndarray, lengths: collections.abc.Sequence[int], mask: collections.abc.Sequence[bool] | None = None, padding: int = 0, intersect: bool = False, rng: numpy.random.Generator | None = None) -> numpy.ndarray
+.. py:function:: insert_run_length(x: collections.abc.Sequence | numpy.ndarray, values: collections.abc.Sequence | numpy.ndarray, lengths: collections.abc.Sequence[int], mask: collections.abc.Sequence[bool] | numpy.ndarray | None = None, padding: int = 0, intersect: bool = False, rng: numpy.random.Generator | None = None) -> numpy.ndarray
 
    Insert run-length encoded values into a vector.
 
@@ -1106,7 +1106,7 @@ Module Contents
    Map each year being imputed to the method that should be used for it.
 
 
-.. py:function:: impute_timeseries_asset_factory(input_asset_name: str, output_asset_name: str, years_from_context: collections.abc.Callable, id_col: str, value_col: str = 'demand_mwh', imputed_value_col: str = 'demand_imputed_mwh', reported_value_col: str = 'demand_reported_mwh', simulation_group_col: str | None = None, output_io_manager_key: str = 'parquet_io_manager', op_tags: dict[str, Any] | None = None, settings: ImputeTimeseriesSettings = ImputeTimeseriesSettings()) -> pandas.DataFrame
+.. py:function:: impute_timeseries_asset_factory(input_asset_name: str, output_asset_name: str, years_from_context: collections.abc.Callable, id_col: str, value_col: str = 'demand_mwh', imputed_value_col: str = 'demand_imputed_mwh', reported_value_col: str = 'demand_reported_mwh', simulation_group_col: str | None = None, output_io_manager_key: str = 'parquet_io_manager', op_tags: dict[str, Any] | None = None, settings: ImputeTimeseriesSettings = ImputeTimeseriesSettings()) -> list[dagster.AssetsDefinition] | tuple[list[dagster.AssetsDefinition], dagster.AssetChecksDefinition]
 
    Produces assets to impute values for a given timeseries table/column.
 

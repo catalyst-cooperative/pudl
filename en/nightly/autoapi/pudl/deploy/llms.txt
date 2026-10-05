@@ -1,0 +1,17 @@
+# PUDL
+
+> PUDL 2026.9.1.dev38 documentation
+
+
+2016-2026, Catalyst Cooperative, CC-BY-4.0
+
+## Pages in this subsection
+
+- [pudl.deploy](index.html.md): Deployment helpers for publishing PUDL build artifacts and services.
+- [pudl.deploy.pudl](pudl/index.html.md): Distribute PUDL ETL outputs to cloud storage and update git branches.
+- [pudl.deploy.s3_transfer](s3_transfer/index.html.md): Fast bulk uploads to, and server-side copies within, Amazon S3.
+- [pudl.deploy.zenodo_metadata](zenodo_metadata/index.html.md): Gather Zenodo deposition metadata for a PUDL data release from repo sources.
+
+## Optional
+
+- [Top-level llms.txt](../../../llms.txt): Complete documentation index.

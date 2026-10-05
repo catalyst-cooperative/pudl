@@ -1,0 +1,36 @@
+# PUDL
+
+> PUDL 2026.9.1.dev38 documentation
+
+
+2016-2026, Catalyst Cooperative, CC-BY-4.0
+
+## Pages in this subsection
+
+- [pudl.analysis](index.html.md): Modules providing programmatic analyses that make use of PUDL data.
+- [pudl.analysis.allocate_gen_fuel](allocate_gen_fuel/index.html.md): Allocate data from core_eia923&#95;&#92;&#95;monthly_generation_fuel table to generator level.
+- [pudl.analysis.fuel_by_plant](fuel_by_plant/index.html.md): Calculates useful FERC Form 1 fuel metrics on a per plant-year basis.
+- [pudl.analysis.mcoe](mcoe/index.html.md): A module with functions to aid generating MCOE.
+- [pudl.analysis.ml_tools](ml_tools/index.html.md): Implements shared tooling for machine learning models in PUDL.
+- [pudl.analysis.ml_tools.experiment_tracking](ml_tools/experiment_tracking/index.html.md): This module implements experiment tracking tooling using mlflow as a backend.
+- [pudl.analysis.ml_tools.models](ml_tools/models/index.html.md): Provides tooling for developing/tracking ML models within PUDL.
+- [pudl.analysis.operational_characteristics](operational_characteristics/index.html.md): Use EPA CEMS and EIA data to estimate generator operational characteristics.
+- [pudl.analysis.plant_parts_eia](plant_parts_eia/index.html.md): Aggregate plant parts to make an EIA master plant-part table.
+- [pudl.analysis.record_linkage](record_linkage/index.html.md): This module implements models for various forms of record linkage.
+- [pudl.analysis.record_linkage.classify_plants_ferc1](record_linkage/classify_plants_ferc1/index.html.md): Scikit-Learn classification pipeline for identifying related FERC 1 plant records.
+- [pudl.analysis.record_linkage.eia_ferc1_inputs](record_linkage/eia_ferc1_inputs/index.html.md): Prepare the inputs to the FERC1 to EIA record linkage model.
+- [pudl.analysis.record_linkage.eia_ferc1_model_config](record_linkage/eia_ferc1_model_config/index.html.md): The model parameters for the FERC1 to EIA splink record linkage model.
+- [pudl.analysis.record_linkage.eia_ferc1_record_linkage](record_linkage/eia_ferc1_record_linkage/index.html.md): Connect FERC1 plant tables to EIA’s plant-parts with record linkage.
+- [pudl.analysis.record_linkage.eia_ferc1_train](record_linkage/eia_ferc1_train/index.html.md): Create spreadsheets for manually mapping FERC-EIA records and validate matches.
+- [pudl.analysis.record_linkage.embed_dataframe](record_linkage/embed_dataframe/index.html.md): Tools for embedding a DataFrame to create feature matrix for models.
+- [pudl.analysis.record_linkage.link_cross_year](record_linkage/link_cross_year/index.html.md): Define a record linkage model interface and implement common functionality.
+- [pudl.analysis.record_linkage.name_cleaner](record_linkage/name_cleaner/index.html.md): This module contains the implementation of CompanyNameCleaner class from OS-Climate’s financial-enti...
+- [pudl.analysis.service_territory](service_territory/index.html.md): Compile historical utility and balancing area territories.
+- [pudl.analysis.spatial](spatial/index.html.md): Spatial operations for demand allocation.
+- [pudl.analysis.state_demand](state_demand/index.html.md): Estimate historical hourly state-level electricity demand.
+- [pudl.analysis.timeseries_cleaning](timeseries_cleaning/index.html.md): Screen timeseries for anomalies and impute missing and anomalous values.
+- [pudl.analysis.timeseries_evaluation](timeseries_evaluation/index.html.md): Routines for evaluating and visualizing timeseries data.
+
+## Optional
+
+- [Top-level llms.txt](../../../llms.txt): Complete documentation index.

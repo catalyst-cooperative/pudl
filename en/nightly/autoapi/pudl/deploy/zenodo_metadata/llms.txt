@@ -1,0 +1,14 @@
+# PUDL
+
+> PUDL 2026.9.1.dev38 documentation
+
+
+2016-2026, Catalyst Cooperative, CC-BY-4.0
+
+## Pages in this subsection
+
+- [pudl.deploy.zenodo_metadata](index.html.md): Gather Zenodo deposition metadata for a PUDL data release from repo sources.
+
+## Optional
+
+- [Top-level llms.txt](../../../../llms.txt): Complete documentation index.

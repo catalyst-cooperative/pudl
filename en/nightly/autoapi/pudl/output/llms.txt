@@ -1,0 +1,24 @@
+# PUDL
+
+> PUDL 2026.9.1.dev38 documentation
+
+
+2016-2026, Catalyst Cooperative, CC-BY-4.0
+
+## Pages in this subsection
+
+- [pudl.output](index.html.md): Useful post-processing and denormalized outputs based on PUDL core tables.
+- [pudl.output.censusdp1tract](censusdp1tract/index.html.md): Functions for reading data out of the Census DP1 SQLite Database.
+- [pudl.output.eia](eia/index.html.md): A collection of denormalized EIA assets.
+- [pudl.output.eia860](eia860/index.html.md): Denormalized versions of the EIA 860 tables.
+- [pudl.output.eia923](eia923/index.html.md): Denormalized, aggregated, and filled versions of the basic EIA-923 tables.
+- [pudl.output.eia930](eia930/index.html.md): Functions for compiling derived aspects of the EIA 930 data.
+- [pudl.output.eiaapi](eiaapi/index.html.md): Interim and output tables derived from the EIA Bulk Electricity data.
+- [pudl.output.ferc1](ferc1/index.html.md): A collection of denormalized FERC assets and helper functions.
+- [pudl.output.ferc714](ferc714/index.html.md): Functions &amp; classes for compiling derived aspects of the FERC Form 714 data.
+- [pudl.output.rus](rus/index.html.md): Create output tables for RUS-7 and RUS-12.
+- [pudl.output.sec10k](sec10k/index.html.md): Denormalized output tables for the SEC 10-K assets.
+
+## Optional
+
+- [Top-level llms.txt](../../../llms.txt): Complete documentation index.

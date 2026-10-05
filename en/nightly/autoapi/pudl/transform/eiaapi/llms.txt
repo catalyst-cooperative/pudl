@@ -1,0 +1,14 @@
+# PUDL
+
+> PUDL 2026.9.1.dev38 documentation
+
+
+2016-2026, Catalyst Cooperative, CC-BY-4.0
+
+## Pages in this subsection
+
+- [pudl.transform.eiaapi](index.html.md): Clean and normalize EIA bulk electricity data.
+
+## Optional
+
+- [Top-level llms.txt](../../../../llms.txt): Complete documentation index.
