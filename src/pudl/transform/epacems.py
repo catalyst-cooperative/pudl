@@ -140,7 +140,9 @@ def _load_plant_utc_offset(core_eia__entity_plants: pl.DataFrame) -> pl.DataFram
         .drop_nulls()
         .unique()
         .with_columns(
-            utc_offset=pl.col("timezone").replace(timezone_offset_map, default=None)
+            utc_offset=pl.col("timezone").replace_strict(
+                timezone_offset_map, default=None
+            )
         )
         .select(["plant_id_eia", "utc_offset"])
     )
