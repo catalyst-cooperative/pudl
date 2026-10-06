@@ -31,7 +31,7 @@ from pudl.deploy.s3_transfer import copy_objects as s3_copy_objects
 from pudl.deploy.s3_transfer import upload_files as s3_upload_files
 from pudl.helpers import ParquetData
 from pudl.logging_helpers import get_logger
-from pudl.metadata.classes import PUDL_PACKAGE
+from pudl.metadata.classes import FERCEQR_PACKAGE
 from pudl.metadata.sources import SOURCES
 from pudl.workspace.setup import PudlPaths
 
@@ -689,9 +689,7 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
     # even when there is nothing to publish, so it can be reviewed and tested as
     # a development artifact.
     datapackage_path = Path(pudl_paths.pudl_output) / DATAPACKAGE_FILENAME
-    PUDL_PACKAGE.to_frictionless(include_pattern=r"core_ferceqr.*").to_json(
-        str(datapackage_path)
-    )
+    FERCEQR_PACKAGE.to_frictionless().to_json(str(datapackage_path))
 
     targets = _deployment_targets(ferceqr_deployment.resolved_targets())
     if not targets:
