@@ -67,6 +67,7 @@ def harmonize_eia_epa_orispl(
         on=["plant_id_epa", "emissions_unit_id_epa"],
         how="left",
         coalesce=True,
+        maintain_order="left",
     ).with_columns(pl.col("plant_id_eia").fill_null(pl.col("plant_id_epa")))
 
 
