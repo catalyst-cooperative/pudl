@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 from dagster import Field, asset
 
-import pudl.helpers
 import pudl.logging_helpers
+from pudl.helpers import add_fips_ids, clean_eia_counties, organize_cols
 from pudl.transform.eia import occurrence_consistency
 from pudl.transform.eia861 import add_backfilled_ba_code_column
 
@@ -49,7 +49,7 @@ def out_eia__yearly_utilities(
         "utility_id_pudl",
         "utility_name_eia",
     ]
-    out_df = pudl.helpers.organize_cols(out_df, first_cols)
+    out_df = organize_cols(out_df, first_cols)
     return out_df
 
 
@@ -121,6 +121,7 @@ def _out_eia__yearly_generators(
     core_eia__entity_plants: pd.DataFrame,
     _out_eia__plants_utilities: pd.DataFrame,
     core_eia860__assn_boiler_generator: pd.DataFrame,
+    _core_censuspep__yearly_geocodes: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull all fields from the EIA Utilities table.
 
@@ -322,10 +323,15 @@ def _out_eia__yearly_generators(
     ]
 
     # Re-arrange the columns for easier readability:
-    out_df = pudl.helpers.organize_cols(out_df, first_cols).sort_values(
+    out_df = organize_cols(out_df, first_cols).sort_values(
         ["report_date", "plant_id_eia", "generator_id"]
     )
-
+    out_df = (
+        # Ensure that we have the canonical US Census county names:
+        clean_eia_counties(out_df, fixes=pudl.transform.eia861.EIA_FIPS_COUNTY_FIXES)
+        # Add FIPS IDs based on county & state names:
+        .pipe(add_fips_ids, _core_censuspep__yearly_geocodes, county_col="county")
+    )
     return out_df
 
 
@@ -406,7 +412,7 @@ def out_eia__yearly_boilers(
     ]
 
     # Re-arrange the columns for easier readability:
-    out_df = pudl.helpers.organize_cols(out_df, first_cols).sort_values(
+    out_df = organize_cols(out_df, first_cols).sort_values(
         ["report_date", "plant_id_eia", "boiler_id"]
     )
 

@@ -1509,6 +1509,8 @@ estimates.
                 "winter_capacity_mw",
                 "winter_estimated_capability_mw",
                 "zip_code",
+                "state_id_fips",
+                "county_id_fips",
             ],
             "primary_key": [
                 "report_date",

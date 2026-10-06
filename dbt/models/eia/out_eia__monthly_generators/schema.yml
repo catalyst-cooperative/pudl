@@ -503,3 +503,5 @@ sources:
           - name: winter_capacity_mw
           - name: winter_estimated_capability_mw
           - name: zip_code
+          - name: state_id_fips
+          - name: county_id_fips
