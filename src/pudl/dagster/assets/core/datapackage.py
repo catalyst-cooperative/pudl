@@ -159,25 +159,6 @@ def _enrich_sources(
             )
 
 
-def _propagate_source_enrichments(descriptor: dict) -> None:
-    """Copy doi and documentation from top-level sources into resource-level source entries.
-
-    ``_enrich_sources`` mutates the top-level ``sources`` array but the same
-    source objects embedded in each resource's ``sources`` array are serialised
-    before enrichment and never see those additions.  This function builds a
-    lookup from the (now-enriched) top-level entries and copies only the runtime
-    fields into every matching resource-level source dict.
-    """
-    runtime_fields = ("doi", "documentation")
-    enriched = {
-        s["name"]: {k: s[k] for k in runtime_fields if k in s}
-        for s in descriptor.get("sources", [])
-    }
-    for resource in descriptor.get("resources", []):
-        for src in resource.get("sources", []):
-            src.update(enriched.get(src.get("name", ""), {}))
-
-
 def _enrich_resources(
     descriptor: dict,
     dag_metadata: dict[str, dict],
@@ -236,9 +217,7 @@ def build_pudl_datapackage_asset(
     def pudl_datapackage(
         context: dg.AssetExecutionContext,
     ) -> dg.MaterializeResult:
-        package = PUDL_PACKAGE.to_frictionless(
-            exclude_pattern=_FERCEQR_EXCLUDE_PATTERN,
-        )
+        package = PUDL_PACKAGE.to_frictionless()
         dag_metadata = _collect_dagster_file_metadata(
             context.instance, parquet_asset_keys
         )
@@ -252,7 +231,6 @@ def build_pudl_datapackage_asset(
         _enrich_sources(
             descriptor, zenodo_dois, _docs_version_slug(PUDL_PACKAGE.version)
         )
-        _propagate_source_enrichments(descriptor)
 
         parquet_path = context.resources.pudl_paths.parquet_path()
         enriched_count = _enrich_resources(descriptor, dag_metadata, parquet_path)

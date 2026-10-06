@@ -2049,7 +2049,7 @@ class Resource(PudlMeta):
             name=self.name,
             title=self.title,
             description=self.description,
-            sources=[s.to_frictionless() for s in self.sources],
+            sources=[{"title": source.title} for source in self.sources],
             licenses=[
                 lic.model_dump(mode="json", exclude_none=True) for lic in self.licenses
             ],
