@@ -9,7 +9,6 @@ the PUDL documentation page for each data source.
 
 import hashlib
 import json
-import re
 import shutil
 import subprocess
 import uuid
@@ -21,12 +20,10 @@ import dagster as dg
 
 import pudl.logging_helpers
 from pudl import PUDL_ROOT_PATH
-from pudl.metadata.classes import PUDL_PACKAGE
+from pudl.metadata.classes import Package
 from pudl.workspace.datastore import ZenodoDoiSettings
 
 logger = pudl.logging_helpers.get_logger(__name__)
-
-_FERCEQR_EXCLUDE_PATTERN = re.compile(r"^core_ferceqr")
 
 # Discover which data sources have a dedicated PUDL docs page by scanning for
 # *_child.rst.jinja templates.  The template filename prefix is the source name.
@@ -191,8 +188,11 @@ def _enrich_resources(
     return enriched_count
 
 
-def build_pudl_datapackage_asset(
+def build_datapackage_asset(
+    package: Package,
     parquet_asset_keys: Sequence[dg.AssetKey],
+    asset_name: str,
+    group_name: str = "core_pudl",
 ) -> dg.AssetsDefinition:
     """Return a Dagster asset that writes ``datapackage.json`` for PUDL parquet outputs.
 
@@ -200,13 +200,14 @@ def build_pudl_datapackage_asset(
     only run it once all parquet outputs for the current job are materialised.
 
     Args:
+        package: Frictionless datapackage to enhance and return.
         parquet_asset_keys: Keys of all assets that write parquet files and
             should be described in the datapackage.
     """
 
     @dg.asset(
-        name="pudl_datapackage",
-        group_name="core_pudl",
+        name=asset_name,
+        group_name=group_name,
         deps=list(parquet_asset_keys),
         required_resource_keys={"zenodo_dois", "pudl_paths"},
         description=(
@@ -214,23 +215,20 @@ def build_pudl_datapackage_asset(
             "Written to $PUDL_OUTPUT/parquet/datapackage.json."
         ),
     )
-    def pudl_datapackage(
+    def datapackage_asset(
         context: dg.AssetExecutionContext,
     ) -> dg.MaterializeResult:
-        package = PUDL_PACKAGE.to_frictionless()
         dag_metadata = _collect_dagster_file_metadata(
             context.instance, parquet_asset_keys
         )
 
-        descriptor = json.loads(package.to_json())
+        descriptor = json.loads(package.to_frictionless().to_json())
         descriptor["created"] = datetime.now(UTC).isoformat()
         descriptor["id"] = str(uuid.uuid4())
         descriptor.update(_collect_git_provenance())
 
         zenodo_dois: ZenodoDoiSettings = context.resources.zenodo_dois
-        _enrich_sources(
-            descriptor, zenodo_dois, _docs_version_slug(PUDL_PACKAGE.version)
-        )
+        _enrich_sources(descriptor, zenodo_dois, _docs_version_slug(package.version))
 
         parquet_path = context.resources.pudl_paths.parquet_path()
         enriched_count = _enrich_resources(descriptor, dag_metadata, parquet_path)
@@ -258,7 +256,7 @@ def build_pudl_datapackage_asset(
             }
         )
 
-    return pudl_datapackage
+    return datapackage_asset
 
 
-__all__ = ["build_pudl_datapackage_asset"]
+__all__ = ["build_datapackage_asset"]
