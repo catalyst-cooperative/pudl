@@ -109,12 +109,8 @@ Bug Fixes & Data Cleaning
   corrected several hand-assigned ``plant_id_pudl`` values that split one plant across
   multiple IDs, which cut the number of ``plant_id_ferc1`` values spanning more than one
   ``plant_id_pudl`` from 6 to 2. See issue :issue:`5609` and PR :pr:`5642`.
-* Made the clustering that assigns ``plant_id_ferc1`` insensitive to floating point
-  noise. Distances between records were stored as 32-bit floats and compared against
-  hard thresholds, so tiny differences between platforms could change which records
-  were clustered together. They are now 64-bit and rounded to 6 decimal places. About
-  85 records will get a different ``plant_id_ferc1`` once. See issue :issue:`5609` and
-  PR :pr:`5687`.
+* Updated the record-linkage which assigns ``plant_id_ferc1`` to make it insensitive to
+  floating point noise. See issue :issue:`5609` and PR :pr:`5687`.
 * Fixed tags for new 2025 XBRL factoids and rescued the ``ferc_account`` field in
   :ref:`out_ferc1__yearly_rate_base`. See :issue:`5520` and :pr:`5597`.
 * Fixed ``valid_until_date`` in the ``_core_eia__forensics_entity_resolution_*`` and
