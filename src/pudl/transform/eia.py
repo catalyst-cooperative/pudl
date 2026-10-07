@@ -35,7 +35,12 @@ from dagster import (
 
 import pudl.logging_helpers
 from pudl import PUDL_PACKAGE_DATA_PATH
-from pudl.helpers import convert_cols_dtypes, make_changelog
+from pudl.helpers import (
+    add_fips_ids,
+    clean_eia_counties,
+    convert_cols_dtypes,
+    make_changelog,
+)
 from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.metadata.dtypes import apply_pudl_dtypes, get_pudl_dtypes
 from pudl.metadata.enums import APPROXIMATE_TIMEZONES
@@ -1238,7 +1243,8 @@ def harvested_entity_asset_factory(
     """Create an asset definition for the harvested entity tables."""
 
     @multi_asset(
-        ins={table_name: AssetIn() for table_name in HARVESTABLE_ASSETS},
+        ins={table_name: AssetIn() for table_name in HARVESTABLE_ASSETS}
+        | {"_core_censuspep__yearly_geocodes": AssetIn()},
         outs={
             f"core_eia__entity_{entity.value}": AssetOut(io_manager_key=io_manager_key),
             f"core_eia860__scd_{entity.value}": AssetOut(io_manager_key=io_manager_key),
@@ -1252,12 +1258,12 @@ def harvested_entity_asset_factory(
     def harvested_entity(context, **clean_dfs):
         """Harvesting IDs & consistent static attributes for EIA entity."""
         logger.info(f"Harvesting IDs & consistent static attributes for EIA {entity}")
-
+        _core_censuspep__yearly_geocodes = clean_dfs["_core_censuspep__yearly_geocodes"]
         clean_dfs = {
             df_name: PUDL_PACKAGE.encode(clean_dfs[df_name]).pipe(
                 convert_cols_dtypes, "eia"
             )
-            for df_name in clean_dfs
+            for df_name in HARVESTABLE_ASSETS
         }
         if entity == EiaEntity.UTILITIES:
             # Remove location columns that are associated with plants, not utilities:
@@ -1294,8 +1300,18 @@ def harvested_entity_asset_factory(
         if entity == EiaEntity.PLANTS:
             # Post-processing specific to the plants entity tables
             entity_df = _add_additional_epacems_plants(entity_df).pipe(_add_timezone)
-            annual_df = fillna_balancing_authority_codes_via_names(annual_df).pipe(
-                fix_balancing_authority_codes_with_state, plants_entity=entity_df
+            annual_df = (
+                fillna_balancing_authority_codes_via_names(annual_df)
+                .pipe(fix_balancing_authority_codes_with_state, plants_entity=entity_df)
+                # Ensure that we have the canonical US Census county names:
+                .pipe(
+                    clean_eia_counties,
+                    fixes=pudl.transform.eia861.EIA_FIPS_COUNTY_FIXES,
+                )
+                # Add FIPS IDs based on county & state names:
+                .pipe(
+                    add_fips_ids, _core_censuspep__yearly_geocodes, county_col="county"
+                )
             )
 
         # Take all of the column inputs and make them into one big forensics changelog

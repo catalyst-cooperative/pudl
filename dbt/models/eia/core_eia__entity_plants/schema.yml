@@ -10,10 +10,12 @@ sources:
           - name: plant_id_eia
           - name: plant_name_eia
           - name: city
+          - name: state
+          - name: state_id_fips
           - name: county
+          - name: county_id_fips
           - name: latitude
           - name: longitude
-          - name: state
           - name: street_address
           - name: zip_code
           - name: timezone
