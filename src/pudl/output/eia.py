@@ -408,7 +408,6 @@ def out_eia__yearly_boilers(
     out_df = organize_cols(out_df, first_cols).sort_values(
         ["report_date", "plant_id_eia", "boiler_id"]
     )
-
     return out_df
 
 
