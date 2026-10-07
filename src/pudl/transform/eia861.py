@@ -465,6 +465,7 @@ EIA_FIPS_COUNTY_FIXES: pd.DataFrame = pd.DataFrame(
         ("TX", "De Witt", "DeWitt"),
         ("TX", "Hayes", "Hays"),
         ("TX", "San Augustin", "San Augustine"),
+        ("TX", "LaSalle", "La Salle"),
         ("VA", "Albermarle", "Albemarle County"),
         ("VA", "Alexandria C", "Alexandria City"),
         ("VA", "Charlottesvi", "Charlottesville City"),
