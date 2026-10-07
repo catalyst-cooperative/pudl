@@ -328,6 +328,12 @@ EIA_FIPS_COUNTY_FIXES: pd.DataFrame = pd.DataFrame(
     ],
     columns=["state", "eia_county", "fips_county"],
 )
+"""Table of fixes to county names to make them more aligned with census names.
+
+This set of fixes was developed for EIA-861 for
+:ref:`core_eia861__yearly_service_territory` and was expanded (slightly) to cover
+the remaining non-conforming EIA-860 and EIA-923 county names.
+"""
 
 
 def find_timezone(*, lng=None, lat=None, state=None, strict=True, tz_finder=None):
