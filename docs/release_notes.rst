@@ -12,9 +12,9 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
 Enhancements
 ^^^^^^^^^^^^
 
-* Added ``county_id_fips`` and ``state_id_fips`` to the
-  :ref:`out_eia__monthly_generators` and :ref:`out_eia__yearly_generators` tables.
-  See PR :pr:`5688`.
+* Added ``county_id_fips`` and ``state_id_fips`` to the :ref:`core_eia__entity_plants`,
+  :ref:`out_eia__monthly_generators` and :ref:`out_eia__yearly_generators` tables. See
+  PR :pr:`5688`.
 
 New Data
 ^^^^^^^^
