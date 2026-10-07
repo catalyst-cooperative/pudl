@@ -114,7 +114,7 @@ numpy = ">=2.5"
 pandas = ">=2.3,<3"
 pandera-polars = ">=0.31"
 pint = ">=0.25.3"
-polars = ">=1.43"
+polars = ">=2"
 prek = ">=0.5"
 # potentially unresolveable breaking changes in prettier 4.x
 prettier = ">=3.8,<4"
