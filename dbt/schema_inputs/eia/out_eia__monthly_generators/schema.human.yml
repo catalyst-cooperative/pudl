@@ -243,3 +243,10 @@ sources:
                     numerator_row_condition: fuel_type_code_pudl='solar'
                     min_fraction: 0.0
                     max_fraction: 0.1
+          - name: county_id_fips
+            data_tests:
+              - dbt_utils.not_null_proportion:
+                  arguments:
+                    at_least: 0.95
+                  description: |-
+                    County fips code should almost entirely be populated.

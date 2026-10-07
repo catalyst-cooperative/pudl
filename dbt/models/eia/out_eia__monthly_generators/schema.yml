@@ -505,3 +505,8 @@ sources:
           - name: zip_code
           - name: state_id_fips
           - name: county_id_fips
+            data_tests:
+              - dbt_utils.not_null_proportion:
+                  arguments:
+                    at_least: 0.95
+                  description: County fips code should almost entirely be populated.

@@ -369,6 +369,7 @@ EIA_FIPS_COUNTY_FIXES: pd.DataFrame = pd.DataFrame(
         ("IL", "JoDavies", "Jo Daviess"),
         ("IL", "La Salle", "LaSalle"),
         ("IL", "McCoupin", "Macoupin"),
+        ("IL", "Kankakii", "Kankakee"),  # 860 only
         ("IN", "De Kalb", "DeKalb County"),
         ("IN", "De Kalb County", "DeKalb County"),
         ("IN", "La Porte", "LaPorte"),
@@ -380,6 +381,7 @@ EIA_FIPS_COUNTY_FIXES: pd.DataFrame = pd.DataFrame(
         ("KY", "LAURE", "Larue County"),
         ("KY", "Spenser", "Spencer"),
         ("KY", "Sullivan", "Union County"),
+        ("KY", "West Mccraken", "Mccracken"),  # 860 only
         ("KY", "WOLE", "Wolfe County"),
         ("LA", "Burke", "Iberia"),
         ("LA", "DeSoto", "De Soto"),
@@ -397,6 +399,7 @@ EIA_FIPS_COUNTY_FIXES: pd.DataFrame = pd.DataFrame(
         ("MD", "Baltimore Ci", "Baltimore City"),
         ("MD", "Balto. City", "Baltimore City"),
         ("MD", "Prince Georg", "Prince George's County"),
+        ("MD", "Prince Geroges", "Prince George's County"),  # 860 only
         ("MD", "Worchester", "Worcester"),
         ("MI", "Antim", "Antrim"),
         ("MI", "Graitiot", "Gratiot County"),
@@ -457,6 +460,7 @@ EIA_FIPS_COUNTY_FIXES: pd.DataFrame = pd.DataFrame(
         ("RI", "Portsmouth", "Newport"),
         ("SD", "Pierce", "Hughes County"),
         ("SD", "Valley Springs", "Minnehaha County"),
+        ("TN", "Davison", "Davidson"),
         ("TX", "Collingswort", "Collingsworth"),
         ("TX", "De Witt", "DeWitt"),
         ("TX", "Hayes", "Hays"),
