@@ -193,6 +193,7 @@ def build_datapackage_asset(
     parquet_asset_keys: Sequence[dg.AssetKey],
     asset_name: str,
     group_name: str = "core_pudl",
+    partitioned: bool = False,
 ) -> dg.AssetsDefinition:
     """Return a Dagster asset that writes ``datapackage.json`` for PUDL parquet outputs.
 
@@ -203,12 +204,25 @@ def build_datapackage_asset(
         package: Frictionless datapackage to enhance and return.
         parquet_asset_keys: Keys of all assets that write parquet files and
             should be described in the datapackage.
+        asset_name: Name of the generated Dagster asset.
+        group_name: Dagster asset group the generated asset belongs to.
+        partitioned: Whether the upstream parquet assets are partitioned. When
+            ``True``, each dependency uses a :class:`dagster.AllPartitionMapping`
+            so the descriptor is only written once all partitions of every
+            upstream asset have been materialised.
     """
+    if partitioned:
+        deps: list[dg.AssetDep] | list[dg.AssetKey] = [
+            dg.AssetDep(asset_key, partition_mapping=dg.AllPartitionMapping())
+            for asset_key in parquet_asset_keys
+        ]
+    else:
+        deps = list(parquet_asset_keys)
 
     @dg.asset(
         name=asset_name,
         group_name=group_name,
-        deps=list(parquet_asset_keys),
+        deps=deps,
         required_resource_keys={"zenodo_dois", "pudl_paths"},
         description=(
             "Frictionless v2 datapackage descriptor for PUDL parquet outputs. "

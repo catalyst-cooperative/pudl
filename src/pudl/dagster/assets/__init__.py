@@ -203,6 +203,7 @@ default_assets = _base_assets + [
         ],
         "ferceqr_datapackage",
         group_name="core_ferceqr",
+        partitioned=True,
     ),
     build_pudl_sqlite_asset(_sql_asset_keys),
     build_pudl_duckdb_asset(_sql_asset_keys),
