@@ -1,6 +1,9 @@
 """Unit tests for Dagster asset helpers."""
 
 import hashlib
+import json
+import uuid
+from datetime import datetime
 from pathlib import Path
 
 import dagster as dg
@@ -14,8 +17,159 @@ from pudl.dagster.assets.core.datapackage import (
     _docs_version_slug,
     _enrich_resources,
     _enrich_sources,
-    _propagate_source_enrichments,
+    build_datapackage_asset,
 )
+from pudl.metadata.classes import FERCEQR_PACKAGE, PUDL_PACKAGE
+from pudl.workspace.datastore import ZenodoDoiSettings
+
+MODULE = "pudl.dagster.assets.core.datapackage"
+
+FAKE_SHA256 = "ab" * 32
+FAKE_BYTES = 4096
+
+
+@pytest.fixture
+def parquet_dir(tmp_path):
+    """An empty stand-in for ``$PUDL_OUTPUT/parquet``."""
+    path = tmp_path / "parquet"
+    path.mkdir()
+    return path
+
+
+@pytest.fixture
+def asset_resources(mocker, parquet_dir):
+    """Resources required by the datapackage asset."""
+    pudl_paths = mocker.Mock()
+    pudl_paths.parquet_path.return_value = parquet_dir
+    return {"zenodo_dois": ZenodoDoiSettings(), "pudl_paths": pudl_paths}
+
+
+def fake_dagster_file_metadata(asset_keys) -> dict[str, dict]:
+    """Fake per-resource file stats for every parquet asset key."""
+    return {
+        key.path[-1]: {"bytes": FAKE_BYTES, "hash": f"sha256:{FAKE_SHA256}"}
+        for key in asset_keys
+    }
+
+
+@pytest.mark.parametrize(
+    ("package", "asset_name", "group_name", "partitioned"),
+    [
+        (PUDL_PACKAGE, "pudl_datapackage", "core_pudl", False),
+        (FERCEQR_PACKAGE, "ferceqr_datapackage", "core_ferceqr", True),
+    ],
+    ids=["pudl", "ferceqr"],
+)
+def test_datapackage_asset_writes_descriptor(
+    mocker,
+    asset_resources,
+    parquet_dir,
+    package,
+    asset_name,
+    group_name,
+    partitioned,
+):
+    """The asset writes an enriched descriptor for every resource in the package."""
+    parquet_asset_keys = [dg.AssetKey(resource.name) for resource in package.resources]
+    assert parquet_asset_keys, "Package under test has no resources."
+
+    mocker.patch(
+        f"{MODULE}._collect_dagster_file_metadata",
+        return_value=fake_dagster_file_metadata(parquet_asset_keys),
+    )
+    mocker.patch(
+        f"{MODULE}._collect_git_provenance",
+        return_value={"git_sha": "deadbeef", "git_tags": ["v2026.1.1"]},
+    )
+
+    asset_def = build_datapackage_asset(
+        package,
+        parquet_asset_keys,
+        asset_name,
+        group_name=group_name,
+        partitioned=partitioned,
+    )
+    result = asset_def(dg.build_asset_context(resources=asset_resources))
+
+    output_path = parquet_dir / "datapackage.json"
+    assert output_path.is_file()
+    descriptor = json.loads(output_path.read_text())
+
+    # Runtime provenance fields.
+    uuid.UUID(descriptor["id"])
+    datetime.fromisoformat(descriptor["created"])
+    assert descriptor["git_sha"] == "deadbeef"
+    assert descriptor["git_tags"] == ["v2026.1.1"]
+
+    # Every resource got file stats from the (mocked) Dagster event log.
+    resources = descriptor["resources"]
+    assert len(resources) == len(parquet_asset_keys)
+    assert all(r["bytes"] == FAKE_BYTES for r in resources)
+    assert all(r["hash"] == f"sha256:{FAKE_SHA256}" for r in resources)
+
+    # Any DOIs that were injected are resolvable URLs.
+    dois = [s["doi"] for s in descriptor.get("sources", []) if "doi" in s]
+    assert all(doi.startswith("https://doi.org/") for doi in dois)
+
+    assert isinstance(result, dg.MaterializeResult)
+    assert result.metadata["resource_count"].value == len(resources)
+    assert result.metadata["enriched_resource_count"].value == len(resources)
+    assert result.metadata["bytes"].value == output_path.stat().st_size
+
+
+def test_pudl_datapackage_enriches_sources(mocker, asset_resources, parquet_dir):
+    """The real PUDL package picks up Zenodo DOIs and docs URLs for its sources."""
+    parquet_asset_keys = [
+        dg.AssetKey(resource.name) for resource in PUDL_PACKAGE.resources
+    ]
+    mocker.patch(
+        f"{MODULE}._collect_dagster_file_metadata",
+        return_value=fake_dagster_file_metadata(parquet_asset_keys),
+    )
+    asset_def = build_datapackage_asset(
+        PUDL_PACKAGE, parquet_asset_keys, "pudl_datapackage"
+    )
+    asset_def(dg.build_asset_context(resources=asset_resources))
+
+    descriptor = json.loads((parquet_dir / "datapackage.json").read_text())
+    sources = descriptor["sources"]
+    assert any("doi" in source for source in sources)
+    assert any(
+        source.get("documentation", "").startswith("https://docs.catalyst.coop/pudl/")
+        for source in sources
+    )
+
+
+def test_unpartitioned_asset_definition():
+    """Unpartitioned deps are plain asset keys with no partition mapping."""
+    keys = [dg.AssetKey("table_a"), dg.AssetKey("table_b")]
+    asset_def = build_datapackage_asset(PUDL_PACKAGE, keys, "pudl_datapackage")
+
+    spec = next(iter(asset_def.specs))
+    assert spec.key == dg.AssetKey("pudl_datapackage")
+    assert spec.group_name == "core_pudl"
+    assert {dep.asset_key for dep in spec.deps} == set(keys)
+    assert all(dep.partition_mapping is None for dep in spec.deps)
+
+
+def test_partitioned_asset_definition():
+    """Partitioned upstreams get an ``AllPartitionMapping`` on every dep."""
+    keys = [dg.AssetKey("core_ferceqr__a"), dg.AssetKey("core_ferceqr__b")]
+    asset_def = build_datapackage_asset(
+        FERCEQR_PACKAGE,
+        keys,
+        "ferceqr_datapackage",
+        group_name="core_ferceqr",
+        partitioned=True,
+    )
+
+    spec = next(iter(asset_def.specs))
+    assert spec.key == dg.AssetKey("ferceqr_datapackage")
+    assert spec.group_name == "core_ferceqr"
+    assert {dep.asset_key for dep in spec.deps} == set(keys)
+    assert all(
+        isinstance(dep.partition_mapping, dg.AllPartitionMapping) for dep in spec.deps
+    )
 
 
 @pytest.mark.parametrize(
@@ -116,34 +270,6 @@ def test_enrich_sources_adds_doi_and_documentation(
             "documentation": (
                 "https://docs.catalyst.coop/pudl/en/v2026.5.1/data_sources/eia860.html"
             ),
-        },
-        {"name": "ferc1"},
-    ]
-
-
-def test_propagate_source_enrichments_copies_runtime_fields() -> None:
-    """Resource-level source entries should inherit enriched runtime fields."""
-    descriptor = {
-        "sources": [
-            {
-                "name": "eia860",
-                "doi": "https://doi.org/10.5281/zenodo.12345",
-                "documentation": "https://docs.catalyst.coop/pudl/en/v2026.5.1/data_sources/eia860.html",
-                "title": "EIA 860",
-            }
-        ],
-        "resources": [
-            {"name": "plants", "sources": [{"name": "eia860"}, {"name": "ferc1"}]}
-        ],
-    }
-
-    _propagate_source_enrichments(descriptor)
-
-    assert descriptor["resources"][0]["sources"] == [
-        {
-            "name": "eia860",
-            "doi": "https://doi.org/10.5281/zenodo.12345",
-            "documentation": "https://docs.catalyst.coop/pudl/en/v2026.5.1/data_sources/eia860.html",
         },
         {"name": "ferc1"},
     ]
