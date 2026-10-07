@@ -4,8 +4,9 @@ Define a record linkage model interface and implement common functionality.
 
 ## Attributes
 
-| [`logger`](#pudl.analysis.record_linkage.link_cross_year.logger)   |    |
-|-----------------------------------------------------------|----|
+| [`logger`](#pudl.analysis.record_linkage.link_cross_year.logger)             |                                                          |
+|---------------------------------------------------------------------|----------------------------------------------------------|
+| [`_DISTANCE_DECIMALS`](#pudl.analysis.record_linkage.link_cross_year._DISTANCE_DECIMALS) | Number of decimal places to which distances are rounded. |
 
 ## Classes
 
@@ -32,6 +33,19 @@ Define a record linkage model interface and implement common functionality.
 ## Module Contents
 
 ### pudl.analysis.record_linkage.link_cross_year.logger
+
+### pudl.analysis.record_linkage.link_cross_year.\_DISTANCE_DECIMALS *= 6*
+
+Number of decimal places to which distances are rounded.
+
+Distances are compared against hard thresholds and exact ties are broken by row order,
+so floating point noise can decide which records get clustered together. The error in
+a Euclidean distance computed by scikit-learn grows as the true distance shrinks: it is
+about 1e-8 for records that are identical or nearly so, and under 1e-14 near the
+thresholds, and it differs between platforms and library builds. A distance between
+identical records can come out as 1e-8 instead of 0. Rounding snaps that noise away.
+The meaningful distances between near-duplicate records go down to about 5e-6, so we
+can’t round much more coarsely than this without turning real differences into ties.
 
 ### *class* pudl.analysis.record_linkage.link_cross_year.PenalizeReportYearDistanceConfig(\*\*config_dict)
 

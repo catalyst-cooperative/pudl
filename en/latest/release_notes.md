@@ -97,6 +97,8 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
   corrected several hand-assigned `plant_id_pudl` values that split one plant across
   multiple IDs, which cut the number of `plant_id_ferc1` values spanning more than one
   `plant_id_pudl` from 6 to 2. See issue [#5609](https://github.com/catalyst-cooperative/pudl/issues/5609) and PR [#5642](https://github.com/catalyst-cooperative/pudl/pull/5642).
+* Updated the record-linkage which assigns `plant_id_ferc1` to make it insensitive to
+  floating point noise. See issue [#5609](https://github.com/catalyst-cooperative/pudl/issues/5609) and PR [#5687](https://github.com/catalyst-cooperative/pudl/pull/5687).
 * Fixed tags for new 2025 XBRL factoids and rescued the `ferc_account` field in
   [out_ferc1_\_yearly_rate_base](data_dictionaries/pudl_db.md#out-ferc1-yearly-rate-base). See [#5520](https://github.com/catalyst-cooperative/pudl/issues/5520) and [#5597](https://github.com/catalyst-cooperative/pudl/pull/5597).
 * Fixed `valid_until_date` in the `_core_eia__forensics_entity_resolution_*` and

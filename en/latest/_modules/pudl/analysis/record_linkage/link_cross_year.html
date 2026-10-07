@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.analysis.record_linkage.link_cross_year &#8212; PUDL 2026.9.1.dev40 documentation</title>
+    <title>pudl.analysis.record_linkage.link_cross_year &#8212; PUDL 2026.9.1.dev41 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../../../../_static/documentation_options.js?v=9c27be61"></script>
+    <script src="../../../../_static/documentation_options.js?v=3567ca07"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -495,8 +495,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev40 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev40 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev41 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev41 documentation - Home"/>
   
   
 </a></div>
@@ -893,6 +893,22 @@ window.runMermaid = runMermaid;</script>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">logging_helpers</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="_DISTANCE_DECIMALS">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/link_cross_year/index.html#pudl.analysis.record_linkage.link_cross_year._DISTANCE_DECIMALS">[docs]</a>
+<span class="n">_DISTANCE_DECIMALS</span> <span class="o">=</span> <span class="mi">6</span></div>
+
+<span class="sd">"""Number of decimal places to which distances are rounded.</span>
+
+<span class="sd">Distances are compared against hard thresholds and exact ties are broken by row order,</span>
+<span class="sd">so floating point noise can decide which records get clustered together. The error in</span>
+<span class="sd">a Euclidean distance computed by scikit-learn grows as the true distance shrinks: it is</span>
+<span class="sd">about 1e-8 for records that are identical or nearly so, and under 1e-14 near the</span>
+<span class="sd">thresholds, and it differs between platforms and library builds. A distance between</span>
+<span class="sd">identical records can come out as 1e-8 instead of 0. Rounding snaps that noise away.</span>
+<span class="sd">The meaningful distances between near-duplicate records go down to about 5e-6, so we</span>
+<span class="sd">can't round much more coarsely than this without turning real differences into ties.</span>
+<span class="sd">"""</span>
+
 
 <div class="viewcode-block" id="PenalizeReportYearDistanceConfig">
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/link_cross_year/index.html#pudl.analysis.record_linkage.link_cross_year.PenalizeReportYearDistanceConfig">[docs]</a>
@@ -936,7 +952,7 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/link_cross_year/index.html#pudl.analysis.record_linkage.link_cross_year.DistanceMatrix.distance_matrix">[docs]</a>
         <span class="bp">self</span><span class="o">.</span><span class="n">distance_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">memmap</span><span class="p">(</span>
             <span class="n">filename</span><span class="p">,</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="s2">"float32"</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span>
             <span class="n">mode</span><span class="o">=</span><span class="s2">"w+"</span><span class="p">,</span>
             <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">feature_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">feature_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
         <span class="p">)</span></div>
@@ -945,7 +961,9 @@ window.runMermaid = runMermaid;</script>
         <span class="c1"># Compute distances in chunks and write to memmap</span>
         <span class="n">row_start</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">pairwise_distances_chunked</span><span class="p">(</span><span class="n">feature_matrix</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">metric</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">distance_matrix</span><span class="p">[</span><span class="n">row_start</span> <span class="p">:</span> <span class="n">row_start</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">chunk</span><span class="p">),</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">chunk</span><span class="p">[:,</span> <span class="p">:]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">distance_matrix</span><span class="p">[</span><span class="n">row_start</span> <span class="p">:</span> <span class="n">row_start</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">chunk</span><span class="p">),</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span>
+                <span class="n">chunk</span><span class="p">,</span> <span class="n">_DISTANCE_DECIMALS</span>
+            <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">distance_matrix</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
             <span class="n">row_start</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
 
@@ -963,7 +981,7 @@ window.runMermaid = runMermaid;</script>
         <span class="c1"># Convert distance matrix to read only memory map</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">distance_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">memmap</span><span class="p">(</span>
             <span class="n">filename</span><span class="p">,</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="s2">"float32"</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span>
             <span class="n">mode</span><span class="o">=</span><span class="s2">"r"</span><span class="p">,</span>
             <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">feature_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">feature_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
         <span class="p">)</span></div>
