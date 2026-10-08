@@ -63,6 +63,10 @@ def test_plan_build_diffs_left_root_override_is_the_only_comparison(git_tag):
         (["v2026.9.0"], "v2026.9.0"),
         (["something", "nightly-2026-09-15"], "nightly-2026-09-15"),
         (["odd tag/1"], "odd-tag-1"),
+        (["nightly-2026-09-15", "v2026.9.0", "branch-2026-09-15-1-abc-x"], "v2026.9.0"),
+        (["branch-2026-09-15-1-abc-x", "nightly-2026-09-15"], "nightly-2026-09-15"),
+        (["something", "branch-2026-09-15-1-abc-x"], "branch-2026-09-15-1-abc-x"),
+        (["nightly-2026-09-14", "nightly-2026-09-15"], "nightly-2026-09-14"),
         (None, "abcdef12"),
     ],
 )
@@ -145,6 +149,28 @@ def test_run_diff_plan_writes_a_report_named_for_both_datasets(tmp_path: Path, m
     assert (report_dir / "pudl_diff_report.json").exists()
 
 
+def test_run_diff_plan_names_both_datasets_by_their_preferred_tags(
+    tmp_path: Path, mocker
+):
+    baseline = _write_dataset(
+        tmp_path / "left", ["a"], ["nightly-2026-09-15", "v2026.9.0"]
+    )
+    right = _write_dataset(
+        tmp_path / "right", ["a"], [BRANCH_TAG, "nightly-2026-09-16"]
+    )
+    _patch_public_dataset(mocker, baseline)
+    plan = DiffPlan(left_root="s3://pudl.catalyst.coop/nightly/", right_label="mine")
+
+    run_diff_plan(plan, right, tmp_path / "reports")
+
+    assert (
+        tmp_path
+        / "reports"
+        / "v2026.9.0-vs-nightly-2026-09-16"
+        / "pudl_diff_report.json"
+    ).exists()
+
+
 def test_run_diff_plan_compares_the_rows_of_tables_of_any_size(tmp_path: Path, mocker):
     baseline = _write_dataset(tmp_path / "left", ["a"], ["nightly-2026-09-15"])
     right = _write_dataset(tmp_path / "right", ["a"])
@@ -154,7 +180,10 @@ def test_run_diff_plan_compares_the_rows_of_tables_of_any_size(tmp_path: Path, m
     report = run_diff_plan(plan, right, tmp_path / "reports")
 
     assert report is not None
-    assert report.options.max_compare_rows > 10**12
+    assert report.options is not None
+    max_rows = report.options.max_compare_rows
+    assert max_rows is not None
+    assert max_rows > 10**12
 
 
 def test_run_diff_plan_skips_an_unreadable_baseline(tmp_path: Path, mocker):
