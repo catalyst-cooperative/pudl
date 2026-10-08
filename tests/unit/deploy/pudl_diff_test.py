@@ -145,6 +145,18 @@ def test_run_diff_plan_writes_a_report_named_for_both_datasets(tmp_path: Path, m
     assert (report_dir / "pudl_diff_report.json").exists()
 
 
+def test_run_diff_plan_compares_the_rows_of_tables_of_any_size(tmp_path: Path, mocker):
+    baseline = _write_dataset(tmp_path / "left", ["a"], ["nightly-2026-09-15"])
+    right = _write_dataset(tmp_path / "right", ["a"])
+    _patch_public_dataset(mocker, baseline)
+    plan = DiffPlan(left_root="s3://pudl.catalyst.coop/nightly/", right_label="mine")
+
+    report = run_diff_plan(plan, right, tmp_path / "reports")
+
+    assert report is not None
+    assert report.options.max_compare_rows > 10**12
+
+
 def test_run_diff_plan_skips_an_unreadable_baseline(tmp_path: Path, mocker):
     right = _write_dataset(tmp_path / "right", ["a"])
     _patch_public_dataset(mocker, PudlDiffDataset(tmp_path / "nowhere"))

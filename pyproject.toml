@@ -174,7 +174,7 @@ gh = ">=2.96.0,<3"
 # happen to only be available via PyPI.
 "catalystcoop.pudl" = { path = ".", editable = true }
 # Developed in https://github.com/catalyst-cooperative/pudl-diff
-"catalystcoop.pudl_diff" = ">=0.1"
+"catalystcoop.pudl_diff" = ">=0.1.1"
 detect-secrets = ">=1.5"
 # conda-forge's duckdb-engine recipe pins duckdb<=1.0.0; PyPI's own metadata has no
 # such upper bound, and works fine with the newer python-duckdb pinned above.

@@ -678,7 +678,7 @@ environments:
       - pypi: ./
       - pypi: https://files.pythonhosted.org/packages/2a/a2/e90242f53f7ae41554419b1695b4820b364df87c8350aa420b60b20cab92/duckdb_engine-0.17.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4e/5e/4f5fe4b89fde1dc3ed0eb51bd4ce4c0bca406246673d370ea2ad0c58d747/detect_secrets-1.5.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/8b/59/7caaadd015c66b45e7babc3f094c8147a5ae8adca9d2a68b74ce034c1249/catalystcoop_pudl_diff-0.1.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/8c/fa/f93b69a403d8ce0c9def5577bc213c0cdf460bad68873541b2e5e2864919/catalystcoop_pudl_diff-0.1.1-py3-none-any.whl
       linux-aarch64:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/_openmp_mutex-4.5-20_gnu.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/argon2-cffi-bindings-26.1.0-py314h35c850b_2.conda
@@ -1327,7 +1327,7 @@ environments:
       - pypi: ./
       - pypi: https://files.pythonhosted.org/packages/2a/a2/e90242f53f7ae41554419b1695b4820b364df87c8350aa420b60b20cab92/duckdb_engine-0.17.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4e/5e/4f5fe4b89fde1dc3ed0eb51bd4ce4c0bca406246673d370ea2ad0c58d747/detect_secrets-1.5.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/8b/59/7caaadd015c66b45e7babc3f094c8147a5ae8adca9d2a68b74ce034c1249/catalystcoop_pudl_diff-0.1.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/8c/fa/f93b69a403d8ce0c9def5577bc213c0cdf460bad68873541b2e5e2864919/catalystcoop_pudl_diff-0.1.1-py3-none-any.whl
       osx-64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/accessible-pygments-0.0.5-pyhd8ed1ab_1.conda
@@ -1941,7 +1941,7 @@ environments:
       - pypi: ./
       - pypi: https://files.pythonhosted.org/packages/2a/a2/e90242f53f7ae41554419b1695b4820b364df87c8350aa420b60b20cab92/duckdb_engine-0.17.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4e/5e/4f5fe4b89fde1dc3ed0eb51bd4ce4c0bca406246673d370ea2ad0c58d747/detect_secrets-1.5.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/8b/59/7caaadd015c66b45e7babc3f094c8147a5ae8adca9d2a68b74ce034c1249/catalystcoop_pudl_diff-0.1.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/8c/fa/f93b69a403d8ce0c9def5577bc213c0cdf460bad68873541b2e5e2864919/catalystcoop_pudl_diff-0.1.1-py3-none-any.whl
       osx-arm64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/accessible-pygments-0.0.5-pyhd8ed1ab_1.conda
@@ -2555,7 +2555,7 @@ environments:
       - pypi: ./
       - pypi: https://files.pythonhosted.org/packages/2a/a2/e90242f53f7ae41554419b1695b4820b364df87c8350aa420b60b20cab92/duckdb_engine-0.17.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4e/5e/4f5fe4b89fde1dc3ed0eb51bd4ce4c0bca406246673d370ea2ad0c58d747/detect_secrets-1.5.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/8b/59/7caaadd015c66b45e7babc3f094c8147a5ae8adca9d2a68b74ce034c1249/catalystcoop_pudl_diff-0.1.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/8c/fa/f93b69a403d8ce0c9def5577bc213c0cdf460bad68873541b2e5e2864919/catalystcoop_pudl_diff-0.1.1-py3-none-any.whl
   dev:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
@@ -3263,7 +3263,7 @@ environments:
       - pypi: ./
       - pypi: https://files.pythonhosted.org/packages/2a/a2/e90242f53f7ae41554419b1695b4820b364df87c8350aa420b60b20cab92/duckdb_engine-0.17.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4e/5e/4f5fe4b89fde1dc3ed0eb51bd4ce4c0bca406246673d370ea2ad0c58d747/detect_secrets-1.5.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/8b/59/7caaadd015c66b45e7babc3f094c8147a5ae8adca9d2a68b74ce034c1249/catalystcoop_pudl_diff-0.1.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/8c/fa/f93b69a403d8ce0c9def5577bc213c0cdf460bad68873541b2e5e2864919/catalystcoop_pudl_diff-0.1.1-py3-none-any.whl
       linux-aarch64:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/_openmp_mutex-4.5-20_gnu.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/alsa-lib-1.2.16.1-h5bc82ec_1.conda
@@ -3960,7 +3960,7 @@ environments:
       - pypi: ./
       - pypi: https://files.pythonhosted.org/packages/2a/a2/e90242f53f7ae41554419b1695b4820b364df87c8350aa420b60b20cab92/duckdb_engine-0.17.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4e/5e/4f5fe4b89fde1dc3ed0eb51bd4ce4c0bca406246673d370ea2ad0c58d747/detect_secrets-1.5.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/8b/59/7caaadd015c66b45e7babc3f094c8147a5ae8adca9d2a68b74ce034c1249/catalystcoop_pudl_diff-0.1.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/8c/fa/f93b69a403d8ce0c9def5577bc213c0cdf460bad68873541b2e5e2864919/catalystcoop_pudl_diff-0.1.1-py3-none-any.whl
       osx-64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/accessible-pygments-0.0.5-pyhd8ed1ab_1.conda
@@ -4597,7 +4597,7 @@ environments:
       - pypi: ./
       - pypi: https://files.pythonhosted.org/packages/2a/a2/e90242f53f7ae41554419b1695b4820b364df87c8350aa420b60b20cab92/duckdb_engine-0.17.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4e/5e/4f5fe4b89fde1dc3ed0eb51bd4ce4c0bca406246673d370ea2ad0c58d747/detect_secrets-1.5.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/8b/59/7caaadd015c66b45e7babc3f094c8147a5ae8adca9d2a68b74ce034c1249/catalystcoop_pudl_diff-0.1.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/8c/fa/f93b69a403d8ce0c9def5577bc213c0cdf460bad68873541b2e5e2864919/catalystcoop_pudl_diff-0.1.1-py3-none-any.whl
       osx-arm64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/accessible-pygments-0.0.5-pyhd8ed1ab_1.conda
@@ -5234,7 +5234,7 @@ environments:
       - pypi: ./
       - pypi: https://files.pythonhosted.org/packages/2a/a2/e90242f53f7ae41554419b1695b4820b364df87c8350aa420b60b20cab92/duckdb_engine-0.17.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4e/5e/4f5fe4b89fde1dc3ed0eb51bd4ce4c0bca406246673d370ea2ad0c58d747/detect_secrets-1.5.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/8b/59/7caaadd015c66b45e7babc3f094c8147a5ae8adca9d2a68b74ce034c1249/catalystcoop_pudl_diff-0.1.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/8c/fa/f93b69a403d8ce0c9def5577bc213c0cdf460bad68873541b2e5e2864919/catalystcoop_pudl_diff-0.1.1-py3-none-any.whl
 packages:
 - conda: https://conda.anaconda.org/conda-forge/linux-64/_openmp_mutex-4.5-20_gnu.conda
   build_number: 20
@@ -30204,10 +30204,10 @@ packages:
   - requests
   - gibberish-detector ; extra == 'gibberish'
   - pyahocorasick ; extra == 'word-list'
-- pypi: https://files.pythonhosted.org/packages/8b/59/7caaadd015c66b45e7babc3f094c8147a5ae8adca9d2a68b74ce034c1249/catalystcoop_pudl_diff-0.1.0-py3-none-any.whl
+- pypi: https://files.pythonhosted.org/packages/8c/fa/f93b69a403d8ce0c9def5577bc213c0cdf460bad68873541b2e5e2864919/catalystcoop_pudl_diff-0.1.1-py3-none-any.whl
   name: catalystcoop-pudl-diff
-  version: 0.1.0
-  sha256: a3078876947382e100165033fd827f986dadb0f24c0333fac696033a410e03aa
+  version: 0.1.1
+  sha256: 6845c1cf27c3dece759c66d0edb1b665ec40dff5a5e1d66a1caeb26c04d13db0
   requires_dist:
   - click>=8.5
   - gcsfs>=2026

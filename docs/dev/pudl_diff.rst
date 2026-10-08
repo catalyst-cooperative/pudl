@@ -53,5 +53,9 @@ are the reports. Deployments then publish them with the rest of the outputs,
 in ``pudl_diff/`` and as a ``pudl_diff.zip`` archive (which is also uploaded to Zenodo
 with stable releases). They aren't published to ``eel-hole``.
 
+PUDL Diff reports made in builds and deployments compare every table row by row,
+however large, rather than skipping the row-level comparison of tables over the
+command's default row limit.
+
 A failed comparison never fails an ETL build, only differences and errors in the
 reports.
