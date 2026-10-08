@@ -10,6 +10,6 @@ sources:
             data_tests:
               - dbt_utils.not_null_proportion:
                   arguments:
-                    at_least: 0.95
+                    at_least: 0.97
                   description: |-
                     County fips code should almost entirely be populated.

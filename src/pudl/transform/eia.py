@@ -133,6 +133,7 @@ EIA_FIPS_COUNTY_FIXES: pd.DataFrame = pd.DataFrame(
         ("AK", "Prince of Wa", "Prince of Wales-Hyder Census Area"),
         ("AK", "Prince of Wale", "Prince of Wales-Hyder"),
         ("AK", "Prince of Wales", "Prince of Wales-Hyder Census Area"),
+        ("AK", "Prince Of Wales", "Prince of Wales-Hyder Census Area"),
         ("AK", "Prince of Wales Ketchikan", "Prince of Wales-Hyder"),
         ("AK", "Prince of Wales-Outer Ketchika", "Prince of Wales-Hyder Census Area"),
         ("AK", "Red Devil", "Bethel Census Area"),
@@ -272,6 +273,7 @@ EIA_FIPS_COUNTY_FIXES: pd.DataFrame = pd.DataFrame(
         ("NV", "Carson City city", "Carson City"),
         ("NY", "Saint Lawren", "St. Lawrence County"),
         ("NY", "Westcherster", "Westchester"),
+        ("NY", "West Chester", "Westchester"),
         ("OH", "Cochocton", "Coshocton County"),
         ("OH", "Columbian", "Columbiana County"),
         ("OH", "Tuscarawa", "Tuscarawas County"),
@@ -1544,6 +1546,9 @@ def harvested_entity_asset_factory(
             "utility_name_eia": 0,
             "longitude": 0 if eia_data_config.eia860.eia860m else 0.7,
             "prime_mover_code": 0,
+            # ensure we always get a county name.
+            # after harvesting we clean the county names and add fips
+            "county": 0,
         }
 
         entity_df, annual_df, _col_dfs = harvest_entity_tables(
