@@ -10,6 +10,7 @@ data changed from one release to the next.
 
 import re
 import shutil
+import sys
 import zipfile
 from dataclasses import dataclass
 from pathlib import Path
@@ -18,6 +19,7 @@ import s3fs
 from pudl_diff.dataset import PudlDiffDataset
 from pudl_diff.dataset_report import REPORT_FILENAME, PudlDiffReport
 from pudl_diff.runner import run_dataset_diff
+from pudl_diff.table_report import DiffOptions
 from upath import UPath
 
 from pudl.deploy.pudl import (
@@ -35,6 +37,8 @@ PUBLIC_BUCKET = "pudl.catalyst.coop"
 NIGHTLY_ROOT = f"s3://{PUBLIC_BUCKET}/nightly/"
 STABLE_ROOT = f"s3://{PUBLIC_BUCKET}/stable/"
 _STABLE_TAG_REGEX = re.compile(r"v(\d{4})\.(\d{1,2})\.(\d{1,2})")
+ALL_ROWS = DiffOptions(max_compare_rows=sys.maxsize)
+"""Never skip the row-level comparison of a table for having too many rows."""
 _LOCAL_RIGHT_LABEL = "local"
 
 
@@ -145,7 +149,8 @@ def run_diff_plan(
     """Compare ``right`` against a plan's baseline, and save the report.
 
     The report and its Parquet outputs are written to a directory named for the two
-    datasets, within ``reports_dir``.
+    datasets, within ``reports_dir``.  Every table is compared
+    row by row, however large, since streaming keeps the memory needed bounded.
 
     Returns:
         The report, or ``None`` if the baseline couldn't be found or read, which is
@@ -162,7 +167,7 @@ def run_diff_plan(
         return None
     output_path = reports_dir / report_dir_name(left_label, plan.right_label)
     logger.info(f"Comparing against {plan.left_root}; writing to {output_path}.")
-    report = run_dataset_diff(left, right, output_path)
+    report = run_dataset_diff(left, right, output_path, options=ALL_ROWS)
     output_path.mkdir(parents=True, exist_ok=True)
     (output_path / REPORT_FILENAME).write_text(report.model_dump_json(indent=2))
     return report
