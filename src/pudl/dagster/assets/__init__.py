@@ -25,6 +25,7 @@ import pudl.output
 import pudl.transform
 from pudl.dagster.assets.core import eiaapi_electricity, glue, static
 from pudl.dagster.assets.core.datapackage import build_pudl_datapackage_asset
+from pudl.dagster.assets.core.pudl_diff import pudl_diff
 from pudl.dagster.assets.deploy import ferceqr as deploy_ferceqr
 from pudl.dagster.assets.output.databases import (
     build_pudl_duckdb_asset,
@@ -190,6 +191,7 @@ def _find_sql_asset_keys(assets) -> list[dg.AssetKey]:
 _sql_asset_keys = _find_sql_asset_keys(_base_assets)
 default_assets = _base_assets + [
     build_pudl_datapackage_asset(_find_parquet_asset_keys(_base_assets)),
+    pudl_diff,
     build_pudl_sqlite_asset(_sql_asset_keys),
     build_pudl_duckdb_asset(_sql_asset_keys),
 ]
