@@ -209,6 +209,7 @@ EIA_FIPS_COUNTY_FIXES: pd.DataFrame = pd.DataFrame(
         ("KY", "West Mccraken", "Mccracken"),  # 860 only
         ("KY", "WOLE", "Wolfe County"),
         ("LA", "Burke", "Iberia"),
+        ("LA", "Bolivar", "Tangipahoa"),
         ("LA", "DeSoto", "De Soto"),
         ("LA", "East Baton R", "East Baton Rouge Parish"),
         ("LA", "East Felicia", "East Feliciana Parish"),
@@ -244,8 +245,8 @@ EIA_FIPS_COUNTY_FIXES: pd.DataFrame = pd.DataFrame(
         ("MO", "Saint Franco", "St. Francois County"),
         ("MO", "Sainte Genev", "Ste. Genevieve County"),
         ("MS", "Clark", "Clarke"),
-        ("MS", "Clark", "Clarke"),
         ("MS", "De Soto", "DeSoto"),
+        ("MS", "Henderson", "Harrison"),
         ("MS", "Homoshitto", "Amite"),
         ("MS", "Jefferson Da", "Jefferson Davis"),
         ("MT", "Anaconda-Dee", "Deer Lodge"),
@@ -279,6 +280,7 @@ EIA_FIPS_COUNTY_FIXES: pd.DataFrame = pd.DataFrame(
         ("OR", "Unioin", "Union"),
         ("PA", "Northumberla", "Northumberland"),
         ("PR", "Aquadilla", "Aguadilla"),
+        ("PR", "Cupey", "San Juan"),
         ("PR", "Sabana Grand", "Sabana Grande"),
         ("PR", "San Sebastia", "San Sebastian"),
         ("PR", "Trujillo Alt", "Trujillo Alto"),
@@ -1560,6 +1562,7 @@ def harvested_entity_asset_factory(
                 .pipe(
                     clean_eia_counties,
                     fixes=EIA_FIPS_COUNTY_FIXES,
+                    explode_lists_of_counties=False,
                 )
                 # Add FIPS IDs based on county & state names:
                 .pipe(

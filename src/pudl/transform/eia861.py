@@ -951,7 +951,11 @@ def core_eia861__yearly_service_territory(
         # as floats, which messes up the parsing of counties by addfips.
         df.astype({"county": "string"})
         # Ensure that we have the canonical US Census county names:
-        .pipe(clean_eia_counties, fixes=EIA_FIPS_COUNTY_FIXES)
+        .pipe(
+            clean_eia_counties,
+            fixes=EIA_FIPS_COUNTY_FIXES,
+            explode_lists_of_counties=True,
+        )
         # Add FIPS IDs based on county & state names:
         .pipe(add_fips_ids, _core_censuspep__yearly_geocodes)
         .assign(short_form=lambda x: _make_yn_bool(x.short_form))
