@@ -39,6 +39,8 @@ STABLE_ROOT = f"s3://{PUBLIC_BUCKET}/stable/"
 _STABLE_TAG_REGEX = re.compile(r"v(\d{4})\.(\d{1,2})\.(\d{1,2})")
 ALL_ROWS = DiffOptions(max_compare_rows=sys.maxsize)
 """Never skip the row-level comparison of a table for having too many rows."""
+_PREFERRED_TAG_PREFIXES = ("v20", "nightly-", "branch-")
+"""Prefixes of the tags that name a dataset, in decreasing order of preference."""
 _LOCAL_RIGHT_LABEL = "local"
 
 
@@ -49,7 +51,8 @@ class DiffPlan:
     left_root: str
     """Root of the baseline (left) dataset."""
     right_label: str
-    """Names the build being compared, in the report's directory name."""
+    """Names the build being compared in the report's directory name, unless its
+    outputs have git tags of their own to name it with."""
     right_display_root: str | None = None
     """Root to record in the report for the build's outputs, if not where they
     are actually read from."""
@@ -120,19 +123,34 @@ def _sanitize(label: str) -> str:
     return re.sub(r"[^\w.\-]+", "-", label).strip("-")
 
 
-def dataset_label(dataset: PudlDiffDataset) -> str:
-    """Name a dataset by its git tag, or failing that a short form of its ID."""
-    provenance = dataset.provenance()
-    tags = provenance.git_tags or []
-    release_tags = [
-        tag
-        for tag in tags
-        if _STABLE_TAG_REGEX.fullmatch(tag) or tag.startswith("nightly-")
-    ]
-    if label := (release_tags or tags or [None])[0]:
+def _tag_preference(tag: str) -> int:
+    """Rank a tag for naming a dataset: lower is more legible, so preferred."""
+    for rank, prefix in enumerate(_PREFERRED_TAG_PREFIXES):
+        if tag.startswith(prefix):
+            return rank
+    return len(_PREFERRED_TAG_PREFIXES)
+
+
+def _preferred_tag(dataset: PudlDiffDataset) -> str | None:
+    """The most legible of a dataset's git tags, if it has any.
+
+    A dataset can have several tags on its git commit. Prefer versioned release tags,
+    then nightly build tags, then branch build tags, then any other tag, and otherwise
+    take the first of those in the order the dataset lists them.
+    """
+    tags = dataset.provenance().git_tags or []
+    return min(tags, key=_tag_preference) if tags else None
+
+
+def dataset_label(dataset: PudlDiffDataset, default: str | None = None) -> str:
+    """Name a dataset by its preferred git tag.
+
+    Failing that, use ``default``, and failing that a short form of its ID.
+    """
+    if label := _preferred_tag(dataset) or default:
         return _sanitize(label)
-    if provenance.id:
-        return _sanitize(provenance.id[:8])
+    if dataset_id := dataset.provenance().id:
+        return _sanitize(dataset_id[:8])
     return "baseline"
 
 
@@ -149,8 +167,10 @@ def run_diff_plan(
     """Compare ``right`` against a plan's baseline, and save the report.
 
     The report and its Parquet outputs are written to a directory named for the two
-    datasets, within ``reports_dir``.  Every table is compared
-    row by row, however large, since streaming keeps the memory needed bounded.
+    datasets, within ``reports_dir``. Each is named by its preferred git tag (see :func:`dataset_label`),
+    or for the build being compared, by the plan's ``right_label`` if it has none.
+    Every table is compared row by row, however large, since streaming keeps the
+    memory needed bounded.
 
     Returns:
         The report, or ``None`` if the baseline couldn't be found or read, which is
@@ -165,7 +185,8 @@ def run_diff_plan(
             f"datapackage descriptor: {e!r}"
         )
         return None
-    output_path = reports_dir / report_dir_name(left_label, plan.right_label)
+    right_label = dataset_label(right, default=plan.right_label)
+    output_path = reports_dir / report_dir_name(left_label, right_label)
     logger.info(f"Comparing against {plan.left_root}; writing to {output_path}.")
     report = run_dataset_diff(left, right, output_path, options=ALL_ROWS)
     output_path.mkdir(parents=True, exist_ok=True)

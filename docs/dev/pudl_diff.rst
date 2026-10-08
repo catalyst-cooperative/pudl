@@ -47,7 +47,9 @@ The baselines depend on the build's git tag:
   release, are replaced.
 
 Each report is written to ``$PUDL_OUTPUT/pudl_diff/<left>-vs-<right>/``, named for the
-git tags of the two datasets, or for the build ID of a branch build, which has no tag.
+git tags of the two datasets. If a dataset has several, versioned release tags
+(``v20...``) are preferred to nightly build tags (``nightly-...``), and those to branch
+build tags (``branch-...``). A build with no tags is named for its build ID instead.
 Since the build's outputs are saved to ``gs://builds.catalyst.coop/<build-id>/``, so
 are the reports. Deployments then publish them with the rest of the outputs,
 in ``pudl_diff/`` and as a ``pudl_diff.zip`` archive (which is also uploaded to Zenodo
