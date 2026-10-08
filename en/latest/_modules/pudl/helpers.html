@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.helpers &#8212; PUDL 2026.9.1.dev41 documentation</title>
+    <title>pudl.helpers &#8212; PUDL 2026.9.1.dev42 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../../_static/documentation_options.js?v=3567ca07"></script>
+    <script src="../../_static/documentation_options.js?v=15d650ec"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -495,8 +495,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev41 documentation - Home"/>
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev41 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev42 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev42 documentation - Home"/>
   
   
 </a></div>
@@ -1330,10 +1330,23 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">clean_eia_counties</span><span class="p">(</span>
     <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">fixes</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">explode_lists_of_counties</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
     <span class="n">state_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"state"</span><span class="p">,</span>
     <span class="n">county_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"county"</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Replace non-standard county names with county names from US Census."""</span>
+<span class="w">    </span><span class="sd">"""Replace non-standard county names with county names from US Census.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df: table with counties that you'd like to clean up.</span>
+<span class="sd">        fixes: table fixes of county names in EIA with the cleaned up name that should</span>
+<span class="sd">            match with the US Census names. This table must have with columns of:</span>
+<span class="sd">            ["state", "eia_county", "fips_county"]</span>
+<span class="sd">        explode_lists_of_counties: Boolean for whether you want to convert any</span>
+<span class="sd">            instances of multiple counties separated by commas into multiple records</span>
+<span class="sd">            using ``pandas.explode``.</span>
+<span class="sd">        state_col: state column name - default is state.</span>
+<span class="sd">        county_col: state column name - default is county.</span>
+<span class="sd">    """</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">df</span><span class="p">[</span><span class="n">county_col</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">df</span><span class="p">[</span><span class="n">county_col</span><span class="p">]</span>
@@ -1343,15 +1356,20 @@ window.runMermaid = runMermaid;</script>
         <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^St "</span><span class="p">,</span> <span class="s2">"St. "</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># Standardize abbreviation.</span>
         <span class="c1"># Standardize abbreviation.</span>
         <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^Ste "</span><span class="p">,</span> <span class="s2">"Ste. "</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"Kent &amp; New Castle"</span><span class="p">,</span> <span class="s2">"Kent, New Castle"</span><span class="p">)</span>  <span class="c1"># Two counties</span>
         <span class="c1"># Fix ordering, remove comma</span>
         <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"Borough, Kodiak Island"</span><span class="p">,</span> <span class="s2">"Kodiak Island Borough"</span><span class="p">)</span>
-        <span class="c1"># Turn comma-separated counties into lists</span>
-        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">r</span><span class="s2">",$"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">","</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="c1"># Create new records for each county in a multi-valued record</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">explode</span><span class="p">(</span><span class="n">county_col</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">explode_lists_of_counties</span><span class="p">:</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">county_col</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">county_col</span><span class="p">]</span>
+            <span class="c1"># Two counties</span>
+            <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"Kent &amp; New Castle"</span><span class="p">,</span> <span class="s2">"Kent, New Castle"</span><span class="p">)</span>
+            <span class="c1"># Turn comma-separated counties into lists</span>
+            <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">r</span><span class="s2">",$"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">","</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">explode</span><span class="p">(</span><span class="n">county_col</span><span class="p">)</span>
     <span class="n">df</span><span class="p">[</span><span class="n">county_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">county_col</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
     <span class="c1"># Yellowstone county is in MT, not WY</span>
     <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">df</span><span class="p">[</span><span class="n">state_col</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"WY"</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">county_col</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"Yellowstone"</span><span class="p">),</span> <span class="n">state_col</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>

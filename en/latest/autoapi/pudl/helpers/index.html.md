@@ -255,9 +255,20 @@ Add the State FIPS codes.
 
 Add the County FIPS codes to a table with State FIPS codes.
 
-### pudl.helpers.clean_eia_counties(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), fixes: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), state_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'state', county_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'county') → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.helpers.clean_eia_counties(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), fixes: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), explode_lists_of_counties: [bool](https://docs.python.org/3/builtins/functions.html#bool), state_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'state', county_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'county') → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Replace non-standard county names with county names from US Census.
+
+* **Parameters:**
+  * **df** – table with counties that you’d like to clean up.
+  * **fixes** – table fixes of county names in EIA with the cleaned up name that should
+    match with the US Census names. This table must have with columns of:
+    [“state”, “eia_county”, “fips_county”]
+  * **explode_lists_of_counties** – Boolean for whether you want to convert any
+    instances of multiple counties separated by commas into multiple records
+    using `pandas.explode`.
+  * **state_col** – state column name - default is state.
+  * **county_col** – state column name - default is county.
 
 ### pudl.helpers.oob_to_nan(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], lb: [float](https://docs.python.org/3/builtins/functions.html#float) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, ub: [float](https://docs.python.org/3/builtins/functions.html#float) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 

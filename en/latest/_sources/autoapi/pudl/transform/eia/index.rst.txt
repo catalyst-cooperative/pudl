@@ -31,6 +31,7 @@ Attributes
 
    pudl.transform.eia.logger
    pudl.transform.eia.HARVESTABLE_ASSETS
+   pudl.transform.eia.EIA_FIPS_COUNTY_FIXES
    pudl.transform.eia.harvested_entities
    pudl.transform.eia.finished_eia_assets
 
@@ -94,6 +95,15 @@ Module Contents
 
    .. py:attribute:: GENERATORS
 
+
+.. py:data:: EIA_FIPS_COUNTY_FIXES
+   :type:  pandas.DataFrame
+
+   Table of fixes to county names to make them more aligned with census names.
+
+   This set of fixes was developed for EIA-861 for
+   :ref:`core_eia861__yearly_service_territory` and was expanded (slightly) to cover
+   the remaining non-conforming EIA-860 and EIA-923 county names.
 
 .. py:function:: find_timezone(*, lng=None, lat=None, state=None, strict=True, tz_finder=None)
 

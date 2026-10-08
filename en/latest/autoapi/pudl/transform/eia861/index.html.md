@@ -7,13 +7,12 @@ All transformations include:
 
 ## Attributes
 
-| [`logger`](#pudl.transform.eia861.logger)                |    |
-|------------------------------------------------------------------------|----|
-| [`BA_ID_NAME_FIXES`](#pudl.transform.eia861.BA_ID_NAME_FIXES)      |    |
-| [`EIA_FIPS_COUNTY_FIXES`](#pudl.transform.eia861.EIA_FIPS_COUNTY_FIXES) |    |
-| [`BA_NAME_FIXES`](#pudl.transform.eia861.BA_NAME_FIXES)         |    |
-| [`NERC_SPELLCHECK`](#pudl.transform.eia861.NERC_SPELLCHECK)       |    |
-| [`NERC_NUMERIC_CODES`](#pudl.transform.eia861.NERC_NUMERIC_CODES)    |    |
+| [`logger`](#pudl.transform.eia861.logger)             |    |
+|---------------------------------------------------------------------|----|
+| [`BA_ID_NAME_FIXES`](#pudl.transform.eia861.BA_ID_NAME_FIXES)   |    |
+| [`BA_NAME_FIXES`](#pudl.transform.eia861.BA_NAME_FIXES)      |    |
+| [`NERC_SPELLCHECK`](#pudl.transform.eia861.NERC_SPELLCHECK)    |    |
+| [`NERC_NUMERIC_CODES`](#pudl.transform.eia861.NERC_NUMERIC_CODES) |    |
 
 ## Functions
 
@@ -63,8 +62,6 @@ All transformations include:
 ### pudl.transform.eia861.logger
 
 ### pudl.transform.eia861.BA_ID_NAME_FIXES *: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)*
-
-### pudl.transform.eia861.EIA_FIPS_COUNTY_FIXES *: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)*
 
 ### pudl.transform.eia861.BA_NAME_FIXES *: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)*
 

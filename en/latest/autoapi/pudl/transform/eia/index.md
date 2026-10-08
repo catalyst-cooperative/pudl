@@ -19,11 +19,12 @@ found in `pudl.transform.eia._boiler_generator_assn()`.
 
 ## Attributes
 
-| [`logger`](#pudl.transform.eia.logger)              |    |
-|----------------------------------------------------------------------|----|
-| [`HARVESTABLE_ASSETS`](#pudl.transform.eia.HARVESTABLE_ASSETS)  |    |
-| [`harvested_entities`](#pudl.transform.eia.harvested_entities)  |    |
-| [`finished_eia_assets`](#pudl.transform.eia.finished_eia_assets) |    |
+| [`logger`](#pudl.transform.eia.logger)                |                                                                             |
+|------------------------------------------------------------------------|-----------------------------------------------------------------------------|
+| [`HARVESTABLE_ASSETS`](#pudl.transform.eia.HARVESTABLE_ASSETS)    |                                                                             |
+| [`EIA_FIPS_COUNTY_FIXES`](#pudl.transform.eia.EIA_FIPS_COUNTY_FIXES) | Table of fixes to county names to make them more aligned with census names. |
+| [`harvested_entities`](#pudl.transform.eia.harvested_entities)    |                                                                             |
+| [`finished_eia_assets`](#pudl.transform.eia.finished_eia_assets)   |                                                                             |
 
 ## Classes
 
@@ -69,6 +70,14 @@ Enum for the different types of EIA entities.
 #### BOILERS
 
 #### GENERATORS
+
+### pudl.transform.eia.EIA_FIPS_COUNTY_FIXES *: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)*
+
+Table of fixes to county names to make them more aligned with census names.
+
+This set of fixes was developed for EIA-861 for
+[core_eia861_\_yearly_service_territory](../../../../data_dictionaries/pudl_db.md#core-eia861-yearly-service-territory) and was expanded (slightly) to cover
+the remaining non-conforming EIA-860 and EIA-923 county names.
 
 ### pudl.transform.eia.find_timezone(, lng=None, lat=None, state=None, strict=True, tz_finder=None)
 

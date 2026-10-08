@@ -275,9 +275,19 @@ Module Contents
    Add the County FIPS codes to a table with State FIPS codes.
 
 
-.. py:function:: clean_eia_counties(df: pandas.DataFrame, fixes: pandas.DataFrame, state_col: str = 'state', county_col: str = 'county') -> pandas.DataFrame
+.. py:function:: clean_eia_counties(df: pandas.DataFrame, fixes: pandas.DataFrame, explode_lists_of_counties: bool, state_col: str = 'state', county_col: str = 'county') -> pandas.DataFrame
 
    Replace non-standard county names with county names from US Census.
+
+   :param df: table with counties that you'd like to clean up.
+   :param fixes: table fixes of county names in EIA with the cleaned up name that should
+                 match with the US Census names. This table must have with columns of:
+                 ["state", "eia_county", "fips_county"]
+   :param explode_lists_of_counties: Boolean for whether you want to convert any
+                                     instances of multiple counties separated by commas into multiple records
+                                     using ``pandas.explode``.
+   :param state_col: state column name - default is state.
+   :param county_col: state column name - default is county.
 
 
 .. py:function:: oob_to_nan(df: pandas.DataFrame, cols: list[str], lb: float | None = None, ub: float | None = None) -> pandas.DataFrame

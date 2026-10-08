@@ -19,7 +19,6 @@ Attributes
 
    pudl.transform.eia861.logger
    pudl.transform.eia861.BA_ID_NAME_FIXES
-   pudl.transform.eia861.EIA_FIPS_COUNTY_FIXES
    pudl.transform.eia861.BA_NAME_FIXES
    pudl.transform.eia861.NERC_SPELLCHECK
    pudl.transform.eia861.NERC_NUMERIC_CODES
@@ -77,9 +76,6 @@ Module Contents
 .. py:data:: logger
 
 .. py:data:: BA_ID_NAME_FIXES
-   :type:  pandas.DataFrame
-
-.. py:data:: EIA_FIPS_COUNTY_FIXES
    :type:  pandas.DataFrame
 
 .. py:data:: BA_NAME_FIXES
