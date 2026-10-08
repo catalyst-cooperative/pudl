@@ -25,6 +25,7 @@ import pudl.output
 import pudl.transform
 from pudl.dagster.assets.core import eiaapi_electricity, glue, static, unmapped_ids
 from pudl.dagster.assets.core.datapackage import build_datapackage_asset
+from pudl.dagster.assets.core.pudl_diff import pudl_diff
 from pudl.dagster.assets.deploy import ferceqr as deploy_ferceqr
 from pudl.dagster.assets.output.databases import (
     build_pudl_duckdb_asset,
@@ -210,6 +211,7 @@ default_assets = _base_assets + [
         # TODO(#5733): partitioning is per asset, not per package.
         partitioned=True,
     ),
+    pudl_diff,
     build_pudl_sqlite_asset(_sql_asset_keys),
     build_pudl_duckdb_asset(_sql_asset_keys),
 ]
