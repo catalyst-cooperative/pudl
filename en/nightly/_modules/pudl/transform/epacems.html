@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.epacems &#8212; PUDL 2026.9.1.dev39 documentation</title>
+    <title>pudl.transform.epacems &#8212; PUDL 2026.9.1.dev41 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../../../_static/documentation_options.js?v=b4baea3d"></script>
+    <script src="../../../_static/documentation_options.js?v=3567ca07"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -495,8 +495,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev39 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev39 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev41 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev41 documentation - Home"/>
   
   
 </a></div>
@@ -943,6 +943,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">"plant_id_epa"</span><span class="p">,</span> <span class="s2">"emissions_unit_id_epa"</span><span class="p">],</span>
         <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span>
         <span class="n">coalesce</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">maintain_order</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span>
     <span class="p">)</span><span class="o">.</span><span class="n">with_columns</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"plant_id_eia"</span><span class="p">)</span><span class="o">.</span><span class="n">fill_null</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"plant_id_epa"</span><span class="p">)))</span></div>
 
 
@@ -1022,7 +1023,9 @@ window.runMermaid = runMermaid;</script>
         <span class="o">.</span><span class="n">drop_nulls</span><span class="p">()</span>
         <span class="o">.</span><span class="n">unique</span><span class="p">()</span>
         <span class="o">.</span><span class="n">with_columns</span><span class="p">(</span>
-            <span class="n">utc_offset</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"timezone"</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">timezone_offset_map</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+            <span class="n">utc_offset</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"timezone"</span><span class="p">)</span><span class="o">.</span><span class="n">replace_strict</span><span class="p">(</span>
+                <span class="n">timezone_offset_map</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span>
+            <span class="p">)</span>
         <span class="p">)</span>
         <span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"utc_offset"</span><span class="p">])</span>
     <span class="p">)</span></div>
