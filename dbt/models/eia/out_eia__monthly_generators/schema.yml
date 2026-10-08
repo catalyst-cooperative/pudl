@@ -503,3 +503,10 @@ sources:
           - name: winter_capacity_mw
           - name: winter_estimated_capability_mw
           - name: zip_code
+          - name: state_id_fips
+          - name: county_id_fips
+            data_tests:
+              - dbt_utils.not_null_proportion:
+                  arguments:
+                    at_least: 0.96
+                  description: County fips code should almost entirely be populated.

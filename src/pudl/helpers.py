@@ -424,10 +424,23 @@ def add_county_fips_id(
 def clean_eia_counties(
     df: pd.DataFrame,
     fixes: pd.DataFrame,
+    explode_lists_of_counties: bool,
     state_col: str = "state",
     county_col: str = "county",
 ) -> pd.DataFrame:
-    """Replace non-standard county names with county names from US Census."""
+    """Replace non-standard county names with county names from US Census.
+
+    Args:
+        df: table with counties that you'd like to clean up.
+        fixes: table fixes of county names in EIA with the cleaned up name that should
+            match with the US Census names. This table must have with columns of:
+            ["state", "eia_county", "fips_county"]
+        explode_lists_of_counties: Boolean for whether you want to convert any
+            instances of multiple counties separated by commas into multiple records
+            using ``pandas.explode``.
+        state_col: state column name - default is state.
+        county_col: state column name - default is county.
+    """
     df = df.copy()
     df[county_col] = (
         df[county_col]
@@ -437,15 +450,20 @@ def clean_eia_counties(
         .str.replace(r"^St ", "St. ", regex=True)  # Standardize abbreviation.
         # Standardize abbreviation.
         .str.replace(r"^Ste ", "Ste. ", regex=True)
-        .str.replace("Kent & New Castle", "Kent, New Castle")  # Two counties
         # Fix ordering, remove comma
         .str.replace("Borough, Kodiak Island", "Kodiak Island Borough")
-        # Turn comma-separated counties into lists
-        .str.replace(r",$", "", regex=True)
-        .str.split(",")
     )
     # Create new records for each county in a multi-valued record
-    df = df.explode(county_col)
+    if explode_lists_of_counties:
+        df[county_col] = (
+            df[county_col]
+            # Two counties
+            .str.replace("Kent & New Castle", "Kent, New Castle")
+            # Turn comma-separated counties into lists
+            .str.replace(r",$", "", regex=True)
+            .str.split(",")
+        )
+        df = df.explode(county_col)
     df[county_col] = df[county_col].str.strip()
     # Yellowstone county is in MT, not WY
     df.loc[(df[state_col] == "WY") & (df[county_col] == "Yellowstone"), state_col] = (
