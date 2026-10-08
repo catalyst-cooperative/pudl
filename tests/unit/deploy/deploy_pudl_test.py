@@ -168,17 +168,15 @@ def test_upload_outputs_nightly(tmp_path):
 
         # Suffixes now upload concurrently, so call order isn't guaranteed -- assert
         # on the set of paths touched rather than positional call order.
-        assert mock_gcs.put.call_count == 2
-        assert {c.args[1] for c in mock_gcs.put.call_args_list} == {
-            "gs://pudl.catalyst.coop/nightly/",
-            "gs://pudl.catalyst.coop/eel-hole/",
-        }
-
-        assert mock_s3.put.call_count == 2
-        assert {c.args[1] for c in mock_s3.put.call_args_list} == {
-            "s3://pudl.catalyst.coop/nightly/",
-            "s3://pudl.catalyst.coop/eel-hole/",
-        }
+        # The eel-hole path gets each output individually, so that it can leave some
+        # out (see test_upload_outputs_leaves_pudl_diff_out_of_eel_hole).
+        for mock_fs, scheme in ((mock_gcs, "gs"), (mock_s3, "s3")):
+            assert mock_fs.put.call_count == 3
+            assert {c.args[1] for c in mock_fs.put.call_args_list} == {
+                f"{scheme}://pudl.catalyst.coop/nightly/",
+                f"{scheme}://pudl.catalyst.coop/eel-hole/pudl.sqlite.zip",
+                f"{scheme}://pudl.catalyst.coop/eel-hole/table1.parquet",
+            }
 
         # Both filesystems should have been cleared before the corresponding put().
         # `call`/dict objects aren't hashable, so compare extracted paths and
@@ -193,6 +191,27 @@ def test_upload_outputs_nightly(tmp_path):
             "s3://pudl.catalyst.coop/nightly/",
             "s3://pudl.catalyst.coop/eel-hole/",
         }
+
+
+def test_upload_outputs_leaves_pudl_diff_out_of_eel_hole(tmp_path):
+    """PUDL Diff reports go to the nightly path, but not to eel-hole."""
+    source_dir = tmp_path / "output"
+    (source_dir / "pudl_diff" / "a-vs-b").mkdir(parents=True)
+    (source_dir / "pudl_diff" / "a-vs-b" / "pudl_diff_report.json").write_text("{}")
+    (source_dir / "pudl_diff.zip").write_text("zip")
+    (source_dir / "table1.parquet").write_text("p1")
+
+    with patch("pudl.deploy.pudl.gcsfs.GCSFileSystem") as mock_gcs_cls:
+        mock_gcs = MagicMock()
+        mock_gcs.exists.return_value = False
+        mock_gcs_cls.return_value = mock_gcs
+
+        upload_outputs(source_dir, ["nightly", "eel-hole"], upload_to_s3=False)
+
+    assert {c.args[1] for c in mock_gcs.put.call_args_list} == {
+        "gs://pudl.catalyst.coop/nightly/",
+        "gs://pudl.catalyst.coop/eel-hole/table1.parquet",
+    }
 
 
 def test_upload_outputs_runs_targets_concurrently(tmp_path):
@@ -352,7 +371,7 @@ def test_upload_outputs_gcs_only_skips_s3(tmp_path):
         mock_s3_cls.assert_not_called()
         assert {c.args[1] for c in mock_gcs.put.call_args_list} == {
             "gs://pudl.catalyst.coop/staging/nightly/",
-            "gs://pudl.catalyst.coop/staging/eel-hole/",
+            "gs://pudl.catalyst.coop/staging/eel-hole/table1.parquet",
         }
 
 

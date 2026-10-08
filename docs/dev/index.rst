@@ -12,6 +12,7 @@ Developer Guide
   testing
   data_validation_quickstart
   data_validation_reference
+  pudl_diff
   metadata
   build_docs
   datastore
