@@ -33,6 +33,11 @@ from pudl.logging_helpers import configure_root_logger, get_logger
 
 logger = get_logger(__name__)
 
+PUDL_DIFF_DIRNAME = "pudl_diff"
+"""Directory of PUDL Diff reports within a build's outputs."""
+PUDL_DIFF_ZIP_NAME = "pudl_diff.zip"
+"""Archive of the PUDL Diff reports, distributed alongside the other outputs."""
+
 
 class DeploymentType(Enum):
     """Deployments can be 'nightly', 'branch', or 'stable'."""
