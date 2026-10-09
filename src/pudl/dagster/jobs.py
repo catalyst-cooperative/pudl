@@ -30,8 +30,7 @@ pudl_job = dg.define_asset_job(
         "raw_ferceqr",
         "core_ferceqr",
         "ferceqr_deployment",
-    )
-    - dg.AssetSelection.keys("ferceqr_datapackage"),
+    ),
 )
 
 ferc_to_sqlite_job = dg.define_asset_job(
@@ -53,16 +52,14 @@ pudl_with_ferc_to_sqlite_job = dg.define_asset_job(
         "raw_ferceqr",
         "core_ferceqr",
         "ferceqr_deployment",
-    )
-    - dg.AssetSelection.keys("ferceqr_datapackage"),
+    ),
 )
 
 ferceqr_job = dg.define_asset_job(
     name="ferceqr",
     description="This job processes the FERC EQR data.",
     config={"execution": {"config": {"in_process": {}}}},
-    selection=dg.AssetSelection.groups("raw_ferceqr", "core_ferceqr")
-    | dg.AssetSelection.keys("ferceqr_datapackage"),
+    selection=dg.AssetSelection.groups("raw_ferceqr", "core_ferceqr"),
 )
 
 ferceqr_deployment_job = dg.define_asset_job(
@@ -72,7 +69,8 @@ ferceqr_deployment_job = dg.define_asset_job(
     selection=dg.AssetSelection.assets(
         "deploy_ferceqr",
         "handle_ferceqr_failure",
-    ),
+    )
+    | dg.AssetSelection.keys("ferceqr_datapackage"),
 )
 
 default_jobs = [

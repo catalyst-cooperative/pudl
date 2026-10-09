@@ -2800,6 +2800,7 @@ class Package(PudlMeta):
         title: str | None = None,
         description: str | None = None,
         version: str | None = None,
+        name: str = "pudl",
     ) -> Package:
         """Construct a collection of Resources from PUDL identifiers (`resource.name`).
 
@@ -2823,6 +2824,7 @@ class Package(PudlMeta):
             title: Human-readable title for the package.
             description: Human-readable description of the package.
             version: Version string for the package.
+            name: Name of the datapackage.
         """
         resources = [Resource.dict_from_id(x) for x in resource_ids]
         if resolve_foreign_keys:
@@ -2854,7 +2856,7 @@ class Package(PudlMeta):
             ]
 
         return cls(
-            name="pudl",
+            name=name,
             title=title,
             description=description,
             version=version,
@@ -3039,9 +3041,7 @@ class Package(PudlMeta):
             ],
             keywords=list(compiled["keywords"]),
             resources=[r.to_frictionless() for r in pudl_resources],
-            sources=[
-                DataSource.from_id(name).to_frictionless() for name in sorted(SOURCES)
-            ],
+            sources=[s.to_frictionless() for s in compiled["sources"]],
         )
         package.custom["$schema"] = (
             "https://datapackage.org/profiles/2.0/datapackage.json"

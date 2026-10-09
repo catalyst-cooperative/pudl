@@ -17,6 +17,7 @@ from pudl.dagster.assets.core.datapackage import (
     _docs_version_slug,
     _enrich_resources,
     _enrich_sources,
+    _resource_paths,
     build_datapackage_asset,
 )
 from pudl.metadata.classes import FERCEQR_PACKAGE, PUDL_PACKAGE
@@ -52,25 +53,40 @@ def fake_dagster_file_metadata(asset_keys) -> dict[str, dict]:
     }
 
 
-@pytest.mark.parametrize(
-    ("package", "asset_name", "group_name", "partitioned"),
-    [
-        (PUDL_PACKAGE, "pudl_datapackage", "core_pudl", False),
-        (FERCEQR_PACKAGE, "ferceqr_datapackage", "core_ferceqr", True),
-    ],
-    ids=["pudl", "ferceqr"],
-)
-def test_datapackage_asset_writes_descriptor(
-    mocker,
-    asset_resources,
-    parquet_dir,
-    package,
-    asset_name,
-    group_name,
-    partitioned,
-):
+def declared_paths(package) -> dict[str, list[str]]:
+    """Map each resource name to the parquet paths its descriptor declares.
+
+    Read from the package rather than hardcoded so these tests keep working if the
+    metadata layer changes how it spells multi-file paths.
+    """
+    descriptor = json.loads(package.to_frictionless().to_json())
+    return {
+        resource["name"]: _resource_paths(resource)
+        for resource in descriptor["resources"]
+    }
+
+
+def sha256_of(payload: bytes) -> str:
+    """Return the descriptor-formatted hash of *payload*."""
+    return f"sha256:{hashlib.sha256(payload).hexdigest()}"
+
+
+def write_parquet_files(parquet_dir: Path, paths: list[str]) -> dict[str, bytes]:
+    """Create a file at each relative path, with distinct contents. Returns payloads."""
+    payloads = {}
+    for rel_path in paths:
+        parquet_file = parquet_dir / rel_path
+        parquet_file.parent.mkdir(parents=True, exist_ok=True)
+        payloads[rel_path] = rel_path.encode()
+        parquet_file.write_bytes(payloads[rel_path])
+    return payloads
+
+
+def test_datapackage_asset_writes_descriptor(mocker, asset_resources, parquet_dir):
     """The asset writes an enriched descriptor for every resource in the package."""
-    parquet_asset_keys = [dg.AssetKey(resource.name) for resource in package.resources]
+    parquet_asset_keys = [
+        dg.AssetKey(resource.name) for resource in PUDL_PACKAGE.resources
+    ]
     assert parquet_asset_keys, "Package under test has no resources."
 
     mocker.patch(
@@ -83,11 +99,7 @@ def test_datapackage_asset_writes_descriptor(
     )
 
     asset_def = build_datapackage_asset(
-        package,
-        parquet_asset_keys,
-        asset_name,
-        group_name=group_name,
-        partitioned=partitioned,
+        PUDL_PACKAGE, parquet_asset_keys, "pudl_datapackage"
     )
     result = asset_def(dg.build_asset_context(resources=asset_resources))
 
@@ -115,6 +127,70 @@ def test_datapackage_asset_writes_descriptor(
     assert result.metadata["resource_count"].value == len(resources)
     assert result.metadata["enriched_resource_count"].value == len(resources)
     assert result.metadata["bytes"].value == output_path.stat().st_size
+
+
+def test_partitioned_datapackage_asset_describes_every_partition(
+    mocker, asset_resources, parquet_dir
+):
+    """Partitioned resources get per-partition stats computed from disk.
+
+    The Dagster event log holds one materialisation per partition, so aggregating
+    it by asset key would describe a single partition as the whole table. The asset
+    must not consult it at all when ``partitioned=True``.
+    """
+    paths_by_resource = declared_paths(FERCEQR_PACKAGE)
+    assert any(len(paths) > 1 for paths in paths_by_resource.values()), (
+        "FERCEQR_PACKAGE declares no multi-partition resources; test is vacuous."
+    )
+
+    payloads: dict[str, bytes] = {}
+    for paths in paths_by_resource.values():
+        payloads |= write_parquet_files(parquet_dir, paths)
+
+    parquet_asset_keys = [
+        dg.AssetKey(resource.name) for resource in FERCEQR_PACKAGE.resources
+    ]
+    collect_dag_metadata = mocker.patch(
+        f"{MODULE}._collect_dagster_file_metadata",
+        return_value=fake_dagster_file_metadata(parquet_asset_keys),
+    )
+
+    asset_def = build_datapackage_asset(
+        FERCEQR_PACKAGE,
+        parquet_asset_keys,
+        "ferceqr_datapackage",
+        group_name="core_ferceqr",
+        partitioned=True,
+    )
+    result = asset_def(dg.build_asset_context(resources=asset_resources))
+
+    collect_dag_metadata.assert_not_called()
+
+    descriptor = json.loads((parquet_dir / "datapackage.json").read_text())
+    resources = descriptor["resources"]
+    assert result.metadata["enriched_resource_count"].value == len(resources)
+
+    for resource in resources:
+        paths = paths_by_resource[resource["name"]]
+        if len(paths) > 1:
+            # Multi-file resources carry per-partition stats, in declared order,
+            # and no top-level hash -- there is no single file for it to describe.
+            assert [part["path"] for part in resource["parts"]] == paths
+            assert resource["parts"] == [
+                {
+                    "path": rel_path,
+                    "bytes": len(payloads[rel_path]),
+                    "hash": sha256_of(payloads[rel_path]),
+                }
+                for rel_path in paths
+            ]
+            assert resource["bytes"] == sum(len(payloads[p]) for p in paths)
+            assert "hash" not in resource
+            assert FAKE_BYTES not in {part["bytes"] for part in resource["parts"]}
+        else:
+            assert resource["bytes"] == len(payloads[paths[0]])
+            assert resource["hash"] == sha256_of(payloads[paths[0]])
+            assert "parts" not in resource
 
 
 def test_pudl_datapackage_enriches_sources(mocker, asset_resources, parquet_dir):
@@ -283,9 +359,9 @@ def test_enrich_resources_prefers_dagster_metadata_and_falls_back_to_disk(
     (tmp_path / "from_disk.parquet").write_bytes(parquet_bytes)
     descriptor = {
         "resources": [
-            {"name": "from_dag"},
-            {"name": "from_disk"},
-            {"name": "missing"},
+            {"name": "from_dag", "path": "from_dag.parquet"},
+            {"name": "from_disk", "path": "from_disk.parquet"},
+            {"name": "missing", "path": "missing.parquet"},
         ]
     }
 
@@ -297,11 +373,117 @@ def test_enrich_resources_prefers_dagster_metadata_and_falls_back_to_disk(
 
     assert enriched_count == 2
     assert descriptor["resources"] == [
-        {"name": "from_dag", "bytes": 42, "hash": "sha256:from-dag"},
+        {
+            "name": "from_dag",
+            "path": "from_dag.parquet",
+            "bytes": 42,
+            "hash": "sha256:from-dag",
+        },
         {
             "name": "from_disk",
+            "path": "from_disk.parquet",
             "bytes": len(parquet_bytes),
-            "hash": f"sha256:{hashlib.sha256(parquet_bytes).hexdigest()}",
+            "hash": sha256_of(parquet_bytes),
         },
-        {"name": "missing"},
+        {"name": "missing", "path": "missing.parquet"},
     ]
+
+
+def test_enrich_resources_adds_parts_for_multi_file_resources(tmp_path: Path) -> None:
+    """Each declared partition gets its own path, byte count and hash."""
+    paths = ["t/2013q1.parquet", "t/2013q2.parquet"]
+    payloads = write_parquet_files(tmp_path, paths)
+    descriptor = {
+        "resources": [{"name": "t", "path": paths[0], "extrapaths": paths[1:]}]
+    }
+
+    enriched_count = _enrich_resources(descriptor, {}, tmp_path)
+
+    (resource,) = descriptor["resources"]
+    assert enriched_count == 1
+    assert resource["parts"] == [
+        {
+            "path": rel_path,
+            "bytes": len(payloads[rel_path]),
+            "hash": sha256_of(payloads[rel_path]),
+        }
+        for rel_path in paths
+    ]
+    assert resource["bytes"] == sum(len(p) for p in payloads.values())
+    assert "hash" not in resource
+
+
+def test_enrich_resources_ignores_dagster_metadata_for_multi_file_resources(
+    tmp_path: Path,
+) -> None:
+    """A multi-file resource is never annotated from the event log.
+
+    Event-log metadata is keyed by asset name but recorded per partition, so using
+    it here would report one partition's stats as the whole table.
+    """
+    paths = ["t/2013q1.parquet", "t/2013q2.parquet"]
+    payloads = write_parquet_files(tmp_path, paths)
+    descriptor = {
+        "resources": [{"name": "t", "path": paths[0], "extrapaths": paths[1:]}]
+    }
+
+    _enrich_resources(
+        descriptor,
+        {"t": {"bytes": FAKE_BYTES, "hash": f"sha256:{FAKE_SHA256}"}},
+        tmp_path,
+    )
+
+    (resource,) = descriptor["resources"]
+    assert resource["bytes"] == sum(len(p) for p in payloads.values())
+    assert FAKE_BYTES not in {part["bytes"] for part in resource["parts"]}
+
+
+def test_enrich_resources_describes_only_the_partitions_present(
+    tmp_path: Path, caplog
+) -> None:
+    """A partially materialised resource is described by the files that exist."""
+    paths = ["t/2013q1.parquet", "t/2013q2.parquet", "t/2013q3.parquet"]
+    payloads = write_parquet_files(tmp_path, paths[:1])
+    descriptor = {
+        "resources": [{"name": "t", "path": paths[0], "extrapaths": paths[1:]}]
+    }
+
+    enriched_count = _enrich_resources(descriptor, {}, tmp_path)
+
+    (resource,) = descriptor["resources"]
+    assert enriched_count == 1
+    assert [part["path"] for part in resource["parts"]] == paths[:1]
+    assert resource["bytes"] == len(payloads[paths[0]])
+    assert "2 of 3 parquet file(s) not found" in caplog.text
+
+
+def test_enrich_resources_skips_resource_with_no_files_on_disk(
+    tmp_path: Path,
+) -> None:
+    """A resource whose partitions are all absent is left untouched and uncounted."""
+    descriptor = {
+        "resources": [
+            {
+                "name": "t",
+                "path": "t/2013q1.parquet",
+                "extrapaths": ["t/2013q2.parquet"],
+            }
+        ]
+    }
+
+    enriched_count = _enrich_resources(descriptor, {}, tmp_path)
+
+    assert enriched_count == 0
+    assert descriptor["resources"] == [
+        {
+            "name": "t",
+            "path": "t/2013q1.parquet",
+            "extrapaths": ["t/2013q2.parquet"],
+        }
+    ]
+
+
+def test_enrich_resources_rejects_resource_without_path(tmp_path: Path) -> None:
+    """A parquet-backed resource with no declared path is a metadata bug."""
+    with pytest.raises(AssertionError, match="has no path"):
+        _enrich_resources({"resources": [{"name": "nameless"}]}, {}, tmp_path)

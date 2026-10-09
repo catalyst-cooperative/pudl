@@ -12,7 +12,7 @@ import re
 import time
 import traceback
 import uuid
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from concurrent.futures import Future, ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import timedelta
@@ -31,7 +31,6 @@ from pudl.deploy.s3_transfer import copy_objects as s3_copy_objects
 from pudl.deploy.s3_transfer import upload_files as s3_upload_files
 from pudl.helpers import ParquetData
 from pudl.logging_helpers import get_logger
-from pudl.metadata.classes import FERCEQR_PACKAGE
 from pudl.metadata.sources import SOURCES
 from pudl.workspace.setup import PudlPaths
 
@@ -48,10 +47,10 @@ FERCEQR_TRANSFORM_ASSETS = [
     "core_ferceqr__quarterly_index_pub",
 ]
 
-# Name of the descriptor in $PUDL_OUTPUT. It cannot simply be ``datapackage.json``:
-# the PUDL ETL already writes $PUDL_OUTPUT/parquet/datapackage.json (next to the EQR
-# Parquet files), and $PUDL_OUTPUT holds several ``<dataset>_datapackage.json`` files.
-DATAPACKAGE_FILENAME = "ferceqr_parquet_datapackage.json"
+# The datapackage descriptor is produced by this asset, which is materialized
+# earlier in the FERC EQR deployment job. Its materialization metadata records
+# the path the descriptor was written to.
+FERCEQR_DATAPACKAGE_ASSET_KEY = dg.AssetKey("ferceqr_datapackage")
 
 # Name of the descriptor in the deployed FERC EQR prefix, which holds nothing but
 # this dataset. ``datapackage.json`` is the only filename the Data Package spec
@@ -607,34 +606,74 @@ def build_ferceqr_notification(
     return "\n".join(lines)
 
 
-def deployment_status_asset(asset_fn: Callable) -> dg.AssetsDefinition:
+def deployment_status_asset(
+    *,
+    deps: Sequence[dg.AssetKey] | None = None,
+) -> Callable[[Callable], dg.AssetsDefinition]:
     """Create a custom decorator for deployment handler assets.
 
     This allows us to gracefully handle errors if the deployment assets fail for any
     reason. When these assets fail, sometimes the logs don't show up in the batch job
     appropriately, and the status file never gets created, so the job keeps running
     until it eventually times out.
+
+    Args:
+        deps: Asset keys the generated asset depends on.
     """
 
-    @dg.asset(
-        name=asset_fn.__name__,
-        required_resource_keys={
-            "pudl_paths",
-            "ferceqr_deployment_targets",
-            "zulip_notification",
-        },
-    )
-    def _status_handler_asset(context: dg.AssetExecutionContext):
-        try:
-            _clear_status_files(context.resources.pudl_paths)
-            asset_fn(context)
-        except Exception:
-            logger.error("FERC EQR deployment handler failed!")
-            logger.error(traceback.format_exc())
-            _write_status_file("FERCEQR_FAILURE", context.resources.pudl_paths)
-            raise
+    def decorator(asset_fn: Callable) -> dg.AssetsDefinition:
+        @dg.asset(
+            name=asset_fn.__name__,
+            deps=list(deps or []),
+            required_resource_keys={
+                "pudl_paths",
+                "ferceqr_deployment_targets",
+                "zulip_notification",
+            },
+        )
+        def _status_handler_asset(context: dg.AssetExecutionContext):
+            try:
+                _clear_status_files(context.resources.pudl_paths)
+                asset_fn(context)
+            except Exception:
+                logger.error("FERC EQR deployment handler failed!")
+                logger.error(traceback.format_exc())
+                _write_status_file("FERCEQR_FAILURE", context.resources.pudl_paths)
+                raise
 
-    return _status_handler_asset
+        return _status_handler_asset
+
+    return decorator
+
+
+def _datapackage_path(context: dg.AssetExecutionContext) -> Path:
+    """Return the descriptor path recorded by the ``ferceqr_datapackage`` asset.
+
+    The descriptor is written by the datapackage asset, which records its output
+    location in materialization metadata under ``path``. Reading it back from the
+    event log keeps a single source of truth for where the file lives.
+    """
+    event = context.instance.get_latest_materialization_event(
+        FERCEQR_DATAPACKAGE_ASSET_KEY
+    )
+    materialization = event.asset_materialization if event is not None else None
+    if materialization is None:
+        raise RuntimeError(
+            f"No materialization found for {FERCEQR_DATAPACKAGE_ASSET_KEY.to_user_string()}; "
+            "the datapackage descriptor must be materialized before deployment."
+        )
+    path_entry = materialization.metadata.get("path")
+    if path_entry is None:
+        raise RuntimeError(
+            f"{FERCEQR_DATAPACKAGE_ASSET_KEY.to_user_string()} materialization has no "
+            "'path' metadata recording where the descriptor was written."
+        )
+    datapackage_path = Path(str(path_entry.value))
+    if not datapackage_path.is_file():
+        raise RuntimeError(
+            f"Datapackage descriptor recorded at {datapackage_path} does not exist."
+        )
+    return datapackage_path
 
 
 def _deploy_source_partitions(context: dg.AssetExecutionContext) -> list[str]:
@@ -653,7 +692,7 @@ def _deploy_source_partitions(context: dg.AssetExecutionContext) -> list[str]:
     return _validate_partitions(run_tags.get(FERCEQR_SOURCE_PARTITIONS_TAG) or None)
 
 
-@deployment_status_asset
+@deployment_status_asset(deps=[FERCEQR_DATAPACKAGE_ASSET_KEY])
 def deploy_ferceqr(context: dg.AssetExecutionContext):
     """Publish EQR outputs to configured deployment targets.
 
@@ -684,12 +723,10 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
     if not source_partitions:
         raise RuntimeError("FERC EQR deployment run has no deployable partitions.")
 
-    # Write the datapackage alongside the parquet data in pudl_output so it can
-    # be deployed like any other file and remains as a record of the build. Built
-    # even when there is nothing to publish, so it can be reviewed and tested as
-    # a development artifact.
-    datapackage_path = Path(pudl_paths.pudl_output) / DATAPACKAGE_FILENAME
-    FERCEQR_PACKAGE.to_frictionless().to_json(str(datapackage_path))
+    # The descriptor was written by the upstream ferceqr_datapackage asset, which
+    # also runs when there is nothing to publish, so it remains available as a
+    # development artifact and a record of the build.
+    datapackage_path = _datapackage_path(context)
 
     targets = _deployment_targets(ferceqr_deployment.resolved_targets())
     if not targets:
@@ -766,7 +803,7 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
     _write_status_file("FERCEQR_SUCCESS", pudl_paths)
 
 
-@deployment_status_asset
+@deployment_status_asset()
 def handle_ferceqr_failure(context: dg.AssetExecutionContext):
     """Send notification if the FERC EQR build failed."""
     pudl_paths: PudlPaths = context.resources.pudl_paths

@@ -156,35 +156,85 @@ def _enrich_sources(
             )
 
 
+def _resource_paths(resource_desc: dict) -> list[str]:
+    """Return every parquet path a resource descriptor points at, in order.
+
+    A single-file resource carries a string ``path``. A partitioned resource keeps
+    its first partition in ``path`` and the remainder in ``extrapaths``.
+    """
+    path = resource_desc.get("path")
+    paths = [path] if isinstance(path, str) else list(path or [])
+    return paths + list(resource_desc.get("extrapaths") or [])
+
+
+def _file_stats(parquet_file: Path) -> dict:
+    """Return the ``bytes`` and ``hash`` descriptor fields for one parquet file."""
+    with parquet_file.open("rb") as fh:
+        digest = hashlib.file_digest(fh, "sha256").hexdigest()
+    return {"bytes": parquet_file.stat().st_size, "hash": f"sha256:{digest}"}
+
+
 def _enrich_resources(
     descriptor: dict,
     dag_metadata: dict[str, dict],
     parquet_path: Path,
 ) -> int:
-    """Add ``bytes`` and ``hash`` to each resource descriptor; return enriched count.
+    """Add file stats to each resource descriptor; return enriched count.
 
-    Stats are sourced from Dagster metadata (recorded by the IO managers at
-    materialisation time) when available. For resources absent from the Dagster
-    metadata (typically resources materialised in a prior run) the parquet file is
-    located on disk and its stats are computed directly. The parquet filename is
-    ``{resource_name}.parquet``.
+    Single-file resources get ``bytes`` and ``hash`` directly. Stats come from
+    Dagster metadata (recorded by the IO managers at materialisation time) when
+    available, and are otherwise computed from the file on disk.
+
+    A multi-file (partitioned) resource cannot be described by one ``bytes``/``hash``
+    pair, so it gets a ``parts`` list carrying ``path``, ``bytes`` and ``hash`` per
+    partition, plus ``bytes`` totalled across them. Dagster metadata is never used
+    for these: the event log holds one materialisation per partition, and keying
+    those by asset name would describe a single partition as the whole table.
+
+    A resource whose files are not all present on disk is left unenriched and
+    reported, rather than being annotated with a partial set of stats.
     """
     enriched_count = 0
     for resource_desc in descriptor.get("resources", []):
         name = resource_desc.get("name")
-        if name in dag_metadata:
+        paths = _resource_paths(resource_desc)
+        if not paths:
+            raise AssertionError(
+                f"Resource {name} has no path in the datapackage descriptor; "
+                "every parquet-backed resource must point at at least one file."
+            )
+
+        if len(paths) == 1 and name in dag_metadata:
             resource_desc["bytes"] = dag_metadata[name]["bytes"]
             resource_desc["hash"] = dag_metadata[name]["hash"]
             enriched_count += 1
+            continue
+
+        # Check for parquet files on disk before getting stats
+        # If a resource has not been materialized, or not all partitions have been materialized
+        # then there may be "missing" parquet files
+        # TODO: provide a mechanism to merge datapackages so we can materlize only a subset of partitions during a build
+        expected_paths = [(rel_path, parquet_path / rel_path) for rel_path in paths]
+        found_paths = [(rel_path, f) for rel_path, f in expected_paths if f.is_file()]
+        if len(found_paths) < len(paths):
+            logger.warning(
+                f"Resource {name}: {len(paths) - len(found_paths)} of {len(paths)} "
+                "parquet file(s) not found on disk; file stats will describe only "
+                f"the {len(found_paths)} file(s) present."
+            )
+        if not found_paths:
+            continue
+
+        if len(paths) > 1:
+            parts = [
+                {"path": rel_path} | _file_stats(parquet_file)
+                for rel_path, parquet_file in found_paths
+            ]
+            resource_desc["parts"] = parts
+            resource_desc["bytes"] = sum(part["bytes"] for part in parts)
         else:
-            parquet_file = parquet_path / f"{name}.parquet"
-            if parquet_file.exists():
-                resource_desc["bytes"] = parquet_file.stat().st_size
-                with parquet_file.open("rb") as fh:
-                    resource_desc["hash"] = (
-                        "sha256:" + hashlib.file_digest(fh, "sha256").hexdigest()
-                    )
-                enriched_count += 1
+            resource_desc.update(_file_stats(found_paths[0][1]))
+        enriched_count += 1
     return enriched_count
 
 
@@ -232,8 +282,13 @@ def build_datapackage_asset(
     def datapackage_asset(
         context: dg.AssetExecutionContext,
     ) -> dg.MaterializeResult:
-        dag_metadata = _collect_dagster_file_metadata(
-            context.instance, parquet_asset_keys
+        # Event-log metadata is recorded per partition and cannot be aggregated by
+        # asset key, so it is unusable for partitioned assets; those resources are
+        # stat'd and hashed from disk instead.
+        dag_metadata = (
+            {}
+            if partitioned
+            else _collect_dagster_file_metadata(context.instance, parquet_asset_keys)
         )
 
         descriptor = json.loads(package.to_frictionless().to_json())
