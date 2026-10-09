@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 from dagster import Field, asset
 
-import pudl.helpers
 import pudl.logging_helpers
+from pudl.helpers import organize_cols
 from pudl.transform.eia import occurrence_consistency
 from pudl.transform.eia861 import add_backfilled_ba_code_column
 
@@ -49,7 +49,7 @@ def out_eia__yearly_utilities(
         "utility_id_pudl",
         "utility_name_eia",
     ]
-    out_df = pudl.helpers.organize_cols(out_df, first_cols)
+    out_df = organize_cols(out_df, first_cols)
     return out_df
 
 
@@ -322,10 +322,9 @@ def _out_eia__yearly_generators(
     ]
 
     # Re-arrange the columns for easier readability:
-    out_df = pudl.helpers.organize_cols(out_df, first_cols).sort_values(
+    out_df = organize_cols(out_df, first_cols).sort_values(
         ["report_date", "plant_id_eia", "generator_id"]
     )
-
     return out_df
 
 
@@ -406,10 +405,9 @@ def out_eia__yearly_boilers(
     ]
 
     # Re-arrange the columns for easier readability:
-    out_df = pudl.helpers.organize_cols(out_df, first_cols).sort_values(
+    out_df = organize_cols(out_df, first_cols).sort_values(
         ["report_date", "plant_id_eia", "boiler_id"]
     )
-
     return out_df
 
 

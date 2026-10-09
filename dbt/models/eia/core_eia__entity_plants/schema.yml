@@ -10,10 +10,17 @@ sources:
           - name: plant_id_eia
           - name: plant_name_eia
           - name: city
+          - name: state
+          - name: state_id_fips
           - name: county
+          - name: county_id_fips
+            data_tests:
+              - dbt_utils.not_null_proportion:
+                  arguments:
+                    at_least: 0.97
+                  description: County fips code should almost entirely be populated.
           - name: latitude
           - name: longitude
-          - name: state
           - name: street_address
           - name: zip_code
           - name: timezone

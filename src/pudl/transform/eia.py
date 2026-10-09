@@ -35,7 +35,12 @@ from dagster import (
 
 import pudl.logging_helpers
 from pudl import PUDL_PACKAGE_DATA_PATH
-from pudl.helpers import convert_cols_dtypes, make_changelog
+from pudl.helpers import (
+    add_fips_ids,
+    clean_eia_counties,
+    convert_cols_dtypes,
+    make_changelog,
+)
 from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.metadata.dtypes import apply_pudl_dtypes, get_pudl_dtypes
 from pudl.metadata.enums import APPROXIMATE_TIMEZONES
@@ -75,6 +80,264 @@ class EiaEntity(StrEnum):
     UTILITIES = auto()
     BOILERS = auto()
     GENERATORS = auto()
+
+
+EIA_FIPS_COUNTY_FIXES: pd.DataFrame = pd.DataFrame(
+    [
+        ("AK", "Akiachak", "Bethel Census Area"),
+        ("AK", "Aleutian Islands", "Aleutians East"),
+        ("AK", "Aleutians Ea", "Aleutians East"),
+        ("AK", "Aleutians East Boro", "Aleutians East Borough"),
+        ("AK", "Aleutians We", "Aleutians West Census Area"),
+        ("AK", "Aleutians West (unorganized)", "Aleutians West Census Area"),
+        ("AK", "Angoon", "Hoonah-Angoon"),
+        ("AK", "Borough, Kodiak Island", "Kodiak Island Borough"),
+        ("AK", "Chilkat Vall", "Hoonah-Angoon Census Area"),
+        ("AK", "Chilkat Valley", "Hoonah-Angoon Census Area"),
+        ("AK", "Chuathbaluk", "Bethel Census Area"),
+        ("AK", "Copper Basin", "Valdez-Cordova Census Area"),
+        ("AK", "Cordova", "Valdez-Cordova"),
+        ("AK", "Crooked Creek", "Bethel Census Area"),
+        ("AK", "Delta - No County", "Southeast Fairbanks Census Area"),
+        ("AK", "Elfin Cove", "Hoonah-Angoon Census Area"),
+        ("AK", "FRBS North Star", "Fairbanks North Star Borough"),
+        ("AK", "Galena", "Yukon-Koyukuk Census Area"),
+        ("AK", "Hoonah", "Hoonah-Angoon"),
+        ("AK", "Kake", "Prince of Wales-Hyder Census Area"),
+        ("AK", "Kasaan", "Prince of Wales-Hyder Census Area"),
+        ("AK", "Kenai Penins", "Kenai Peninsula"),
+        ("AK", "Ketchikan Ga", "Ketchikan Gateway Borough"),
+        ("AK", "Ketchikan Gateway Bo", "Ketchikan Gateway Borough"),
+        ("AK", "Klukwan", "Hoonah-Angoon Census Area"),
+        ("AK", "Kodiak Isla", "Kodiak Island Borough"),
+        ("AK", "Kodiak Islan", "Kodiak Island"),
+        ("AK", "Kodiak Island Boroug", "Kodiak Island Borough"),
+        ("AK", "Kuskokwim Bay", "Bethel Census Area"),
+        ("AK", "Kwigillingok", "Bethel Census Area"),
+        ("AK", "LARSEN BAY", "Kodiak Island Borough"),
+        ("AK", "Lake & Peninsula Bor", "Lake and Peninsula Borough"),
+        ("AK", "Lake & Peninsula Borough", "Lake and Peninsula"),
+        ("AK", "Lake and Pen", "Lake and Peninsula"),
+        ("AK", "Larsen Bay", "Kodiak Island Borough"),
+        ("AK", "Matanuska Su", "Matanuska-Susitna Borough"),
+        ("AK", "Matanuska Susitna", "Matanuska-Susitna"),
+        ("AK", "Matanuska Susitna Borough", "Matanuska-Susitna"),
+        ("AK", "NW Arctic Borough", "Northwest Arctic"),
+        ("AK", "Nenana", "Yukon-Koyukuk Census Area"),
+        ("AK", "Nenana - No County", "Yukon-Koyukuk Census Area"),
+        ("AK", "Nenena - No County", "Yukon-Koyukuk Census Area"),
+        ("AK", "Northwest Ar", "Northwest Arctic Borough"),
+        ("AK", "Northwest Arctic Bor", "Northwest Arctic Borough"),
+        ("AK", "Notin", "Hoonah-Angoon Census Area"),
+        ("AK", "Prince Wales", "Prince of Wales-Hyder"),
+        ("AK", "Prince of Wa", "Prince of Wales-Hyder Census Area"),
+        ("AK", "Prince of Wale", "Prince of Wales-Hyder"),
+        ("AK", "Prince of Wales", "Prince of Wales-Hyder Census Area"),
+        ("AK", "Prince Of Wales", "Prince of Wales-Hyder Census Area"),
+        ("AK", "Prince of Wales Ketchikan", "Prince of Wales-Hyder"),
+        ("AK", "Prince of Wales-Outer Ketchika", "Prince of Wales-Hyder Census Area"),
+        ("AK", "Red Devil", "Bethel Census Area"),
+        ("AK", "Skagway Hoonah Angoon", "Hoonah-Angoon"),
+        ("AK", "Skagway Yaku", "Skagway"),
+        ("AK", "Skagway-Hoonah-Angoon", "Hoonah-Angoon Census Area"),
+        ("AK", "Skagway-Yakutat", "Skagway"),
+        ("AK", "Sleetmute", "Bethel Census Area"),
+        ("AK", "Southeast Fa", "Southeast Fairbanks Census Area"),
+        ("AK", "Stony River", "Bethel Census Area"),
+        ("AK", "Tanana", "Yukon-Koyukuk Census Area"),
+        ("AK", "Tenakee Springs", "Hoonah-Angoon Census Area"),
+        ("AK", "Valdez Cordo", "Valdez-Cordova"),
+        ("AK", "Valdez Cordova", "Valdez-Cordova"),
+        ("AK", "Wrangell Pet", "Wrangell"),
+        ("AK", "Wrangell Petersburg", "Wrangell"),
+        ("AK", "Wrangell-Petersburg", "Petersburg Census Area"),
+        ("AK", "Yukon Koyuku", "Yukon-Koyukuk"),
+        ("AK", "Yukon Koyukuk", "Yukon-Koyukuk"),
+        ("AK", "Yukon-Koyuku", "Yukon-Koyukuk"),
+        ("AL", "De Kalb", "DeKalb"),
+        ("AR", "Hot Springs", "Hot Spring County"),
+        ("AR", "Saint Franci", "St. Francis"),
+        ("AZ", "Maricopa (see footnote)", "Maricopa"),
+        ("AZ", "Nogales", "Santa Cruz"),
+        ("CA", "San Bernadino", "San Bernardino"),
+        ("CA", "San Bernardi", "San Bernardino"),
+        ("CA", "San Francisc", "San Francisco County"),
+        ("CA", "San Luis Obi", "San Luis Obispo County"),
+        ("CA", "Santa Barbar", "Santa Barbara County"),
+        ("CT", "Shelton", "Fairfield"),
+        ("DC", "District of", "District of Columbia"),
+        ("FL", "Dade", "Miami-Dade"),
+        ("FL", "De Soto", "DeSoto"),
+        ("FL", "Miami Dade", "Miami-Dade"),
+        ("FL", "St. Loucie", "St. Lucie"),
+        ("FL", "St. Lucic", "St. Lucie"),
+        ("GA", "Chattahooche", "Chattahoochee"),
+        ("GA", "De Kalb", "DeKalb"),
+        ("GA", "Glasscock", "Glascock County"),
+        ("IA", "Hardin -remove", "Hardin County"),
+        ("IA", "Harris", "Harrison"),
+        ("IA", "Humbolt", "Humboldt"),
+        ("IA", "Kossuh", "Kossuth"),
+        ("IA", "Louisa-remove", "Louisa County"),
+        ("IA", "Lousia", "Louisa"),
+        ("IA", "O Brien", "O'Brien"),
+        ("IA", "Pottawattami", "Pottawattamie"),
+        ("IA", "Poweshick", "Poweshiek"),
+        ("IA", "Union-remove", "Union County"),
+        ("ID", "Marshall", "Custer County"),
+        ("IL", "Burke", "Christian"),
+        ("IL", "Carol", "DuPage County"),
+        ("IL", "De Kalb", "DeKalb County"),
+        ("IL", "DeWitt", "De Witt"),
+        ("IL", "Dewitt", "De Witt"),
+        ("IL", "Du Page", "DuPage"),
+        ("IL", "Green", "Greene"),
+        ("IL", "JoDavies", "Jo Daviess"),
+        ("IL", "La Salle", "LaSalle"),
+        ("IL", "McCoupin", "Macoupin"),
+        ("IL", "Kankakii", "Kankakee"),  # 860 only
+        ("IN", "De Kalb", "DeKalb County"),
+        ("IN", "De Kalb County", "DeKalb County"),
+        ("IN", "La Porte", "LaPorte"),
+        ("IN", "Putman", "Putnam"),
+        ("IN", "Pyke", "Pike"),
+        ("IN", "Sulliva", "Sullivan"),
+        ("KS", "Leaveworth", "Leavenworth"),
+        ("KY", "Hawkins", "Hopkins County"),
+        ("KY", "LAURE", "Larue County"),
+        ("KY", "Spenser", "Spencer"),
+        ("KY", "Sullivan", "Union County"),
+        ("KY", "West Mccraken", "Mccracken"),  # 860 only
+        ("KY", "WOLE", "Wolfe County"),
+        ("LA", "Burke", "Iberia"),
+        ("LA", "Bolivar", "Tangipahoa"),
+        ("LA", "DeSoto", "De Soto"),
+        ("LA", "East Baton R", "East Baton Rouge Parish"),
+        ("LA", "East Felicia", "East Feliciana Parish"),
+        ("LA", "Jefferson Da", "Jefferson Davis"),
+        ("LA", "Morehouse Pa", "Morehouse Parish"),
+        ("LA", "Pointe Coupe", "Pointe Coupee"),
+        ("LA", "Saint Helina", "St. Helena Parish"),
+        ("LA", "Saint Tamman", "St. Tammany Parish"),
+        ("LA", "West Baton R", "West Baton Rouge"),
+        ("LA", "West Feleciana", "West Feliciana"),
+        ("LA", "West Felicia", "West Feliciana Parish"),
+        ("MA", "North Essex", "Essex"),
+        ("MD", "Baltimore Ci", "Baltimore City"),
+        ("MD", "Balto. City", "Baltimore City"),
+        ("MD", "Prince Georg", "Prince George's County"),
+        ("MD", "Prince Geroges", "Prince George's County"),  # 860 only
+        ("MD", "Worchester", "Worcester"),
+        ("MI", "Antim", "Antrim"),
+        ("MI", "Graitiot", "Gratiot County"),
+        ("MI", "Grand Traver", "Grand Traverse"),
+        ("MI", "Missauke", "Missaukee County"),
+        ("MN", "Fairbault", "Faribault"),
+        ("MN", "La Qui Parle", "Lac qui Parle County"),
+        ("MN", "Lac Qui Parl", "Lac Qui Parle"),
+        ("MN", "Lake of The", "Lake of the Woods"),
+        ("MN", "Olmstead", "Olmsted County"),
+        ("MN", "Ottertail", "Otter Tail"),
+        ("MN", "Yellow Medic", "Yellow Medicine"),
+        ("MO", "Cape Girarde", "Cape Girardeau"),
+        ("MO", "De Kalb", "DeKalb"),
+        ("MO", "Paris", "Monroe County"),
+        ("MO", "Saint Charle", "St. Charles County"),
+        ("MO", "Saint Franco", "St. Francois County"),
+        ("MO", "Sainte Genev", "Ste. Genevieve County"),
+        ("MS", "Clark", "Clarke"),
+        ("MS", "De Soto", "DeSoto"),
+        ("MS", "Henderson", "Harrison"),
+        ("MS", "Homoshitto", "Amite"),
+        ("MS", "Jefferson Da", "Jefferson Davis"),
+        ("MT", "Anaconda-Dee", "Deer Lodge"),
+        ("MT", "Butte-Silver", "Silver Bow"),
+        ("MT", "Golden Valle", "Golden Valley"),
+        ("MT", "Lewis and Cl", "Lewis and Clark"),
+        ("NC", "Cherokee (NP&L)", "Cherokee County"),
+        ("NC", "Clay (NP&L)", "Clay County"),
+        ("NC", "Gilford", "Guilford"),
+        ("NC", "Graham (NP&L)", "Graham County"),
+        ("NC", "Hartford", "Hertford"),
+        ("NC", "Jackson (NP&L)", "Jackson County"),
+        ("NC", "Macon (NP&L)", "Macon County"),
+        ("NC", "North Hampton", "Northampton"),
+        ("NC", "Stanley", "Stanly County"),
+        ("NC", "Swain (NP&L)", "Swain County"),
+        ("ND", "Golden Valle", "Golden Valley County"),
+        ("ND", "La Moure", "LaMoure"),
+        ("ND", "Remsey", "Ramsey County"),
+        ("NH", "Hillsboro", "Hillsborough County"),
+        ("NH", "New Hampshire", "Coos"),
+        ("NH", "Plaquemines", "Coos"),
+        ("NV", "Carson City city", "Carson City"),
+        ("NY", "Saint Lawren", "St. Lawrence County"),
+        ("NY", "Westcherster", "Westchester"),
+        ("NY", "West Chester", "Westchester"),
+        ("OH", "Cochocton", "Coshocton County"),
+        ("OH", "Columbian", "Columbiana County"),
+        ("OH", "Tuscarawa", "Tuscarawas County"),
+        ("OK", "Cimmaron", "Cimarron"),
+        ("OK", "MuCurtain", "McCurtain County"),
+        ("OR", "Unioin", "Union"),
+        ("PA", "Northumberla", "Northumberland"),
+        ("PR", "Aquadilla", "Aguadilla"),
+        ("PR", "Cupey", "San Juan"),
+        ("PR", "Sabana Grand", "Sabana Grande"),
+        ("PR", "San Sebastia", "San Sebastian"),
+        ("PR", "Trujillo Alt", "Trujillo Alto"),
+        ("RI", "Portsmouth", "Newport"),
+        ("SD", "Pierce", "Hughes County"),
+        ("SD", "Valley Springs", "Minnehaha County"),
+        ("TN", "Davison", "Davidson"),
+        ("TX", "Collingswort", "Collingsworth"),
+        ("TX", "De Witt", "DeWitt"),
+        ("TX", "Hayes", "Hays"),
+        ("TX", "San Augustin", "San Augustine"),
+        ("TX", "LaSalle", "La Salle"),
+        ("VA", "Albermarle", "Albemarle County"),
+        ("VA", "Alexandria C", "Alexandria City"),
+        ("VA", "Charlottesvi", "Charlottesville City"),
+        ("VA", "Chesapeake C", "Chesapeake City"),
+        ("VA", "City of Manassas", "Manassas City"),
+        ("VA", "City of Suff", "Suffolk City"),
+        ("VA", "City of Suffolk", "Suffolk city"),
+        ("VA", "Clifton Forg", "Alleghany"),
+        ("VA", "Clifton Forge", "Alleghany"),
+        ("VA", "Colonial Hei", "Colonial Heights City"),
+        ("VA", "Covington Ci", "Covington City"),
+        ("VA", "Fredericksbu", "Fredericksburg City"),
+        ("VA", "Hopewell Cit", "Hopewell City"),
+        ("VA", "Isle of Wigh", "Isle of Wight"),
+        ("VA", "King and Que", "King and Queen"),
+        ("VA", "Lexington Ci", "Lexington City"),
+        ("VA", "Manasas Park", "Manassas Park city"),
+        ("VA", "Manassas Cit", "Manassas City"),
+        ("VA", "Manassas Par", "Manassas Park City"),
+        ("VA", "Northumberla", "Northumberland"),
+        ("VA", "Petersburg C", "Petersburg City"),
+        ("VA", "Poquoson Cit", "Poquoson City"),
+        ("VA", "Portsmouth C", "Portsmouth City"),
+        ("VA", "Prince Edwar", "Prince Edward"),
+        ("VA", "Prince Georg", "Prince George"),
+        ("VA", "Prince Willi", "Prince William"),
+        ("VA", "Richmond Cit", "Richmond City"),
+        ("VA", "Staunton Cit", "Staunton City"),
+        ("VA", "Virginia", "Virginia Beach city"),
+        ("VA", "Virginia Bea", "Virginia Beach City"),
+        ("VA", "Waynesboro C", "Waynesboro City"),
+        ("VA", "Winchester C", "Winchester City"),
+        ("WA", "Wahkiakurn", "Wahkiakum"),
+        ("WV", "Greenbriar", "Greenbrier County"),
+    ],
+    columns=["state", "eia_county", "fips_county"],
+)
+"""Table of fixes to county names to make them more aligned with census names.
+
+This set of fixes was developed for EIA-861 for
+:ref:`core_eia861__yearly_service_territory` and was expanded (slightly) to cover
+the remaining non-conforming EIA-860 and EIA-923 county names.
+"""
 
 
 def find_timezone(*, lng=None, lat=None, state=None, strict=True, tz_finder=None):
@@ -1238,7 +1501,8 @@ def harvested_entity_asset_factory(
     """Create an asset definition for the harvested entity tables."""
 
     @multi_asset(
-        ins={table_name: AssetIn() for table_name in HARVESTABLE_ASSETS},
+        ins={table_name: AssetIn() for table_name in HARVESTABLE_ASSETS}
+        | {"_core_censuspep__yearly_geocodes": AssetIn()},
         outs={
             f"core_eia__entity_{entity.value}": AssetOut(io_manager_key=io_manager_key),
             f"core_eia860__scd_{entity.value}": AssetOut(io_manager_key=io_manager_key),
@@ -1252,12 +1516,12 @@ def harvested_entity_asset_factory(
     def harvested_entity(context, **clean_dfs):
         """Harvesting IDs & consistent static attributes for EIA entity."""
         logger.info(f"Harvesting IDs & consistent static attributes for EIA {entity}")
-
+        _core_censuspep__yearly_geocodes = clean_dfs["_core_censuspep__yearly_geocodes"]
         clean_dfs = {
             df_name: PUDL_PACKAGE.encode(clean_dfs[df_name]).pipe(
                 convert_cols_dtypes, "eia"
             )
-            for df_name in clean_dfs
+            for df_name in HARVESTABLE_ASSETS
         }
         if entity == EiaEntity.UTILITIES:
             # Remove location columns that are associated with plants, not utilities:
@@ -1282,6 +1546,9 @@ def harvested_entity_asset_factory(
             "utility_name_eia": 0,
             "longitude": 0 if eia_data_config.eia860.eia860m else 0.7,
             "prime_mover_code": 0,
+            # ensure we always get a county name.
+            # after harvesting we clean the county names and add fips
+            "county": 0,
         }
 
         entity_df, annual_df, _col_dfs = harvest_entity_tables(
@@ -1293,7 +1560,20 @@ def harvested_entity_asset_factory(
 
         if entity == EiaEntity.PLANTS:
             # Post-processing specific to the plants entity tables
-            entity_df = _add_additional_epacems_plants(entity_df).pipe(_add_timezone)
+            entity_df = (
+                _add_additional_epacems_plants(entity_df)
+                .pipe(_add_timezone)
+                # Ensure that we have the canonical US Census county names:
+                .pipe(
+                    clean_eia_counties,
+                    fixes=EIA_FIPS_COUNTY_FIXES,
+                    explode_lists_of_counties=False,
+                )
+                # Add FIPS IDs based on county & state names:
+                .pipe(
+                    add_fips_ids, _core_censuspep__yearly_geocodes, county_col="county"
+                )
+            )
             annual_df = fillna_balancing_authority_codes_via_names(annual_df).pipe(
                 fix_balancing_authority_codes_with_state, plants_entity=entity_df
             )
