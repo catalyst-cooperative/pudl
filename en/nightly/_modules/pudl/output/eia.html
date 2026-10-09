@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.output.eia &#8212; PUDL 2026.9.1.dev41 documentation</title>
+    <title>pudl.output.eia &#8212; PUDL 2026.9.1.dev42 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../../../_static/documentation_options.js?v=3567ca07"></script>
+    <script src="../../../_static/documentation_options.js?v=15d650ec"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -495,8 +495,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev41 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev41 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev42 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev42 documentation - Home"/>
   
   
 </a></div>
@@ -875,8 +875,8 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="kn">import</span> <span class="n">Field</span><span class="p">,</span> <span class="n">asset</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">pudl.helpers</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pudl.logging_helpers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">organize_cols</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.transform.eia</span><span class="w"> </span><span class="kn">import</span> <span class="n">occurrence_consistency</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.transform.eia861</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_backfilled_ba_code_column</span>
 
@@ -925,7 +925,7 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">"utility_id_pudl"</span><span class="p">,</span>
         <span class="s2">"utility_name_eia"</span><span class="p">,</span>
     <span class="p">]</span>
-    <span class="n">out_df</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">organize_cols</span><span class="p">(</span><span class="n">out_df</span><span class="p">,</span> <span class="n">first_cols</span><span class="p">)</span>
+    <span class="n">out_df</span> <span class="o">=</span> <span class="n">organize_cols</span><span class="p">(</span><span class="n">out_df</span><span class="p">,</span> <span class="n">first_cols</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">out_df</span></div>
 
 
@@ -1204,10 +1204,9 @@ window.runMermaid = runMermaid;</script>
     <span class="p">]</span>
 
     <span class="c1"># Re-arrange the columns for easier readability:</span>
-    <span class="n">out_df</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">organize_cols</span><span class="p">(</span><span class="n">out_df</span><span class="p">,</span> <span class="n">first_cols</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span>
+    <span class="n">out_df</span> <span class="o">=</span> <span class="n">organize_cols</span><span class="p">(</span><span class="n">out_df</span><span class="p">,</span> <span class="n">first_cols</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span>
         <span class="p">[</span><span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"generator_id"</span><span class="p">]</span>
     <span class="p">)</span>
-
     <span class="k">return</span> <span class="n">out_df</span></div>
 
 
@@ -1291,10 +1290,9 @@ window.runMermaid = runMermaid;</script>
     <span class="p">]</span>
 
     <span class="c1"># Re-arrange the columns for easier readability:</span>
-    <span class="n">out_df</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">organize_cols</span><span class="p">(</span><span class="n">out_df</span><span class="p">,</span> <span class="n">first_cols</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span>
+    <span class="n">out_df</span> <span class="o">=</span> <span class="n">organize_cols</span><span class="p">(</span><span class="n">out_df</span><span class="p">,</span> <span class="n">first_cols</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span>
         <span class="p">[</span><span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"boiler_id"</span><span class="p">]</span>
     <span class="p">)</span>
-
     <span class="k">return</span> <span class="n">out_df</span></div>
 
 

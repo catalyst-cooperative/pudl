@@ -8,6 +8,10 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
 
 ### Enhancements
 
+* Added `county_id_fips` and `state_id_fips` to the [core_eia_\_entity_plants](data_dictionaries/pudl_db.html.md#core-eia-entity-plants),
+  [out_eia_\_monthly_generators](data_dictionaries/pudl_db.html.md#out-eia-monthly-generators) and [out_eia_\_yearly_generators](data_dictionaries/pudl_db.html.md#out-eia-yearly-generators) tables. See
+  PR [#5688](https://github.com/catalyst-cooperative/pudl/pull/5688).
+
 ### New Data
 
 #### EPA MATS

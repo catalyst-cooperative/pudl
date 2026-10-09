@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.eia861 &#8212; PUDL 2026.9.1.dev41 documentation</title>
+    <title>pudl.transform.eia861 &#8212; PUDL 2026.9.1.dev42 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../../../_static/documentation_options.js?v=3567ca07"></script>
+    <script src="../../../_static/documentation_options.js?v=15d650ec"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -495,8 +495,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev41 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev41 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev42 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev42 documentation - Home"/>
   
   
 </a></div>
@@ -901,6 +901,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">TECH_CLASSES</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.labels</span><span class="w"> </span><span class="kn">import</span> <span class="n">ESTIMATED_OR_ACTUAL</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.transform.eia</span><span class="w"> </span><span class="kn">import</span> <span class="n">EIA_FIPS_COUNTY_FIXES</span>
 
 <div class="viewcode-block" id="logger">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/eia861/index.html#pudl.transform.eia861.logger">[docs]</a>
@@ -1131,251 +1132,6 @@ window.runMermaid = runMermaid;</script>
     <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">field_namespace</span><span class="o">=</span><span class="s2">"eia"</span><span class="p">)</span>
     <span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"balancing_authority_name_eia"</span><span class="p">,</span> <span class="s2">"utility_id_eia"</span><span class="p">])</span>
     <span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"balancing_authority_name_eia"</span><span class="p">,</span> <span class="s2">"utility_id_eia"</span><span class="p">])</span>
-<span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="EIA_FIPS_COUNTY_FIXES">
-<a class="viewcode-back" href="../../../autoapi/pudl/transform/eia861/index.html#pudl.transform.eia861.EIA_FIPS_COUNTY_FIXES">[docs]</a>
-<span class="n">EIA_FIPS_COUNTY_FIXES</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
-    <span class="p">[</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Akiachak"</span><span class="p">,</span> <span class="s2">"Bethel Census Area"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Aleutian Islands"</span><span class="p">,</span> <span class="s2">"Aleutians East"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Aleutians Ea"</span><span class="p">,</span> <span class="s2">"Aleutians East"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Aleutians East Boro"</span><span class="p">,</span> <span class="s2">"Aleutians East Borough"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Aleutians We"</span><span class="p">,</span> <span class="s2">"Aleutians West Census Area"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Aleutians West (unorganized)"</span><span class="p">,</span> <span class="s2">"Aleutians West Census Area"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Angoon"</span><span class="p">,</span> <span class="s2">"Hoonah-Angoon"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Borough, Kodiak Island"</span><span class="p">,</span> <span class="s2">"Kodiak Island Borough"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Chilkat Vall"</span><span class="p">,</span> <span class="s2">"Hoonah-Angoon Census Area"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Chilkat Valley"</span><span class="p">,</span> <span class="s2">"Hoonah-Angoon Census Area"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Chuathbaluk"</span><span class="p">,</span> <span class="s2">"Bethel Census Area"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Copper Basin"</span><span class="p">,</span> <span class="s2">"Valdez-Cordova Census Area"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Cordova"</span><span class="p">,</span> <span class="s2">"Valdez-Cordova"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Crooked Creek"</span><span class="p">,</span> <span class="s2">"Bethel Census Area"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Delta - No County"</span><span class="p">,</span> <span class="s2">"Southeast Fairbanks Census Area"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Elfin Cove"</span><span class="p">,</span> <span class="s2">"Hoonah-Angoon Census Area"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"FRBS North Star"</span><span class="p">,</span> <span class="s2">"Fairbanks North Star Borough"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Galena"</span><span class="p">,</span> <span class="s2">"Yukon-Koyukuk Census Area"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Hoonah"</span><span class="p">,</span> <span class="s2">"Hoonah-Angoon"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Kake"</span><span class="p">,</span> <span class="s2">"Prince of Wales-Hyder Census Area"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Kasaan"</span><span class="p">,</span> <span class="s2">"Prince of Wales-Hyder Census Area"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Kenai Penins"</span><span class="p">,</span> <span class="s2">"Kenai Peninsula"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Ketchikan Ga"</span><span class="p">,</span> <span class="s2">"Ketchikan Gateway Borough"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Ketchikan Gateway Bo"</span><span class="p">,</span> <span class="s2">"Ketchikan Gateway Borough"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Klukwan"</span><span class="p">,</span> <span class="s2">"Hoonah-Angoon Census Area"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Kodiak Isla"</span><span class="p">,</span> <span class="s2">"Kodiak Island Borough"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Kodiak Islan"</span><span class="p">,</span> <span class="s2">"Kodiak Island"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Kodiak Island Boroug"</span><span class="p">,</span> <span class="s2">"Kodiak Island Borough"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Kuskokwim Bay"</span><span class="p">,</span> <span class="s2">"Bethel Census Area"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Kwigillingok"</span><span class="p">,</span> <span class="s2">"Bethel Census Area"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"LARSEN BAY"</span><span class="p">,</span> <span class="s2">"Kodiak Island Borough"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Lake &amp; Peninsula Bor"</span><span class="p">,</span> <span class="s2">"Lake and Peninsula Borough"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Lake &amp; Peninsula Borough"</span><span class="p">,</span> <span class="s2">"Lake and Peninsula"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Lake and Pen"</span><span class="p">,</span> <span class="s2">"Lake and Peninsula"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Larsen Bay"</span><span class="p">,</span> <span class="s2">"Kodiak Island Borough"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Matanuska Su"</span><span class="p">,</span> <span class="s2">"Matanuska-Susitna Borough"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Matanuska Susitna"</span><span class="p">,</span> <span class="s2">"Matanuska-Susitna"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Matanuska Susitna Borough"</span><span class="p">,</span> <span class="s2">"Matanuska-Susitna"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"NW Arctic Borough"</span><span class="p">,</span> <span class="s2">"Northwest Arctic"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Nenana"</span><span class="p">,</span> <span class="s2">"Yukon-Koyukuk Census Area"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Nenana - No County"</span><span class="p">,</span> <span class="s2">"Yukon-Koyukuk Census Area"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Nenena - No County"</span><span class="p">,</span> <span class="s2">"Yukon-Koyukuk Census Area"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Northwest Ar"</span><span class="p">,</span> <span class="s2">"Northwest Arctic Borough"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Northwest Arctic Bor"</span><span class="p">,</span> <span class="s2">"Northwest Arctic Borough"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Notin"</span><span class="p">,</span> <span class="s2">"Hoonah-Angoon Census Area"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Prince Wales"</span><span class="p">,</span> <span class="s2">"Prince of Wales-Hyder"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Prince of Wa"</span><span class="p">,</span> <span class="s2">"Prince of Wales-Hyder Census Area"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Prince of Wale"</span><span class="p">,</span> <span class="s2">"Prince of Wales-Hyder"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Prince of Wales"</span><span class="p">,</span> <span class="s2">"Prince of Wales-Hyder Census Area"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Prince of Wales Ketchikan"</span><span class="p">,</span> <span class="s2">"Prince of Wales-Hyder"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Prince of Wales-Outer Ketchika"</span><span class="p">,</span> <span class="s2">"Prince of Wales-Hyder Census Area"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Red Devil"</span><span class="p">,</span> <span class="s2">"Bethel Census Area"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Skagway Hoonah Angoon"</span><span class="p">,</span> <span class="s2">"Hoonah-Angoon"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Skagway Yaku"</span><span class="p">,</span> <span class="s2">"Skagway"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Skagway-Hoonah-Angoon"</span><span class="p">,</span> <span class="s2">"Hoonah-Angoon Census Area"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Skagway-Yakutat"</span><span class="p">,</span> <span class="s2">"Skagway"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Sleetmute"</span><span class="p">,</span> <span class="s2">"Bethel Census Area"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Southeast Fa"</span><span class="p">,</span> <span class="s2">"Southeast Fairbanks Census Area"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Stony River"</span><span class="p">,</span> <span class="s2">"Bethel Census Area"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Tanana"</span><span class="p">,</span> <span class="s2">"Yukon-Koyukuk Census Area"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Tenakee Springs"</span><span class="p">,</span> <span class="s2">"Hoonah-Angoon Census Area"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Valdez Cordo"</span><span class="p">,</span> <span class="s2">"Valdez-Cordova"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Valdez Cordova"</span><span class="p">,</span> <span class="s2">"Valdez-Cordova"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Wrangell Pet"</span><span class="p">,</span> <span class="s2">"Wrangell"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Wrangell Petersburg"</span><span class="p">,</span> <span class="s2">"Wrangell"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Wrangell-Petersburg"</span><span class="p">,</span> <span class="s2">"Petersburg Census Area"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Yukon Koyuku"</span><span class="p">,</span> <span class="s2">"Yukon-Koyukuk"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Yukon Koyukuk"</span><span class="p">,</span> <span class="s2">"Yukon-Koyukuk"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AK"</span><span class="p">,</span> <span class="s2">"Yukon-Koyuku"</span><span class="p">,</span> <span class="s2">"Yukon-Koyukuk"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AL"</span><span class="p">,</span> <span class="s2">"De Kalb"</span><span class="p">,</span> <span class="s2">"DeKalb"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AR"</span><span class="p">,</span> <span class="s2">"Hot Springs"</span><span class="p">,</span> <span class="s2">"Hot Spring County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AR"</span><span class="p">,</span> <span class="s2">"Saint Franci"</span><span class="p">,</span> <span class="s2">"St. Francis"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AZ"</span><span class="p">,</span> <span class="s2">"Maricopa (see footnote)"</span><span class="p">,</span> <span class="s2">"Maricopa"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"AZ"</span><span class="p">,</span> <span class="s2">"Nogales"</span><span class="p">,</span> <span class="s2">"Santa Cruz"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"CA"</span><span class="p">,</span> <span class="s2">"San Bernadino"</span><span class="p">,</span> <span class="s2">"San Bernardino"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"CA"</span><span class="p">,</span> <span class="s2">"San Bernardi"</span><span class="p">,</span> <span class="s2">"San Bernardino"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"CA"</span><span class="p">,</span> <span class="s2">"San Francisc"</span><span class="p">,</span> <span class="s2">"San Francisco County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"CA"</span><span class="p">,</span> <span class="s2">"San Luis Obi"</span><span class="p">,</span> <span class="s2">"San Luis Obispo County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"CA"</span><span class="p">,</span> <span class="s2">"Santa Barbar"</span><span class="p">,</span> <span class="s2">"Santa Barbara County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"CT"</span><span class="p">,</span> <span class="s2">"Shelton"</span><span class="p">,</span> <span class="s2">"Fairfield"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"DC"</span><span class="p">,</span> <span class="s2">"District of"</span><span class="p">,</span> <span class="s2">"District of Columbia"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"FL"</span><span class="p">,</span> <span class="s2">"Dade"</span><span class="p">,</span> <span class="s2">"Miami-Dade"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"FL"</span><span class="p">,</span> <span class="s2">"De Soto"</span><span class="p">,</span> <span class="s2">"DeSoto"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"FL"</span><span class="p">,</span> <span class="s2">"Miami Dade"</span><span class="p">,</span> <span class="s2">"Miami-Dade"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"FL"</span><span class="p">,</span> <span class="s2">"St. Loucie"</span><span class="p">,</span> <span class="s2">"St. Lucie"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"FL"</span><span class="p">,</span> <span class="s2">"St. Lucic"</span><span class="p">,</span> <span class="s2">"St. Lucie"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"GA"</span><span class="p">,</span> <span class="s2">"Chattahooche"</span><span class="p">,</span> <span class="s2">"Chattahoochee"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"GA"</span><span class="p">,</span> <span class="s2">"De Kalb"</span><span class="p">,</span> <span class="s2">"DeKalb"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"GA"</span><span class="p">,</span> <span class="s2">"Glasscock"</span><span class="p">,</span> <span class="s2">"Glascock County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"IA"</span><span class="p">,</span> <span class="s2">"Hardin -remove"</span><span class="p">,</span> <span class="s2">"Hardin County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"IA"</span><span class="p">,</span> <span class="s2">"Harris"</span><span class="p">,</span> <span class="s2">"Harrison"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"IA"</span><span class="p">,</span> <span class="s2">"Humbolt"</span><span class="p">,</span> <span class="s2">"Humboldt"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"IA"</span><span class="p">,</span> <span class="s2">"Kossuh"</span><span class="p">,</span> <span class="s2">"Kossuth"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"IA"</span><span class="p">,</span> <span class="s2">"Louisa-remove"</span><span class="p">,</span> <span class="s2">"Louisa County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"IA"</span><span class="p">,</span> <span class="s2">"Lousia"</span><span class="p">,</span> <span class="s2">"Louisa"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"IA"</span><span class="p">,</span> <span class="s2">"O Brien"</span><span class="p">,</span> <span class="s2">"O'Brien"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"IA"</span><span class="p">,</span> <span class="s2">"Pottawattami"</span><span class="p">,</span> <span class="s2">"Pottawattamie"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"IA"</span><span class="p">,</span> <span class="s2">"Poweshick"</span><span class="p">,</span> <span class="s2">"Poweshiek"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"IA"</span><span class="p">,</span> <span class="s2">"Union-remove"</span><span class="p">,</span> <span class="s2">"Union County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"ID"</span><span class="p">,</span> <span class="s2">"Marshall"</span><span class="p">,</span> <span class="s2">"Custer County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"IL"</span><span class="p">,</span> <span class="s2">"Burke"</span><span class="p">,</span> <span class="s2">"Christian"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"IL"</span><span class="p">,</span> <span class="s2">"Carol"</span><span class="p">,</span> <span class="s2">"DuPage County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"IL"</span><span class="p">,</span> <span class="s2">"De Kalb"</span><span class="p">,</span> <span class="s2">"DeKalb County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"IL"</span><span class="p">,</span> <span class="s2">"DeWitt"</span><span class="p">,</span> <span class="s2">"De Witt"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"IL"</span><span class="p">,</span> <span class="s2">"Dewitt"</span><span class="p">,</span> <span class="s2">"De Witt"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"IL"</span><span class="p">,</span> <span class="s2">"Du Page"</span><span class="p">,</span> <span class="s2">"DuPage"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"IL"</span><span class="p">,</span> <span class="s2">"Green"</span><span class="p">,</span> <span class="s2">"Greene"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"IL"</span><span class="p">,</span> <span class="s2">"JoDavies"</span><span class="p">,</span> <span class="s2">"Jo Daviess"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"IL"</span><span class="p">,</span> <span class="s2">"La Salle"</span><span class="p">,</span> <span class="s2">"LaSalle"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"IL"</span><span class="p">,</span> <span class="s2">"McCoupin"</span><span class="p">,</span> <span class="s2">"Macoupin"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"IN"</span><span class="p">,</span> <span class="s2">"De Kalb"</span><span class="p">,</span> <span class="s2">"DeKalb County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"IN"</span><span class="p">,</span> <span class="s2">"De Kalb County"</span><span class="p">,</span> <span class="s2">"DeKalb County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"IN"</span><span class="p">,</span> <span class="s2">"La Porte"</span><span class="p">,</span> <span class="s2">"LaPorte"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"IN"</span><span class="p">,</span> <span class="s2">"Putman"</span><span class="p">,</span> <span class="s2">"Putnam"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"IN"</span><span class="p">,</span> <span class="s2">"Pyke"</span><span class="p">,</span> <span class="s2">"Pike"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"IN"</span><span class="p">,</span> <span class="s2">"Sulliva"</span><span class="p">,</span> <span class="s2">"Sullivan"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"KS"</span><span class="p">,</span> <span class="s2">"Leaveworth"</span><span class="p">,</span> <span class="s2">"Leavenworth"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"KY"</span><span class="p">,</span> <span class="s2">"Hawkins"</span><span class="p">,</span> <span class="s2">"Hopkins County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"KY"</span><span class="p">,</span> <span class="s2">"LAURE"</span><span class="p">,</span> <span class="s2">"Larue County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"KY"</span><span class="p">,</span> <span class="s2">"Spenser"</span><span class="p">,</span> <span class="s2">"Spencer"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"KY"</span><span class="p">,</span> <span class="s2">"Sullivan"</span><span class="p">,</span> <span class="s2">"Union County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"KY"</span><span class="p">,</span> <span class="s2">"WOLE"</span><span class="p">,</span> <span class="s2">"Wolfe County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"LA"</span><span class="p">,</span> <span class="s2">"Burke"</span><span class="p">,</span> <span class="s2">"Iberia"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"LA"</span><span class="p">,</span> <span class="s2">"DeSoto"</span><span class="p">,</span> <span class="s2">"De Soto"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"LA"</span><span class="p">,</span> <span class="s2">"East Baton R"</span><span class="p">,</span> <span class="s2">"East Baton Rouge Parish"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"LA"</span><span class="p">,</span> <span class="s2">"East Felicia"</span><span class="p">,</span> <span class="s2">"East Feliciana Parish"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"LA"</span><span class="p">,</span> <span class="s2">"Jefferson Da"</span><span class="p">,</span> <span class="s2">"Jefferson Davis"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"LA"</span><span class="p">,</span> <span class="s2">"Morehouse Pa"</span><span class="p">,</span> <span class="s2">"Morehouse Parish"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"LA"</span><span class="p">,</span> <span class="s2">"Pointe Coupe"</span><span class="p">,</span> <span class="s2">"Pointe Coupee"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"LA"</span><span class="p">,</span> <span class="s2">"Saint Helina"</span><span class="p">,</span> <span class="s2">"St. Helena Parish"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"LA"</span><span class="p">,</span> <span class="s2">"Saint Tamman"</span><span class="p">,</span> <span class="s2">"St. Tammany Parish"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"LA"</span><span class="p">,</span> <span class="s2">"West Baton R"</span><span class="p">,</span> <span class="s2">"West Baton Rouge"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"LA"</span><span class="p">,</span> <span class="s2">"West Feleciana"</span><span class="p">,</span> <span class="s2">"West Feliciana"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"LA"</span><span class="p">,</span> <span class="s2">"West Felicia"</span><span class="p">,</span> <span class="s2">"West Feliciana Parish"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"MA"</span><span class="p">,</span> <span class="s2">"North Essex"</span><span class="p">,</span> <span class="s2">"Essex"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"MD"</span><span class="p">,</span> <span class="s2">"Baltimore Ci"</span><span class="p">,</span> <span class="s2">"Baltimore City"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"MD"</span><span class="p">,</span> <span class="s2">"Balto. City"</span><span class="p">,</span> <span class="s2">"Baltimore City"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"MD"</span><span class="p">,</span> <span class="s2">"Prince Georg"</span><span class="p">,</span> <span class="s2">"Prince George's County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"MD"</span><span class="p">,</span> <span class="s2">"Worchester"</span><span class="p">,</span> <span class="s2">"Worcester"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"MI"</span><span class="p">,</span> <span class="s2">"Antim"</span><span class="p">,</span> <span class="s2">"Antrim"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"MI"</span><span class="p">,</span> <span class="s2">"Graitiot"</span><span class="p">,</span> <span class="s2">"Gratiot County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"MI"</span><span class="p">,</span> <span class="s2">"Grand Traver"</span><span class="p">,</span> <span class="s2">"Grand Traverse"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"MI"</span><span class="p">,</span> <span class="s2">"Missauke"</span><span class="p">,</span> <span class="s2">"Missaukee County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"MN"</span><span class="p">,</span> <span class="s2">"Fairbault"</span><span class="p">,</span> <span class="s2">"Faribault"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"MN"</span><span class="p">,</span> <span class="s2">"La Qui Parle"</span><span class="p">,</span> <span class="s2">"Lac qui Parle County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"MN"</span><span class="p">,</span> <span class="s2">"Lac Qui Parl"</span><span class="p">,</span> <span class="s2">"Lac Qui Parle"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"MN"</span><span class="p">,</span> <span class="s2">"Lake of The"</span><span class="p">,</span> <span class="s2">"Lake of the Woods"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"MN"</span><span class="p">,</span> <span class="s2">"Olmstead"</span><span class="p">,</span> <span class="s2">"Olmsted County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"MN"</span><span class="p">,</span> <span class="s2">"Ottertail"</span><span class="p">,</span> <span class="s2">"Otter Tail"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"MN"</span><span class="p">,</span> <span class="s2">"Yellow Medic"</span><span class="p">,</span> <span class="s2">"Yellow Medicine"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"MO"</span><span class="p">,</span> <span class="s2">"Cape Girarde"</span><span class="p">,</span> <span class="s2">"Cape Girardeau"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"MO"</span><span class="p">,</span> <span class="s2">"De Kalb"</span><span class="p">,</span> <span class="s2">"DeKalb"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"MO"</span><span class="p">,</span> <span class="s2">"Paris"</span><span class="p">,</span> <span class="s2">"Monroe County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"MO"</span><span class="p">,</span> <span class="s2">"Saint Charle"</span><span class="p">,</span> <span class="s2">"St. Charles County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"MO"</span><span class="p">,</span> <span class="s2">"Saint Franco"</span><span class="p">,</span> <span class="s2">"St. Francois County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"MO"</span><span class="p">,</span> <span class="s2">"Sainte Genev"</span><span class="p">,</span> <span class="s2">"Ste. Genevieve County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"MS"</span><span class="p">,</span> <span class="s2">"Clark"</span><span class="p">,</span> <span class="s2">"Clarke"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"MS"</span><span class="p">,</span> <span class="s2">"Clark"</span><span class="p">,</span> <span class="s2">"Clarke"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"MS"</span><span class="p">,</span> <span class="s2">"De Soto"</span><span class="p">,</span> <span class="s2">"DeSoto"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"MS"</span><span class="p">,</span> <span class="s2">"Homoshitto"</span><span class="p">,</span> <span class="s2">"Amite"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"MS"</span><span class="p">,</span> <span class="s2">"Jefferson Da"</span><span class="p">,</span> <span class="s2">"Jefferson Davis"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"MT"</span><span class="p">,</span> <span class="s2">"Anaconda-Dee"</span><span class="p">,</span> <span class="s2">"Deer Lodge"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"MT"</span><span class="p">,</span> <span class="s2">"Butte-Silver"</span><span class="p">,</span> <span class="s2">"Silver Bow"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"MT"</span><span class="p">,</span> <span class="s2">"Golden Valle"</span><span class="p">,</span> <span class="s2">"Golden Valley"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"MT"</span><span class="p">,</span> <span class="s2">"Lewis and Cl"</span><span class="p">,</span> <span class="s2">"Lewis and Clark"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"NC"</span><span class="p">,</span> <span class="s2">"Cherokee (NP&amp;L)"</span><span class="p">,</span> <span class="s2">"Cherokee County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"NC"</span><span class="p">,</span> <span class="s2">"Clay (NP&amp;L)"</span><span class="p">,</span> <span class="s2">"Clay County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"NC"</span><span class="p">,</span> <span class="s2">"Gilford"</span><span class="p">,</span> <span class="s2">"Guilford"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"NC"</span><span class="p">,</span> <span class="s2">"Graham (NP&amp;L)"</span><span class="p">,</span> <span class="s2">"Graham County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"NC"</span><span class="p">,</span> <span class="s2">"Hartford"</span><span class="p">,</span> <span class="s2">"Hertford"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"NC"</span><span class="p">,</span> <span class="s2">"Jackson (NP&amp;L)"</span><span class="p">,</span> <span class="s2">"Jackson County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"NC"</span><span class="p">,</span> <span class="s2">"Macon (NP&amp;L)"</span><span class="p">,</span> <span class="s2">"Macon County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"NC"</span><span class="p">,</span> <span class="s2">"North Hampton"</span><span class="p">,</span> <span class="s2">"Northampton"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"NC"</span><span class="p">,</span> <span class="s2">"Stanley"</span><span class="p">,</span> <span class="s2">"Stanly County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"NC"</span><span class="p">,</span> <span class="s2">"Swain (NP&amp;L)"</span><span class="p">,</span> <span class="s2">"Swain County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"ND"</span><span class="p">,</span> <span class="s2">"Golden Valle"</span><span class="p">,</span> <span class="s2">"Golden Valley County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"ND"</span><span class="p">,</span> <span class="s2">"La Moure"</span><span class="p">,</span> <span class="s2">"LaMoure"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"ND"</span><span class="p">,</span> <span class="s2">"Remsey"</span><span class="p">,</span> <span class="s2">"Ramsey County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"NH"</span><span class="p">,</span> <span class="s2">"Hillsboro"</span><span class="p">,</span> <span class="s2">"Hillsborough County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"NH"</span><span class="p">,</span> <span class="s2">"New Hampshire"</span><span class="p">,</span> <span class="s2">"Coos"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"NH"</span><span class="p">,</span> <span class="s2">"Plaquemines"</span><span class="p">,</span> <span class="s2">"Coos"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"NV"</span><span class="p">,</span> <span class="s2">"Carson City city"</span><span class="p">,</span> <span class="s2">"Carson City"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"NY"</span><span class="p">,</span> <span class="s2">"Saint Lawren"</span><span class="p">,</span> <span class="s2">"St. Lawrence County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"NY"</span><span class="p">,</span> <span class="s2">"Westcherster"</span><span class="p">,</span> <span class="s2">"Westchester"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"OH"</span><span class="p">,</span> <span class="s2">"Cochocton"</span><span class="p">,</span> <span class="s2">"Coshocton County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"OH"</span><span class="p">,</span> <span class="s2">"Columbian"</span><span class="p">,</span> <span class="s2">"Columbiana County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"OH"</span><span class="p">,</span> <span class="s2">"Tuscarawa"</span><span class="p">,</span> <span class="s2">"Tuscarawas County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"OK"</span><span class="p">,</span> <span class="s2">"Cimmaron"</span><span class="p">,</span> <span class="s2">"Cimarron"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"OK"</span><span class="p">,</span> <span class="s2">"MuCurtain"</span><span class="p">,</span> <span class="s2">"McCurtain County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"OR"</span><span class="p">,</span> <span class="s2">"Unioin"</span><span class="p">,</span> <span class="s2">"Union"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"PA"</span><span class="p">,</span> <span class="s2">"Northumberla"</span><span class="p">,</span> <span class="s2">"Northumberland"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"PR"</span><span class="p">,</span> <span class="s2">"Aquadilla"</span><span class="p">,</span> <span class="s2">"Aguadilla"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"PR"</span><span class="p">,</span> <span class="s2">"Sabana Grand"</span><span class="p">,</span> <span class="s2">"Sabana Grande"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"PR"</span><span class="p">,</span> <span class="s2">"San Sebastia"</span><span class="p">,</span> <span class="s2">"San Sebastian"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"PR"</span><span class="p">,</span> <span class="s2">"Trujillo Alt"</span><span class="p">,</span> <span class="s2">"Trujillo Alto"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"RI"</span><span class="p">,</span> <span class="s2">"Portsmouth"</span><span class="p">,</span> <span class="s2">"Newport"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"SD"</span><span class="p">,</span> <span class="s2">"Pierce"</span><span class="p">,</span> <span class="s2">"Hughes County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"SD"</span><span class="p">,</span> <span class="s2">"Valley Springs"</span><span class="p">,</span> <span class="s2">"Minnehaha County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"TX"</span><span class="p">,</span> <span class="s2">"Collingswort"</span><span class="p">,</span> <span class="s2">"Collingsworth"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"TX"</span><span class="p">,</span> <span class="s2">"De Witt"</span><span class="p">,</span> <span class="s2">"DeWitt"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"TX"</span><span class="p">,</span> <span class="s2">"Hayes"</span><span class="p">,</span> <span class="s2">"Hays"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"TX"</span><span class="p">,</span> <span class="s2">"San Augustin"</span><span class="p">,</span> <span class="s2">"San Augustine"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"VA"</span><span class="p">,</span> <span class="s2">"Albermarle"</span><span class="p">,</span> <span class="s2">"Albemarle County"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"VA"</span><span class="p">,</span> <span class="s2">"Alexandria C"</span><span class="p">,</span> <span class="s2">"Alexandria City"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"VA"</span><span class="p">,</span> <span class="s2">"Charlottesvi"</span><span class="p">,</span> <span class="s2">"Charlottesville City"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"VA"</span><span class="p">,</span> <span class="s2">"Chesapeake C"</span><span class="p">,</span> <span class="s2">"Chesapeake City"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"VA"</span><span class="p">,</span> <span class="s2">"City of Manassas"</span><span class="p">,</span> <span class="s2">"Manassas City"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"VA"</span><span class="p">,</span> <span class="s2">"City of Suff"</span><span class="p">,</span> <span class="s2">"Suffolk City"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"VA"</span><span class="p">,</span> <span class="s2">"City of Suffolk"</span><span class="p">,</span> <span class="s2">"Suffolk city"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"VA"</span><span class="p">,</span> <span class="s2">"Clifton Forg"</span><span class="p">,</span> <span class="s2">"Alleghany"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"VA"</span><span class="p">,</span> <span class="s2">"Clifton Forge"</span><span class="p">,</span> <span class="s2">"Alleghany"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"VA"</span><span class="p">,</span> <span class="s2">"Colonial Hei"</span><span class="p">,</span> <span class="s2">"Colonial Heights City"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"VA"</span><span class="p">,</span> <span class="s2">"Covington Ci"</span><span class="p">,</span> <span class="s2">"Covington City"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"VA"</span><span class="p">,</span> <span class="s2">"Fredericksbu"</span><span class="p">,</span> <span class="s2">"Fredericksburg City"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"VA"</span><span class="p">,</span> <span class="s2">"Hopewell Cit"</span><span class="p">,</span> <span class="s2">"Hopewell City"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"VA"</span><span class="p">,</span> <span class="s2">"Isle of Wigh"</span><span class="p">,</span> <span class="s2">"Isle of Wight"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"VA"</span><span class="p">,</span> <span class="s2">"King and Que"</span><span class="p">,</span> <span class="s2">"King and Queen"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"VA"</span><span class="p">,</span> <span class="s2">"Lexington Ci"</span><span class="p">,</span> <span class="s2">"Lexington City"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"VA"</span><span class="p">,</span> <span class="s2">"Manasas Park"</span><span class="p">,</span> <span class="s2">"Manassas Park city"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"VA"</span><span class="p">,</span> <span class="s2">"Manassas Cit"</span><span class="p">,</span> <span class="s2">"Manassas City"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"VA"</span><span class="p">,</span> <span class="s2">"Manassas Par"</span><span class="p">,</span> <span class="s2">"Manassas Park City"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"VA"</span><span class="p">,</span> <span class="s2">"Northumberla"</span><span class="p">,</span> <span class="s2">"Northumberland"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"VA"</span><span class="p">,</span> <span class="s2">"Petersburg C"</span><span class="p">,</span> <span class="s2">"Petersburg City"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"VA"</span><span class="p">,</span> <span class="s2">"Poquoson Cit"</span><span class="p">,</span> <span class="s2">"Poquoson City"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"VA"</span><span class="p">,</span> <span class="s2">"Portsmouth C"</span><span class="p">,</span> <span class="s2">"Portsmouth City"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"VA"</span><span class="p">,</span> <span class="s2">"Prince Edwar"</span><span class="p">,</span> <span class="s2">"Prince Edward"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"VA"</span><span class="p">,</span> <span class="s2">"Prince Georg"</span><span class="p">,</span> <span class="s2">"Prince George"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"VA"</span><span class="p">,</span> <span class="s2">"Prince Willi"</span><span class="p">,</span> <span class="s2">"Prince William"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"VA"</span><span class="p">,</span> <span class="s2">"Richmond Cit"</span><span class="p">,</span> <span class="s2">"Richmond City"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"VA"</span><span class="p">,</span> <span class="s2">"Staunton Cit"</span><span class="p">,</span> <span class="s2">"Staunton City"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"VA"</span><span class="p">,</span> <span class="s2">"Virginia"</span><span class="p">,</span> <span class="s2">"Virginia Beach city"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"VA"</span><span class="p">,</span> <span class="s2">"Virginia Bea"</span><span class="p">,</span> <span class="s2">"Virginia Beach City"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"VA"</span><span class="p">,</span> <span class="s2">"Waynesboro C"</span><span class="p">,</span> <span class="s2">"Waynesboro City"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"VA"</span><span class="p">,</span> <span class="s2">"Winchester C"</span><span class="p">,</span> <span class="s2">"Winchester City"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"WA"</span><span class="p">,</span> <span class="s2">"Wahkiakurn"</span><span class="p">,</span> <span class="s2">"Wahkiakum"</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">"WV"</span><span class="p">,</span> <span class="s2">"Greenbriar"</span><span class="p">,</span> <span class="s2">"Greenbrier County"</span><span class="p">),</span>
-    <span class="p">],</span>
-    <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"state"</span><span class="p">,</span> <span class="s2">"eia_county"</span><span class="p">,</span> <span class="s2">"fips_county"</span><span class="p">],</span>
 <span class="p">)</span></div>
 
 
@@ -2137,7 +1893,11 @@ window.runMermaid = runMermaid;</script>
         <span class="c1"># as floats, which messes up the parsing of counties by addfips.</span>
         <span class="n">df</span><span class="o">.</span><span class="n">astype</span><span class="p">({</span><span class="s2">"county"</span><span class="p">:</span> <span class="s2">"string"</span><span class="p">})</span>
         <span class="c1"># Ensure that we have the canonical US Census county names:</span>
-        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">clean_eia_counties</span><span class="p">,</span> <span class="n">fixes</span><span class="o">=</span><span class="n">EIA_FIPS_COUNTY_FIXES</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
+            <span class="n">clean_eia_counties</span><span class="p">,</span>
+            <span class="n">fixes</span><span class="o">=</span><span class="n">EIA_FIPS_COUNTY_FIXES</span><span class="p">,</span>
+            <span class="n">explode_lists_of_counties</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="c1"># Add FIPS IDs based on county &amp; state names:</span>
         <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">add_fips_ids</span><span class="p">,</span> <span class="n">_core_censuspep__yearly_geocodes</span><span class="p">)</span>
         <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">short_form</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">_make_yn_bool</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">short_form</span><span class="p">))</span>

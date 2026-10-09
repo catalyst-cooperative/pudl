@@ -7609,6 +7609,10 @@ Columns
     - string
     - 
     - County name.
+  * - county_id_fips
+    - string
+    - 
+    - County ID from the Federal Information Processing Standard Publication 6-4.
   * - current_planned_generator_operating_date
     - date
     - 
@@ -7889,6 +7893,10 @@ Columns
     - string
     - 
     - Two letter US state abbreviation.
+  * - state_id_fips
+    - string
+    - 
+    - Two digit state FIPS code.
   * - stoker_tech
     - boolean
     - 
@@ -8905,6 +8913,10 @@ Columns
     - string
     - 
     - County name.
+  * - county_id_fips
+    - string
+    - 
+    - County ID from the Federal Information Processing Standard Publication 6-4.
   * - current_planned_generator_operating_date
     - date
     - 
@@ -9185,6 +9197,10 @@ Columns
     - string
     - 
     - Two letter US state abbreviation.
+  * - state_id_fips
+    - string
+    - 
+    - Two digit state FIPS code.
   * - stoker_tech
     - boolean
     - 
@@ -39264,6 +39280,10 @@ Columns
     - string
     - 
     - County name.
+  * - county_id_fips
+    - string
+    - 
+    - County ID from the Federal Information Processing Standard Publication 6-4.
   * - latitude
     - number
     - degrees
@@ -39284,6 +39304,10 @@ Columns
     - string
     - 
     - Two letter US state abbreviation.
+  * - state_id_fips
+    - string
+    - 
+    - Two digit state FIPS code.
   * - street_address
     - string
     - 
