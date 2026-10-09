@@ -140,7 +140,6 @@ class FercEqrArchiveResource(dg.ConfigurableResource):
 
     datastore: dg.ResourceDependency[Datastore]
     path: str = dg.EnvVar("PUDL_FERCEQR_ARCHIVE_PATH")
-    verify_checksums: bool = True
 
     @property
     def upath(self) -> UPath:
@@ -166,16 +165,12 @@ class FercEqrArchiveResource(dg.ConfigurableResource):
                 str(local_path),
                 concurrency=8,  # default 4: parallel ranged reads per file
             )
-            if self.verify_checksums:
-                # Raises ChecksumMismatchError on mismatch. A truncated or corrupt
-                # download is exactly the transient failure the asset's RetryPolicy
-                # exists for; a persistent mismatch means the GCS archive and the
-                # Zenodo metadata have genuinely drifted and needs human attention.
-                descriptor = self.datastore.get_datapackage_descriptor("ferceqr")
-                digest = descriptor.validate_file_checksum(zip_name, local_path)
-                logger.info(
-                    f"Verified {zip_name} against {descriptor.doi} (md5={digest})."
-                )
+            # Raises ChecksumMismatchError on mismatch. This guarantees that year_quarter
+            # zipfiles exactly match those described by the datapackage in the zenodo
+            # metadata archive pointed to by the current DOI
+            descriptor = self.datastore.get_datapackage_descriptor("ferceqr")
+            digest = descriptor.validate_file_checksum(zip_name, local_path)
+            logger.info(f"Verified {zip_name} against {descriptor.doi} (md5={digest}).")
             # Yield open zipfile
             with zipfile.ZipFile(local_path) as zf:
                 yield zf
