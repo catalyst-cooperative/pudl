@@ -1660,6 +1660,7 @@ class PudlResourceDescriptor(PudlMeta):
     create_database_schema: bool = True
     path: str | None = None
     extrapaths: list[str] | None = None
+    dbt_source: str = "pudl"
 
 
 class Resource(PudlMeta):
@@ -1804,6 +1805,7 @@ class Resource(PudlMeta):
     extrapaths: list[str] | None = None
     field_namespace: FieldNamespace | None = None
     etl_group: EtlGroup | None = None
+    dbt_source: str = "pudl"
     create_database_schema: bool = True
 
     _check_unique = field_validator("contributors", "keywords", "licenses", "sources")(

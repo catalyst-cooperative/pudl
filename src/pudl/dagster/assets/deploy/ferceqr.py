@@ -17,7 +17,7 @@ from concurrent.futures import Future, ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import timedelta
 from pathlib import Path
-from typing import Literal, cast
+from typing import Literal, NamedTuple, cast
 
 import dagster as dg
 import pandas as pd
@@ -33,6 +33,7 @@ from pudl.helpers import ParquetData
 from pudl.logging_helpers import get_logger
 from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.metadata.sources import SOURCES
+from pudl.validate.dbt import BuildResult, build_with_context
 from pudl.workspace.setup import PudlPaths
 
 logger = get_logger(__name__)
@@ -71,6 +72,71 @@ PREVIOUS_DIRNAME = "._ferceqr_previous"
 
 # Type alias: asset name -> partition name -> status name
 StepStatusTable = dict[str, dict[str, str]]
+
+# Constants used for dbt tests
+FERCEQR_DBT_SOURCE = "ferceqr"
+ROW_COUNT_TEST_SELECTOR = "test_name:check_row_counts_per_partition"
+
+
+class ValidationStage(NamedTuple):
+    """The :class:`BuildResult` of one named dbt validation stage."""
+
+    name: str
+    result: BuildResult
+
+
+def _run_ferceqr_validation() -> list[ValidationStage]:
+    """Run the dbt data validations for the FERC EQR tables.
+
+    Mirrors the two pytest validation stages (``tests/validate/data_test.py`` and
+    ``tests/validate/row_counts_test.py``): the general validation suite with the
+    row count checks excluded, then the row count checks on their own.
+    """
+    logger.info("Running dbt data validations for FERC EQR outputs.")
+    data_validation = build_with_context(
+        node_selection=f"source:{FERCEQR_DBT_SOURCE}+",
+        node_exclusion=ROW_COUNT_TEST_SELECTOR,
+        dbt_target="etl-full",
+    )
+    # Comma denotes an intersection in dbt's selection syntax: only the row count
+    # tests that are also downstream of the FERC EQR source.
+    logger.info("Running dbt row count checks for FERC EQR outputs.")
+    row_counts = build_with_context(
+        node_selection=f"{ROW_COUNT_TEST_SELECTOR},source:{FERCEQR_DBT_SOURCE}+",
+        dbt_target="etl-full",
+    )
+    return [
+        ValidationStage(name="Data validation", result=data_validation),
+        ValidationStage(name="Row counts", result=row_counts),
+    ]
+
+
+def _markdown_validation_results(stages: list[ValidationStage]) -> str:
+    """Summarize dbt validation stage outcomes as a Markdown table.
+
+    Only the high-level pass/fail status of each stage is reported; failure
+    contexts are written to the build log, which the notification links to.
+    """
+    if len(stages) == 0:
+        return ""
+
+    table = pd.DataFrame(
+        [
+            {
+                "Validation Stage": stage.name,
+                "Status": ":check:" if stage.result.success else ":x:",
+            }
+            for stage in stages
+        ]
+    )
+    return "\n".join(
+        [
+            "",
+            "## Data Validation",
+            "",
+            table.to_markdown(index=False, colalign=("left", "center")),
+        ]
+    )
 
 
 def _write_status_file(
@@ -526,6 +592,7 @@ def _compute_deploy_duration(context: dg.AssetExecutionContext) -> str | None:
 def build_ferceqr_notification(
     context: dg.AssetExecutionContext,
     outcome: Literal["SUCCESS", "FAILURE", "SKIPPED"],
+    validation_stages: list[ValidationStage] | None = None,
 ) -> str:
     """Build a Markdown notification string for FERC EQR deployment outcomes.
 
@@ -601,6 +668,7 @@ def build_ferceqr_notification(
                 asset_partition_statuses=asset_partition_statuses,
                 partitions=source_partitions or None,
             ),
+            _markdown_validation_results(validation_stages or []),
             _markdown_logfile_list(build_id),
         ]
     )
@@ -653,6 +721,27 @@ def _deploy_source_partitions(context: dg.AssetExecutionContext) -> list[str]:
     return _validate_partitions(run_tags.get(FERCEQR_SOURCE_PARTITIONS_TAG) or None)
 
 
+def _notify_ferceqr_outcome(
+    context: dg.AssetExecutionContext,
+    zulip: ZulipNotificationResource,
+    outcome: Literal["SUCCESS", "FAILURE", "SKIPPED"],
+    validation_stages: list[ValidationStage] | None = None,
+) -> None:
+    """Send a deployment outcome notification, never raising on failure."""
+    try:
+        zulip.send_stream_message(
+            stream="pudl-deployments",
+            topic="build-deploy-ferceqr",
+            content=build_ferceqr_notification(
+                context, outcome=outcome, validation_stages=validation_stages
+            ),
+        )
+    except Exception:
+        logger.error(
+            f"FERC EQR {outcome} notification failed:\n" + traceback.format_exc()
+        )
+
+
 @deployment_status_asset
 def deploy_ferceqr(context: dg.AssetExecutionContext):
     """Publish EQR outputs to configured deployment targets.
@@ -684,6 +773,27 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
     if not source_partitions:
         raise RuntimeError("FERC EQR deployment run has no deployable partitions.")
 
+    # Validate before publishing: bad data should never reach a deployment target.
+    validation_stages = _run_ferceqr_validation()
+    if any(not stage.result.success for stage in validation_stages):
+        failed = [s.name for s in validation_stages if not s.result.success]
+        logger.error(
+            f"FERC EQR data validation failed ({', '.join(failed)}); not deploying.\n"
+            + "\n=====\n".join(
+                stage.result.format_failure_contexts()
+                for stage in validation_stages
+                if not stage.result.success
+            )
+        )
+        _notify_ferceqr_outcome(
+            context, zulip, outcome="FAILURE", validation_stages=validation_stages
+        )
+        _write_status_file("FERCEQR_FAILURE", pudl_paths)
+        raise RuntimeError(
+            f"FERC EQR data validation failed: {', '.join(failed)}. "
+            "See build logs for failure contexts."
+        )
+
     # Write the datapackage alongside the parquet data in pudl_output so it can
     # be deployed like any other file and remains as a record of the build. Built
     # even when there is nothing to publish, so it can be reviewed and tested as
@@ -703,10 +813,8 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
             f"No FERC EQR deployment targets configured; build succeeded, "
             f"datapackage written to {datapackage_path}, skipping publish."
         )
-        zulip.send_stream_message(
-            stream="pudl-deployments",
-            topic="build-deploy-ferceqr",
-            content=build_ferceqr_notification(context, outcome="SKIPPED"),
+        _notify_ferceqr_outcome(
+            context, zulip, outcome="SKIPPED", validation_stages=validation_stages
         )
         _write_status_file("FERCEQR_SUCCESS", pudl_paths)
         return
@@ -743,16 +851,9 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
         # Notify inline before the exception propagates: the sensor-triggered
         # failure asset never runs because the bash script kills the dagster
         # daemon as soon as FERCEQR_FAILURE appears.
-        try:
-            zulip.send_stream_message(
-                stream="pudl-deployments",
-                topic="build-deploy-ferceqr",
-                content=build_ferceqr_notification(context, outcome="FAILURE"),
-            )
-        except Exception:
-            logger.error(
-                "FERC EQR failure notification also failed:\n" + traceback.format_exc()
-            )
+        _notify_ferceqr_outcome(
+            context, zulip, outcome="FAILURE", validation_stages=validation_stages
+        )
         _remove_all_staging(targets)
         # Write the failure sentinel HERE so the log messages above are flushed
         # before the sentinel triggers killall.
@@ -760,10 +861,8 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
         raise
 
     logger.info("FERC EQR deployment succeeded. Notifying Zulip.")
-    zulip.send_stream_message(
-        stream="pudl-deployments",
-        topic="build-deploy-ferceqr",
-        content=build_ferceqr_notification(context, outcome="SUCCESS"),
+    _notify_ferceqr_outcome(
+        context, zulip, outcome="SUCCESS", validation_stages=validation_stages
     )
     _write_status_file("FERCEQR_SUCCESS", pudl_paths)
 
@@ -775,10 +874,5 @@ def handle_ferceqr_failure(context: dg.AssetExecutionContext):
     zulip: ZulipNotificationResource = context.resources.zulip_notification
 
     logger.error("FERC EQR build failed. Notifying Zulip.")
-    notification_markdown = build_ferceqr_notification(context, outcome="FAILURE")
-    zulip.send_stream_message(
-        stream="pudl-deployments",
-        topic="build-deploy-ferceqr",
-        content=notification_markdown,
-    )
+    _notify_ferceqr_outcome(context=context, zulip=zulip, outcome="FAILURE")
     _write_status_file("FERCEQR_FAILURE", pudl_paths)

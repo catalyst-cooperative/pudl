@@ -62,6 +62,10 @@ Documentation
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Updated ``dbt`` data validation now to support FERC EQR data. This requires ``dbt``
+  configuration changes to handle partitioned parquet outputs. See issue :pr:`4864`
+  and PR :pr:`5676`. This PR also applies basic validation tests to FERC EQR tables,
+  including row count tests.
 * Added unit tests for the ID assignment process that builds
   :ref:`core_epa__assn_eia_epacamd_subplant_ids`. Fixed several bugs that those tests
   exposed, including one that could split a physically connected group of generators
