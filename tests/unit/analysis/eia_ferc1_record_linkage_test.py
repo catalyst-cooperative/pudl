@@ -1,11 +1,13 @@
 """Unit tests for :mod:`pudl.analysis.record_linkage.eia_ferc1_record_linkage`."""
 
+import duckdb
 import jellyfish
 import pandas as pd
 import polars as pl
 import pytest
 from pandas.testing import assert_frame_equal
 from splink import DuckDBAPI
+from splink.blocking_analysis import count_comparisons_from_blocking_rules
 
 from pudl.analysis.ml_tools.experiment_tracking import ExperimentTracker
 from pudl.analysis.record_linkage import eia_ferc1_record_linkage
@@ -14,7 +16,12 @@ from pudl.analysis.record_linkage.eia_ferc1_inputs import (
     get_train_plant_ids_eia,
     select_plant_parts_eia,
 )
-from pudl.analysis.record_linkage.eia_ferc1_model_config import get_comparisons
+from pudl.analysis.record_linkage.eia_ferc1_model_config import (
+    blocking_rule_7,
+    blocking_rule_10,
+    get_comparisons,
+    get_year_comparison,
+)
 from pudl.analysis.record_linkage.eia_ferc1_record_linkage import (
     U_ESTIMATION_SEED,
     ModelPredictionsConfig,
@@ -190,6 +197,123 @@ def test_prepare_metaphone_matches_rowwise_encoding():
     out = prepare_for_matching.compute_fn.decorated_fn(df, pd.DataFrame())
     expected = [None if pd.isnull(n) else jellyfish.metaphone(n) for n in names]
     assert out["plant_name_mphone"].tolist() == expected
+
+
+@pytest.mark.parametrize(
+    ("rule", "column", "eia_values", "ferc_value", "blocked_pairs"),
+    [
+        # Capacity buckets are about 10% wide: 100 and 104 share a bucket, 120 doesn't,
+        # 10 is far away, and the null and non-positive values never block.
+        (
+            blocking_rule_7,
+            "capacity_mw",
+            [100.0, 104.0, 120.0, 10.0, None, 0.0],
+            102.0,
+            2,
+        ),
+        # Net generation buckets are about 1% wide, and the sign is ignored.
+        (
+            blocking_rule_10,
+            "net_generation_mwh",
+            [1000.0, 1004.0, -1004.0, 1020.0, None],
+            1002.0,
+            3,
+        ),
+        # Small values aren't all lumped together, as they would be by rounding
+        (blocking_rule_10, "net_generation_mwh", [0.1, 0.3, 40.0], 0.1, 1),
+    ],
+)
+def test_numeric_blocking_rules_block_on_log_buckets(
+    rule, column, eia_values, ferc_value, blocked_pairs
+):
+    """Values in the same relative bucket are compared; exact equality isn't needed."""
+    db_api = DuckDBAPI()
+    eia = pd.DataFrame(
+        {
+            "record_id": [f"e{i}" for i in range(len(eia_values))],
+            "report_year": [2020] * len(eia_values),
+            column: eia_values,
+            "plant_name_mphone": ["AB"] * len(eia_values),
+        }
+    )
+    ferc = pd.DataFrame(
+        {
+            "record_id": ["f1"],
+            "report_year": [2020],
+            column: [ferc_value],
+            "plant_name_mphone": ["AB"],
+        }
+    )
+    counts = count_comparisons_from_blocking_rules(
+        [
+            db_api.register(eia, dataset_display_name="eia_df"),
+            db_api.register(ferc, dataset_display_name="ferc_df"),
+        ],
+        blocking_rules=[rule],
+        link_type="link_only",
+        unique_id_column_name="record_id",
+        record_sample_proportion=1.0,
+    )
+    assert counts[0]["marginal_comparison_count"] == blocked_pairs
+
+
+@pytest.mark.parametrize(
+    ("year_l", "year_r", "level"),
+    [
+        (None, 2000, 0),
+        (2000, None, 0),
+        (2000, 2000, 1),
+        # A one year difference is a level regardless of leap days
+        (2000, 2001, 2),
+        (2001, 2000, 2),
+        (2000, 2002, 3),
+        # Years that differ by a single digit are no longer treated as similar
+        (2001, 2011, 4),
+        (1991, 2001, 4),
+        (2000, 2003, 4),
+    ],
+)
+def test_year_comparison_levels(year_l, year_r, level):
+    """Years are compared by their numeric difference."""
+    comparison = get_year_comparison("year").get_comparison("duckdb")
+    conditions = [lvl.sql_condition for lvl in comparison.comparison_levels]
+    con = duckdb.connect()
+    con.register(
+        "pair",
+        pd.DataFrame({"year_l": [year_l], "year_r": [year_r]}, dtype=pd.Int64Dtype()),
+    )
+
+    def _applies(condition: str) -> bool:
+        if condition == "ELSE":
+            return True
+        query = "SELECT " + condition.replace('"', "") + " FROM pair"  # noqa: S608
+        return bool(con.sql(query).fetchone()[0])
+
+    # Levels are ordered from most to least specific; the first true one applies.
+    assert next(i for i, cond in enumerate(conditions) if _applies(cond)) == level
+
+
+def test_prepare_for_matching_uses_integer_years():
+    """Installation and construction years are nullable integers, not datetimes."""
+    df = pd.DataFrame(
+        {
+            "record_id": ["x", "y"],
+            "plant_name": ["a", "b"],
+            "utility_name": ["a", "b"],
+            "fuel_type_code_pudl": ["gas", "gas"],
+            "installation_year": [2000.0, None],
+            "construction_year": [1999, 2001],
+            "capacity_mw": [1.0, 1.0],
+            "net_generation_mwh": [1.0, 1.0],
+            "report_year": [2000, 2000],
+            "plant_id_pudl": [1, 1],
+            "utility_id_pudl": [1, 1],
+        }
+    )
+    out = prepare_for_matching.compute_fn.decorated_fn(df, pd.DataFrame())
+    assert out["installation_year"].dtype == pd.Int64Dtype()
+    assert out["installation_year"].tolist() == [2000, pd.NA]
+    assert out["construction_year"].dtype == pd.Int64Dtype()
 
 
 def test_get_comparisons_returns_fresh_objects():
