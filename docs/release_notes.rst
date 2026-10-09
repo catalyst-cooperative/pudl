@@ -158,6 +158,15 @@ Performance Improvements
   the files substantially smaller. The codec and compression levels are now set in one
   place (:data:`pudl.PARQUET_COMPRESSION` and related constants) and used by every
   Parquet writer. See :issue:`5603` and :pr:`5604`.
+* Updated the FERC 1 to EIA plant-parts record linkage to
+  `Splink 5.0
+  <https://moj-analytical-services.github.io/splink/blog/2026/09/28/splink-500-released.html>`__
+  and adopted its native API. The linkage also uses less memory (the largest op's peak
+  fell from 14.5 GB to 5.6 GB, so the ``memory-use: high`` tag was removed), the
+  ``recall`` metric is now reported as ``coverage`` (``recall`` is back, and equals
+  accuracy), and the ``match_type`` of overridden matches in
+  :ref:`out_pudl__yearly_assn_eia_ferc1_plant_parts` now says ``overridden`` where it
+  said ``overwritten``. See PR :pr:`5679`.
 
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^
