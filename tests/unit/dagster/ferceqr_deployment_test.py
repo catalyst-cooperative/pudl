@@ -28,25 +28,33 @@ def _build_deploy_context(tmp_path, mocker, targets=None):
     )
 
 
+def _report_datapackage_materialization(deploy_context, tmp_path) -> Path:
+    """Seed the event log with the datapackage asset's materialization metadata.
+
+    ``deploy_ferceqr`` reads the descriptor path back out of the event log rather
+    than writing the descriptor itself, so the upstream materialization has to
+    exist before the asset is invoked.
+    """
+    datapackage_path = tmp_path / "ferceqr_datapackage.json"
+    datapackage_path.write_text("{}")
+    deploy_context.instance.report_runless_asset_event(
+        dg.AssetMaterialization(
+            asset_key=deploy_ferceqr.FERCEQR_DATAPACKAGE_ASSET_KEY,
+            metadata={"path": dg.MetadataValue.path(datapackage_path)},
+        )
+    )
+    return datapackage_path
+
+
 def _mock_deploy_dependencies(mocker, deploy_context, source_root, source_partitions):
-    """Set up shared mocks for deploy_ferceqr tests: PUDL_PACKAGE, ParquetData, run tags.
+    """Set up shared mocks for deploy_ferceqr tests: datapackage, ParquetData, run tags.
 
     Creates source parquet files under *source_root* and mocks context.run tags
     with *source_partitions*. Returns the mocked zulip resource for assertions.
     """
-    frictionless = mocker.Mock()
-    mock_package = mocker.Mock()
-
-    def _to_json_side_effect(path=None):
-        if path:
-            with Path(path).open("w") as f:
-                f.write("{}")
-            return "{}"
-        return "{}"
-
-    frictionless.to_json.side_effect = _to_json_side_effect
-    mock_package.to_frictionless.return_value = frictionless
-    mocker.patch.object(deploy_ferceqr, "PUDL_PACKAGE", mock_package)
+    _report_datapackage_materialization(
+        deploy_context, Path(deploy_context.resources.pudl_paths.pudl_output)
+    )
 
     mocker.patch.object(
         type(deploy_context),
@@ -137,24 +145,24 @@ def test_sensor_skips_while_backfill_running(
 
 
 @pytest.mark.parametrize(
-    "sensor_fn, backfill_statuses, expected_run_key_prefix, expected_asset",
+    "sensor_fn, backfill_statuses, expected_run_key_prefix, expected_assets",
     [
         (
             sensors.ferceqr_success_sensor,
             [dg.DagsterRunStatus.SUCCESS, dg.DagsterRunStatus.FAILURE],
             "ferceqr_deployment_failure_backfill",
-            "handle_ferceqr_failure",
+            ["handle_ferceqr_failure"],
         ),
         (
             sensors.ferceqr_failure_sensor,
             [dg.DagsterRunStatus.SUCCESS, dg.DagsterRunStatus.SUCCESS],
             "ferceqr_deployment_success_backfill",
-            "deploy_ferceqr",
+            ["ferceqr_datapackage", "deploy_ferceqr"],
         ),
     ],
 )
 def test_sensors_converge_to_same_run_key_in_race_condition(
-    mocker, sensor_fn, backfill_statuses, expected_run_key_prefix, expected_asset
+    mocker, sensor_fn, backfill_statuses, expected_run_key_prefix, expected_assets
 ):
     """Both sensors produce the same run_key when they race on the same completed backfill.
 
@@ -181,7 +189,7 @@ def test_sensors_converge_to_same_run_key_in_race_condition(
 
     assert isinstance(result, dg.RunRequest)
     assert result.run_key == f"{expected_run_key_prefix}:bf-123"
-    assert result.asset_selection == [dg.AssetKey(expected_asset)]
+    assert result.asset_selection == [dg.AssetKey(a) for a in expected_assets]
 
 
 def test_ferceqr_failure_sensor_backfill_with_failures_aggregated(mocker):
@@ -238,7 +246,10 @@ def test_ferceqr_success_sensor_backfill_success_uses_backfill_run_key(mocker):
     run_request = sensors.ferceqr_success_sensor._run_status_sensor_fn(context)
 
     assert run_request.run_key == "ferceqr_deployment_success_backfill:bf-123"
-    assert run_request.asset_selection == [dg.AssetKey("deploy_ferceqr")]
+    assert run_request.asset_selection == [
+        deploy_ferceqr.FERCEQR_DATAPACKAGE_ASSET_KEY,
+        dg.AssetKey("deploy_ferceqr"),
+    ]
     assert run_request.tags == {
         deploy_ferceqr.FERCEQR_SOURCE_PARTITIONS_TAG: json.dumps(["2013q3", "2013q4"]),
         deploy_ferceqr.FERCEQR_SOURCE_RUN_ID_TAG: "run-123",
@@ -342,12 +353,9 @@ def test_deploy_ferceqr_first_deployment_needs_no_existing_target(mocker, tmp_pa
     assert not (tmp_path / deploy_ferceqr.PREVIOUS_DIRNAME).exists()
 
 
-def test_deploy_ferceqr_no_targets_writes_datapackage_and_skips_publish(
-    mocker, tmp_path
-):
+def test_deploy_ferceqr_no_targets_skips_publish(mocker, tmp_path):
     """With no deployment targets configured (deployment_mode "none"), the build
-    is a success and the datapackage is still written for review, but nothing is
-    published -- and it is not an error."""
+    is a success and nothing is published -- and it is not an error."""
     source_root = tmp_path / "source"
     deploy_context = _build_deploy_context(tmp_path, mocker, targets=None)
     (tmp_path / "FERCEQR_FAILURE").write_text("stale failure")
@@ -362,8 +370,6 @@ def test_deploy_ferceqr_no_targets_writes_datapackage_and_skips_publish(
 
     assert (tmp_path / "FERCEQR_SUCCESS").exists()
     assert not (tmp_path / "FERCEQR_FAILURE").exists()
-    # Datapackage is written even though nothing is published.
-    assert (tmp_path / deploy_ferceqr.DATAPACKAGE_FILENAME).exists()
     # No staging directories were created -- nothing was uploaded.
     assert not any(p.name.startswith("._staging_") for p in tmp_path.iterdir())
     notification.assert_called_once_with(deploy_context, outcome="SKIPPED")
@@ -534,7 +540,7 @@ def test_stage_target_s3_uploads_through_boto3_and_verifies(mocker, tmp_path):
     src.mkdir()
     parquet = src / "2013q3.parquet"
     parquet.write_bytes(b"parquet")
-    datapackage = src / deploy_ferceqr.DATAPACKAGE_FILENAME
+    datapackage = src / deploy_ferceqr.DEPLOYED_DATAPACKAGE_FILENAME
     datapackage.write_text("{}")
     target = deploy_ferceqr._DeploymentTarget(
         final=UPath(tmp_path / "dist" / "ferceqr"), build_id="b"

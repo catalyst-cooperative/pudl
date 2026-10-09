@@ -9,7 +9,6 @@ the PUDL documentation page for each data source.
 
 import hashlib
 import json
-import re
 import shutil
 import subprocess
 import uuid
@@ -21,12 +20,10 @@ import dagster as dg
 
 import pudl.logging_helpers
 from pudl import PUDL_ROOT_PATH
-from pudl.metadata.classes import PUDL_PACKAGE
+from pudl.metadata.classes import Package
 from pudl.workspace.datastore import ZenodoDoiSettings
 
 logger = pudl.logging_helpers.get_logger(__name__)
-
-_FERCEQR_EXCLUDE_PATTERN = re.compile(r"^core_ferceqr")
 
 # Discover which data sources have a dedicated PUDL docs page by scanning for
 # *_child.rst.jinja templates.  The template filename prefix is the source name.
@@ -159,23 +156,22 @@ def _enrich_sources(
             )
 
 
-def _propagate_source_enrichments(descriptor: dict) -> None:
-    """Copy doi and documentation from top-level sources into resource-level source entries.
+def _resource_paths(resource_desc: dict) -> list[str]:
+    """Return every parquet path a resource descriptor points at, in order.
 
-    ``_enrich_sources`` mutates the top-level ``sources`` array but the same
-    source objects embedded in each resource's ``sources`` array are serialised
-    before enrichment and never see those additions.  This function builds a
-    lookup from the (now-enriched) top-level entries and copies only the runtime
-    fields into every matching resource-level source dict.
+    A single-file resource carries a string ``path``. A partitioned resource keeps
+    its first partition in ``path`` and the remainder in ``extrapaths``.
     """
-    runtime_fields = ("doi", "documentation")
-    enriched = {
-        s["name"]: {k: s[k] for k in runtime_fields if k in s}
-        for s in descriptor.get("sources", [])
-    }
-    for resource in descriptor.get("resources", []):
-        for src in resource.get("sources", []):
-            src.update(enriched.get(src.get("name", ""), {}))
+    path = resource_desc.get("path")
+    paths = [path] if isinstance(path, str) else list(path or [])
+    return paths + list(resource_desc.get("extrapaths") or [])
+
+
+def _file_stats(parquet_file: Path) -> dict:
+    """Return the ``bytes`` and ``hash`` descriptor fields for one parquet file."""
+    with parquet_file.open("rb") as fh:
+        digest = hashlib.file_digest(fh, "sha256").hexdigest()
+    return {"bytes": parquet_file.stat().st_size, "hash": f"sha256:{digest}"}
 
 
 def _enrich_resources(
@@ -183,35 +179,71 @@ def _enrich_resources(
     dag_metadata: dict[str, dict],
     parquet_path: Path,
 ) -> int:
-    """Add ``bytes`` and ``hash`` to each resource descriptor; return enriched count.
+    """Add file stats to each resource descriptor; return enriched count.
 
-    Stats are sourced from Dagster metadata (recorded by the IO managers at
-    materialisation time) when available. For resources absent from the Dagster
-    metadata (typically resources materialised in a prior run) the parquet file is
-    located on disk and its stats are computed directly. The parquet filename is
-    ``{resource_name}.parquet``.
+    Single-file resources get ``bytes`` and ``hash`` directly. Stats come from
+    Dagster metadata (recorded by the IO managers at materialisation time) when
+    available, and are otherwise computed from the file on disk.
+
+    A multi-file (partitioned) resource cannot be described by one ``bytes``/``hash``
+    pair, so it gets a ``parts`` list carrying ``path``, ``bytes`` and ``hash`` per
+    partition, plus ``bytes`` totalled across them. Dagster metadata is never used
+    for these: the event log holds one materialisation per partition, and keying
+    those by asset name would describe a single partition as the whole table.
+
+    A resource whose files are not all present on disk is left unenriched and
+    reported, rather than being annotated with a partial set of stats.
     """
     enriched_count = 0
     for resource_desc in descriptor.get("resources", []):
         name = resource_desc.get("name")
-        if name in dag_metadata:
+        paths = _resource_paths(resource_desc)
+        if not paths:
+            raise AssertionError(
+                f"Resource {name} has no path in the datapackage descriptor; "
+                "every parquet-backed resource must point at at least one file."
+            )
+
+        if len(paths) == 1 and name in dag_metadata:
             resource_desc["bytes"] = dag_metadata[name]["bytes"]
             resource_desc["hash"] = dag_metadata[name]["hash"]
             enriched_count += 1
+            continue
+
+        # Check for parquet files on disk before getting stats
+        # If a resource has not been materialized, or not all partitions have been materialized
+        # then there may be "missing" parquet files
+        # TODO: provide a mechanism to merge datapackages so we can materlize only a subset of partitions during a build
+        expected_paths = [(rel_path, parquet_path / rel_path) for rel_path in paths]
+        found_paths = [(rel_path, f) for rel_path, f in expected_paths if f.is_file()]
+        if len(found_paths) < len(paths):
+            logger.warning(
+                f"Resource {name}: {len(paths) - len(found_paths)} of {len(paths)} "
+                "parquet file(s) not found on disk; file stats will describe only "
+                f"the {len(found_paths)} file(s) present."
+            )
+        if not found_paths:
+            continue
+
+        if len(paths) > 1:
+            parts = [
+                {"path": rel_path} | _file_stats(parquet_file)
+                for rel_path, parquet_file in found_paths
+            ]
+            resource_desc["parts"] = parts
+            resource_desc["bytes"] = sum(part["bytes"] for part in parts)
         else:
-            parquet_file = parquet_path / f"{name}.parquet"
-            if parquet_file.exists():
-                resource_desc["bytes"] = parquet_file.stat().st_size
-                with parquet_file.open("rb") as fh:
-                    resource_desc["hash"] = (
-                        "sha256:" + hashlib.file_digest(fh, "sha256").hexdigest()
-                    )
-                enriched_count += 1
+            resource_desc.update(_file_stats(found_paths[0][1]))
+        enriched_count += 1
     return enriched_count
 
 
-def build_pudl_datapackage_asset(
+def build_datapackage_asset(
+    package: Package,
     parquet_asset_keys: Sequence[dg.AssetKey],
+    asset_name: str,
+    group_name: str = "core_pudl",
+    partitioned: bool = False,
 ) -> dg.AssetsDefinition:
     """Return a Dagster asset that writes ``datapackage.json`` for PUDL parquet outputs.
 
@@ -219,40 +251,53 @@ def build_pudl_datapackage_asset(
     only run it once all parquet outputs for the current job are materialised.
 
     Args:
+        package: Frictionless datapackage to enhance and return.
         parquet_asset_keys: Keys of all assets that write parquet files and
             should be described in the datapackage.
+        asset_name: Name of the generated Dagster asset.
+        group_name: Dagster asset group the generated asset belongs to.
+        partitioned: Whether the upstream parquet assets are partitioned. When
+            ``True``, each dependency uses a :class:`dagster.AllPartitionMapping`
+            so the descriptor is only written once all partitions of every
+            upstream asset have been materialised.
     """
+    if partitioned:
+        deps: list[dg.AssetDep] | list[dg.AssetKey] = [
+            dg.AssetDep(asset_key, partition_mapping=dg.AllPartitionMapping())
+            for asset_key in parquet_asset_keys
+        ]
+    else:
+        deps = list(parquet_asset_keys)
 
     @dg.asset(
-        name="pudl_datapackage",
-        group_name="core_pudl",
-        deps=list(parquet_asset_keys),
+        name=asset_name,
+        group_name=group_name,
+        deps=deps,
         required_resource_keys={"zenodo_dois", "pudl_paths"},
         description=(
             "Frictionless v2 datapackage descriptor for PUDL parquet outputs. "
             "Written to $PUDL_OUTPUT/parquet/datapackage.json."
         ),
     )
-    def pudl_datapackage(
+    def datapackage_asset(
         context: dg.AssetExecutionContext,
     ) -> dg.MaterializeResult:
-        package = PUDL_PACKAGE.to_frictionless(
-            exclude_pattern=_FERCEQR_EXCLUDE_PATTERN,
-        )
-        dag_metadata = _collect_dagster_file_metadata(
-            context.instance, parquet_asset_keys
+        # Event-log metadata is recorded per partition and cannot be aggregated by
+        # asset key, so it is unusable for partitioned assets; those resources are
+        # stat'd and hashed from disk instead.
+        dag_metadata = (
+            {}
+            if partitioned
+            else _collect_dagster_file_metadata(context.instance, parquet_asset_keys)
         )
 
-        descriptor = json.loads(package.to_json())
+        descriptor = json.loads(package.to_frictionless().to_json())
         descriptor["created"] = datetime.now(UTC).isoformat()
         descriptor["id"] = str(uuid.uuid4())
         descriptor.update(_collect_git_provenance())
 
         zenodo_dois: ZenodoDoiSettings = context.resources.zenodo_dois
-        _enrich_sources(
-            descriptor, zenodo_dois, _docs_version_slug(PUDL_PACKAGE.version)
-        )
-        _propagate_source_enrichments(descriptor)
+        _enrich_sources(descriptor, zenodo_dois, _docs_version_slug(package.version))
 
         parquet_path = context.resources.pudl_paths.parquet_path()
         enriched_count = _enrich_resources(descriptor, dag_metadata, parquet_path)
@@ -280,7 +325,7 @@ def build_pudl_datapackage_asset(
             }
         )
 
-    return pudl_datapackage
+    return datapackage_asset
 
 
-__all__ = ["build_pudl_datapackage_asset"]
+__all__ = ["build_datapackage_asset"]

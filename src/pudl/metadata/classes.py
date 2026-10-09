@@ -10,7 +10,6 @@ from functools import cached_property, lru_cache
 from hashlib import sha1
 from importlib.metadata import version as _get_version
 from pathlib import Path
-from re import Pattern
 from typing import Annotated, Any, Literal, Self, TypeVar, get_args
 
 import duckdb
@@ -2049,7 +2048,7 @@ class Resource(PudlMeta):
             name=self.name,
             title=self.title,
             description=self.description,
-            sources=[s.to_frictionless() for s in self.sources],
+            sources=[{"title": source.title} for source in self.sources],
             licenses=[
                 lic.model_dump(mode="json", exclude_none=True) for lic in self.licenses
             ],
@@ -2797,9 +2796,11 @@ class Package(PudlMeta):
         resource_ids: tuple[str, ...] = tuple(sorted(RESOURCE_METADATA)),
         resolve_foreign_keys: bool = False,
         excluded_etl_groups: tuple[str, ...] = (),
+        included_etl_groups: tuple[str, ...] = (),
         title: str | None = None,
         description: str | None = None,
         version: str | None = None,
+        name: str = "pudl",
     ) -> Package:
         """Construct a collection of Resources from PUDL identifiers (`resource.name`).
 
@@ -2818,9 +2819,12 @@ class Package(PudlMeta):
                 foreign keys.
             excluded_etl_groups: Collection of ETL groups used to filter resources
                 out of Package.
+            included_etl_groups: Collection of ETL groups used to filter resources
+                in Package.
             title: Human-readable title for the package.
             description: Human-readable description of the package.
             version: Version string for the package.
+            name: Name of the datapackage.
         """
         resources = [Resource.dict_from_id(x) for x in resource_ids]
         if resolve_foreign_keys:
@@ -2844,8 +2848,15 @@ class Package(PudlMeta):
                 if resource["etl_group"] not in excluded_etl_groups
             ]
 
+        if included_etl_groups:
+            resources = [
+                resource
+                for resource in resources
+                if resource["etl_group"] in included_etl_groups
+            ]
+
         return cls(
-            name="pudl",
+            name=name,
             title=title,
             description=description,
             version=version,
@@ -3002,8 +3013,6 @@ class Package(PudlMeta):
 
     def to_frictionless(
         self,
-        exclude_pattern: str | Pattern[str] | None = None,
-        include_pattern: str | Pattern[str] | None = None,
     ) -> frictionless.Package:
         """Convert to a Frictionless Datapackage.
 
@@ -3012,23 +3021,8 @@ class Package(PudlMeta):
         'datapackage.json' file for ``ferceqr`` assets, which are distributed separately
         from the rest of PUDL. This method will only look for table names that exactly
         match the supplied patterns, not substring matches.
-
-        Args:
-            exclude_pattern: Exclude resources whose names exactly match this pattern.
-            include_pattern: Only include resources whose names exactly match this pattern.
         """
         pudl_resources = list(self.resources)
-        if exclude_pattern is not None:
-            pudl_resources = [
-                r for r in pudl_resources if re.match(exclude_pattern, r.name) is None
-            ]
-        if include_pattern is not None:
-            pudl_resources = [
-                r
-                for r in pudl_resources
-                if re.match(include_pattern, r.name) is not None
-            ]
-
         compiled = self._compile_from_resources(pudl_resources)
 
         package = frictionless.Package(
@@ -3047,15 +3041,30 @@ class Package(PudlMeta):
             ],
             keywords=list(compiled["keywords"]),
             resources=[r.to_frictionless() for r in pudl_resources],
-            sources=[
-                DataSource.from_id(name).to_frictionless() for name in sorted(SOURCES)
-            ],
+            sources=[s.to_frictionless() for s in compiled["sources"]],
         )
         package.custom["$schema"] = (
             "https://datapackage.org/profiles/2.0/datapackage.json"
         )
         package.custom["unit_registry"] = unit_registry_to_frictionless()
         return package
+
+
+FERCEQR_PACKAGE = Package.from_resource_ids(
+    title="The Public Utility Data Liberation Project (PUDL) FERC EQR Data",
+    version=_get_version("catalystcoop.pudl"),
+    description=(
+        "PUDL is a data processing pipeline created by Catalyst Cooperative that "
+        "cleans, integrates, and standardizes some of the most widely used public "
+        "energy datasets in the US. The data serve researchers, activists, "
+        "journalists, and policy makers that might not have the technical expertise "
+        "to access it in its raw form, the time to clean and prepare the data for "
+        "bulk analysis, or the means to purchase it from existing commercial "
+        "providers. FERC EQR data is included in PUDL, but handled and distributed"
+        "separately due to its scale."
+    ),
+    included_etl_groups="ferceqr",
+)
 
 
 PUDL_PACKAGE = Package.from_resource_ids(
@@ -3070,6 +3079,7 @@ PUDL_PACKAGE = Package.from_resource_ids(
         "bulk analysis, or the means to purchase it from existing commercial "
         "providers."
     ),
+    excluded_etl_groups="ferceqr",
 )
 """Define a global PUDL package object for use across the entire codebase.
 
