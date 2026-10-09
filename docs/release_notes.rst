@@ -15,6 +15,12 @@ Enhancements
 * Added ``county_id_fips`` and ``state_id_fips`` to the :ref:`core_eia__entity_plants`,
   :ref:`out_eia__monthly_generators` and :ref:`out_eia__yearly_generators` tables. See
   PR :pr:`5688`.
+* Changed how the FERC 1 to EIA plant-parts record linkage compares and blocks records.
+  Installation and construction years are compared as integers instead of timestamps,
+  capacity and net generation are blocked on logarithmic buckets instead of exact
+  values, and four redundant blocking rules were disabled, which removes about 2 million
+  of the 9.2 million candidate pairs and changes 1 of 34,420 best matches. See PR
+  :pr:`XXXX`.
 
 New Data
 ^^^^^^^^
