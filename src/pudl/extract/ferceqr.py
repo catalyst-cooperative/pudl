@@ -5,15 +5,12 @@ import re
 import shutil
 import tempfile
 import zipfile
-from collections.abc import Generator
-from contextlib import contextmanager
 from pathlib import Path
 from typing import Literal, get_args
 
 import dagster as dg
 import duckdb
 from duckdb import DuckDBPyConnection
-from upath import UPath
 
 from pudl.dagster.partitions import ferceqr_year_quarters
 from pudl.dagster.resources import FercEqrArchiveResource
@@ -38,30 +35,6 @@ _ALL_TABLE_TYPES: tuple[FercEqrTableType, ...] = get_args(FercEqrTableType)
 ``ident`` is extracted first so its CID can be attached to the other tables; see
 :func:`_extract_ident`.
 """
-
-
-@contextmanager
-def _get_csv(base_path: UPath, year_quarter: str) -> Generator[zipfile.ZipFile]:
-    """Download CSV to a tempmorary directory to avoid reading into memory."""
-    zip_name = f"ferceqr-{year_quarter}.zip"
-    remote_path = base_path / zip_name
-
-    # Create temp directory to download zip to
-    with (
-        tempfile.TemporaryDirectory() as tmp_dir,
-    ):
-        # Stream the download to disk. Recent quarterly archives are 3-4 GB and many
-        # partition runs start at once, so ``read_bytes()`` (which holds the whole
-        # archive in memory first) can exhaust the VM's RAM.
-        local_path = Path(tmp_dir) / zip_name
-        remote_path.fs.get_file(
-            remote_path.path,
-            str(local_path),
-            concurrency=8,  # default 4: parallel ranged reads per file
-        )
-        # Yield open zipfile
-        with zipfile.ZipFile(local_path) as zf:
-            yield zf
 
 
 _UNSAFE_CSV_NAME_CHARS_REGEX: re.Pattern = re.compile(f"[{re.escape('\'"*?[]')}]")
@@ -416,7 +389,7 @@ def _save_extract_errors(
 )
 def extract_ferceqr(
     context: dg.AssetExecutionContext,
-    ferceqr_archive: FercEqrArchiveResource = FercEqrArchiveResource(),
+    ferceqr_archive: FercEqrArchiveResource,
 ):
     """Extract year quarter from CSVs and load to parquet files.
 
@@ -446,7 +419,7 @@ def extract_ferceqr(
     # millions of rows and are processed one at a time in the loop below, so
     # DuckDB's parallel CSV reader earns its keep there.
     with (
-        _get_csv(ferceqr_archive.upath, year_quarter) as quarter_archive,
+        ferceqr_archive.open_quarter_archive(year_quarter) as quarter_archive,
         duckdb_connect() as conn,
     ):
         # Loop through all nested zipfiles (one for each filing in the quarter)
