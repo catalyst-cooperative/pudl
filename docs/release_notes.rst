@@ -12,6 +12,10 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
 Enhancements
 ^^^^^^^^^^^^
 
+* Added ``county_id_fips`` and ``state_id_fips`` to the :ref:`core_eia__entity_plants`,
+  :ref:`out_eia__monthly_generators` and :ref:`out_eia__yearly_generators` tables. See
+  PR :pr:`5688`.
+
 New Data
 ^^^^^^^^
 
@@ -113,6 +117,8 @@ Bug Fixes & Data Cleaning
   corrected several hand-assigned ``plant_id_pudl`` values that split one plant across
   multiple IDs, which cut the number of ``plant_id_ferc1`` values spanning more than one
   ``plant_id_pudl`` from 6 to 2. See issue :issue:`5609` and PR :pr:`5642`.
+* Updated the record-linkage which assigns ``plant_id_ferc1`` to make it insensitive to
+  floating point noise. See issue :issue:`5609` and PR :pr:`5687`.
 * Fixed tags for new 2025 XBRL factoids and rescued the ``ferc_account`` field in
   :ref:`out_ferc1__yearly_rate_base`. See :issue:`5520` and :pr:`5597`.
 * Fixed ``valid_until_date`` in the ``_core_eia__forensics_entity_resolution_*`` and

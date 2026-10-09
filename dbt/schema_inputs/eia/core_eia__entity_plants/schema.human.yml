@@ -5,3 +5,11 @@ sources:
         data_tests:
           - expect_columns_not_all_null
           - check_row_counts_per_partition
+        columns:
+          - name: county_id_fips
+            data_tests:
+              - dbt_utils.not_null_proportion:
+                  arguments:
+                    at_least: 0.97
+                  description: |-
+                    County fips code should almost entirely be populated.
