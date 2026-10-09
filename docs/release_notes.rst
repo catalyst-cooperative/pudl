@@ -20,7 +20,7 @@ Enhancements
   capacity and net generation are blocked on logarithmic buckets instead of exact
   values, and four redundant blocking rules were disabled, which removes about 2 million
   of the 9.2 million candidate pairs and changes 1 of 34,420 best matches. See PR
-  :pr:`XXXX`.
+  :pr:`5692`.
 
 New Data
 ^^^^^^^^
