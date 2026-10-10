@@ -832,10 +832,12 @@ def harvest_entity_tables(  # noqa: C901
     col_dfs = {}
     # determine how many times each of the columns occur
     for col in static_cols + annual_cols:
-        if col in annual_cols:
-            cols_to_consit = id_cols + ["report_date"]
         if col in static_cols:
             cols_to_consit = id_cols
+        elif col in annual_cols:
+            cols_to_consit = id_cols + ["report_date"]
+        else:
+            raise AssertionError(f"{col} is neither a static nor an annual column.")
 
         strictness = _manage_strictness(col, special_case_strictness)
         col_df = occurrence_consistency(
@@ -855,8 +857,7 @@ def harvest_entity_tables(  # noqa: C901
             clean_df = entity_id_df.merge(col_correct_df, on=id_cols, how="left")
             clean_df = clean_df[id_cols + [col]]
             entity_df = entity_df.merge(clean_df, on=id_cols)
-
-        if col in annual_cols:
+        else:
             clean_df = annual_id_df.merge(
                 col_correct_df, on=(id_cols + ["report_date"]), how="left"
             )
@@ -900,7 +901,7 @@ def harvest_entity_tables(  # noqa: C901
             ratio = np.nan
             wrongos = np.nan
             logger.debug(f"       Zero records found for {col}")
-        if total > 0:
+        else:
             ratio = (
                 len(
                     col_df[(col_df["is_candidate"])].drop_duplicates(
