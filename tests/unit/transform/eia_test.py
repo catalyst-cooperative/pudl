@@ -11,7 +11,12 @@ from pudl.settings import (
     Eia923DataConfig,
     EiaDataConfig,
 )
-from pudl.transform.eia import _restrict_years, find_timezone, occurrence_consistency
+from pudl.transform.eia import (
+    SPECIAL_CASE_HARVESTERS,
+    _restrict_years,
+    find_timezone,
+    occurrence_consistency,
+)
 
 
 def _tied_rows(codes: tuple[str, ...]) -> list[dict]:
@@ -161,3 +166,23 @@ def test_restrict_years_requires_eia860_and_eia923():
     assert eia_data_config.eia860 is None
     with pytest.raises(ValueError, match="requires both EIA-860 and EIA-923"):
         _restrict_years(pd.DataFrame({"report_date": []}), eia_data_config)
+
+
+@pytest.mark.parametrize("col", ["latitude", "longitude"])
+def test_special_case_lat_long_harvesters_round_to_one_decimal(col):
+    """Lat/long harvesters bind round_to=1, recovering a value that is only
+    consistent once rounded."""
+    dirty_df = pd.DataFrame(
+        {
+            "plant_id_eia": [1] * 4,
+            "report_date": pd.to_datetime(["2020-01-01"] * 4),
+            "table": ["a", "b", "c", "d"],
+            col: [40.11, 40.12, 40.13, 40.17],
+        }
+    )
+    entity_id_df = pd.DataFrame({"plant_id_eia": [1]})
+    clean_df = entity_id_df.assign(**{col: np.nan})
+    out = SPECIAL_CASE_HARVESTERS[col](
+        dirty_df, clean_df, entity_id_df, ["plant_id_eia"], col, ["plant_id_eia"]
+    )
+    assert out[col].tolist() == [40.1]

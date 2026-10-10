@@ -18,7 +18,8 @@ found in :func:`pudl.transform.eia._boiler_generator_assn`.
 
 from collections import namedtuple
 from enum import StrEnum, auto
-from typing import Any, cast
+from functools import partial
+from typing import Any, Protocol, cast
 
 import networkx as nx
 import numpy as np
@@ -481,7 +482,6 @@ def _lat_long(
     col: str,
     cols_to_consit: list[str],
     round_to: int = 2,
-    **kwargs,
 ) -> pd.DataFrame:
     """Harvests more complete lat/long in special cases.
 
@@ -532,7 +532,6 @@ def _last_operating_date(
     entity_idx: list[str],
     col: str,
     cols_to_consit: list[str],
-    **kwargs,
 ) -> pd.DataFrame:
     """When there's no consistent generator operating date, take the last reported one.
 
@@ -753,6 +752,36 @@ def _manage_strictness(col: str, special_case_strictness: dict[str, float]) -> f
     return special_case_strictness.get(col, strictness_default)
 
 
+class SpecialCaseHarvester(Protocol):
+    """The call signature of a function that harvests an entity column specially.
+
+    Special case harvesters are used for columns whose values are too inconsistently
+    reported for the standard consistency-based harvesting to find a single value for
+    every entity. Any extra, harvester-specific arguments should be bound ahead of
+    time using :func:`functools.partial`.
+    """
+
+    def __call__(
+        self,
+        dirty_df: pd.DataFrame,
+        clean_df: pd.DataFrame,
+        entity_id_df: pd.DataFrame,
+        entity_idx: list[str],
+        col: str,
+        cols_to_consit: list[str],
+    ) -> pd.DataFrame:
+        """Return ``entity_id_df`` with harvested values for ``col``."""
+        ...
+
+
+SPECIAL_CASE_HARVESTERS: dict[str, SpecialCaseHarvester] = {
+    "latitude": partial(_lat_long, round_to=1),
+    "longitude": partial(_lat_long, round_to=1),
+    "generator_operating_date": _last_operating_date,
+}
+"""Columns that get special harvesting treatment, and the function that does it."""
+
+
 def harvest_entity_tables(  # noqa: C901
     entity: EiaEntity,
     clean_dfs: dict[str, pd.DataFrame],
@@ -828,11 +857,6 @@ def harvest_entity_tables(  # noqa: C901
 
     entity_df = entity_id_df.copy()
     annual_df = annual_id_df.copy()
-    special_case_cols = {
-        "latitude": {"method": _lat_long, "round_to": 1},
-        "longitude": {"method": _lat_long, "round_to": 1},
-        "generator_operating_date": {"method": _last_operating_date},
-    }
     consistency = pd.DataFrame(
         columns=["column", "consistent_ratio", "wrongos", "total"]
     )
@@ -876,15 +900,14 @@ def harvest_entity_tables(  # noqa: C901
         # we can't just use the col_df records when the consistency is not True
         dirty_df = col_df.merge(clean_df[clean_df[col].isnull()][id_cols])
 
-        if col in special_case_cols:
-            clean_df = special_case_cols[col]["method"](
+        if harvester := SPECIAL_CASE_HARVESTERS.get(col):
+            clean_df = harvester(
                 dirty_df,
                 clean_df,
                 entity_id_df,
                 id_cols,
                 col,
                 cols_to_consit,
-                **special_case_cols[col],
             )
             if col in static_cols:
                 clean_df = clean_df[id_cols + [col]]
