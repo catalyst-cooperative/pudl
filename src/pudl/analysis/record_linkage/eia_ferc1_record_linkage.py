@@ -48,7 +48,7 @@ from pudl.analysis.record_linkage.eia_ferc1_inputs import (
 )
 from pudl.analysis.record_linkage.eia_ferc1_model_config import (
     BLOCKING_RULES,
-    COMPARISONS,
+    get_comparisons,
 )
 from pudl.metadata.classes import DataSource, Resource
 
@@ -226,18 +226,18 @@ def get_model_predictions(eia_df, ferc_df, train_df, experiment_tracker):
         link_type="link_only",
         unique_id_column_name="record_id",
         additional_columns_to_retain=["plant_id_pudl", "utility_id_pudl"],
-        comparisons=COMPARISONS,
+        comparisons=get_comparisons(),
         blocking_rules_to_generate_predictions=BLOCKING_RULES,
         retain_matching_columns=True,
         retain_intermediate_calculation_columns=True,
         probability_two_random_records_match=(1.0 / len(eia_df)),
     )
-    linker = Linker(
-        [eia_df, ferc_df],
-        settings=settings,
-        input_table_aliases=["eia_df", "ferc_df"],
-        db_api=DuckDBAPI(),
-    )
+    # The display names become the values of the ``source_dataset`` column, which the
+    # training labels refer to.
+    db_api = DuckDBAPI()
+    eia_sdf = db_api.register(eia_df, dataset_display_name="eia_df")
+    ferc_sdf = db_api.register(ferc_df, dataset_display_name="ferc_df")
+    linker = Linker([eia_sdf, ferc_sdf], settings=settings)
     linker.table_management.register_table(train_df, "training_labels", overwrite=True)
     # Seed the random sampling so the trained model is reproducible between runs.
     linker.training.estimate_u_using_random_sampling(
