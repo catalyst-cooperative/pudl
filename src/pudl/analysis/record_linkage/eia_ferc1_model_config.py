@@ -5,10 +5,14 @@ for the matching columns that are used in the FERC1 to EIA record linkage
 model.
 """
 
+from typing import Any
+
 import splink.comparison_level_library as cll
 import splink.comparison_library as cl
 from splink import block_on
 from splink.blocking_rule_library import CustomRule
+from splink.internals.blocking_rule_creator import BlockingRuleCreator
+from splink.internals.comparison_creator import ComparisonCreator
 
 blocking_rule_1 = CustomRule(
     "l.report_year = r.report_year and "
@@ -55,7 +59,7 @@ blocking_rule_9 = CustomRule(
     "substr(l.plant_name_mphone,1,2) = substr(r.plant_name_mphone,1,2)"
 )
 blocking_rule_10 = block_on("report_year", "net_generation_mwh")
-BLOCKING_RULES = [
+BLOCKING_RULES: list[BlockingRuleCreator | dict[str, Any]] = [
     blocking_rule_1,
     blocking_rule_2,
     blocking_rule_3,
@@ -112,7 +116,7 @@ def get_date_comparison(column_name: str) -> cl.DateOfBirthComparison:
     )
 
 
-def get_comparisons() -> list[cl.ComparisonCreator]:
+def get_comparisons() -> list[ComparisonCreator | dict[str, Any]]:
     """Build a fresh list of the model's comparisons.
 
     Comparison objects are configured in place (e.g. term frequency adjustments), so we
