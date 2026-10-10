@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="clone_ferc1.html.md" />
 <link rel="alternate" type="text/markdown" href="clone_ferc1.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>Converting raw FERC data to SQLite &#8212; PUDL 2026.9.1.dev42 documentation</title>
+    <title>Converting raw FERC data to SQLite &#8212; PUDL 2026.9.1.dev43 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=15d650ec"></script>
+    <script src="../_static/documentation_options.js?v=bc96248a"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -501,8 +501,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev42 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev42 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev43 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev43 documentation - Home"/>
   
   
 </a></div>
@@ -1171,12 +1171,12 @@ independent of the cleaner subset of the data included within PUDL.</p>
 several distinct steps:</p>
 <ol class="arabic simple">
 <li><p>Clone the 1994-2020 annual database from FoxPro (DBF) into a local
-file-based <a class="reference external" href="https://docs.python.org/3/library/sqlite3.html#module-sqlite3" title="(in Python v3.14)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sqlite3</span></code></a> database.</p></li>
-<li><p>Clone the 2021 and later data from XBRL into another <a class="reference external" href="https://docs.python.org/3/library/sqlite3.html#module-sqlite3" title="(in Python v3.14)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sqlite3</span></code></a> database,
+file-based <a class="reference external" href="https://docs.python.org/3/library/sqlite3.html#module-sqlite3" title="(in Python v3.15)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sqlite3</span></code></a> database.</p></li>
+<li><p>Clone the 2021 and later data from XBRL into another <a class="reference external" href="https://docs.python.org/3/library/sqlite3.html#module-sqlite3" title="(in Python v3.15)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sqlite3</span></code></a> database,
 with a different structure, derived from the
 <a class="reference external" href="https://xbrlview.ferc.gov/yeti/resources/yeti-gwt/Yeti.jsp#tax~(id~8*v~72)!net~(a~143*l~35)!lang~(code~en)!rg~(rg~4*p~1)">FERC Form 1 XBRL taxonomy</a>.</p></li>
 <li><p>Select a limited subset of the tables in these databases for further processing and
-integration into the PUDL <a class="reference external" href="https://docs.python.org/3/library/sqlite3.html#module-sqlite3" title="(in Python v3.14)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sqlite3</span></code></a> database.</p></li>
+integration into the PUDL <a class="reference external" href="https://docs.python.org/3/library/sqlite3.html#module-sqlite3" title="(in Python v3.15)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sqlite3</span></code></a> database.</p></li>
 </ol>
 <p>The FoxPro / XBRL derived FERC Form 1 databases include 100+ tables, containing 3000+
 columns.</p>
