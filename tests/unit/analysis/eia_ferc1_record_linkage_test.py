@@ -6,6 +6,7 @@ from pandas.testing import assert_frame_equal
 
 from pudl.analysis.ml_tools.experiment_tracking import ExperimentTracker
 from pudl.analysis.record_linkage import eia_ferc1_record_linkage
+from pudl.analysis.record_linkage.eia_ferc1_model_config import get_comparisons
 from pudl.analysis.record_linkage.eia_ferc1_record_linkage import (
     U_ESTIMATION_SEED,
     add_null_overrides,
@@ -96,6 +97,11 @@ def test_get_best_matches_ignores_row_order(seed: int, reverse: bool, mocker):
     if reverse:
         reordered = reordered.iloc[::-1]
     assert_frame_equal(_best_matches(reordered, mocker), expected)
+
+
+def test_get_comparisons_returns_fresh_objects():
+    """Comparisons are configured in place, so they must not be shared."""
+    assert get_comparisons()[1] is not get_comparisons()[1]
 
 
 def test_get_model_predictions_seeds_u_estimation(mocker):
