@@ -1556,6 +1556,11 @@ def harvested_entity_asset_factory(
         # to have an additional decimal point) bc it shows up in the generator
         # table but it is a plant level data point, it mucks up the consistency
         eia_data_config: EiaDataConfig = context.resources.global_data_config.pudl.eia
+        if eia_data_config.eia860 is None:
+            raise ValueError(
+                "Harvesting EIA entities requires EIA-860 to be included in the EIA "
+                "data configuration."
+            )
         special_case_strictness = {
             "plant_name_eia": 0,
             "utility_name_eia": 0,
