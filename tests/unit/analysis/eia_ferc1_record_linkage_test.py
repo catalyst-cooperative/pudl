@@ -1,16 +1,29 @@
 """Unit tests for :mod:`pudl.analysis.record_linkage.eia_ferc1_record_linkage`."""
 
+import jellyfish
 import pandas as pd
+import polars as pl
 import pytest
 from pandas.testing import assert_frame_equal
+from splink import DuckDBAPI
 
 from pudl.analysis.ml_tools.experiment_tracking import ExperimentTracker
 from pudl.analysis.record_linkage import eia_ferc1_record_linkage
+from pudl.analysis.record_linkage.eia_ferc1_inputs import (
+    InputManager,
+    get_train_plant_ids_eia,
+    select_plant_parts_eia,
+)
+from pudl.analysis.record_linkage.eia_ferc1_model_config import get_comparisons
 from pudl.analysis.record_linkage.eia_ferc1_record_linkage import (
     U_ESTIMATION_SEED,
+    ModelPredictionsConfig,
     add_null_overrides,
     get_best_matches,
     get_model_predictions,
+    override_bad_predictions,
+    prepare_for_matching,
+    select_best_matches,
 )
 from pudl.metadata.classes import Resource
 
@@ -61,6 +74,34 @@ def test_add_null_overrides_preserves_condensed_columns():
     assert pd.isna(overridden[eia_only_col])
 
 
+def test_override_bad_predictions_labels_and_logs_overridden_matches(caplog):
+    """Wrong predictions are labeled ``overridden`` and counted in the log."""
+    matches = pd.DataFrame(
+        {
+            "record_id_ferc1": ["f1", "f2", "f3"],
+            "record_id_eia": ["e1", "e2", "e3"],
+        }
+    )
+    train = pd.DataFrame(
+        {
+            "record_id_ferc1": ["f1", "f2", "f4"],
+            "record_id_eia": ["e1", "e9", "e4"],
+        }
+    ).set_index(["record_id_ferc1", "record_id_eia"])
+
+    with caplog.at_level("INFO"):
+        result = override_bad_predictions(matches, train).set_index("record_id_ferc1")
+
+    assert result["match_type"].to_dict() == {
+        "f1": "correct match",
+        "f2": "incorrect prediction; overridden",
+        "f3": "prediction; not in training data",
+        "f4": "incorrect prediction; no predicted match",
+    }
+    assert result.loc["f2", "record_id_eia"] == "e9"
+    assert "Percent of training data overridden in matches: 0.33" in caplog.text
+
+
 def _predictions() -> pd.DataFrame:
     """Candidate matches, with a tie for FERC record f2 listed highest-ID first."""
     return pd.DataFrame(
@@ -72,43 +113,143 @@ def _predictions() -> pd.DataFrame:
     )
 
 
-def _best_matches(preds: pd.DataFrame, mocker) -> pd.DataFrame:
-    inputs = mocker.MagicMock()
-    inputs.get_train_df.return_value = pd.DataFrame(
-        {"record_id_ferc1": ["f1"], "record_id_eia": ["e2"]}
-    ).set_index(["record_id_ferc1", "record_id_eia"])
-    return get_best_matches(preds, inputs, mocker.MagicMock(spec=ExperimentTracker))
+def _select_best(preds: pd.DataFrame) -> pd.DataFrame:
+    """Run :func:`select_best_matches` against a DuckDB table of predictions."""
+    predictions = DuckDBAPI().register(
+        preds.reset_index(drop=True), table_name="predictions"
+    )
+    return select_best_matches(predictions)
 
 
-def test_get_best_matches_picks_highest_probability_with_tie_break(mocker):
+def test_select_best_matches_picks_highest_probability_with_tie_break():
     """One match per FERC record: highest probability, ties go to the lowest EIA ID."""
-    best = _best_matches(_predictions(), mocker)
+    best = _select_best(_predictions())
     assert best["record_id_ferc1"].tolist() == ["f1", "f2", "f3"]
     assert best["record_id_eia"].tolist() == ["e2", "e3", "e5"]
 
 
 @pytest.mark.parametrize("reverse", [False, True])
 @pytest.mark.parametrize("seed", range(5))
-def test_get_best_matches_ignores_row_order(seed: int, reverse: bool, mocker):
+def test_select_best_matches_ignores_row_order(seed: int, reverse: bool):
     """Reordering the model output must not change which match is chosen."""
-    expected = _best_matches(_predictions(), mocker)
+    expected = _select_best(_predictions())
     reordered = _predictions().sample(frac=1, random_state=seed)
     if reverse:
         reordered = reordered.iloc[::-1]
-    assert_frame_equal(_best_matches(reordered, mocker), expected)
+    assert_frame_equal(_select_best(reordered), expected)
+
+
+def test_get_best_matches_reports_metrics(mocker):
+    """Metrics are computed from the best matches and returned for asset metadata.
+
+    Of four training records, f1 is predicted correctly, f2 is predicted wrongly, f3 is
+    correct, and f4 gets no prediction.
+    """
+    inputs = mocker.MagicMock()
+    inputs.get_train_df.return_value = pd.DataFrame(
+        {
+            "record_id_ferc1": ["f1", "f2", "f3", "f4"],
+            "record_id_eia": ["e1", "e2", "e3", "e4"],
+        }
+    ).set_index(["record_id_ferc1", "record_id_eia"])
+    best = pd.DataFrame(
+        {
+            "record_id_ferc1": ["f1", "f2", "f3", "f5"],
+            "record_id_eia": ["e1", "e9", "e3", "e5"],
+        }
+    )
+    _, metrics = get_best_matches(
+        best, inputs, mocker.MagicMock(spec=ExperimentTracker)
+    )
+    # precision: 2 of the 3 predictions on training records were right;
+    # recall: 2 of the 4 training records' true matches were found;
+    # coverage: 3 of the 4 training records got a prediction;
+    # accuracy: 2 of the 4 training records were predicted correctly.
+    assert metrics == {
+        "precision": 0.667,
+        "recall": 0.5,
+        "coverage": 0.75,
+        "accuracy": 0.5,
+    }
+
+
+def test_prepare_metaphone_matches_rowwise_encoding():
+    """Encoding unique names once must match encoding each row, and keep nulls null."""
+    names = pd.Series(["Smith Creek", None, "Smith Creek", "Barry", pd.NA])
+    df = pd.DataFrame(dict.fromkeys(["plant_name", "utility_name"], names)).assign(
+        record_id="x",
+        fuel_type_code_pudl="gas",
+        installation_year=2000,
+        construction_year=2000,
+        capacity_mw=1.0,
+        net_generation_mwh=1.0,
+        report_year=2000,
+        plant_id_pudl=1,
+        utility_id_pudl=1,
+    )
+    out = prepare_for_matching.compute_fn.decorated_fn(df, pd.DataFrame())
+    expected = [None if pd.isnull(n) else jellyfish.metaphone(n) for n in names]
+    assert out["plant_name_mphone"].tolist() == expected
+
+
+def test_get_comparisons_returns_fresh_objects():
+    """Comparisons are configured in place, so they must not be shared."""
+    assert get_comparisons()[1] is not get_comparisons()[1]
 
 
 def test_get_model_predictions_seeds_u_estimation(mocker):
     """The random sampling used to estimate u probabilities must be seeded."""
     linker_cls = mocker.patch.object(eia_ferc1_record_linkage, "Linker")
     mocker.patch.object(eia_ferc1_record_linkage, "SettingsCreator")
+    mocker.patch.object(eia_ferc1_record_linkage, "DuckDBAPI")
+    mocker.patch.object(eia_ferc1_record_linkage, "select_best_matches")
     get_model_predictions(
         eia_df=pd.DataFrame({"record_id": ["e1", "e2"]}),
         ferc_df=pd.DataFrame({"record_id": ["f1"]}),
         train_df=mocker.MagicMock(),
         experiment_tracker=mocker.MagicMock(spec=ExperimentTracker),
+        config=ModelPredictionsConfig(),
     )
     training = linker_cls.return_value.training
     training.estimate_u_using_random_sampling.assert_called_once_with(
         max_pairs=1e7, seed=U_ESTIMATION_SEED
     )
+
+
+def test_get_train_plant_ids_eia():
+    """The training data's record IDs start with the EIA plant ID."""
+    plant_ids = get_train_plant_ids_eia()
+    assert plant_ids == sorted(set(plant_ids))
+    # La Cygne, which is in both the training and one-to-many training data
+    assert 2832 in plant_ids
+
+
+def test_select_plant_parts_eia_keeps_distinct_and_training_plants(mocker):
+    """Keep distinct records, and any record of a plant in the training data."""
+    mocker.patch(
+        "pudl.analysis.record_linkage.eia_ferc1_inputs.get_train_plant_ids_eia",
+        return_value=[2],
+    )
+    plant_parts = pl.LazyFrame(
+        {
+            "record_id_eia": ["distinct", "dupe", "other", "train_plant_dupe"],
+            "plant_id_eia": [1, 1, 3, 2],
+            "true_gran": [True, True, False, False],
+            "ownership_dupe": [False, True, False, True],
+        }
+    )
+    selected = select_plant_parts_eia(plant_parts).collect()
+    assert selected["record_id_eia"].to_list() == ["distinct", "train_plant_dupe"]
+
+
+def test_input_manager_release_raw_inputs():
+    """Only the raw tables are dropped, not the compiled inputs."""
+    inputs = InputManager.__new__(InputManager)
+    raw = pd.DataFrame({"a": [1]})
+    inputs.plant_parts_eia = inputs.plants_all_ferc1 = inputs.fbp_ferc1 = raw
+    inputs.train_df = pd.DataFrame({"a": [1]})
+    inputs.release_raw_inputs()
+    assert inputs.plant_parts_eia.empty
+    assert inputs.plants_all_ferc1.empty
+    assert inputs.fbp_ferc1.empty
+    assert len(inputs.train_df) == 1

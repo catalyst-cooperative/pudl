@@ -23,7 +23,7 @@ threshold match probability to predict if records are a match or not.
 
 The model can return multiple EIA match options for each FERC1 record, so we rank the
 matches and choose the one with the highest score. Any matches identified by the model
-which are in conflict with our training data are overwritten with the manually
+which are in conflict with our training data are overridden with the manually
 assigned associations (see :func:`override_bad_predictions`). The final match results
 are the connections we keep as the matches between FERC1 plant records and EIA
 plant-parts.
@@ -35,8 +35,10 @@ import jellyfish
 import mlflow
 import numpy as np
 import pandas as pd
-from dagster import Out, graph, op
+import polars as pl
+from dagster import Config, OpExecutionContext, Out, graph, op
 from splink import DuckDBAPI, Linker, SettingsCreator
+from splink.internals.splink_dataframe import SplinkDataFrame
 
 import pudl.logging_helpers
 from pudl import PUDL_PACKAGE_DATA_PATH
@@ -44,11 +46,12 @@ from pudl.analysis.ml_tools import experiment_tracking, models
 from pudl.analysis.record_linkage import embed_dataframe, name_cleaner
 from pudl.analysis.record_linkage.eia_ferc1_inputs import (
     InputManager,
+    load_plant_parts_eia,
     restrict_train_connections_on_date_range,
 )
 from pudl.analysis.record_linkage.eia_ferc1_model_config import (
     BLOCKING_RULES,
-    COMPARISONS,
+    get_comparisons,
 )
 from pudl.metadata.classes import DataSource, Resource
 
@@ -138,11 +141,21 @@ col_cleaner = embed_dataframe.dataframe_cleaner_factory(
 
 
 @op(tags={"dagster/priority": 10})
-def get_compiled_input_manager(plants_all_ferc1, fbp_ferc1, plant_parts_eia):
-    """Get :class:`InputManager` object with compiled inputs for model."""
-    inputs = InputManager(plants_all_ferc1, fbp_ferc1, plant_parts_eia)
+def get_compiled_input_manager(
+    plants_all_ferc1, fbp_ferc1, plant_parts_eia: pl.LazyFrame
+):
+    """Get :class:`InputManager` object with compiled inputs for model.
+
+    The ``plant_parts_eia`` input is a LazyFrame, so that only the rows the model needs
+    are read into memory.
+    """
+    inputs = InputManager(
+        plants_all_ferc1, fbp_ferc1, load_plant_parts_eia(plant_parts_eia)
+    )
     # compile/cache inputs upfront. Hopefully we can catch any errors in inputs early.
     inputs.execute()
+    # Every later op loads this object, so don't carry the uncompiled tables along.
+    inputs.release_raw_inputs()
     return inputs
 
 
@@ -183,18 +196,21 @@ def get_input_dfs(inputs):
 def prepare_for_matching(df, transformed_df):
     """Prepare the input dataframes for matching with splink."""
 
-    def _get_metaphone(row, col_name):
-        if pd.isnull(row[col_name]):
-            return None
-        return jellyfish.metaphone(row[col_name])
+    def _get_metaphone(names: pd.Series) -> pd.Series:
+        # Names repeat heavily (plant parts share plants), so encode each unique name
+        # once and map the results back onto the full column.
+        encoded = {name: jellyfish.metaphone(name) for name in names.dropna().unique()}
+        encoded_names = names.map(encoded).astype(object)
+        encoded_names[names.isna()] = None
+        return encoded_names
 
     # replace old cols with transformed cols
     for col in transformed_df.columns:
         df[col] = transformed_df[col]
     df["installation_year"] = pd.to_datetime(df["installation_year"], format="%Y")
     df["construction_year"] = pd.to_datetime(df["construction_year"], format="%Y")
-    df["plant_name_mphone"] = df.apply(_get_metaphone, axis=1, args=("plant_name",))
-    df["utility_name_mphone"] = df.apply(_get_metaphone, axis=1, args=("utility_name",))
+    df["plant_name_mphone"] = _get_metaphone(df["plant_name"])
+    df["utility_name_mphone"] = _get_metaphone(df["utility_name"])
     cols = ID_COL + MATCHING_COLS + EXTRA_COLS
     df = df.loc[:, cols]
     return df
@@ -217,27 +233,71 @@ def get_training_data_df(inputs):
     return train_df
 
 
+class ModelPredictionsConfig(Config):
+    """Configuration of the splink model used to predict matches."""
+
+    retain_intermediate_calculation_columns: bool = False
+    """Keep the per-comparison Bayes factor columns splink uses to build the match
+    weights. Only useful for debugging; they are carried through to the best matches
+    that this op returns, but are dropped from the final asset."""
+
+
+BEST_MATCHES_SQL = """
+SELECT *
+FROM {predictions_table}
+QUALIFY row_number() OVER (
+    PARTITION BY record_id_r
+    ORDER BY match_probability DESC, record_id_l ASC
+) = 1
+"""
+
+
+def select_best_matches(predictions: SplinkDataFrame) -> pd.DataFrame:
+    """Select the single most probable EIA match for each FERC record, in DuckDB.
+
+    Ties in match probability are broken by EIA record ID, so that the chosen match
+    doesn't depend on the row order of the splink output.
+
+    Args:
+        predictions: The table of predicted record pairs output by splink.
+    """
+    best_matches = predictions.db_api._execute_sql_against_backend(
+        BEST_MATCHES_SQL.format(predictions_table=predictions.physical_name)
+    ).to_df()
+    return (
+        best_matches.rename(
+            columns={"record_id_l": "record_id_eia", "record_id_r": "record_id_ferc1"}
+        )
+        .sort_values("record_id_ferc1")
+        .reset_index(drop=True)
+    )
+
+
 @op(
     tags={"dagster/priority": 10},
 )
-def get_model_predictions(eia_df, ferc_df, train_df, experiment_tracker):
-    """Train splink model and output predicted matches."""
+def get_model_predictions(
+    eia_df, ferc_df, train_df, experiment_tracker, config: ModelPredictionsConfig
+):
+    """Train splink model and output the best predicted EIA match for each FERC record."""
     settings = SettingsCreator(
         link_type="link_only",
         unique_id_column_name="record_id",
         additional_columns_to_retain=["plant_id_pudl", "utility_id_pudl"],
-        comparisons=COMPARISONS,
+        comparisons=get_comparisons(),
         blocking_rules_to_generate_predictions=BLOCKING_RULES,
         retain_matching_columns=True,
-        retain_intermediate_calculation_columns=True,
+        retain_intermediate_calculation_columns=(
+            config.retain_intermediate_calculation_columns
+        ),
         probability_two_random_records_match=(1.0 / len(eia_df)),
     )
-    linker = Linker(
-        [eia_df, ferc_df],
-        settings=settings,
-        input_table_aliases=["eia_df", "ferc_df"],
-        db_api=DuckDBAPI(),
-    )
+    # The display names become the values of the ``source_dataset`` column, which the
+    # training labels refer to.
+    db_api = DuckDBAPI()
+    eia_sdf = db_api.register(eia_df, dataset_display_name="eia_df")
+    ferc_sdf = db_api.register(ferc_df, dataset_display_name="ferc_df")
+    linker = Linker([eia_sdf, ferc_sdf], settings=settings)
     linker.table_management.register_table(train_df, "training_labels", overwrite=True)
     # Seed the random sampling so the trained model is reproducible between runs.
     linker.training.estimate_u_using_random_sampling(
@@ -248,11 +308,12 @@ def get_model_predictions(eia_df, ferc_df, train_df, experiment_tracker):
     experiment_tracker.execute_logging(
         lambda: mlflow.log_params({"threshold match probability": threshold_prob})
     )
-    preds_df = linker.inference.predict(threshold_match_probability=threshold_prob)
-    return preds_df.as_pandas_dataframe()
+    predictions = linker.inference.predict(threshold_match_probability=threshold_prob)
+    return select_best_matches(predictions)
 
 
 @op(
+    out={"best_match_df": Out(), "metrics": Out()},
     tags={"dagster/priority": 10},
 )
 def get_best_matches(
@@ -260,50 +321,41 @@ def get_best_matches(
     inputs,
     experiment_tracker: experiment_tracking.ExperimentTracker,
 ):
-    """Get the best EIA match for each FERC record and log performance metrics."""
-    # Break ties in match probability by EIA record ID, so that the chosen match doesn't
-    # depend on the row order of the splink output.
-    preds_df = (
-        preds_df.rename(
-            columns={"record_id_l": "record_id_eia", "record_id_r": "record_id_ferc1"}
-        )
-        .sort_values(
-            by=["record_id_ferc1", "match_probability", "record_id_eia"],
-            ascending=[True, False, True],
-            kind="stable",
-        )
-        .drop_duplicates(subset="record_id_ferc1", keep="first")
-        .reset_index(drop=True)
-    )
+    """Evaluate the best EIA match for each FERC record against the training data.
+
+    Returns the best matches unchanged, and the performance metrics (precision,
+    recall, coverage and accuracy), which are recorded as asset metadata.
+    """
     train_df = inputs.get_train_df().reset_index()
     true_pos = get_true_pos(preds_df, train_df)
     false_pos = get_false_pos(preds_df, train_df)
-    false_neg = get_false_neg(preds_df, train_df)
+    no_pred = get_no_prediction(preds_df, train_df)
     logger.info(
         "Metrics before overrides:\n"
         f"   True positives:  {true_pos}\n"
         f"   False positives: {false_pos}\n"
-        f"   False negatives: {false_neg}\n"
+        f"   No prediction:   {no_pred}\n"
         f"   Precision:       {true_pos / (true_pos + false_pos):.03}\n"
-        f"   Recall:          {true_pos / (true_pos + false_neg):.03}\n"
+        f"   Recall:          {true_pos / len(train_df):.03}\n"
+        f"   Coverage:        {1 - no_pred / len(train_df):.03}\n"
         f"   Accuracy:        {true_pos / len(train_df):.03}\n"
         "Precision = of the training data FERC records that the model predicted a match for, this percentage was correct.\n"
         "A measure of accuracy when the model makes a prediction.\n"
-        "Recall = of all of the training data FERC records, the model predicted a match for this percentage.\n"
+        "Recall = of all of the training data FERC records, the model predicted the correct match for this percentage.\n"
+        "Since we keep only the best match for each FERC record, a wrong prediction means the true match was not found.\n"
+        "Coverage = of all of the training data FERC records, the model predicted a match for this percentage.\n"
         "A measure of the coverage of FERC records in the predictions.\n"
         "Accuracy = what percentage of the training data did the model correctly predict.\n"
-        "A measure of overall correctness."
+        "A measure of overall correctness. With only one match kept for each FERC record, this is equal to the recall."
     )
-    experiment_tracker.execute_logging(
-        lambda: mlflow.log_metrics(
-            {
-                "precision": round(true_pos / (true_pos + false_pos), 3),
-                "recall": round(true_pos / (true_pos + false_neg), 3),
-                "accuracy": round(true_pos / len(train_df), 3),
-            }
-        )
-    )
-    return preds_df
+    metrics = {
+        "precision": float(round(true_pos / (true_pos + false_pos), 3)),
+        "recall": float(round(true_pos / len(train_df), 3)),
+        "coverage": float(round(1 - no_pred / len(train_df), 3)),
+        "accuracy": float(round(true_pos / len(train_df), 3)),
+    }
+    experiment_tracker.execute_logging(lambda: mlflow.log_metrics(metrics))
+    return preds_df, metrics
 
 
 @op(
@@ -313,19 +365,22 @@ def get_best_matches(
         )
     },
     tags={
-        "memory-use": "high",
         "dagster/priority": 10,
     },
 )
-def get_full_records_with_overrides(best_match_df, inputs, experiment_tracker):
+def get_full_records_with_overrides(
+    context: OpExecutionContext, best_match_df, metrics, inputs, experiment_tracker
+):
     """Join full dataframe onto matches to make usable and get stats.
 
     Override the predictions dataframe with the training data, so that all
     known bad predictions are corrected. Then join the EIA and FERC data on
     so that the matches are usable. Drop model parameter and match probability
     columns generated by splink. Log the coverage of the matches on the
-    FERC input data.
+    FERC input data, and record the model's performance metrics as metadata on the
+    asset materialization.
     """
+    context.add_output_metadata(metrics)
     best_match_df = override_bad_predictions(best_match_df, inputs.get_train_df())
     connected_df = prettyify_best_matches(
         matches_best=best_match_df,
@@ -357,7 +412,7 @@ def ferc_to_eia(
     experiment_tracker: experiment_tracking.ExperimentTracker,
     out_ferc1__yearly_all_plants: pd.DataFrame,
     out_ferc1__yearly_steam_plants_fuel_by_plant_sched402: pd.DataFrame,
-    out_eia__yearly_plant_parts: pd.DataFrame,
+    out_eia__yearly_plant_parts: pl.LazyFrame,
 ) -> pd.DataFrame:
     """Using splink model the connection between FERC1 plants and EIA plant-parts.
 
@@ -387,13 +442,14 @@ def ferc_to_eia(
         train_df=train_df,
         experiment_tracker=experiment_tracker,
     )
-    best_match_df = get_best_matches(
+    best_match_df, metrics = get_best_matches(
         preds_df=preds_df,
         inputs=inputs,
         experiment_tracker=experiment_tracker,
     )
     ferc1_eia_connected_df = get_full_records_with_overrides(
         best_match_df,
+        metrics,
         inputs,
         experiment_tracker=experiment_tracker,
     )
@@ -421,7 +477,7 @@ def get_false_pos(pred_df, train_df):
 
 
 # FERC record is in training data but no prediction made
-def get_false_neg(pred_df, train_df):
+def get_no_prediction(pred_df, train_df):
     """Get the number of matches from the training data where no prediction is made."""
     return train_df.merge(
         pred_df, how="left", on=["record_id_ferc1"], indicator=True
@@ -623,7 +679,7 @@ def override_bad_predictions(
         indicator=True,
         validate="1:1",
     )
-    # construct new record_id_eia column with incorrect preds overwritten
+    # construct new record_id_eia column with incorrect preds overridden
     override_df["record_id_eia"] = np.where(
         override_df["_merge"] == "left_only",
         override_df["record_id_eia_pred"],
@@ -640,7 +696,7 @@ def override_bad_predictions(
     incorrect_rows = override_df._merge == "right_only"
 
     override_df.loc[:, "match_type"] = "prediction; not in training data"
-    override_df.loc[override_rows, "match_type"] = "incorrect prediction; overwritten"
+    override_df.loc[override_rows, "match_type"] = "incorrect prediction; overridden"
     override_df.loc[correct_rows, "match_type"] = "correct match"
     override_df.loc[incorrect_rows, "match_type"] = (
         "incorrect prediction; no predicted match"
@@ -649,13 +705,13 @@ def override_bad_predictions(
     percent_correct = len(override_df[override_df.match_type == "correct match"]) / len(
         train_df
     )
-    percent_overwritten = len(
+    percent_overridden = len(
         override_df[override_df.match_type == "incorrect prediction; overridden"]
     ) / len(train_df)
     logger.info(
         "Matches stats:\n"
         f"Percent of training data matches correctly predicted: {percent_correct:.02}\n"
-        f"Percent of training data overwritten in matches: {percent_overwritten:.02}\n"
+        f"Percent of training data overridden in matches: {percent_overridden:.02}\n"
     )
     override_df = override_df.drop(
         columns=["_merge", "record_id_eia_train", "record_id_eia_pred"]

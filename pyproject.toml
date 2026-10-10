@@ -152,7 +152,7 @@ sphinx-reredirects = ">=1"
 sphinxcontrib-bibtex = ">=2.6"
 sphinxcontrib-googleanalytics = ">=0.4"
 sphinxcontrib-mermaid = ">=2.0"
-splink = ">=4.0.17,<5"
+splink = ">=5"
 sqlalchemy = ">=2"
 sqlite = ">=3.53"
 taplo = "==0.9.3" # Pinned to match version in VS Code extension
