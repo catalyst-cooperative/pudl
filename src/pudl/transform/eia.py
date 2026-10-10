@@ -18,6 +18,7 @@ found in :func:`pudl.transform.eia._boiler_generator_assn`.
 
 from collections import namedtuple
 from enum import StrEnum, auto
+from typing import Any, cast
 
 import networkx as nx
 import numpy as np
@@ -1272,12 +1273,14 @@ def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:
         .groupby(["plant_id_eia", "unit_id_pudl"])["unit_id_eia"]
         .unique()
     )
-    for row in too_many_codes.items():
+    for group_key, unit_id_eia in too_many_codes.items():
+        # The groupby keys are (plant_id_eia, unit_id_pudl) tuples.
+        plant_id_eia, unit_id_pudl = cast("tuple[Any, Any]", group_key)
         logger.warning(
             f"Multiple EIA unit codes:"
-            f"plant_id_eia={row[0][0]}, "
-            f"unit_id_pudl={row[0][1]}, "
-            f"unit_id_eia={row[1]}"
+            f"plant_id_eia={plant_id_eia}, "
+            f"unit_id_pudl={unit_id_pudl}, "
+            f"unit_id_eia={unit_id_eia}"
         )
     bga_w_units = bga_w_units.drop("unit_id_eia", axis=1)
 
