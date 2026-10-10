@@ -1,8 +1,15 @@
 """Unit tests for the pudl.transform.eia module."""
 
 import pandas as pd
+import pytest
 
-from pudl.transform.eia import occurrence_consistency
+from pudl.settings import (
+    Eia860DataConfig,
+    Eia861DataConfig,
+    Eia923DataConfig,
+    EiaDataConfig,
+)
+from pudl.transform.eia import _restrict_years, occurrence_consistency
 
 
 def _tied_rows(codes: tuple[str, ...]) -> list[dict]:
@@ -96,3 +103,24 @@ def test_occurrence_consistency_tiebreak_is_alphabetical():
         "Expected the winner to track the alphabetically first value even "
         f"after relabeling, got:\n{relabeled_winners}"
     )
+
+
+def test_restrict_years_keeps_years_in_both_860_and_923():
+    """Only report years configured for both EIA-860 and EIA-923 are retained."""
+    eia_data_config = EiaDataConfig(
+        eia860=Eia860DataConfig(years=[2018, 2019, 2020], eia860m=False),
+        eia923=Eia923DataConfig(years=[2019, 2020, 2021]),
+    )
+    df = pd.DataFrame(
+        {"report_date": pd.to_datetime([f"{year}-01-01" for year in range(2017, 2023)])}
+    )
+    out = _restrict_years(df, eia_data_config)
+    assert pd.DatetimeIndex(out["report_date"]).year.tolist() == [2019, 2020]
+
+
+def test_restrict_years_requires_eia860_and_eia923():
+    """A config selecting neither EIA-860 nor EIA-923 raises a clear error."""
+    eia_data_config = EiaDataConfig(eia861=Eia861DataConfig())
+    assert eia_data_config.eia860 is None
+    with pytest.raises(ValueError, match="requires both EIA-860 and EIA-923"):
+        _restrict_years(pd.DataFrame({"report_date": []}), eia_data_config)

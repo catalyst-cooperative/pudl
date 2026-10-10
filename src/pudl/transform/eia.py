@@ -1340,12 +1340,22 @@ def _restrict_years(
     df: pd.DataFrame,
     eia_data_config: EiaDataConfig | None = None,
 ) -> pd.DataFrame:
-    """Restricts eia years for boiler generator association."""
+    """Restricts eia years for boiler generator association.
+
+    Raises:
+        ValueError: If the EIA data config doesn't include both EIA-860 and EIA-923.
+    """
     if eia_data_config is None:
         eia_data_config = EiaDataConfig()
 
+    if eia_data_config.eia860 is None or eia_data_config.eia923 is None:
+        raise ValueError(
+            "Restricting boiler generator association years requires both EIA-860 "
+            "and EIA-923 to be included in the EIA data configuration."
+        )
     bga_years = set(eia_data_config.eia860.years) & set(eia_data_config.eia923.years)
-    df = df[df.report_date.dt.year.isin(bga_years)]
+    # pandas-stubs types the .dt accessor result as Properties, which lacks .year
+    df = df[df.report_date.dt.year.isin(bga_years)]  # type: ignore[missing-attribute]
     return df
 
 
