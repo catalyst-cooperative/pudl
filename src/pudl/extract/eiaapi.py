@@ -64,6 +64,10 @@ def _parse_data_column(elec_df: pd.DataFrame) -> pd.DataFrame:
     out = []
     for idx in elec_df.index:
         data_df = pd.DataFrame(elec_df.loc[idx, "data"], columns=["date", "value"])
+        # Some series report a null value for some periods (e.g. not yet published).
+        # Giving "value" an explicit dtype up front avoids an all-NA object-dtype
+        # column, which pandas can't unambiguously type when concatenated below.
+        data_df["value"] = data_df["value"].astype("float64")
         # three possible date formats, only annual/quarterly handled by pd.to_datetime() automatically
         #   annual data as "YYYY" eg "2020"
         #   quarterly data as "YYYYQQ" eg "2020Q2"
@@ -90,6 +94,9 @@ def _parse_data_column(elec_df: pd.DataFrame) -> pd.DataFrame:
                 )
         data_df["series_id"] = elec_df.loc[idx, "series_id"]
         out.append(data_df)
+    # Drop empty entries before concatenation so pandas doesn't have to guess at
+    # result dtypes for all-NA/empty frames.
+    out = [df for df in out if not df.empty]
     out = pd.concat(out, ignore_index=True, axis=0)
     out = out.convert_dtypes()
     out.loc[:, "series_id"] = (

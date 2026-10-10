@@ -12,6 +12,10 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
 Enhancements
 ^^^^^^^^^^^^
 
+* Added ``county_id_fips`` and ``state_id_fips`` to the :ref:`core_eia__entity_plants`,
+  :ref:`out_eia__monthly_generators` and :ref:`out_eia__yearly_generators` tables. See
+  PR :pr:`5688`.
+
 * Added ``operator_utility_id_eia``, ``operator_utility_id_pudl`` and
   ``operator_utility_name_eia`` to :ref:`out_eia__yearly_generators_by_ownership`,
   identifying the utility that operates each generator. The existing
@@ -44,6 +48,21 @@ EIA-860
 * Added final release data from 2025 for :doc:`EIA-860 <data_sources/eia860>`. See
   issue :issue:`5589` and PR :pr:`5591`.
 
+EIA-860M
+~~~~~~~~
+* Added :doc:`EIA-860m <data_sources/eia860>` data through August 2026. See issue
+  :issue:`5677` and PR :pr:`5680`.
+
+EIA-923
+~~~~~~~
+* Added final release data from 2025 for :doc:`EIA-923 <data_sources/eia923>`,
+  and monthly release from June 2026. See issue :issue:`5594` and PR :pr:`5599`.
+
+FERC Form 1
+~~~~~~~~~~~
+* Integrated any updates or straggler filings from 2025 for
+  :doc:`FERC Form 1 <data_sources/ferc1>`. See PR :pr:`5668`.
+
 Documentation
 ^^^^^^^^^^^^^
 
@@ -57,9 +76,30 @@ Documentation
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Added unit tests for the ID assignment process that builds
+  :ref:`core_epa__assn_eia_epacamd_subplant_ids`. Fixed several bugs that those tests
+  exposed, including one that could split a physically connected group of generators
+  into separate subplants. Simplified the underlying ID assignment logic to be entirely
+  graph-based. See issue :pr:`5675` and PR :pr:`5543`. Part of an effort to harmonize
+  the `Open Grid Emissions
+  <https://github.com/singularity-energy/open-grid-emissions>`__ initiative and PUDL.
+  See epic :issue:`5439` which is tracking that effort.
+
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Made the :doc:`EIA-930 <data_sources/eia930>` and :doc:`FERC-714
+  <data_sources/ferc714>` hourly demand imputation deterministic. The underlying
+  tensor-completion algorithm previously relied on a unseeded random subsampling
+  mechanism which meant ``demand_imputed_pudl_mwh`` values could shift slightly from one
+  build to the next. For our hourly annual (8760) imputation blocks, the subsampling
+  wasn't any faster than using all the data points, so we removed it. Added a guard
+  against the algorithm stopping prematurely on a transient dip in its convergence
+  metric. This was never observed happening, but seemed uncomfortably close to the set
+  tolerance. Also stopped replacing values that were not flagged for imputation with the
+  values estimated by the tensor completion. They should match the original reported
+  value exactly now, rather than carrying tiny model reconstruction error. Tightened the
+  corresponding dbt tolerance tests accordingly. See :issue:`5649` and :pr:`5656`.
 * Fixed ``allocate_gen_fuel.py`` silently dropping legitimate generation and fuel
   data for generators transitioning between ``proposed``/``existing`` or
   ``existing``/``retired`` status across a multi-year ETL run. Unified the slightly
@@ -79,6 +119,33 @@ Bug Fixes & Data Cleaning
   :ref:`core_ferc1__yearly_cash_flows_sched120` without ``row_type_xbrl``,
   ``is_within_table_calc``, ``balance``, or ``ferc_account`` metadata. See
   :issue:`5587` and :pr:`5588`.
+* Made ``plant_id_ferc1`` deterministic. The IDs assigned to FERC 1 steam plants used
+  to be reshuffled by tiny changes in the input data, even when the plants themselves
+  were unchanged. They now depend only on which records belong to each plant, so
+  unrelated plants keep their IDs and differences between runs reflect real changes. IDs
+  now start at 1 instead of 0, and are still not stable across data updates. We also
+  corrected several hand-assigned ``plant_id_pudl`` values that split one plant across
+  multiple IDs, which cut the number of ``plant_id_ferc1`` values spanning more than one
+  ``plant_id_pudl`` from 6 to 2. See issue :issue:`5609` and PR :pr:`5642`.
+* Updated the record-linkage which assigns ``plant_id_ferc1`` to make it insensitive to
+  floating point noise. See issue :issue:`5609` and PR :pr:`5687`.
+* Fixed tags for new 2025 XBRL factoids and rescued the ``ferc_account`` field in
+  :ref:`out_ferc1__yearly_rate_base`. See :issue:`5520` and :pr:`5597`.
+* Fixed ``valid_until_date`` in the ``_core_eia__forensics_entity_resolution_*`` and
+  ``_core_rus*__forensics_entity_resolution_borrowers`` tables. Each record's end date
+  was being drawn from an unrelated column of the same entity, and ties were sorted
+  arbitrarily, so values were often wrong and changed between builds. It's now the next
+  change in the same column, and the output is deterministic. See :issue:`5608` and
+  :pr:`5641`.
+* Made the FERC 1 to EIA plant-parts record linkage reproducible. The splink model
+  sampled record pairs without a seed and broke ties between equally probable matches
+  arbitrarily, so about 1% of the matches in
+  :ref:`out_pudl__yearly_assn_eia_ferc1_plant_parts` changed on every run even with
+  identical inputs. The sampling is now seeded and ties are broken by EIA record ID. See
+  :issue:`5610` and :pr:`5643`.
+* Fixed the integer NERC region code ``25470`` reported by utility 55959 in 2013 and
+  2014 in the EIA-861 tables, which was becoming ``UNK`` instead of ``MRO``. See PR
+  :pr:`5685`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -101,6 +168,10 @@ Performance Improvements
   capping DuckDB's resource use per connection and streaming quarterly archive
   downloads instead of reading them into memory. See issue :issue:`5318` and PR
   :pr:`5595`.
+* Switched all of PUDL's Parquet outputs from snappy to zstd compression, which makes
+  the files substantially smaller. The codec and compression levels are now set in one
+  place (:data:`pudl.PARQUET_COMPRESSION` and related constants) and used by every
+  Parquet writer. See :issue:`5603` and :pr:`5604`.
 
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^
@@ -115,6 +186,10 @@ Developer Experience
   of genuine typing gaps that the upgrade surfaced. Mostly this involved type narrowing
   in places where an object that might be ``None`` was subject to a regex match, dict
   lookup, or other operation that would fail on ``None``. See PR :pr:`5583`.
+* Switched to using quieter, more compact ``pytest`` output instead of logging 1000s of
+  tests to the terminal. Fast ETL in pipeline tests will still log. Made ``pixi.lock``
+  drift checking in pre-commit hooks more robust. Fixed open SQLite database warnings
+  coming from FERC SQLite IO Manager. See PR :pr:`5573`.
 
 .. _release-v2026.9.0:
 
@@ -387,6 +462,13 @@ Performance Improvements
   using complex arithmetic in calculating eigenvalues due to floating point noise in the
   imaginary components of the matrix math we were doing in our timeseries imputations.
   See PR :pr:`5503`.
+* Sped up VCE RARE, EIA-930, and FERC EQR raw data extraction. VCE RARE's very wide CSVs
+  no longer make DuckDB sniff column types on every read, cutting extraction time from
+  about 5 to 1.5 minutes. EIA-930 and FERC EQR extraction switched back to DuckDB's
+  native multi-threaded Parquet writer for untyped/ENUM-free tables, undoing a
+  performance regression introduced in :pr:`5570` when we switched to the
+  single-threaded Arrow writer to preserve Categorical types. This change cuts
+  extraction time by ~25% on the largest tables. See PR :pr:`5575`.
 
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^

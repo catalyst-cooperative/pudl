@@ -121,7 +121,12 @@ class PudlParquetIOManager(dg.ConfigurableIOManager):
 
         if isinstance(obj, geopandas.GeoDataFrame):
             gdf = res.enforce_schema(obj)
-            gdf.to_parquet(parquet_path, index=False)
+            gdf.to_parquet(
+                parquet_path,
+                index=False,
+                compression=pudl.PARQUET_COMPRESSION,
+                compression_level=pudl.PARQUET_GEOMETRY_COMPRESSION_LEVEL,
+            )
         elif isinstance(obj, pd.DataFrame):
             df = res.enforce_schema(obj)
             pa_schema = res.to_pyarrow()
@@ -129,12 +134,16 @@ class PudlParquetIOManager(dg.ConfigurableIOManager):
                 path=parquet_path,
                 index=False,
                 schema=pa_schema,
+                compression=pudl.PARQUET_COMPRESSION,
+                compression_level=pudl.PARQUET_COMPRESSION_LEVEL,
             )
         elif isinstance(obj, pl.LazyFrame):
             obj.cast(res.to_polars_dtypes()).sink_parquet(
                 parquet_path,
                 engine="streaming",
                 row_group_size=100_000,
+                compression=pudl.PARQUET_COMPRESSION,
+                compression_level=pudl.PARQUET_COMPRESSION_LEVEL,
             )
         else:
             raise TypeError(
@@ -201,6 +210,15 @@ class FercSqliteIOManagerBase(dg.ConfigurableIOManager):
             self._engine = sa.create_engine(f"sqlite:///{self.db_path}")  # type: ignore[read-only]
         assert self._engine is not None
         return self._engine
+
+    def teardown_after_execution(self, context: dg.InitResourceContext) -> None:
+        """Dispose the cached engine when the resource's lifecycle ends."""
+        if self._engine is not None:
+            self._engine.dispose()
+            # Pydantic explicitly permits mutating PrivateAttr fields on frozen
+            # models; pyrefly doesn't yet model that exception.
+            self._engine = None  # type: ignore[read-only]
+            self._metadata = None  # type: ignore[read-only]
 
     @property
     def metadata(self) -> sa.MetaData:

@@ -59,13 +59,6 @@ class Extractor(excel.ExcelExtractor):
                 df = remove_leading_zeros_from_numeric_strings(df=df, col_name=col)
         return df
 
-    @staticmethod
-    def get_dtypes(page, **partition):
-        """Returns dtypes for plant id columns."""
-        return {
-            "Plant ID": pd.Int64Dtype(),
-        }
-
 
 def append_eia860m(
     eia860_raw_dfs: dict[str, pd.DataFrame], eia860m_raw_dfs: dict[str, pd.DataFrame]

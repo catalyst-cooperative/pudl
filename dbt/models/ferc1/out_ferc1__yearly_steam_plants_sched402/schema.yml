@@ -48,10 +48,14 @@ sources:
               arguments:
                 partition_expr: report_year
           - expect_one2one_mapping:
+              description: |-
+                Check for statistically assigned plant_id_ferc1 values that are associated with more
+                than one plant_id_pudl value. Raise an error if the number increases beyond the known
+                cases.
               arguments:
                 groupby_column: plant_id_ferc1
                 counted_column: plant_id_pudl
-                n_acceptable: 6
+                n_acceptable: 2
           - dbt_expectations.expect_compound_columns_to_be_unique:
               arguments:
                 column_list:

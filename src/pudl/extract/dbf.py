@@ -694,7 +694,9 @@ def convert_db_into_parquet(db_path: Path, parquet_dir: Path):
             parquet_dir.mkdir(exist_ok=True)
         for table in tables:
             con.execute(
-                f"COPY {table} TO '{parquet_dir}/{table}.parquet' (FORMAT parquet);"
+                f"COPY {table} TO '{parquet_dir}/{table}.parquet' "
+                f"(FORMAT parquet, COMPRESSION {pudl.PARQUET_COMPRESSION}, "
+                f"COMPRESSION_LEVEL {pudl.PARQUET_COMPRESSION_LEVEL});"
             )
 
 
