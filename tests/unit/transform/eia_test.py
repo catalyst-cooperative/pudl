@@ -1,7 +1,9 @@
 """Unit tests for the pudl.transform.eia module."""
 
+import numpy as np
 import pandas as pd
 import pytest
+import timezonefinder
 
 from pudl.settings import (
     Eia860DataConfig,
@@ -9,7 +11,7 @@ from pudl.settings import (
     Eia923DataConfig,
     EiaDataConfig,
 )
-from pudl.transform.eia import _restrict_years, occurrence_consistency
+from pudl.transform.eia import _restrict_years, find_timezone, occurrence_consistency
 
 
 def _tied_rows(codes: tuple[str, ...]) -> list[dict]:
@@ -103,6 +105,41 @@ def test_occurrence_consistency_tiebreak_is_alphabetical():
         "Expected the winner to track the alphabetically first value even "
         f"after relabeling, got:\n{relabeled_winners}"
     )
+
+
+@pytest.mark.parametrize(
+    "lng,lat,state,expected",
+    [
+        (-122.3, 47.6, "WA", "America/Los_Angeles"),
+        (np.nan, np.nan, "WA", "America/Los_Angeles"),
+        (None, None, "WA", "America/Los_Angeles"),
+        (pd.NA, pd.NA, "WA", "America/Los_Angeles"),
+        (200.0, 47.6, "WA", "America/Los_Angeles"),
+        (np.nan, np.nan, None, None),
+    ],
+)
+def test_find_timezone_falls_back_to_state(lng, lat, state, expected):
+    """Missing or invalid coordinates fall back to the state's approximate zone."""
+    tz = find_timezone(
+        lng=lng,
+        lat=lat,
+        state=state,
+        strict=False,
+        tz_finder=timezonefinder.TimezoneFinder(),
+    )
+    assert tz == expected
+
+
+def test_find_timezone_strict_raises_on_missing_coordinates():
+    """With strict=True, missing coordinates raise instead of using the state."""
+    with pytest.raises(ValueError, match="Can't find timezone"):
+        find_timezone(
+            lng=np.nan,
+            lat=np.nan,
+            state="WA",
+            strict=True,
+            tz_finder=timezonefinder.TimezoneFinder(),
+        )
 
 
 def test_restrict_years_keeps_years_in_both_860_and_923():

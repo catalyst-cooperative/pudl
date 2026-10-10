@@ -341,7 +341,14 @@ the remaining non-conforming EIA-860 and EIA-923 county names.
 """
 
 
-def find_timezone(*, lng=None, lat=None, state=None, strict=True, tz_finder=None):
+def find_timezone(
+    *,
+    lng: float,
+    lat: float,
+    state: str | None = None,
+    strict: bool = True,
+    tz_finder: timezonefinder.TimezoneFinder,
+) -> str | None:
     """Find the timezone associated with the a specified input location.
 
     Note that this function requires named arguments. The names are lng, lat,
@@ -359,6 +366,8 @@ def find_timezone(*, lng=None, lat=None, state=None, strict=True, tz_finder=None
         lat (int or float in [-90, 90]): Latitude, in decimal degrees
         state (str): Abbreviation for US state or Canadian province
         strict (bool): Raise an error if no timezone is found?
+        tz_finder: A ``timezonefinder.TimezoneFinder`` instance. Required, since
+            constructing one is expensive and callers should reuse a single instance.
 
     Returns:
         str: The timezone (as an IANA string) for that location.
@@ -368,12 +377,9 @@ def find_timezone(*, lng=None, lat=None, state=None, strict=True, tz_finder=None
     """
     try:
         tz = tz_finder.timezone_at(lng=lng, lat=lat)
-        if tz is None:  # Try harder
-            # Could change the search radius as well
-            tz = tz_finder.closest_timezone_at(lng=lng, lat=lat)
-    # For some reason w/ Python 3.6 we get a ValueError here, but with
-    # Python 3.7 we get an OverflowError...
-    except (OverflowError, ValueError) as err:
+    # Invalid coordinates (NaN, out of range) raise ValueError or OverflowError, and
+    # missing values (None, pd.NA) raise TypeError.
+    except (OverflowError, ValueError, TypeError) as err:
         # If we're being strict, only use lng/lat, not state
         if strict:
             raise ValueError(
