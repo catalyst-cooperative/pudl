@@ -8,7 +8,7 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 
-import datetime
+import datetime as dt
 import importlib.metadata
 import os
 import pathlib
@@ -47,7 +47,7 @@ version_match = os.environ.get("PUDL_VERSION_MATCH", release)
 
 project = "PUDL"
 copyright = (  # noqa: A001
-    f"2016-{datetime.date.today().year}, Catalyst Cooperative, CC-BY-4.0"
+    f"2016-{dt.date.today().year}, Catalyst Cooperative, CC-BY-4.0"
 )
 author = "Catalyst Cooperative"
 

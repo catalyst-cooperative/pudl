@@ -23,7 +23,7 @@ check what files should actually be distributed before running the script.
 Run ``zenodo_data_release --help`` for CLI usage instructions.
 """
 
-import datetime
+import datetime as dt
 import logging
 import os
 import re
@@ -588,7 +588,7 @@ class ContentComplete(State):
             license=get_data_license_id(),
             language="eng",
             version=version_tag,
-            publication_date=datetime.date.today().isoformat(),
+            publication_date=dt.date.today().isoformat(),
             description=description,
             related_identifiers=related_identifiers,
         )

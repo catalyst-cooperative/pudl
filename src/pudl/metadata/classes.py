@@ -1,7 +1,7 @@
 """Metadata data classes."""
 
 import copy
-import datetime
+import datetime as dt
 import re
 import sys
 import warnings
@@ -162,10 +162,10 @@ def _format_for_sql(x: Any, identifier: bool = False) -> str:  # noqa: C901
         return "FALSE"
     if isinstance(x, re.Pattern):
         x = x.pattern
-    elif isinstance(x, datetime.datetime):
+    elif isinstance(x, dt.datetime):
         # Check datetime.datetime first, since also datetime.date
         x = x.strftime("%Y-%m-%d %H:%M:%S")
-    elif isinstance(x, datetime.date):
+    elif isinstance(x, dt.date):
         x = x.strftime("%Y-%m-%d")
     if not isinstance(x, str):
         raise ValueError(f"Cannot format type {type(x)} for SQL")
@@ -330,8 +330,8 @@ class FieldConstraints(PudlMeta):
     unique: StrictBool = False
     min_length: PositiveInt | None = None
     max_length: PositiveInt | None = None
-    minimum: StrictInt | StrictFloat | datetime.date | datetime.datetime | None = None
-    maximum: StrictInt | StrictFloat | datetime.date | datetime.datetime | None = None
+    minimum: StrictInt | StrictFloat | dt.date | dt.datetime | None = None
+    maximum: StrictInt | StrictFloat | dt.date | dt.datetime | None = None
     pattern: re.Pattern | None = None
     enum: (
         Annotated[
@@ -2453,7 +2453,7 @@ class Resource(PudlMeta):
             ).collect(engine="streaming")
             min_year = bounds["_min"][0].year
             max_year = bounds["_max"][0].year
-            boundary = datetime.date if dtype == pl.Date else datetime.datetime
+            boundary = dt.date if dtype == pl.Date else dt.datetime
             return [
                 pl.col(pk_check_chunk_field).is_between(
                     boundary(year, 1, 1), boundary(year + 1, 1, 1), closed="left"
@@ -2729,7 +2729,7 @@ class Package(PudlMeta):
     version: str | None = None
     keywords: list[String] = []
     homepage: AnyHttpUrl = AnyHttpUrl("https://docs.catalyst.coop/pudl")
-    created: datetime.datetime = datetime.datetime.now(datetime.UTC)
+    created: dt.datetime = dt.datetime.now(dt.UTC)
     contributors: list[Contributor] = []
     sources: list[DataSource] = []
     licenses: list[License] = []
