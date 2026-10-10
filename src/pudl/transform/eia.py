@@ -720,7 +720,8 @@ def _compile_all_entity_records(
     # add those records to the compilation
     compiled_df = pd.concat(dfs, axis=0, ignore_index=True, sort=True)
     # strip the month and day from the date so we can have annual records
-    compiled_df["report_date"] = compiled_df["report_date"].dt.year
+    # pandas-stubs types the .dt accessor result as Properties, which lacks .year
+    compiled_df["report_date"] = compiled_df["report_date"].dt.year  # type: ignore[missing-attribute]
     # convert the year back into a date_time object
     year = compiled_df["report_date"]
     compiled_df["report_date"] = pd.to_datetime({"year": year, "month": 1, "day": 1})
