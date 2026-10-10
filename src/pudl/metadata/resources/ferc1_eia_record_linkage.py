@@ -110,6 +110,14 @@ these generator-owner records are scaled to the ownership stake (represented by
 This table was created to represent every possible version of ownership slices of the
 EIA generators. It is primarily used as an input to :ref:`out_eia__yearly_plant_parts`.
 
+The ``utility_id_eia``, ``utility_id_pudl`` and ``utility_name_eia`` columns describe
+the *owner* of each generator slice. Jointly owned generators are typically run by a
+single utility on behalf of all of their owners, and that operator is identified
+separately by the ``operator_utility_id_eia``, ``operator_utility_id_pudl`` and
+``operator_utility_name_eia`` columns.
+For generators that are absent from :ref:`core_eia860__scd_ownership` the owner and the
+operator are the same utility.
+
 {inherits_harvested_values_details("generators, plants, and utilities")}""",
             "usage_warnings": ["aggregation_hazard", "harvested"],
             "additional_primary_key_text": (
@@ -130,6 +138,9 @@ EIA generators. It is primarily used as an input to :ref:`out_eia__yearly_plant_
                 "utility_id_eia",
                 "utility_id_pudl",
                 "utility_name_eia",
+                "operator_utility_id_eia",
+                "operator_utility_id_pudl",
+                "operator_utility_name_eia",
                 "technology_description",
                 "energy_source_code_1",
                 "prime_mover_code",
