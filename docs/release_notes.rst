@@ -84,6 +84,11 @@ New Data Tests & Validations
   0.04% of its records are obviously wrong), so
   :ref:`core_eia860m__changelog_generators` is exempt, and new dbt tests cap the number
   of known bad records in it instead. See PR :pr:`5697`.
+* Added dbt tests that check whether plant coordinates fall in the state and county
+  they report, using the DuckDB spatial extension and Census boundaries. Applied to
+  :ref:`core_eia__entity_plants`, they currently flag 32 plants more than 5 km outside
+  their reported state (including offshore wind farms) and 204 outside their reported
+  county. These are not fixed yet. See PR :pr:`5700`.
 
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^

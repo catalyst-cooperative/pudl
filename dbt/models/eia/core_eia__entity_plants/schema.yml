@@ -6,6 +6,29 @@ sources:
         data_tests:
           - expect_columns_not_all_null
           - check_row_counts_per_partition
+          - expect_facility_in_reported_state:
+              arguments:
+                tolerance_meters: 5000
+              config:
+                error_if: ">40"
+              description: |-
+                Plant coordinates should lie within 5 km of the state the plant reports. Plants with no
+                state or no coordinates are not checked. Plants within 5 km of the correct state are
+                ignored because they are typically on a river that forms a state border. Plants whose
+                coordinates are in no state at all are checked like any other, so this includes offshore
+                wind farms (which are not wrong) alongside plants with clearly wrong coordinates.
+                Offshore wind should be excluded here once we can identify it by technology type.
+          - expect_facility_in_reported_county:
+              arguments:
+                tolerance_meters: 5000
+              config:
+                error_if: ">240"
+              description: |-
+                Plant coordinates should lie within 5 km of the county the plant reports. Plants with no
+                county or no coordinates are not checked. A couple of hundred plants are more than 5 km
+                away from their reported county, which suggests that their coordinates or reported
+                county are wrong. Plants whose coordinates are in no county at all (e.g. offshore) are
+                checked like any other.
         columns:
           - name: plant_id_eia
           - name: plant_name_eia
