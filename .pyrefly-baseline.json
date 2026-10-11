@@ -726,11 +726,6 @@
       "concise_description": "Expected a callable, got `Series`"
     },
     {
-      "path": "src/pudl/transform/eia.py",
-      "name": "not-callable",
-      "concise_description": "Expected a callable, got `int`"
-    },
-    {
       "path": "src/pudl/metadata/helpers.py",
       "name": "not-callable",
       "concise_description": "Expected a callable, got `str`"
@@ -1001,11 +996,6 @@
       "concise_description": "Object of class `NoneType` has no attribute `area`"
     },
     {
-      "path": "src/pudl/transform/eia.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `closest_timezone_at`"
-    },
-    {
       "path": "src/pudl/metadata/classes.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `NoneType` has no attribute `code_fixes`"
@@ -1099,11 +1089,6 @@
       "path": "src/pudl/analysis/timeseries_evaluation.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `NoneType` has no attribute `set_alpha`"
-    },
-    {
-      "path": "src/pudl/transform/eia.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `timezone_at`"
     },
     {
       "path": "tests/unit/scripts/auto_match_utilities_test.py",
@@ -1439,11 +1424,6 @@
       "path": "tests/unit/transform/eia176_test.py",
       "name": "not-iterable",
       "concise_description": "Type `object` is not iterable"
-    },
-    {
-      "path": "src/pudl/transform/eia.py",
-      "name": "bad-argument-type",
-      "concise_description": "Unpacked keyword argument `((dirty_df: DataFrame, clean_df: DataFrame, entity_id_df: DataFrame, entity_idx: list[str], col: str, cols_to_consit: list[str], round_to: int = 2, **kwargs: Unknown) -> DataFrame) | ((dirty_df: DataFrame, clean_df: DataFrame, entity_id_df: DataFrame, entity_idx: list[str], col: str, cols_to_consit: list[str], **kwargs: Unknown) -> DataFrame) | int` is not assignable to parameter `round_to` with type `int` in function `_lat_long`"
     },
     {
       "path": "src/pudl/dagster/provenance.py",
