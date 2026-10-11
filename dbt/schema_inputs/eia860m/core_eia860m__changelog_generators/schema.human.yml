@@ -14,7 +14,6 @@ sources:
                 error_if: ">20"
               description: |-
                 Latitude and longitude should either both be reported or both be null.
-                Currently 17 records have only one of the two.
         columns:
           - name: latitude
             data_tests:

@@ -755,10 +755,8 @@ def _manage_strictness(col: str, special_case_strictness: dict[str, float]) -> f
 class SpecialCaseHarvester(Protocol):
     """The call signature of a function that harvests an entity column specially.
 
-    Special case harvesters are used for columns whose values are too inconsistently
-    reported for the standard consistency-based harvesting to find a single value for
-    every entity. Any extra, harvester-specific arguments should be bound ahead of
-    time using :func:`functools.partial`.
+    Any extra, per-column harvester-specific arguments should be bound in the
+    :data:`SPECIAL_CASE_HARVESTERS` dispatch mapping using :func:`functools.partial`.
     """
 
     def __call__(

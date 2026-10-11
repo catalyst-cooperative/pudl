@@ -11100,10 +11100,6 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
         },
     },
     "core_eia860m__changelog_generators": {
-        # The EIA-860M coordinates have not been cleaned up yet. They include sign
-        # flips, swapped latitude / longitude, out-of-range values, and exact zeros,
-        # so the plant location constraints can't be applied to them.
-        # TODO: Clean up these values and remove these overrides.
         "latitude": {
             "description": (
                 "Latitude of the plant's location, in degrees. These values are "

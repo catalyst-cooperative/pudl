@@ -328,9 +328,11 @@ def add_state_id_fips(
     """
     states = (
         geocodes.loc[geocodes["fips_level"] == "040", ["state", "state_id_fips"]]
-        # Some FIPS codes (e.g. U.S. Minor Outlying Islands) have no state abbreviation.
-        # pandas matches missing merge keys with each other, so if they were kept,
-        # every record with a missing state would be assigned their FIPS code.
+        # Any FIPS code that appears in the Census PEP data but doesn't have a state
+        # abbreviation defined in POLITICAL_SUBDIVISIONS ends up with a null state
+        # abbreviation here. Pandas matches missing merge keys with each other, so if
+        # the null states are kept, every record with a missing state would be assigned
+        # to a mystery FIPS code (namely 74: US Minor outlying islands).
         .dropna(subset=["state"])
         .rename(columns={"state": state_col})
         .drop_duplicates()
