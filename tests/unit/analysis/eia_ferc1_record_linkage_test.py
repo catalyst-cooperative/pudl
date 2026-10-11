@@ -14,6 +14,7 @@ from pudl.analysis.record_linkage.eia_ferc1_inputs import (
     get_train_plant_ids_eia,
     select_plant_parts_eia,
 )
+from pudl.analysis.record_linkage.eia_ferc1_model_config import get_comparisons
 from pudl.analysis.record_linkage.eia_ferc1_record_linkage import (
     U_ESTIMATION_SEED,
     ModelPredictionsConfig,
@@ -161,6 +162,11 @@ def test_prepare_metaphone_matches_rowwise_encoding():
     out = prepare_for_matching.compute_fn.decorated_fn(df, pd.DataFrame())  # type: ignore[missing-attribute]
     expected = [None if pd.isnull(n) else jellyfish.metaphone(n) for n in names]
     assert out["plant_name_mphone"].tolist() == expected
+
+
+def test_get_comparisons_returns_fresh_objects():
+    """Comparisons are configured in place, so they must not be shared."""
+    assert get_comparisons()[1] is not get_comparisons()[1]
 
 
 def test_get_model_predictions_seeds_u_estimation(mocker):
