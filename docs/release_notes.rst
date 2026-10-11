@@ -340,6 +340,11 @@ Developer Experience
   new API (registering inputs with ``DuckDBAPI.register()``, and using ``CustomRule``
   and ``CustomComparison``). The model's behavior is not intentionally changed. See PR
   :pr:`5698`.
+* Made the FERC 1 to EIA plant-parts record linkage cheaper and its metrics clearer. The
+  largest op's peak memory fell from 14.5 GB to 5.6 GB, so the ``memory-use: high`` tag
+  was removed. Splink's ``u`` estimation uses all of its sampled pairs again, as it did
+  before Splink 5. The ``recall`` metric is now reported as ``coverage`` (``recall`` is
+  back, and equals accuracy). See PR :pr:`5679`.
 
 .. _release-v2026.9.0:
 
