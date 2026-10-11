@@ -322,9 +322,16 @@ def add_fips_ids(
 def add_state_id_fips(
     df: pd.DataFrame, geocodes: pd.DataFrame, state_col: str
 ) -> pd.DataFrame:
-    """Add the State FIPS codes."""
+    """Add the State FIPS codes.
+
+    Records without a state are not assigned a state FIPS code.
+    """
     states = (
         geocodes.loc[geocodes["fips_level"] == "040", ["state", "state_id_fips"]]
+        # Some FIPS codes (e.g. U.S. Minor Outlying Islands) have no state abbreviation.
+        # pandas matches missing merge keys with each other, so if they were kept,
+        # every record with a missing state would be assigned their FIPS code.
+        .dropna(subset=["state"])
         .rename(columns={"state": state_col})
         .drop_duplicates()
     )
