@@ -985,9 +985,31 @@ class PlantPart:
         # utility_id_pudl and utility_name_eia) also differ between a
         # generator's owners.
         # See https://github.com/catalyst-cooperative/pudl/issues/5651
-        part_tot_no_utils = part_tot.drop_duplicates(
-            subset=["plant_id_eia", "generator_id", "report_date"]
-        ).drop(columns=["utility_id_eia"])
+        # The part's own id columns are part of the key because the 1:m
+        # plant_match_ferc1 part is aggregated from plant-part records, where a
+        # generator also shows up in any single-generator part that contains it.
+        gen_key = list(
+            dict.fromkeys(self.id_cols + IDX_TO_ADD + ["plant_id_eia", "generator_id"])
+        )
+        # Only records with a value in every grouping column get aggregated (the
+        # groupby drops the rest). In the plant_match_ferc1 part, that leaves out
+        # all of the plant-part records that aren't part of a 1:m match.
+        part_tot_ag = part_tot.dropna(subset=self.id_cols + IDX_TO_ADD)
+        part_tot_no_utils = part_tot_ag.drop_duplicates(subset=gen_key)
+        # Keeping one record per generator is only safe if all of a generator's
+        # "total" records agree on the values that we aggregate.
+        ag_cols = list(dict.fromkeys(sum_cols + [*wtavg_dict] + [*wtavg_dict.values()]))
+        n_inconsistent = len(
+            part_tot_ag.drop_duplicates(subset=gen_key + ag_cols)
+        ) - len(part_tot_no_utils)
+        if n_inconsistent != 0:
+            raise AssertionError(
+                f"Found {n_inconsistent} {self.part_name} 'total' records whose "
+                f"values of {ag_cols} differ from another 'total' record of the same "
+                "generator. Each generator should have the same 'total' values for "
+                "all of its owners."
+            )
+        part_tot_no_utils = part_tot_no_utils.drop(columns=["utility_id_eia"])
         # still need to re-calc the fraction owned for the part
         part_tot_out = (
             pudl.helpers.sum_and_weighted_average_agg(

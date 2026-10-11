@@ -101,6 +101,123 @@ def test_plant_ag_does_not_double_count_jointly_owned_generators():
     assert out["fuel_cost_per_mwh"].tolist()[2:] == pytest.approx([17.5, 17.5])
 
 
+# One record per generator, with the generator's full (unscaled) values. Generator "a"
+# is owned 60/40 by utilities 3 and 4; "b" is owned by 3 alone and "c" by 4 alone.
+JOINTLY_OWNED_GENS = pd.DataFrame(
+    {
+        "generator_id": ["a", "b", "c"],
+        "prime_mover_code": ["ST", "GT", "ST"],
+        "capacity_mw": [100.0, 300.0, 200.0],
+        "capacity_eoy_mw": [100.0, 300.0, 200.0],
+        "net_generation_mwh": [500.0, 900.0, 600.0],
+        "total_fuel_cost": [5000.0, 18000.0, 9000.0],
+        "total_mmbtu": [4000.0, 9000.0, 6000.0],
+        "fuel_cost_per_mwh": [10.0, 20.0, 15.0],
+        "unit_heat_rate_mmbtu_per_mwh": [8.0, 10.0, 10.0],
+        "fuel_cost_per_mmbtu": [1.25, 2.0, 1.5],
+    }
+)
+JOINTLY_OWNED_OWNERSHIP = pd.DataFrame(
+    {
+        "generator_id": ["a", "a", "b", "c"],
+        "utility_id_eia": [3, 4, 3, 4],
+        "utility_id_pudl": [30, 40, 30, 40],
+        "utility_name_eia": ["Three", "Four", "Three", "Four"],
+        "fraction_owned": [0.6, 0.4, 1.0, 1.0],
+    }
+)
+
+
+def _jointly_owned_gens_mega() -> pd.DataFrame:
+    """Build "owned" and "total" records like scale_by_ownership does."""
+    sum_cols = pudl.analysis.plant_parts_eia.SUM_COLS
+    gens = JOINTLY_OWNED_GENS.merge(JOINTLY_OWNED_OWNERSHIP, on="generator_id")
+    owned = gens.assign(ownership_record_type="owned")
+    owned[sum_cols] = owned[sum_cols].mul(owned["fraction_owned"], axis="index")
+    total = gens.assign(ownership_record_type="total", fraction_owned=1.0)
+    return (
+        pd.concat([owned, total], ignore_index=True)
+        .assign(
+            plant_id_eia=1,
+            plant_name_eia="sparky",
+            report_date=pd.Timestamp("2020-01-01"),
+            operational_status_pudl="operating",
+        )
+        .astype({"report_date": "datetime64[us]"})
+    )
+
+
+@pytest.mark.parametrize(
+    "part_name,id_col",
+    [
+        ("plant", "plant_id_eia"),
+        ("plant_prime_mover", "prime_mover_code"),
+        ("plant_gen", "generator_id"),
+    ],
+)
+def test_plant_part_totals_reconcile_with_distinct_generators(part_name, id_col):
+    """All summed and weighted average columns count each generator once.
+
+    The "total" record of each part, for every owner, should match the part as
+    aggregated directly from one record per generator, and should equal the sum of
+    that part's "owned" records.
+    See https://github.com/catalyst-cooperative/pudl/issues/5651
+    """
+    sum_cols = pudl.analysis.plant_parts_eia.SUM_COLS
+    wtavg_dict = pudl.analysis.plant_parts_eia.WTAVG_DICT
+    gens = JOINTLY_OWNED_GENS.assign(plant_id_eia=1)
+    expected = gens.groupby(id_col)[sum_cols].sum()
+    for col, weight in wtavg_dict.items():
+        expected[col] = (gens[col] * gens[weight]).groupby(gens[id_col]).sum() / (
+            gens.groupby(id_col)[weight].sum()
+        )
+
+    out = pudl.analysis.plant_parts_eia.PlantPart(part_name=part_name).execute(
+        _jointly_owned_gens_mega()
+    )
+
+    totals = out.loc[out.ownership_record_type == "total"]
+    # Every owner of any generator in the part gets a "total" record for the part.
+    expected_owners = (
+        JOINTLY_OWNED_GENS.merge(JOINTLY_OWNED_OWNERSHIP, on="generator_id")
+        .assign(plant_id_eia=1)
+        .groupby(id_col)["utility_id_eia"]
+        .nunique()
+    )
+    pd.testing.assert_series_equal(
+        totals.groupby(id_col)["utility_id_eia"].nunique(),
+        expected_owners,
+        check_names=False,
+        check_index_type=False,
+    )
+    for col in sum_cols + list(wtavg_dict):
+        pd.testing.assert_series_equal(
+            totals[col].astype(float),
+            totals[id_col].map(expected[col]).astype(float),
+            check_names=False,
+            obj=f"{part_name} total {col}",
+        )
+    owned_sums = out.loc[out.ownership_record_type == "owned"].groupby(id_col)[sum_cols]
+    pd.testing.assert_frame_equal(
+        owned_sums.sum().astype(float),
+        expected.astype(float)[sum_cols],
+        check_index_type=False,
+    )
+
+
+def test_plant_part_total_records_must_agree_across_owners():
+    """Collapsing a generator's "total" records requires them to be identical."""
+    gens_mega = _jointly_owned_gens_mega()
+    owner_4_total_a = (
+        (gens_mega.generator_id == "a")
+        & (gens_mega.utility_id_eia == 4)
+        & (gens_mega.ownership_record_type == "total")
+    )
+    gens_mega.loc[owner_4_total_a, "capacity_mw"] = 40.0
+    with pytest.raises(AssertionError, match="differ from another 'total' record"):
+        pudl.analysis.plant_parts_eia.PlantPart(part_name="plant").execute(gens_mega)
+
+
 def test_prime_fuel_ag():
     """Test aggregation of the plant-part part list by prime fuel.
 
@@ -806,3 +923,76 @@ def test_one_to_many():
         .set_index("record_id_eia")
     )
     pd.testing.assert_frame_equal(one_to_many_df, plant_gen_one_to_many_expected)
+
+
+def test_one_to_many_with_single_generator_parts():
+    """1:m records aggregate every matched generator, and only those generators.
+
+    Plant-part records made of a single generator carry its ``generator_id`` as a
+    consistent attribute, so the generators of a 1:m match also appear in other
+    plant-part records. Those records must not displace the ``plant_gen`` records
+    that are actually being aggregated. Records that aren't part of any 1:m match,
+    like the multi-generator ``plant`` and ``plant_technology`` records here, aren't
+    aggregated at all, so they shouldn't be checked for consistency either.
+    """
+    plant_part_list_input = pd.DataFrame(
+        {
+            "report_date": "2020-01-01",
+            "record_id_eia": [
+                "plant_3",
+                "tech_nat_gas",
+                "year_2",
+                "year_3",
+                "gen_2",
+                "gen_3",
+            ],
+            "plant_id_eia": 3,
+            "plant_name_eia": "sparky",
+            "plant_part": ["plant", "plant_technology"]
+            + ["plant_operating_year"] * 2
+            + ["plant_gen"] * 2,
+            "generator_id": [None, None, "2", "3", "2", "3"],
+            "unit_id_pudl": 2,
+            "technology_description": "nat_gas",
+            "operational_status": "operating",
+            "operational_status_pudl": "operating",
+            "utility_id_eia": 1,
+            "ownership_record_type": "total",
+            "prime_mover_code": "ch",
+            "ferc_acct_name": "test",
+            "energy_source_code_1": "source",
+            "generator_operating_year": [None, None, 1979, 1980, 1979, 1980],
+            "installation_year": [1979, 1979, 1979, 1980, 1979, 1980],
+            "construction_year": [1980, 1980, 1979, 1980, 1979, 1980],
+            "capacity_mw": [900, 600, 300, 300, 300, 300],
+            "capacity_eoy_mw": [900, 600, 300, 300, 300, 300],
+            "total_mmbtu": 10,
+            "net_generation_mwh": 100,
+            "total_fuel_cost": 100,
+            "fuel_cost_per_mwh": 1,
+            "unit_heat_rate_mmbtu_per_mwh": 1,
+            "fuel_cost_per_mmbtu": 1,
+            "fuel_type_code_pudl": "test",
+            "planned_generator_retirement_date": 2076,
+            "generator_retirement_date": 2076,
+        }
+    ).astype(
+        {
+            "report_date": "datetime64[us]",
+            "generator_retirement_date": "datetime64[us]",
+            "planned_generator_retirement_date": "datetime64[us]",
+            "generator_id": "string",
+            "generator_operating_year": "Int64",
+        }
+    )
+
+    out = pudl.analysis.plant_parts_eia.MakePlantParts().add_one_to_many(
+        plant_parts_eia=plant_part_list_input,
+        part_name="plant_match_ferc1",
+        path_to_one_to_many=PUDL_PACKAGE_DATA_PATH / "test" / "test_one_to_many.csv",
+    )
+
+    agg = out.loc[out.plant_part == "plant_match_ferc1"]
+    assert len(agg) == 1
+    assert agg["capacity_mw"].tolist() == pytest.approx([600.0])
+    assert agg["net_generation_mwh"].tolist() == pytest.approx([200.0])
