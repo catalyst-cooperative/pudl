@@ -48,7 +48,7 @@ from pudl.analysis.record_linkage.eia_ferc1_inputs import (
 )
 from pudl.analysis.record_linkage.eia_ferc1_model_config import (
     BLOCKING_RULES,
-    get_comparisons,
+    COMPARISONS,
 )
 from pudl.metadata.classes import DataSource, Resource
 
@@ -226,7 +226,7 @@ def get_model_predictions(eia_df, ferc_df, train_df, experiment_tracker):
         link_type="link_only",
         unique_id_column_name="record_id",
         additional_columns_to_retain=["plant_id_pudl", "utility_id_pudl"],
-        comparisons=get_comparisons(),
+        comparisons=COMPARISONS,
         blocking_rules_to_generate_predictions=BLOCKING_RULES,
         retain_matching_columns=True,
         retain_intermediate_calculation_columns=True,
