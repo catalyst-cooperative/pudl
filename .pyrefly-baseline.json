@@ -381,16 +381,6 @@
       "concise_description": "Argument `int` is not assignable to parameter `i` with type `SupportsNext[@_]` in function `next`"
     },
     {
-      "path": "src/pudl/analysis/record_linkage/eia_ferc1_record_linkage.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `list[BlockingRuleCreator | str]` is not assignable to parameter `blocking_rules_to_generate_predictions` with type `list[BlockingRuleCreator | dict[str, Any]]` in function `splink.internals.settings_creator.SettingsCreator.__init__`"
-    },
-    {
-      "path": "src/pudl/analysis/record_linkage/eia_ferc1_record_linkage.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `list[DateOfBirthComparison | ExactMatch | NameComparison | dict[str, list[ElseLevel | NullLevel | PercentageDifferenceLevel] | str]]` is not assignable to parameter `comparisons` with type `list[ComparisonCreator | dict[str, Any]]` in function `splink.internals.settings_creator.SettingsCreator.__init__`"
-    },
-    {
       "path": "tests/unit/analysis/plant_parts_eia_test.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `list[list[int]]` is not assignable to parameter `keys` with type `Hashable | Index | Iterator[Hashable] | Sequence[Hashable] | Series | ndarray | None` in function `pandas.core.frame.DataFrame.set_index`"
