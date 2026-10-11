@@ -240,8 +240,11 @@ def get_model_predictions(eia_df, ferc_df, train_df, experiment_tracker):
     linker = Linker([eia_sdf, ferc_sdf], settings=settings)
     linker.table_management.register_table(train_df, "training_labels", overwrite=True)
     # Seed the random sampling so the trained model is reproducible between runs.
+    # Splink 5 stops sampling as soon as every comparison level has 100 observations by
+    # default, which leaves the u values of the rarest levels noisy. Use all of the
+    # sampled pairs, as Splink 4 did.
     linker.training.estimate_u_using_random_sampling(
-        max_pairs=1e7, seed=U_ESTIMATION_SEED
+        max_pairs=1e7, seed=U_ESTIMATION_SEED, min_count_per_level=None
     )
     linker.training.estimate_m_from_pairwise_labels("training_labels")
     threshold_prob = 0.9
