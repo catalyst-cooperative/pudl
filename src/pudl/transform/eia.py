@@ -18,6 +18,7 @@ found in :func:`pudl.transform.eia._boiler_generator_assn`.
 
 from collections import namedtuple
 from enum import StrEnum, auto
+from typing import Any, cast
 
 import networkx as nx
 import numpy as np
@@ -720,7 +721,8 @@ def _compile_all_entity_records(
     # add those records to the compilation
     compiled_df = pd.concat(dfs, axis=0, ignore_index=True, sort=True)
     # strip the month and day from the date so we can have annual records
-    compiled_df["report_date"] = compiled_df["report_date"].dt.year
+    # pandas-stubs types the .dt accessor result as Properties, which lacks .year
+    compiled_df["report_date"] = compiled_df["report_date"].dt.year  # type: ignore[missing-attribute]
     # convert the year back into a date_time object
     year = compiled_df["report_date"]
     compiled_df["report_date"] = pd.to_datetime({"year": year, "month": 1, "day": 1})
@@ -831,10 +833,12 @@ def harvest_entity_tables(  # noqa: C901
     col_dfs = {}
     # determine how many times each of the columns occur
     for col in static_cols + annual_cols:
-        if col in annual_cols:
-            cols_to_consit = id_cols + ["report_date"]
         if col in static_cols:
             cols_to_consit = id_cols
+        elif col in annual_cols:
+            cols_to_consit = id_cols + ["report_date"]
+        else:
+            raise AssertionError(f"{col} is neither a static nor an annual column.")
 
         strictness = _manage_strictness(col, special_case_strictness)
         col_df = occurrence_consistency(
@@ -854,8 +858,7 @@ def harvest_entity_tables(  # noqa: C901
             clean_df = entity_id_df.merge(col_correct_df, on=id_cols, how="left")
             clean_df = clean_df[id_cols + [col]]
             entity_df = entity_df.merge(clean_df, on=id_cols)
-
-        if col in annual_cols:
+        else:
             clean_df = annual_id_df.merge(
                 col_correct_df, on=(id_cols + ["report_date"]), how="left"
             )
@@ -899,7 +902,7 @@ def harvest_entity_tables(  # noqa: C901
             ratio = np.nan
             wrongos = np.nan
             logger.debug(f"       Zero records found for {col}")
-        if total > 0:
+        else:
             ratio = (
                 len(
                     col_df[(col_df["is_candidate"])].drop_duplicates(
@@ -1270,12 +1273,14 @@ def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:
         .groupby(["plant_id_eia", "unit_id_pudl"])["unit_id_eia"]
         .unique()
     )
-    for row in too_many_codes.items():
+    for group_key, unit_id_eia in too_many_codes.items():
+        # The groupby keys are (plant_id_eia, unit_id_pudl) tuples.
+        plant_id_eia, unit_id_pudl = cast("tuple[Any, Any]", group_key)
         logger.warning(
             f"Multiple EIA unit codes:"
-            f"plant_id_eia={row[0][0]}, "
-            f"unit_id_pudl={row[0][1]}, "
-            f"unit_id_eia={row[1]}"
+            f"plant_id_eia={plant_id_eia}, "
+            f"unit_id_pudl={unit_id_pudl}, "
+            f"unit_id_eia={unit_id_eia}"
         )
     bga_w_units = bga_w_units.drop("unit_id_eia", axis=1)
 
@@ -1335,12 +1340,22 @@ def _restrict_years(
     df: pd.DataFrame,
     eia_data_config: EiaDataConfig | None = None,
 ) -> pd.DataFrame:
-    """Restricts eia years for boiler generator association."""
+    """Restricts eia years for boiler generator association.
+
+    Raises:
+        ValueError: If the EIA data config doesn't include both EIA-860 and EIA-923.
+    """
     if eia_data_config is None:
         eia_data_config = EiaDataConfig()
 
+    if eia_data_config.eia860 is None or eia_data_config.eia923 is None:
+        raise ValueError(
+            "Restricting boiler generator association years requires both EIA-860 "
+            "and EIA-923 to be included in the EIA data configuration."
+        )
     bga_years = set(eia_data_config.eia860.years) & set(eia_data_config.eia923.years)
-    df = df[df.report_date.dt.year.isin(bga_years)]
+    # pandas-stubs types the .dt accessor result as Properties, which lacks .year
+    df = df[df.report_date.dt.year.isin(bga_years)]  # type: ignore[missing-attribute]
     return df
 
 
@@ -1541,6 +1556,11 @@ def harvested_entity_asset_factory(
         # to have an additional decimal point) bc it shows up in the generator
         # table but it is a plant level data point, it mucks up the consistency
         eia_data_config: EiaDataConfig = context.resources.global_data_config.pudl.eia
+        if eia_data_config.eia860 is None:
+            raise ValueError(
+                "Harvesting EIA entities requires EIA-860 to be included in the EIA "
+                "data configuration."
+            )
         special_case_strictness = {
             "plant_name_eia": 0,
             "utility_name_eia": 0,

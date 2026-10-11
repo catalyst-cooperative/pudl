@@ -1,6 +1,6 @@
 """Module to perform data cleaning functions on EPA CEMS data tables."""
 
-import datetime
+import datetime as dt
 from pathlib import Path
 
 import dagster as dg
@@ -126,7 +126,7 @@ def _load_plant_utc_offset(core_eia__entity_plants: pl.DataFrame) -> pl.DataFram
     logger.debug("Creating plant UTC offset DataFrame")
 
     # Create a mapping of unique timezones to offsets to avoid repeated calculations
-    jan1 = datetime.datetime(2011, 1, 1)
+    jan1 = dt.datetime(2011, 1, 1)
 
     timezone_offset_map = {
         tz: pytz.timezone(tz).localize(jan1).utcoffset()

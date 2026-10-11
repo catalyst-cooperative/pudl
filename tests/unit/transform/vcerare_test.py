@@ -1,6 +1,6 @@
 """Unit tests for the pudl.transform.vcerare module."""
 
-import datetime
+import datetime as dt
 
 import pandas as pd
 import polars as pl
@@ -97,12 +97,10 @@ def _integer_hour_lf(report_year: int, n_hours: int) -> pl.LazyFrame:
 
 def _datetime_hour_lf(report_year: int, n_hours: int) -> pl.LazyFrame:
     """Build a minimal capacity factor table with a datetime hour_of_year column."""
-    start = datetime.datetime(report_year, 1, 1)
+    start = dt.datetime(report_year, 1, 1)
     return pl.LazyFrame(
         {
-            "hour_of_year": [
-                start + datetime.timedelta(hours=i) for i in range(n_hours)
-            ],
+            "hour_of_year": [start + dt.timedelta(hours=i) for i in range(n_hours)],
             "report_year": [report_year] * n_hours,
             "capacity_factor_solar_pv": [0.0] * n_hours,
         }
@@ -148,25 +146,25 @@ def test_check_for_valid_counties_raises_on_unexpected_place_name():
         (
             _integer_hour_lf(2023, 8760),
             2023,
-            datetime.datetime(2023, 12, 31, 23),
+            dt.datetime(2023, 12, 31, 23),
         ),
         # Leap year, integer hours already omitting Dec 31: nothing to clip.
         (
             _integer_hour_lf(2020, 8760),
             2020,
-            datetime.datetime(2020, 12, 30, 23),
+            dt.datetime(2020, 12, 30, 23),
         ),
         # Leap year, datetime hours including Dec 31 (8784): Dec 31 is clipped.
         (
             _datetime_hour_lf(2024, 8784),
             2024,
-            datetime.datetime(2024, 12, 30, 23),
+            dt.datetime(2024, 12, 30, 23),
         ),
         # Non-leap year, datetime hours (8760): nothing to clip.
         (
             _datetime_hour_lf(2025, 8760),
             2025,
-            datetime.datetime(2025, 12, 31, 23),
+            dt.datetime(2025, 12, 31, 23),
         ),
     ],
 )
