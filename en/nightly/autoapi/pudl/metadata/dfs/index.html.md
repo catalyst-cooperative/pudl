@@ -62,12 +62,12 @@ From FERC Form 1 pages 204-207, Electric Plant in Service. Descriptions from:
 
 ### pudl.metadata.dfs.BALANCING_AUTHORITY_SUBREGIONS_EIA *: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)*
 
-### pudl.metadata.dfs.EIA_SECTOR_AGGREGATE_ASSN *= None*
+### pudl.metadata.dfs.EIA_SECTOR_AGGREGATE_ASSN
 
 Association table describing the many-to-many relationships between plant sectors and
 various aggregates in core_eia_\_yearly_fuel_receipts_costs_aggs.
 
-### pudl.metadata.dfs.EIA_FUEL_AGGREGATE_ASSN *= None*
+### pudl.metadata.dfs.EIA_FUEL_AGGREGATE_ASSN
 
 Association table describing the many-to-many relationships between fuel types and
 various aggregates in core_eia_\_yearly_fuel_receipts_costs_aggs.
@@ -75,7 +75,7 @@ various aggregates in core_eia_\_yearly_fuel_receipts_costs_aggs.
 Missing from these aggregates are all the “other” categories of gases: OG, BFG, SGP, SC,
 PG. But those gases combine for about 0.2% of total MMBTU of reported fuel receipts.
 
-### pudl.metadata.dfs.POLITICAL_SUBDIVISIONS *: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)* *= None*
+### pudl.metadata.dfs.POLITICAL_SUBDIVISIONS *: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)*
 
 Static attributes of sub-national political jurisdictions.
 
@@ -99,7 +99,7 @@ Most SEC locations from Ex. 21 attachments match the two digit EDGAR codes, howe
 some use alpha 2 country codes, i.e. us -> united states and ch -> switzerland.
 Map these codes as well for location standardization.
 
-### pudl.metadata.dfs.STANDARD_INDUSTRIAL_CLASSIFICATION *: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)* *= None*
+### pudl.metadata.dfs.STANDARD_INDUSTRIAL_CLASSIFICATION *: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)*
 
 A table of Standard Industrial Classification codes and descriptions used by SEC.
 

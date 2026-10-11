@@ -69,23 +69,15 @@ Module Contents
 
 
    .. py:attribute:: _skiprows
-      :value: None
-
 
 
    .. py:attribute:: _skipfooter
-      :value: None
-
 
 
    .. py:attribute:: _sheet_name
-      :value: None
-
 
 
    .. py:attribute:: _file_name
-      :value: None
-
 
 
    .. py:method:: get_sheet_name(page, **partition)

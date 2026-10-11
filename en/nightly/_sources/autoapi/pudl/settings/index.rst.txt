@@ -472,8 +472,6 @@ Module Contents
 
    .. py:attribute:: eia860m_year_months
       :type:  list[str]
-      :value: None
-
 
       The 860m year-months to incorporate.
 

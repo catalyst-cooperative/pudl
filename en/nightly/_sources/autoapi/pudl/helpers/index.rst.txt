@@ -1255,8 +1255,6 @@ Module Contents
 
    .. py:attribute:: partitions
       :type:  dict[str, Any]
-      :value: None
-
 
       Optional dictionary of partition values indicating what data is being offloaded to disk.
 

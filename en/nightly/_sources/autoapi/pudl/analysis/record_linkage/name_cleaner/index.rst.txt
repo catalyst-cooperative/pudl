@@ -199,8 +199,6 @@ Module Contents
 
    .. py:attribute:: legal_terms_dict
       :type:  dict[str, list]
-      :value: None
-
 
 
    .. py:method:: _validate_cleaning_rules() -> Self

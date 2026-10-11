@@ -353,7 +353,7 @@ The names of fields explicitly set during instantiation.
 
 Values of private attributes set on the model instance.
 
-#### id_ *: [int](https://docs.python.org/3/builtins/functions.html#int)* *= None*
+#### id_ *: [int](https://docs.python.org/3/builtins/functions.html#int)*
 
 #### conceptrecid *: [int](https://docs.python.org/3/builtins/functions.html#int)*
 
@@ -449,7 +449,7 @@ The names of fields explicitly set during instantiation.
 
 Values of private attributes set on the model instance.
 
-#### id_ *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= None*
+#### id_ *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
 ### *class* pudl.scripts.zenodo_data_release.\_NewRecord(/, \*\*data: Any)
 
@@ -537,7 +537,7 @@ The names of fields explicitly set during instantiation.
 
 Values of private attributes set on the model instance.
 
-#### id_ *: [int](https://docs.python.org/3/builtins/functions.html#int)* *= None*
+#### id_ *: [int](https://docs.python.org/3/builtins/functions.html#int)*
 
 #### doi *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= ''*
 
