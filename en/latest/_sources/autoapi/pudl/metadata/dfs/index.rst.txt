@@ -117,15 +117,11 @@ Module Contents
    :type:  pandas.DataFrame
 
 .. py:data:: EIA_SECTOR_AGGREGATE_ASSN
-   :value: None
-
 
    Association table describing the many-to-many relationships between plant sectors and
    various aggregates in core_eia__yearly_fuel_receipts_costs_aggs.
 
 .. py:data:: EIA_FUEL_AGGREGATE_ASSN
-   :value: None
-
 
    Association table describing the many-to-many relationships between fuel types and
    various aggregates in core_eia__yearly_fuel_receipts_costs_aggs.
@@ -135,8 +131,6 @@ Module Contents
 
 .. py:data:: POLITICAL_SUBDIVISIONS
    :type:  pandas.DataFrame
-   :value: None
-
 
    Static attributes of sub-national political jurisdictions.
 
@@ -162,8 +156,6 @@ Module Contents
 
 .. py:data:: STANDARD_INDUSTRIAL_CLASSIFICATION
    :type:  pandas.DataFrame
-   :value: None
-
 
    A table of Standard Industrial Classification codes and descriptions used by SEC.
 

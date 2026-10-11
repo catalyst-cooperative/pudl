@@ -42,6 +42,11 @@ A subpackage to define and organize PUDL database tables by data group.
 | [`FOREIGN_KEYS`](#pudl.metadata.resources.FOREIGN_KEYS)        | Generated foreign key constraints by resource name.                            |
 | [`ENTITIES`](#pudl.metadata.resources.ENTITIES)            | Columns kept for either entity or annual EIA tables in the harvesting process. |
 
+## Classes
+
+| [`EntitySpec`](#pudl.metadata.resources.EntitySpec)   | Column groupings used to harvest a single EIA entity.   |
+|---------------------------------------------------------------|---------------------------------------------------------|
+
 ## Functions
 
 | [`build_foreign_keys`](#pudl.metadata.resources.build_foreign_keys)(→ dict[str, list[dict]])   | Build foreign keys for each resource.   |
@@ -109,7 +114,21 @@ Generated foreign key constraints by resource name.
 
 See [`pudl.metadata.helpers.build_foreign_keys()`](../helpers/index.html.md#pudl.metadata.helpers.build_foreign_keys).
 
-### pudl.metadata.resources.ENTITIES *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]]]*
+### *class* pudl.metadata.resources.EntitySpec
+
+Bases: `TypedDict`
+
+Column groupings used to harvest a single EIA entity.
+
+#### id_cols *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
+
+#### static_cols *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
+
+#### annual_cols *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
+
+#### mapped_schemas *: NotRequired[[list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]]]*
+
+### pudl.metadata.resources.ENTITIES *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [EntitySpec](#pudl.metadata.resources.EntitySpec)]*
 
 Columns kept for either entity or annual EIA tables in the harvesting process.
 

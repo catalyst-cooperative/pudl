@@ -399,8 +399,6 @@ Module Contents
 
    .. py:attribute:: sqlite_engine
       :type:  sqlalchemy.engine.base.Engine
-      :value: None
-
 
 
    .. py:attribute:: sqlite_meta

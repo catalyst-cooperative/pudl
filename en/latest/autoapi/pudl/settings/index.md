@@ -328,7 +328,7 @@ Whether or not to incorporate an EIA-860m month.
 
 The list of all EIA-860m year-months.
 
-#### eia860m_year_months *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= None*
+#### eia860m_year_months *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
 The 860m year-months to incorporate.
 

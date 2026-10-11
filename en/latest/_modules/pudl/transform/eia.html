@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.eia &#8212; PUDL 2026.9.1.dev43 documentation</title>
+    <title>pudl.transform.eia &#8212; PUDL 2026.9.1.dev44 documentation</title>
   
   
   
@@ -34,8 +34,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
@@ -43,12 +43,12 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../../_static/scripts/fontawesome.js?digest=64cc4de3f052d77215f0"></script>
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=bc96248a"></script>
+    <script src="../../../_static/documentation_options.js?v=54b5653a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -412,7 +412,7 @@ window.addEventListener("load", load);
 window.runMermaid = runMermaid;</script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/transform/eia';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.22.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.23.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -422,6 +422,7 @@ window.runMermaid = runMermaid;</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
   
@@ -495,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev43 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev43 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev44 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev44 documentation - Home"/>
   
   
 </a></div>
@@ -889,6 +890,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">namedtuple</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">StrEnum</span><span class="p">,</span> <span class="n">auto</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">networkx</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nx</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -1635,7 +1637,8 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># add those records to the compilation</span>
     <span class="n">compiled_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="c1"># strip the month and day from the date so we can have annual records</span>
-    <span class="n">compiled_df</span><span class="p">[</span><span class="s2">"report_date"</span><span class="p">]</span> <span class="o">=</span> <span class="n">compiled_df</span><span class="p">[</span><span class="s2">"report_date"</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span>
+    <span class="c1"># pandas-stubs types the .dt accessor result as Properties, which lacks .year</span>
+    <span class="n">compiled_df</span><span class="p">[</span><span class="s2">"report_date"</span><span class="p">]</span> <span class="o">=</span> <span class="n">compiled_df</span><span class="p">[</span><span class="s2">"report_date"</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span>  <span class="c1"># type: ignore[missing-attribute]</span>
     <span class="c1"># convert the year back into a date_time object</span>
     <span class="n">year</span> <span class="o">=</span> <span class="n">compiled_df</span><span class="p">[</span><span class="s2">"report_date"</span><span class="p">]</span>
     <span class="n">compiled_df</span><span class="p">[</span><span class="s2">"report_date"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">({</span><span class="s2">"year"</span><span class="p">:</span> <span class="n">year</span><span class="p">,</span> <span class="s2">"month"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"day"</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
@@ -1752,10 +1755,12 @@ window.runMermaid = runMermaid;</script>
     <span class="n">col_dfs</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="c1"># determine how many times each of the columns occur</span>
     <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">static_cols</span> <span class="o">+</span> <span class="n">annual_cols</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">annual_cols</span><span class="p">:</span>
-            <span class="n">cols_to_consit</span> <span class="o">=</span> <span class="n">id_cols</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"report_date"</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">static_cols</span><span class="p">:</span>
             <span class="n">cols_to_consit</span> <span class="o">=</span> <span class="n">id_cols</span>
+        <span class="k">elif</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">annual_cols</span><span class="p">:</span>
+            <span class="n">cols_to_consit</span> <span class="o">=</span> <span class="n">id_cols</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"report_date"</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2"> is neither a static nor an annual column."</span><span class="p">)</span>
 
         <span class="n">strictness</span> <span class="o">=</span> <span class="n">_manage_strictness</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">special_case_strictness</span><span class="p">)</span>
         <span class="n">col_df</span> <span class="o">=</span> <span class="n">occurrence_consistency</span><span class="p">(</span>
@@ -1775,8 +1780,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">clean_df</span> <span class="o">=</span> <span class="n">entity_id_df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">col_correct_df</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="n">id_cols</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
             <span class="n">clean_df</span> <span class="o">=</span> <span class="n">clean_df</span><span class="p">[</span><span class="n">id_cols</span> <span class="o">+</span> <span class="p">[</span><span class="n">col</span><span class="p">]]</span>
             <span class="n">entity_df</span> <span class="o">=</span> <span class="n">entity_df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">clean_df</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="n">id_cols</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">annual_cols</span><span class="p">:</span>
+        <span class="k">else</span><span class="p">:</span>
             <span class="n">clean_df</span> <span class="o">=</span> <span class="n">annual_id_df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
                 <span class="n">col_correct_df</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">(</span><span class="n">id_cols</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"report_date"</span><span class="p">]),</span> <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span>
             <span class="p">)</span>
@@ -1820,7 +1824,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">ratio</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
             <span class="n">wrongos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"       Zero records found for </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">total</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">else</span><span class="p">:</span>
             <span class="n">ratio</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="nb">len</span><span class="p">(</span>
                     <span class="n">col_df</span><span class="p">[(</span><span class="n">col_df</span><span class="p">[</span><span class="s2">"is_candidate"</span><span class="p">])]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span>
@@ -2194,12 +2198,14 @@ window.runMermaid = runMermaid;</script>
         <span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"unit_id_pudl"</span><span class="p">])[</span><span class="s2">"unit_id_eia"</span><span class="p">]</span>
         <span class="o">.</span><span class="n">unique</span><span class="p">()</span>
     <span class="p">)</span>
-    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">too_many_codes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">group_key</span><span class="p">,</span> <span class="n">unit_id_eia</span> <span class="ow">in</span> <span class="n">too_many_codes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="c1"># The groupby keys are (plant_id_eia, unit_id_pudl) tuples.</span>
+        <span class="n">plant_id_eia</span><span class="p">,</span> <span class="n">unit_id_pudl</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"tuple[Any, Any]"</span><span class="p">,</span> <span class="n">group_key</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">"Multiple EIA unit codes:"</span>
-            <span class="sa">f</span><span class="s2">"plant_id_eia=</span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">, "</span>
-            <span class="sa">f</span><span class="s2">"unit_id_pudl=</span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">, "</span>
-            <span class="sa">f</span><span class="s2">"unit_id_eia=</span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
+            <span class="sa">f</span><span class="s2">"plant_id_eia=</span><span class="si">{</span><span class="n">plant_id_eia</span><span class="si">}</span><span class="s2">, "</span>
+            <span class="sa">f</span><span class="s2">"unit_id_pudl=</span><span class="si">{</span><span class="n">unit_id_pudl</span><span class="si">}</span><span class="s2">, "</span>
+            <span class="sa">f</span><span class="s2">"unit_id_eia=</span><span class="si">{</span><span class="n">unit_id_eia</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
     <span class="n">bga_w_units</span> <span class="o">=</span> <span class="n">bga_w_units</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">"unit_id_eia"</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
@@ -2262,12 +2268,22 @@ window.runMermaid = runMermaid;</script>
     <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">eia_data_config</span><span class="p">:</span> <span class="n">EiaDataConfig</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Restricts eia years for boiler generator association."""</span>
+<span class="w">    </span><span class="sd">"""Restricts eia years for boiler generator association.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If the EIA data config doesn't include both EIA-860 and EIA-923.</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">eia_data_config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">eia_data_config</span> <span class="o">=</span> <span class="n">EiaDataConfig</span><span class="p">()</span>
 
+    <span class="k">if</span> <span class="n">eia_data_config</span><span class="o">.</span><span class="n">eia860</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">eia_data_config</span><span class="o">.</span><span class="n">eia923</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">"Restricting boiler generator association years requires both EIA-860 "</span>
+            <span class="s2">"and EIA-923 to be included in the EIA data configuration."</span>
+        <span class="p">)</span>
     <span class="n">bga_years</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">eia_data_config</span><span class="o">.</span><span class="n">eia860</span><span class="o">.</span><span class="n">years</span><span class="p">)</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">eia_data_config</span><span class="o">.</span><span class="n">eia923</span><span class="o">.</span><span class="n">years</span><span class="p">)</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">report_date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">bga_years</span><span class="p">)]</span>
+    <span class="c1"># pandas-stubs types the .dt accessor result as Properties, which lacks .year</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">report_date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">bga_years</span><span class="p">)]</span>  <span class="c1"># type: ignore[missing-attribute]</span>
     <span class="k">return</span> <span class="n">df</span></div>
 
 
@@ -2480,6 +2496,11 @@ window.runMermaid = runMermaid;</script>
         <span class="c1"># to have an additional decimal point) bc it shows up in the generator</span>
         <span class="c1"># table but it is a plant level data point, it mucks up the consistency</span>
         <span class="n">eia_data_config</span><span class="p">:</span> <span class="n">EiaDataConfig</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">global_data_config</span><span class="o">.</span><span class="n">pudl</span><span class="o">.</span><span class="n">eia</span>
+        <span class="k">if</span> <span class="n">eia_data_config</span><span class="o">.</span><span class="n">eia860</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">"Harvesting EIA entities requires EIA-860 to be included in the EIA "</span>
+                <span class="s2">"data configuration."</span>
+            <span class="p">)</span>
         <span class="n">special_case_strictness</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">"plant_name_eia"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
             <span class="s2">"utility_name_eia"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
@@ -2637,8 +2658,8 @@ window.runMermaid = runMermaid;</script>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0"></script>
-<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0"></script>
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -2671,7 +2692,7 @@ window.runMermaid = runMermaid;</script>
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.22.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.23.0.
 </p></div>
       
         <div class="footer-item">

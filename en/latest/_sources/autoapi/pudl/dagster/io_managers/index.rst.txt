@@ -155,14 +155,10 @@ Module Contents
 
    .. py:attribute:: _engine
       :type:  sqlalchemy.Engine | None
-      :value: None
-
 
 
    .. py:attribute:: _metadata
       :type:  sqlalchemy.MetaData | None
-      :value: None
-
 
 
    .. py:property:: _years_key

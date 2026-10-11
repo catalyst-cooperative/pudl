@@ -312,6 +312,9 @@ generation units, at least for 2014 and later.
 
 Restricts eia years for boiler generator association.
 
+* **Raises:**
+  [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – If the EIA data config doesn’t include both EIA-860 and EIA-923.
+
 ### pudl.transform.eia.map_balancing_authority_names_to_codes(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Build a map of the BA names to their most frequently associated BA codes.

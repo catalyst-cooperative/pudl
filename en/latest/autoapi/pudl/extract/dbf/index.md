@@ -287,7 +287,7 @@ The extraction logic is invoked by calling execute() method of this class.
 
 #### dbf_reader *: [AbstractFercDbfReader](#pudl.extract.dbf.AbstractFercDbfReader)*
 
-#### sqlite_engine *: [sqlalchemy.engine.base.Engine](https://docs.sqlalchemy.org/en/21/core/connections.html#sqlalchemy.engine.Engine)* *= None*
+#### sqlite_engine *: [sqlalchemy.engine.base.Engine](https://docs.sqlalchemy.org/en/21/core/connections.html#sqlalchemy.engine.Engine)*
 
 #### sqlite_meta
 

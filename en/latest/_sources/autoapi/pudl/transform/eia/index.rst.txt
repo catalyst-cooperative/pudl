@@ -350,6 +350,8 @@ Module Contents
 
    Restricts eia years for boiler generator association.
 
+   :raises ValueError: If the EIA data config doesn't include both EIA-860 and EIA-923.
+
 
 .. py:function:: map_balancing_authority_names_to_codes(df: pandas.DataFrame) -> pandas.DataFrame
 

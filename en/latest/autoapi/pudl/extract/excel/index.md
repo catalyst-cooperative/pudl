@@ -51,13 +51,13 @@ Optional file:
   required when a file can only be uniquely located using a combination of
   partitions (e.g. form and year).
 
-#### \_skiprows *= None*
+#### \_skiprows
 
-#### \_skipfooter *= None*
+#### \_skipfooter
 
-#### \_sheet_name *= None*
+#### \_sheet_name
 
-#### \_file_name *= None*
+#### \_file_name
 
 #### get_sheet_name(page, \*\*partition)
 

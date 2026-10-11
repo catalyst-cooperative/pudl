@@ -110,9 +110,9 @@ this base class owns three shared responsibilities:
 
 #### data_format *: ClassVar[Literal['dbf', 'xbrl']]*
 
-#### \_engine *: sqlalchemy.Engine | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
+#### \_engine *: sqlalchemy.Engine | [None](https://docs.python.org/3/builtins/constants.html#None)*
 
-#### \_metadata *: sqlalchemy.MetaData | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
+#### \_metadata *: sqlalchemy.MetaData | [None](https://docs.python.org/3/builtins/constants.html#None)*
 
 #### *property* \_years_key *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 

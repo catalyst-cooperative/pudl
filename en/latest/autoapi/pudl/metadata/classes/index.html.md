@@ -95,9 +95,9 @@ Format value for use in raw SQL(ite).
 'False'
 >>> _format_for_sql(re.compile("^[^']*$"))
 "'^[^'']*$'"
->>> _format_for_sql(datetime.date(2020, 1, 2))
+>>> _format_for_sql(dt.date(2020, 1, 2))
 "'2020-01-02'"
->>> _format_for_sql(datetime.datetime(2020, 1, 2, 3, 4, 5, 6))
+>>> _format_for_sql(dt.datetime(2020, 1, 2, 3, 4, 5, 6))
 "'2020-01-02 03:04:05'"
 ```
 
@@ -209,7 +209,7 @@ Bases: [`PudlMeta`](#pudl.metadata.classes.PudlMeta)
 
 Field harvest parameters (resource.schema.fields[…].harvest).
 
-#### aggregate *: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)], [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)]* *= None*
+#### aggregate *: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)], [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)]*
 
 Computes a single value from all field values in a group.
 
@@ -366,7 +366,7 @@ Column('x', Enum('x', 'y'), CheckConstraint(...), table=None, comment='X')
 
 #### title *: [String](#pudl.metadata.classes.String) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### format_ *: Literal['default']* *= None*
+#### format_ *: Literal['default']*
 
 #### description *: [String](#pudl.metadata.classes.String)*
 
@@ -624,7 +624,7 @@ See [https://specs.frictionlessdata.io/data-package/#sources](https://specs.fric
 
 #### path *: [pydantic.AnyHttpUrl](https://pydantic.dev/docs/validation/latest/api/pydantic/networks/#pydantic.networks.AnyHttpUrl)*
 
-#### contributors *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[Contributor](#pudl.metadata.classes.Contributor)]* *= None*
+#### contributors *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[Contributor](#pudl.metadata.classes.Contributor)]*
 
 #### license_raw *: [License](#pudl.metadata.classes.License)*
 
@@ -724,13 +724,13 @@ Bases: [`PudlMeta`](#pudl.metadata.classes.PudlMeta)
 
 Container to describe what foreign key rules look like.
 
-#### field_id_lists *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]]* *= None*
+#### field_id_lists *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]]*
 
-#### exclude_ids *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= None*
+#### exclude_ids *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
-#### field_ids *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= None*
+#### field_ids *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
-#### primary_key_ids *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= None*
+#### primary_key_ids *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
 #### foreign_key_rules *: [PudlResourceDescriptor.PudlSchemaDescriptor.PudlForeignKeyRules](#pudl.metadata.classes.PudlResourceDescriptor.PudlSchemaDescriptor.PudlForeignKeyRules)*
 
@@ -940,15 +940,15 @@ May also include more-detailed explanations of listed usage warnings.
 
 #### description *: [PudlResourceDescriptor.PudlDescriptionComponents](#pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents) | [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### schema_ *: [PudlResourceDescriptor.PudlSchemaDescriptor](#pudl.metadata.classes.PudlResourceDescriptor.PudlSchemaDescriptor)* *= None*
+#### schema_ *: [PudlResourceDescriptor.PudlSchemaDescriptor](#pudl.metadata.classes.PudlResourceDescriptor.PudlSchemaDescriptor)*
 
 #### encoder *: [PudlResourceDescriptor.PudlCodeMetadata](#pudl.metadata.classes.PudlResourceDescriptor.PudlCodeMetadata) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### source_ids *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= None*
+#### source_ids *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
-#### etl_group_id *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= None*
+#### etl_group_id *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### field_namespace_id *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= None*
+#### field_namespace_id *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
 #### create_database_schema *: [bool](https://docs.python.org/3/builtins/functions.html#bool)* *= True*
 
@@ -1109,7 +1109,7 @@ except for `year` fields which can be integer.
 
 #### schema *: [Schema](#pudl.metadata.classes.Schema)*
 
-#### format_ *: [String](#pudl.metadata.classes.String) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
+#### format_ *: [String](#pudl.metadata.classes.String) | [None](https://docs.python.org/3/builtins/constants.html#None)*
 
 #### mediatype *: [String](#pudl.metadata.classes.String) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
@@ -1125,7 +1125,7 @@ except for `year` fields which can be integer.
 
 #### encoder *: [Encoder](#pudl.metadata.classes.Encoder) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### path *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= None*
+#### path *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
 #### extrapaths *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 

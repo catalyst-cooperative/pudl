@@ -120,7 +120,7 @@ Flag to indicate whether to remove accents from strings.
 
 If True, replace letters with accents with non-accented ones.
 
-#### legal_terms_dict *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [list](https://docs.python.org/3/builtins/stdtypes.html#list)]* *= None*
+#### legal_terms_dict *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [list](https://docs.python.org/3/builtins/stdtypes.html#list)]*
 
 #### \_validate_cleaning_rules() → Self
 

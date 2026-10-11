@@ -108,9 +108,9 @@ Module Contents
    'False'
    >>> _format_for_sql(re.compile("^[^']*$"))
    "'^[^'']*$'"
-   >>> _format_for_sql(datetime.date(2020, 1, 2))
+   >>> _format_for_sql(dt.date(2020, 1, 2))
    "'2020-01-02'"
-   >>> _format_for_sql(datetime.datetime(2020, 1, 2, 3, 4, 5, 6))
+   >>> _format_for_sql(dt.datetime(2020, 1, 2, 3, 4, 5, 6))
    "'2020-01-02 03:04:05'"
 
 
@@ -277,8 +277,6 @@ Module Contents
 
    .. py:attribute:: aggregate
       :type:  collections.abc.Callable[[pandas.Series], pandas.Series]
-      :value: None
-
 
       Computes a single value from all field values in a group.
 
@@ -506,8 +504,6 @@ Module Contents
 
    .. py:attribute:: format_
       :type:  Literal['default']
-      :value: None
-
 
 
    .. py:attribute:: description
@@ -949,8 +945,6 @@ Module Contents
 
    .. py:attribute:: contributors
       :type:  list[Contributor]
-      :value: None
-
 
 
    .. py:attribute:: license_raw
@@ -1105,27 +1099,19 @@ Module Contents
 
          .. py:attribute:: field_id_lists
             :type:  list[list[str]]
-            :value: None
-
 
 
          .. py:attribute:: exclude_ids
             :type:  list[str]
-            :value: None
-
 
 
 
       .. py:attribute:: field_ids
          :type:  list[str]
-         :value: None
-
 
 
       .. py:attribute:: primary_key_ids
          :type:  list[str]
-         :value: None
-
 
 
       .. py:attribute:: foreign_key_rules
@@ -1428,8 +1414,6 @@ Module Contents
 
    .. py:attribute:: schema_
       :type:  PudlResourceDescriptor.PudlSchemaDescriptor
-      :value: None
-
 
 
    .. py:attribute:: encoder
@@ -1440,20 +1424,14 @@ Module Contents
 
    .. py:attribute:: source_ids
       :type:  list[str]
-      :value: None
-
 
 
    .. py:attribute:: etl_group_id
       :type:  str
-      :value: None
-
 
 
    .. py:attribute:: field_namespace_id
       :type:  str
-      :value: None
-
 
 
    .. py:attribute:: create_database_schema
@@ -1627,8 +1605,6 @@ Module Contents
 
    .. py:attribute:: format_
       :type:  String | None
-      :value: None
-
 
 
    .. py:attribute:: mediatype
@@ -1675,8 +1651,6 @@ Module Contents
 
    .. py:attribute:: path
       :type:  str
-      :value: None
-
 
 
    .. py:attribute:: extrapaths

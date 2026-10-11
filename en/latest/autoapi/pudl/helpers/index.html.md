@@ -1199,7 +1199,7 @@ helpers for managing paths to parquet data on disk.
 
 Name of the table corresponding to the parquet data.
 
-#### partitions *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]* *= None*
+#### partitions *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]*
 
 Optional dictionary of partition values indicating what data is being offloaded to disk.
 
