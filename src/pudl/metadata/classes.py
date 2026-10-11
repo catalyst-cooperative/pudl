@@ -141,9 +141,9 @@ def _format_for_sql(x: Any, identifier: bool = False) -> str:  # noqa: C901
         'False'
         >>> _format_for_sql(re.compile("^[^']*$"))
         "'^[^'']*$'"
-        >>> _format_for_sql(datetime.date(2020, 1, 2))
+        >>> _format_for_sql(dt.date(2020, 1, 2))
         "'2020-01-02'"
-        >>> _format_for_sql(datetime.datetime(2020, 1, 2, 3, 4, 5, 6))
+        >>> _format_for_sql(dt.datetime(2020, 1, 2, 3, 4, 5, 6))
         "'2020-01-02 03:04:05'"
     """
     if identifier:
