@@ -75,7 +75,8 @@ blocking_rule_9 = CustomRule(
     "substr(l.plant_name_mphone,1,2) = substr(r.plant_name_mphone,1,2)"
 )
 blocking_rule_10 = CustomRule(
-    f"l.report_year = r.report_year and {_net_generation_bucket('l')} = {_net_generation_bucket('r')}"
+    "l.report_year = r.report_year and "
+    f"{_net_generation_bucket('l')} = {_net_generation_bucket('r')}"
 )
 # Rules 7 and 10 block on logarithmic buckets of the values, rather than on exact
 # floating point equality. The same quantity is often reported at different precisions
