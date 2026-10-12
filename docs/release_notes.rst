@@ -84,6 +84,11 @@ New Data Tests & Validations
   the `Open Grid Emissions
   <https://github.com/singularity-energy/open-grid-emissions>`__ initiative and PUDL.
   See epic :issue:`5439` which is tracking that effort.
+* Added minimum and maximum constraints for plant and Census latitudes and longitudes,
+  to catch impossible locations. EIA-860M coordinates are not cleaned up (about
+  0.04% of its records are obviously wrong), so
+  :ref:`core_eia860m__changelog_generators` is exempt, and new dbt tests cap the number
+  of known bad records in it instead. See PR :pr:`5697`.
 
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -149,6 +154,9 @@ Bug Fixes & Data Cleaning
 * Fixed a bug introduced in PR :pr:`5651` which improperly aggregated generates with
   multiple owners dropped duplicates, resulting in double counting in a small number of
   :ref:`out_eia__yearly_plant_parts` records. See issue :issue:`5651` and PR :pr:`5703`.
+* Fixed a bug that gave plants with no reported state the state FIPS code ``74`` (U.S.
+  Minor Outlying Islands). Those plants in :ref:`core_eia__entity_plants`, and the
+  generators built from them, now have a null ``state_id_fips``. See PR :pr:`5697`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
