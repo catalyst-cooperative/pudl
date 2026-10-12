@@ -7,3 +7,10 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 partition_expr: EXTRACT(YEAR FROM report_date)
+        columns:
+          - name: county_id_fips
+            data_tests:
+              - not_null
+          - name: state_id_fips
+            data_tests:
+              - not_null

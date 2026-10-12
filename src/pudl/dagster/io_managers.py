@@ -215,8 +215,10 @@ class FercSqliteIOManagerBase(dg.ConfigurableIOManager):
         """Dispose the cached engine when the resource's lifecycle ends."""
         if self._engine is not None:
             self._engine.dispose()
-            self._engine = None
-            self._metadata = None
+            # Pydantic explicitly permits mutating PrivateAttr fields on frozen
+            # models; pyrefly doesn't yet model that exception.
+            self._engine = None  # type: ignore[read-only]
+            self._metadata = None  # type: ignore[read-only]
 
     @property
     def metadata(self) -> sa.MetaData:

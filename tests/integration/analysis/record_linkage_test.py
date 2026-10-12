@@ -186,7 +186,7 @@ def _generate_random_test_df(
 def mock_ferc1_plants_df():
     """Returns a test DataFrame for use in generic record linkage testing."""
     # Creates test dataframes for a bunch of plants and concatenates them
-    return pd.concat(
+    plants = pd.concat(
         [
             _generate_random_test_df("fox lake, mn"),
             _generate_random_test_df("maalaea", capacity_mean=50.0),
@@ -219,6 +219,9 @@ def mock_ferc1_plants_df():
             ),
         ]
     ).reset_index()
+    # The model uses the primary key to make its results independent of row order.
+    plants["record_id"] = "mock_" + plants.index.astype(str).str.zfill(6)
+    return plants
 
 
 def _score_model(
@@ -242,6 +245,7 @@ def test_classify_plants_ferc1(mock_ferc1_plants_df):
     """Test the FERC inter-year plant linking model."""
     steam_plants = mock_ferc1_plants_df[
         [
+            "record_id",
             "plant_name_ferc1",
             "utility_id_ferc1",
             "report_year",

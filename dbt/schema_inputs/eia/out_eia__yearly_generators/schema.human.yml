@@ -223,3 +223,10 @@ sources:
                       - quantile: 0.95
                         max_value: 12.5
                     weight_column: net_generation_mwh
+          - name: county_id_fips
+            data_tests:
+              - dbt_utils.not_null_proportion:
+                  arguments:
+                    at_least: 0.99
+                  description: |-
+                    County fips code should almost entirely be populated.

@@ -12,6 +12,10 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
 Enhancements
 ^^^^^^^^^^^^
 
+* Added ``county_id_fips`` and ``state_id_fips`` to the :ref:`core_eia__entity_plants`,
+  :ref:`out_eia__monthly_generators` and :ref:`out_eia__yearly_generators` tables. See
+  PR :pr:`5688`.
+
 New Data
 ^^^^^^^^
 
@@ -29,6 +33,11 @@ EIA-860
 ~~~~~~~
 * Added final release data from 2025 for :doc:`EIA-860 <data_sources/eia860>`. See
   issue :issue:`5589` and PR :pr:`5591`.
+
+EIA-860M
+~~~~~~~~
+* Added :doc:`EIA-860m <data_sources/eia860>` data through August 2026. See issue
+  :issue:`5677` and PR :pr:`5680`.
 
 EIA-923
 ~~~~~~~
@@ -96,6 +105,16 @@ Bug Fixes & Data Cleaning
   :ref:`core_ferc1__yearly_cash_flows_sched120` without ``row_type_xbrl``,
   ``is_within_table_calc``, ``balance``, or ``ferc_account`` metadata. See
   :issue:`5587` and :pr:`5588`.
+* Made ``plant_id_ferc1`` deterministic. The IDs assigned to FERC 1 steam plants used
+  to be reshuffled by tiny changes in the input data, even when the plants themselves
+  were unchanged. They now depend only on which records belong to each plant, so
+  unrelated plants keep their IDs and differences between runs reflect real changes. IDs
+  now start at 1 instead of 0, and are still not stable across data updates. We also
+  corrected several hand-assigned ``plant_id_pudl`` values that split one plant across
+  multiple IDs, which cut the number of ``plant_id_ferc1`` values spanning more than one
+  ``plant_id_pudl`` from 6 to 2. See issue :issue:`5609` and PR :pr:`5642`.
+* Updated the record-linkage which assigns ``plant_id_ferc1`` to make it insensitive to
+  floating point noise. See issue :issue:`5609` and PR :pr:`5687`.
 * Fixed tags for new 2025 XBRL factoids and rescued the ``ferc_account`` field in
   :ref:`out_ferc1__yearly_rate_base`. See :issue:`5520` and :pr:`5597`.
 * Fixed ``valid_until_date`` in the ``_core_eia__forensics_entity_resolution_*`` and
@@ -118,6 +137,9 @@ Bug Fixes & Data Cleaning
   be integral). String-cleaning, boolean and phone-number helpers were also hardened
   against pandas 3 dtype behavior changes. See :issue:`5613`, :issue:`5614`,
   :issue:`5615` and :pr:`5662`.
+* Fixed the integer NERC region code ``25470`` reported by utility 55959 in 2013 and
+  2014 in the EIA-861 tables, which was becoming ``UNK`` instead of ``MRO``. See PR
+  :pr:`5685`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
