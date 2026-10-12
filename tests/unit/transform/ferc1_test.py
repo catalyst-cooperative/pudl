@@ -1,6 +1,6 @@
 """Unit tests specific to the FERC Form 1 table transformations."""
 
-import datetime
+import datetime as dt
 import itertools
 from io import StringIO
 
@@ -1243,16 +1243,16 @@ def test_filter_for_freshest_data_xbrl_simple():
                 "entity_id": "C000001",
                 "utility_type_axis": "electric",
                 "filing_name": "Utility_Co_0001",
-                "date": datetime.date(2021, 12, 31),
-                "publication_time": datetime.datetime(2022, 2, 1, 0, 0, 0),
+                "date": dt.date(2021, 12, 31),
+                "publication_time": dt.datetime(2022, 2, 1, 0, 0, 0),
                 "str_factoid": "original 2021 EOY value",
             },
             {
                 "entity_id": "C000001",
                 "utility_type_axis": "electric",
                 "filing_name": "Utility_Co_0002",
-                "date": datetime.date(2021, 12, 31),
-                "publication_time": datetime.datetime(2022, 2, 1, 1, 1, 1),
+                "date": dt.date(2021, 12, 31),
+                "publication_time": dt.datetime(2022, 2, 1, 1, 1, 1),
                 "str_factoid": "updated 2021 EOY value",
             },
         ]
