@@ -302,6 +302,38 @@ macros:
       capacity has sum(fraction_owned) more than 1e-6 away from 1, or when more than
       60 plant parts have capacity 0 and fraction_owned 0.
 
+  - name: test_expect_plant_part_totals_match_generators
+    description: >
+      Check that the plant parts in ``out_eia__yearly_plant_parts`` reconcile with
+      the generators they are made of. For every plant part other than
+      ``plant_match_ferc1``, aggregates the distinct generators in the generators
+      table (one "total" record per generator) to the plant part, summing
+      ``capacity_mw``, ``capacity_eoy_mw``, ``net_generation_mwh``,
+      ``total_fuel_cost`` and ``total_mmbtu`` and taking capacity-weighted averages
+      of ``fuel_cost_per_mwh``, ``unit_heat_rate_mmbtu_per_mwh`` and
+      ``fuel_cost_per_mmbtu``. Fails when any owner's "total" record differs from
+      those values, which catches jointly owned generators being counted once per
+      owner, or when the summed columns of the part's "owned" records don't add up
+      to them. The "owned" comparison skips plant parts containing a generator
+      whose "owned" records can't add up to the whole generator, either because
+      its ownership fractions don't sum to 1 or because one of its owners is
+      unknown.
+    arguments:
+      - name: model
+        type: relation
+        description: The plant parts table the test is applied to.
+      - name: generators_table_name
+        type: string
+        description: >
+          Name of the generator-level table the plant parts are aggregated from.
+          Defaults to ``out_eia__yearly_generators_by_ownership``.
+      - name: atol
+        type: float
+        description: Absolute tolerance for comparison. Defaults to 0.01.
+      - name: rtol
+        type: float
+        description: Relative tolerance for comparison. Defaults to 1e-6.
+
   - name: test_expect_sum_close_to_total_column
     description: >
       Check whether the sum of the specified columns matches a designated total column.

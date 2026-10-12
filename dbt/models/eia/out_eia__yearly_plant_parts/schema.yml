@@ -68,6 +68,7 @@ sources:
               arguments:
                 partition_expr: report_year
           - expect_valid_plantparts_ownership_fraction
+          - expect_plant_part_totals_match_generators
           - expect_includes_all_value_combinations_from:
               arguments:
                 compare_table_name: out_eia__yearly_assn_plant_parts_plant_gen
