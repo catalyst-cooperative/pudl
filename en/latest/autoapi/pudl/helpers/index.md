@@ -251,6 +251,8 @@ To just add State FIPS IDs, make county_col = None.
 
 Add the State FIPS codes.
 
+Records without a state are not assigned a state FIPS code.
+
 ### pudl.helpers.add_county_fips_id(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), geocodes: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), county_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Add the County FIPS codes to a table with State FIPS codes.

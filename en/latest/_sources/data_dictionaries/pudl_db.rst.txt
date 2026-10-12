@@ -869,7 +869,7 @@ Columns
   * - internal_point_longitude
     - number
     - degrees
-    - Internal point longitude in decimal degrees.
+    - Internal point longitude in decimal degrees. Note that some Aleutian islands are west of the 180th meridian, and thus have positive longitudes.
   * - land_area
     - number
     - meter**2
@@ -1739,7 +1739,7 @@ Columns
   * - internal_point_longitude
     - number
     - degrees
-    - Internal point longitude in decimal degrees.
+    - Internal point longitude in decimal degrees. Note that some Aleutian islands are west of the 180th meridian, and thus have positive longitudes.
   * - land_area
     - number
     - meter**2
@@ -2621,7 +2621,7 @@ Columns
   * - internal_point_longitude
     - number
     - degrees
-    - Internal point longitude in decimal degrees.
+    - Internal point longitude in decimal degrees. Note that some Aleutian islands are west of the 180th meridian, and thus have positive longitudes.
   * - land_area
     - number
     - meter**2
@@ -29274,11 +29274,11 @@ Columns
   * - latitude
     - number
     - degrees
-    - Latitude of the plant's location, in degrees.
+    - Latitude of the plant's location, in degrees. These values are reported as-is in EIA-860M and have not been cleaned up. They include a handful (<0.05%) of out-of-range values, zeros, and values with the wrong sign, or with latitude and longitude swapped.
   * - longitude
     - number
     - degrees
-    - Longitude of the plant's location, in degrees.
+    - Longitude of the plant's location, in degrees. These values are reported as-is in EIA-860M and have not been cleaned up. They include a handful (<0.05%) of out-of-range values, zeros, and values with the wrong sign, or with latitude and longitude swapped.
   * - net_capacity_mwdc
     - number
     - MW

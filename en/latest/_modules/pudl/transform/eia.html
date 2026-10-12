@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.eia &#8212; PUDL 2026.9.1.dev46 documentation</title>
+    <title>pudl.transform.eia &#8212; PUDL 2026.9.1.dev47 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=dd448bb7"></script>
+    <script src="../../../_static/documentation_options.js?v=7404ffd1"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev46 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev46 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev47 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev47 documentation - Home"/>
   
   
 </a></div>
@@ -890,7 +890,8 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">namedtuple</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">StrEnum</span><span class="p">,</span> <span class="n">auto</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">cast</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Protocol</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">networkx</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nx</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -1239,7 +1240,14 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="find_timezone">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/eia/index.html#pudl.transform.eia.find_timezone">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">find_timezone</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">lng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tz_finder</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_timezone</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">lng</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">lat</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">state</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">tz_finder</span><span class="p">:</span> <span class="n">timezonefinder</span><span class="o">.</span><span class="n">TimezoneFinder</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Find the timezone associated with the a specified input location.</span>
 
 <span class="sd">    Note that this function requires named arguments. The names are lng, lat,</span>
@@ -1257,6 +1265,8 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        lat (int or float in [-90, 90]): Latitude, in decimal degrees</span>
 <span class="sd">        state (str): Abbreviation for US state or Canadian province</span>
 <span class="sd">        strict (bool): Raise an error if no timezone is found?</span>
+<span class="sd">        tz_finder: A ``timezonefinder.TimezoneFinder`` instance. Required, since</span>
+<span class="sd">            constructing one is expensive and callers should reuse a single instance.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        str: The timezone (as an IANA string) for that location.</span>
@@ -1266,12 +1276,9 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    """</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">tz</span> <span class="o">=</span> <span class="n">tz_finder</span><span class="o">.</span><span class="n">timezone_at</span><span class="p">(</span><span class="n">lng</span><span class="o">=</span><span class="n">lng</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="n">lat</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">tz</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># Try harder</span>
-            <span class="c1"># Could change the search radius as well</span>
-            <span class="n">tz</span> <span class="o">=</span> <span class="n">tz_finder</span><span class="o">.</span><span class="n">closest_timezone_at</span><span class="p">(</span><span class="n">lng</span><span class="o">=</span><span class="n">lng</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="n">lat</span><span class="p">)</span>
-    <span class="c1"># For some reason w/ Python 3.6 we get a ValueError here, but with</span>
-    <span class="c1"># Python 3.7 we get an OverflowError...</span>
-    <span class="k">except</span> <span class="p">(</span><span class="ne">OverflowError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+    <span class="c1"># Invalid coordinates (NaN, out of range) raise ValueError or OverflowError, and</span>
+    <span class="c1"># missing values (None, pd.NA) raise TypeError.</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">OverflowError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
         <span class="c1"># If we're being strict, only use lng/lat, not state</span>
         <span class="k">if</span> <span class="n">strict</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -1379,7 +1386,6 @@ window.runMermaid = runMermaid;</script>
     <span class="n">col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">cols_to_consit</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">round_to</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
-    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Harvests more complete lat/long in special cases.</span>
 
@@ -1433,7 +1439,6 @@ window.runMermaid = runMermaid;</script>
     <span class="n">entity_idx</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">cols_to_consit</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""When there's no consistent generator operating date, take the last reported one.</span>
 
@@ -1667,6 +1672,43 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<div class="viewcode-block" id="SpecialCaseHarvester">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eia/index.html#pudl.transform.eia.SpecialCaseHarvester">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SpecialCaseHarvester</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The call signature of a function that harvests an entity column specially.</span>
+
+<span class="sd">    Any extra, per-column harvester-specific arguments should be bound in the</span>
+<span class="sd">    :data:`SPECIAL_CASE_HARVESTERS` dispatch mapping using :func:`functools.partial`.</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="SpecialCaseHarvester.__call__">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eia/index.html#pudl.transform.eia.SpecialCaseHarvester.__call__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">dirty_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">clean_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">entity_id_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">entity_idx</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">cols_to_consit</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return ``entity_id_df`` with harvested values for ``col``."""</span>
+        <span class="o">...</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="SPECIAL_CASE_HARVESTERS">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eia/index.html#pudl.transform.eia.SPECIAL_CASE_HARVESTERS">[docs]</a>
+<span class="n">SPECIAL_CASE_HARVESTERS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SpecialCaseHarvester</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"latitude"</span><span class="p">:</span> <span class="n">partial</span><span class="p">(</span><span class="n">_lat_long</span><span class="p">,</span> <span class="n">round_to</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+    <span class="s2">"longitude"</span><span class="p">:</span> <span class="n">partial</span><span class="p">(</span><span class="n">_lat_long</span><span class="p">,</span> <span class="n">round_to</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+    <span class="s2">"generator_operating_date"</span><span class="p">:</span> <span class="n">_last_operating_date</span><span class="p">,</span>
+<span class="p">}</span></div>
+
+<span class="sd">"""Columns that get special harvesting treatment, and the function that does it."""</span>
+
+
 <div class="viewcode-block" id="harvest_entity_tables">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/eia/index.html#pudl.transform.eia.harvest_entity_tables">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">harvest_entity_tables</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
@@ -1744,11 +1786,6 @@ window.runMermaid = runMermaid;</script>
 
     <span class="n">entity_df</span> <span class="o">=</span> <span class="n">entity_id_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">annual_df</span> <span class="o">=</span> <span class="n">annual_id_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">special_case_cols</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">"latitude"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"method"</span><span class="p">:</span> <span class="n">_lat_long</span><span class="p">,</span> <span class="s2">"round_to"</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
-        <span class="s2">"longitude"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"method"</span><span class="p">:</span> <span class="n">_lat_long</span><span class="p">,</span> <span class="s2">"round_to"</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
-        <span class="s2">"generator_operating_date"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"method"</span><span class="p">:</span> <span class="n">_last_operating_date</span><span class="p">},</span>
-    <span class="p">}</span>
     <span class="n">consistency</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
         <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"column"</span><span class="p">,</span> <span class="s2">"consistent_ratio"</span><span class="p">,</span> <span class="s2">"wrongos"</span><span class="p">,</span> <span class="s2">"total"</span><span class="p">]</span>
     <span class="p">)</span>
@@ -1792,15 +1829,14 @@ window.runMermaid = runMermaid;</script>
         <span class="c1"># we can't just use the col_df records when the consistency is not True</span>
         <span class="n">dirty_df</span> <span class="o">=</span> <span class="n">col_df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">clean_df</span><span class="p">[</span><span class="n">clean_df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()][</span><span class="n">id_cols</span><span class="p">])</span>
 
-        <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">special_case_cols</span><span class="p">:</span>
-            <span class="n">clean_df</span> <span class="o">=</span> <span class="n">special_case_cols</span><span class="p">[</span><span class="n">col</span><span class="p">][</span><span class="s2">"method"</span><span class="p">](</span>
+        <span class="k">if</span> <span class="n">harvester</span> <span class="o">:=</span> <span class="n">SPECIAL_CASE_HARVESTERS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">col</span><span class="p">):</span>
+            <span class="n">clean_df</span> <span class="o">=</span> <span class="n">harvester</span><span class="p">(</span>
                 <span class="n">dirty_df</span><span class="p">,</span>
                 <span class="n">clean_df</span><span class="p">,</span>
                 <span class="n">entity_id_df</span><span class="p">,</span>
                 <span class="n">id_cols</span><span class="p">,</span>
                 <span class="n">col</span><span class="p">,</span>
                 <span class="n">cols_to_consit</span><span class="p">,</span>
-                <span class="o">**</span><span class="n">special_case_cols</span><span class="p">[</span><span class="n">col</span><span class="p">],</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">static_cols</span><span class="p">:</span>
                 <span class="n">clean_df</span> <span class="o">=</span> <span class="n">clean_df</span><span class="p">[</span><span class="n">id_cols</span> <span class="o">+</span> <span class="p">[</span><span class="n">col</span><span class="p">]]</span>

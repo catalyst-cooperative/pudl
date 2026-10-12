@@ -269,6 +269,8 @@ Module Contents
 
    Add the State FIPS codes.
 
+   Records without a state are not assigned a state FIPS code.
+
 
 .. py:function:: add_county_fips_id(df: pandas.DataFrame, geocodes: pandas.DataFrame, county_col: str) -> pandas.DataFrame
 

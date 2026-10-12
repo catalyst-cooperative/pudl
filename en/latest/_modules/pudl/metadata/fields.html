@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.fields &#8212; PUDL 2026.9.1.dev46 documentation</title>
+    <title>pudl.metadata.fields &#8212; PUDL 2026.9.1.dev47 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=dd448bb7"></script>
+    <script src="../../../_static/documentation_options.js?v=7404ffd1"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev46 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev46 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev47 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev47 documentation - Home"/>
   
   
 </a></div>
@@ -2859,11 +2859,19 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"number"</span><span class="p">,</span>
         <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"Internal point latitude in decimal degrees."</span><span class="p">,</span>
         <span class="s2">"unit"</span><span class="p">:</span> <span class="s2">"degrees"</span><span class="p">,</span>
+        <span class="s2">"constraints"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"minimum"</span><span class="p">:</span> <span class="mf">17.0</span><span class="p">,</span>
+            <span class="s2">"maximum"</span><span class="p">:</span> <span class="mf">72.0</span><span class="p">,</span>
+        <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">"internal_point_longitude"</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"number"</span><span class="p">,</span>
-        <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"Internal point longitude in decimal degrees."</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"Internal point longitude in decimal degrees. Note that some Aleutian islands are west of the 180th meridian, and thus have positive longitudes."</span><span class="p">,</span>
         <span class="s2">"unit"</span><span class="p">:</span> <span class="s2">"degrees"</span><span class="p">,</span>
+        <span class="s2">"constraints"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"minimum"</span><span class="p">:</span> <span class="o">-</span><span class="mf">180.0</span><span class="p">,</span>
+            <span class="s2">"maximum"</span><span class="p">:</span> <span class="mf">180.0</span><span class="p">,</span>
+        <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">"shape_length"</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"number"</span><span class="p">,</span>
@@ -5510,6 +5518,10 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"number"</span><span class="p">,</span>
         <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"Latitude of the plant's location, in degrees."</span><span class="p">,</span>
         <span class="s2">"unit"</span><span class="p">:</span> <span class="s2">"degrees"</span><span class="p">,</span>
+        <span class="s2">"constraints"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"minimum"</span><span class="p">:</span> <span class="mf">17.0</span><span class="p">,</span>
+            <span class="s2">"maximum"</span><span class="p">:</span> <span class="mf">72.0</span><span class="p">,</span>
+        <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">"leak_severity"</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"string"</span><span class="p">,</span>
@@ -5686,6 +5698,10 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"number"</span><span class="p">,</span>
         <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"Longitude of the plant's location, in degrees."</span><span class="p">,</span>
         <span class="s2">"unit"</span><span class="p">:</span> <span class="s2">"degrees"</span><span class="p">,</span>
+        <span class="s2">"constraints"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"minimum"</span><span class="p">:</span> <span class="o">-</span><span class="mf">180.0</span><span class="p">,</span>  <span class="c1"># Populated Aleutian islands w/ power plants</span>
+            <span class="s2">"maximum"</span><span class="p">:</span> <span class="o">-</span><span class="mf">60.0</span><span class="p">,</span>  <span class="c1"># US Virgin Islands</span>
+        <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">"mains_miles"</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"number"</span><span class="p">,</span>
@@ -11972,6 +11988,26 @@ window.runMermaid = runMermaid;</script>
         <span class="c1"># value in that context is an average rather than a raw count.</span>
         <span class="s2">"customers"</span><span class="p">:</span> <span class="p">{</span>
             <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"number"</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s2">"core_eia860m__changelog_generators"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"latitude"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"Latitude of the plant's location, in degrees. These values are "</span>
+                <span class="s2">"reported as-is in EIA-860M and have not been cleaned up. They include "</span>
+                <span class="s2">"a handful (&lt;0.05%) of out-of-range values, zeros, and values with the "</span>
+                <span class="s2">"wrong sign, or with latitude and longitude swapped."</span>
+            <span class="p">),</span>
+            <span class="s2">"constraints"</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="p">},</span>
+        <span class="s2">"longitude"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"Longitude of the plant's location, in degrees. These values are "</span>
+                <span class="s2">"reported as-is in EIA-860M and have not been cleaned up. They include "</span>
+                <span class="s2">"a handful (&lt;0.05%) of out-of-range values, zeros, and values with the "</span>
+                <span class="s2">"wrong sign, or with latitude and longitude swapped."</span>
+            <span class="p">),</span>
+            <span class="s2">"constraints"</span><span class="p">:</span> <span class="p">{},</span>
         <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">"core_ferc1__yearly_hydroelectric_plants_sched406"</span><span class="p">:</span> <span class="p">{</span>

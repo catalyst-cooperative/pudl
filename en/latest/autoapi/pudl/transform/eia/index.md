@@ -19,21 +19,23 @@ found in `pudl.transform.eia._boiler_generator_assn()`.
 
 ## Attributes
 
-| [`logger`](#pudl.transform.eia.logger)                |                                                                             |
-|------------------------------------------------------------------------|-----------------------------------------------------------------------------|
-| [`HARVESTABLE_ASSETS`](#pudl.transform.eia.HARVESTABLE_ASSETS)    |                                                                             |
-| [`EIA_FIPS_COUNTY_FIXES`](#pudl.transform.eia.EIA_FIPS_COUNTY_FIXES) | Table of fixes to county names to make them more aligned with census names. |
-| [`harvested_entities`](#pudl.transform.eia.harvested_entities)    |                                                                             |
-| [`finished_eia_assets`](#pudl.transform.eia.finished_eia_assets)   |                                                                             |
+| [`logger`](#pudl.transform.eia.logger)                  |                                                                               |
+|--------------------------------------------------------------------------|-------------------------------------------------------------------------------|
+| [`HARVESTABLE_ASSETS`](#pudl.transform.eia.HARVESTABLE_ASSETS)      |                                                                               |
+| [`EIA_FIPS_COUNTY_FIXES`](#pudl.transform.eia.EIA_FIPS_COUNTY_FIXES)   | Table of fixes to county names to make them more aligned with census names.   |
+| [`SPECIAL_CASE_HARVESTERS`](#pudl.transform.eia.SPECIAL_CASE_HARVESTERS) | Columns that get special harvesting treatment, and the function that does it. |
+| [`harvested_entities`](#pudl.transform.eia.harvested_entities)      |                                                                               |
+| [`finished_eia_assets`](#pudl.transform.eia.finished_eia_assets)     |                                                                               |
 
 ## Classes
 
-| [`EiaEntity`](#pudl.transform.eia.EiaEntity)   | Enum for the different types of EIA entities.   |
-|--------------------------------------------------------------|-------------------------------------------------|
+| [`EiaEntity`](#pudl.transform.eia.EiaEntity)            | Enum for the different types of EIA entities.                              |
+|-----------------------------------------------------------------------|----------------------------------------------------------------------------|
+| [`SpecialCaseHarvester`](#pudl.transform.eia.SpecialCaseHarvester) | The call signature of a function that harvests an entity column specially. |
 
 ## Functions
 
-| [`find_timezone`](#pudl.transform.eia.find_timezone)(\*[, lng, lat, state, strict, tz_finder])    | Find the timezone associated with the a specified input location.                |
+| [`find_timezone`](#pudl.transform.eia.find_timezone)(→ str | None)                                | Find the timezone associated with the a specified input location.                |
 |-------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
 | [`occurrence_consistency`](#pudl.transform.eia.occurrence_consistency)(→ pandas.DataFrame)                 | Find the occurrence of entities & the consistency of records.                    |
 | [`_lat_long`](#pudl.transform.eia._lat_long)(→ pandas.DataFrame)                              | Harvests more complete lat/long in special cases.                                |
@@ -79,7 +81,7 @@ This set of fixes was developed for EIA-861 for
 [core_eia861_\_yearly_service_territory](../../../../data_dictionaries/pudl_db.md#core-eia861-yearly-service-territory) and was expanded (slightly) to cover
 the remaining non-conforming EIA-860 and EIA-923 county names.
 
-### pudl.transform.eia.find_timezone(, lng=None, lat=None, state=None, strict=True, tz_finder=None)
+### pudl.transform.eia.find_timezone(, lng: [float](https://docs.python.org/3/builtins/functions.html#float), lat: [float](https://docs.python.org/3/builtins/functions.html#float), state: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, strict: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True, tz_finder: timezonefinder.TimezoneFinder) → [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Find the timezone associated with the a specified input location.
 
@@ -98,6 +100,8 @@ More on state-to-timezone conversion here:
   * **lat** ([*int*](https://docs.python.org/3/builtins/functions.html#int) *or* *float in* *[* *-90* *,* *90* *]*) – Latitude, in decimal degrees
   * **state** ([*str*](https://docs.python.org/3/builtins/stdtypes.html#str)) – Abbreviation for US state or Canadian province
   * **strict** ([*bool*](https://docs.python.org/3/builtins/functions.html#bool)) – Raise an error if no timezone is found?
+  * **tz_finder** – A `timezonefinder.TimezoneFinder` instance. Required, since
+    constructing one is expensive and callers should reuse a single instance.
 * **Returns:**
   The timezone (as an IANA string) for that location.
 * **Return type:**
@@ -130,7 +134,7 @@ information we can determine if the reported records are strict enough.
   A transformed version of compiled_df with NaNs removed and with new columns with
   information about the consistency of the reported values.
 
-### pudl.transform.eia.\_lat_long(dirty_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), clean_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), entity_id_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), entity_idx: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], col: [str](https://docs.python.org/3/builtins/stdtypes.html#str), cols_to_consit: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], round_to: [int](https://docs.python.org/3/builtins/functions.html#int) = 2, \*\*kwargs) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.transform.eia.\_lat_long(dirty_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), clean_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), entity_id_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), entity_idx: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], col: [str](https://docs.python.org/3/builtins/stdtypes.html#str), cols_to_consit: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], round_to: [int](https://docs.python.org/3/builtins/functions.html#int) = 2) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Harvests more complete lat/long in special cases.
 
@@ -156,7 +160,7 @@ consistent records.
   clean_df. Some will have harvested records that were found after rounding. Some
   will have NaNs if no consistently reported records were found.
 
-### pudl.transform.eia.\_last_operating_date(dirty_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), clean_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), entity_id_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), entity_idx: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], col: [str](https://docs.python.org/3/builtins/stdtypes.html#str), cols_to_consit: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], \*\*kwargs) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.transform.eia.\_last_operating_date(dirty_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), clean_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), entity_id_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), entity_idx: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], col: [str](https://docs.python.org/3/builtins/stdtypes.html#str), cols_to_consit: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 When there’s no consistent generator operating date, take the last reported one.
 
@@ -230,6 +234,23 @@ Manage the strictness level for each column.
     values. The default strictness for harvesting consistent records is
     0.7. If any column you want to have a different consistency requirement,
     add it into this special case dictionary.
+
+### *class* pudl.transform.eia.SpecialCaseHarvester
+
+Bases: `Protocol`
+
+The call signature of a function that harvests an entity column specially.
+
+Any extra, per-column harvester-specific arguments should be bound in the
+[`SPECIAL_CASE_HARVESTERS`](#pudl.transform.eia.SPECIAL_CASE_HARVESTERS) dispatch mapping using [`functools.partial()`](https://docs.python.org/3/library/functools.html#functools.partial).
+
+#### \_\_call_\_(dirty_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), clean_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), entity_id_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), entity_idx: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], col: [str](https://docs.python.org/3/builtins/stdtypes.html#str), cols_to_consit: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Return `entity_id_df` with harvested values for `col`.
+
+### pudl.transform.eia.SPECIAL_CASE_HARVESTERS *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [SpecialCaseHarvester](#pudl.transform.eia.SpecialCaseHarvester)]*
+
+Columns that get special harvesting treatment, and the function that does it.
 
 ### pudl.transform.eia.harvest_entity_tables(entity: [EiaEntity](#pudl.transform.eia.EiaEntity), clean_dfs: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)], special_case_strictness: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [float](https://docs.python.org/3/builtins/functions.html#float)] = {}, debug: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)
 

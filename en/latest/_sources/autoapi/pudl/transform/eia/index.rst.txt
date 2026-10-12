@@ -32,6 +32,7 @@ Attributes
    pudl.transform.eia.logger
    pudl.transform.eia.HARVESTABLE_ASSETS
    pudl.transform.eia.EIA_FIPS_COUNTY_FIXES
+   pudl.transform.eia.SPECIAL_CASE_HARVESTERS
    pudl.transform.eia.harvested_entities
    pudl.transform.eia.finished_eia_assets
 
@@ -42,6 +43,7 @@ Classes
 .. autoapisummary::
 
    pudl.transform.eia.EiaEntity
+   pudl.transform.eia.SpecialCaseHarvester
 
 
 Functions
@@ -105,7 +107,7 @@ Module Contents
    :ref:`core_eia861__yearly_service_territory` and was expanded (slightly) to cover
    the remaining non-conforming EIA-860 and EIA-923 county names.
 
-.. py:function:: find_timezone(*, lng=None, lat=None, state=None, strict=True, tz_finder=None)
+.. py:function:: find_timezone(*, lng: float, lat: float, state: str | None = None, strict: bool = True, tz_finder: timezonefinder.TimezoneFinder) -> str | None
 
    Find the timezone associated with the a specified input location.
 
@@ -127,6 +129,8 @@ Module Contents
    :type state: str
    :param strict: Raise an error if no timezone is found?
    :type strict: bool
+   :param tz_finder: A ``timezonefinder.TimezoneFinder`` instance. Required, since
+                     constructing one is expensive and callers should reuse a single instance.
 
    :returns: The timezone (as an IANA string) for that location.
    :rtype: str
@@ -161,7 +165,7 @@ Module Contents
              information about the consistency of the reported values.
 
 
-.. py:function:: _lat_long(dirty_df: pandas.DataFrame, clean_df: pandas.DataFrame, entity_id_df: pandas.DataFrame, entity_idx: list[str], col: str, cols_to_consit: list[str], round_to: int = 2, **kwargs) -> pandas.DataFrame
+.. py:function:: _lat_long(dirty_df: pandas.DataFrame, clean_df: pandas.DataFrame, entity_id_df: pandas.DataFrame, entity_idx: list[str], col: str, cols_to_consit: list[str], round_to: int = 2) -> pandas.DataFrame
 
    Harvests more complete lat/long in special cases.
 
@@ -187,7 +191,7 @@ Module Contents
              will have NaNs if no consistently reported records were found.
 
 
-.. py:function:: _last_operating_date(dirty_df: pandas.DataFrame, clean_df: pandas.DataFrame, entity_id_df: pandas.DataFrame, entity_idx: list[str], col: str, cols_to_consit: list[str], **kwargs) -> pandas.DataFrame
+.. py:function:: _last_operating_date(dirty_df: pandas.DataFrame, clean_df: pandas.DataFrame, entity_id_df: pandas.DataFrame, entity_idx: list[str], col: str, cols_to_consit: list[str]) -> pandas.DataFrame
 
    When there's no consistent generator operating date, take the last reported one.
 
@@ -262,6 +266,28 @@ Module Contents
                                    0.7. If any column you want to have a different consistency requirement,
                                    add it into this special case dictionary.
 
+
+.. py:class:: SpecialCaseHarvester
+
+   Bases: :py:obj:`Protocol`
+
+
+   The call signature of a function that harvests an entity column specially.
+
+   Any extra, per-column harvester-specific arguments should be bound in the
+   :data:`SPECIAL_CASE_HARVESTERS` dispatch mapping using :func:`functools.partial`.
+
+
+   .. py:method:: __call__(dirty_df: pandas.DataFrame, clean_df: pandas.DataFrame, entity_id_df: pandas.DataFrame, entity_idx: list[str], col: str, cols_to_consit: list[str]) -> pandas.DataFrame
+
+      Return ``entity_id_df`` with harvested values for ``col``.
+
+
+
+.. py:data:: SPECIAL_CASE_HARVESTERS
+   :type:  dict[str, SpecialCaseHarvester]
+
+   Columns that get special harvesting treatment, and the function that does it.
 
 .. py:function:: harvest_entity_tables(entity: EiaEntity, clean_dfs: dict[str, pandas.DataFrame], special_case_strictness: dict[str, float] = {}, debug: bool = False) -> tuple
 

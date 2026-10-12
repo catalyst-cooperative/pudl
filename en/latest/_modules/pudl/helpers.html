@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.helpers &#8212; PUDL 2026.9.1.dev46 documentation</title>
+    <title>pudl.helpers &#8212; PUDL 2026.9.1.dev47 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../_static/documentation_options.js?v=dd448bb7"></script>
+    <script src="../../_static/documentation_options.js?v=7404ffd1"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev46 documentation - Home"/>
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev46 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev47 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev47 documentation - Home"/>
   
   
 </a></div>
@@ -1223,9 +1223,18 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">add_state_id_fips</span><span class="p">(</span>
     <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">geocodes</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">state_col</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Add the State FIPS codes."""</span>
+<span class="w">    </span><span class="sd">"""Add the State FIPS codes.</span>
+
+<span class="sd">    Records without a state are not assigned a state FIPS code.</span>
+<span class="sd">    """</span>
     <span class="n">states</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">geocodes</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">geocodes</span><span class="p">[</span><span class="s2">"fips_level"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"040"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"state"</span><span class="p">,</span> <span class="s2">"state_id_fips"</span><span class="p">]]</span>
+        <span class="c1"># Any FIPS code that appears in the Census PEP data but doesn't have a state</span>
+        <span class="c1"># abbreviation defined in POLITICAL_SUBDIVISIONS ends up with a null state</span>
+        <span class="c1"># abbreviation here. Pandas matches missing merge keys with each other, so if</span>
+        <span class="c1"># the null states are kept, every record with a missing state would be assigned</span>
+        <span class="c1"># to a mystery FIPS code (namely 74: US Minor outlying islands).</span>
+        <span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">"state"</span><span class="p">])</span>
         <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">"state"</span><span class="p">:</span> <span class="n">state_col</span><span class="p">})</span>
         <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
     <span class="p">)</span>

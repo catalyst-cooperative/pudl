@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="pudl_db.html.md" />
 <link rel="alternate" type="text/markdown" href="pudl_db.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>PUDL Data Dictionary &#8212; PUDL 2026.9.1.dev46 documentation</title>
+    <title>PUDL Data Dictionary &#8212; PUDL 2026.9.1.dev47 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=dd448bb7"></script>
+    <script src="../_static/documentation_options.js?v=7404ffd1"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev46 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev46 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev47 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev47 documentation - Home"/>
   
   
 </a></div>
@@ -1637,7 +1637,7 @@ R</label><div class="sd-tab-content docutils">
 <tr class="row-odd"><td><p>internal_point_longitude</p></td>
 <td><p>number</p></td>
 <td><p>degrees</p></td>
-<td><p>Internal point longitude in decimal degrees.</p></td>
+<td><p>Internal point longitude in decimal degrees. Note that some Aleutian islands are west of the 180th meridian, and thus have positive longitudes.</p></td>
 </tr>
 <tr class="row-even"><td><p>land_area</p></td>
 <td><p>number</p></td>
@@ -2694,7 +2694,7 @@ R</label><div class="sd-tab-content docutils">
 <tr class="row-even"><td><p>internal_point_longitude</p></td>
 <td><p>number</p></td>
 <td><p>degrees</p></td>
-<td><p>Internal point longitude in decimal degrees.</p></td>
+<td><p>Internal point longitude in decimal degrees. Note that some Aleutian islands are west of the 180th meridian, and thus have positive longitudes.</p></td>
 </tr>
 <tr class="row-odd"><td><p>land_area</p></td>
 <td><p>number</p></td>
@@ -3766,7 +3766,7 @@ R</label><div class="sd-tab-content docutils">
 <tr class="row-even"><td><p>internal_point_longitude</p></td>
 <td><p>number</p></td>
 <td><p>degrees</p></td>
-<td><p>Internal point longitude in decimal degrees.</p></td>
+<td><p>Internal point longitude in decimal degrees. Note that some Aleutian islands are west of the 180th meridian, and thus have positive longitudes.</p></td>
 </tr>
 <tr class="row-odd"><td><p>land_area</p></td>
 <td><p>number</p></td>
@@ -32339,12 +32339,12 @@ R</label><div class="sd-tab-content docutils">
 <tr class="row-odd"><td><p>latitude</p></td>
 <td><p>number</p></td>
 <td><p>degrees</p></td>
-<td><p>Latitude of the plant’s location, in degrees.</p></td>
+<td><p>Latitude of the plant’s location, in degrees. These values are reported as-is in EIA-860M and have not been cleaned up. They include a handful (&lt;0.05%) of out-of-range values, zeros, and values with the wrong sign, or with latitude and longitude swapped.</p></td>
 </tr>
 <tr class="row-even"><td><p>longitude</p></td>
 <td><p>number</p></td>
 <td><p>degrees</p></td>
-<td><p>Longitude of the plant’s location, in degrees.</p></td>
+<td><p>Longitude of the plant’s location, in degrees. These values are reported as-is in EIA-860M and have not been cleaned up. They include a handful (&lt;0.05%) of out-of-range values, zeros, and values with the wrong sign, or with latitude and longitude swapped.</p></td>
 </tr>
 <tr class="row-odd"><td><p>net_capacity_mwdc</p></td>
 <td><p>number</p></td>
