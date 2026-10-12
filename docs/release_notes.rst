@@ -15,20 +15,10 @@ Enhancements
 * Added ``county_id_fips`` and ``state_id_fips`` to the :ref:`core_eia__entity_plants`,
   :ref:`out_eia__monthly_generators` and :ref:`out_eia__yearly_generators` tables. See
   PR :pr:`5688`.
-
-* Added ``operator_utility_id_eia``, ``operator_utility_id_pudl`` and
-  ``operator_utility_name_eia`` to :ref:`out_eia__yearly_generators_by_ownership`,
-  identifying the utility that operates each generator. The existing
-  ``utility_id_eia``, ``utility_id_pudl`` and ``utility_name_eia`` columns describe the
-  generator's owner, so until now jointly owned generators gave no indication of who
-  actually runs them. See issue :issue:`5550` and PR :pr:`5585`.
-
-* Added foreign key constraints for ``operator_utility_id_eia`` (to
-  :ref:`core_eia__entity_utilities`) and ``operator_utility_id_pudl`` (to
-  :ref:`core_pudl__entity_utilities_pudl`), checked by dbt in
-  :ref:`out_eia__yearly_generators_by_ownership`. The same ``operator_utility_id_eia``
-  constraint now also applies to :ref:`core_eia860__scd_ownership` and
-  :ref:`out_eia860__yearly_ownership`. See PR :pr:`5585`.
+* :ref:`out_eia__yearly_generators_by_ownership` now identifies each generator's
+  operator as well as its owners, via new ``operator_utility_id_eia``,
+  ``operator_utility_id_pudl`` and ``operator_utility_name_eia`` columns, with foreign
+  key checks on the IDs. See issue :issue:`5550` and PR :pr:`5585`.
 
 New Data
 ^^^^^^^^
@@ -151,6 +141,10 @@ Bug Fixes & Data Cleaning
 * Fixed the integer NERC region code ``25470`` reported by utility 55959 in 2013 and
   2014 in the EIA-861 tables, which was becoming ``UNK`` instead of ``MRO``. See PR
   :pr:`5685`.
+* Fixed a bug introduced in PR :pr:`5506` which improperly aggregated generators with
+  multiple owners after an ineffective drop duplicates, resulting in double counting in
+  a small number of :ref:`out_eia__yearly_plant_parts` records. See issue :issue:`5651`
+  and PR :pr:`5703`.
 * Fixed a bug that gave plants with no reported state the state FIPS code ``74`` (U.S.
   Minor Outlying Islands). Those plants in :ref:`core_eia__entity_plants`, and the
   generators built from them, now have a null ``state_id_fips``. See PR :pr:`5697`.
