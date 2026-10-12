@@ -146,6 +146,9 @@ Bug Fixes & Data Cleaning
 * Fixed the integer NERC region code ``25470`` reported by utility 55959 in 2013 and
   2014 in the EIA-861 tables, which was becoming ``UNK`` instead of ``MRO``. See PR
   :pr:`5685`.
+* Fixed a bug introduced in PR :pr:`5651` which improperly aggregated generates with
+  multiple owners dropped duplicates, resulting in double counting in a small number of
+  :ref:`out_eia__yearly_plant_parts` records. See issue :issue:`5651` and PR :pr:`5703`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
