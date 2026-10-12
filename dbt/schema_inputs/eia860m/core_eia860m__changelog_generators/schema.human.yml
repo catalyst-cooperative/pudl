@@ -35,7 +35,7 @@ sources:
                   config:
                     error_if: ">80"
                   description: |-
-                    Longitudes in the EIA-860M data have not been cleaned up yet. A
+                    Longitudes in the EIA-860M data have not been cleaned up. A
                     handful of records are outside the range of US plant locations
                     (mostly positive values with the wrong sign, plus a few zeros and
                     out-of-range values). Nulls pass this test.
