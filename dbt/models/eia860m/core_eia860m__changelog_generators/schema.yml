@@ -82,7 +82,7 @@ sources:
                   config:
                     error_if: ">25"
                   description: |-
-                    Latitudes in the EIA-860M data have not been cleaned up yet. A handful of records are
+                    Latitudes in the EIA-860M data have not been cleaned up. A handful of records are
                     outside the range of US plant locations (including a few zeros and swapped or
                     out-of-range values). Nulls pass this test.
           - name: longitude
@@ -93,7 +93,7 @@ sources:
                   config:
                     error_if: ">80"
                   description: |-
-                    Longitudes in the EIA-860M data have not been cleaned up yet. A handful of records are
+                    Longitudes in the EIA-860M data have not been cleaned up. A handful of records are
                     outside the range of US plant locations (mostly positive values with the wrong sign,
                     plus a few zeros and out-of-range values). Nulls pass this test.
           - name: net_capacity_mwdc
