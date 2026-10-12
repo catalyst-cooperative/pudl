@@ -85,7 +85,7 @@ New Data Tests & Validations
   <https://github.com/singularity-energy/open-grid-emissions>`__ initiative and PUDL.
   See epic :issue:`5439` which is tracking that effort.
 * Added minimum and maximum constraints for plant and Census latitudes and longitudes,
-  to catch impossible locations. EIA-860M coordinates are not cleaned up yet (about
+  to catch impossible locations. EIA-860M coordinates are not cleaned up (about
   0.04% of its records are obviously wrong), so
   :ref:`core_eia860m__changelog_generators` is exempt, and new dbt tests cap the number
   of known bad records in it instead. See PR :pr:`5697`.
