@@ -1985,11 +1985,19 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Internal point latitude in decimal degrees.",
         "unit": "degrees",
+        "constraints": {
+            "minimum": 17.0,
+            "maximum": 72.0,
+        },
     },
     "internal_point_longitude": {
         "type": "number",
-        "description": "Internal point longitude in decimal degrees.",
+        "description": "Internal point longitude in decimal degrees. Note that some Aleutian islands are west of the 180th meridian, and thus have positive longitudes.",
         "unit": "degrees",
+        "constraints": {
+            "minimum": -180.0,
+            "maximum": 180.0,
+        },
     },
     "shape_length": {
         "type": "number",
@@ -4636,6 +4644,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Latitude of the plant's location, in degrees.",
         "unit": "degrees",
+        "constraints": {
+            "minimum": 17.0,
+            "maximum": 72.0,
+        },
     },
     "leak_severity": {
         "type": "string",
@@ -4812,6 +4824,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Longitude of the plant's location, in degrees.",
         "unit": "degrees",
+        "constraints": {
+            "minimum": -180.0,  # Populated Aleutian islands w/ power plants
+            "maximum": -60.0,  # US Virgin Islands
+        },
     },
     "mains_miles": {
         "type": "number",
@@ -11092,6 +11108,26 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
         # value in that context is an average rather than a raw count.
         "customers": {
             "type": "number",
+        },
+    },
+    "core_eia860m__changelog_generators": {
+        "latitude": {
+            "description": (
+                "Latitude of the plant's location, in degrees. These values are "
+                "reported as-is in EIA-860M and have not been cleaned up. They include "
+                "a handful (<0.05%) of out-of-range values, zeros, and values with the "
+                "wrong sign, or with latitude and longitude swapped."
+            ),
+            "constraints": {},
+        },
+        "longitude": {
+            "description": (
+                "Longitude of the plant's location, in degrees. These values are "
+                "reported as-is in EIA-860M and have not been cleaned up. They include "
+                "a handful (<0.05%) of out-of-range values, zeros, and values with the "
+                "wrong sign, or with latitude and longitude swapped."
+            ),
+            "constraints": {},
         },
     },
     "core_ferc1__yearly_hydroelectric_plants_sched406": {

@@ -18,7 +18,8 @@ found in :func:`pudl.transform.eia._boiler_generator_assn`.
 
 from collections import namedtuple
 from enum import StrEnum, auto
-from typing import Any, cast
+from functools import partial
+from typing import Any, Protocol, cast
 
 import networkx as nx
 import numpy as np
@@ -341,7 +342,14 @@ the remaining non-conforming EIA-860 and EIA-923 county names.
 """
 
 
-def find_timezone(*, lng=None, lat=None, state=None, strict=True, tz_finder=None):
+def find_timezone(
+    *,
+    lng: float,
+    lat: float,
+    state: str | None = None,
+    strict: bool = True,
+    tz_finder: timezonefinder.TimezoneFinder,
+) -> str | None:
     """Find the timezone associated with the a specified input location.
 
     Note that this function requires named arguments. The names are lng, lat,
@@ -359,6 +367,8 @@ def find_timezone(*, lng=None, lat=None, state=None, strict=True, tz_finder=None
         lat (int or float in [-90, 90]): Latitude, in decimal degrees
         state (str): Abbreviation for US state or Canadian province
         strict (bool): Raise an error if no timezone is found?
+        tz_finder: A ``timezonefinder.TimezoneFinder`` instance. Required, since
+            constructing one is expensive and callers should reuse a single instance.
 
     Returns:
         str: The timezone (as an IANA string) for that location.
@@ -368,12 +378,9 @@ def find_timezone(*, lng=None, lat=None, state=None, strict=True, tz_finder=None
     """
     try:
         tz = tz_finder.timezone_at(lng=lng, lat=lat)
-        if tz is None:  # Try harder
-            # Could change the search radius as well
-            tz = tz_finder.closest_timezone_at(lng=lng, lat=lat)
-    # For some reason w/ Python 3.6 we get a ValueError here, but with
-    # Python 3.7 we get an OverflowError...
-    except (OverflowError, ValueError) as err:
+    # Invalid coordinates (NaN, out of range) raise ValueError or OverflowError, and
+    # missing values (None, pd.NA) raise TypeError.
+    except (OverflowError, ValueError, TypeError) as err:
         # If we're being strict, only use lng/lat, not state
         if strict:
             raise ValueError(
@@ -475,7 +482,6 @@ def _lat_long(
     col: str,
     cols_to_consit: list[str],
     round_to: int = 2,
-    **kwargs,
 ) -> pd.DataFrame:
     """Harvests more complete lat/long in special cases.
 
@@ -526,7 +532,6 @@ def _last_operating_date(
     entity_idx: list[str],
     col: str,
     cols_to_consit: list[str],
-    **kwargs,
 ) -> pd.DataFrame:
     """When there's no consistent generator operating date, take the last reported one.
 
@@ -747,6 +752,34 @@ def _manage_strictness(col: str, special_case_strictness: dict[str, float]) -> f
     return special_case_strictness.get(col, strictness_default)
 
 
+class SpecialCaseHarvester(Protocol):
+    """The call signature of a function that harvests an entity column specially.
+
+    Any extra, per-column harvester-specific arguments should be bound in the
+    :data:`SPECIAL_CASE_HARVESTERS` dispatch mapping using :func:`functools.partial`.
+    """
+
+    def __call__(
+        self,
+        dirty_df: pd.DataFrame,
+        clean_df: pd.DataFrame,
+        entity_id_df: pd.DataFrame,
+        entity_idx: list[str],
+        col: str,
+        cols_to_consit: list[str],
+    ) -> pd.DataFrame:
+        """Return ``entity_id_df`` with harvested values for ``col``."""
+        ...
+
+
+SPECIAL_CASE_HARVESTERS: dict[str, SpecialCaseHarvester] = {
+    "latitude": partial(_lat_long, round_to=1),
+    "longitude": partial(_lat_long, round_to=1),
+    "generator_operating_date": _last_operating_date,
+}
+"""Columns that get special harvesting treatment, and the function that does it."""
+
+
 def harvest_entity_tables(  # noqa: C901
     entity: EiaEntity,
     clean_dfs: dict[str, pd.DataFrame],
@@ -822,11 +855,6 @@ def harvest_entity_tables(  # noqa: C901
 
     entity_df = entity_id_df.copy()
     annual_df = annual_id_df.copy()
-    special_case_cols = {
-        "latitude": {"method": _lat_long, "round_to": 1},
-        "longitude": {"method": _lat_long, "round_to": 1},
-        "generator_operating_date": {"method": _last_operating_date},
-    }
     consistency = pd.DataFrame(
         columns=["column", "consistent_ratio", "wrongos", "total"]
     )
@@ -870,15 +898,14 @@ def harvest_entity_tables(  # noqa: C901
         # we can't just use the col_df records when the consistency is not True
         dirty_df = col_df.merge(clean_df[clean_df[col].isnull()][id_cols])
 
-        if col in special_case_cols:
-            clean_df = special_case_cols[col]["method"](
+        if harvester := SPECIAL_CASE_HARVESTERS.get(col):
+            clean_df = harvester(
                 dirty_df,
                 clean_df,
                 entity_id_df,
                 id_cols,
                 col,
                 cols_to_consit,
-                **special_case_cols[col],
             )
             if col in static_cols:
                 clean_df = clean_df[id_cols + [col]]
