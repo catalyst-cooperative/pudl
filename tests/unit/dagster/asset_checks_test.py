@@ -51,7 +51,7 @@ from pudl.dagster.asset_checks import (
     summarize_check_failures,
 )
 from pudl.helpers import ParquetData
-from pudl.metadata.classes import PUDL_PACKAGE, Package, Resource
+from pudl.metadata.classes import FERCEQR_PACKAGE, PUDL_PACKAGE, Package, Resource
 from pudl.metadata.units import PUDL_UNIT_DEFINITIONS
 
 
@@ -69,7 +69,7 @@ def test_asset_checks_preserve_runtime_input_types(
     """Generated checks should advertise the IO-manager input type they expect."""
     check: AssetChecksDefinition | None = asset_check_from_schema(
         dg.AssetKey([asset_name]),
-        PUDL_PACKAGE,
+        PUDL_PACKAGE if "ferceqr" not in asset_name else FERCEQR_PACKAGE,
         duckdb_asset=duckdb_asset,
     )
 
