@@ -1022,7 +1022,7 @@ class PlantPart:
         # See https://github.com/catalyst-cooperative/pudl/issues/5651
         part_tot_no_utils = part_tot.drop_duplicates(
             subset=["plant_id_eia", "generator_id", "report_date"]
-        ).drop(columns=["utility_id_eia"])
+        )
         # still need to re-calc the fraction owned for the part
         part_tot_out = (
             pudl.helpers.sum_and_weighted_average_agg(
