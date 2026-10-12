@@ -11,6 +11,18 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
 * Added `county_id_fips` and `state_id_fips` to the [core_eia_\_entity_plants](data_dictionaries/pudl_db.md#core-eia-entity-plants),
   [out_eia_\_monthly_generators](data_dictionaries/pudl_db.md#out-eia-monthly-generators) and [out_eia_\_yearly_generators](data_dictionaries/pudl_db.md#out-eia-yearly-generators) tables. See
   PR [#5688](https://github.com/catalyst-cooperative/pudl/pull/5688).
+* Added `operator_utility_id_eia`, `operator_utility_id_pudl` and
+  `operator_utility_name_eia` to [out_eia_\_yearly_generators_by_ownership](data_dictionaries/pudl_db.md#out-eia-yearly-generators-by-ownership),
+  identifying the utility that operates each generator. The existing
+  `utility_id_eia`, `utility_id_pudl` and `utility_name_eia` columns describe the
+  generator’s owner, so until now jointly owned generators gave no indication of who
+  actually runs them. See issue [#5550](https://github.com/catalyst-cooperative/pudl/issues/5550) and PR [#5585](https://github.com/catalyst-cooperative/pudl/pull/5585).
+* Added foreign key constraints for `operator_utility_id_eia` (to
+  [core_eia_\_entity_utilities](data_dictionaries/pudl_db.md#core-eia-entity-utilities)) and `operator_utility_id_pudl` (to
+  [core_pudl_\_entity_utilities_pudl](data_dictionaries/pudl_db.md#core-pudl-entity-utilities-pudl)), checked by dbt in
+  [out_eia_\_yearly_generators_by_ownership](data_dictionaries/pudl_db.md#out-eia-yearly-generators-by-ownership). The same `operator_utility_id_eia`
+  constraint now also applies to [core_eia860_\_scd_ownership](data_dictionaries/pudl_db.md#core-eia860-scd-ownership) and
+  [out_eia860_\_yearly_ownership](data_dictionaries/pudl_db.md#out-eia860-yearly-ownership). See PR [#5585](https://github.com/catalyst-cooperative/pudl/pull/5585).
 
 ### New Data
 

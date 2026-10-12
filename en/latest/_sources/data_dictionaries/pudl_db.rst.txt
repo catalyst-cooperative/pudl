@@ -9367,6 +9367,14 @@ these generator-owner records are scaled to the ownership stake (represented by
 This table was created to represent every possible version of ownership slices of the
 EIA generators. It is primarily used as an input to :ref:`out_eia__yearly_plant_parts`.
 
+The ``utility_id_eia``, ``utility_id_pudl`` and ``utility_name_eia`` columns describe
+the *owner* of each generator slice. Jointly owned generators are typically run by a
+single utility on behalf of all of their owners, and that operator is identified
+separately by the ``operator_utility_id_eia``, ``operator_utility_id_pudl`` and
+``operator_utility_name_eia`` columns.
+For generators that are absent from :ref:`core_eia860__scd_ownership` the owner and the
+operator are the same utility.
+
 This table inherits canonicalized values for generators, plants, and utilities.
 EIA reports many attributes in many different tables across
 EIA-860 and EIA-923. In order to compile tidy, well-normalized database tables, PUDL
@@ -9503,6 +9511,18 @@ Columns
     - string
     - 
     - The operating status of the asset using PUDL categories.
+  * - operator_utility_id_eia
+    - integer
+    - 
+    - The EIA utility Identification number for the operator utility.
+  * - operator_utility_id_pudl
+    - integer
+    - 
+    - A manually assigned PUDL utility ID for the operator utility. May not be stable over time.
+  * - operator_utility_name_eia
+    - string
+    - 
+    - The name of the EIA operator utility.
   * - ownership_record_type
     - string
     - 
@@ -9554,15 +9574,15 @@ Columns
   * - utility_id_eia
     - integer
     - 
-    - The EIA Utility Identification number.
+    - The EIA utility Identification number for the utility that owns the share of the generator described by this record. Generators that are absent from the EIA ownership table are assumed to be owned outright by their operator, so for those records this is the operator utility.
   * - utility_id_pudl
     - integer
     - 
-    - A manually assigned PUDL utility ID. May not be stable over time.
+    - A manually assigned PUDL utility ID for the owner utility. May not be stable over time.
   * - utility_name_eia
     - string
     - 
-    - The name of the utility.
+    - The name of the owner utility.
 
 .. _out_eia__yearly_plant_parts:
 

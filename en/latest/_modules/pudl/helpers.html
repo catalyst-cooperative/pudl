@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.helpers &#8212; PUDL 2026.9.1.dev45 documentation</title>
+    <title>pudl.helpers &#8212; PUDL 2026.9.1.dev46 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../_static/documentation_options.js?v=fdf5115c"></script>
+    <script src="../../_static/documentation_options.js?v=dd448bb7"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev45 documentation - Home"/>
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev45 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev46 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev46 documentation - Home"/>
   
   
 </a></div>
@@ -3153,12 +3153,10 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        gens: table with records at the generator level and generator attributes</span>
 <span class="sd">            to be scaled by ownership, must have columns ``plant_id_eia``,</span>
 <span class="sd">            ``generator_id``, and ``report_date``</span>
-<span class="sd">        own_eia860: the ``core_eia860__scd_ownership`` table or the denormalized</span>
-<span class="sd">            :ref:`out_eia860__yearly_ownership` table. If the denormalized table</span>
-<span class="sd">            is given and ``gens`` contains ``utility_id_pudl`` or</span>
-<span class="sd">            ``utility_name_eia`` columns, the owner's PUDL utility ID and EIA</span>
-<span class="sd">            utility name are swapped in alongside the owner's</span>
-<span class="sd">            ``utility_id_eia``.</span>
+<span class="sd">        own_eia860: the denormalized :ref:`out_eia860__yearly_ownership` table. If</span>
+<span class="sd">            ``gens`` contains ``utility_id_pudl`` or ``utility_name_eia`` columns,</span>
+<span class="sd">            the owner's PUDL utility ID and EIA utility name are swapped in</span>
+<span class="sd">            alongside the owner's ``utility_id_eia``.</span>
 <span class="sd">        scale_cols: a list of columns in the generator table to slice by ownership</span>
 <span class="sd">            fraction</span>
 <span class="sd">        validate: how to validate merging the ownership table onto the</span>
