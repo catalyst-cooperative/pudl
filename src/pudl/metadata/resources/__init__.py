@@ -2,6 +2,7 @@
 
 import importlib
 import pkgutil
+from typing import NotRequired, TypedDict
 
 from pudl.metadata.helpers import build_foreign_keys
 
@@ -17,7 +18,17 @@ FOREIGN_KEYS: dict[str, list[dict]] = build_foreign_keys(RESOURCE_METADATA)
 See :func:`pudl.metadata.helpers.build_foreign_keys`.
 """
 
-ENTITIES: dict[str, dict[str, list[str] | dict[str, str]]] = {
+
+class EntitySpec(TypedDict):
+    """Column groupings used to harvest a single EIA entity."""
+
+    id_cols: list[str]
+    static_cols: list[str]
+    annual_cols: list[str]
+    mapped_schemas: NotRequired[list[dict[str, str]]]
+
+
+ENTITIES: dict[str, EntitySpec] = {
     "plants": {
         "id_cols": ["plant_id_eia"],
         "static_cols": [

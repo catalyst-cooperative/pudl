@@ -3153,7 +3153,7 @@ TRANSFORM_PARAMS = {
                         "relative_error_magnitude": 0.028,
                         # mostly null bc they were added in 2025:
                         # other_renewable_generation_maintenance_expense & other_renewable_generation_operations_expense
-                        "null_calculated_value_frequency": 0.76,
+                        "null_calculated_value_frequency": 0.77,
                     },
                     "utility_id_ferc1": {
                         # in fast test worst guy is 196

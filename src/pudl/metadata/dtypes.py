@@ -23,7 +23,7 @@ functions that need it, so the metadata class graph does not introduce a module 
 cycle.
 """
 
-import datetime
+import datetime as dt
 from collections.abc import Callable
 from copy import deepcopy
 from typing import Any, Literal
@@ -125,8 +125,8 @@ type that already stores microseconds, so ``FIELD_DTYPES_SQLALCHEMY``'s plain
 
 CONSTRAINT_DTYPES: dict[str, type] = {
     "boolean": bool,
-    "date": datetime.date,
-    "datetime": datetime.datetime,
+    "date": dt.date,
+    "datetime": dt.datetime,
     "geometry": geopandas.array.GeometryDtype,
     "integer": int,
     "number": float,

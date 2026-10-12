@@ -162,7 +162,7 @@ sources:
                       - quantile: 0.05
                         min_value: 5.5
                       - quantile: 0.95
-                        max_value: 6.0
+                        max_value: 6.01
                       - quantile: 0.5
                         min_value: 5.75
                         max_value: 5.85

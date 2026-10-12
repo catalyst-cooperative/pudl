@@ -30,6 +30,7 @@ from pudl.metadata.enums import (
     TECH_CLASSES,
 )
 from pudl.metadata.labels import ESTIMATED_OR_ACTUAL
+from pudl.transform.eia import EIA_FIPS_COUNTY_FIXES
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -257,248 +258,6 @@ BA_ID_NAME_FIXES: pd.DataFrame = (
     .set_index(["report_date", "balancing_authority_name_eia", "utility_id_eia"])
 )
 
-EIA_FIPS_COUNTY_FIXES: pd.DataFrame = pd.DataFrame(
-    [
-        ("AK", "Akiachak", "Bethel Census Area"),
-        ("AK", "Aleutian Islands", "Aleutians East"),
-        ("AK", "Aleutians Ea", "Aleutians East"),
-        ("AK", "Aleutians East Boro", "Aleutians East Borough"),
-        ("AK", "Aleutians We", "Aleutians West Census Area"),
-        ("AK", "Aleutians West (unorganized)", "Aleutians West Census Area"),
-        ("AK", "Angoon", "Hoonah-Angoon"),
-        ("AK", "Borough, Kodiak Island", "Kodiak Island Borough"),
-        ("AK", "Chilkat Vall", "Hoonah-Angoon Census Area"),
-        ("AK", "Chilkat Valley", "Hoonah-Angoon Census Area"),
-        ("AK", "Chuathbaluk", "Bethel Census Area"),
-        ("AK", "Copper Basin", "Valdez-Cordova Census Area"),
-        ("AK", "Cordova", "Valdez-Cordova"),
-        ("AK", "Crooked Creek", "Bethel Census Area"),
-        ("AK", "Delta - No County", "Southeast Fairbanks Census Area"),
-        ("AK", "Elfin Cove", "Hoonah-Angoon Census Area"),
-        ("AK", "FRBS North Star", "Fairbanks North Star Borough"),
-        ("AK", "Galena", "Yukon-Koyukuk Census Area"),
-        ("AK", "Hoonah", "Hoonah-Angoon"),
-        ("AK", "Kake", "Prince of Wales-Hyder Census Area"),
-        ("AK", "Kasaan", "Prince of Wales-Hyder Census Area"),
-        ("AK", "Kenai Penins", "Kenai Peninsula"),
-        ("AK", "Ketchikan Ga", "Ketchikan Gateway Borough"),
-        ("AK", "Ketchikan Gateway Bo", "Ketchikan Gateway Borough"),
-        ("AK", "Klukwan", "Hoonah-Angoon Census Area"),
-        ("AK", "Kodiak Isla", "Kodiak Island Borough"),
-        ("AK", "Kodiak Islan", "Kodiak Island"),
-        ("AK", "Kodiak Island Boroug", "Kodiak Island Borough"),
-        ("AK", "Kuskokwim Bay", "Bethel Census Area"),
-        ("AK", "Kwigillingok", "Bethel Census Area"),
-        ("AK", "LARSEN BAY", "Kodiak Island Borough"),
-        ("AK", "Lake & Peninsula Bor", "Lake and Peninsula Borough"),
-        ("AK", "Lake & Peninsula Borough", "Lake and Peninsula"),
-        ("AK", "Lake and Pen", "Lake and Peninsula"),
-        ("AK", "Larsen Bay", "Kodiak Island Borough"),
-        ("AK", "Matanuska Su", "Matanuska-Susitna Borough"),
-        ("AK", "Matanuska Susitna", "Matanuska-Susitna"),
-        ("AK", "Matanuska Susitna Borough", "Matanuska-Susitna"),
-        ("AK", "NW Arctic Borough", "Northwest Arctic"),
-        ("AK", "Nenana", "Yukon-Koyukuk Census Area"),
-        ("AK", "Nenana - No County", "Yukon-Koyukuk Census Area"),
-        ("AK", "Nenena - No County", "Yukon-Koyukuk Census Area"),
-        ("AK", "Northwest Ar", "Northwest Arctic Borough"),
-        ("AK", "Northwest Arctic Bor", "Northwest Arctic Borough"),
-        ("AK", "Notin", "Hoonah-Angoon Census Area"),
-        ("AK", "Prince Wales", "Prince of Wales-Hyder"),
-        ("AK", "Prince of Wa", "Prince of Wales-Hyder Census Area"),
-        ("AK", "Prince of Wale", "Prince of Wales-Hyder"),
-        ("AK", "Prince of Wales", "Prince of Wales-Hyder Census Area"),
-        ("AK", "Prince of Wales Ketchikan", "Prince of Wales-Hyder"),
-        ("AK", "Prince of Wales-Outer Ketchika", "Prince of Wales-Hyder Census Area"),
-        ("AK", "Red Devil", "Bethel Census Area"),
-        ("AK", "Skagway Hoonah Angoon", "Hoonah-Angoon"),
-        ("AK", "Skagway Yaku", "Skagway"),
-        ("AK", "Skagway-Hoonah-Angoon", "Hoonah-Angoon Census Area"),
-        ("AK", "Skagway-Yakutat", "Skagway"),
-        ("AK", "Sleetmute", "Bethel Census Area"),
-        ("AK", "Southeast Fa", "Southeast Fairbanks Census Area"),
-        ("AK", "Stony River", "Bethel Census Area"),
-        ("AK", "Tanana", "Yukon-Koyukuk Census Area"),
-        ("AK", "Tenakee Springs", "Hoonah-Angoon Census Area"),
-        ("AK", "Valdez Cordo", "Valdez-Cordova"),
-        ("AK", "Valdez Cordova", "Valdez-Cordova"),
-        ("AK", "Wrangell Pet", "Wrangell"),
-        ("AK", "Wrangell Petersburg", "Wrangell"),
-        ("AK", "Wrangell-Petersburg", "Petersburg Census Area"),
-        ("AK", "Yukon Koyuku", "Yukon-Koyukuk"),
-        ("AK", "Yukon Koyukuk", "Yukon-Koyukuk"),
-        ("AK", "Yukon-Koyuku", "Yukon-Koyukuk"),
-        ("AL", "De Kalb", "DeKalb"),
-        ("AR", "Hot Springs", "Hot Spring County"),
-        ("AR", "Saint Franci", "St. Francis"),
-        ("AZ", "Maricopa (see footnote)", "Maricopa"),
-        ("AZ", "Nogales", "Santa Cruz"),
-        ("CA", "San Bernadino", "San Bernardino"),
-        ("CA", "San Bernardi", "San Bernardino"),
-        ("CA", "San Francisc", "San Francisco County"),
-        ("CA", "San Luis Obi", "San Luis Obispo County"),
-        ("CA", "Santa Barbar", "Santa Barbara County"),
-        ("CT", "Shelton", "Fairfield"),
-        ("DC", "District of", "District of Columbia"),
-        ("FL", "Dade", "Miami-Dade"),
-        ("FL", "De Soto", "DeSoto"),
-        ("FL", "Miami Dade", "Miami-Dade"),
-        ("FL", "St. Loucie", "St. Lucie"),
-        ("FL", "St. Lucic", "St. Lucie"),
-        ("GA", "Chattahooche", "Chattahoochee"),
-        ("GA", "De Kalb", "DeKalb"),
-        ("GA", "Glasscock", "Glascock County"),
-        ("IA", "Hardin -remove", "Hardin County"),
-        ("IA", "Harris", "Harrison"),
-        ("IA", "Humbolt", "Humboldt"),
-        ("IA", "Kossuh", "Kossuth"),
-        ("IA", "Louisa-remove", "Louisa County"),
-        ("IA", "Lousia", "Louisa"),
-        ("IA", "O Brien", "O'Brien"),
-        ("IA", "Pottawattami", "Pottawattamie"),
-        ("IA", "Poweshick", "Poweshiek"),
-        ("IA", "Union-remove", "Union County"),
-        ("ID", "Marshall", "Custer County"),
-        ("IL", "Burke", "Christian"),
-        ("IL", "Carol", "DuPage County"),
-        ("IL", "De Kalb", "DeKalb County"),
-        ("IL", "DeWitt", "De Witt"),
-        ("IL", "Dewitt", "De Witt"),
-        ("IL", "Du Page", "DuPage"),
-        ("IL", "Green", "Greene"),
-        ("IL", "JoDavies", "Jo Daviess"),
-        ("IL", "La Salle", "LaSalle"),
-        ("IL", "McCoupin", "Macoupin"),
-        ("IN", "De Kalb", "DeKalb County"),
-        ("IN", "De Kalb County", "DeKalb County"),
-        ("IN", "La Porte", "LaPorte"),
-        ("IN", "Putman", "Putnam"),
-        ("IN", "Pyke", "Pike"),
-        ("IN", "Sulliva", "Sullivan"),
-        ("KS", "Leaveworth", "Leavenworth"),
-        ("KY", "Hawkins", "Hopkins County"),
-        ("KY", "LAURE", "Larue County"),
-        ("KY", "Spenser", "Spencer"),
-        ("KY", "Sullivan", "Union County"),
-        ("KY", "WOLE", "Wolfe County"),
-        ("LA", "Burke", "Iberia"),
-        ("LA", "DeSoto", "De Soto"),
-        ("LA", "East Baton R", "East Baton Rouge Parish"),
-        ("LA", "East Felicia", "East Feliciana Parish"),
-        ("LA", "Jefferson Da", "Jefferson Davis"),
-        ("LA", "Morehouse Pa", "Morehouse Parish"),
-        ("LA", "Pointe Coupe", "Pointe Coupee"),
-        ("LA", "Saint Helina", "St. Helena Parish"),
-        ("LA", "Saint Tamman", "St. Tammany Parish"),
-        ("LA", "West Baton R", "West Baton Rouge"),
-        ("LA", "West Feleciana", "West Feliciana"),
-        ("LA", "West Felicia", "West Feliciana Parish"),
-        ("MA", "North Essex", "Essex"),
-        ("MD", "Baltimore Ci", "Baltimore City"),
-        ("MD", "Balto. City", "Baltimore City"),
-        ("MD", "Prince Georg", "Prince George's County"),
-        ("MD", "Worchester", "Worcester"),
-        ("MI", "Antim", "Antrim"),
-        ("MI", "Graitiot", "Gratiot County"),
-        ("MI", "Grand Traver", "Grand Traverse"),
-        ("MI", "Missauke", "Missaukee County"),
-        ("MN", "Fairbault", "Faribault"),
-        ("MN", "La Qui Parle", "Lac qui Parle County"),
-        ("MN", "Lac Qui Parl", "Lac Qui Parle"),
-        ("MN", "Lake of The", "Lake of the Woods"),
-        ("MN", "Olmstead", "Olmsted County"),
-        ("MN", "Ottertail", "Otter Tail"),
-        ("MN", "Yellow Medic", "Yellow Medicine"),
-        ("MO", "Cape Girarde", "Cape Girardeau"),
-        ("MO", "De Kalb", "DeKalb"),
-        ("MO", "Paris", "Monroe County"),
-        ("MO", "Saint Charle", "St. Charles County"),
-        ("MO", "Saint Franco", "St. Francois County"),
-        ("MO", "Sainte Genev", "Ste. Genevieve County"),
-        ("MS", "Clark", "Clarke"),
-        ("MS", "Clark", "Clarke"),
-        ("MS", "De Soto", "DeSoto"),
-        ("MS", "Homoshitto", "Amite"),
-        ("MS", "Jefferson Da", "Jefferson Davis"),
-        ("MT", "Anaconda-Dee", "Deer Lodge"),
-        ("MT", "Butte-Silver", "Silver Bow"),
-        ("MT", "Golden Valle", "Golden Valley"),
-        ("MT", "Lewis and Cl", "Lewis and Clark"),
-        ("NC", "Cherokee (NP&L)", "Cherokee County"),
-        ("NC", "Clay (NP&L)", "Clay County"),
-        ("NC", "Gilford", "Guilford"),
-        ("NC", "Graham (NP&L)", "Graham County"),
-        ("NC", "Hartford", "Hertford"),
-        ("NC", "Jackson (NP&L)", "Jackson County"),
-        ("NC", "Macon (NP&L)", "Macon County"),
-        ("NC", "North Hampton", "Northampton"),
-        ("NC", "Stanley", "Stanly County"),
-        ("NC", "Swain (NP&L)", "Swain County"),
-        ("ND", "Golden Valle", "Golden Valley County"),
-        ("ND", "La Moure", "LaMoure"),
-        ("ND", "Remsey", "Ramsey County"),
-        ("NH", "Hillsboro", "Hillsborough County"),
-        ("NH", "New Hampshire", "Coos"),
-        ("NH", "Plaquemines", "Coos"),
-        ("NV", "Carson City city", "Carson City"),
-        ("NY", "Saint Lawren", "St. Lawrence County"),
-        ("NY", "Westcherster", "Westchester"),
-        ("OH", "Cochocton", "Coshocton County"),
-        ("OH", "Columbian", "Columbiana County"),
-        ("OH", "Tuscarawa", "Tuscarawas County"),
-        ("OK", "Cimmaron", "Cimarron"),
-        ("OK", "MuCurtain", "McCurtain County"),
-        ("OR", "Unioin", "Union"),
-        ("PA", "Northumberla", "Northumberland"),
-        ("PR", "Aquadilla", "Aguadilla"),
-        ("PR", "Sabana Grand", "Sabana Grande"),
-        ("PR", "San Sebastia", "San Sebastian"),
-        ("PR", "Trujillo Alt", "Trujillo Alto"),
-        ("RI", "Portsmouth", "Newport"),
-        ("SD", "Pierce", "Hughes County"),
-        ("SD", "Valley Springs", "Minnehaha County"),
-        ("TX", "Collingswort", "Collingsworth"),
-        ("TX", "De Witt", "DeWitt"),
-        ("TX", "Hayes", "Hays"),
-        ("TX", "San Augustin", "San Augustine"),
-        ("VA", "Albermarle", "Albemarle County"),
-        ("VA", "Alexandria C", "Alexandria City"),
-        ("VA", "Charlottesvi", "Charlottesville City"),
-        ("VA", "Chesapeake C", "Chesapeake City"),
-        ("VA", "City of Manassas", "Manassas City"),
-        ("VA", "City of Suff", "Suffolk City"),
-        ("VA", "City of Suffolk", "Suffolk city"),
-        ("VA", "Clifton Forg", "Alleghany"),
-        ("VA", "Clifton Forge", "Alleghany"),
-        ("VA", "Colonial Hei", "Colonial Heights City"),
-        ("VA", "Covington Ci", "Covington City"),
-        ("VA", "Fredericksbu", "Fredericksburg City"),
-        ("VA", "Hopewell Cit", "Hopewell City"),
-        ("VA", "Isle of Wigh", "Isle of Wight"),
-        ("VA", "King and Que", "King and Queen"),
-        ("VA", "Lexington Ci", "Lexington City"),
-        ("VA", "Manasas Park", "Manassas Park city"),
-        ("VA", "Manassas Cit", "Manassas City"),
-        ("VA", "Manassas Par", "Manassas Park City"),
-        ("VA", "Northumberla", "Northumberland"),
-        ("VA", "Petersburg C", "Petersburg City"),
-        ("VA", "Poquoson Cit", "Poquoson City"),
-        ("VA", "Portsmouth C", "Portsmouth City"),
-        ("VA", "Prince Edwar", "Prince Edward"),
-        ("VA", "Prince Georg", "Prince George"),
-        ("VA", "Prince Willi", "Prince William"),
-        ("VA", "Richmond Cit", "Richmond City"),
-        ("VA", "Staunton Cit", "Staunton City"),
-        ("VA", "Virginia", "Virginia Beach city"),
-        ("VA", "Virginia Bea", "Virginia Beach City"),
-        ("VA", "Waynesboro C", "Waynesboro City"),
-        ("VA", "Winchester C", "Winchester City"),
-        ("WA", "Wahkiakurn", "Wahkiakum"),
-        ("WV", "Greenbriar", "Greenbrier County"),
-    ],
-    columns=["state", "eia_county", "fips_county"],
-)
-
 BA_NAME_FIXES: pd.DataFrame = pd.DataFrame(
     [
         ("Omaha Public Power District", 14127, "OPPD"),
@@ -526,12 +285,17 @@ NERC_SPELLCHECK: dict[str, str] = {
     "VACAR": "SERC",  # VACAR is a subregion of SERC
     "GATEWAY": "SERC",  # GATEWAY is a subregion of SERC
     "TERR": "GU",
-    25470: "MRO",
     "TX": "TRE",
     "NY": "NPCC",
     "NEW": "NPCC",
     "YORK": "NPCC",
     "MISE": "MISO",
+}
+
+# Some utilities report an integer code instead of a NERC region acronym. Because it
+# isn't a string, the string handling in clean_nerc() would turn it into NA -> UNK.
+NERC_NUMERIC_CODES: dict[int, str] = {
+    25470: "MRO",  # Roughrider Electric Cooperative (utility_id_eia=55959)
 }
 
 
@@ -690,7 +454,7 @@ def _tidy_class_dfs(
     class_list: list[str],
     class_type: str,
     keep_totals: bool = False,
-) -> pd.DataFrame:
+) -> tuple[pd.DataFrame, list[str]]:
     """Stack multiple data columns and create a categorical column for filtering.
 
     Many EIA-861 tables are reported in a wide format, with several columns reporting
@@ -910,7 +674,12 @@ def clean_nerc(nerc_df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame:
     # Make nerc values into lists to see how many separate values are stuffed into one row (ex: 'SPP & ERCOT' --> ['SPP', 'ERCOT'])
     nerc_df = nerc_df.assign(
         nerc_region=(
-            lambda x: x.nerc_region.str.upper().fillna("UNK").str.findall(r"[A-Z]+")
+            lambda x: (
+                x.nerc_region.replace(NERC_NUMERIC_CODES)
+                .str.upper()
+                .fillna("UNK")
+                .str.findall(r"[A-Z]+")
+            )
         )
     )
 
@@ -1182,7 +951,11 @@ def core_eia861__yearly_service_territory(
         # as floats, which messes up the parsing of counties by addfips.
         df.astype({"county": "string"})
         # Ensure that we have the canonical US Census county names:
-        .pipe(clean_eia_counties, fixes=EIA_FIPS_COUNTY_FIXES)
+        .pipe(
+            clean_eia_counties,
+            fixes=EIA_FIPS_COUNTY_FIXES,
+            explode_lists_of_counties=True,
+        )
         # Add FIPS IDs based on county & state names:
         .pipe(add_fips_ids, _core_censuspep__yearly_geocodes)
         .assign(short_form=lambda x: _make_yn_bool(x.short_form))
@@ -1664,8 +1437,8 @@ def core_demand_side_management_eia861(
     )
 
     # Split into final tables
-    ee_cols = [col for col in transformed_dsm2 if "energy_efficiency" in col]
-    dr_cols = [col for col in transformed_dsm2 if "load_management" in col]
+    ee_cols = [col for col in transformed_dsm2 if "energy_efficiency" in str(col)]
+    dr_cols = [col for col in transformed_dsm2 if "load_management" in str(col)]
     program_cols = ["price_responsiveness_customers", "time_responsiveness_customers"]
     total_cost_cols = ["annual_indirect_program_cost", "annual_total_cost"]
 
@@ -2386,7 +2159,7 @@ def core_operational_data_eia861(raw_eia861__operational_data: pd.DataFrame):
     # Split data into 2 tables:
     #  * Revenue (wide-to-tall)
     #  * Misc. (other)
-    revenue_cols = [col for col in transformed_od if "revenue" in col]
+    revenue_cols = [col for col in transformed_od if "revenue" in str(col)]
     transformed_od_misc = transformed_od.drop(columns=revenue_cols)
     transformed_od_rev = transformed_od[
         idx_cols + revenue_cols + ["data_maturity"]
@@ -2530,16 +2303,18 @@ def core_utility_data_eia861(raw_eia861__utility_data: pd.DataFrame):
     )
 
     # Establish columns that are nerc regions vs. rtos
-    nerc_cols = [col for col in raw_ud if "nerc_region_operation" in col] + [
+    nerc_cols = [col for col in raw_ud if "nerc_region_operation" in str(col)] + [
         "data_maturity"
     ]
     logger.info(f"{nerc_cols=}")
-    rto_cols = [col for col in raw_ud if "rto_operation" in col] + ["data_maturity"]
+    rto_cols = [col for col in raw_ud if "rto_operation" in str(col)] + [
+        "data_maturity"
+    ]
     logger.info(f"{rto_cols=}")
     misc_cols = [
         col
         for col in raw_ud
-        if "nerc_region_operation" not in col and "rto_operation" not in col
+        if "nerc_region_operation" not in str(col) and "rto_operation" not in str(col)
     ]
     logger.info(f"{misc_cols=}")
     # Make separate tables for nerc vs. rto vs. misc data
@@ -2672,7 +2447,7 @@ def core_utility_data_eia861(raw_eia861__utility_data: pd.DataFrame):
     },
     io_manager_key="parquet_io_manager",
 )
-def core_eia861__assn_utility(**data_dfs: dict[str, pd.DataFrame]) -> pd.DataFrame:
+def core_eia861__assn_utility(**data_dfs: pd.DataFrame) -> pd.DataFrame:
     """Harvest a Utility-Date-State Association Table."""
     logger.info("Building an EIA 861 Util-State-Date association table.")
     df = _harvest_associations(
@@ -2714,7 +2489,7 @@ def core_eia861__assn_utility(**data_dfs: dict[str, pd.DataFrame]) -> pd.DataFra
     io_manager_key="parquet_io_manager",
 )
 def core_eia861__assn_balancing_authority(
-    **dfs: dict[str, pd.DataFrame],
+    **dfs: pd.DataFrame,
 ) -> pd.DataFrame:
     """Compile a balancing authority, utility, state association table.
 

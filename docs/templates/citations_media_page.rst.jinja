@@ -1,0 +1,13 @@
+===============================================================================
+{{ title }}
+===============================================================================
+{{ description }}
+{% for section in sections %}
+{{ section.heading }}
+{{ section.heading_underline }}
+.. bibliography:: /{{ bibfile }}
+    :list: enumerated
+
+{% for key in section.citation_keys %}    {{ key }}
+{% endfor %}
+{% endfor %}

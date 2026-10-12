@@ -2219,6 +2219,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "plant_status",
                 "ending_balance",
                 "utility_type_other",
+                "ferc_account",
                 "in_rate_base",
                 "rate_base_category",
                 "table_name",
@@ -2260,6 +2261,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "xbrl_factoid",
                 "utility_type",
                 "ending_balance",
+                "ferc_account",
                 "in_rate_base",
                 "rate_base_category",
                 "table_name",
@@ -2290,6 +2292,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "some `total` utility_type's into `electric`) or to condense similar categories "
                 "for easier analysis (i.e. creating a `hydraulic_production` plant_function by "
                 "combining `hydraulic_production_conventional` and `hydraulic_production_pumped_storage`).\n"
+                "Note that in the 2025 taxonomy, additional plant functions (solar, wind, energy storage, "
+                "other renewables) were added - these plant functions have not been retroactively applied "
+                "to prior taxonomies, and will appear under 'other_production' in prior years. "
                 "See ``pudl.output.ferc1.Exploder`` for more details. This table was made entirely with "
                 "support and direction from RMI."
             ),

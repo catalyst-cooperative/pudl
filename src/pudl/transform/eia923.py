@@ -1626,8 +1626,10 @@ def _clean_emissions_control_dates(
 
     is_spot_fix = raw.isin(spot_fixes)
     # Apply table-specific corrections first so malformed one-offs don't need to be
-    # encoded in general parsing logic.
-    out.loc[is_spot_fix] = raw.loc[is_spot_fix].map(spot_fixes)
+    # encoded in general parsing logic. Guard against an empty selection, which
+    # would otherwise assign an empty object-dtype array into a datetime64 column.
+    if is_spot_fix.any():
+        out.loc[is_spot_fix] = raw.loc[is_spot_fix].map(spot_fixes)
 
     to_parse = ~(is_nullish | is_spot_fix)
 

@@ -35,6 +35,7 @@ sources:
           - name: plant_status
           - name: ending_balance
           - name: utility_type_other
+          - name: ferc_account
           - name: in_rate_base
             data_tests:
               - dbt_expectations.expect_column_values_to_be_in_set:

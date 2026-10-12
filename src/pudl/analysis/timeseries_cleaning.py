@@ -35,7 +35,7 @@ import uuid
 import warnings
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
-from typing import Any, Literal
+from typing import Any, Literal, cast
 
 import bottleneck as bn
 import numpy as np
@@ -44,8 +44,10 @@ import pandera.pandas as pa
 import scipy.stats
 from dagster import (
     AssetCheckResult,
+    AssetChecksDefinition,
     AssetIn,
     AssetOut,
+    AssetsDefinition,
     Output,
     asset,
     asset_check,
@@ -61,7 +63,7 @@ logger = get_logger(__name__)
 
 # --- Constants --- #
 
-STANDARD_UTC_OFFSETS: dict[str, str] = {
+STANDARD_UTC_OFFSETS: dict[str, int] = {
     "Pacific/Honolulu": -10,
     "America/Anchorage": -9,
     "America/Los_Angeles": -8,
@@ -166,8 +168,9 @@ def utc_dataframe_to_aligned(
     )
 
     # List timezone by year for each respondent by the datetime
-    input_df["year"] = input_df["datetime"].dt.year
-    return input_df
+    input_df["year"] = pd.to_datetime(input_df["datetime"]).dt.year
+    # Columns were added in place above; pandera validates the new schema at runtime.
+    return cast(DataFrame[AlignedTimeseriesDataFrame], input_df)
 
 
 @pa.check_types
@@ -189,7 +192,8 @@ def pivot_aligned_timeseries_dataframe(
     all_hours = pd.date_range(start=start, end=end, freq="h", name="datetime")
 
     # Reindex matrix with all hours. This will fill in any missing hours with NULLS
-    return matrix.reindex(all_hours)
+    # pivot() is typed as preserving the input schema; it's really a TimeseriesMatrix.
+    return cast(DataFrame[TimeseriesMatrix], matrix.reindex(all_hours))
 
 
 @pa.check_types
@@ -202,7 +206,8 @@ def melt_imputed_timeseries_matrix(
     flags = flag_matrix.melt(value_name="flags", ignore_index=False).reset_index()
 
     df = df.merge(flags, on=["id_col", "datetime"], validate="one_to_one", how="left")
-    return df
+    # melt() is typed as preserving the input schema; it's really an aligned dataframe.
+    return cast(DataFrame[AlignedTimeseriesDataFrame], df)
 
 
 @dataclass
@@ -226,15 +231,19 @@ class FlaggedTimeseries:
         flags: pd.DataFrame | None = None,
     ) -> FlaggedTimeseries:
         """Create a timeseries object from a dataframe."""
-        x = matrix.to_numpy()
-        flags = np.empty(x.shape, dtype=object) if flags is None else flags.to_numpy()
+        x = matrix.to_numpy(copy=True)
+        flags_array = (
+            np.empty(x.shape, dtype=object)
+            if flags is None
+            else flags.to_numpy(copy=True)
+        )
 
         return cls(
             x=x,
             index=matrix.index,
             columns=matrix.columns,
-            flags=flags,
-            uuid=uuid.uuid4(),
+            flags=flags_array,
+            uuid=str(uuid.uuid4()),
         )
 
     def to_dataframes(self) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -261,7 +270,7 @@ class FlaggedTimeseries:
         self.flags[mask] = flag.name.lower()
         # Null flagged values
         self.x[mask] = np.nan
-        self.uuid = uuid.uuid4()
+        self.uuid = str(uuid.uuid4())
         return self
 
 
@@ -377,9 +386,10 @@ def insert_run_length(  # noqa: C901
     x: Sequence | np.ndarray,
     values: Sequence | np.ndarray,
     lengths: Sequence[int],
-    mask: Sequence[bool] | None = None,
+    mask: Sequence[bool] | np.ndarray | None = None,
     padding: int = 0,
     intersect: bool = False,
+    rng: np.random.Generator | None = None,
 ) -> np.ndarray:
     """Insert run-length encoded values into a vector.
 
@@ -392,6 +402,8 @@ def insert_run_length(  # noqa: C901
         padding: Minimum space between inserted runs and,
             if `mask` is provided, the edges of masked-out areas.
         intersect: Whether to allow inserted runs to intersect each other.
+        rng: Random number generator to use for choosing run positions. Defaults
+            to a seeded generator for reproducible results.
 
     Raises:
         ValueError: Padding must zero or greater.
@@ -479,12 +491,13 @@ def insert_run_length(  # noqa: C901
         run_starts = np.concatenate((run_starts, buffer))
         run_lengths = np.concatenate((run_lengths, buffer))
     # Initialize random number generator
-    rng = np.random.default_rng()
+    if rng is None:
+        rng = np.random.default_rng(20260925)
     # Sort insertions from longest to shortest
     order = np.argsort(lengths)[::-1]
     values = np.asarray(values)[order]
-    lengths = np.asarray(lengths)[order]
-    for value, length in zip(values, lengths, strict=True):
+    sorted_lengths = np.asarray(lengths)[order]
+    for value, length in zip(values, sorted_lengths, strict=True):
         if length < 1:
             raise ValueError("Run length must be greater than zero")
         # Choose runs of adequate length
@@ -562,7 +575,8 @@ def impute_latc_tnn(
     lambda0: float = 2e-7,
     theta: int = 20,
     epsilon: float = 1e-7,
-    maxiter: int = 300,
+    max_iterations: int = 300,
+    min_iterations: int = 50,
 ) -> np.ndarray:
     """Impute tensor values with LATC-TNN method by Chen and Sun (2020).
 
@@ -581,12 +595,16 @@ def impute_latc_tnn(
         lambda0:
         theta:
         epsilon: Convergence criterion. A smaller number will result in more iterations.
-        maxiter: Maximum number of iterations.
+        max_iterations: Maximum number of iterations.
+        min_iterations: Minimum number of iterations before the ``epsilon``
+            convergence check is allowed to stop the loop. The relative change
+            between iterations can dip transiently in the first few iterations
+            without indicating genuine convergence, so `epsilon` alone is not a
+            safe stopping criterion for iterations before this floor.
 
     Returns:
         Tensor with missing values in `tensor` replaced by imputed values.
     """
-    rng = np.random.default_rng()
     tensor = np.where(np.isnan(tensor), 0, tensor)
     dim = np.array(tensor.shape)
     dim_time = int(np.prod(dim) / dim[0])
@@ -598,7 +616,10 @@ def impute_latc_tnn(
     t = np.zeros(np.insert(dim, 0, len(dim)))
     z = mat.copy()
     z[pos_missing] = np.mean(mat[mat != 0])
-    a = 0.001 * rng.random(dim[0] * d).reshape([dim[0], d])
+    # `a` is always overwritten by `a[m, :] = np.linalg.pinv(qm) @ ...` below
+    # before it is read, and is unused entirely when `lambda0 <= 0`, so its
+    # initial value doesn't matter.
+    a = np.zeros((dim[0], d))
     it = 0
     ind = np.zeros((d, dim_time - max_lag), dtype=int)
     for i in range(d):
@@ -640,25 +661,34 @@ def impute_latc_tnn(
         tol = np.linalg.norm((mat_hat - last_mat), "fro") / snorm
         last_mat = mat_hat.copy()
         it += 1
-        print(f"Iteration: {it}", end="\r")
-        if tol < epsilon or it >= maxiter:
+        if it % 25 == 0:
+            logger.info(f"impute_latc_tnn: iteration {it}, tol={tol:.2e}")
+        if (tol < epsilon and it >= min_iterations) or it >= max_iterations:
             break
-    print(f"Iteration: {it}")
+    logger.info(f"impute_latc_tnn: converged after {it} iterations (tol={tol:.2e})")
     return tensor_hat
 
 
 def _tsvt(tensor: np.ndarray, phi: np.ndarray, tau: float) -> np.ndarray:
     """Tensor singular value thresholding (TSVT)."""
-    dim = tensor.shape
-    x = np.zeros(dim)
     tensor = np.einsum("kt, ijk -> ijt", phi, tensor)
-    for t in range(dim[2]):
-        u, s, v = np.linalg.svd(tensor[:, :, t], full_matrices=False)
-        r = len(np.where(s > tau)[0])
-        if r >= 1:
-            s = s[:r]
-            s[:r] = s[:r] - tau
-            x[:, :, t] = u[:, :r] @ np.diag(s) @ v[:r, :]
+    # Batch all dim[2] per-timestep SVDs into a single vectorized LAPACK call
+    # (np.linalg.svd supports a leading batch dimension) instead of looping
+    # over each timestep in Python. Reconstruct via broadcast-scaled batched
+    # matmul (`@`, which dispatches to BLAS's batched gemm) rather than
+    # np.einsum, which does not use BLAS for this contraction and is much
+    # slower. Soft-thresholding every singular value (zeroing those below
+    # tau) is equivalent to the previous top-r-then-subtract-tau approach,
+    # since np.linalg.svd already returns singular values sorted in
+    # descending order, and the full SVD (not just the top r components) is
+    # computed either way -- benchmarked ~3-7% faster on realistic
+    # (low-rank-plus-noise) synthetic data, bit-identical up to floating
+    # point noise. See PUDL issue #5649.
+    batched = np.moveaxis(tensor, 2, 0)  # (t, i, j)
+    u, s, v = np.linalg.svd(batched, full_matrices=False)
+    s = np.where(s > tau, s - tau, 0.0)
+    x = (u * s[:, None, :]) @ v
+    x = np.moveaxis(x, 0, 2)  # back to (i, j, t)
     return np.einsum("kt, ijt -> ijk", phi, x)
 
 
@@ -668,7 +698,8 @@ def impute_latc_tubal(  # noqa: C901
     rho0: float = 1e-7,
     lambda0: float = 2e-7,
     epsilon: float = 1e-7,
-    maxiter: int = 300,
+    max_iterations: int = 300,
+    min_iterations: int = 50,
 ) -> np.ndarray:
     """Impute tensor values with LATC-Tubal method by Chen, Chen and Sun (2020).
 
@@ -686,7 +717,15 @@ def impute_latc_tubal(  # noqa: C901
         rho0:
         lambda0:
         epsilon: Convergence criterion. A smaller number will result in more iterations.
-        maxiter: Maximum number of iterations.
+        max_iterations: Maximum number of iterations.
+        min_iterations: Minimum number of iterations before the ``epsilon``
+            convergence check is allowed to stop the loop. The relative change
+            between iterations dips sharply in the first ~10 iterations, before
+            bouncing back up by several orders of magnitude once the algorithm
+            starts doing real work, and the internal basis (``phi``) is recomputed
+            every 10 iterations thereafter, causing a smaller periodic
+            dip-and-bounce for the rest of the run. `epsilon` alone is not a safe
+            stopping criterion for iterations before this floor.
 
     Returns:
         Tensor with missing values in `tensor` replaced by imputed values.
@@ -706,7 +745,10 @@ def impute_latc_tubal(  # noqa: C901
     t = np.zeros(dim)
     z = mat.copy()
     z[pos_missing] = np.mean(mat[mat != 0])
-    a = 0.001 * rng.random(dim[0] * d).reshape([dim[0], d])
+    # `a` is always overwritten by `a[m, :] = np.linalg.pinv(qm) @ ...` below
+    # before it is read, and is unused entirely when `lambda0 <= 0`, so its
+    # initial value doesn't matter.
+    a = np.zeros((dim[0], d))
     it = 0
     ind = np.zeros((d, dim_time - max_lag), dtype=np.int_)
     for i in range(d):
@@ -720,9 +762,15 @@ def impute_latc_tubal(  # noqa: C901
     # downstream _tsvt() einsum/SVD calls into much slower complex arithmetic.
     _, phi = np.linalg.eigh(temp1 @ temp1.T)
     del temp1
-    if dim_time > 5e3 and dim_time <= 1e4:
+    # A full year of hourly data (our largest current use case) has at most 8,784 time
+    # steps (leap year), so this makes the fit below deterministic for all current
+    # production imputation without removing the subsampling path for any future
+    # higher-resolution dataset that needs it.
+    # Only read when ``dim_time > 1e4``, where one of the branches below applies.
+    sample_rate = 1.0
+    if dim_time > 1e4 and dim_time <= 2e4:
         sample_rate = 0.2
-    elif dim_time > 1e4:
+    elif dim_time > 2e4:
         sample_rate = 0.1
     while True:
         rho = min(rho * 1.05, 1e5)
@@ -731,12 +779,12 @@ def impute_latc_tubal(  # noqa: C901
         mat0 = np.zeros((dim[0], dim_time - max_lag))
         temp2 = _ten2mat(rho * x + t, 0)
         if lambda0 > 0:
-            if dim_time <= 5e3:
+            if dim_time <= 1e4:
                 for m in range(dim[0]):
                     qm = mat_hat[m, ind].T
                     a[m, :] = np.linalg.pinv(qm) @ z[m, max_lag:]
                     mat0[m, :] = qm @ a[m, :]
-            elif dim_time > 5e3:
+            elif dim_time > 1e4:
                 for m in range(dim[0]):
                     idx = np.arange(0, dim_time - max_lag)
                     rng.shuffle(idx)
@@ -759,10 +807,11 @@ def impute_latc_tubal(  # noqa: C901
             temp1 = _ten2mat(_mat2ten(z, dim, 0) - t / rho, 2)
             _, phi = np.linalg.eigh(temp1 @ temp1.T)
             del temp1
-        print(f"Iteration: {it}", end="\r")
-        if tol < epsilon or it >= maxiter:
+        if it % 25 == 0:
+            logger.info(f"impute_latc_tubal: iteration {it}, tol={tol:.2e}")
+        if (tol < epsilon and it >= min_iterations) or it >= max_iterations:
             break
-    print(f"Iteration: {it}")
+    logger.info(f"impute_latc_tubal: converged after {it} iterations (tol={tol:.2e})")
     return x
 
 
@@ -1259,15 +1308,15 @@ def flag_bad_years(
     has_data = ~df.isnull()
     coverage = (
         # Last timestamp with demand in year
-        has_data.iloc[::-1].groupby(df.index.year[::-1]).idxmax()
+        has_data.iloc[::-1].groupby(pd.DatetimeIndex(df.index).year[::-1]).idxmax()
         -
         # First timestamp with demand in year
-        has_data.groupby(df.index.year).idxmax()
+        has_data.groupby(pd.DatetimeIndex(df.index).year).idxmax()
     ).apply(lambda x: 1 + x.dt.days * 24 + x.dt.seconds / 3600, axis=1)
 
-    fraction = has_data.groupby(df.index.year).sum() / coverage
+    fraction = has_data.groupby(pd.DatetimeIndex(df.index).year).sum() / coverage
     has_flags = (flags.notnull() & (flags != "missing_value")).groupby(
-        flags.index.year
+        pd.DatetimeIndex(flags.index).year
     ).sum() > 0
 
     # Get mask of respondent-years for which there are fewer than min_data non-null hours
@@ -1292,7 +1341,7 @@ def flag_bad_years(
         )
 
     # Set all values in short or bad respondent-years to null
-    mask = (short | bad).loc[df.index.year].to_numpy()
+    mask = (short | bad).loc[pd.DatetimeIndex(df.index).year].to_numpy()
     return ts.flag(mask, ImputationReasonCodes.BAD_YEAR)
 
 
@@ -1354,7 +1403,11 @@ def flag_ruggles(
     )
     ts = flag_anomalous_region(ts, window=window + 1, threshold=0.15)
     ts = flag_bad_years(ts, min_data, min_data_fraction)
-    return ts.to_dataframes()
+    # Plain frames from FlaggedTimeseries; pandera validates them as matrices on return.
+    return cast(
+        tuple[DataFrame[TimeseriesMatrix], DataFrame[TimeseriesMatrix]],
+        ts.to_dataframes(),
+    )
 
 
 def summarize_flags(
@@ -1380,6 +1433,7 @@ def simulate_nulls(
     padding: int = 1,
     intersect: bool = False,
     overlap: bool = False,
+    rng: np.random.Generator | None = None,
 ) -> np.ndarray:
     """Find non-null values to null to match a run-length distribution.
 
@@ -1393,6 +1447,9 @@ def simulate_nulls(
         intersect: Whether simulated null runs can intersect each other.
         overlap: Whether simulated null runs can overlap existing null runs. If
             ``True``, ``padding`` is ignored.
+        rng: Random number generator to use for choosing run positions. Pass a
+            seeded generator for reproducible output; defaults to a fresh,
+            unseeded generator.
 
     Returns:
         Boolean mask of current non-null values to set to null.
@@ -1422,6 +1479,7 @@ def simulate_nulls(
             mask=None if overlap else ~is_null,
             padding=0 if overlap else padding,
             intersect=intersect,
+            rng=rng,
         )
         if overlap:
             is_new_null &= ~is_null
@@ -1497,7 +1555,7 @@ def impute(
         ValueError: Zero values present. Replace with very small value.
     """
     imputer = {"tubal": impute_latc_tubal, "tnn": impute_latc_tnn}[method]
-    x = df.to_numpy()
+    x = df.to_numpy(copy=True)
     if (x == 0).any():
         raise ValueError("Zero values present. Replace with very small value.")
     tensor = fold_tensor(x, periods=periods)
@@ -1505,11 +1563,15 @@ def impute(
     ends = [*range(0, n, int(np.ceil(n / blocks))), n]
     for i in range(blocks):
         if blocks > 1:
-            print(f"Block: {i}")
+            logger.info(f"impute: block {i + 1} of {blocks}")
         idx = slice(None), slice(ends[i], ends[i + 1]), slice(None)
         tensor[idx] = imputer(tensor[idx], **kwargs)
     x = unfold_tensor(tensor, x.shape)
-    return pd.DataFrame(x, columns=df.columns, index=df.index)
+    # Plain frame with the same index/columns as the input matrix.
+    return cast(
+        DataFrame[TimeseriesMatrix],
+        pd.DataFrame(x, columns=df.columns, index=df.index),
+    )
 
 
 @pa.check_types
@@ -1592,7 +1654,7 @@ def impute_flagged_values(
     # the newer years of data first. This is so we can see early if
     # new data causes any failures.
     df = df.sort_index(ascending=False)
-    for year, gdf in df.groupby(df.index.year, sort=False):
+    for year, gdf in df.groupby(pd.DatetimeIndex(df.index).year, sort=False):
         # remove the records o/s of the working years because some
         # respondents report one record of midnight of January first
         # of the next year (report_date.dt.year + 1). and
@@ -1603,8 +1665,9 @@ def impute_flagged_values(
 
             # Drop completely empty columns and impute
             blank = df.columns[gdf.isnull().all()]
+            # groupby() chunks of a TimeseriesMatrix are still timeseries matrices.
             result = impute(
-                gdf.drop(columns=blank),
+                cast(DataFrame[TimeseriesMatrix], gdf.drop(columns=blank)),
                 method=method[year],
                 periods=periods,
                 blocks=blocks,
@@ -1613,7 +1676,7 @@ def impute_flagged_values(
             # Add empty columns back and save result
             result[blank] = np.nan
             results.append(result)
-    return pd.concat(results)
+    return cast(DataFrame[TimeseriesMatrix], pd.concat(results))
 
 
 @dataclass
@@ -1666,12 +1729,26 @@ def _merge_imputed(
     imputed_df = melt_imputed_timeseries_matrix(matrix, flags)
 
     # Merge back on core table
-    return aligned_df.merge(
+    merged = aligned_df.merge(
         imputed_df.rename(columns={"value_col": "imputed_value_col"}),
         on=["id_col", "datetime"],
         how="left",
         validate="one_to_one",
     )
+
+    # The tensor completion model reconstructs every cell, not just flagged
+    # ones, so its (very small, but nonzero) reconstruction error would
+    # otherwise leak into values that were never flagged for imputation. Use
+    # the original reported value wherever nothing was flagged, so the
+    # imputed column matches the reported column exactly outside the ~4% of
+    # rows that were actually imputed. Only applies where the row was part of
+    # the imputed matrix at all (`imputed_value_col` not null); rows dropped
+    # from the matrix entirely (e.g. all-null columns, or years/ids outside
+    # this run) are left as-is.
+    unflagged = merged["flags"].isna() & merged["imputed_value_col"].notna()
+    merged.loc[unflagged, "imputed_value_col"] = merged.loc[unflagged, "value_col"]
+
+    return merged
 
 
 @pa.check_types
@@ -1699,11 +1776,13 @@ def _add_simulated_flag_col(
     """
     # Add a column to both dataframes, which contains the start date of the month
     # In the ``datetime`` column.
-    simulation_df["period"] = simulation_df["reference_month"].dt.to_period("M")
-    imputed_df["period"] = imputed_df["datetime"].dt.to_period("M")
+    simulation_df["period"] = pd.to_datetime(
+        simulation_df["reference_month"]
+    ).dt.to_period("M")
+    imputed_df["period"] = pd.to_datetime(imputed_df["datetime"]).dt.to_period("M")
 
     # Merge on month and ID to get a DataFrame with all hours in the reference months
-    simulation_df = imputed_df.merge(
+    merged_df = imputed_df.merge(
         simulation_df,
         left_on=["id_col", "period"],
         right_on=["reference_id_col", "period"],
@@ -1712,7 +1791,7 @@ def _add_simulated_flag_col(
     )
 
     # Filter to hours where values were flagged (NULL) in reference month
-    flagged = simulation_df[simulation_df["flags"].notnull()]
+    flagged = merged_df[merged_df["flags"].notnull()]
 
     # For each flagged value in a reference month, get the number of hours after midnight
     # of the first day of the month for this value. Then, use this timedelta to find
@@ -1724,8 +1803,8 @@ def _add_simulated_flag_col(
 
     # Drop hours that crossed over into the next month
     flagged = flagged[
-        flagged["simulation_datetime"].dt.to_period("M")
-        == flagged["simulation_month"].dt.to_period("M")
+        pd.to_datetime(flagged["simulation_datetime"]).dt.to_period("M")
+        == pd.to_datetime(flagged["simulation_month"]).dt.to_period("M")
     ]
 
     # Append column with simulated flags to imputed dataframe
@@ -1826,14 +1905,16 @@ def get_simulated_flag_mask(
     # Use reference month to get hours which should be flagged in simulation month
     imputed_df = _add_simulated_flag_col(
         imputed_df,
-        simulation_df,
+        cast(DataFrame[SimulationDataFrame], simulation_df),  # built by pd.concat
     )
 
     # Pivot simulated flag column to get mask which can be used to flag a timeseries matrix
     flags = pivot_aligned_timeseries_dataframe(imputed_df, value_col="simulated_flags")
     flags[flags.isna()] = False
 
-    return flags, set(simulation_df["simulation_month"].dt.year.unique())
+    return flags, set(
+        pd.to_datetime(simulation_df["simulation_month"]).dt.year.unique()
+    )
 
 
 @dataclass
@@ -1860,11 +1941,32 @@ class ImputeTimeseriesSettings:
     """
     method_overrides: dict[int, Literal["tubal", "tnn"]] = field(default_factory=dict)
     """Override stated imputation method for specific years."""
+    method_override_for_latest_year: Literal["tubal", "tnn"] | None = None
+    """Override the imputation method for the most recent year in a given run.
+
+    Unlike ``method_overrides``, which is keyed by a specific calendar year and
+    so is fixed at settings-construction (module import) time, this override is
+    resolved at run time against the actual years being imputed (from
+    ``years_from_context``). Use this instead of hardcoding a year based on
+    wall-clock date -- e.g. ``date.today().year`` -- which makes two builds of
+    the same input data pick different methods depending on when they happen
+    to run.
+    """
     simulate_flags_settings: SimulateFlagsSettings | None = None
     """Settings to simulate flagged values and score imputation.
 
     Defaults to None which will not do any simulation/scoring.
     """
+
+
+def _resolve_imputation_methods(
+    years: list[int], settings: ImputeTimeseriesSettings
+) -> dict[int, Literal["tubal", "tnn"]]:
+    """Map each year being imputed to the method that should be used for it."""
+    method = dict.fromkeys(years, settings.method) | settings.method_overrides
+    if settings.method_override_for_latest_year is not None and years:
+        method[max(years)] = settings.method_override_for_latest_year
+    return method
 
 
 def impute_timeseries_asset_factory(  # noqa: C901
@@ -1879,7 +1981,7 @@ def impute_timeseries_asset_factory(  # noqa: C901
     output_io_manager_key: str = "parquet_io_manager",
     op_tags: dict[str, Any] | None = None,
     settings: ImputeTimeseriesSettings = ImputeTimeseriesSettings(),
-) -> pd.DataFrame:
+) -> list[AssetsDefinition] | tuple[list[AssetsDefinition], AssetChecksDefinition]:
     """Produces assets to impute values for a given timeseries table/column.
 
     This factory function produces a set of assets which perform timeseries imputation
@@ -1962,15 +2064,19 @@ def impute_timeseries_asset_factory(  # noqa: C901
             and a ``id_col`` column index (e.g. 101, ..., 329).
         """
         # Convert from datetime_utc to local datetime
-        aligned_df = utc_dataframe_to_aligned(
-            input_df.rename(
-                columns={
-                    value_col: "value_col",
-                    id_col: "id_col",
-                    simulation_group_col: "simulation_group",
-                }
-            )
+        renamed_df = input_df.rename(
+            columns={
+                value_col: "value_col",
+                id_col: "id_col",
+                simulation_group_col: "simulation_group",
+            }
         )
+        # timezone may arrive as a categorical; the pandera input schema for
+        # utc_dataframe_to_aligned expects a plain string column.
+        if "timezone" in renamed_df:
+            renamed_df["timezone"] = renamed_df["timezone"].astype("string")
+        # pandera validates/coerces the frame against UTCTimeseriesDataFrame at runtime.
+        aligned_df = utc_dataframe_to_aligned(renamed_df)  # type: ignore[bad-argument-type]
 
         # If no simulation group column is specified, create one with a monolithic group
         if simulation_group_col is None:
@@ -2004,8 +2110,9 @@ def impute_timeseries_asset_factory(  # noqa: C901
         matrix: pd.DataFrame,
     ):
         """Flag/Null anomalous and missing values."""
+        # Assets receive plain frames from the IO manager; pandera validates on call.
         matrix, flags = flag_ruggles(
-            matrix,
+            cast(DataFrame[TimeseriesMatrix], matrix),
             min_data=settings.min_data,
             min_data_fraction=settings.min_data_fraction,
         )
@@ -2040,16 +2147,21 @@ def impute_timeseries_asset_factory(  # noqa: C901
         """Perform imputation and return TimeseriesMatrix with imputed values."""
         # Impute flagged/missing values
         years = years_from_context(context)
-        method = dict.fromkeys(years, settings.method) | settings.method_overrides
+        method = _resolve_imputation_methods(years, settings)
+        # Assets receive plain frames from the IO manager; pandera validates on call.
         imputed_matrix = impute_flagged_values(
-            matrix,
+            cast(DataFrame[TimeseriesMatrix], matrix),
             years=years,
             periods=settings.periods,
             blocks=settings.blocks,
             method=method,
         )
 
-        return _merge_imputed(aligned_df, imputed_matrix, flags)
+        return _merge_imputed(
+            cast(DataFrame[AlignedTimeseriesDataFrame], aligned_df),
+            imputed_matrix,
+            cast(DataFrame[TimeseriesMatrix], flags),
+        )
 
     @asset(
         ins={
@@ -2101,12 +2213,17 @@ def impute_timeseries_asset_factory(  # noqa: C901
         years that contain simulated flags, as we do imputation 1 year at a time, so
         including years without simulated data would have no impact on the results.
         """
+        # These assets are only returned when simulation settings are provided.
+        simulate_flags_settings = settings.simulate_flags_settings
+        assert simulate_flags_settings is not None
         simulated_years = set()
         ts = FlaggedTimeseries.from_timeseries_matrix(matrix, flags=flags)
         for simulation_group in imputed_df["simulation_group"].unique():
             # Get simulated flag mask for simulation group and set of years with simulated flags
             mask, years = get_simulated_flag_mask(
-                settings.simulate_flags_settings, imputed_df, simulation_group
+                simulate_flags_settings,
+                cast(DataFrame[AlignedTimeseriesDataFrame], imputed_df),
+                simulation_group,
             )
             simulated_years |= years
 
@@ -2123,11 +2240,11 @@ def impute_timeseries_asset_factory(  # noqa: C901
         return (
             Output(
                 output_name=simulated_timeseries_matrix_asset,
-                value=matrix[matrix.index.year.isin(simulated_years)],
+                value=matrix[pd.DatetimeIndex(matrix.index).year.isin(simulated_years)],
             ),
             Output(
                 output_name=simulated_flags_asset,
-                value=flags[flags.index.year.isin(simulated_years)],
+                value=flags[pd.DatetimeIndex(flags.index).year.isin(simulated_years)],
             ),
         )
 
@@ -2150,15 +2267,20 @@ def impute_timeseries_asset_factory(  # noqa: C901
         """Perform imputation on asset with simulated flags and return :class:TimeseriesMatrix with imputed values."""
         # Impute flagged/missing values
         years = years_from_context(context)
-        method = dict.fromkeys(years, settings.method) | settings.method_overrides
+        method = _resolve_imputation_methods(years, settings)
+        # Assets receive plain frames from the IO manager; pandera validates on call.
         imputed_matrix = impute_flagged_values(
-            matrix,
+            cast(DataFrame[TimeseriesMatrix], matrix),
             years=years,
             periods=settings.periods,
             blocks=settings.blocks,
             method=method,
         )
-        return _merge_imputed(aligned_df, imputed_matrix, flags)
+        return _merge_imputed(
+            cast(DataFrame[AlignedTimeseriesDataFrame], aligned_df),
+            imputed_matrix,
+            cast(DataFrame[TimeseriesMatrix], flags),
+        )
 
     @asset(
         ins={
@@ -2202,8 +2324,9 @@ def impute_timeseries_asset_factory(  # noqa: C901
         metric used is ``mean_absolute_percentage_error`` as percent error is more
         robust to magnitude changes in the underlying data than total error.
         """
-        mape_dict = {}
+        mape_dict: dict[str, float] = {}
         for group_name, gdf in simulated_df.groupby("simulation_group"):
+            group_name = str(group_name)
             # Get just rows where we simultated NULLS
             simulated_gdf = gdf[gdf["flags"] == "simulated"]
 
@@ -2232,9 +2355,12 @@ def impute_timeseries_asset_factory(  # noqa: C901
         blocking=True,
     )
     def _check_score(mape_dict: dict[str, float]):
+        # This check is only returned when simulation settings are provided.
+        simulate_flags_settings = settings.simulate_flags_settings
+        assert simulate_flags_settings is not None
         return AssetCheckResult(
             passed=all(
-                mape < settings.simulate_flags_settings.mape_threshold
+                mape < simulate_flags_settings.mape_threshold
                 for mape in mape_dict.values()
             ),
             metadata=mape_dict,

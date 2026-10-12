@@ -32,6 +32,7 @@ sources:
           - name: xbrl_factoid
           - name: utility_type
           - name: ending_balance
+          - name: ferc_account
           - name: in_rate_base
           - name: rate_base_category
           - name: table_name

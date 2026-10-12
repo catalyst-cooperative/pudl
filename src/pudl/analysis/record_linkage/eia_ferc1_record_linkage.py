@@ -54,6 +54,10 @@ from pudl.metadata.classes import DataSource, Resource
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
+#: Seed for the random sampling of record pairs used to estimate the ``u``
+#: probabilities of the splink model.
+U_ESTIMATION_SEED = 20260919
+
 MATCHING_COLS = [
     "plant_name",
     "utility_name",
@@ -235,7 +239,10 @@ def get_model_predictions(eia_df, ferc_df, train_df, experiment_tracker):
         db_api=DuckDBAPI(),
     )
     linker.table_management.register_table(train_df, "training_labels", overwrite=True)
-    linker.training.estimate_u_using_random_sampling(max_pairs=1e7)
+    # Seed the random sampling so the trained model is reproducible between runs.
+    linker.training.estimate_u_using_random_sampling(
+        max_pairs=1e7, seed=U_ESTIMATION_SEED
+    )
     linker.training.estimate_m_from_pairwise_labels("training_labels")
     threshold_prob = 0.9
     experiment_tracker.execute_logging(
@@ -254,15 +261,20 @@ def get_best_matches(
     experiment_tracker: experiment_tracking.ExperimentTracker,
 ):
     """Get the best EIA match for each FERC record and log performance metrics."""
+    # Break ties in match probability by EIA record ID, so that the chosen match doesn't
+    # depend on the row order of the splink output.
     preds_df = (
         preds_df.rename(
             columns={"record_id_l": "record_id_eia", "record_id_r": "record_id_ferc1"}
         )
-        .sort_values(by="match_probability", ascending=False)
-        .groupby("record_id_ferc1")
-        .first()
+        .sort_values(
+            by=["record_id_ferc1", "match_probability", "record_id_eia"],
+            ascending=[True, False, True],
+            kind="stable",
+        )
+        .drop_duplicates(subset="record_id_ferc1", keep="first")
+        .reset_index(drop=True)
     )
-    preds_df = preds_df.reset_index()
     train_df = inputs.get_train_df().reset_index()
     true_pos = get_true_pos(preds_df, train_df)
     false_pos = get_false_pos(preds_df, train_df)
