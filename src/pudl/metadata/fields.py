@@ -4826,7 +4826,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "degrees",
         "constraints": {
             "minimum": -180.0,  # Populated Aleutian islands w/ power plants
-            "maximum": -64.0,  # US Virgin Islands
+            "maximum": -60.0,  # US Virgin Islands
         },
     },
     "mains_miles": {
