@@ -318,8 +318,8 @@ def test_make_mega_gen_tbl():
                 "report_date": "datetime64[us]",
                 "generator_operating_date": "datetime64[us]",
                 "generator_operating_year": "Int64",
-                # convert to pandas Int64 instead of numpy int64
-                "utility_id_eia": "Int64",
+                "utility_id_eia": "Int64",  # convert to pandas Int64 instead of numpy int64
+                "capacity_mw": "float64",  # scaled by ownership fraction -> float64
                 "utility_id_pudl": "Int64",
                 "operator_utility_id_eia": "Int64",
                 "operator_utility_id_pudl": "Int64",
@@ -343,7 +343,12 @@ def test_scale_by_ownership():
         },
     ).astype({"report_date": "datetime64[us]", "owner_utility_id_eia": pd.Int64Dtype()})
 
-    dtypes = {"report_date": "datetime64[us]", "utility_id_eia": pd.Int64Dtype()}
+    dtypes = {
+        "plant_id_eia": pd.Int64Dtype(),
+        "report_date": "datetime64[us]",
+        "generator_id": pd.StringDtype(),
+        "utility_id_eia": pd.Int64Dtype(),
+    }
     gens_mega_ex1 = pd.DataFrame(
         {
             "plant_id_eia": [1, 1],
@@ -367,106 +372,102 @@ def test_scale_by_ownership():
         },
     ).astype(dtypes)
 
-    out_ex1 = (
-        pd.DataFrame(
-            {
-                "plant_id_eia": [
-                    1,
-                    1,
-                    1,
-                    1,
-                    1,
-                    1,
-                    1,
-                    1,
-                ],
-                "report_date": [
-                    "2019-01-01",
-                    "2019-01-01",
-                    "2019-01-01",
-                    "2019-01-01",
-                    "2019-01-01",
-                    "2019-01-01",
-                    "2019-01-01",
-                    "2019-01-01",
-                ],
-                "generator_id": [
-                    "a",
-                    "a",
-                    "b",
-                    "b",
-                    "a",
-                    "a",
-                    "b",
-                    "b",
-                ],
-                "total_fuel_cost": [
-                    4500 * 0.7,
-                    4500 * 0.3,
-                    1250 * 0.1,
-                    1250 * 0.9,
-                    4500,
-                    4500,
-                    1250,
-                    1250,
-                ],
-                "net_generation_mwh": [
-                    10000 * 0.7,
-                    10000 * 0.3,
-                    5000 * 0.1,
-                    5000 * 0.9,
-                    10000,
-                    10000,
-                    5000,
-                    5000,
-                ],
-                "capacity_mw": [
-                    100 * 0.7,
-                    100 * 0.3,
-                    50 * 0.1,
-                    50 * 0.9,
-                    100,
-                    100,
-                    50,
-                    50,
-                ],
-                "capacity_eoy_mw": [
-                    100 * 0.7,
-                    100 * 0.3,
-                    50 * 0.1,
-                    50 * 0.9,
-                    100,
-                    100,
-                    50,
-                    50,
-                ],
-                "total_mmbtu": [
-                    9000 * 0.7,
-                    9000 * 0.3,
-                    7800 * 0.1,
-                    7800 * 0.9,
-                    9000,
-                    9000,
-                    7800,
-                    7800,
-                ],
-                "fraction_owned": [0.7, 0.3, 0.1, 0.9, 1, 1, 1, 1],
-                "utility_id_eia": [3, 4, 3, 4, 3, 4, 3, 4],
-                "ownership_record_type": [
-                    "owned",
-                    "owned",
-                    "owned",
-                    "owned",
-                    "total",
-                    "total",
-                    "total",
-                    "total",
-                ],
-            },
-        )
-        .convert_dtypes()
-        .astype(dtypes)
-    )
+    out_ex1 = pd.DataFrame(
+        {
+            "plant_id_eia": [
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+            ],
+            "report_date": [
+                "2019-01-01",
+                "2019-01-01",
+                "2019-01-01",
+                "2019-01-01",
+                "2019-01-01",
+                "2019-01-01",
+                "2019-01-01",
+                "2019-01-01",
+            ],
+            "generator_id": [
+                "a",
+                "a",
+                "b",
+                "b",
+                "a",
+                "a",
+                "b",
+                "b",
+            ],
+            "total_fuel_cost": [
+                4500 * 0.7,
+                4500 * 0.3,
+                1250 * 0.1,
+                1250 * 0.9,
+                4500,
+                4500,
+                1250,
+                1250,
+            ],
+            "net_generation_mwh": [
+                10000 * 0.7,
+                10000 * 0.3,
+                5000 * 0.1,
+                5000 * 0.9,
+                10000,
+                10000,
+                5000,
+                5000,
+            ],
+            "capacity_mw": [
+                100 * 0.7,
+                100 * 0.3,
+                50 * 0.1,
+                50 * 0.9,
+                100,
+                100,
+                50,
+                50,
+            ],
+            "capacity_eoy_mw": [
+                100 * 0.7,
+                100 * 0.3,
+                50 * 0.1,
+                50 * 0.9,
+                100,
+                100,
+                50,
+                50,
+            ],
+            "total_mmbtu": [
+                9000 * 0.7,
+                9000 * 0.3,
+                7800 * 0.1,
+                7800 * 0.9,
+                9000,
+                9000,
+                7800,
+                7800,
+            ],
+            "fraction_owned": [0.7, 0.3, 0.1, 0.9, 1, 1, 1, 1],
+            "utility_id_eia": [3, 4, 3, 4, 3, 4, 3, 4],
+            "ownership_record_type": [
+                "owned",
+                "owned",
+                "owned",
+                "owned",
+                "total",
+                "total",
+                "total",
+                "total",
+            ],
+        },
+    ).astype(dtypes)
     scale_cols = [
         "total_fuel_cost",
         "net_generation_mwh",
@@ -474,15 +475,14 @@ def test_scale_by_ownership():
         "capacity_eoy_mw",
         "total_mmbtu",
     ]
-    out = (
-        pudl.helpers.scale_by_ownership(
-            gens=gens_mega_ex1, own_eia860=own_ex1, scale_cols=scale_cols
-        )
-        .reset_index(drop=True)
-        .convert_dtypes()
-    )
+    scaled = pudl.helpers.scale_by_ownership(
+        gens=gens_mega_ex1, own_eia860=own_ex1, scale_cols=scale_cols
+    ).reset_index(drop=True)
+    # Scaled columns are float64 regardless of input dtype or whether the results
+    # happen to be integral.
+    assert (scaled[scale_cols].dtypes == "float64").all()
 
-    pd.testing.assert_frame_equal(out_ex1, out)
+    pd.testing.assert_frame_equal(out_ex1, scaled)
 
 
 def test_scale_by_ownership_swaps_owner_utility_columns():
