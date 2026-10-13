@@ -964,6 +964,44 @@ Bedford city,VA,51,51515"""
     pd.testing.assert_frame_equal(out, expected)
 
 
+def test_add_fips_ids_missing_state():
+    """Records with a missing state should not be assigned any FIPS codes.
+
+    The Census geocodes include U.S. Minor Outlying Islands, which has no state
+    abbreviation. A missing state in the data must not match that missing abbreviation.
+    """
+    geocodes = pd.read_csv(
+        StringIO(
+            """
+area_name,county_id_fips,fips_level,report_year,state_id_fips,state
+Maryland,00000,040,2023,24,MD
+Guam,00000,040,2023,66,GU
+U.S. Minor Outlying Islands,00000,040,2023,74,
+Baltimore County,24005,050,2023,24,MD
+Midway Islands,74300,050,2023,74,"""
+        ),
+        dtype=pd.StringDtype(),
+    )
+    df = pd.DataFrame(
+        {
+            "county": pd.array(
+                ["Baltimore County", pd.NA, "Midway Islands", pd.NA],
+                dtype=pd.StringDtype(),
+            ),
+            "state": pd.array(["MD", "GU", pd.NA, pd.NA], dtype=pd.StringDtype()),
+        }
+    )
+    expected = df.assign(
+        state_id_fips=pd.array(["24", "66", pd.NA, pd.NA], dtype=pd.StringDtype()),
+        county_id_fips=pd.array(["24005", pd.NA, pd.NA, pd.NA], dtype=pd.StringDtype()),
+    )
+    out = add_fips_ids(df, geocodes)
+    assert_frame_equal(out, expected)
+    # Without counties, only the state FIPS codes are added:
+    out_states_only = add_fips_ids(df, geocodes, county_col=None)
+    assert_frame_equal(out_states_only, expected.drop(columns="county_id_fips"))
+
+
 def test_standardize_phone_column():
     """Test standardizing phone numbers."""
     data = {

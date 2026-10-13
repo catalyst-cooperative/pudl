@@ -322,9 +322,18 @@ def add_fips_ids(
 def add_state_id_fips(
     df: pd.DataFrame, geocodes: pd.DataFrame, state_col: str
 ) -> pd.DataFrame:
-    """Add the State FIPS codes."""
+    """Add the State FIPS codes.
+
+    Records without a state are not assigned a state FIPS code.
+    """
     states = (
         geocodes.loc[geocodes["fips_level"] == "040", ["state", "state_id_fips"]]
+        # Any FIPS code that appears in the Census PEP data but doesn't have a state
+        # abbreviation defined in POLITICAL_SUBDIVISIONS ends up with a null state
+        # abbreviation here. Pandas matches missing merge keys with each other, so if
+        # the null states are kept, every record with a missing state would be assigned
+        # to a mystery FIPS code (namely 74: US Minor outlying islands).
+        .dropna(subset=["state"])
         .rename(columns={"state": state_col})
         .drop_duplicates()
     )
@@ -2119,12 +2128,10 @@ def scale_by_ownership(
         gens: table with records at the generator level and generator attributes
             to be scaled by ownership, must have columns ``plant_id_eia``,
             ``generator_id``, and ``report_date``
-        own_eia860: the ``core_eia860__scd_ownership`` table or the denormalized
-            :ref:`out_eia860__yearly_ownership` table. If the denormalized table
-            is given and ``gens`` contains ``utility_id_pudl`` or
-            ``utility_name_eia`` columns, the owner's PUDL utility ID and EIA
-            utility name are swapped in alongside the owner's
-            ``utility_id_eia``.
+        own_eia860: the denormalized :ref:`out_eia860__yearly_ownership` table. If
+            ``gens`` contains ``utility_id_pudl`` or ``utility_name_eia`` columns,
+            the owner's PUDL utility ID and EIA utility name are swapped in
+            alongside the owner's ``utility_id_eia``.
         scale_cols: a list of columns in the generator table to slice by ownership
             fraction
         validate: how to validate merging the ownership table onto the
