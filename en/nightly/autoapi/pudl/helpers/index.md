@@ -251,6 +251,8 @@ To just add State FIPS IDs, make county_col = None.
 
 Add the State FIPS codes.
 
+Records without a state are not assigned a state FIPS code.
+
 ### pudl.helpers.add_county_fips_id(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), geocodes: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), county_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Add the County FIPS codes to a table with State FIPS codes.
@@ -1052,12 +1054,10 @@ but assigning the `fraction_owned` to be 1 (i.e. 100%).
   * **gens** – table with records at the generator level and generator attributes
     to be scaled by ownership, must have columns `plant_id_eia`,
     `generator_id`, and `report_date`
-  * **own_eia860** – the `core_eia860__scd_ownership` table or the denormalized
-    [out_eia860_\_yearly_ownership](../../../data_dictionaries/pudl_db.md#out-eia860-yearly-ownership) table. If the denormalized table
-    is given and `gens` contains `utility_id_pudl` or
-    `utility_name_eia` columns, the owner’s PUDL utility ID and EIA
-    utility name are swapped in alongside the owner’s
-    `utility_id_eia`.
+  * **own_eia860** – the denormalized [out_eia860_\_yearly_ownership](../../../data_dictionaries/pudl_db.md#out-eia860-yearly-ownership) table. If
+    `gens` contains `utility_id_pudl` or `utility_name_eia` columns,
+    the owner’s PUDL utility ID and EIA utility name are swapped in
+    alongside the owner’s `utility_id_eia`.
   * **scale_cols** – a list of columns in the generator table to slice by ownership
     fraction
   * **validate** – how to validate merging the ownership table onto the

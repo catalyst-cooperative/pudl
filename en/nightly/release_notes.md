@@ -11,6 +11,10 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
 * Added `county_id_fips` and `state_id_fips` to the [core_eia_\_entity_plants](data_dictionaries/pudl_db.md#core-eia-entity-plants),
   [out_eia_\_monthly_generators](data_dictionaries/pudl_db.md#out-eia-monthly-generators) and [out_eia_\_yearly_generators](data_dictionaries/pudl_db.md#out-eia-yearly-generators) tables. See
   PR [#5688](https://github.com/catalyst-cooperative/pudl/pull/5688).
+* [out_eia_\_yearly_generators_by_ownership](data_dictionaries/pudl_db.md#out-eia-yearly-generators-by-ownership) now identifies each generator’s
+  operator as well as its owners, via new `operator_utility_id_eia`,
+  `operator_utility_id_pudl` and `operator_utility_name_eia` columns, with foreign
+  key checks on the IDs. See issue [#5550](https://github.com/catalyst-cooperative/pudl/issues/5550) and PR [#5585](https://github.com/catalyst-cooperative/pudl/pull/5585).
 
 ### New Data
 
@@ -60,6 +64,11 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
   graph-based. See issue [#5675](https://github.com/catalyst-cooperative/pudl/pull/5675) and PR [#5543](https://github.com/catalyst-cooperative/pudl/pull/5543). Part of an effort to harmonize
   the [Open Grid Emissions](https://github.com/singularity-energy/open-grid-emissions) initiative and PUDL.
   See epic [#5439](https://github.com/catalyst-cooperative/pudl/issues/5439) which is tracking that effort.
+* Added minimum and maximum constraints for plant and Census latitudes and longitudes,
+  to catch impossible locations. EIA-860M coordinates are not cleaned up (about
+  0.04% of its records are obviously wrong), so
+  [core_eia860m_\_changelog_generators](data_dictionaries/pudl_db.md#core-eia860m-changelog-generators) is exempt, and new dbt tests cap the number
+  of known bad records in it instead. See PR [#5697](https://github.com/catalyst-cooperative/pudl/pull/5697).
 
 ### Bug Fixes & Data Cleaning
 
@@ -120,6 +129,13 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
 * Fixed the integer NERC region code `25470` reported by utility 55959 in 2013 and
   2014 in the EIA-861 tables, which was becoming `UNK` instead of `MRO`. See PR
   [#5685](https://github.com/catalyst-cooperative/pudl/pull/5685).
+* Fixed a bug introduced in PR [#5506](https://github.com/catalyst-cooperative/pudl/pull/5506) which improperly aggregated generators with
+  multiple owners after an ineffective drop duplicates, resulting in double counting in
+  a small number of [out_eia_\_yearly_plant_parts](data_dictionaries/pudl_db.md#out-eia-yearly-plant-parts) records. See issue [#5651](https://github.com/catalyst-cooperative/pudl/issues/5651)
+  and PR [#5703](https://github.com/catalyst-cooperative/pudl/pull/5703).
+* Fixed a bug that gave plants with no reported state the state FIPS code `74` (U.S.
+  Minor Outlying Islands). Those plants in [core_eia_\_entity_plants](data_dictionaries/pudl_db.md#core-eia-entity-plants), and the
+  generators built from them, now have a null `state_id_fips`. See PR [#5697](https://github.com/catalyst-cooperative/pudl/pull/5697).
 
 ### Performance Improvements
 

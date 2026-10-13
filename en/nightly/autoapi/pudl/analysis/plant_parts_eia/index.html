@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.analysis.plant_parts_eia &#8212; PUDL 2026.9.1.dev45 documentation</title>
+    <title>pudl.analysis.plant_parts_eia &#8212; PUDL 2026.9.1.dev48 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=fdf5115c"></script>
+    <script src="../../../../_static/documentation_options.js?v=d6730e96"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev45 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev45 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev48 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev48 documentation - Home"/>
   
   
 </a></div>
@@ -1347,6 +1347,33 @@ columns that are being assigned here via <cite>.loc[:, col_to_assign]</cite>.</p
 </div>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.analysis.plant_parts_eia.MakeMegaGenTbl.label_operator_utility">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">label_operator_utility</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gen_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/analysis/plant_parts_eia.html#MakeMegaGenTbl.label_operator_utility"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.plant_parts_eia.MakeMegaGenTbl.label_operator_utility" title="Link to this definition">#</a></dt>
+<dd><p>Preserve the operator utility’s IDs and name before ownership is integrated.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">utility_id_eia</span></code>, <code class="docutils literal notranslate"><span class="pre">utility_id_pudl</span></code> and <code class="docutils literal notranslate"><span class="pre">utility_name_eia</span></code> columns
+of the generators table identify the utility that operates each generator. Once
+<a class="reference internal" href="../../helpers/index.html#pudl.helpers.scale_by_ownership" title="pudl.helpers.scale_by_ownership"><code class="xref py py-func docutils literal notranslate"><span class="pre">pudl.helpers.scale_by_ownership()</span></code></a> runs, those columns describe each
+generator’s owners instead, so we stash the operator’s IDs and name in
+dedicated columns first. Jointly owned generators typically have a single operator
+and several owners, and knowing who operates a generator makes it
+possible to reconcile ownership-scaled generation with the utility-level
+data reported in EIA-861.
+See <a class="github reference external" href="https://github.com/catalyst-cooperative/pudl/issues/5550">catalyst-cooperative/pudl#5550</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>gen_df</strong> – annual table of all generators from EIA, with the operator
+utility’s <code class="docutils literal notranslate"><span class="pre">utility_id_eia</span></code>, <code class="docutils literal notranslate"><span class="pre">utility_id_pudl</span></code> and
+<code class="docutils literal notranslate"><span class="pre">utility_name_eia</span></code>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The same table with <code class="docutils literal notranslate"><span class="pre">operator_utility_id_eia</span></code>,
+<code class="docutils literal notranslate"><span class="pre">operator_utility_id_pudl</span></code> and <code class="docutils literal notranslate"><span class="pre">operator_utility_name_eia</span></code> columns
+added.</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 </dd></dl>
 
@@ -1969,6 +1996,7 @@ record (identified as <code class="docutils literal notranslate"><span class="pr
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.plant_parts_eia.MakeMegaGenTbl.execute"><code class="docutils literal notranslate"><span class="pre">MakeMegaGenTbl.execute()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.plant_parts_eia.MakeMegaGenTbl.get_gens_mega_table"><code class="docutils literal notranslate"><span class="pre">MakeMegaGenTbl.get_gens_mega_table()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.plant_parts_eia.MakeMegaGenTbl.label_operating_gens"><code class="docutils literal notranslate"><span class="pre">MakeMegaGenTbl.label_operating_gens()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.plant_parts_eia.MakeMegaGenTbl.label_operator_utility"><code class="docutils literal notranslate"><span class="pre">MakeMegaGenTbl.label_operator_utility()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.plant_parts_eia.MakePlantParts"><code class="docutils literal notranslate"><span class="pre">MakePlantParts</span></code></a><ul class="nav section-nav flex-column">
