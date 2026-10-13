@@ -43,6 +43,11 @@ EIA-860M
 * Added :doc:`EIA-860m <data_sources/eia860>` data through August 2026. See issue
   :issue:`5677` and PR :pr:`5680`.
 
+EIA-861
+~~~~~~~
+* Added :doc:`EIA-861 <data_sources/eia861>` final release 2025 data. See issue
+  :issue:`5701` and PR :pr:`5702`.
+
 EIA-923
 ~~~~~~~
 * Added final release data from 2025 for :doc:`EIA-923 <data_sources/eia923>`,
