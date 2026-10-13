@@ -74,6 +74,17 @@ New Data Tests & Validations
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Fixed the ``total`` records in :ref:`out_eia__yearly_plant_parts`, which counted
+  each jointly owned generator once per owner after :pr:`5506`. A plant part with N
+  owners had its ``capacity_mw``, ``capacity_eoy_mw``, ``net_generation_mwh``,
+  ``total_fuel_cost`` and ``total_mmbtu`` inflated N times, and its capacity-weighted
+  ``fuel_cost_per_mwh``, ``unit_heat_rate_mmbtu_per_mwh`` and ``fuel_cost_per_mmbtu``
+  skewed toward jointly owned generators. The ``owned`` records were not affected.
+  Because the FERC-EIA record linkage compares these values, some matches in
+  :ref:`out_pudl__yearly_assn_eia_ferc1_plant_parts` changed, and the model's precision
+  and recall on its training data improved slightly. Added an assertion that each
+  generator's ``total`` records agree, and a dbt test checking that the plant parts
+  reconcile with the generators they are made of. See :issue:`5651` and :pr:`5704`.
 * Made the :doc:`EIA-930 <data_sources/eia930>` and :doc:`FERC-714
   <data_sources/ferc714>` hourly demand imputation deterministic. The underlying
   tensor-completion algorithm previously relied on a unseeded random subsampling
