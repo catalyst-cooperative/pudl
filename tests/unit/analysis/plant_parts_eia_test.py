@@ -474,20 +474,15 @@ def test_scale_by_ownership():
         "capacity_eoy_mw",
         "total_mmbtu",
     ]
-    # scale_by_ownership scales these columns by a fractional ownership share, so
-    # they come back as float64 regardless of the input dtype.
-    scaled_float = dict.fromkeys(scale_cols, "float64")
-    out_ex1 = out_ex1.astype(scaled_float)
-    out = (
-        pudl.helpers.scale_by_ownership(
-            gens=gens_mega_ex1, own_eia860=own_ex1, scale_cols=scale_cols
-        )
-        .reset_index(drop=True)
-        .convert_dtypes()
-        .astype(scaled_float)
-    )
+    scaled = pudl.helpers.scale_by_ownership(
+        gens=gens_mega_ex1, own_eia860=own_ex1, scale_cols=scale_cols
+    ).reset_index(drop=True)
+    # Scaled columns are float64 regardless of input dtype or whether the results
+    # happen to be integral.
+    assert (scaled[scale_cols].dtypes == "float64").all()
 
-    pd.testing.assert_frame_equal(out_ex1, out)
+    # Dtypes are checked above, so only compare values here.
+    pd.testing.assert_frame_equal(out_ex1, scaled, check_dtype=False)
 
 
 def test_scale_by_ownership_swaps_owner_utility_columns():

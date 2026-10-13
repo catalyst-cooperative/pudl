@@ -714,8 +714,7 @@ def test_diff_wide_tables():
         observed_reshaped = observed.droplevel(level=0, axis="columns")
         expected_reshaped = expected.set_index(observed_reshaped.index.names)
         # pandas 3 infers a str dtype for these columns, pandas 2 leaves object.
-        expected_reshaped = expected_reshaped.astype(observed_reshaped.dtypes)
-        assert_frame_equal(observed_reshaped, expected_reshaped)
+        assert_frame_equal(observed_reshaped, expected_reshaped, check_dtype=False)
 
     diff_output = diff_wide_tables(primary_key=["u_id", "year"], old=old, new=new)
 

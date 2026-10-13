@@ -2205,9 +2205,13 @@ def scale_by_ownership(
             gens.copy().assign(fraction_owned=1, ownership_record_type="total"),
         ]
     )
-    # Scaling by a fractional ownership share is inherently fractional, so cast the
-    # scaled columns to float64 before multiplying. pandas 3.0 raises on a
-    # lossy setitem that would write float results back into an integer column.
+    # Scaling by a fractional ownership share is inherently fractional, so the scaled
+    # columns are always float64. We deliberately assign with ``gens[scale_cols] =``
+    # rather than ``gens.loc[:, scale_cols] =``: ``.loc`` writes into the existing
+    # columns in place and so keeps their dtype, and pandas 3.0 raises when that would
+    # put float results into an integer column. Plain ``[]`` assignment replaces the
+    # columns wholesale, letting their dtype change. The explicit cast before the
+    # multiply makes the output dtype independent of the input dtype.
     gens[scale_cols] = (
         gens[scale_cols]
         .astype("float64")
