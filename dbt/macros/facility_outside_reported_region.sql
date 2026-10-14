@@ -56,8 +56,7 @@ outside_reported_region AS (
         points.*,
         reported.geometry AS _reported_geometry
     FROM points
-    LEFT JOIN {{ regions }} AS reported
-        ON points.{{ region_id_column }} = reported.{{ region_id_column }}
+    LEFT JOIN {{ regions }} AS reported USING ({{ region_id_column }})
     WHERE
         reported.geometry IS NULL
         OR NOT ST_Intersects(reported.geometry, points._point)
