@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="release_notes.html.md" />
 <link rel="alternate" type="text/markdown" href="release_notes.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>PUDL Release Notes &#8212; PUDL 2026.9.1.dev50 documentation</title>
+    <title>PUDL Release Notes &#8212; PUDL 2026.9.1.dev51 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="_static/documentation_options.js?v=385f3a78"></script>
+    <script src="_static/documentation_options.js?v=911f4e1e"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
@@ -143,8 +143,8 @@
       
     
     
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev50 documentation - Home"/>
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev50 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev51 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev51 documentation - Home"/>
   
   
 </a></div>
@@ -514,9 +514,20 @@
                   
   <section id="pudl-release-notes">
 <h1>PUDL Release Notes<a class="headerlink" href="#pudl-release-notes" title="Link to this heading">#</a></h1>
-<section id="v2026-10-0-2026-10-xx">
-<span id="release-v2026-10-0"></span><h2>v2026.10.0 (2026-10-XX)<a class="headerlink" href="#v2026-10-0-2026-10-xx" title="Link to this heading">#</a></h2>
-<p>This is the upcoming PUDL data release, scheduled for early October, 2026.</p>
+<section id="v2026-10-0-2026-10-14">
+<span id="release-v2026-10-0"></span><h2>v2026.10.0 (2026-10-14)<a class="headerlink" href="#v2026-10-0-2026-10-14" title="Link to this heading">#</a></h2>
+<p>This is a regular monthly PUDL data release, primarily motivated by updating the
+EIA-860M monthly data through August 2026. It also brings in final release 2025 data
+for the EIA-860, EIA-861, and EIA-923, plus straggler FERC Form 1 filings from 2025.</p>
+<p>We made several important improvements for reproducibility in this release. These
+changes make all outputs fully deterministic, which will make it possible to detect
+specific changes between builds. We’ve also added the new table
+<a class="reference internal" href="data_dictionaries/pudl_db.html#core-epamats-hourly-emissions"><span class="std std-ref">core_epamats__hourly_emissions</span></a> brings hourly mercury and hydrogen chloride
+emissions into PUDL. Thanks to <a class="reference external" href="https://github.com/sponsors/bsousa22">&#64;bsousa22</a> for this contribution! Finally, we
+fixed a longstanding bug in the net generation and fuel allocation that silently
+dropped legitimate data for generators transitioning between
+<code class="docutils literal notranslate"><span class="pre">proposed</span></code>/<code class="docutils literal notranslate"><span class="pre">existing</span></code>/<code class="docutils literal notranslate"><span class="pre">retired</span></code> status across a multi-year
+ETL run.</p>
 <section id="enhancements">
 <h3>Enhancements<a class="headerlink" href="#enhancements" title="Link to this heading">#</a></h3>
 <ul class="simple">
@@ -5504,7 +5515,7 @@ there are users relying on this setup who need access to a well defined release.
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v2026-10-0-2026-10-xx">v2026.10.0 (2026-10-XX)</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v2026-10-0-2026-10-14">v2026.10.0 (2026-10-14)</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#enhancements">Enhancements</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#new-data">New Data</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#epa-mats">EPA MATS</a></li>
