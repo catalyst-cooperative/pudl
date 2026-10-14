@@ -4,10 +4,22 @@ PUDL Release Notes
 .. _release-v2026.10.0:
 
 ---------------------------------------------------------------------------------------
-v2026.10.0 (2026-10-XX)
+v2026.10.0 (2026-10-15)
 ---------------------------------------------------------------------------------------
 
-This is the upcoming PUDL data release, scheduled for early October, 2026.
+This is a regular monthly PUDL data release, primarily motivated by updating the
+EIA-860M monthly data through August 2026. It also brings in final release 2025 data
+for the EIA-860, EIA-861, and EIA-923, plus straggler FERC Form 1 filings from 2025.
+
+We made several important improvements for reproducibility in this release. These
+changes make all outputs fully reproducible so we will be able to more easily detect
+changes between builds. We've also added the new table
+:ref:`core_epamats__hourly_emissions` brings hourly mercury and hydrogen chloride
+emissions into PUDL. Thanks to :user:`bsousa22` for this contribution! Finally, we
+fixed a longstanding bug in the net generation and fuel allocation that silently
+dropped legitimate data for generators transitioning between
+``proposed``/``existing``/``retired`` status across a multi-year
+ETL run.
 
 Enhancements
 ^^^^^^^^^^^^
@@ -40,7 +52,7 @@ EIA-860
 
 EIA-860M
 ~~~~~~~~
-* Added :doc:`EIA-860m <data_sources/eia860>` data through August 2026. See issue
+* Added :doc:`EIA-860m <data_sources/eia860>` data through September 2026. See issue
   :issue:`5677` and PR :pr:`5680`.
 
 EIA-861
