@@ -99,7 +99,7 @@ def test_get_best_matches_ignores_row_order(seed: int, reverse: bool, mocker):
 
 
 def test_get_model_predictions_seeds_u_estimation(mocker):
-    """The random sampling used to estimate u probabilities must be seeded."""
+    """The u estimation must be seeded, and use all of the sampled pairs."""
     linker_cls = mocker.patch.object(eia_ferc1_record_linkage, "Linker")
     mocker.patch.object(eia_ferc1_record_linkage, "SettingsCreator")
     get_model_predictions(
@@ -110,5 +110,5 @@ def test_get_model_predictions_seeds_u_estimation(mocker):
     )
     training = linker_cls.return_value.training
     training.estimate_u_using_random_sampling.assert_called_once_with(
-        max_pairs=1e7, seed=U_ESTIMATION_SEED
+        max_pairs=1e7, seed=U_ESTIMATION_SEED, min_count_per_level=None
     )
