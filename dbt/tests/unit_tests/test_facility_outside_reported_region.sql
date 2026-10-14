@@ -38,16 +38,17 @@ test_points AS (
 
 expected_failures AS (
     SELECT * FROM (VALUES
-        (2, 'B', FALSE),
-        (4, NULL, FALSE),
-        (6, 'A', TRUE),
-        (7, NULL, TRUE),
-    ) AS t(point_id, located_region_id, distance_is_null)
+        (2, 'point_in_other_region', 'B', FALSE),
+        (4, 'point_in_no_region', NULL, FALSE),
+        (6, 'reported_region_not_found', 'A', TRUE),
+        (7, 'reported_region_not_found', NULL, TRUE),
+    ) AS t(point_id, failure_reason, located_region_id, distance_is_null)
 ),
 
 observed_failures AS (
     SELECT
         point_id,
+        failure_reason,
         located_region_id,
         distance_to_reported_meters IS NULL AS distance_is_null
     FROM ({{

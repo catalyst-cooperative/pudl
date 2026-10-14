@@ -15,7 +15,11 @@
 -- Failures include distance_to_reported_meters, the distance from the point to its
 -- reported region (NULL if there is no such region), and located_<region_id_column> and
 -- located_<label_column>, for the region that actually contains the point (NULL if the
--- point is within no region).
+-- point is within no region). failure_reason says why the row failed:
+--   reported_region_not_found: the reported ID matches no region (checked first)
+--   point_in_no_region: the point is within no region, and too far from its own
+--   point_in_other_region: the point is within another region, and too far from its
+--   own
 --
 -- Done in two steps for speed: first find rows not within their own reported region (one
 -- point-in-polygon test per row), then look up the containing region for just those
@@ -85,6 +89,12 @@ beyond_tolerance AS (
 )
 
 SELECT
+    CASE
+        WHEN beyond_tolerance.distance_to_reported_meters IS NULL
+            THEN 'reported_region_not_found'
+        WHEN located.geometry IS NULL THEN 'point_in_no_region'
+        ELSE 'point_in_other_region'
+    END AS failure_reason,
     located.{{ region_id_column }} AS located_{{ region_id_column }},
     located.{{ label_column }} AS located_{{ label_column }},
     beyond_tolerance.distance_to_reported_meters,
