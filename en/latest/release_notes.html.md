@@ -203,6 +203,10 @@ ETL run.
   tests to the terminal. Fast ETL in pipeline tests will still log. Made `pixi.lock`
   drift checking in pre-commit hooks more robust. Fixed open SQLite database warnings
   coming from FERC SQLite IO Manager. See PR [#5573](https://github.com/catalyst-cooperative/pudl/pull/5573).
+* Upgraded to Splink 5.0 and ported the FERC 1 to EIA plant-parts record linkage to its
+  new API (registering inputs with `DuckDBAPI.register()`, and using `CustomRule`
+  and `CustomComparison`). The model’s behavior is not intentionally changed. See PR
+  [#5698](https://github.com/catalyst-cooperative/pudl/pull/5698).
 
 <a id="release-v2026-9-0"></a>
 
