@@ -1,0 +1,47 @@
+pudl.output.eia860
+==================
+
+.. py:module:: pudl.output.eia860
+
+.. autoapi-nested-parse::
+
+   Denormalized versions of the EIA 860 tables.
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.output.eia860.out_eia860__yearly_ownership
+   pudl.output.eia860.out_eia860__yearly_emissions_control_equipment
+
+
+Module Contents
+---------------
+
+.. py:function:: out_eia860__yearly_ownership(_out_eia__plants_utilities: pandas.DataFrame, core_eia860__scd_ownership: pandas.DataFrame, core_pudl__assn_eia_pudl_utilities: pandas.DataFrame) -> pandas.DataFrame
+
+   A denormalized version of the EIA 860 ownership table.
+
+   :param _out_eia__plants_utilities: Denormalized table containing plant and utility
+                                      names and IDs.
+   :param core_eia860__scd_ownership: EIA 860 ownership table.
+   :param core_pudl__assn_eia_pudl_utilities: Table of associations between EIA utility IDs and
+                                              PUDL Utility IDs.
+
+   :returns: A denormalized version of the EIA 860 ownership table.
+
+
+.. py:function:: out_eia860__yearly_emissions_control_equipment(core_eia860__scd_emissions_control_equipment: pandas.DataFrame, _out_eia__plants_utilities: pandas.DataFrame) -> pandas.DataFrame
+
+   A denormalized version of the EIA 860 emission control equipment table.
+
+   :param core_eia860__scd_emissions_control_equipment: EIA 860 emissions control equipment table.
+   :param _out_eia__plants_utilities: Denormalized table containing plant and utility
+                                      names and IDs.
+
+   :returns: A denormalized version of the EIA 860 emissions control equipment table.
+
+

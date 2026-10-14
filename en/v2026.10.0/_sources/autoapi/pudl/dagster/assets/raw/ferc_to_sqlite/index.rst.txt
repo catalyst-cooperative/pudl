@@ -1,0 +1,193 @@
+pudl.dagster.assets.raw.ferc_to_sqlite
+======================================
+
+.. py:module:: pudl.dagster.assets.raw.ferc_to_sqlite
+
+.. autoapi-nested-parse::
+
+   Dagster asset definitions for granular FERC-to-SQLite extraction.
+
+   This module defines the prerequisite assets that build the FERC DBF and XBRL derived
+   SQLite databases used elsewhere in the PUDL pipeline. It should contain asset factories,
+   resource requirements, and materialization metadata specific to those prerequisite
+   databases, rather than the downstream transforms that consume them.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.dagster.assets.raw.ferc_to_sqlite.NETWORK_ERRORS
+   pudl.dagster.assets.raw.ferc_to_sqlite.logger
+   pudl.dagster.assets.raw.ferc_to_sqlite.raw_ferc1_dbf__sqlite
+   pudl.dagster.assets.raw.ferc_to_sqlite.raw_ferc2_dbf__sqlite
+   pudl.dagster.assets.raw.ferc_to_sqlite.raw_ferc6_dbf__sqlite
+   pudl.dagster.assets.raw.ferc_to_sqlite.raw_ferc60_dbf__sqlite
+   pudl.dagster.assets.raw.ferc_to_sqlite.raw_ferc1_xbrl__sqlite
+   pudl.dagster.assets.raw.ferc_to_sqlite.raw_ferc2_xbrl__sqlite
+   pudl.dagster.assets.raw.ferc_to_sqlite.raw_ferc6_xbrl__sqlite
+   pudl.dagster.assets.raw.ferc_to_sqlite.raw_ferc60_xbrl__sqlite
+   pudl.dagster.assets.raw.ferc_to_sqlite.raw_ferc714_xbrl__sqlite
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.dagster.assets.raw.ferc_to_sqlite.FercPaths
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.dagster.assets.raw.ferc_to_sqlite._download_zipped_outputs
+   pudl.dagster.assets.raw.ferc_to_sqlite._download_nightly_outputs
+   pudl.dagster.assets.raw.ferc_to_sqlite._check_for_cached_db_w_compatible_provenance
+   pudl.dagster.assets.raw.ferc_to_sqlite.ferc_to_sqlite_asset_factory
+
+
+Module Contents
+---------------
+
+.. py:data:: NETWORK_ERRORS
+
+.. py:data:: logger
+
+.. py:class:: FercPaths
+
+   Helper class to get paths to various FERC paths both local and remote.
+
+
+   .. py:attribute:: data_format
+      :type:  Literal['dbf', 'xbrl']
+
+
+   .. py:attribute:: local_datapackage_path
+      :type:  pathlib.Path
+
+
+   .. py:attribute:: nightly_datapackage_path
+      :type:  upath.UPath
+
+
+   .. py:attribute:: local_sqlite_path
+      :type:  pathlib.Path
+
+
+   .. py:attribute:: nightly_sqlite_path
+      :type:  upath.UPath
+
+
+   .. py:attribute:: local_duckdb_path
+      :type:  pathlib.Path | None
+      :value: None
+
+
+
+   .. py:attribute:: nightly_duckdb_path
+      :type:  upath.UPath | None
+      :value: None
+
+
+
+   .. py:attribute:: local_taxonomy_json_path
+      :type:  pathlib.Path | None
+      :value: None
+
+
+
+   .. py:attribute:: nightly_taxonomy_json_path
+      :type:  upath.UPath | None
+      :value: None
+
+
+
+   .. py:attribute:: local_parquet_path
+      :type:  pathlib.Path | None
+      :value: None
+
+
+
+   .. py:attribute:: nightly_parquet_path
+      :type:  upath.UPath | None
+      :value: None
+
+
+
+   .. py:method:: delete_local_outputs()
+
+      Helper function to delete local outputs before starting extraction.
+
+
+
+   .. py:method:: from_dataset_format(dataset: pudl.settings.FercForm, data_format: Literal['dbf', 'xbrl'], paths: pudl.workspace.setup.PudlPaths) -> FercPaths
+      :classmethod:
+
+
+      Initialize class based on ``dataset`` and ``data_format``.
+
+
+
+.. py:function:: _download_zipped_outputs(paths: FercPaths, output_format: Literal['sqlite', 'parquet'])
+
+   Download nightly zipfile containing sqlite or parquet outputs and extract to local cache.
+
+
+.. py:function:: _download_nightly_outputs(data_format: Literal['dbf', 'xbrl'], paths: FercPaths) -> None
+
+   Download ``ferc_to_sqlite`` outputs from s3.
+
+   This will download all outputs produced by the ``ferc_to_sqlite`` process for the
+   provided ``dataset`` and ``data_format``. For the 'DBF' format, this includes the
+   SQLite db and a datapackage JSON file, while 'XBRL' will include both of these
+   plus a DuckDB file, parquet files, and the taxonomy JSON file.
+
+
+.. py:function:: _check_for_cached_db_w_compatible_provenance(dataset: pudl.settings.FercForm, data_format: Literal['dbf', 'xbrl'], zenodo_doi: str, paths: FercPaths, ferc_to_sqlite: pudl.settings.FercToSqliteDataConfig) -> pudl.dagster.provenance.FercSqliteProvenanceRecord | None
+
+   Check to see if there is a compatible outputs either locally, or in nightly builds.
+
+   This function will first check the local datapackage for the specified ``dataset``
+   and ``data_format`` to see if it contains a ``FercSqliteProvenanceRecord`` that
+   is compatible with the requirements of the current run. If the local datapckage doesn't
+   exist or contains an incompatible record, it will then download the datapackage produced
+   by the most recent nightly build and perform the same check. If the nightly
+   outputs are found to be compatible with the current run, then it will
+   download all associated outputs from that run. For DBF outputs, this includes
+   the SQLite file and the datapackage JSON file, while XBRL outputs also
+   include a duckdb file, parquet files, and a taxonomy JSON file.
+
+   If the environment variable, ``PUDL_FORCE_FERC_TO_SQLITE``, is set to ``true``, then
+   this function will immediately return ``None``, triggering the normal extraction.
+
+   :returns: Compatible ``FercSqliteProvenanceRecord`` if one is found, otherwise ``None``.
+
+
+.. py:function:: ferc_to_sqlite_asset_factory(*, dataset: pudl.settings.FercForm, data_format: Literal['dbf', 'xbrl'], extract_function: collections.abc.Callable[[dagster.AssetExecutionContext], None], op_tags: dict | None = None) -> dagster.AssetsDefinition
+
+   Create a FERC-to-SQLite prerequisite asset for a specific FERC dataset.
+
+
+.. py:data:: raw_ferc1_dbf__sqlite
+
+.. py:data:: raw_ferc2_dbf__sqlite
+
+.. py:data:: raw_ferc6_dbf__sqlite
+
+.. py:data:: raw_ferc60_dbf__sqlite
+
+.. py:data:: raw_ferc1_xbrl__sqlite
+
+.. py:data:: raw_ferc2_xbrl__sqlite
+
+.. py:data:: raw_ferc6_xbrl__sqlite
+
+.. py:data:: raw_ferc60_xbrl__sqlite
+
+.. py:data:: raw_ferc714_xbrl__sqlite
+

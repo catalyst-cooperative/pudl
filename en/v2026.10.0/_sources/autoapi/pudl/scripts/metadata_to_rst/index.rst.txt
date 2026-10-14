@@ -1,0 +1,29 @@
+pudl.scripts.metadata_to_rst
+============================
+
+.. py:module:: pudl.scripts.metadata_to_rst
+
+.. autoapi-nested-parse::
+
+   Export PUDL table and field metadata to RST for use in documentation.
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.scripts.metadata_to_rst.main
+
+
+Module Contents
+---------------
+
+.. py:function:: main(skip: list[str], output: pathlib.Path, docs_dir: pathlib.Path, logfile: pathlib.Path, loglevel: str) -> int
+
+   Export PUDL table and field metadata to RST for use in documentation.
+
+   metadata_to_rst -s bad_table1 -s bad_table2 -d ./pudl/docs -o ./datadict.rst
+
+

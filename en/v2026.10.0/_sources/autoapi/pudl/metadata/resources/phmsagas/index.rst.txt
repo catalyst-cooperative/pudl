@@ -1,0 +1,28 @@
+pudl.metadata.resources.phmsagas
+================================
+
+.. py:module:: pudl.metadata.resources.phmsagas
+
+.. autoapi-nested-parse::
+
+   Tables definitions for data coming from PHMSA natural gas data.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.metadata.resources.phmsagas.GENERIC_CLEANING_STATE_WARNING
+   pudl.metadata.resources.phmsagas.RESOURCE_METADATA
+
+
+Module Contents
+---------------
+
+.. py:data:: GENERIC_CLEANING_STATE_WARNING
+
+.. py:data:: RESOURCE_METADATA
+   :type:  dict[str, dict[str, Any]]
+

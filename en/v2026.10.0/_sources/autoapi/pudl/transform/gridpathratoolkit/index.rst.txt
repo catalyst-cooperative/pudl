@@ -1,0 +1,67 @@
+pudl.transform.gridpathratoolkit
+================================
+
+.. py:module:: pudl.transform.gridpathratoolkit
+
+.. autoapi-nested-parse::
+
+   Transformations of the GridPath RA Toolkit renewable generation profiles.
+
+   Wind and solar profiles are extracted separately, but concatenated into a single table
+   in this module, as they have exactly the same structure. The generator aggregation group
+   association tables for various technology types are also concatenated together.
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.transform.gridpathratoolkit._transform_capacity_factors
+   pudl.transform.gridpathratoolkit.out_gridpathratoolkit__hourly_available_capacity_factor
+   pudl.transform.gridpathratoolkit._transform_aggs
+   pudl.transform.gridpathratoolkit.core_gridpathratoolkit__assn_generator_aggregation_group
+
+
+Module Contents
+---------------
+
+.. py:function:: _transform_capacity_factors(capacity_factors: pandas.DataFrame, utc_offset: pandas.Timedelta) -> pandas.DataFrame
+
+   Basic transformations that can be applied to many profiles.
+
+   - Construct a datetime column and adjust it to be in UTC.
+   - Reshape the table from wide to tidy format.
+   - Name columns appropriately.
+
+
+.. py:function:: out_gridpathratoolkit__hourly_available_capacity_factor(raw_gridpathratoolkit__aggregated_extended_solar_capacity: pandas.DataFrame, raw_gridpathratoolkit__aggregated_extended_wind_capacity: pandas.DataFrame) -> pandas.DataFrame
+
+   Transform raw GridPath RA Toolkit renewable generation profiles.
+
+   Concatenates the solar and wind capacity factors into a single table and turns the
+   aggregation key into a categorical column to save space.
+
+   Note that this transform is a bit unusual, in that it is producing a highly
+   processed output table. That's because we're working backwards from an archived
+   finished product to be able to provide a minimum viable product. Our intent is to
+   integrate or reimplement the steps required to produce this output table from
+   less processed original inputs in the future.
+
+
+.. py:function:: _transform_aggs(raw_agg: pandas.DataFrame) -> pandas.DataFrame
+
+   Transform raw GridPath RA Toolkit generator aggregations.
+
+   - split EIA_UniqueID into plant + generator IDs
+   - rename columns to use PUDL conventions
+   - verify that split-out plant IDs always match reported plant IDs
+   - Set column dtypes
+
+
+.. py:function:: core_gridpathratoolkit__assn_generator_aggregation_group(raw_gridpathratoolkit__wind_capacity_aggregations: pandas.DataFrame, raw_gridpathratoolkit__solar_capacity_aggregations: pandas.DataFrame) -> pandas.DataFrame
+
+   Transform and combine raw GridPath RA Toolkit generator aggregations.
+
+

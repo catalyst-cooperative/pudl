@@ -1,0 +1,12 @@
+Gas Transmission and Gathering Systems Annual Report data file fields for 2001 to 2009 reporting
+
+
+
+*************************************************************************************
+The following fields are not on the form
+
+*************************************************************************************
+
+
+DOR 	DATE, 	-- Date report received in PHMSA Pipeline Safety office
+DOE	DATE	-- Date report entered in the system.

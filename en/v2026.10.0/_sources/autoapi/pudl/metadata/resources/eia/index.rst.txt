@@ -1,0 +1,35 @@
+pudl.metadata.resources.eia
+===========================
+
+.. py:module:: pudl.metadata.resources.eia
+
+.. autoapi-nested-parse::
+
+   Definitions of data tables primarily coming from EIA 860/861/923.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.metadata.resources.eia.AGG_FREQS
+   pudl.metadata.resources.eia.RESOURCE_METADATA
+
+
+Module Contents
+---------------
+
+.. py:data:: AGG_FREQS
+   :value: ['yearly', 'monthly']
+
+
+.. py:data:: RESOURCE_METADATA
+   :type:  dict[str, dict[str, Any]]
+
+   Generic EIA resource attributes organized by PUDL identifier (``resource.name``).
+
+   See :func:`pudl.metadata.helpers.build_foreign_keys` for the expected format of
+   ``foreign_key_rules``.
+

@@ -1,0 +1,27 @@
+pudl.metadata.resources.ferc1_eia_record_linkage
+================================================
+
+.. py:module:: pudl.metadata.resources.ferc1_eia_record_linkage
+
+.. autoapi-nested-parse::
+
+   Definitions for the connection between FERC1 and EIA.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.metadata.resources.ferc1_eia_record_linkage.RESOURCE_METADATA
+
+
+Module Contents
+---------------
+
+.. py:data:: RESOURCE_METADATA
+   :type:  dict[str, dict[str, Any]]
+
+   Resources definition for granular connection between FERC1 and EIA.
+
