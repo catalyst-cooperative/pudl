@@ -43,6 +43,11 @@ EIA-860M
 * Added :doc:`EIA-860m <data_sources/eia860>` data through August 2026. See issue
   :issue:`5677` and PR :pr:`5680`.
 
+EIA-861
+~~~~~~~
+* Added :doc:`EIA-861 <data_sources/eia861>` final release 2025 data. See issue
+  :issue:`5701` and PR :pr:`5702`.
+
 EIA-923
 ~~~~~~~
 * Added final release data from 2025 for :doc:`EIA-923 <data_sources/eia923>`,
@@ -138,6 +143,14 @@ Bug Fixes & Data Cleaning
   :ref:`out_pudl__yearly_assn_eia_ferc1_plant_parts` changed on every run even with
   identical inputs. The sampling is now seeded and ties are broken by EIA record ID. See
   :issue:`5610` and :pr:`5643`.
+* Made shared helpers in ``pudl.helpers`` behave identically under pandas 2 and 3.
+  ``standardize_percentages_ratio()`` now accepts numeric strings (as some Excel-sourced
+  columns arrive) and always returns ``float64``; genuinely non-numeric values still
+  raise. ``scale_by_ownership()`` now always returns ``float64`` for the scaled columns,
+  where the dtype previously depended on the data (``Int64`` if every value happened to
+  be integral). String-cleaning, boolean and phone-number helpers were also hardened
+  against pandas 3 dtype behavior changes. See :issue:`5613`, :issue:`5614`,
+  :issue:`5615` and :pr:`5662`.
 * Fixed the integer NERC region code ``25470`` reported by utility 55959 in 2013 and
   2014 in the EIA-861 tables, which was becoming ``UNK`` instead of ``MRO``. See PR
   :pr:`5685`.

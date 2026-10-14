@@ -36,6 +36,11 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
 * Added [EIA-860m](data_sources/eia860.html.md) data through August 2026. See issue
   [#5677](https://github.com/catalyst-cooperative/pudl/issues/5677) and PR [#5680](https://github.com/catalyst-cooperative/pudl/pull/5680).
 
+#### EIA-861
+
+* Added [EIA-861](data_sources/eia861.html.md) final release 2025 data. See issue
+  [#5701](https://github.com/catalyst-cooperative/pudl/issues/5701) and PR [#5702](https://github.com/catalyst-cooperative/pudl/pull/5702).
+
 #### EIA-923
 
 * Added final release data from 2025 for [EIA-923](data_sources/eia923.html.md),
@@ -126,6 +131,14 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
   [out_pudl_\_yearly_assn_eia_ferc1_plant_parts](data_dictionaries/pudl_db.html.md#out-pudl-yearly-assn-eia-ferc1-plant-parts) changed on every run even with
   identical inputs. The sampling is now seeded and ties are broken by EIA record ID. See
   [#5610](https://github.com/catalyst-cooperative/pudl/issues/5610) and [#5643](https://github.com/catalyst-cooperative/pudl/pull/5643).
+* Made shared helpers in `pudl.helpers` behave identically under pandas 2 and 3.
+  `standardize_percentages_ratio()` now accepts numeric strings (as some Excel-sourced
+  columns arrive) and always returns `float64`; genuinely non-numeric values still
+  raise. `scale_by_ownership()` now always returns `float64` for the scaled columns,
+  where the dtype previously depended on the data (`Int64` if every value happened to
+  be integral). String-cleaning, boolean and phone-number helpers were also hardened
+  against pandas 3 dtype behavior changes. See [#5613](https://github.com/catalyst-cooperative/pudl/issues/5613), [#5614](https://github.com/catalyst-cooperative/pudl/issues/5614),
+  [#5615](https://github.com/catalyst-cooperative/pudl/issues/5615) and [#5662](https://github.com/catalyst-cooperative/pudl/pull/5662).
 * Fixed the integer NERC region code `25470` reported by utility 55959 in 2013 and
   2014 in the EIA-861 tables, which was becoming `UNK` instead of `MRO`. See PR
   [#5685](https://github.com/catalyst-cooperative/pudl/pull/5685).

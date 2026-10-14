@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.helpers &#8212; PUDL 2026.9.1.dev48 documentation</title>
+    <title>pudl.helpers &#8212; PUDL 2026.9.1.dev50 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../_static/documentation_options.js?v=d6730e96"></script>
+    <script src="../../_static/documentation_options.js?v=385f3a78"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev48 documentation - Home"/>
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev48 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev50 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev50 documentation - Home"/>
   
   
 </a></div>
@@ -1907,7 +1907,9 @@ window.runMermaid = runMermaid;</script>
             <span class="n">col</span> <span class="o">=</span> <span class="n">col</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">str_map</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">k</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">unmapped</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">badstrings</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">setdiff1d</span><span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">unique</span><span class="p">(),</span> <span class="nb">list</span><span class="p">(</span><span class="n">str_map</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+        <span class="c1"># Drop nulls before the setdiff: np.setdiff1d sorts its inputs, and a mix of</span>
+        <span class="c1"># NaN/NA and strings (which pandas 3 no longer coerces away) can't be compared.</span>
+        <span class="n">badstrings</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">setdiff1d</span><span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">unique</span><span class="p">(),</span> <span class="nb">list</span><span class="p">(</span><span class="n">str_map</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
         <span class="c1"># This call to replace can only work if there are actually some</span>
         <span class="c1"># leftover strings to fix -- otherwise it runs forever because we</span>
         <span class="c1"># are replacing nothing with nothing.</span>
@@ -2760,10 +2762,16 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    """</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Standardizing ratios and percentages for </span><span class="si">{</span><span class="n">mixed_cols</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">mixed_cols</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_numeric_dtype</span><span class="p">(</span><span class="n">frac_df</span><span class="p">[</span><span class="n">col</span><span class="p">]):</span>
+        <span class="c1"># Coerce to float64. pandas 3's read_excel leaves some of these mixed</span>
+        <span class="c1"># columns as strings; pd.to_numeric still raises loudly on genuinely</span>
+        <span class="c1"># non-numeric junk, preserving the original guard's intent. Working in float</span>
+        <span class="c1"># also avoids a lossy in-place division on an integer column below.</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">frac_df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">frac_df</span><span class="p">[</span><span class="n">col</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"float64"</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">: Standardization method requires numeric dtype."</span>
-            <span class="p">)</span>
+            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span>
         <span class="k">if</span> <span class="s2">"report_year"</span> <span class="ow">in</span> <span class="n">frac_df</span><span class="p">:</span>
             <span class="n">dates</span> <span class="o">=</span> <span class="p">(</span><span class="n">frac_df</span><span class="o">.</span><span class="n">report_year</span> <span class="o">&gt;=</span> <span class="nb">min</span><span class="p">(</span><span class="n">years_to_standardize</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">(</span>
                 <span class="n">frac_df</span><span class="o">.</span><span class="n">report_year</span> <span class="o">&lt;=</span> <span class="nb">max</span><span class="p">(</span><span class="n">years_to_standardize</span><span class="p">)</span>
@@ -2772,7 +2780,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">dates</span> <span class="o">=</span> <span class="p">(</span><span class="n">frac_df</span><span class="o">.</span><span class="n">report_date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span> <span class="o">&gt;=</span> <span class="nb">min</span><span class="p">(</span><span class="n">years_to_standardize</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">(</span>
                 <span class="n">frac_df</span><span class="o">.</span><span class="n">report_date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span> <span class="o">&lt;=</span> <span class="nb">max</span><span class="p">(</span><span class="n">years_to_standardize</span><span class="p">)</span>
             <span class="p">)</span>
-        <span class="n">frac_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">dates</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span> <span class="o">/=</span> <span class="mi">100</span>
+        <span class="n">frac_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">dates</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">frac_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">dates</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span> <span class="o">/</span> <span class="mi">100</span>
         <span class="k">if</span> <span class="n">frac_df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">: Values &gt;100pct observed: </span><span class="si">{</span><span class="n">frac_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">frac_df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">][</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span>
@@ -3067,9 +3075,12 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># This is easier than building an input dictionary for pandas map or replace</span>
     <span class="c1"># functions.</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">true_values</span><span class="p">),</span> <span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">false_values</span><span class="p">),</span> <span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">df</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"boolean"</span><span class="p">)</span>
+    <span class="c1"># Build the boolean column as a whole rather than assigning True/False into the</span>
+    <span class="c1"># existing (possibly string) column, which pandas 3.0 rejects as a lossy setitem.</span>
+    <span class="n">bool_col</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">"boolean"</span><span class="p">)</span>
+    <span class="n">bool_col</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">true_values</span><span class="p">)]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">bool_col</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">false_values</span><span class="p">)]</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">df</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">bool_col</span>
 
     <span class="k">return</span> <span class="n">df</span></div>
 
@@ -3239,8 +3250,17 @@ window.runMermaid = runMermaid;</script>
             <span class="n">gens</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">fraction_owned</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ownership_record_type</span><span class="o">=</span><span class="s2">"total"</span><span class="p">),</span>
         <span class="p">]</span>
     <span class="p">)</span>
-    <span class="n">gens</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">scale_cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">gens</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">scale_cols</span><span class="p">]</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span>
-        <span class="n">gens</span><span class="p">[</span><span class="s2">"fraction_owned"</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="s2">"index"</span>
+    <span class="c1"># Scaling by a fractional ownership share is inherently fractional, so the scaled</span>
+    <span class="c1"># columns are always float64. We deliberately assign with ``gens[scale_cols] =``</span>
+    <span class="c1"># rather than ``gens.loc[:, scale_cols] =``: ``.loc`` writes into the existing</span>
+    <span class="c1"># columns in place and so keeps their dtype, and pandas 3.0 raises when that would</span>
+    <span class="c1"># put float results into an integer column. Plain ``[]`` assignment replaces the</span>
+    <span class="c1"># columns wholesale, letting their dtype change. The explicit cast before the</span>
+    <span class="c1"># multiply makes the output dtype independent of the input dtype.</span>
+    <span class="n">gens</span><span class="p">[</span><span class="n">scale_cols</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">gens</span><span class="p">[</span><span class="n">scale_cols</span><span class="p">]</span>
+        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"float64"</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">gens</span><span class="p">[</span><span class="s2">"fraction_owned"</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="s2">"index"</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">gens</span></div>
 
@@ -3585,9 +3605,9 @@ window.runMermaid = runMermaid;</script>
         <span class="n">df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">extension</span><span class="o">.</span><span class="n">isna</span><span class="p">(),</span> <span class="n">df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">+</span> <span class="s2">"x"</span> <span class="o">+</span> <span class="n">extension</span><span class="p">)</span>
 
         <span class="c1"># Replace invalid or empty phone numbers with NaN</span>
-        <span class="n">invalid_mask</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="p">(</span><span class="n">phone_main</span><span class="o">.</span><span class="n">isna</span><span class="p">())</span> <span class="o">|</span> <span class="p">(</span><span class="n">phone_main</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="sa">r</span><span class="s2">"0+"</span><span class="p">))</span> <span class="o">|</span> <span class="p">(</span><span class="n">phone_main</span> <span class="o">==</span> <span class="s2">""</span><span class="p">)</span>
-        <span class="p">)</span>
+        <span class="c1"># A single regex catches empty and all-zero strings; na=True catches nulls</span>
+        <span class="c1"># without mixing boolean dtypes, which pandas 3 can't combine when NA is present.</span>
+        <span class="n">invalid_mask</span> <span class="o">=</span> <span class="n">phone_main</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="sa">r</span><span class="s2">"0*"</span><span class="p">,</span> <span class="n">na</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">invalid_mask</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">df</span></div>
