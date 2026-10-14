@@ -54,7 +54,7 @@ Dagster docs for more info.
   - [`pudl.dagster.jobs`](../autoapi/pudl/dagster/jobs/index.html.md#module-pudl.dagster.jobs) defines the standard PUDL jobs.
   - [`pudl.dagster.sensors`](../autoapi/pudl/dagster/sensors/index.html.md#module-pudl.dagster.sensors) defines Dagster sensors.
   - [`pudl.dagster.config`](../autoapi/pudl/dagster/config/index.html.md#module-pudl.dagster.config) contains reusable run-configuration helpers.
-  - [`pudl.dagster.build`](../autoapi/pudl/dagster/build/index.html.md#module-pudl.dagster.build) assembles [`dagster.Definitions`](https://docs.dagster.io/api/dagster/definitions/#dagster.Definitions) via
+  - [`pudl.dagster.build`](../autoapi/pudl/dagster/build/index.html.md#module-pudl.dagster.build) assembles [`dagster.Definitions`](https://dagster.io/docs/api/dagster/definitions/#dagster.Definitions) via
     `pudl.dagster.build_defs()`.
 * **Assets** [[Dagster ref](https://docs.dagster.io/guides/build/assets)] are the
   primary building blocks in Dagster. They represent the underlying entities in our
@@ -123,7 +123,7 @@ $ pixi run dg list defs
 If you want to inspect asset values interactively from a notebook, REPL, or local
 script, use [`pudl.dagster.build.build_interactive_defs()`](../autoapi/pudl/dagster/build/index.html.md#pudl.dagster.build.build_interactive_defs) rather than the default
 `build_defs()` assembly. This helper constructs concrete FERC SQLite IO managers for
-interactive use, which allows [`dagster.Definitions.load_asset_value()`](https://docs.dagster.io/api/dagster/definitions/#dagster.Definitions.load_asset_value) to work
+interactive use, which allows [`dagster.Definitions.load_asset_value()`](https://dagster.io/docs/api/dagster/definitions/#dagster.Definitions.load_asset_value) to work
 outside a `dg`-spawned environment.
 
 For example, to load a raw FERC asset in a notebook:

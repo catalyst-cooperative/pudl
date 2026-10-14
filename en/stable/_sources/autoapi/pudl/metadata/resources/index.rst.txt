@@ -28,6 +28,7 @@ Submodules
    /autoapi/pudl/metadata/resources/eiaaeo/index
    /autoapi/pudl/metadata/resources/eiaapi/index
    /autoapi/pudl/metadata/resources/epacems/index
+   /autoapi/pudl/metadata/resources/epamats/index
    /autoapi/pudl/metadata/resources/ferc1/index
    /autoapi/pudl/metadata/resources/ferc1_eia_record_linkage/index
    /autoapi/pudl/metadata/resources/ferc714/index
@@ -54,6 +55,14 @@ Attributes
    pudl.metadata.resources.module
    pudl.metadata.resources.FOREIGN_KEYS
    pudl.metadata.resources.ENTITIES
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.metadata.resources.EntitySpec
 
 
 Functions
@@ -127,8 +136,32 @@ Package Contents
 
    See :func:`pudl.metadata.helpers.build_foreign_keys`.
 
+.. py:class:: EntitySpec
+
+   Bases: :py:obj:`TypedDict`
+
+
+   Column groupings used to harvest a single EIA entity.
+
+
+   .. py:attribute:: id_cols
+      :type:  list[str]
+
+
+   .. py:attribute:: static_cols
+      :type:  list[str]
+
+
+   .. py:attribute:: annual_cols
+      :type:  list[str]
+
+
+   .. py:attribute:: mapped_schemas
+      :type:  NotRequired[list[dict[str, str]]]
+
+
 .. py:data:: ENTITIES
-   :type:  dict[str, dict[str, list[str] | dict[str, str]]]
+   :type:  dict[str, EntitySpec]
 
    Columns kept for either entity or annual EIA tables in the harvesting process.
 

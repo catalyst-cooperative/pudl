@@ -1,0 +1,29 @@
+pudl.metadata.resources.epamats
+===============================
+
+.. py:module:: pudl.metadata.resources.epamats
+
+.. autoapi-nested-parse::
+
+   Table definitions for the EPA MATS data group.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.metadata.resources.epamats.RESOURCE_METADATA
+
+
+Module Contents
+---------------
+
+.. py:data:: RESOURCE_METADATA
+   :type:  dict[str, dict[str, Any]]
+
+   EPA MATS resource attributes by PUDL identifier (``resource.name``).
+
+   Keys are in alphabetical order.
+

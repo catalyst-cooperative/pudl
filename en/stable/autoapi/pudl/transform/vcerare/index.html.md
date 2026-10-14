@@ -57,7 +57,7 @@ map to a single county_id_fips value.
   for lakes), `place_name`, `latitude`, `longitude`, and `state`
   columns.
 
-### pudl.transform.vcerare.\_stack_cap_fac_df(lf: polars.LazyFrame, lf_name: [str](https://docs.python.org/3/library/stdtypes.html#str)) → polars.LazyFrame
+### pudl.transform.vcerare.\_stack_cap_fac_df(lf: polars.LazyFrame, lf_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → polars.LazyFrame
 
 Reshape one wide capacity factor table from county columns to county rows.
 
@@ -76,7 +76,7 @@ rather than to the concatenated table keeps peak memory down.
   The table in long form with columns `hour_of_year`, `report_year`,
   `county_state_names`, and `capacity_factor_<lf_name>`.
 
-### pudl.transform.vcerare.\_add_time_cols(lf: polars.LazyFrame, lf_name: [str](https://docs.python.org/3/library/stdtypes.html#str), year: [int](https://docs.python.org/3/library/functions.html#int)) → polars.LazyFrame
+### pudl.transform.vcerare.\_add_time_cols(lf: polars.LazyFrame, lf_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), year: [int](https://docs.python.org/3/builtins/functions.html#int)) → polars.LazyFrame
 
 Add aligned `datetime_utc` and integer `hour_of_year` columns.
 
@@ -102,10 +102,10 @@ based on whether `year` is a leap year.
   The table with `datetime_utc` (datetime) and `hour_of_year` (Int32,
   1-8760) columns, clipped to 8760 hours on leap years.
 * **Raises:**
-  [**AssertionError**](https://docs.python.org/3/library/exceptions.html#AssertionError) – For `year >= 2024`, if the incoming `hour_of_year` column
+  [**AssertionError**](https://docs.python.org/3/builtins/exceptions.html#AssertionError) – For `year >= 2024`, if the incoming `hour_of_year` column
   is not a datetime column as expected.
 
-### pudl.transform.vcerare.\_drop_city_cols(lf: polars.LazyFrame, lf_name: [str](https://docs.python.org/3/library/stdtypes.html#str)) → polars.LazyFrame
+### pudl.transform.vcerare.\_drop_city_cols(lf: polars.LazyFrame, lf_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → polars.LazyFrame
 
 Drop the two Virginia independent-city rows from a capacity factor table.
 
@@ -118,7 +118,7 @@ RARE but are not counties, and are excluded from the output.
 * **Returns:**
   The table with the two independent-city rows removed.
 
-### pudl.transform.vcerare.\_make_cap_fac_frac(lf: polars.LazyFrame, lf_name: [str](https://docs.python.org/3/library/stdtypes.html#str)) → polars.LazyFrame
+### pudl.transform.vcerare.\_make_cap_fac_frac(lf: polars.LazyFrame, lf_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → polars.LazyFrame
 
 Convert the capacity factor column from a percentage to a fraction.
 
@@ -129,7 +129,7 @@ Convert the capacity factor column from a percentage to a fraction.
 * **Returns:**
   The table with `capacity_factor_<lf_name>` divided by 100.
 
-### pudl.transform.vcerare.\_check_for_valid_counties(lf: polars.LazyFrame, clean_fips_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), lf_name: [str](https://docs.python.org/3/library/stdtypes.html#str)) → polars.LazyFrame
+### pudl.transform.vcerare.\_check_for_valid_counties(lf: polars.LazyFrame, clean_fips_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), lf_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → polars.LazyFrame
 
 Check that every place name in the data appears in the FIPS mapping table.
 
@@ -145,7 +145,7 @@ schema (they are the non-identifier column names), avoiding a data scan.
 * **Returns:**
   `lf` unchanged; this is a validation pass-through.
 * **Raises:**
-  [**AssertionError**](https://docs.python.org/3/library/exceptions.html#AssertionError) – If the data contains any place name that is not present in
+  [**AssertionError**](https://docs.python.org/3/builtins/exceptions.html#AssertionError) – If the data contains any place name that is not present in
   `clean_fips_df`.
 
 ### pudl.transform.vcerare.\_standardize_census_names(vce_fips_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), census_pep_data: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
@@ -176,10 +176,10 @@ as lakes don’t have comparable values in the Census PEP data and we drop the c
   `vce_fips_df` with `place_name` replaced by the Census PEP county name
   wherever the two differ, and the original VCE `place_name` column dropped.
 * **Raises:**
-  [**AssertionError**](https://docs.python.org/3/library/exceptions.html#AssertionError) – If more than 74 place names would be replaced, suggesting
+  [**AssertionError**](https://docs.python.org/3/builtins/exceptions.html#AssertionError) – If more than 74 place names would be replaced, suggesting
   the Census data or VCE names have shifted and need manual review.
 
-### pudl.transform.vcerare.\_clip_unexpected_2016_pv_capacity(lf: polars.LazyFrame, lf_name: [str](https://docs.python.org/3/library/stdtypes.html#str), year: [int](https://docs.python.org/3/library/functions.html#int)) → polars.LazyFrame
+### pudl.transform.vcerare.\_clip_unexpected_2016_pv_capacity(lf: polars.LazyFrame, lf_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), year: [int](https://docs.python.org/3/builtins/functions.html#int)) → polars.LazyFrame
 
 Clip a known set of out-of-bounds 2016 solar PV capacity factors.
 
@@ -197,7 +197,7 @@ through unchanged.
   The table with `capacity_factor_solar_pv` values above 1.10 clipped to 1.10
   for 2016 solar PV; otherwise `lf` unchanged.
 * **Raises:**
-  [**AssertionError**](https://docs.python.org/3/library/exceptions.html#AssertionError) – If the number of 2016 solar PV values exceeding 1.10 is not
+  [**AssertionError**](https://docs.python.org/3/builtins/exceptions.html#AssertionError) – If the number of 2016 solar PV values exceeding 1.10 is not
   exactly 365, which would mean the data has changed and needs review.
 
 ### pudl.transform.vcerare.\_spot_fix_great_lakes_fips(sr: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
@@ -216,7 +216,7 @@ the equivalent fix applied to the capacity factor data.
 * **Returns:**
   The Series with `lake_hurron_michigan` replaced by `lake_huron_michigan`.
 
-### pudl.transform.vcerare.\_spot_fix_great_lakes_capacity_factor(lf: polars.LazyFrame, lf_name: [str](https://docs.python.org/3/library/stdtypes.html#str)) → polars.LazyFrame
+### pudl.transform.vcerare.\_spot_fix_great_lakes_capacity_factor(lf: polars.LazyFrame, lf_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → polars.LazyFrame
 
 Normalize the misspelled Lake Huron place name in a capacity factor table.
 
@@ -235,7 +235,7 @@ table.
   The LazyFrame with any `lake_hurron_michigan` column renamed to
   `lake_huron_michigan`.
 
-### pudl.transform.vcerare.one_year_hourly_available_capacity_factor(year: [int](https://docs.python.org/3/library/functions.html#int), fips_df_census: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), raw_vcerare_\_fixed_solar_pv_lat_upv: polars.LazyFrame, raw_vcerare_\_offshore_wind_power_140m: polars.LazyFrame, raw_vcerare_\_onshore_wind_power_100m: polars.LazyFrame) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData)]
+### pudl.transform.vcerare.one_year_hourly_available_capacity_factor(year: [int](https://docs.python.org/3/builtins/functions.html#int), fips_df_census: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), raw_vcerare_\_fixed_solar_pv_lat_upv: polars.LazyFrame, raw_vcerare_\_offshore_wind_power_140m: polars.LazyFrame, raw_vcerare_\_onshore_wind_power_100m: polars.LazyFrame) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData)]
 
 Transform one year of raw VCE RARE capacity factor tables to parquet.
 
@@ -258,7 +258,7 @@ result to a partitioned `_core_vcerare__*` parquet file.
   A dict mapping each `_core_vcerare__<table>` name to the `ParquetData`
   describing its written partition for `year`.
 
-### pudl.transform.vcerare.merge_all_vce_tables(transformed_tables: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData)], vce_fips_table: [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData), table_name: [str](https://docs.python.org/3/library/stdtypes.html#str), year: [int](https://docs.python.org/3/library/functions.html#int)) → [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData)
+### pudl.transform.vcerare.merge_all_vce_tables(transformed_tables: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData)], vce_fips_table: [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData), table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), year: [int](https://docs.python.org/3/builtins/functions.html#int)) → [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData)
 
 Merge the cleaned VCE capacity factor tables into the final `out` table.
 
@@ -278,7 +278,7 @@ partitioned parquet file for `year`.
   The `ParquetData` describing the written `table_name` partition for
   `year`.
 
-### pudl.transform.vcerare.out_vcerare_\_hourly_available_capacity_factor(context, raw_vcerare_\_fixed_solar_pv_lat_upv: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[int](https://docs.python.org/3/library/functions.html#int), [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData)], raw_vcerare_\_offshore_wind_power_140m: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[int](https://docs.python.org/3/library/functions.html#int), [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData)], raw_vcerare_\_onshore_wind_power_100m: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[int](https://docs.python.org/3/library/functions.html#int), [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData)], raw_vcerare_\_lat_lon_fips: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), \_core_censuspep_\_yearly_geocodes: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → polars.LazyFrame
+### pudl.transform.vcerare.out_vcerare_\_hourly_available_capacity_factor(context, raw_vcerare_\_fixed_solar_pv_lat_upv: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[int](https://docs.python.org/3/builtins/functions.html#int), [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData)], raw_vcerare_\_offshore_wind_power_140m: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[int](https://docs.python.org/3/builtins/functions.html#int), [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData)], raw_vcerare_\_onshore_wind_power_100m: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[int](https://docs.python.org/3/builtins/functions.html#int), [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData)], raw_vcerare_\_lat_lon_fips: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), \_core_censuspep_\_yearly_geocodes: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → polars.LazyFrame
 
 Transform raw Vibrant Clean Energy renewable generation profiles.
 
@@ -302,5 +302,5 @@ written to its own partition of the output parquet file.
   A LazyFrame scanning every written year partition of the merged
   `out_vcerare__hourly_available_capacity_factor` table.
 * **Raises:**
-  [**AssertionError**](https://docs.python.org/3/library/exceptions.html#AssertionError) – If the latest available Census PEP vintage predates the
+  [**AssertionError**](https://docs.python.org/3/builtins/exceptions.html#AssertionError) – If the latest available Census PEP vintage predates the
   most recent VCE RARE report year.

@@ -54,7 +54,7 @@ Module Contents
 
 .. py:data:: ZenodoDoi
 
-.. py:function:: get_zenodo_dois_path() -> importlib.resources.abc.Traversable
+.. py:function:: get_zenodo_dois_path() -> pathlib.Path
 
    Return the canonical packaged Zenodo DOI settings path.
 

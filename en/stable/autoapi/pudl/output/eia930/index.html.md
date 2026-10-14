@@ -33,7 +33,7 @@ Adds timezone column and combined ID with BA/subregion used for imputation.
 
 Adds timezone column and combined ID with BA/subregion used for imputation.
 
-### pudl.output.eia930.\_years_from_context(context) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[int](https://docs.python.org/3/library/functions.html#int)]
+### pudl.output.eia930.\_years_from_context(context) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[int](https://docs.python.org/3/builtins/functions.html#int)]
 
 ### pudl.output.eia930.\_out_eia930_\_combined_demand(\_out_eia930_\_hourly_operations: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), \_out_eia930_\_hourly_subregion_demand: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 

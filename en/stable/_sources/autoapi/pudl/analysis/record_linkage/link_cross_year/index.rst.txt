@@ -15,6 +15,7 @@ Attributes
 .. autoapisummary::
 
    pudl.analysis.record_linkage.link_cross_year.logger
+   pudl.analysis.record_linkage.link_cross_year._DISTANCE_DECIMALS
 
 
 Classes
@@ -40,6 +41,8 @@ Functions
    pudl.analysis.record_linkage.link_cross_year.cluster_records_dbscan
    pudl.analysis.record_linkage.link_cross_year.split_clusters
    pudl.analysis.record_linkage.link_cross_year.match_orphaned_records
+   pudl.analysis.record_linkage.link_cross_year.sort_records_for_clustering
+   pudl.analysis.record_linkage.link_cross_year.attach_record_labels
    pudl.analysis.record_linkage.link_cross_year.link_ids_cross_year
 
 
@@ -47,6 +50,21 @@ Module Contents
 ---------------
 
 .. py:data:: logger
+
+.. py:data:: _DISTANCE_DECIMALS
+   :value: 6
+
+
+   Number of decimal places to which distances are rounded.
+
+   Distances are compared against hard thresholds and exact ties are broken by row order,
+   so floating point noise can decide which records get clustered together. The error in
+   a Euclidean distance computed by scikit-learn grows as the true distance shrinks: it is
+   about 1e-8 for records that are identical or nearly so, and under 1e-14 near the
+   thresholds, and it differs between platforms and library builds. A distance between
+   identical records can come out as 1e-8 instead of 0. Rounding snaps that noise away.
+   The meaningful distances between near-duplicate records go down to about 5e-6, so we
+   can't round much more coarsely than this without turning real differences into ties.
 
 .. py:class:: PenalizeReportYearDistanceConfig(**config_dict)
 
@@ -174,8 +192,25 @@ Module Contents
    they don't appear close enough to any existing clusters.
 
 
-.. py:function:: link_ids_cross_year(df: pandas.DataFrame, feature_matrix: pudl.analysis.record_linkage.embed_dataframe.FeatureMatrix, experiment_tracker: pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker)
+.. py:function:: sort_records_for_clustering(df: pandas.DataFrame, feature_matrix: pudl.analysis.record_linkage.embed_dataframe.FeatureMatrix) -> tuple[pandas.DataFrame, pudl.analysis.record_linkage.embed_dataframe.FeatureMatrix]
 
-   Apply model and return column of estimated record labels.
+   Put records in a canonical order and give the feature matrix a matching one.
+
+   Clustering results depend on the order of the input rows, and the other ops in
+   this graph assume ``df`` and ``feature_matrix.matrix`` share a fresh RangeIndex
+   in the same row order. Rather than relying on every caller to have already
+   sorted ``df`` before embedding it (easy to forget, and silently wrong if
+   missed), sort here and use ``feature_matrix.index`` to reorder its rows to
+   match, regardless of what order they arrive in.
+
+
+.. py:function:: attach_record_labels(df: pandas.DataFrame, id_year_df: pandas.DataFrame) -> pandas.DataFrame
+
+   Attach final cluster labels to the (sorted) records that were clustered.
+
+
+.. py:function:: link_ids_cross_year(df: pandas.DataFrame, feature_matrix: pudl.analysis.record_linkage.embed_dataframe.FeatureMatrix, experiment_tracker: pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker) -> pandas.DataFrame
+
+   Apply model and return input records annotated with cluster labels.
 
 

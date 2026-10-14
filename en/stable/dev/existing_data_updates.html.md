@@ -49,8 +49,9 @@ DOI to point to the latest dataset by running:
 pixi run update_zenodo_dois dataset_name
 ```
 
-Verify that this updated the record in `pudl.package_data.settings.zenodo_dois.yml`
-to refer to the new raw input archives as expected.
+Verify that this updated the record in
+`src/pudl/package_data/settings/zenodo_dois.yml` to refer to the new raw input
+archives as expected.
 
 **1.3)** In [`pudl.metadata.sources.SOURCES`](../autoapi/pudl/metadata/sources/index.html.md#pudl.metadata.sources.SOURCES), update the `working_partitions`
 to reflect the years, months, or quarters of data that are available for each dataset
@@ -281,6 +282,31 @@ script in the terminal. From within the pudl repo directory, run:
 ```bash
 python src/pudl/transform/ferc1.py
 ```
+
+**4.B.7)** Update the rate base table. If any new XBRL factoids have been added, verify
+that they appear in the rate base table as expected (e.g., with correct
+`plant_function`). By default, tags will inherit the properties of factoids up and
+downstream of them - sometimes, this results in unexpected or undesired results.
+To fix any issues with the rate base table, update the following:
+
+* Factoid not in rate base when it should be, or vice versa? Update
+  `src/pudl/package_data/ferc1/xbrl_factoid_rate_base_tags.csv`
+* Missing calculation components: update
+  `src/pudl/package_data/ferc1/xbrl_calculation_component_fixes.csv`
+* Incorrect rate base category: update
+  `src/pudl/package_data/ferc1/xbrl_factoid_rate_base_category_tags.csv`
+* Incorrect plant function: update
+  `src/pudl/package_data/ferc1/xbrl_factoid_plant_function_tags.csv`
+* Incorrect plant status: update
+  `src/pudl/package_data/ferc1/xbrl_factoid_plant_status_tags.csv` (rarely overridden)
+* Incorrect utility type: update
+  `src/pudl/package_data/ferc1/xbrl_factoid_utility_type_tags.csv` (rarely overridden)
+* Incorrect revenue requirement tags: update
+  `src/pudl/package_data/ferc1/xbrl_factoid_revenue_requirement_tags.csv`
+  (rarely overridden)
+
+Make sure to update the `notes` column or add one to document the reasoning for your
+update.
 
 ### C. EPA CEMS
 

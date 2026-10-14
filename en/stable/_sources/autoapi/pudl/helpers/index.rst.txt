@@ -23,6 +23,7 @@ Attributes
    pudl.helpers.sum_na
    pudl.helpers.logger
    pudl.helpers.MergeValidate
+   pudl.helpers._DUCKDB_INTEGER_TYPES
 
 
 Classes
@@ -104,7 +105,9 @@ Functions
    pudl.helpers.persist_table_as_parquet
    pudl.helpers.lf_from_parquet
    pudl.helpers.df_from_parquet
+   pudl.helpers.duckdb_connect
    pudl.helpers.duckdb_relation_from_parquet
+   pudl.helpers._read_typed_csv_rejecting_narrowing
    pudl.helpers.duckdb_extract_zipped_csv
    pudl.helpers.normalize_year_fragments
    pudl.helpers.make_changelog
@@ -266,15 +269,27 @@ Module Contents
 
    Add the State FIPS codes.
 
+   Records without a state are not assigned a state FIPS code.
+
 
 .. py:function:: add_county_fips_id(df: pandas.DataFrame, geocodes: pandas.DataFrame, county_col: str) -> pandas.DataFrame
 
    Add the County FIPS codes to a table with State FIPS codes.
 
 
-.. py:function:: clean_eia_counties(df: pandas.DataFrame, fixes: pandas.DataFrame, state_col: str = 'state', county_col: str = 'county') -> pandas.DataFrame
+.. py:function:: clean_eia_counties(df: pandas.DataFrame, fixes: pandas.DataFrame, explode_lists_of_counties: bool, state_col: str = 'state', county_col: str = 'county') -> pandas.DataFrame
 
    Replace non-standard county names with county names from US Census.
+
+   :param df: table with counties that you'd like to clean up.
+   :param fixes: table fixes of county names in EIA with the cleaned up name that should
+                 match with the US Census names. This table must have with columns of:
+                 ["state", "eia_county", "fips_county"]
+   :param explode_lists_of_counties: Boolean for whether you want to convert any
+                                     instances of multiple counties separated by commas into multiple records
+                                     using ``pandas.explode``.
+   :param state_col: state column name - default is state.
+   :param county_col: state column name - default is county.
 
 
 .. py:function:: oob_to_nan(df: pandas.DataFrame, cols: list[str], lb: float | None = None, ub: float | None = None) -> pandas.DataFrame
@@ -1073,12 +1088,10 @@ Module Contents
    :param gens: table with records at the generator level and generator attributes
                 to be scaled by ownership, must have columns ``plant_id_eia``,
                 ``generator_id``, and ``report_date``
-   :param own_eia860: the ``core_eia860__scd_ownership`` table or the denormalized
-                      :ref:`out_eia860__yearly_ownership` table. If the denormalized table
-                      is given and ``gens`` contains ``utility_id_pudl`` or
-                      ``utility_name_eia`` columns, the owner's PUDL utility ID and EIA
-                      utility name are swapped in alongside the owner's
-                      ``utility_id_eia``.
+   :param own_eia860: the denormalized :ref:`out_eia860__yearly_ownership` table. If
+                      ``gens`` contains ``utility_id_pudl`` or ``utility_name_eia`` columns,
+                      the owner's PUDL utility ID and EIA utility name are swapped in
+                      alongside the owner's ``utility_id_eia``.
    :param scale_cols: a list of columns in the generator table to slice by ownership
                       fraction
    :param validate: how to validate merging the ownership table onto the
@@ -1242,8 +1255,6 @@ Module Contents
 
    .. py:attribute:: partitions
       :type:  dict[str, Any]
-      :value: None
-
 
       Optional dictionary of partition values indicating what data is being offloaded to disk.
 
@@ -1269,17 +1280,39 @@ Module Contents
       Get name of an individual parquet file corresponding to a single partition of data.
 
 
-.. py:function:: persist_table_as_parquet(table_data: pandas.DataFrame | polars.LazyFrame | duckdb.DuckDBPyRelation, table_name: str, partitions: dict[str, Any] | None = None, compression: Literal['zstd', 'snappy', 'gzip', 'brotli'] = 'zstd') -> ParquetData
+.. py:function:: persist_table_as_parquet(table_data: pandas.DataFrame | polars.LazyFrame | duckdb.DuckDBPyRelation, table_name: str, partitions: dict[str, Any] | None = None, use_native_duckdb_writer: bool = False, allow_enum_columns: bool = False) -> ParquetData
 
    Write data from DataFrame or LazyFrame to disk as a parquet file.
 
    Offloading data to disk allows Polars and duckdb to perform highly efficient
    transforms.
 
+   The file is compressed with :data:`pudl.PARQUET_COMPRESSION` at
+   :data:`pudl.PARQUET_COMPRESSION_LEVEL`.
+
    :param table_data: Tabular data to write to disk.
    :param table_name: Table name used to construct path to/name of parquet file.
    :param partitions: Optional partition dimension values indicating the data to be
                       written.
+   :param use_native_duckdb_writer: Only used when ``table_data`` is a
+                                    ``DuckDBPyRelation``. If ``True``, use DuckDB's own multi-threaded
+                                    ``write_parquet()`` instead of the default Arrow-based batch writer.
+                                    This is faster, but flattens any ENUM columns down to plain strings,
+                                    losing the dictionary/Categorical type that the default writer
+                                    preserves for consistency with PUDL's pandas/Polars writers -- only
+                                    set this when ``table_data`` is known not to contain ENUM columns
+                                    (e.g. it's a raw-extraction relation with no metadata ``Resource``
+                                    declaring an intended categorical type), or when that dtype loss is
+                                    acceptable (see ``allow_enum_columns``).
+   :param allow_enum_columns: Only used when ``use_native_duckdb_writer`` is
+                              ``True``. If ``True``, skips the ENUM-column check above and writes
+                              with the native writer regardless, flattening any ENUM column to a
+                              plain string.
+
+   :raises TypeError: If ``table_data`` isn't a ``pd.DataFrame``, ``pl.LazyFrame``, or
+       ``duckdb.DuckDBPyRelation``.
+   :raises ValueError: If ``use_native_duckdb_writer`` is ``True``, ``table_data``
+       contains an ENUM column, and ``allow_enum_columns`` is ``False``.
 
 
 .. py:function:: lf_from_parquet(parquet_data: ParquetData, use_all_partitions: bool = False) -> polars.LazyFrame
@@ -1300,7 +1333,26 @@ Module Contents
                               Otherwise only read data from the partition specified in parquet_data.
 
 
-.. py:function:: duckdb_relation_from_parquet(parquet_data: ParquetData, use_all_partitions: bool = False) -> tuple[duckdb.DuckDBPyRelation, duckdb.DuckDBPyConnection]
+.. py:function:: duckdb_connect(**overrides: str) -> duckdb.DuckDBPyConnection
+
+   Open a DuckDB connection with resource caps taken from the environment.
+
+   A DuckDB connection defaults to using every CPU core and ~80% of system RAM.
+   That is fine for one connection at a time, but PUDL runs many DuckDB-backed
+   assets concurrently -- most acutely the FERC EQR partition backfill, where a
+   dozen-plus partition runs each open their own connection. Left at the
+   defaults, N connections collectively oversubscribe the machine's cores and
+   can exhaust its memory (a load average in the hundreds, then an OOM).
+
+   ``PUDL_DUCKDB_THREADS``, ``PUDL_DUCKDB_MEMORY_LIMIT`` (e.g. ``"6GB"``), and
+   ``PUDL_DUCKDB_TEMP_DIRECTORY`` cap a single connection. When
+   ``memory_limit`` is hit DuckDB spills to ``temp_directory`` rather than
+   failing, so a too-low limit only slows a run down. All three are unset
+   outside the batch jobs, so local and CI single-asset runs keep DuckDB's
+   defaults. Explicit *overrides* win over the environment.
+
+
+.. py:function:: duckdb_relation_from_parquet(parquet_data: ParquetData, use_all_partitions: bool = False) -> collections.abc.Generator[tuple[duckdb.DuckDBPyRelation, duckdb.DuckDBPyConnection]]
 
    Create a duckdb relation to read from parquet files.
 
@@ -1312,7 +1364,36 @@ Module Contents
                               Otherwise only read data from the partition specified in parquet_data.
 
 
-.. py:function:: duckdb_extract_zipped_csv(dataset: str, partitions: dict[str, Any], pages: list[str], datasore, zip_path: pathlib.Path = Path()) -> tuple[str, ParquetData]
+.. py:data:: _DUCKDB_INTEGER_TYPES
+
+.. py:function:: _read_typed_csv_rejecting_narrowing(conn: duckdb.DuckDBPyConnection, csv_path: pathlib.Path, column_types: dict[str, str]) -> duckdb.DuckDBPyRelation
+
+   Read a CSV with explicit column types, without silently rounding bad data.
+
+   DuckDB's CSV reader raises a ``ConversionException`` when a value can't be
+   converted to its declared type at all (e.g. text into ``DOUBLE``), so those
+   mismatches already fail loudly. But for integer types it silently rounds
+   fractional values (e.g. ``"10.5"`` -> ``11``) instead of erroring, which would
+   let a caller's incorrect ``column_types`` mapping corrupt data unnoticed.
+
+   To catch that case, integer-typed columns are read as ``DOUBLE`` first, then cast
+   down to the declared integer type. The check for a nonzero fractional part is
+   fused into that same cast expression via DuckDB's ``error()`` function, so a bad
+   value raises during the same scan that produces the output, rather than requiring
+   a separate pass that would re-read the CSV from disk a second time.
+
+   :param conn: Open DuckDB connection to read with.
+   :param csv_path: Path to the CSV file on disk.
+   :param column_types: Mapping of cleaned column name to DuckDB type, as returned by
+                        a ``duckdb_extract_zipped_csv`` ``column_types`` callable.
+
+   :returns: A DuckDB relation with the given column names and types.
+
+   :raises duckdb.InvalidInputException: If an integer-typed column contains a
+       fractional value that DuckDB would otherwise silently round.
+
+
+.. py:function:: duckdb_extract_zipped_csv(dataset: str, partitions: dict[str, Any], pages: collections.abc.Iterable[str], datastore, zip_path: pathlib.Path = Path(), column_types: collections.abc.Callable[[list[str]], dict[str, str]] | None = None) -> collections.abc.Generator[tuple[str, duckdb.DuckDBPyRelation]]
 
    Extract data from zipped CSV page(s) in a data archive.
 
@@ -1323,12 +1404,24 @@ Module Contents
    each CSV file within a zipfile, allowing the caller to perform transforms using
    the relation before writing to disk with the ``offload_table`` function.
 
+   ``column_types``, when provided, allows the caller to avoid using DuckDB's CSV
+   column type auto-detection entirely in favor of providing an explicit schema. This
+   is useful because header/type sniffing is the dominant cost for very wide CSVs. When
+   omitted, the function falls back to DuckDB's normal auto-detection.
+
    :param dataset: Name of dataset (required to get archive from datastore).
-   :param partition: Partitions of resource to extract data from.
+   :param partitions: Partitions of resource to extract data from.
    :param pages: List of csv files to extract from archive.
    :param datastore: Instance of PUDL datastore to get raw data.
    :param zip_path: Base path within zipfile that points to where CSV files are stored.
-                    If not explicitly set, assume CSV files are at the top level of the zipfile.
+                    If not explicitly set, assume CSV files are at the top level of the
+                    zipfile.
+   :param column_types: Optional callable that takes the raw header row (as read
+                        directly from the CSV, before any cleaning) and returns a mapping of
+                        cleaned column name to DuckDB type.
+
+   :Yields: A ``(page, relation)`` tuple for each requested page, where ``page`` is the
+            CSV filename and ``relation`` is a DuckDB relation over its contents.
 
 
 .. py:function:: normalize_year_fragments(raw_year: pandas.Series, min_valid_year: int, max_valid_year: int, base_century: int = 2000) -> pandas.Series
@@ -1360,9 +1453,17 @@ Module Contents
        logic, or if any resulting year falls outside the valid range.
 
 
-.. py:function:: make_changelog(df_all: pandas.DataFrame, idx: list[str])
+.. py:function:: make_changelog(df_all: pandas.DataFrame, idx: list[str]) -> pandas.DataFrame
 
-   Make a changelog table with unique instances of values over start report and max report date.
+   Make a changelog table with unique instances of values over time.
+
+   Each record is valid from its ``report_date`` until the ``report_date`` of the next
+   distinct record in the same series. A series is a unique combination of the
+   non-date ``idx`` columns and, if present, ``column_name`` (as in the "tall" forensics
+   tables, where many different columns and values share one entity ID). Records
+   reported on the entity's last report date are valid for one more month.
+
+   The output is fully sorted, so it doesn't depend on the order of the input rows.
 
 
 .. py:function:: parse_address(addr: str)

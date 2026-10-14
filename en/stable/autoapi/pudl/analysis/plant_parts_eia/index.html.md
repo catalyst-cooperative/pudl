@@ -220,7 +220,7 @@ plant_parts_eia = MakePlantParts().execute(
 
 ### pudl.analysis.plant_parts_eia.logger
 
-### pudl.analysis.plant_parts_eia.PLANT_PARTS *: [collections.OrderedDict](https://docs.python.org/3/library/collections.html#collections.OrderedDict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [list](https://docs.python.org/3/library/stdtypes.html#list)]]*
+### pudl.analysis.plant_parts_eia.PLANT_PARTS *: [collections.OrderedDict](https://docs.python.org/3/library/collections.html#collections.OrderedDict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [list](https://docs.python.org/3/builtins/stdtypes.html#list)]]*
 
 this dictionary contains a key for each of the ‘plant parts’ that should end up
 in the plant parts list. The top-level value for each key is another dictionary, which
@@ -234,7 +234,7 @@ contains keys:
 
 ### pudl.analysis.plant_parts_eia.PLANT_PARTS_LITERAL
 
-### pudl.analysis.plant_parts_eia.IDX_TO_ADD *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= ['report_date', 'operational_status_pudl']*
+### pudl.analysis.plant_parts_eia.IDX_TO_ADD *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= ['report_date', 'operational_status_pudl']*
 
 list of additional columns to add to the id_cols in [`PLANT_PARTS`](#pudl.analysis.plant_parts_eia.PLANT_PARTS).
 The id_cols are the base columns that we need to aggregate on, but we also need
@@ -243,9 +243,9 @@ operational_status_pudl to separate the operating plant-parts from the
 non-operating plant-parts.
 
 * **Type:**
-  [list](https://docs.python.org/3/library/stdtypes.html#list)
+  [list](https://docs.python.org/3/builtins/stdtypes.html#list)
 
-### pudl.analysis.plant_parts_eia.IDX_OWN_TO_ADD *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= ['utility_id_eia', 'ownership_record_type']*
+### pudl.analysis.plant_parts_eia.IDX_OWN_TO_ADD *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= ['utility_id_eia', 'ownership_record_type']*
 
 list of additional columns beyond the [`IDX_TO_ADD`](#pudl.analysis.plant_parts_eia.IDX_TO_ADD) to add to the
 id_cols in [`PLANT_PARTS`](#pudl.analysis.plant_parts_eia.PLANT_PARTS) when we are dealing with plant-part records
@@ -253,9 +253,9 @@ that have been broken out into “owned” and “total” records for each of t
 owners.
 
 * **Type:**
-  [list](https://docs.python.org/3/library/stdtypes.html#list)
+  [list](https://docs.python.org/3/builtins/stdtypes.html#list)
 
-### pudl.analysis.plant_parts_eia.SUM_COLS *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= ['total_fuel_cost', 'net_generation_mwh', 'capacity_mw', 'capacity_eoy_mw', 'total_mmbtu']*
+### pudl.analysis.plant_parts_eia.SUM_COLS *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= ['total_fuel_cost', 'net_generation_mwh', 'capacity_mw', 'capacity_eoy_mw', 'total_mmbtu']*
 
 list of columns to sum when aggregating a table.
 
@@ -290,7 +290,7 @@ All the plant part ID columns must be in consistent attributes.
 
 Create mega generators table asset.
 
-### pudl.analysis.plant_parts_eia.plant_part_asset_factory(part_name: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
+### pudl.analysis.plant_parts_eia.plant_part_asset_factory(part_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)
 
 Asset factory to create assets for each individual plant part.
 
@@ -371,7 +371,7 @@ of each of the owner utilities - represented by `fraction_owned`.
 
 #### id_cols_list
 
-#### execute(mcoe: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), own_eia860: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), slice_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] = SUM_COLS, validate_own_merge: [pudl.helpers.MergeValidate](../../helpers/index.html.md#pudl.helpers.MergeValidate) = 'one_to_many') → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### execute(mcoe: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), own_eia860: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), slice_cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] = SUM_COLS, validate_own_merge: [pudl.helpers.MergeValidate](../../helpers/index.html.md#pudl.helpers.MergeValidate) = 'one_to_many') → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Make the mega generators table with ownership integrated.
 
@@ -429,6 +429,29 @@ isn’t “existing”, its EOY capacity should be zero.
   An annual table of all generators from EIA that operated within each
   reporting year.
 
+#### *static* label_operator_utility(gen_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Preserve the operator utility’s IDs and name before ownership is integrated.
+
+The `utility_id_eia`, `utility_id_pudl` and `utility_name_eia` columns
+of the generators table identify the utility that operates each generator. Once
+[`pudl.helpers.scale_by_ownership()`](../../helpers/index.html.md#pudl.helpers.scale_by_ownership) runs, those columns describe each
+generator’s owners instead, so we stash the operator’s IDs and name in
+dedicated columns first. Jointly owned generators typically have a single operator
+and several owners, and knowing who operates a generator makes it
+possible to reconcile ownership-scaled generation with the utility-level
+data reported in EIA-861.
+See [https://github.com/catalyst-cooperative/pudl/issues/5550](https://github.com/catalyst-cooperative/pudl/issues/5550)
+
+* **Parameters:**
+  **gen_df** – annual table of all generators from EIA, with the operator
+  utility’s `utility_id_eia`, `utility_id_pudl` and
+  `utility_name_eia`.
+* **Returns:**
+  The same table with `operator_utility_id_eia`,
+  `operator_utility_id_pudl` and `operator_utility_name_eia` columns
+  added.
+
 ### *class* pudl.analysis.plant_parts_eia.MakePlantParts
 
 Compile the plant parts for the master unit list.
@@ -454,7 +477,7 @@ The coordinating function here is [`execute()`](#pudl.analysis.plant_parts_eia.M
 
 #### id_cols_list
 
-#### create_one_plant_part(part_name: [str](https://docs.python.org/3/library/stdtypes.html#str), gens_mega: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame))
+#### create_one_plant_part(part_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), gens_mega: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame))
 
 Create a table of attributes for one plant part.
 
@@ -477,7 +500,7 @@ the validation stage of.
   * **plant_parts_eia** – the master unit list table.
   * **part_name** – should always be “plant_match_ferc1”.
   * **path_to_one_to_many** – a Path to the one_to_many csv file in
-    [`pudl.package_data.glue`](../../package_data/glue/index.html.md#module-pudl.package_data.glue).
+    `src/pudl/package_data/glue`.
 * **Returns:**
   The EIA plant parts table with one-to-many matches aggregated as plant
   parts.
@@ -544,7 +567,7 @@ This `gens_mega` table can then be aggregated by `plant`, `plant_prime_fuel`,
 
 #### id_cols
 
-#### execute(gens_mega: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), sum_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] = SUM_COLS, wtavg_dict: [dict](https://docs.python.org/3/library/stdtypes.html#dict) = WTAVG_DICT) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### execute(gens_mega: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), sum_cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] = SUM_COLS, wtavg_dict: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict) = WTAVG_DICT) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Get a table of data aggregated by a specific plant-part.
 
@@ -638,7 +661,7 @@ is then merged on to get the plant part table with true granularity labels.
 * **Parameters:**
   **ppe** – (pd.DataFrame) The plant parts list
 
-### *class* pudl.analysis.plant_parts_eia.AddAttribute(attribute_col: [str](https://docs.python.org/3/library/stdtypes.html#str), part_name: [str](https://docs.python.org/3/library/stdtypes.html#str), assign_col_dict: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)] | [None](https://docs.python.org/3/library/constants.html#None) = None)
+### *class* pudl.analysis.plant_parts_eia.AddAttribute(attribute_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str), part_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), assign_col_dict: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None)
 
 Base class for adding attributes to plant-part tables.
 
@@ -656,7 +679,7 @@ Base class for adding attributes to plant-part tables.
 
 Add a new column to gens_mega.
 
-### *class* pudl.analysis.plant_parts_eia.AddConsistentAttributes(attribute_col: [str](https://docs.python.org/3/library/stdtypes.html#str), part_name: [str](https://docs.python.org/3/library/stdtypes.html#str), assign_col_dict: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)] | [None](https://docs.python.org/3/library/constants.html#None) = None)
+### *class* pudl.analysis.plant_parts_eia.AddConsistentAttributes(attribute_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str), part_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), assign_col_dict: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None)
 
 Bases: [`AddAttribute`](#pudl.analysis.plant_parts_eia.AddAttribute)
 
@@ -707,7 +730,7 @@ nothing is associated with the record.
 * **Parameters:**
   **record_df** – the dataframe with the record
 
-### *class* pudl.analysis.plant_parts_eia.AddPriorityAttribute(attribute_col: [str](https://docs.python.org/3/library/stdtypes.html#str), part_name: [str](https://docs.python.org/3/library/stdtypes.html#str), assign_col_dict: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)] | [None](https://docs.python.org/3/library/constants.html#None) = None)
+### *class* pudl.analysis.plant_parts_eia.AddPriorityAttribute(attribute_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str), part_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), assign_col_dict: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None)
 
 Bases: [`AddAttribute`](#pudl.analysis.plant_parts_eia.AddAttribute)
 
@@ -732,7 +755,7 @@ Add the attribute to the plant-part df based on priority.
     identifying columns and data columns, sliced by ownership which
     makes “total” and “owned” records for each generator owner.
 
-### *class* pudl.analysis.plant_parts_eia.AddMaxMinAttribute(attribute_col: [str](https://docs.python.org/3/library/stdtypes.html#str), part_name: [str](https://docs.python.org/3/library/stdtypes.html#str), assign_col_dict: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)] | [None](https://docs.python.org/3/library/constants.html#None) = None)
+### *class* pudl.analysis.plant_parts_eia.AddMaxMinAttribute(attribute_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str), part_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), assign_col_dict: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None)
 
 Bases: [`AddAttribute`](#pudl.analysis.plant_parts_eia.AddAttribute)
 
@@ -741,7 +764,7 @@ Add Attributes based on the maximum or minimum value of a sorted attribute.
 This object adds an attribute based on the maximum or minimum of another attribute
 within a group of plant parts uniquely identified by their base ID columns.
 
-#### execute(part_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), gens_mega: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), att_dtype: [str](https://docs.python.org/3/library/stdtypes.html#str), keep: Literal['first', 'last'] = 'first') → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### execute(part_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), gens_mega: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), att_dtype: [str](https://docs.python.org/3/builtins/stdtypes.html#str), keep: Literal['first', 'last'] = 'first') → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Add the attribute to the plant part df based on sorting of another attribute.
 
@@ -757,7 +780,7 @@ Add the attribute to the plant part df based on sorting of another attribute.
     attribute is a maximum attribute.
     See [`pandas.DataFrame.drop_duplicates()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.drop_duplicates.html#pandas.DataFrame.drop_duplicates).
 
-### pudl.analysis.plant_parts_eia.make_id_cols_list() → [list](https://docs.python.org/3/library/stdtypes.html#list)[Any]
+### pudl.analysis.plant_parts_eia.make_id_cols_list() → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[Any]
 
 Get a list of the id columns (primary keys) for all of the plant parts.
 
@@ -765,9 +788,9 @@ Get a list of the id columns (primary keys) for all of the plant parts.
   a list of the ID columns for all of the plant-parts, including
   `report_date`
 * **Return type:**
-  [list](https://docs.python.org/3/library/stdtypes.html#list)
+  [list](https://docs.python.org/3/builtins/stdtypes.html#list)
 
-### pudl.analysis.plant_parts_eia.make_parts_to_ids_dict() → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]
+### pudl.analysis.plant_parts_eia.make_parts_to_ids_dict() → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]
 
 Make dict w/ plant-part names (keys) to the main id column (values).
 
@@ -779,7 +802,7 @@ plant_id_eia column is always first, so we’re going to grab the last column.
   Dictionary with plant-part names (keys) corresponding to the main ID column
   (value).
 
-### pudl.analysis.plant_parts_eia.add_record_id(part_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), id_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], plant_part_col: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'plant_part', year: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.analysis.plant_parts_eia.add_record_id(part_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), id_cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], plant_part_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'plant_part', year: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Add a record id to a compiled part df.
 
@@ -787,7 +810,7 @@ We need a standardized way to refer to these compiled records that contains enou
 information in the id itself that in theory we could deconstruct the id and
 determine which plant id and plant part id columns are associated with this record.
 
-### pudl.analysis.plant_parts_eia.match_to_single_plant_part(multi_gran_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), ppe: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), part_name: [PLANT_PARTS_LITERAL](#pudl.analysis.plant_parts_eia.PLANT_PARTS_LITERAL) = 'plant_gen', cols_to_keep: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] = [], one_to_many: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.analysis.plant_parts_eia.match_to_single_plant_part(multi_gran_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), ppe: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), part_name: [PLANT_PARTS_LITERAL](#pudl.analysis.plant_parts_eia.PLANT_PARTS_LITERAL) = 'plant_gen', cols_to_keep: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] = [], one_to_many: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Match data with a variety of granularities to a single plant-part.
 

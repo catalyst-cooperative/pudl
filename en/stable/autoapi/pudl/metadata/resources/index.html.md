@@ -17,6 +17,7 @@ A subpackage to define and organize PUDL database tables by data group.
 * [pudl.metadata.resources.eiaaeo](eiaaeo/index.html.md)
 * [pudl.metadata.resources.eiaapi](eiaapi/index.html.md)
 * [pudl.metadata.resources.epacems](epacems/index.html.md)
+* [pudl.metadata.resources.epamats](epamats/index.html.md)
 * [pudl.metadata.resources.ferc1](ferc1/index.html.md)
 * [pudl.metadata.resources.ferc1_eia_record_linkage](ferc1_eia_record_linkage/index.html.md)
 * [pudl.metadata.resources.ferc714](ferc714/index.html.md)
@@ -41,6 +42,11 @@ A subpackage to define and organize PUDL database tables by data group.
 | [`FOREIGN_KEYS`](#pudl.metadata.resources.FOREIGN_KEYS)        | Generated foreign key constraints by resource name.                            |
 | [`ENTITIES`](#pudl.metadata.resources.ENTITIES)            | Columns kept for either entity or annual EIA tables in the harvesting process. |
 
+## Classes
+
+| [`EntitySpec`](#pudl.metadata.resources.EntitySpec)   | Column groupings used to harvest a single EIA entity.   |
+|---------------------------------------------------------------|---------------------------------------------------------|
+
 ## Functions
 
 | [`build_foreign_keys`](#pudl.metadata.resources.build_foreign_keys)(→ dict[str, list[dict]])   | Build foreign keys for each resource.   |
@@ -48,7 +54,7 @@ A subpackage to define and organize PUDL database tables by data group.
 
 ## Package Contents
 
-### pudl.metadata.resources.build_foreign_keys(resources: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [dict](https://docs.python.org/3/library/stdtypes.html#dict)], prune: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)]]
+### pudl.metadata.resources.build_foreign_keys(resources: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)], prune: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)]]
 
 Build foreign keys for each resource.
 
@@ -102,13 +108,27 @@ be assigned a foreign key (foreign_keys) to the reference’s primary key:
 
 ### pudl.metadata.resources.module
 
-### pudl.metadata.resources.FOREIGN_KEYS *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)]]*
+### pudl.metadata.resources.FOREIGN_KEYS *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)]]*
 
 Generated foreign key constraints by resource name.
 
 See [`pudl.metadata.helpers.build_foreign_keys()`](../helpers/index.html.md#pudl.metadata.helpers.build_foreign_keys).
 
-### pudl.metadata.resources.ENTITIES *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)]]]*
+### *class* pudl.metadata.resources.EntitySpec
+
+Bases: `TypedDict`
+
+Column groupings used to harvest a single EIA entity.
+
+#### id_cols *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
+
+#### static_cols *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
+
+#### annual_cols *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
+
+#### mapped_schemas *: NotRequired[[list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]]]*
+
+### pudl.metadata.resources.ENTITIES *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [EntitySpec](#pudl.metadata.resources.EntitySpec)]*
 
 Columns kept for either entity or annual EIA tables in the harvesting process.
 

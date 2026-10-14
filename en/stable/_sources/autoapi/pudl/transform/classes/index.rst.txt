@@ -950,7 +950,7 @@ Module Contents
 
 
 
-.. py:function:: cache_df(key: str = 'main') -> collections.abc.Callable[..., pandas.DataFrame]
+.. py:function:: cache_df(key: str = 'main') -> collections.abc.Callable[[collections.abc.Callable[..., pandas.DataFrame]], collections.abc.Callable[..., pandas.DataFrame]]
 
    A decorator for caching dataframes within an :class:`AbstractTableTransformer`.
 
@@ -1174,7 +1174,7 @@ Module Contents
 
 
 
-   .. py:method:: correct_units(df: pandas.DataFrame, params: UnitCorrections | None = None) -> pandas.DataFrame
+   .. py:method:: correct_units(df: pandas.DataFrame, params: list[UnitCorrections] | None = None) -> pandas.DataFrame
 
       Apply all specified unit corrections to the table in order.
 

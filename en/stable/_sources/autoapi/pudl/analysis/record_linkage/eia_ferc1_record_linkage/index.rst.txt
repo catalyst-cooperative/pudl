@@ -43,6 +43,7 @@ Attributes
 .. autoapisummary::
 
    pudl.analysis.record_linkage.eia_ferc1_record_linkage.logger
+   pudl.analysis.record_linkage.eia_ferc1_record_linkage.U_ESTIMATION_SEED
    pudl.analysis.record_linkage.eia_ferc1_record_linkage.MATCHING_COLS
    pudl.analysis.record_linkage.eia_ferc1_record_linkage.ID_COL
    pudl.analysis.record_linkage.eia_ferc1_record_linkage.EXTRA_COLS
@@ -77,6 +78,10 @@ Module Contents
 ---------------
 
 .. py:data:: logger
+
+.. py:data:: U_ESTIMATION_SEED
+   :value: 20260919
+
 
 .. py:data:: MATCHING_COLS
    :value: ['plant_name', 'utility_name', 'fuel_type_code_pudl', 'installation_year', 'construction_year',...

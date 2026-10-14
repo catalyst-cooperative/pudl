@@ -87,6 +87,7 @@ Submodules
    /autoapi/pudl/transform/eiaaeo/index
    /autoapi/pudl/transform/eiaapi/index
    /autoapi/pudl/transform/epacems/index
+   /autoapi/pudl/transform/epamats/index
    /autoapi/pudl/transform/ferc/index
    /autoapi/pudl/transform/ferc1/index
    /autoapi/pudl/transform/ferc714/index

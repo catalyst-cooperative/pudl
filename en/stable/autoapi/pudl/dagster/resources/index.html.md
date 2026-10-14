@@ -5,7 +5,7 @@ Dagster resources for PUDL.
 This module defines the configurable resources that PUDL assets depend on at runtime,
 such as data configuration, datastore access, and other run-scoped helpers, along with
 the default resource mapping used by the assembled code location. Add
-[`dagster.ConfigurableResource`](https://docs.dagster.io/api/dagster/resources/#dagster.ConfigurableResource) classes and configured singleton instances here
+[`dagster.ConfigurableResource`](https://dagster.io/docs/api/dagster/resources/#dagster.ConfigurableResource) classes and configured singleton instances here
 when they provide external services or shared runtime context to assets and jobs. Keep
 asset logic out of this module; it should focus on dependency injection and default
 resource wiring.
@@ -43,7 +43,7 @@ For the underlying Dagster concept, see
 
 ### *class* pudl.dagster.resources.PudlPathsResource
 
-Bases: [`dagster.ConfigurableResource`](https://docs.dagster.io/api/dagster/resources/#dagster.ConfigurableResource)
+Bases: [`dagster.ConfigurableResource`](https://dagster.io/docs/api/dagster/resources/#dagster.ConfigurableResource)
 
 Load the input/output paths used by Dagster-managed PUDL runs.
 
@@ -51,9 +51,9 @@ Explicit Dagster resource config takes precedence. Any unset field falls back to
 the current process environment so dg runs, local .env files, test fixtures,
 and container-provided environment variables all share a single typed entry point.
 
-#### pudl_input *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### pudl_input *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### pudl_output *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### pudl_output *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
 #### create_resource(context) → [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths)
 
@@ -61,23 +61,23 @@ Create validated runtime path settings for the current Dagster run.
 
 ### *class* pudl.dagster.resources.FercXbrlRuntimeSettings
 
-Bases: [`dagster.ConfigurableResource`](https://docs.dagster.io/api/dagster/resources/#dagster.ConfigurableResource)
+Bases: [`dagster.ConfigurableResource`](https://dagster.io/docs/api/dagster/resources/#dagster.ConfigurableResource)
 
 Encodes runtime settings for the ferc_to_sqlite graphs.
 
-#### xbrl_num_workers *: [None](https://docs.python.org/3/library/constants.html#None) | [int](https://docs.python.org/3/library/functions.html#int)* *= None*
+#### xbrl_num_workers *: [None](https://docs.python.org/3/builtins/constants.html#None) | [int](https://docs.python.org/3/builtins/functions.html#int)* *= None*
 
-#### xbrl_batch_size *: [int](https://docs.python.org/3/library/functions.html#int)* *= 50*
+#### xbrl_batch_size *: [int](https://docs.python.org/3/builtins/functions.html#int)* *= 50*
 
-#### xbrl_loglevel *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= 'INFO'*
+#### xbrl_loglevel *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 'INFO'*
 
 ### *class* pudl.dagster.resources.GlobalDataConfigResource
 
-Bases: [`dagster.ConfigurableResource`](https://docs.dagster.io/api/dagster/resources/#dagster.ConfigurableResource)
+Bases: [`dagster.ConfigurableResource`](https://dagster.io/docs/api/dagster/resources/#dagster.ConfigurableResource)
 
 Load validated PUDL data configuration from a shared ETL YAML file.
 
-#### global_data_config_path *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= ''*
+#### global_data_config_path *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= ''*
 
 #### create_resource(context) → [pudl.settings.GlobalDataConfig](../../settings/index.html.md#pudl.settings.GlobalDataConfig)
 
@@ -85,7 +85,7 @@ Create runtime data configuration from the configured YAML file.
 
 ### *class* pudl.dagster.resources.ZenodoDoiSettingsResource
 
-Bases: [`dagster.ConfigurableResource`](https://docs.dagster.io/api/dagster/resources/#dagster.ConfigurableResource)
+Bases: [`dagster.ConfigurableResource`](https://dagster.io/docs/api/dagster/resources/#dagster.ConfigurableResource)
 
 Load the canonical Zenodo DOI settings for Dagster-managed runs.
 
@@ -98,7 +98,7 @@ Two configuration paths are supported:
   file, allowing deployments or tests to substitute different DOIs without modifying
   the source code.
 
-#### zenodo_dois_path *: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### zenodo_dois_path *: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
 #### create_resource(context) → [pudl.workspace.datastore.ZenodoDoiSettings](../../workspace/datastore/index.html.md#pudl.workspace.datastore.ZenodoDoiSettings)
 
@@ -106,17 +106,17 @@ Create runtime DOI settings, optionally from an override YAML file.
 
 ### *class* pudl.dagster.resources.DatastoreResource
 
-Bases: [`dagster.ConfigurableResource`](https://docs.dagster.io/api/dagster/resources/#dagster.ConfigurableResource)
+Bases: [`dagster.ConfigurableResource`](https://dagster.io/docs/api/dagster/resources/#dagster.ConfigurableResource)
 
 Dagster resource to interact with Zenodo archives.
 
-#### zenodo_dois *: dagster.ResourceDependency[[ZenodoDoiSettingsResource](#pudl.dagster.resources.ZenodoDoiSettingsResource)]*
+#### zenodo_dois *: dagster.ResourceDependency[[pudl.workspace.datastore.ZenodoDoiSettings](../../workspace/datastore/index.html.md#pudl.workspace.datastore.ZenodoDoiSettings)]*
 
-#### pudl_paths *: dagster.ResourceDependency[[PudlPathsResource](#pudl.dagster.resources.PudlPathsResource)]*
+#### pudl_paths *: dagster.ResourceDependency[[pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths)]*
 
-#### cloud_cache_path *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= 's3://pudl.catalyst.coop/zenodo'*
+#### cloud_cache_path *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 's3://pudl.catalyst.coop/zenodo'*
 
-#### use_local_cache *: [bool](https://docs.python.org/3/library/functions.html#bool)* *= True*
+#### use_local_cache *: [bool](https://docs.python.org/3/builtins/functions.html#bool)* *= True*
 
 #### create_resource(context) → [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore)
 
@@ -124,7 +124,7 @@ Create a configured datastore runtime object.
 
 ### *class* pudl.dagster.resources.FercEqrArchiveResource
 
-Bases: [`dagster.ConfigurableResource`](https://docs.dagster.io/api/dagster/resources/#dagster.ConfigurableResource)
+Bases: [`dagster.ConfigurableResource`](https://dagster.io/docs/api/dagster/resources/#dagster.ConfigurableResource)
 
 Configure which archived FERC EQR filings are available for extraction.
 
@@ -132,7 +132,7 @@ The default value of `path` points to the published archive of FERC EQR filings 
 GCS which is what we use in production. For testing or development, this can be
 overridden to point to a local path with a subset of the archive.
 
-#### path *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### path *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
 #### *property* upath *: upath.UPath*
 
@@ -140,7 +140,7 @@ Return UPath pointing to archive base path.
 
 ### *class* pudl.dagster.resources.FercEqrDeploymentTargetConfig(\*\*config_dict)
 
-Bases: [`dagster.Config`](https://docs.dagster.io/api/dagster/config/#dagster.Config)
+Bases: [`dagster.Config`](https://dagster.io/docs/api/dagster/config/#dagster.Config)
 
 A single deployment destination for FERC EQR outputs.
 
@@ -149,19 +149,19 @@ URI, `gs://` URI, or `s3://` URI.  `storage_options` is unpacked as
 `**kwargs` when constructing the `UPath`, allowing per-target fsspec
 settings such as `requester_pays=True` for requester-pays GCS buckets.
 
-#### path *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### path *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### storage_options *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]*
+#### storage_options *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]*
 
-#### append_build_id *: [bool](https://docs.python.org/3/library/functions.html#bool)* *= False*
+#### append_build_id *: [bool](https://docs.python.org/3/builtins/functions.html#bool)* *= False*
 
-#### *classmethod* validate_path(value: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+#### *classmethod* validate_path(value: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Validate deployment targets as remote URLs or local directories.
 
 ### *class* pudl.dagster.resources.FercEqrDeploymentResource
 
-Bases: [`dagster.ConfigurableResource`](https://docs.dagster.io/api/dagster/resources/#dagster.ConfigurableResource)
+Bases: [`dagster.ConfigurableResource`](https://dagster.io/docs/api/dagster/resources/#dagster.ConfigurableResource)
 
 One or more deployment destinations for FERC EQR outputs.
 
@@ -169,19 +169,19 @@ Deployment targets can be provided directly as structured config or loaded from 
 YAML file. Direct `deployment_targets` take precedence. When neither explicit
 targets nor a deployment config path are provided, deployment is skipped.
 
-#### deployment_targets *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[FercEqrDeploymentTargetConfig](#pudl.dagster.resources.FercEqrDeploymentTargetConfig)]* *= []*
+#### deployment_targets *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[FercEqrDeploymentTargetConfig](#pudl.dagster.resources.FercEqrDeploymentTargetConfig)]* *= []*
 
-#### deployment_config_path *: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### deployment_config_path *: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### *classmethod* from_yaml(deployment_config_path: [str](https://docs.python.org/3/library/stdtypes.html#str) | [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [FercEqrDeploymentResource](#pudl.dagster.resources.FercEqrDeploymentResource)
+#### *classmethod* from_yaml(deployment_config_path: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [FercEqrDeploymentResource](#pudl.dagster.resources.FercEqrDeploymentResource)
 
 Create a FERC EQR deployment resource from a YAML config file.
 
-#### configured_targets() → [list](https://docs.python.org/3/library/stdtypes.html#list)[[FercEqrDeploymentTargetConfig](#pudl.dagster.resources.FercEqrDeploymentTargetConfig)]
+#### configured_targets() → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[FercEqrDeploymentTargetConfig](#pudl.dagster.resources.FercEqrDeploymentTargetConfig)]
 
 Return deployment-target config with explicit overrides taking precedence.
 
-#### resolved_targets() → [list](https://docs.python.org/3/library/stdtypes.html#list)[upath.UPath]
+#### resolved_targets() → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[upath.UPath]
 
 Return the list of `UPath` deployment destinations.
 
@@ -190,19 +190,19 @@ provided `storage_options`.
 
 ### *class* pudl.dagster.resources.ZulipNotificationResource
 
-Bases: [`dagster.ConfigurableResource`](https://docs.dagster.io/api/dagster/resources/#dagster.ConfigurableResource)
+Bases: [`dagster.ConfigurableResource`](https://dagster.io/docs/api/dagster/resources/#dagster.ConfigurableResource)
 
 Send notifications to Zulip streams via the Zulip API.
 
-#### base_url *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= 'https://catalyst-cooperative.zulipchat.com'*
+#### base_url *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 'https://catalyst-cooperative.zulipchat.com'*
 
-#### bot_email *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= 'build-status-bot@catalyst-cooperative.zulipchat.com'*
+#### bot_email *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 'build-status-bot@catalyst-cooperative.zulipchat.com'*
 
-#### api_key *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### api_key *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### timeout_seconds *: [int](https://docs.python.org/3/library/functions.html#int)* *= 30*
+#### timeout_seconds *: [int](https://docs.python.org/3/builtins/functions.html#int)* *= 30*
 
-#### send_stream_message(, stream: [str](https://docs.python.org/3/library/stdtypes.html#str), topic: [str](https://docs.python.org/3/library/stdtypes.html#str), content: [str](https://docs.python.org/3/library/stdtypes.html#str), file_path: [str](https://docs.python.org/3/library/stdtypes.html#str) | [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)
+#### send_stream_message(, stream: [str](https://docs.python.org/3/builtins/stdtypes.html#str), topic: [str](https://docs.python.org/3/builtins/stdtypes.html#str), content: [str](https://docs.python.org/3/builtins/stdtypes.html#str), file_path: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)
 
 Send a message to a Zulip stream topic and return the API response.
 
@@ -228,4 +228,4 @@ ensures a notification hiccup never crashes an asset.
 
 ### pudl.dagster.resources.zulip_notification_resource
 
-### pudl.dagster.resources.default_resources *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]*
+### pudl.dagster.resources.default_resources *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]*

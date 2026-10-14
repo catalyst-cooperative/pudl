@@ -22,7 +22,7 @@ to extract, and those are used to filter the extracted data before returning it.
 
 ## Module Contents
 
-### pudl.extract.sec10k.extract(ds: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore), table: [str](https://docs.python.org/3/library/stdtypes.html#str), years: [list](https://docs.python.org/3/library/stdtypes.html#list)[[int](https://docs.python.org/3/library/functions.html#int)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.extract.sec10k.extract(ds: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore), table: [str](https://docs.python.org/3/builtins/stdtypes.html#str), years: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[int](https://docs.python.org/3/builtins/functions.html#int)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Extract SEC 10-K data from the datastore.
 
@@ -37,7 +37,7 @@ not partitioned upstream.
 * **Returns:**
   A dataframe containing the SEC 10-K data.
 
-### pudl.extract.sec10k.raw_sec10k_asset_factory(table) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
+### pudl.extract.sec10k.raw_sec10k_asset_factory(table) → [dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)
 
 An asset factory for extracting SEC 10-K data by table.
 

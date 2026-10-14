@@ -34,9 +34,9 @@ electricity demand estimates (e.g. at the county level).
 
 ## Module Contents
 
-### pudl.analysis.state_demand.STATES *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)]]*
+### pudl.analysis.state_demand.STATES *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]]*
 
-### pudl.analysis.state_demand.lookup_state(state: [str](https://docs.python.org/3/library/stdtypes.html#str) | [int](https://docs.python.org/3/library/functions.html#int)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)
+### pudl.analysis.state_demand.lookup_state(state: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [int](https://docs.python.org/3/builtins/functions.html#int)) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)
 
 Lookup US state by state identifier.
 
@@ -86,7 +86,7 @@ Read and format EIA 861 sales by state and year.
 * **Returns:**
   Dataframe with columns state_id_fips, year, demand_mwh.
 
-### pudl.analysis.state_demand.out_ferc714_\_hourly_estimated_state_demand(context, out_ferc714_\_hourly_planning_area_demand: polars.LazyFrame, out_censusdp1tract_\_counties: [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame), out_ferc714_\_respondents_with_fips: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), core_eia861_\_yearly_sales: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [None](https://docs.python.org/3/library/constants.html#None) = None) → polars.LazyFrame
+### pudl.analysis.state_demand.out_ferc714_\_hourly_estimated_state_demand(context, out_ferc714_\_hourly_planning_area_demand: polars.LazyFrame, out_censusdp1tract_\_counties: [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame), out_ferc714_\_respondents_with_fips: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), core_eia861_\_yearly_sales: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → polars.LazyFrame
 
 Estimate hourly electricity demand by state.
 

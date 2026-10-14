@@ -77,7 +77,7 @@ column_name and the entity id to find all of the possible input values."""
 
 </details>
 
-### pudl.metadata.resource_helpers.canonical_harvested_details(entities: [str](https://docs.python.org/3/library/stdtypes.html#str), is_static: [bool](https://docs.python.org/3/library/functions.html#bool)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+### pudl.metadata.resource_helpers.canonical_harvested_details(entities: [str](https://docs.python.org/3/builtins/stdtypes.html#str), is_static: [bool](https://docs.python.org/3/builtins/functions.html#bool)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Generate additional details text for one of the eight core harvested tables.
 
@@ -98,7 +98,7 @@ raw source.
     like “core_eia_\_entity_X”, and annual cols are stored in tables with a name
     like “core_eia860_\_scd_X”.
 
-### pudl.metadata.resource_helpers.inherits_harvested_values_details(entities: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+### pudl.metadata.resource_helpers.inherits_harvested_values_details(entities: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Generate additional details text for a table which inherits harvested values from one of the eight core harvested tables.
 
@@ -115,10 +115,10 @@ tables.
   columns to this table; e.g., “generators and plants” for a table with
   `core_eia860__scd_generators` and `core_eia860__scd_plants` upstream.
 
-### pudl.metadata.resource_helpers.merge_descriptions(left: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any], right: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]
+### pudl.metadata.resource_helpers.merge_descriptions(left: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any], right: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]
 
 Merge two description dictionaries.
 
-### pudl.metadata.resource_helpers.core_to_out_harvested_resources(core_table_names: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], core_table_metadata: [dict](https://docs.python.org/3/library/stdtypes.html#dict), out_cols_to_add: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)
+### pudl.metadata.resource_helpers.core_to_out_harvested_resources(core_table_names: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], core_table_metadata: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict), out_cols_to_add: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)
 
 Make out tables from core resource metadata when extra columns are standard.

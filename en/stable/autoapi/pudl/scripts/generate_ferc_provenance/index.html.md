@@ -14,7 +14,7 @@ in CI to detect when the cached SQLite databases need to be rebuilt.
 
 ## Module Contents
 
-### pudl.scripts.generate_ferc_provenance.get_provenance(dataset: [str](https://docs.python.org/3/library/stdtypes.html#str), data_format: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)
+### pudl.scripts.generate_ferc_provenance.get_provenance(dataset: [str](https://docs.python.org/3/builtins/stdtypes.html#str), data_format: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)
 
 Return the current provenance requirements for a FERC SQLite asset.
 
@@ -24,7 +24,7 @@ Return the current provenance requirements for a FERC SQLite asset.
 * **Returns:**
   A dictionary containing the provenance requirements.
 
-### pudl.scripts.generate_ferc_provenance.main(dataset: [str](https://docs.python.org/3/library/stdtypes.html#str), data_format: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [int](https://docs.python.org/3/library/functions.html#int)
+### pudl.scripts.generate_ferc_provenance.main(dataset: [str](https://docs.python.org/3/builtins/stdtypes.html#str), data_format: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [int](https://docs.python.org/3/builtins/functions.html#int)
 
 Generate a JSON representation of the provenance for a FERC SQLite asset.
 

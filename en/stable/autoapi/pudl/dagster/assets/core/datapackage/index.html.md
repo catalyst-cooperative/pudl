@@ -15,7 +15,7 @@ the PUDL documentation page for each data source.
 
 ## Module Contents
 
-### pudl.dagster.assets.core.datapackage.build_pudl_datapackage_asset(parquet_asset_keys: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[dagster.AssetKey](https://docs.dagster.io/api/dagster/assets/#dagster.AssetKey)]) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
+### pudl.dagster.assets.core.datapackage.build_pudl_datapackage_asset(parquet_asset_keys: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[dagster.AssetKey](https://dagster.io/docs/api/dagster/assets/#dagster.AssetKey)]) → [dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)
 
 Return a Dagster asset that writes `datapackage.json` for PUDL parquet outputs.
 

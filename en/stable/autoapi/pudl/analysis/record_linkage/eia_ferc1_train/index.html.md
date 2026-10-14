@@ -46,9 +46,9 @@ validate them, and incorporate them into the existing training data.
 
 ### pudl.analysis.record_linkage.eia_ferc1_train.logger
 
-### pudl.analysis.record_linkage.eia_ferc1_train.RENAME_COLS_FERC1_EIA *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)*
+### pudl.analysis.record_linkage.eia_ferc1_train.RENAME_COLS_FERC1_EIA *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)*
 
-### pudl.analysis.record_linkage.eia_ferc1_train.RELEVANT_COLS_PPE *: [list](https://docs.python.org/3/library/stdtypes.html#list)* *= ['record_id_eia', 'report_year', 'utility_id_pudl', 'utility_id_eia', 'utility_name_eia',...*
+### pudl.analysis.record_linkage.eia_ferc1_train.RELEVANT_COLS_PPE *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)* *= ['record_id_eia', 'report_year', 'utility_id_pudl', 'utility_id_eia', 'utility_name_eia',...*
 
 ### pudl.analysis.record_linkage.eia_ferc1_train.\_pct_diff(df, col) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
@@ -82,7 +82,7 @@ Prep FERC-EIA for use in override output sheet pre-utility subgroups.
 
 Prep depreciation data for use in override output sheet pre-utility subgroups.
 
-### pudl.analysis.record_linkage.eia_ferc1_train.\_get_util_year_subsets(inputs_dict, util_id_eia_list, years) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)
+### pudl.analysis.record_linkage.eia_ferc1_train.\_get_util_year_subsets(inputs_dict, util_id_eia_list, years) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)
 
 Get utility and year subsets for each of the input dfs.
 
@@ -93,32 +93,32 @@ outputs an updated version with df values pertaining to the utilities in
 util_id_eia_list and years in years.
 
 * **Parameters:**
-  * **inputs_dict** ([*dict*](https://docs.python.org/3/library/stdtypes.html#dict)) – The output of running \_generation_input_dfs()
-  * **util_id_eia_list** ([*list*](https://docs.python.org/3/library/stdtypes.html#list)) – A list of the utility_id_eia values you want to
+  * **inputs_dict** ([*dict*](https://docs.python.org/3/builtins/stdtypes.html#dict)) – The output of running \_generation_input_dfs()
+  * **util_id_eia_list** ([*list*](https://docs.python.org/3/builtins/stdtypes.html#list)) – A list of the utility_id_eia values you want to
     include in a single spreadsheet output. Generally this is a list of the
     subsidiaries that pertain to a single parent company.
-  * **years** ([*list*](https://docs.python.org/3/library/stdtypes.html#list)) – A list of the years you’d like to add to the override sheets.
+  * **years** ([*list*](https://docs.python.org/3/builtins/stdtypes.html#list)) – A list of the years you’d like to add to the override sheets.
 * **Returns:**
   A subset of the inputs_dict that contains versions of the value dfs that
   : pertain only to the utilities and years specified in util_id_eia_list and
     years.
 * **Return type:**
-  [dict](https://docs.python.org/3/library/stdtypes.html#dict)
+  [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)
 
-### pudl.analysis.record_linkage.eia_ferc1_train.\_output_override_spreadsheet(util_year_subset_dict, util_name, output_dir_path) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.analysis.record_linkage.eia_ferc1_train.\_output_override_spreadsheet(util_year_subset_dict, util_name, output_dir_path) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Output spreadsheet with tabs for ferc-eia, ppe, deprish for one utility.
 
 * **Parameters:**
-  * **util_year_subset_dict** ([*dict*](https://docs.python.org/3/library/stdtypes.html#dict)) – The output from \_get_util_year_subsets()
-  * **util_name** ([*str*](https://docs.python.org/3/library/stdtypes.html#str)) – A string indicating the name of the utility that you are
+  * **util_year_subset_dict** ([*dict*](https://docs.python.org/3/builtins/stdtypes.html#dict)) – The output from \_get_util_year_subsets()
+  * **util_name** ([*str*](https://docs.python.org/3/builtins/stdtypes.html#str)) – A string indicating the name of the utility that you are
     creating an override sheet for. The string will be used as the suffix for
     the name of the excel file. Ex: for util_name = “BHE”, the file name will be
     BHE_fix_FERC-EIA_overrides.xlsx.
-  * **output_dir_path** ([*str*](https://docs.python.org/3/library/stdtypes.html#str)) – The relative path to the folder where you’d like to
+  * **output_dir_path** ([*str*](https://docs.python.org/3/builtins/stdtypes.html#str)) – The relative path to the folder where you’d like to
     output the override spreadsheets that this function creates.
 
-### pudl.analysis.record_linkage.eia_ferc1_train.generate_all_override_spreadsheets(eia_ferc1: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), ppe: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), utils_eia860: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), util_dict: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [list](https://docs.python.org/3/library/stdtypes.html#list)[[int](https://docs.python.org/3/library/functions.html#int)]], years: [list](https://docs.python.org/3/library/stdtypes.html#list)[[int](https://docs.python.org/3/library/functions.html#int)], output_dir_path: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.analysis.record_linkage.eia_ferc1_train.generate_all_override_spreadsheets(eia_ferc1: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), ppe: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), utils_eia860: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), util_dict: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[int](https://docs.python.org/3/builtins/functions.html#int)]], years: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[int](https://docs.python.org/3/builtins/functions.html#int)], output_dir_path: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Output override spreadsheets for all specified utilities and years.
 
@@ -138,17 +138,17 @@ output directory.
   * **output_dir_path** – The relative path to the folder where you’d like to output the
     override spreadsheets that this function creates.
 
-### pudl.analysis.record_linkage.eia_ferc1_train.\_check_id_consistency(id_col: Literal['record_id_eia_override_1', 'record_id_ferc1'], df, actual_ids, error_message) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.analysis.record_linkage.eia_ferc1_train.\_check_id_consistency(id_col: Literal['record_id_eia_override_1', 'record_id_ferc1'], df, actual_ids, error_message) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Check for rogue FERC or EIA ids that don’t exist.
 
 * **Parameters:**
-  * **id_col** ([*str*](https://docs.python.org/3/library/stdtypes.html#str)) – The name of either the ferc record id column: record_id_ferc1 or
+  * **id_col** ([*str*](https://docs.python.org/3/builtins/stdtypes.html#str)) – The name of either the ferc record id column: record_id_ferc1 or
     the eia record override column: record_id_eia_override_1.
   * **df** (*pd.DataFrame*) – A dataframe of intended overrides.
-  * **actual_ids** ([*list*](https://docs.python.org/3/library/stdtypes.html#list)) – A list of the ferc or eia ids that are valid and come from
+  * **actual_ids** ([*list*](https://docs.python.org/3/builtins/stdtypes.html#list)) – A list of the ferc or eia ids that are valid and come from
     either the ppe or official ferc-eia record linkage.
-  * **error_message** ([*str*](https://docs.python.org/3/library/stdtypes.html#str)) – A short string to indicate the type of error you’re
+  * **error_message** ([*str*](https://docs.python.org/3/builtins/stdtypes.html#str)) – A short string to indicate the type of error you’re
     checking for. This could be looking for values that aren’t in the official
     list or values that are already in the training data.
 
@@ -160,7 +160,7 @@ This function is useful for instances where you’ve started the manual mapping
 process, taken an extended break, and need to check whether the data you’ve mapped
 has been integrated into the training data or not.
 
-### pudl.analysis.record_linkage.eia_ferc1_train.validate_override_fixes(validated_connections: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), ppe: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), eia_ferc1: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), training_data: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), expect_override_overrides: [bool](https://docs.python.org/3/library/functions.html#bool) = False, allow_mismatched_utilities: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.analysis.record_linkage.eia_ferc1_train.validate_override_fixes(validated_connections: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), ppe: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), eia_ferc1: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), training_data: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), expect_override_overrides: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, allow_mismatched_utilities: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Process the verified and/or fixed matches and look for human error.
 
@@ -176,17 +176,17 @@ Process the verified and/or fixed matches and look for human error.
   * **allow_mismatched_utilities** – Whether you want to allow FERC and EIA
     record ids to come from different utilities.
 * **Raises:**
-  * [**AssertionError**](https://docs.python.org/3/library/exceptions.html#AssertionError) – If there are EIA override id records that aren’t in the original
+  * [**AssertionError**](https://docs.python.org/3/builtins/exceptions.html#AssertionError) – If there are EIA override id records that aren’t in the original
     FERC-EIA connection.
-  * [**AssertionError**](https://docs.python.org/3/library/exceptions.html#AssertionError) – If there are FERC record ids that aren’t in the original
+  * [**AssertionError**](https://docs.python.org/3/builtins/exceptions.html#AssertionError) – If there are FERC record ids that aren’t in the original
     FERC-EIA connection.
-  * [**AssertionError**](https://docs.python.org/3/library/exceptions.html#AssertionError) – If there are EIA override ids that are duplicated throughout the
+  * [**AssertionError**](https://docs.python.org/3/builtins/exceptions.html#AssertionError) – If there are EIA override ids that are duplicated throughout the
     override document.
-  * [**AssertionError**](https://docs.python.org/3/library/exceptions.html#AssertionError) – If the utility id in the EIA override id doesn’t match the pudl
+  * [**AssertionError**](https://docs.python.org/3/builtins/exceptions.html#AssertionError) – If the utility id in the EIA override id doesn’t match the pudl
     id corresponding with the FERC record.
-  * [**AssertionError**](https://docs.python.org/3/library/exceptions.html#AssertionError) – If there are EIA override id records that don’t correspond to
+  * [**AssertionError**](https://docs.python.org/3/builtins/exceptions.html#AssertionError) – If there are EIA override id records that don’t correspond to
     the correct report year.
-  * [**AssertionError**](https://docs.python.org/3/library/exceptions.html#AssertionError) – If you didn’t expect to override overrides but the new training
+  * [**AssertionError**](https://docs.python.org/3/builtins/exceptions.html#AssertionError) – If you didn’t expect to override overrides but the new training
     data implies an override to the existing training data.
 * **Returns:**
   The validated FERC-EIA dataframe you’re trying to add to the training data.
@@ -206,19 +206,19 @@ Melt this dataframe to report all matched EIA records in the
   A dataframe of one_to_many matches formatted to fit into the existing validation
   framework.
 
-### pudl.analysis.record_linkage.eia_ferc1_train.\_add_to_training(new_overrides, path_to_current_training) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.analysis.record_linkage.eia_ferc1_train.\_add_to_training(new_overrides, path_to_current_training) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Add the new overrides to the old override sheet.
 
-### pudl.analysis.record_linkage.eia_ferc1_train.\_add_to_null_overrides(null_matches, current_null_overrides_path) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.analysis.record_linkage.eia_ferc1_train.\_add_to_null_overrides(null_matches, current_null_overrides_path) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Take record_id_ferc1 values verified to have no EIA match and add them to csv.
 
-### pudl.analysis.record_linkage.eia_ferc1_train.\_add_to_one_to_many_overrides(one_to_many, current_one_to_many_path) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.analysis.record_linkage.eia_ferc1_train.\_add_to_one_to_many_overrides(one_to_many, current_one_to_many_path) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Add record_id_ferc1 values verified to have multiple EIA matches to csv.
 
-### pudl.analysis.record_linkage.eia_ferc1_train.validate_and_add_to_training(ppe: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), eia_ferc1: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), input_dir_path: [str](https://docs.python.org/3/library/stdtypes.html#str), expect_override_overrides: [bool](https://docs.python.org/3/library/functions.html#bool) = False, allow_mismatched_utilities: [bool](https://docs.python.org/3/library/functions.html#bool) = True, one_to_many: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.analysis.record_linkage.eia_ferc1_train.validate_and_add_to_training(ppe: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), eia_ferc1: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), input_dir_path: [str](https://docs.python.org/3/builtins/stdtypes.html#str), expect_override_overrides: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, allow_mismatched_utilities: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True, one_to_many: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Validate, combine, and add overrides to the training data.
 

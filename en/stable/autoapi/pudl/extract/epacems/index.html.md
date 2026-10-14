@@ -61,7 +61,7 @@ Bases: [`pydantic.BaseModel`](https://pydantic.dev/docs/validation/latest/api/py
 
 Represents EpaCems partition identifying unique resource file.
 
-#### year_quarter *: Annotated[[str](https://docs.python.org/3/library/stdtypes.html#str), StringConstraints(strict=True, pattern='^(19|20)\\\\d{2}[q][1-4]$')]*
+#### year_quarter *: Annotated[[str](https://docs.python.org/3/builtins/stdtypes.html#str), StringConstraints(strict=True, pattern='^(19|20)\\\\d{2}[q][1-4]$')]*
 
 #### *property* year
 
@@ -85,7 +85,21 @@ Helper class to extract EpaCems resources from datastore.
 
 EpaCems resources are identified by a year and a quarter. Each of these zip files
 contains one csv file. This class implements get_data_frame method that will
-rename columns for a quarterly CSV file.
+rename columns for a quarterly CSV file. Subclasses (e.g. the MATS extractor)
+can override `dataset_name`, `rename_dict`, and `dtype_dict` to reuse the
+same zip-reading logic for similarly-structured datasets.
+
+#### dataset_name *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 'epacems'*
+
+Name of the dataset used to fetch zipfile resources from the datastore.
+
+#### rename_dict *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
+
+Mapping from raw column names to PUDL column names.
+
+#### dtype_dict
+
+Data types for the raw columns.
 
 #### datastore
 
@@ -93,7 +107,7 @@ rename columns for a quarterly CSV file.
 
 Constructs dataframe from a zipfile for a given (year_quarter) partition.
 
-### pudl.extract.epacems.extract_quarter(context, year_quarter: [str](https://docs.python.org/3/library/stdtypes.html#str)) → polars.LazyFrame
+### pudl.extract.epacems.extract_quarter(context, year_quarter: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → polars.LazyFrame
 
 Extract a single quarter of EPA CEMS data return it as a lazy polars DataFrame.
 

@@ -52,10 +52,10 @@ Module Contents
 
 .. py:class:: GenericMetadata(dataset_name: str)
 
-   Load generic metadata from Python package data.
+   Load generic metadata from files under src/pudl/package_data.
 
-   When metadata object is instantiated, it is given ${dataset} name and it
-   will attempt to load csv files from pudl.package_data.${dataset} package.
+   When metadata object is instantiated, it is given a ${dataset} name and it will
+   attempt to load csv files from src/pudl/package_data/${dataset}.
 
    It expects the following kinds of files:
 
@@ -67,7 +67,7 @@ Module Contents
    .. py:attribute:: _dataset_name
 
 
-   .. py:attribute:: _pkg
+   .. py:attribute:: _path
 
 
    .. py:attribute:: _column_map
@@ -79,13 +79,13 @@ Module Contents
 
 
 
-   .. py:method:: _load_csv(package: str, filename: str) -> pandas.DataFrame
+   .. py:method:: _load_csv(package_path: pathlib.Path, filename: str) -> pandas.DataFrame
 
-      Load metadata from a filename that is found in a package.
+      Load metadata from a filename that is found in a package directory.
 
 
 
-   .. py:method:: _load_column_maps(column_map_pkg: str) -> dict
+   .. py:method:: _load_column_maps(column_map_path: pathlib.Path) -> dict
 
       Create a dictionary of all column mapping CSVs to use in get_column_map().
 

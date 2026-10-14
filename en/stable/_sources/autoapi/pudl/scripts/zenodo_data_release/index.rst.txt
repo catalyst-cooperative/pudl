@@ -428,8 +428,6 @@ Module Contents
 
    .. py:attribute:: id_
       :type:  int
-      :value: None
-
 
 
    .. py:attribute:: conceptrecid
@@ -540,8 +538,6 @@ Module Contents
 
    .. py:attribute:: id_
       :type:  str
-      :value: None
-
 
 
 .. py:class:: _NewRecord(/, **data: Any)
@@ -634,8 +630,6 @@ Module Contents
 
    .. py:attribute:: id_
       :type:  int
-      :value: None
-
 
 
    .. py:attribute:: doi

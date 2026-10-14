@@ -39,7 +39,7 @@ A basic CLI to autogenerate dbt data test configurations.
 
 ### pudl.scripts.dbt_helper.ALL_TABLES
 
-### pudl.scripts.dbt_helper.insert_data_source(parent_dir: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), table_name: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)
+### pudl.scripts.dbt_helper.insert_data_source(parent_dir: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)
 
 Convert parent_dir and table_name to parent_dir/data_source/table_name.
 
@@ -47,7 +47,7 @@ Table name must have <layer>_<source>_\_<…> format.
 
 ### *class* pudl.scripts.dbt_helper.UpdateResult
 
-Bases: [`tuple`](https://docs.python.org/3/library/stdtypes.html#tuple)
+Bases: [`tuple`](https://docs.python.org/3/builtins/stdtypes.html#tuple)
 
 #### success
 
@@ -57,13 +57,13 @@ Bases: [`tuple`](https://docs.python.org/3/library/stdtypes.html#tuple)
 
 ### pudl.scripts.dbt_helper.\_get_existing_row_counts() → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
-### pudl.scripts.dbt_helper.\_calculate_row_counts(table_name: [str](https://docs.python.org/3/library/stdtypes.html#str), partition_expr: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.scripts.dbt_helper.\_calculate_row_counts(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), partition_expr: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 ### pudl.scripts.dbt_helper.\_combine_row_counts(existing: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), new: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 ### pudl.scripts.dbt_helper.\_write_row_counts(row_counts: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame))
 
-### pudl.scripts.dbt_helper.update_row_counts(table_name: [str](https://docs.python.org/3/library/stdtypes.html#str), dbt_root: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), clobber: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [UpdateResult](#pudl.scripts.dbt_helper.UpdateResult)
+### pudl.scripts.dbt_helper.update_row_counts(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), dbt_root: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), clobber: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [UpdateResult](#pudl.scripts.dbt_helper.UpdateResult)
 
 Generate updated row counts per partition and write to csv file within dbt project.
 
@@ -73,7 +73,7 @@ Load DbtSchema that may or may not be located at specified path.
 
 If file is empty or does not exist, returns blank schema.
 
-### pudl.scripts.dbt_helper.update_table_schema(table_name: [str](https://docs.python.org/3/library/stdtypes.html#str), dbt_root: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [UpdateResult](#pudl.scripts.dbt_helper.UpdateResult)
+### pudl.scripts.dbt_helper.update_table_schema(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), dbt_root: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [UpdateResult](#pudl.scripts.dbt_helper.UpdateResult)
 
 Generate and write out a schema.yaml file defining a new or updated table for dbt.
 
@@ -82,7 +82,7 @@ if present.
 
 ### pudl.scripts.dbt_helper.\_log_update_result(result: [UpdateResult](#pudl.scripts.dbt_helper.UpdateResult))
 
-### pudl.scripts.dbt_helper.\_extract_row_count_partitions(table: [pudl.dbt_schema.DbtTable](../../dbt_schema/index.html.md#pudl.dbt_schema.DbtTable)) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)]
+### pudl.scripts.dbt_helper.\_extract_row_count_partitions(table: [pudl.dbt_schema.DbtTable](../../dbt_schema/index.html.md#pudl.dbt_schema.DbtTable)) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)]
 
 Extract partition columns from check_row_counts_per_partition tests in a DbtTable.
 
@@ -94,15 +94,15 @@ test with no partition expression.
 
 Define a single class to collect the args for all table update commands.
 
-#### tables *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+#### tables *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
-#### schema *: [bool](https://docs.python.org/3/library/functions.html#bool)* *= False*
+#### schema *: [bool](https://docs.python.org/3/builtins/functions.html#bool)* *= False*
 
-#### row_counts *: [bool](https://docs.python.org/3/library/functions.html#bool)* *= False*
+#### row_counts *: [bool](https://docs.python.org/3/builtins/functions.html#bool)* *= False*
 
-#### clobber *: [bool](https://docs.python.org/3/library/functions.html#bool)* *= False*
+#### clobber *: [bool](https://docs.python.org/3/builtins/functions.html#bool)* *= False*
 
-### pudl.scripts.dbt_helper.update_tables(tables: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], clobber: [bool](https://docs.python.org/3/library/functions.html#bool), schema: [bool](https://docs.python.org/3/library/functions.html#bool), row_counts: [bool](https://docs.python.org/3/library/functions.html#bool))
+### pudl.scripts.dbt_helper.update_tables(tables: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], clobber: [bool](https://docs.python.org/3/builtins/functions.html#bool), schema: [bool](https://docs.python.org/3/builtins/functions.html#bool), row_counts: [bool](https://docs.python.org/3/builtins/functions.html#bool))
 
 Add or update dbt schema configs and row count expectations for PUDL tables.
 
@@ -112,7 +112,7 @@ The `tables` argument can be a single table name, a list of table names, or
 If `--clobber` is set, existing configurations for tables will be overwritten.
 if this does not result in deletions.
 
-### pudl.scripts.dbt_helper.validate(select: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, asset_select: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, exclude: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, dry_run: [bool](https://docs.python.org/3/library/functions.html#bool) = False, override_target: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.scripts.dbt_helper.validate(select: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, asset_select: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, exclude: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, dry_run: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, override_target: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Validate a selection of dbt nodes.
 
@@ -143,7 +143,7 @@ Exclude the row count tests:
 
 > $ dbt_helper validate –asset-select “+key:out_eia_\_yearly_generators” –exclude “*check_row_counts*”
 
-### pudl.scripts.dbt_helper.main() → [int](https://docs.python.org/3/library/functions.html#int)
+### pudl.scripts.dbt_helper.main() → [int](https://docs.python.org/3/builtins/functions.html#int)
 
 Script for auto-generating dbt configuration and migrating existing tests.
 

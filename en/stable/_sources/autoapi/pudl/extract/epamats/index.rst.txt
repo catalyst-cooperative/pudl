@@ -65,30 +65,13 @@ Module Contents
 
 .. py:class:: EpaMatsPartition(/, **data: Any)
 
-   Bases: :py:obj:`pydantic.BaseModel`
+   Bases: :py:obj:`pudl.extract.epacems.EpaCemsPartition`
 
 
    Represents a MATS partition identifying a unique quarterly resource file.
 
-
-   .. py:attribute:: year_quarter
-      :type:  Annotated[str, StringConstraints(strict=True, pattern='^(19|20)\\d{2}[q][1-4]$')]
-
-
-   .. py:property:: year
-
-      Return the year associated with the year_quarter.
-
-
-   .. py:property:: quarter
-
-      Return the quarter associated with the year_quarter.
-
-
-   .. py:method:: get_filters()
-
-      Returns filters for retrieving given partition resource from Datastore.
-
+   Inherits the year_quarter validation, year/quarter properties, and datastore
+   filters from :class:`EpaCemsPartition`; only the CSV filename differs.
 
 
    .. py:method:: get_quarterly_file() -> pathlib.Path
@@ -99,20 +82,34 @@ Module Contents
 
 .. py:class:: EpaMatsDatastore(datastore: pudl.workspace.datastore.Datastore)
 
+   Bases: :py:obj:`pudl.extract.epacems.EpaCemsDatastore`
+
+
    Helper class to extract MATS resources from datastore.
 
    MATS resources are identified by a year and a quarter. Each year's data is in
-   a zip file containing 4 quarterly CSV files. This class implements get_data_frame
-   method that will rename columns for a quarterly CSV file.
+   a zip file containing 4 quarterly CSV files. Inherits the zip-reading and
+   column-renaming logic from :class:`EpaCemsDatastore`; only the dataset name,
+   column mapping, and dtypes differ.
 
 
-   .. py:attribute:: datastore
+   .. py:attribute:: dataset_name
+      :type:  str
+      :value: 'epamats'
 
 
-   .. py:method:: get_data_frame(partition: EpaMatsPartition) -> polars.LazyFrame
+      Name of the dataset used to fetch zipfile resources from the datastore.
 
-      Constructs dataframe from a zipfile for a given (year_quarter) partition.
 
+   .. py:attribute:: rename_dict
+      :type:  dict[str, str]
+
+      Mapping from raw column names to PUDL column names.
+
+
+   .. py:attribute:: dtype_dict
+
+      Data types for the raw columns.
 
 
 .. py:function:: raw_epamats__hourly_emissions(context) -> pandas.DataFrame

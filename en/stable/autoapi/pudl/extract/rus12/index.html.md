@@ -45,7 +45,7 @@ arguments will be applied to all pages. This still allows some flexibility becau
 some `pandas.read_csv()` arguments like `dtype` don’t raise errors if the
 columns they apply to aren’t present.
 
-#### source_filename(page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](../extractor/index.html.md#pudl.extract.extractor.PartitionSelection)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+#### source_filename(page: [str](https://docs.python.org/3/builtins/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](../extractor/index.html.md#pudl.extract.extractor.PartitionSelection)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Get the file name for the right page and part.
 
@@ -55,7 +55,7 @@ In this instance we are using the same methodology from the excel metadata extra
 
 Adds source column and report_year column if missing.
 
-#### load_source(page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](../extractor/index.html.md#pudl.extract.extractor.PartitionSelection)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### load_source(page: [str](https://docs.python.org/3/builtins/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](../extractor/index.html.md#pudl.extract.extractor.PartitionSelection)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Produce the dataframe object for the given partition.
 
@@ -74,7 +74,7 @@ to use the federal-level data.
 
 ### pudl.extract.rus12.raw_rus12_\_all_dfs
 
-### pudl.extract.rus12.raw_rus12_asset_factory(table_name: [str](https://docs.python.org/3/library/stdtypes.html#str))
+### pudl.extract.rus12.raw_rus12_asset_factory(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str))
 
 Create raw RUS 12 asset for a specific page.
 

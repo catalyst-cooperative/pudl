@@ -34,6 +34,7 @@ plant-parts.
 
 | [`logger`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.logger)             |    |
 |---------------------------------------------------------------------|----|
+| [`U_ESTIMATION_SEED`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.U_ESTIMATION_SEED)  |    |
 | [`MATCHING_COLS`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.MATCHING_COLS)      |    |
 | [`ID_COL`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.ID_COL)             |    |
 | [`EXTRA_COLS`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.EXTRA_COLS)         |    |
@@ -63,6 +64,8 @@ plant-parts.
 ## Module Contents
 
 ### pudl.analysis.record_linkage.eia_ferc1_record_linkage.logger
+
+### pudl.analysis.record_linkage.eia_ferc1_record_linkage.U_ESTIMATION_SEED *= 20260919*
 
 ### pudl.analysis.record_linkage.eia_ferc1_record_linkage.MATCHING_COLS *= ['plant_name', 'utility_name', 'fuel_type_code_pudl', 'installation_year', 'construction_year',...*
 
@@ -130,7 +133,7 @@ Get the number of incorrectly predicted matches.
 
 Get the number of matches from the training data where no prediction is made.
 
-### pudl.analysis.record_linkage.eia_ferc1_record_linkage.prettyify_best_matches(matches_best: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), plant_parts_eia_true: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), plants_ferc1: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), debug: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.analysis.record_linkage.eia_ferc1_record_linkage.prettyify_best_matches(matches_best: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), plant_parts_eia_true: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), plants_ferc1: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), debug: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Make the EIA-FERC best matches usable.
 

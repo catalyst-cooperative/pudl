@@ -73,7 +73,7 @@ Module Contents
 
 .. py:data:: logger
 
-.. py:class:: DeploymentType(*args, **kwds)
+.. py:class:: DeploymentType
 
    Bases: :py:obj:`enum.Enum`
 
@@ -469,7 +469,7 @@ Module Contents
    for the tag yet, or if both cloud storage upload targets are disabled.
 
 
-.. py:class:: StageStatus(*args, **kwds)
+.. py:class:: StageStatus
 
    Bases: :py:obj:`enum.Enum`
 
@@ -492,7 +492,7 @@ Module Contents
 
 
 
-.. py:class:: DeployStage(*args, **kwds)
+.. py:class:: DeployStage
 
    Bases: :py:obj:`enum.Enum`
 

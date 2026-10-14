@@ -26,7 +26,7 @@ Path to the PUDL ID mapping sheet with the plant map.
 
 Read in the manual CSV to XBRL FERC714 respondent mapping data.
 
-### pudl.glue.ferc714.glue() → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]
+### pudl.glue.ferc714.glue() → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]
 
 Make the FERC 714 glue tables out of stored CSVs of association tables.
 

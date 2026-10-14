@@ -45,7 +45,7 @@ arguments will be applied to all pages. This still allows some flexibility becau
 some `pandas.read_csv()` arguments like `dtype` don’t raise errors if the
 columns they apply to aren’t present.
 
-#### source_filename(page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](../extractor/index.html.md#pudl.extract.extractor.PartitionSelection)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+#### source_filename(page: [str](https://docs.python.org/3/builtins/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](../extractor/index.html.md#pudl.extract.extractor.PartitionSelection)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Get the file name for the right page and part.
 
@@ -57,7 +57,7 @@ Adds source column and report_year column if missing.
 
 ### pudl.extract.rus7.raw_rus7_\_all_dfs
 
-### pudl.extract.rus7.raw_rus7_asset_factory(table_name: [str](https://docs.python.org/3/library/stdtypes.html#str))
+### pudl.extract.rus7.raw_rus7_asset_factory(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str))
 
 Create raw RUS Form 7 asset for a specific page.
 

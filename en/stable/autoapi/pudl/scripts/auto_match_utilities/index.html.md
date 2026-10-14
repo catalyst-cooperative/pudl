@@ -75,10 +75,10 @@ Once all PUDL utility IDs are assigned, we flag all records where multiple FERC 
 multiple EIA utilities are matched together. These are uncommon cases and benefit
 from manual review to ensure that no unexpected connections have been created.
 
-### pudl.scripts.auto_match_utilities.write_updated_matches(test_run: [bool](https://docs.python.org/3/library/functions.html#bool), dataframe: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame))
+### pudl.scripts.auto_match_utilities.write_updated_matches(test_run: [bool](https://docs.python.org/3/builtins/functions.html#bool), dataframe: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame))
 
 Write the updated matching spreadsheet to disk.
 
-### pudl.scripts.auto_match_utilities.main(test_run: [bool](https://docs.python.org/3/library/functions.html#bool)) → [int](https://docs.python.org/3/library/functions.html#int)
+### pudl.scripts.auto_match_utilities.main(test_run: [bool](https://docs.python.org/3/builtins/functions.html#bool)) → [int](https://docs.python.org/3/builtins/functions.html#int)
 
 Match EIA and FERC utilities based on utility name alone.

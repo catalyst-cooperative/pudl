@@ -1,5 +1,209 @@
 # PUDL Release Notes
 
+<a id="release-v2026-10-0"></a>
+
+## v2026.10.0 (2026-10-14)
+
+This is a regular monthly PUDL data release, primarily motivated by updating the
+EIA-860M monthly data through August 2026. It also brings in final release 2025 data
+for the EIA-860, EIA-861, and EIA-923, plus straggler FERC Form 1 filings from 2025.
+
+We made several important improvements for reproducibility in this release. These
+changes make all outputs fully deterministic, which will make it possible to detect
+specific changes between builds. We’ve also added the new table
+[core_epamats_\_hourly_emissions](data_dictionaries/pudl_db.html.md#core-epamats-hourly-emissions) brings hourly mercury and hydrogen chloride
+emissions into PUDL. Thanks to [@bsousa22](https://github.com/sponsors/bsousa22) for this contribution! Finally, we
+fixed a longstanding bug in the net generation and fuel allocation that silently
+dropped legitimate data for generators transitioning between
+`proposed`/`existing`/`retired` status across a multi-year
+ETL run.
+
+### Enhancements
+
+* Added `county_id_fips` and `state_id_fips` to the [core_eia_\_entity_plants](data_dictionaries/pudl_db.html.md#core-eia-entity-plants),
+  [out_eia_\_monthly_generators](data_dictionaries/pudl_db.html.md#out-eia-monthly-generators) and [out_eia_\_yearly_generators](data_dictionaries/pudl_db.html.md#out-eia-yearly-generators) tables. See
+  PR [#5688](https://github.com/catalyst-cooperative/pudl/pull/5688).
+* [out_eia_\_yearly_generators_by_ownership](data_dictionaries/pudl_db.html.md#out-eia-yearly-generators-by-ownership) now identifies each generator’s
+  operator as well as its owners, via new `operator_utility_id_eia`,
+  `operator_utility_id_pudl` and `operator_utility_name_eia` columns, with foreign
+  key checks on the IDs. See issue [#5550](https://github.com/catalyst-cooperative/pudl/issues/5550) and PR [#5585](https://github.com/catalyst-cooperative/pudl/pull/5585).
+
+### New Data
+
+#### EPA MATS
+
+* Created the [core_epamats_\_hourly_emissions](data_dictionaries/pudl_db.html.md#core-epamats-hourly-emissions) table, bringing hourly mercury and
+  hydrogen chloride emissions data from the EPA into PUDL. See issue [#5357](https://github.com/catalyst-cooperative/pudl/issues/5357) and
+  PR [#5572](https://github.com/catalyst-cooperative/pudl/pull/5572). Thanks to contributor [@bsousa22](https://github.com/sponsors/bsousa22) for bringing in this data!
+
+### Expanded Data Coverage
+
+#### EIA-860
+
+* Added final release data from 2025 for [EIA-860](data_sources/eia860.html.md). See
+  issue [#5589](https://github.com/catalyst-cooperative/pudl/issues/5589) and PR [#5591](https://github.com/catalyst-cooperative/pudl/pull/5591).
+
+#### EIA-860M
+
+* Added [EIA-860m](data_sources/eia860.html.md) data through August 2026. See issue
+  [#5677](https://github.com/catalyst-cooperative/pudl/issues/5677) and PR [#5680](https://github.com/catalyst-cooperative/pudl/pull/5680).
+
+#### EIA-861
+
+* Added [EIA-861](data_sources/eia861.html.md) final release 2025 data. See issue
+  [#5701](https://github.com/catalyst-cooperative/pudl/issues/5701) and PR [#5702](https://github.com/catalyst-cooperative/pudl/pull/5702).
+
+#### EIA-923
+
+* Added final release data from 2025 for [EIA-923](data_sources/eia923.html.md),
+  and monthly release from June 2026. See issue [#5594](https://github.com/catalyst-cooperative/pudl/issues/5594) and PR [#5599](https://github.com/catalyst-cooperative/pudl/pull/5599).
+
+#### FERC Form 1
+
+* Integrated any updates or straggler filings from 2025 for
+  [FERC Form 1](data_sources/ferc1.html.md). See PR [#5668](https://github.com/catalyst-cooperative/pudl/pull/5668).
+
+### Documentation
+
+* Fixed dbt macro argument documentation in `dbt/macros/schema.yml` and
+  `dbt/tests/data_tests/generic_tests/schema.yml` to match dbt 1.12’s stricter
+  validation of macro `arguments:` blocks against their jinja signatures, clearing a
+  long list of spurious `dbt parse` warnings. Also standardized on the long-form
+  `string` type name (rather than `str`) throughout, since both are accepted by
+  dbt but were used inconsistently. See PR [#5593](https://github.com/catalyst-cooperative/pudl/pull/5593).
+
+### New Data Tests & Validations
+
+* Added unit tests for the ID assignment process that builds
+  [core_epa_\_assn_eia_epacamd_subplant_ids](data_dictionaries/pudl_db.html.md#core-epa-assn-eia-epacamd-subplant-ids). Fixed several bugs that those tests
+  exposed, including one that could split a physically connected group of generators
+  into separate subplants. Simplified the underlying ID assignment logic to be entirely
+  graph-based. See issue [#5675](https://github.com/catalyst-cooperative/pudl/pull/5675) and PR [#5543](https://github.com/catalyst-cooperative/pudl/pull/5543). Part of an effort to harmonize
+  the [Open Grid Emissions](https://github.com/singularity-energy/open-grid-emissions) initiative and PUDL.
+  See epic [#5439](https://github.com/catalyst-cooperative/pudl/issues/5439) which is tracking that effort.
+* Added minimum and maximum constraints for plant and Census latitudes and longitudes,
+  to catch impossible locations. EIA-860M coordinates are not cleaned up (about
+  0.04% of its records are obviously wrong), so
+  [core_eia860m_\_changelog_generators](data_dictionaries/pudl_db.html.md#core-eia860m-changelog-generators) is exempt, and new dbt tests cap the number
+  of known bad records in it instead. See PR [#5697](https://github.com/catalyst-cooperative/pudl/pull/5697).
+
+### Bug Fixes & Data Cleaning
+
+* Made the [EIA-930](data_sources/eia930.html.md) and [FERC-714](data_sources/ferc714.html.md) hourly demand imputation deterministic. The underlying
+  tensor-completion algorithm previously relied on a unseeded random subsampling
+  mechanism which meant `demand_imputed_pudl_mwh` values could shift slightly from one
+  build to the next. For our hourly annual (8760) imputation blocks, the subsampling
+  wasn’t any faster than using all the data points, so we removed it. Added a guard
+  against the algorithm stopping prematurely on a transient dip in its convergence
+  metric. This was never observed happening, but seemed uncomfortably close to the set
+  tolerance. Also stopped replacing values that were not flagged for imputation with the
+  values estimated by the tensor completion. They should match the original reported
+  value exactly now, rather than carrying tiny model reconstruction error. Tightened the
+  corresponding dbt tolerance tests accordingly. See [#5649](https://github.com/catalyst-cooperative/pudl/issues/5649) and [#5656](https://github.com/catalyst-cooperative/pudl/pull/5656).
+* Fixed `allocate_gen_fuel.py` silently dropping legitimate generation and fuel
+  data for generators transitioning between `proposed`/`existing` or
+  `existing`/`retired` status across a multi-year ETL run. Unified the slightly
+  different logics of these transitions into a single, shared, symmetric process. This
+  simplification exposed a bug in which one generator’s status transition could silently
+  prevent data from another group of generators at the same plant from being allocated.
+  Added extensive unit tests and new dbt data quality tests validating that >=99.7% of
+  all reported generation and fuel survives allocation. Thanks to [@grgmiller](https://github.com/sponsors/grgmiller) for
+  surfacing the issue and initiating the fix. See [#5440](https://github.com/catalyst-cooperative/pudl/issues/5440) and PRs [#5419](https://github.com/catalyst-cooperative/pudl/pull/5419), [#5511](https://github.com/catalyst-cooperative/pudl/pull/5511).
+* Fixed a bug where a skipped nightly/release build (i.e. one that found good build
+  outputs for its commit and kicked off the `deploy-pudl.yml` workflow) uploaded its
+  own small logfile to the build outputs bucket. This created newer object path with the
+  same commit confusing `deploy-pudl` causing deployment to fail. See [#5579](https://github.com/catalyst-cooperative/pudl/issues/5579)
+  and [#5580](https://github.com/catalyst-cooperative/pudl/pull/5580).
+* Fixed a broken metadata override in `CashFlowsTableTransformer` that left the
+  `starting_balance`/`ending_balance` rows for `cash_and_cash_equivalents` in
+  [core_ferc1_\_yearly_cash_flows_sched120](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-cash-flows-sched120) without `row_type_xbrl`,
+  `is_within_table_calc`, `balance`, or `ferc_account` metadata. See
+  [#5587](https://github.com/catalyst-cooperative/pudl/issues/5587) and [#5588](https://github.com/catalyst-cooperative/pudl/pull/5588).
+* Made `plant_id_ferc1` deterministic. The IDs assigned to FERC 1 steam plants used
+  to be reshuffled by tiny changes in the input data, even when the plants themselves
+  were unchanged. They now depend only on which records belong to each plant, so
+  unrelated plants keep their IDs and differences between runs reflect real changes. IDs
+  now start at 1 instead of 0, and are still not stable across data updates. We also
+  corrected several hand-assigned `plant_id_pudl` values that split one plant across
+  multiple IDs, which cut the number of `plant_id_ferc1` values spanning more than one
+  `plant_id_pudl` from 6 to 2. See issue [#5609](https://github.com/catalyst-cooperative/pudl/issues/5609) and PR [#5642](https://github.com/catalyst-cooperative/pudl/pull/5642).
+* Updated the record-linkage which assigns `plant_id_ferc1` to make it insensitive to
+  floating point noise. See issue [#5609](https://github.com/catalyst-cooperative/pudl/issues/5609) and PR [#5687](https://github.com/catalyst-cooperative/pudl/pull/5687).
+* Fixed tags for new 2025 XBRL factoids and rescued the `ferc_account` field in
+  [out_ferc1_\_yearly_rate_base](data_dictionaries/pudl_db.html.md#out-ferc1-yearly-rate-base). See [#5520](https://github.com/catalyst-cooperative/pudl/issues/5520) and [#5597](https://github.com/catalyst-cooperative/pudl/pull/5597).
+* Fixed `valid_until_date` in the `_core_eia__forensics_entity_resolution_*` and
+  `_core_rus*__forensics_entity_resolution_borrowers` tables. Each record’s end date
+  was being drawn from an unrelated column of the same entity, and ties were sorted
+  arbitrarily, so values were often wrong and changed between builds. It’s now the next
+  change in the same column, and the output is deterministic. See [#5608](https://github.com/catalyst-cooperative/pudl/issues/5608) and
+  [#5641](https://github.com/catalyst-cooperative/pudl/pull/5641).
+* Made the FERC 1 to EIA plant-parts record linkage reproducible. The splink model
+  sampled record pairs without a seed and broke ties between equally probable matches
+  arbitrarily, so about 1% of the matches in
+  [out_pudl_\_yearly_assn_eia_ferc1_plant_parts](data_dictionaries/pudl_db.html.md#out-pudl-yearly-assn-eia-ferc1-plant-parts) changed on every run even with
+  identical inputs. The sampling is now seeded and ties are broken by EIA record ID. See
+  [#5610](https://github.com/catalyst-cooperative/pudl/issues/5610) and [#5643](https://github.com/catalyst-cooperative/pudl/pull/5643).
+* Made shared helpers in `pudl.helpers` behave identically under pandas 2 and 3.
+  `standardize_percentages_ratio()` now accepts numeric strings (as some Excel-sourced
+  columns arrive) and always returns `float64`; genuinely non-numeric values still
+  raise. `scale_by_ownership()` now always returns `float64` for the scaled columns,
+  where the dtype previously depended on the data (`Int64` if every value happened to
+  be integral). String-cleaning, boolean and phone-number helpers were also hardened
+  against pandas 3 dtype behavior changes. See [#5613](https://github.com/catalyst-cooperative/pudl/issues/5613), [#5614](https://github.com/catalyst-cooperative/pudl/issues/5614),
+  [#5615](https://github.com/catalyst-cooperative/pudl/issues/5615) and [#5662](https://github.com/catalyst-cooperative/pudl/pull/5662).
+* Fixed the integer NERC region code `25470` reported by utility 55959 in 2013 and
+  2014 in the EIA-861 tables, which was becoming `UNK` instead of `MRO`. See PR
+  [#5685](https://github.com/catalyst-cooperative/pudl/pull/5685).
+* Fixed a bug introduced in PR [#5506](https://github.com/catalyst-cooperative/pudl/pull/5506) which improperly aggregated generators with
+  multiple owners after an ineffective drop duplicates, resulting in double counting in
+  a small number of [out_eia_\_yearly_plant_parts](data_dictionaries/pudl_db.html.md#out-eia-yearly-plant-parts) records. See issue [#5651](https://github.com/catalyst-cooperative/pudl/issues/5651)
+  and PR [#5703](https://github.com/catalyst-cooperative/pudl/pull/5703).
+* Fixed a bug that gave plants with no reported state the state FIPS code `74` (U.S.
+  Minor Outlying Islands). Those plants in [core_eia_\_entity_plants](data_dictionaries/pudl_db.html.md#core-eia-entity-plants), and the
+  generators built from them, now have a null `state_id_fips`. See PR [#5697](https://github.com/catalyst-cooperative/pudl/pull/5697).
+
+### Performance Improvements
+
+* Sped up the [FERC EQR](data_sources/ferceqr.html.md) batch deployment to cloud object
+  storage from ~3 hours to ~5 minutes. Uploads to and server-side copies within S3 now
+  go through `boto3` in the new [`pudl.deploy.s3_transfer`](autoapi/pudl/deploy/s3_transfer/index.html.md#module-pudl.deploy.s3_transfer) module, while GCS and
+  all other targets stay on `fsspec`/`UPath` and run in a thread pool. Deployment
+  now stages each build under a per-build `._staging_{BUILD_ID}` prefix, verifies the
+  staged files by name and size, snapshots the previous outputs into
+  `._ferceqr_previous` for manual rollback, and then merges the staged files into the
+  live prefix. Existing files that a build doesn’t replace are left in place in
+  anticipation of doing incremental per-file updates. The build VM was also bumped to
+  `c4d-standard-32` after an out-of-memory crash. See issue [#5317](https://github.com/catalyst-cooperative/pudl/issues/5317) and PR
+  [#5561](https://github.com/catalyst-cooperative/pudl/pull/5561).
+* Sped up the [FERC EQR](data_sources/ferceqr.html.md) batch ETL from ~45 minutes to
+  ~25 minutes: a standalone Dagster gRPC code server, newest-quarter-first
+  partitioning, and a bounded `ferceqr_extract` concurrency pool. Also fixed an
+  intermittent out-of-memory kill that silently dropped a quarter from the build, by
+  capping DuckDB’s resource use per connection and streaming quarterly archive
+  downloads instead of reading them into memory. See issue [#5318](https://github.com/catalyst-cooperative/pudl/issues/5318) and PR
+  [#5595](https://github.com/catalyst-cooperative/pudl/pull/5595).
+* Switched all of PUDL’s Parquet outputs from snappy to zstd compression, which makes
+  the files substantially smaller. The codec and compression levels are now set in one
+  place ([`pudl.PARQUET_COMPRESSION`](autoapi/pudl/index.html.md#pudl.PARQUET_COMPRESSION) and related constants) and used by every
+  Parquet writer. See [#5603](https://github.com/catalyst-cooperative/pudl/issues/5603) and [#5604](https://github.com/catalyst-cooperative/pudl/pull/5604).
+
+### Developer Experience
+
+* Replaced all remaining uses of `importlib.resources` with direct `pathlib.Path`
+  access to files under `src/pudl/package_data`, since PUDL is only ever run from a
+  git checkout and no longer needs to support being installed as a distributable
+  package. Also removed the now-unneeded dummy `__init__.py` files that made
+  `package_data` subdirectories importable, which incidentally stops Sphinx from
+  generating documentation pages for these non-code directories. See PR [#5592](https://github.com/catalyst-cooperative/pudl/pull/5592).
+* Upgraded to Pyrefly 1.3.0 and adopted its new concise baseline format. Fixed a handful
+  of genuine typing gaps that the upgrade surfaced. Mostly this involved type narrowing
+  in places where an object that might be `None` was subject to a regex match, dict
+  lookup, or other operation that would fail on `None`. See PR [#5583](https://github.com/catalyst-cooperative/pudl/pull/5583).
+* Switched to using quieter, more compact `pytest` output instead of logging 1000s of
+  tests to the terminal. Fast ETL in pipeline tests will still log. Made `pixi.lock`
+  drift checking in pre-commit hooks more robust. Fixed open SQLite database warnings
+  coming from FERC SQLite IO Manager. See PR [#5573](https://github.com/catalyst-cooperative/pudl/pull/5573).
+
 <a id="release-v2026-9-0"></a>
 
 ## v2026.9.0 (2026-09-11)
@@ -258,6 +462,13 @@ story.
   using complex arithmetic in calculating eigenvalues due to floating point noise in the
   imaginary components of the matrix math we were doing in our timeseries imputations.
   See PR [#5503](https://github.com/catalyst-cooperative/pudl/pull/5503).
+* Sped up VCE RARE, EIA-930, and FERC EQR raw data extraction. VCE RARE’s very wide CSVs
+  no longer make DuckDB sniff column types on every read, cutting extraction time from
+  about 5 to 1.5 minutes. EIA-930 and FERC EQR extraction switched back to DuckDB’s
+  native multi-threaded Parquet writer for untyped/ENUM-free tables, undoing a
+  performance regression introduced in [#5570](https://github.com/catalyst-cooperative/pudl/pull/5570) when we switched to the
+  single-threaded Arrow writer to preserve Categorical types. This change cuts
+  extraction time by ~25% on the largest tables. See PR [#5575](https://github.com/catalyst-cooperative/pudl/pull/5575).
 
 ### Developer Experience
 
@@ -327,6 +538,12 @@ story.
   DuckDB connections. One dedicated to reading `pudl.sqlite` via DuckDB’s `sqlite`
   extension, so tests query both build outputs through one API as PUDL moves toward
   DuckDB. See PR [#5538](https://github.com/catalyst-cooperative/pudl/pull/5538).
+
+### New Data Tests & Validations
+
+* Add validation tests for `core_rus12__yearly_sources_and_distribution`
+  and `out_rus12__yearly_sources_and_distribution`. See issue [#5368](https://github.com/catalyst-cooperative/pudl/issues/5368),
+  PR [#5479](https://github.com/catalyst-cooperative/pudl/pull/5479), and PR [#5564](https://github.com/catalyst-cooperative/pudl/pull/5564).
 
 <a id="release-v2026-8-0"></a>
 
@@ -893,7 +1110,7 @@ as usual. We are exploring other ways of integrating the updated data.
   `pudl.extract.ferc1.extract_dbf_generic` functions. The extraction logic is now
   covered by the [`pudl.dagster.io_managers.ferc1_xbrl_sqlite_io_manager`](autoapi/pudl/dagster/io_managers/index.html.md#pudl.dagster.io_managers.ferc1_xbrl_sqlite_io_manager) and
   [`pudl.dagster.io_managers.ferc1_dbf_sqlite_io_manager`](autoapi/pudl/dagster/io_managers/index.html.md#pudl.dagster.io_managers.ferc1_dbf_sqlite_io_manager) IO Managers.
-* Fixed a [`TypeError`](https://docs.python.org/3/library/exceptions.html#TypeError) in MCOE asset checks where `sum(exc.null_rows)` iterated
+* Fixed a [`TypeError`](https://docs.python.org/3/builtins/exceptions.html#TypeError) in MCOE asset checks where `sum(exc.null_rows)` iterated
   over a DataFrame’s column names as strings instead of counting rows. Replaced with
   `len(exc.null_rows)`. See PR [#5124](https://github.com/catalyst-cooperative/pudl/pull/5124).
 * Fixed a data integrity bug in the FERC SQLite IO manager where SQLite silently
@@ -965,7 +1182,7 @@ changes:
   Pydantic models to raw `run_config` dicts, which required keeping Dagster config
   schemas manually in sync with the Pydantic models.
 * **Updated Dagster resources and IO managers to use Pydantic-native**
-  [`dagster.ConfigurableResource`](https://docs.dagster.io/api/dagster/resources/#dagster.ConfigurableResource) **and** [`dagster.ConfigurableIOManager`](https://docs.dagster.io/api/dagster/io-managers/#dagster.ConfigurableIOManager)
+  [`dagster.ConfigurableResource`](https://dagster.io/docs/api/dagster/resources/#dagster.ConfigurableResource) **and** [`dagster.ConfigurableIOManager`](https://dagster.io/docs/api/dagster/io-managers/#dagster.ConfigurableIOManager)
   **base classes.**
   `pudl.workspace.datastore.DatastoreResource` and
   `pudl.workspace.datastore.ZenodoDoiSettingsResource` replace the legacy
@@ -974,10 +1191,10 @@ changes:
   `pudl.io_managers.FercDbfSqliteIOManager`, and
   `pudl.io_managers.FercXbrlSqliteIOManager` replace the legacy
   `@io_manager` wrappers. Resources now receive settings via Pydantic field
-  injection rather than via [`dagster.build_init_resource_context()`](https://docs.dagster.io/api/dagster/resources/#dagster.build_init_resource_context) config dicts.
+  injection rather than via [`dagster.build_init_resource_context()`](https://dagster.io/docs/api/dagster/resources/#dagster.build_init_resource_context) config dicts.
 * **Added FERC SQLite provenance tracking** via the new
   `pudl.ferc_sqlite_provenance` module. Each time a FERC SQLite asset
-  materializes, it records a fingerprint as [`dagster.MaterializeResult`](https://docs.dagster.io/api/dagster/assets/#dagster.MaterializeResult)
+  materializes, it records a fingerprint as [`dagster.MaterializeResult`](https://dagster.io/docs/api/dagster/assets/#dagster.MaterializeResult)
   metadata: the Zenodo DOI of the source archive, the years included, and a hash of
   the ETL settings. When a downstream PUDL asset subsequently loads from that SQLite
   file, the IO manager checks the stored fingerprint against the current run’s
@@ -997,7 +1214,7 @@ changes:
   the `pudl_io_manager` fixture are replaced by a single `prebuilt_outputs`
   fixture that runs the full `pudl_with_ferc_to_sqlite` job via `dg launch` as a
   subprocess, with coverage collection appended to the existing test coverage report.
-  A persistent [`dagster.DagsterInstance`](https://docs.dagster.io/api/dagster/internals/#dagster.DagsterInstance) fixture allows test code to read
+  A persistent [`dagster.DagsterInstance`](https://dagster.io/docs/api/dagster/internals/#dagster.DagsterInstance) fixture allows test code to read
   asset materialisation metadata written by that subprocess. Pytest CLI flags are
   renamed for clarity: `--live-dbs` → `--live-pudl-output`, `--tmp-data` →
   `--temp-pudl-input`, `--etl-settings` → `--dg-config`.

@@ -1,0 +1,175 @@
+===============================================================================
+Work Citing PUDL and other Catalyst Analyses
+===============================================================================
+Academic, policy, and industry publications that reference PUDL and analyses done by Catalyst Cooperative.
+
+Book
+----
+.. bibliography:: /catalyst_cites.bib
+    :list: enumerated
+
+    basseches_owning_2026
+    ofallon_quantifying_2021
+
+
+Conference Paper
+----------------
+.. bibliography:: /catalyst_cites.bib
+    :list: enumerated
+
+    hanna_leveraging_2024
+    landsborough_database_2025
+
+
+Dataset
+-------
+.. bibliography:: /catalyst_cites.bib
+    :list: enumerated
+
+    dotson_storing_2024
+
+
+Expert Testimony
+----------------
+.. bibliography:: /catalyst_cites.bib
+    :list: enumerated
+
+    william_d_kenworthy_direct_2025
+
+
+Journal or News Article
+-----------------------
+.. bibliography:: /catalyst_cites.bib
+    :list: enumerated
+
+    bistline_parameterizing_2020
+    buchsbaum_whats_2025
+    cicala_restructuring_2025
+    davis_transmission_2023
+    decarolis_leveraging_2020
+    donti_machine_2021
+    gaffney_science_2025
+    gowrisankaran_policy_2025
+    henno_datas_2025
+    huppmann_pyam_2021
+    jacobson_quantifying_2024
+    jagt_understanding_2024
+    johnson_power_2026
+    jordan_climate_2024
+    kassel_method_2025-1
+    kassel_method_2026
+    law_decarbonization_2026
+    law_role_2025
+    manocha_reducing_2025
+    mccormack_life_2026
+    miller_evaluating_2023
+    mulligan_inside_2025
+    peskoe_is_2021
+    schivley_process_2025
+    schwartz_value_2023
+    singh_wires_2025
+    tehranchi_costs_2026
+    vanatta_past_2026
+    zhang_review_2022
+    zwarenstein_trump_2025
+
+
+Master's Thesis
+---------------
+.. bibliography:: /catalyst_cites.bib
+    :list: enumerated
+
+    ganesamoorthy_least-cost_2026
+    ittner_coal_2026
+    seidel_investigating_2025
+
+
+PhD Thesis
+----------
+.. bibliography:: /catalyst_cites.bib
+    :list: enumerated
+
+    charles_three_2026
+    hanna_leveraging_2025
+    jacobson_structural_2025
+    jordan_energy_2024
+    mckinley_short_2025
+
+
+Report
+------
+.. bibliography:: /catalyst_cites.bib
+    :list: enumerated
+
+    dahlke_economics_2020
+    fitch_carbon_2021
+    gimon_coal_2019
+    gimon_coal_2021
+    lehr_utility_2018
+    moynihan_new_2026
+    oboyle_making_nodate
+    palta_blending_2025
+    sims_put_2021
+    wilson_era_2023
+    wilson_strategic_2024
+
+
+SSRN Scholarly Paper
+--------------------
+.. bibliography:: /catalyst_cites.bib
+    :list: enumerated
+
+    ai_delineating_2026
+    derakhshani_koshki_electric_2026
+    derakhshani_koshki_electric_vehicles_2026
+    zhao_burnout_2026
+
+
+Undergraduate Thesis
+--------------------
+.. bibliography:: /catalyst_cites.bib
+    :list: enumerated
+
+    zheng_mandates_2026
+
+
+White Paper
+-----------
+.. bibliography:: /catalyst_cites.bib
+    :list: enumerated
+
+    chougule_affording_2026
+
+
+Working Paper
+-------------
+.. bibliography:: /catalyst_cites.bib
+    :list: enumerated
+
+    argosino_renewables_2025
+    dahlke_power_2026
+    gowrisankaran_policy_2022
+    henry_construction_2023
+    johannsen_temperature_2025
+    liu_market_2025
+    pitman_distributional_2025
+    pitman_impact_2025
+
+
+Other
+-----
+.. bibliography:: /catalyst_cites.bib
+    :list: enumerated
+
+    ai_economic_2026
+    barnes_near-term_2026
+    bommarito_openmpsc_2026
+    climate_open_nodate
+    craig_resolving_2026
+    schivley_powergenomepowergenome_2024
+    singh_trends_2024
+    tehranchi_pypsa-usa_2024
+    watten_have_2026
+    zhao_scalable_2026
+    zheng_optimal_2024
+

@@ -1,0 +1,20 @@
+===============================================================================
+Work Citing Catalyst Cooperative
+===============================================================================
+Academic, policy, and industry publications referencing Catalyst's role as a worker-owned software cooperative.
+
+Book
+----
+.. bibliography:: /cooperative_cites.bib
+    :list: enumerated
+
+    j_digital_2025
+
+
+Conference Paper
+----------------
+.. bibliography:: /cooperative_cites.bib
+    :list: enumerated
+
+    scholten_democratising_2026
+

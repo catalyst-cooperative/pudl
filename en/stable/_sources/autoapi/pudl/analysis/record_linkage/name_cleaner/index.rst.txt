@@ -59,7 +59,7 @@ Module Contents
    :value: 'legal_forms'
 
 
-.. py:class:: LegalTermLocation(*args, **kwds)
+.. py:class:: LegalTermLocation
 
    Bases: :py:obj:`enum.Enum`
 
@@ -77,7 +77,7 @@ Module Contents
 
 
 
-.. py:class:: Lettercase(*args, **kwds)
+.. py:class:: Lettercase
 
    Bases: :py:obj:`enum.Enum`
 
@@ -100,7 +100,7 @@ Module Contents
 
 
 
-.. py:class:: HandleLegalTerms(*args, **kwds)
+.. py:class:: HandleLegalTerms
 
    Bases: :py:obj:`enum.Enum`
 
@@ -199,8 +199,6 @@ Module Contents
 
    .. py:attribute:: legal_terms_dict
       :type:  dict[str, list]
-      :value: None
-
 
 
    .. py:method:: _validate_cleaning_rules() -> Self

@@ -10,10 +10,11 @@ with cleaning and restructuring dataframes.
 
 ## Attributes
 
-| [`sum_na`](#pudl.helpers.sum_na)        | A sum function that returns NA if the Series includes any NA values.                                                                                                                    |
-|----------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [`logger`](#pudl.helpers.logger)        |                                                                                                                                                                                         |
-| [`MergeValidate`](#pudl.helpers.MergeValidate) | Mirrors the `validate` literal accepted by [`pandas.DataFrame.merge()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.merge.html#pandas.DataFrame.merge). |
+| [`sum_na`](#pudl.helpers.sum_na)                | A sum function that returns NA if the Series includes any NA values.                                                                                                                    |
+|------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`logger`](#pudl.helpers.logger)                |                                                                                                                                                                                         |
+| [`MergeValidate`](#pudl.helpers.MergeValidate)         | Mirrors the `validate` literal accepted by [`pandas.DataFrame.merge()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.merge.html#pandas.DataFrame.merge). |
+| [`_DUCKDB_INTEGER_TYPES`](#pudl.helpers._DUCKDB_INTEGER_TYPES) |                                                                                                                                                                                         |
 
 ## Classes
 
@@ -23,79 +24,81 @@ with cleaning and restructuring dataframes.
 
 ## Functions
 
-| [`run_git`](#pudl.helpers.run_git)(→ str)                                         | Run a git subcommand and return its stdout, logging stderr on failure.                                                                                                                                                                                            |
-|---------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [`label_map`](#pudl.helpers.label_map)(→ collections.defaultdict[str, ...)          | Build a mapping dictionary from two columns of a labeling / coding dataframe.                                                                                                                                                                                     |
-| [`multi_index_stack`](#pudl.helpers.multi_index_stack)(→ pandas.DataFrame)                  | Stack multiple data columns - create categorical columns and data columns.                                                                                                                                                                                        |
-| [`find_new_ferc1_strings`](#pudl.helpers.find_new_ferc1_strings)(→ set[str])                     | Identify as-of-yet uncategorized freeform strings in FERC Form 1.                                                                                                                                                                                                 |
-| [`find_foreign_key_errors`](#pudl.helpers.find_foreign_key_errors)(→ list[dict[str, Any]])        | Report foreign key violations from a dictionary of dataframes.                                                                                                                                                                                                    |
-| [`download_zip_url`](#pudl.helpers.download_zip_url)(→ None)                               | Download and save a Zipfile locally.                                                                                                                                                                                                                              |
-| [`add_fips_ids`](#pudl.helpers.add_fips_ids)(→ pandas.DataFrame)                       | Add State and County FIPS IDs to a dataframe.                                                                                                                                                                                                                     |
-| [`add_state_id_fips`](#pudl.helpers.add_state_id_fips)(→ pandas.DataFrame)                  | Add the State FIPS codes.                                                                                                                                                                                                                                         |
-| [`add_county_fips_id`](#pudl.helpers.add_county_fips_id)(→ pandas.DataFrame)                 | Add the County FIPS codes to a table with State FIPS codes.                                                                                                                                                                                                       |
-| [`clean_eia_counties`](#pudl.helpers.clean_eia_counties)(→ pandas.DataFrame)                 | Replace non-standard county names with county names from US Census.                                                                                                                                                                                               |
-| [`oob_to_nan`](#pudl.helpers.oob_to_nan)(→ pandas.DataFrame)                         | Set non-numeric values and those outside of a given range to NaN.                                                                                                                                                                                                 |
-| [`oob_to_nan_with_dependent_cols`](#pudl.helpers.oob_to_nan_with_dependent_cols)(→ pandas.DataFrame)     | Call [`oob_to_nan()`](#pudl.helpers.oob_to_nan) and additionally nullify any derived columns.                                                                                                                                                  |
-| [`prep_dir`](#pudl.helpers.prep_dir)(→ pathlib.Path)                               | Create (or delete and recreate) a directory.                                                                                                                                                                                                                      |
-| [`is_doi`](#pudl.helpers.is_doi)(→ bool)                                         | Determine if a string is a valid digital object identifier (DOI).                                                                                                                                                                                                 |
-| [`convert_col_to_datetime`](#pudl.helpers.convert_col_to_datetime)(→ pandas.DataFrame)            | Convert a non-datetime column in a dataframe to a datetime64[s].                                                                                                                                                                                                  |
-| [`full_timeseries_date_merge`](#pudl.helpers.full_timeseries_date_merge)(→ pandas.DataFrame)         | Merge dataframes with different date frequencies and expand to a full timeseries.                                                                                                                                                                                 |
-| [`_add_suffix_to_date_on`](#pudl.helpers._add_suffix_to_date_on)(date_on)                        | Check date_on list is valid and add \_temp_for_merge suffix.                                                                                                                                                                                                      |
-| [`date_merge`](#pudl.helpers.date_merge)(→ pandas.DataFrame)                         | Merge two dataframes that have different report date frequencies.                                                                                                                                                                                                 |
-| [`expand_timeseries`](#pudl.helpers.expand_timeseries)(→ pandas.DataFrame)                  | Expand a dataframe to a include a full time series at a given frequency.                                                                                                                                                                                          |
-| [`organize_cols`](#pudl.helpers.organize_cols)(→ pandas.DataFrame)                      | Organize columns into key ID & name fields & alphabetical data columns.                                                                                                                                                                                           |
-| [`simplify_strings`](#pudl.helpers.simplify_strings)(→ pandas.DataFrame)                   | Simplify the strings contained in a set of dataframe columns.                                                                                                                                                                                                     |
-| [`cleanstrings_series`](#pudl.helpers.cleanstrings_series)(→ pandas.Series)                   | Clean up the strings in a single column/Series.                                                                                                                                                                                                                   |
-| [`cleanstrings`](#pudl.helpers.cleanstrings)(→ pandas.DataFrame)                       | Consolidate freeform strings in several dataframe columns.                                                                                                                                                                                                        |
-| [`fix_int_na`](#pudl.helpers.fix_int_na)(→ pandas.DataFrame)                         | Convert NA containing integer columns from float to string.                                                                                                                                                                                                       |
-| [`month_year_to_date`](#pudl.helpers.month_year_to_date)(→ pandas.DataFrame)                 | Convert all pairs of year/month fields in a dataframe into Date fields.                                                                                                                                                                                           |
-| [`convert_to_date`](#pudl.helpers.convert_to_date)(→ pandas.DataFrame)                    | Convert specified year, month or day columns into a datetime object.                                                                                                                                                                                              |
-| [`remove_leading_zeros_from_numeric_strings`](#pudl.helpers.remove_leading_zeros_from_numeric_strings)(...)         | Remove leading zeros frame column values that are numeric strings.                                                                                                                                                                                                |
-| [`standardize_na_values`](#pudl.helpers.standardize_na_values)(→ pandas.DataFrame)              | Replace common apparently NA values in numerical columns with the floating point np.nan.                                                                                                                                                                          |
-| [`simplify_columns`](#pudl.helpers.simplify_columns)(→ pandas.DataFrame)                   | Simplify column labels for use as snake_case database fields.                                                                                                                                                                                                     |
-| [`drop_tables`](#pudl.helpers.drop_tables)(→ None)                                    | Drops all tables from a SQLite database.                                                                                                                                                                                                                          |
-| [`merge_dicts`](#pudl.helpers.merge_dicts)(→ dict[Any, Any])                          | Merge multiple dictionaries together.                                                                                                                                                                                                                             |
-| [`convert_cols_dtypes`](#pudl.helpers.convert_cols_dtypes)(→ pandas.DataFrame)                | Convert a PUDL dataframe's columns to the correct data type.                                                                                                                                                                                                      |
-| [`generate_rolling_avg`](#pudl.helpers.generate_rolling_avg)(→ pandas.DataFrame)               | Generate a rolling average.                                                                                                                                                                                                                                       |
-| [`fillna_w_rolling_avg`](#pudl.helpers.fillna_w_rolling_avg)(→ pandas.DataFrame)               | Fill NA values with a rolling average.                                                                                                                                                                                                                            |
-| [`groupby_agg_label_unique_source_or_mixed`](#pudl.helpers.groupby_agg_label_unique_source_or_mixed)(→ str | None) | Get either the unique source in a group or return mixed.                                                                                                                                                                                                          |
-| [`count_records`](#pudl.helpers.count_records)(→ pandas.DataFrame)                      | Count the number of unique records in group in a dataframe.                                                                                                                                                                                                       |
-| [`cleanstrings_snake`](#pudl.helpers.cleanstrings_snake)(→ pandas.DataFrame)                 | Clean the strings in a columns in a dataframe with snake case.                                                                                                                                                                                                    |
-| [`zero_pad_numeric_string`](#pudl.helpers.zero_pad_numeric_string)(→ pandas.Series)               | Clean up fixed-width leading zero padded numeric (e.g. ZIP, FIPS) codes.                                                                                                                                                                                          |
-| [`iterate_multivalue_dict`](#pudl.helpers.iterate_multivalue_dict)(\*\*kwargs)                    | Make dicts from dict with main dict key and one value of main dict.                                                                                                                                                                                               |
-| [`dedupe_on_category`](#pudl.helpers.dedupe_on_category)(→ pandas.DataFrame)                 | Deduplicate a df using a sorted category to retain preferred values.                                                                                                                                                                                              |
-| [`dedupe_and_drop_nas`](#pudl.helpers.dedupe_and_drop_nas)(→ pandas.DataFrame)                | Deduplicate a df by comparing primary key columns and dropping null rows.                                                                                                                                                                                         |
-| [`drop_records_with_null_in_column`](#pudl.helpers.drop_records_with_null_in_column)(→ pandas.DataFrame)   | Drop a prescribed number of records with null values in a column.                                                                                                                                                                                                 |
-| [`standardize_percentages_ratio`](#pudl.helpers.standardize_percentages_ratio)(→ pandas.DataFrame)      | Standardize year-to-year changes in mixed percentage/ratio reporting in a column.                                                                                                                                                                                 |
-| [`calc_capacity_factor`](#pudl.helpers.calc_capacity_factor)(→ pandas.DataFrame)               | Calculate capacity factor.                                                                                                                                                                                                                                        |
-| [`weighted_average`](#pudl.helpers.weighted_average)(→ pandas.DataFrame)                   | Generate a weighted average.                                                                                                                                                                                                                                      |
-| [`sum_and_weighted_average_agg`](#pudl.helpers.sum_and_weighted_average_agg)(→ pandas.DataFrame)       | Aggregate dataframe by summing and using weighted averages.                                                                                                                                                                                                       |
-| [`get_eia_ferc_acct_map`](#pudl.helpers.get_eia_ferc_acct_map)(→ pandas.DataFrame)              | Get map of EIA technology_description/pm codes <> ferc accounts.                                                                                                                                                                                                  |
-| [`dedupe_n_flatten_list_of_lists`](#pudl.helpers.dedupe_n_flatten_list_of_lists)(→ list)                 | Flatten a list of lists and remove duplicates.                                                                                                                                                                                                                    |
-| [`flatten_list`](#pudl.helpers.flatten_list)(→ collections.abc.Generator)              | Flatten an irregular (arbitrarily nested) list of lists (or sets).                                                                                                                                                                                                |
-| [`convert_df_to_excel_file`](#pudl.helpers.convert_df_to_excel_file)(→ pandas.ExcelFile)           | Convert a [`pandas.DataFrame`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) into a [`pandas.ExcelFile`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.ExcelFile.html#pandas.ExcelFile). |
-| [`get_asset_keys`](#pudl.helpers.get_asset_keys)(→ set[dagster.AssetKey])                | Get a set of asset keys from a list of asset definitions.                                                                                                                                                                                                         |
-| [`get_asset_group_keys`](#pudl.helpers.get_asset_group_keys)(→ list[str])                      | Get a list of asset names in a given asset group.                                                                                                                                                                                                                 |
-| [`convert_col_to_bool`](#pudl.helpers.convert_col_to_bool)(→ pandas.DataFrame)                | Turn a column into a boolean while preserving NA values.                                                                                                                                                                                                          |
-| [`fix_boolean_columns`](#pudl.helpers.fix_boolean_columns)(→ pandas.DataFrame)                | Fix standard issues with boolean columns.                                                                                                                                                                                                                         |
-| [`scale_by_ownership`](#pudl.helpers.scale_by_ownership)(→ pandas.DataFrame)                 | Generate proportional data by ownership %s.                                                                                                                                                                                                                       |
-| [`assert_cols_areclose`](#pudl.helpers.assert_cols_areclose)(df, a_cols, b_cols, ...)          | Check if two column sets of a dataframe are close to each other.                                                                                                                                                                                                  |
-| [`diff_wide_tables`](#pudl.helpers.diff_wide_tables)(→ TableDiff)                          | Diff values across multiple iterations of the same wide table.                                                                                                                                                                                                    |
-| [`retry`](#pudl.helpers.retry)(func, retry_on[, max_retries, base_delay_sec])   | Retry a function with a short sleep between each try.                                                                                                                                                                                                             |
-| [`get_parquet_table_polars`](#pudl.helpers.get_parquet_table_polars)(→ polars.LazyFrame)           | Read a table from a parquet file and return as a polars LazyFrame.                                                                                                                                                                                                |
-| [`_fix_residual_dtypes`](#pudl.helpers._fix_residual_dtypes)(→ pandas.DataFrame)               | Fix the two dtype gaps `dtype_backend="numpy_nullable"` can't get right.                                                                                                                                                                                          |
-| [`get_parquet_table`](#pudl.helpers.get_parquet_table)(...)                                 | Read a table from Parquet files with optional column selection and filtering.                                                                                                                                                                                     |
-| [`standardize_phone_column`](#pudl.helpers.standardize_phone_column)(→ pandas.DataFrame)           | Standardize phone numbers in the specified columns of the DataFrame.                                                                                                                                                                                              |
-| [`persist_table_as_parquet`](#pudl.helpers.persist_table_as_parquet)(→ ParquetData)                | Write data from DataFrame or LazyFrame to disk as a parquet file.                                                                                                                                                                                                 |
-| [`lf_from_parquet`](#pudl.helpers.lf_from_parquet)(→ polars.LazyFrame)                    | Scan parquet file(s) from disk and return Polars LazyFrame.                                                                                                                                                                                                       |
-| [`df_from_parquet`](#pudl.helpers.df_from_parquet)(→ pandas.DataFrame)                    | Read data from a set of parquet files and return a pandas DataFrame.                                                                                                                                                                                              |
-| [`duckdb_relation_from_parquet`](#pudl.helpers.duckdb_relation_from_parquet)(...)                      | Create a duckdb relation to read from parquet files.                                                                                                                                                                                                              |
-| [`duckdb_extract_zipped_csv`](#pudl.helpers.duckdb_extract_zipped_csv)() → tuple[str, ParquetData]) | Extract data from zipped CSV page(s) in a data archive.                                                                                                                                                                                                           |
-| [`normalize_year_fragments`](#pudl.helpers.normalize_year_fragments)(→ pandas.Series)              | Normalize year fragments into 4-digit years using a rolling-century rule.                                                                                                                                                                                         |
-| [`make_changelog`](#pudl.helpers.make_changelog)(df_all, idx)                            | Make a changelog table with unique instances of values over start report and max report date.                                                                                                                                                                     |
-| [`parse_address`](#pudl.helpers.parse_address)(addr)                                    | Parse a U.S. address into components.                                                                                                                                                                                                                             |
-| [`listify`](#pudl.helpers.listify)(→ list[Any])                                   | Listify an input that is sometimes a list and sometimes not.                                                                                                                                                                                                      |
-| [`env_var_is_true`](#pudl.helpers.env_var_is_true)(→ bool)                                | Check that environment variable is a 'truthy' value.                                                                                                                                                                                                              |
+| [`run_git`](#pudl.helpers.run_git)(→ str)                                           | Run a git subcommand and return its stdout, logging stderr on failure.                                                                                                                                                                                            |
+|-----------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`label_map`](#pudl.helpers.label_map)(→ collections.defaultdict[str, ...)            | Build a mapping dictionary from two columns of a labeling / coding dataframe.                                                                                                                                                                                     |
+| [`multi_index_stack`](#pudl.helpers.multi_index_stack)(→ pandas.DataFrame)                    | Stack multiple data columns - create categorical columns and data columns.                                                                                                                                                                                        |
+| [`find_new_ferc1_strings`](#pudl.helpers.find_new_ferc1_strings)(→ set[str])                       | Identify as-of-yet uncategorized freeform strings in FERC Form 1.                                                                                                                                                                                                 |
+| [`find_foreign_key_errors`](#pudl.helpers.find_foreign_key_errors)(→ list[dict[str, Any]])          | Report foreign key violations from a dictionary of dataframes.                                                                                                                                                                                                    |
+| [`download_zip_url`](#pudl.helpers.download_zip_url)(→ None)                                 | Download and save a Zipfile locally.                                                                                                                                                                                                                              |
+| [`add_fips_ids`](#pudl.helpers.add_fips_ids)(→ pandas.DataFrame)                         | Add State and County FIPS IDs to a dataframe.                                                                                                                                                                                                                     |
+| [`add_state_id_fips`](#pudl.helpers.add_state_id_fips)(→ pandas.DataFrame)                    | Add the State FIPS codes.                                                                                                                                                                                                                                         |
+| [`add_county_fips_id`](#pudl.helpers.add_county_fips_id)(→ pandas.DataFrame)                   | Add the County FIPS codes to a table with State FIPS codes.                                                                                                                                                                                                       |
+| [`clean_eia_counties`](#pudl.helpers.clean_eia_counties)(→ pandas.DataFrame)                   | Replace non-standard county names with county names from US Census.                                                                                                                                                                                               |
+| [`oob_to_nan`](#pudl.helpers.oob_to_nan)(→ pandas.DataFrame)                           | Set non-numeric values and those outside of a given range to NaN.                                                                                                                                                                                                 |
+| [`oob_to_nan_with_dependent_cols`](#pudl.helpers.oob_to_nan_with_dependent_cols)(→ pandas.DataFrame)       | Call [`oob_to_nan()`](#pudl.helpers.oob_to_nan) and additionally nullify any derived columns.                                                                                                                                                  |
+| [`prep_dir`](#pudl.helpers.prep_dir)(→ pathlib.Path)                                 | Create (or delete and recreate) a directory.                                                                                                                                                                                                                      |
+| [`is_doi`](#pudl.helpers.is_doi)(→ bool)                                           | Determine if a string is a valid digital object identifier (DOI).                                                                                                                                                                                                 |
+| [`convert_col_to_datetime`](#pudl.helpers.convert_col_to_datetime)(→ pandas.DataFrame)              | Convert a non-datetime column in a dataframe to a datetime64[s].                                                                                                                                                                                                  |
+| [`full_timeseries_date_merge`](#pudl.helpers.full_timeseries_date_merge)(→ pandas.DataFrame)           | Merge dataframes with different date frequencies and expand to a full timeseries.                                                                                                                                                                                 |
+| [`_add_suffix_to_date_on`](#pudl.helpers._add_suffix_to_date_on)(date_on)                          | Check date_on list is valid and add \_temp_for_merge suffix.                                                                                                                                                                                                      |
+| [`date_merge`](#pudl.helpers.date_merge)(→ pandas.DataFrame)                           | Merge two dataframes that have different report date frequencies.                                                                                                                                                                                                 |
+| [`expand_timeseries`](#pudl.helpers.expand_timeseries)(→ pandas.DataFrame)                    | Expand a dataframe to a include a full time series at a given frequency.                                                                                                                                                                                          |
+| [`organize_cols`](#pudl.helpers.organize_cols)(→ pandas.DataFrame)                        | Organize columns into key ID & name fields & alphabetical data columns.                                                                                                                                                                                           |
+| [`simplify_strings`](#pudl.helpers.simplify_strings)(→ pandas.DataFrame)                     | Simplify the strings contained in a set of dataframe columns.                                                                                                                                                                                                     |
+| [`cleanstrings_series`](#pudl.helpers.cleanstrings_series)(→ pandas.Series)                     | Clean up the strings in a single column/Series.                                                                                                                                                                                                                   |
+| [`cleanstrings`](#pudl.helpers.cleanstrings)(→ pandas.DataFrame)                         | Consolidate freeform strings in several dataframe columns.                                                                                                                                                                                                        |
+| [`fix_int_na`](#pudl.helpers.fix_int_na)(→ pandas.DataFrame)                           | Convert NA containing integer columns from float to string.                                                                                                                                                                                                       |
+| [`month_year_to_date`](#pudl.helpers.month_year_to_date)(→ pandas.DataFrame)                   | Convert all pairs of year/month fields in a dataframe into Date fields.                                                                                                                                                                                           |
+| [`convert_to_date`](#pudl.helpers.convert_to_date)(→ pandas.DataFrame)                      | Convert specified year, month or day columns into a datetime object.                                                                                                                                                                                              |
+| [`remove_leading_zeros_from_numeric_strings`](#pudl.helpers.remove_leading_zeros_from_numeric_strings)(...)           | Remove leading zeros frame column values that are numeric strings.                                                                                                                                                                                                |
+| [`standardize_na_values`](#pudl.helpers.standardize_na_values)(→ pandas.DataFrame)                | Replace common apparently NA values in numerical columns with the floating point np.nan.                                                                                                                                                                          |
+| [`simplify_columns`](#pudl.helpers.simplify_columns)(→ pandas.DataFrame)                     | Simplify column labels for use as snake_case database fields.                                                                                                                                                                                                     |
+| [`drop_tables`](#pudl.helpers.drop_tables)(→ None)                                      | Drops all tables from a SQLite database.                                                                                                                                                                                                                          |
+| [`merge_dicts`](#pudl.helpers.merge_dicts)(→ dict[Any, Any])                            | Merge multiple dictionaries together.                                                                                                                                                                                                                             |
+| [`convert_cols_dtypes`](#pudl.helpers.convert_cols_dtypes)(→ pandas.DataFrame)                  | Convert a PUDL dataframe's columns to the correct data type.                                                                                                                                                                                                      |
+| [`generate_rolling_avg`](#pudl.helpers.generate_rolling_avg)(→ pandas.DataFrame)                 | Generate a rolling average.                                                                                                                                                                                                                                       |
+| [`fillna_w_rolling_avg`](#pudl.helpers.fillna_w_rolling_avg)(→ pandas.DataFrame)                 | Fill NA values with a rolling average.                                                                                                                                                                                                                            |
+| [`groupby_agg_label_unique_source_or_mixed`](#pudl.helpers.groupby_agg_label_unique_source_or_mixed)(→ str | None)   | Get either the unique source in a group or return mixed.                                                                                                                                                                                                          |
+| [`count_records`](#pudl.helpers.count_records)(→ pandas.DataFrame)                        | Count the number of unique records in group in a dataframe.                                                                                                                                                                                                       |
+| [`cleanstrings_snake`](#pudl.helpers.cleanstrings_snake)(→ pandas.DataFrame)                   | Clean the strings in a columns in a dataframe with snake case.                                                                                                                                                                                                    |
+| [`zero_pad_numeric_string`](#pudl.helpers.zero_pad_numeric_string)(→ pandas.Series)                 | Clean up fixed-width leading zero padded numeric (e.g. ZIP, FIPS) codes.                                                                                                                                                                                          |
+| [`iterate_multivalue_dict`](#pudl.helpers.iterate_multivalue_dict)(\*\*kwargs)                      | Make dicts from dict with main dict key and one value of main dict.                                                                                                                                                                                               |
+| [`dedupe_on_category`](#pudl.helpers.dedupe_on_category)(→ pandas.DataFrame)                   | Deduplicate a df using a sorted category to retain preferred values.                                                                                                                                                                                              |
+| [`dedupe_and_drop_nas`](#pudl.helpers.dedupe_and_drop_nas)(→ pandas.DataFrame)                  | Deduplicate a df by comparing primary key columns and dropping null rows.                                                                                                                                                                                         |
+| [`drop_records_with_null_in_column`](#pudl.helpers.drop_records_with_null_in_column)(→ pandas.DataFrame)     | Drop a prescribed number of records with null values in a column.                                                                                                                                                                                                 |
+| [`standardize_percentages_ratio`](#pudl.helpers.standardize_percentages_ratio)(→ pandas.DataFrame)        | Standardize year-to-year changes in mixed percentage/ratio reporting in a column.                                                                                                                                                                                 |
+| [`calc_capacity_factor`](#pudl.helpers.calc_capacity_factor)(→ pandas.DataFrame)                 | Calculate capacity factor.                                                                                                                                                                                                                                        |
+| [`weighted_average`](#pudl.helpers.weighted_average)(→ pandas.DataFrame)                     | Generate a weighted average.                                                                                                                                                                                                                                      |
+| [`sum_and_weighted_average_agg`](#pudl.helpers.sum_and_weighted_average_agg)(→ pandas.DataFrame)         | Aggregate dataframe by summing and using weighted averages.                                                                                                                                                                                                       |
+| [`get_eia_ferc_acct_map`](#pudl.helpers.get_eia_ferc_acct_map)(→ pandas.DataFrame)                | Get map of EIA technology_description/pm codes <> ferc accounts.                                                                                                                                                                                                  |
+| [`dedupe_n_flatten_list_of_lists`](#pudl.helpers.dedupe_n_flatten_list_of_lists)(→ list)                   | Flatten a list of lists and remove duplicates.                                                                                                                                                                                                                    |
+| [`flatten_list`](#pudl.helpers.flatten_list)(→ collections.abc.Generator)                | Flatten an irregular (arbitrarily nested) list of lists (or sets).                                                                                                                                                                                                |
+| [`convert_df_to_excel_file`](#pudl.helpers.convert_df_to_excel_file)(→ pandas.ExcelFile)             | Convert a [`pandas.DataFrame`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) into a [`pandas.ExcelFile`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.ExcelFile.html#pandas.ExcelFile). |
+| [`get_asset_keys`](#pudl.helpers.get_asset_keys)(→ set[dagster.AssetKey])                  | Get a set of asset keys from a list of asset definitions.                                                                                                                                                                                                         |
+| [`get_asset_group_keys`](#pudl.helpers.get_asset_group_keys)(→ list[str])                        | Get a list of asset names in a given asset group.                                                                                                                                                                                                                 |
+| [`convert_col_to_bool`](#pudl.helpers.convert_col_to_bool)(→ pandas.DataFrame)                  | Turn a column into a boolean while preserving NA values.                                                                                                                                                                                                          |
+| [`fix_boolean_columns`](#pudl.helpers.fix_boolean_columns)(→ pandas.DataFrame)                  | Fix standard issues with boolean columns.                                                                                                                                                                                                                         |
+| [`scale_by_ownership`](#pudl.helpers.scale_by_ownership)(→ pandas.DataFrame)                   | Generate proportional data by ownership %s.                                                                                                                                                                                                                       |
+| [`assert_cols_areclose`](#pudl.helpers.assert_cols_areclose)(df, a_cols, b_cols, ...)            | Check if two column sets of a dataframe are close to each other.                                                                                                                                                                                                  |
+| [`diff_wide_tables`](#pudl.helpers.diff_wide_tables)(→ TableDiff)                            | Diff values across multiple iterations of the same wide table.                                                                                                                                                                                                    |
+| [`retry`](#pudl.helpers.retry)(func, retry_on[, max_retries, base_delay_sec])     | Retry a function with a short sleep between each try.                                                                                                                                                                                                             |
+| [`get_parquet_table_polars`](#pudl.helpers.get_parquet_table_polars)(→ polars.LazyFrame)             | Read a table from a parquet file and return as a polars LazyFrame.                                                                                                                                                                                                |
+| [`_fix_residual_dtypes`](#pudl.helpers._fix_residual_dtypes)(→ pandas.DataFrame)                 | Fix the two dtype gaps `dtype_backend="numpy_nullable"` can't get right.                                                                                                                                                                                          |
+| [`get_parquet_table`](#pudl.helpers.get_parquet_table)(...)                                   | Read a table from Parquet files with optional column selection and filtering.                                                                                                                                                                                     |
+| [`standardize_phone_column`](#pudl.helpers.standardize_phone_column)(→ pandas.DataFrame)             | Standardize phone numbers in the specified columns of the DataFrame.                                                                                                                                                                                              |
+| [`persist_table_as_parquet`](#pudl.helpers.persist_table_as_parquet)(→ ParquetData)                  | Write data from DataFrame or LazyFrame to disk as a parquet file.                                                                                                                                                                                                 |
+| [`lf_from_parquet`](#pudl.helpers.lf_from_parquet)(→ polars.LazyFrame)                      | Scan parquet file(s) from disk and return Polars LazyFrame.                                                                                                                                                                                                       |
+| [`df_from_parquet`](#pudl.helpers.df_from_parquet)(→ pandas.DataFrame)                      | Read data from a set of parquet files and return a pandas DataFrame.                                                                                                                                                                                              |
+| [`duckdb_connect`](#pudl.helpers.duckdb_connect)(→ duckdb.DuckDBPyConnection)              | Open a DuckDB connection with resource caps taken from the environment.                                                                                                                                                                                           |
+| [`duckdb_relation_from_parquet`](#pudl.helpers.duckdb_relation_from_parquet)(...)                        | Create a duckdb relation to read from parquet files.                                                                                                                                                                                                              |
+| [`_read_typed_csv_rejecting_narrowing`](#pudl.helpers._read_typed_csv_rejecting_narrowing)(...)                 | Read a CSV with explicit column types, without silently rounding bad data.                                                                                                                                                                                        |
+| [`duckdb_extract_zipped_csv`](#pudl.helpers.duckdb_extract_zipped_csv)(, column_types, dict[str, ...) | Extract data from zipped CSV page(s) in a data archive.                                                                                                                                                                                                           |
+| [`normalize_year_fragments`](#pudl.helpers.normalize_year_fragments)(→ pandas.Series)                | Normalize year fragments into 4-digit years using a rolling-century rule.                                                                                                                                                                                         |
+| [`make_changelog`](#pudl.helpers.make_changelog)(→ pandas.DataFrame)                       | Make a changelog table with unique instances of values over time.                                                                                                                                                                                                 |
+| [`parse_address`](#pudl.helpers.parse_address)(addr)                                      | Parse a U.S. address into components.                                                                                                                                                                                                                             |
+| [`listify`](#pudl.helpers.listify)(→ list[Any])                                     | Listify an input that is sometimes a list and sometimes not.                                                                                                                                                                                                      |
+| [`env_var_is_true`](#pudl.helpers.env_var_is_true)(→ bool)                                  | Check that environment variable is a 'truthy' value.                                                                                                                                                                                                              |
 
 ## Module Contents
 
@@ -111,7 +114,7 @@ otherwise we’ll get unrealistic heat rates.
 
 ### pudl.helpers.logger
 
-### pudl.helpers.run_git(args: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], cwd: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+### pudl.helpers.run_git(args: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], cwd: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Run a git subcommand and return its stdout, logging stderr on failure.
 
@@ -127,7 +130,7 @@ how to invoke git and report failures consistently.
 * **Raises:**
   [**subprocess.CalledProcessError**](https://docs.python.org/3/library/subprocess.html#subprocess.CalledProcessError) – If the command exits non-zero.
 
-### pudl.helpers.label_map(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), from_col: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'code', to_col: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'label', null_value: [str](https://docs.python.org/3/library/stdtypes.html#str) | pandas._libs.missing.NAType = pd.NA) → [collections.defaultdict](https://docs.python.org/3/library/collections.html#collections.defaultdict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str) | pandas._libs.missing.NAType]
+### pudl.helpers.label_map(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), from_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'code', to_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'label', null_value: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | pandas._libs.missing.NAType = pd.NA) → [collections.defaultdict](https://docs.python.org/3/library/collections.html#collections.defaultdict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str) | pandas._libs.missing.NAType]
 
 Build a mapping dictionary from two columns of a labeling / coding dataframe.
 
@@ -146,7 +149,7 @@ short codes into longer human-readable codes.
 * **Returns:**
   A mapping dictionary suitable for use with [`pandas.Series.map()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.map.html#pandas.Series.map).
 
-### pudl.helpers.multi_index_stack(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), idx_ish: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], pattern: [str](https://docs.python.org/3/library/stdtypes.html#str), data_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [str](https://docs.python.org/3/library/stdtypes.html#str), match_names: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], unstack_level: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], drop_zero_rows: [bool](https://docs.python.org/3/library/functions.html#bool) = False, expected_dropped_cols: [int](https://docs.python.org/3/library/functions.html#int) = 0) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.helpers.multi_index_stack(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), idx_ish: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], pattern: [str](https://docs.python.org/3/builtins/stdtypes.html#str), data_cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [str](https://docs.python.org/3/builtins/stdtypes.html#str), match_names: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], unstack_level: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], drop_zero_rows: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, expected_dropped_cols: [int](https://docs.python.org/3/builtins/functions.html#int) = 0) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Stack multiple data columns - create categorical columns and data columns.
 
@@ -193,7 +196,7 @@ record pertains.
   * **expected_dropped_cols** – The number of cols we expect to be dropping during the
     stack. Defaults to zero.
 
-### pudl.helpers.find_new_ferc1_strings(table: [str](https://docs.python.org/3/library/stdtypes.html#str), field: [str](https://docs.python.org/3/library/stdtypes.html#str), strdict: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]], ferc1_engine: sqlalchemy.Engine) → [set](https://docs.python.org/3/library/stdtypes.html#set)[[str](https://docs.python.org/3/library/stdtypes.html#str)]
+### pudl.helpers.find_new_ferc1_strings(table: [str](https://docs.python.org/3/builtins/stdtypes.html#str), field: [str](https://docs.python.org/3/builtins/stdtypes.html#str), strdict: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]], ferc1_engine: sqlalchemy.Engine) → [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]
 
 Identify as-of-yet uncategorized freeform strings in FERC Form 1.
 
@@ -207,7 +210,7 @@ Identify as-of-yet uncategorized freeform strings in FERC Form 1.
   Any string found in the searched table + field that was not part of any of
   categories enumerated in strdict.
 
-### pudl.helpers.find_foreign_key_errors(dfs: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]
+### pudl.helpers.find_foreign_key_errors(dfs: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]]
 
 Report foreign key violations from a dictionary of dataframes.
 
@@ -223,7 +226,7 @@ dataframes (keys of the dictionary) and the PUDL metadata structures.
   the table name, foreign key definition, and the elements of the
   dataframe that violated the foreign key constraint.
 
-### pudl.helpers.download_zip_url(url: [str](https://docs.python.org/3/library/stdtypes.html#str), save_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), chunk_size: [int](https://docs.python.org/3/library/functions.html#int) = 128, timeout: [float](https://docs.python.org/3/library/functions.html#float) = 9.05) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.helpers.download_zip_url(url: [str](https://docs.python.org/3/builtins/stdtypes.html#str), save_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), chunk_size: [int](https://docs.python.org/3/builtins/functions.html#int) = 128, timeout: [float](https://docs.python.org/3/builtins/functions.html#float) = 9.05) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Download and save a Zipfile locally.
 
@@ -238,25 +241,38 @@ Useful for acquiring and storing non-PUDL data locally.
 * **Returns:**
   None
 
-### pudl.helpers.add_fips_ids(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), geocodes: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), state_col: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'state', county_col: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = 'county') → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.helpers.add_fips_ids(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), geocodes: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), state_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'state', county_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = 'county') → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Add State and County FIPS IDs to a dataframe.
 
 To just add State FIPS IDs, make county_col = None.
 
-### pudl.helpers.add_state_id_fips(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), geocodes: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), state_col: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.helpers.add_state_id_fips(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), geocodes: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), state_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Add the State FIPS codes.
 
-### pudl.helpers.add_county_fips_id(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), geocodes: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), county_col: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+Records without a state are not assigned a state FIPS code.
+
+### pudl.helpers.add_county_fips_id(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), geocodes: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), county_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Add the County FIPS codes to a table with State FIPS codes.
 
-### pudl.helpers.clean_eia_counties(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), fixes: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), state_col: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'state', county_col: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'county') → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.helpers.clean_eia_counties(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), fixes: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), explode_lists_of_counties: [bool](https://docs.python.org/3/builtins/functions.html#bool), state_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'state', county_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'county') → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Replace non-standard county names with county names from US Census.
 
-### pudl.helpers.oob_to_nan(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], lb: [float](https://docs.python.org/3/library/functions.html#float) | [None](https://docs.python.org/3/library/constants.html#None) = None, ub: [float](https://docs.python.org/3/library/functions.html#float) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+* **Parameters:**
+  * **df** – table with counties that you’d like to clean up.
+  * **fixes** – table fixes of county names in EIA with the cleaned up name that should
+    match with the US Census names. This table must have with columns of:
+    [“state”, “eia_county”, “fips_county”]
+  * **explode_lists_of_counties** – Boolean for whether you want to convert any
+    instances of multiple counties separated by commas into multiple records
+    using `pandas.explode`.
+  * **state_col** – state column name - default is state.
+  * **county_col** – state column name - default is county.
+
+### pudl.helpers.oob_to_nan(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], lb: [float](https://docs.python.org/3/builtins/functions.html#float) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, ub: [float](https://docs.python.org/3/builtins/functions.html#float) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Set non-numeric values and those outside of a given range to NaN.
 
@@ -270,7 +286,7 @@ Set non-numeric values and those outside of a given range to NaN.
 * **Returns:**
   The altered DataFrame.
 
-### pudl.helpers.oob_to_nan_with_dependent_cols(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], dependent_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], lb: [float](https://docs.python.org/3/library/functions.html#float) | [None](https://docs.python.org/3/library/constants.html#None) = None, ub: [float](https://docs.python.org/3/library/functions.html#float) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.helpers.oob_to_nan_with_dependent_cols(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], dependent_cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], lb: [float](https://docs.python.org/3/builtins/functions.html#float) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, ub: [float](https://docs.python.org/3/builtins/functions.html#float) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Call [`oob_to_nan()`](#pudl.helpers.oob_to_nan) and additionally nullify any derived columns.
 
@@ -292,7 +308,7 @@ of the columns in `cols`.
 * **Returns:**
   The altered DataFrame.
 
-### pudl.helpers.prep_dir(dir_path: [str](https://docs.python.org/3/library/stdtypes.html#str) | [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), clobber: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)
+### pudl.helpers.prep_dir(dir_path: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), clobber: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)
 
 Create (or delete and recreate) a directory.
 
@@ -301,11 +317,11 @@ Create (or delete and recreate) a directory.
   * **clobber** – If True and dir_path exists, it will be removed and replaced with a
     new, empty directory.
 * **Raises:**
-  [**FileExistsError**](https://docs.python.org/3/library/exceptions.html#FileExistsError) – if a file or directory already exists at dir_path.
+  [**FileExistsError**](https://docs.python.org/3/builtins/exceptions.html#FileExistsError) – if a file or directory already exists at dir_path.
 * **Returns:**
   Path to the created directory.
 
-### pudl.helpers.is_doi(doi: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [bool](https://docs.python.org/3/library/functions.html#bool)
+### pudl.helpers.is_doi(doi: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [bool](https://docs.python.org/3/builtins/functions.html#bool)
 
 Determine if a string is a valid digital object identifier (DOI).
 
@@ -318,7 +334,7 @@ with the relevant authority.
 * **Returns:**
   True if doi matches the regex for valid DOIs, False otherwise.
 
-### pudl.helpers.convert_col_to_datetime(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), date_col_name: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.helpers.convert_col_to_datetime(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), date_col_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Convert a non-datetime column in a dataframe to a datetime64[s].
 
@@ -331,7 +347,7 @@ first so that integer years are formatted correctly.
 * **Returns:**
   Dataframe with the converted datetime column.
 
-### pudl.helpers.full_timeseries_date_merge(left: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), right: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), on: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], left_date_col: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'report_date', right_date_col: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'report_date', new_date_col: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'report_date', date_on: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] = ['year'], how: Literal['inner', 'outer', 'left', 'right', 'cross'] = 'inner', report_at_start: [bool](https://docs.python.org/3/library/functions.html#bool) = True, freq: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'MS', \*\*kwargs) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.helpers.full_timeseries_date_merge(left: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), right: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), on: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], left_date_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'report_date', right_date_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'report_date', new_date_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'report_date', date_on: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] = ['year'], how: Literal['inner', 'outer', 'left', 'right', 'cross'] = 'inner', report_at_start: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True, freq: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'MS', \*\*kwargs) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Merge dataframes with different date frequencies and expand to a full timeseries.
 
@@ -341,7 +357,7 @@ Arguments: see arguments for `date_merge` and `expand_timeseries`
 
 Check date_on list is valid and add \_temp_for_merge suffix.
 
-### pudl.helpers.date_merge(left: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), right: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), on: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], left_date_col: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'report_date', right_date_col: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'report_date', new_date_col: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'report_date', date_on: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [None](https://docs.python.org/3/library/constants.html#None) = None, how: Literal['inner', 'outer', 'left', 'right', 'cross'] = 'inner', report_at_start: [bool](https://docs.python.org/3/library/functions.html#bool) = True, \*\*kwargs) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.helpers.date_merge(left: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), right: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), on: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], left_date_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'report_date', right_date_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'report_date', new_date_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'report_date', date_on: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None, how: Literal['inner', 'outer', 'left', 'right', 'cross'] = 'inner', report_at_start: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True, \*\*kwargs) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Merge two dataframes that have different report date frequencies.
 
@@ -391,12 +407,12 @@ named according to the `new_date_col` parameter.
 * **Returns:**
   Merged contents of left and right input dataframes.
 * **Raises:**
-  * [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – if `left_date_col` or `right_date_col` columns are missing from their
+  * [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – if `left_date_col` or `right_date_col` columns are missing from their
     respective input dataframes.
-  * [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – if any of the labels referenced in `on` are missing from either
+  * [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – if any of the labels referenced in `on` are missing from either
     the left or right dataframes.
 
-### pudl.helpers.expand_timeseries(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), key_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], date_col: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'report_date', freq: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'MS', fill_through_freq: Literal['year', 'month', 'day'] = 'year') → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.helpers.expand_timeseries(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), key_cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], date_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'report_date', freq: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'MS', fill_through_freq: Literal['year', 'month', 'day'] = 'year') → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Expand a dataframe to a include a full time series at a given frequency.
 
@@ -420,9 +436,9 @@ specified by `key_cols`.
     the last reported year for each grouping of `key_cols`. Valid frequencies
     are only “year”, “month”, or “day”.
 * **Raises:**
-  [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – if `fill_through_freq` is not one of “year”, “month” or “day”.
+  [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – if `fill_through_freq` is not one of “year”, “month” or “day”.
 
-### pudl.helpers.organize_cols(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.helpers.organize_cols(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Organize columns into key ID & name fields & alphabetical data columns.
 
@@ -440,7 +456,7 @@ put all the rest of the data columns in alphabetical order.
 * **Return type:**
   [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
-### pudl.helpers.simplify_strings(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), columns: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], copy: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.helpers.simplify_strings(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), columns: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], copy: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Simplify the strings contained in a set of dataframe columns.
 
@@ -462,7 +478,7 @@ and keep an eye out for spooky data changes showing up in unexpected places.
 * **Returns:**
   The whole DataFrame that was passed in, with the string columns cleaned up.
 
-### pudl.helpers.cleanstrings_series(col: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), str_map: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]], unmapped: [str](https://docs.python.org/3/library/stdtypes.html#str) | pandas._libs.missing.NAType | [None](https://docs.python.org/3/library/constants.html#None) = None, simplify: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
+### pudl.helpers.cleanstrings_series(col: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), str_map: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]], unmapped: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | pandas._libs.missing.NAType | [None](https://docs.python.org/3/builtins/constants.html#None) = None, simplify: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
 
 Clean up the strings in a single column/Series.
 
@@ -483,7 +499,7 @@ Clean up the strings in a single column/Series.
   The cleaned up Series / column, suitable for replacing the original messy column
   in a [`pandas.DataFrame`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame).
 
-### pudl.helpers.cleanstrings(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), columns: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], stringmaps: [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]]], unmapped: [str](https://docs.python.org/3/library/stdtypes.html#str) | pandas._libs.missing.NAType | [None](https://docs.python.org/3/library/constants.html#None) = None, simplify: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.helpers.cleanstrings(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), columns: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], stringmaps: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]]], unmapped: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | pandas._libs.missing.NAType | [None](https://docs.python.org/3/builtins/constants.html#None) = None, simplify: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Consolidate freeform strings in several dataframe columns.
 
@@ -515,7 +531,7 @@ the `pandas.DataFrame.pipe()` method in a chain.
 * **Returns:**
   The function returns a new DataFrame containing the cleaned strings.
 
-### pudl.helpers.fix_int_na(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), columns: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], float_na: [float](https://docs.python.org/3/library/functions.html#float) = np.nan, int_na: [int](https://docs.python.org/3/library/functions.html#int) = -1, str_na: [str](https://docs.python.org/3/library/stdtypes.html#str) = '') → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.helpers.fix_int_na(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), columns: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], float_na: [float](https://docs.python.org/3/builtins/functions.html#float) = np.nan, int_na: [int](https://docs.python.org/3/builtins/functions.html#int) = -1, str_na: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = '') → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Convert NA containing integer columns from float to string.
 
@@ -561,7 +577,7 @@ columns are then dropped.
 * **Returns:**
   A DataFrame in which the year/month fields have been converted into Date fields.
 
-### pudl.helpers.convert_to_date(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), date_col: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'report_date', year_col: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'report_year', month_col: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'report_month', day_col: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'report_day', month_na_value: [int](https://docs.python.org/3/library/functions.html#int) = 1, day_na_value: [int](https://docs.python.org/3/library/functions.html#int) = 1, copy: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.helpers.convert_to_date(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), date_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'report_date', year_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'report_year', month_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'report_month', day_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'report_day', month_na_value: [int](https://docs.python.org/3/builtins/functions.html#int) = 1, day_na_value: [int](https://docs.python.org/3/builtins/functions.html#int) = 1, copy: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Convert specified year, month or day columns into a datetime object.
 
@@ -588,7 +604,7 @@ and keep an eye out for spooky data changes showing up in unexpected places.
   A DataFrame in which the year, month, day columns values have been converted
   into datetime objects.
 
-### pudl.helpers.remove_leading_zeros_from_numeric_strings(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), col_name: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.helpers.remove_leading_zeros_from_numeric_strings(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), col_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Remove leading zeros frame column values that are numeric strings.
 
@@ -642,7 +658,7 @@ All column labels will be simplified by:
 * **Returns:**
   A dataframe with simplified column names.
 
-### pudl.helpers.drop_tables(engine: sqlalchemy.Engine, clobber: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.helpers.drop_tables(engine: sqlalchemy.Engine, clobber: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Drops all tables from a SQLite database.
 
@@ -655,11 +671,11 @@ drop all existing tables.
     database to be deleted.
   * **clobber** – Whether or not to allow a non-empty DB to be removed.
 * **Raises:**
-  [**AssertionError**](https://docs.python.org/3/library/exceptions.html#AssertionError) – if clobber is False and there are any tables in the database.
+  [**AssertionError**](https://docs.python.org/3/builtins/exceptions.html#AssertionError) – if clobber is False and there are any tables in the database.
 * **Returns:**
   None
 
-### pudl.helpers.merge_dicts(lods: [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[Any, Any]]) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Any, Any]
+### pudl.helpers.merge_dicts(lods: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[Any, Any]]) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[Any, Any]
 
 Merge multiple dictionaries together.
 
@@ -671,7 +687,7 @@ to key value pairs in latter dicts within the input list.
 * **Returns:**
   A single merged dictionary.
 
-### pudl.helpers.convert_cols_dtypes(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), data_source: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, name: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.helpers.convert_cols_dtypes(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), data_source: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, name: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Convert a PUDL dataframe’s columns to the correct data type.
 
@@ -697,7 +713,7 @@ direct conversion.
   Input dataframe, but with column types as specified by
   [`pudl.metadata.fields.FIELD_METADATA`](../metadata/fields/index.html.md#pudl.metadata.fields.FIELD_METADATA)
 
-### pudl.helpers.generate_rolling_avg(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), group_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], data_col: [str](https://docs.python.org/3/library/stdtypes.html#str), window: [int](https://docs.python.org/3/library/functions.html#int), \*\*kwargs) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.helpers.generate_rolling_avg(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), group_cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], data_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str), window: [int](https://docs.python.org/3/builtins/functions.html#int), \*\*kwargs) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Generate a rolling average.
 
@@ -714,7 +730,7 @@ rolling average and use this rolling average to impute missing values.
 * **Returns:**
   DataFrame with an additional rolling average column.
 
-### pudl.helpers.fillna_w_rolling_avg(df_og: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), group_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], data_col: [str](https://docs.python.org/3/library/stdtypes.html#str), window: [int](https://docs.python.org/3/library/functions.html#int) = 12, \*\*kwargs) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.helpers.fillna_w_rolling_avg(df_og: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), group_cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], data_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str), window: [int](https://docs.python.org/3/builtins/functions.html#int) = 12, \*\*kwargs) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Fill NA values with a rolling average.
 
@@ -732,14 +748,14 @@ Imputes null values from a dataframe using a rolling monthly average.
 * **Return type:**
   [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
-### pudl.helpers.groupby_agg_label_unique_source_or_mixed(x: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)) → [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.helpers.groupby_agg_label_unique_source_or_mixed(x: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Get either the unique source in a group or return mixed.
 
 Custom function for groupby.agg. Written specifically for
 aggregating records with fuel_cost_per_mmbtu_source.
 
-### pudl.helpers.count_records(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], new_count_col_name: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.helpers.count_records(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], new_count_col_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Count the number of unique records in group in a dataframe.
 
@@ -751,7 +767,7 @@ Count the number of unique records in group in a dataframe.
 * **Returns:**
   DataFrame containing only `cols` and `new_count_col_name`.
 
-### pudl.helpers.cleanstrings_snake(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.helpers.cleanstrings_snake(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Clean the strings in a columns in a dataframe with snake case.
 
@@ -759,7 +775,7 @@ Clean the strings in a columns in a dataframe with snake case.
   * **df** – original dataframe.
   * **cols** – list of columns in to apply snake case to.
 
-### pudl.helpers.zero_pad_numeric_string(col: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), n_digits: [int](https://docs.python.org/3/library/functions.html#int)) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
+### pudl.helpers.zero_pad_numeric_string(col: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), n_digits: [int](https://docs.python.org/3/builtins/functions.html#int)) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
 
 Clean up fixed-width leading zero padded numeric (e.g. ZIP, FIPS) codes.
 
@@ -794,7 +810,7 @@ If kwargs is {‘form;: ‘gas_distribution’, ‘years’: [2019, 2020]}, it w
 : {‘form’: ‘gas_distribution’, ‘years’: 2019}
   {‘form’: ‘gas_distribution’, ‘years’: 2020}
 
-### pudl.helpers.dedupe_on_category(dedup_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), base_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], category_name: [str](https://docs.python.org/3/library/stdtypes.html#str), sorter: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.helpers.dedupe_on_category(dedup_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), base_cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], category_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), sorter: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Deduplicate a df using a sorted category to retain preferred values.
 
@@ -809,7 +825,7 @@ dataframe is deduplicated.
 * **Returns:**
   The deduplicated dataframe.
 
-### pudl.helpers.dedupe_and_drop_nas(dedup_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), primary_key_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.helpers.dedupe_and_drop_nas(dedup_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), primary_key_cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Deduplicate a df by comparing primary key columns and dropping null rows.
 
@@ -822,7 +838,7 @@ than the primary keys, drop the null row.
 * **Returns:**
   The deduplicated dataframe.
 
-### pudl.helpers.drop_records_with_null_in_column(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), column: [str](https://docs.python.org/3/library/stdtypes.html#str), num_of_expected_nulls: [int](https://docs.python.org/3/library/functions.html#int)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.helpers.drop_records_with_null_in_column(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), column: [str](https://docs.python.org/3/builtins/stdtypes.html#str), num_of_expected_nulls: [int](https://docs.python.org/3/builtins/functions.html#int)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Drop a prescribed number of records with null values in a column.
 
@@ -831,10 +847,10 @@ Drop a prescribed number of records with null values in a column.
   * **column** – name of column with potential null values.
   * **num_of_expected_nulls** – the number of records with null values in the column
 * **Raises:**
-  [**AssertionError**](https://docs.python.org/3/library/exceptions.html#AssertionError) – If there are more nulls in the df then the
+  [**AssertionError**](https://docs.python.org/3/builtins/exceptions.html#AssertionError) – If there are more nulls in the df then the
   num_of_expected_nulls.
 
-### pudl.helpers.standardize_percentages_ratio(frac_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), mixed_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], years_to_standardize: [list](https://docs.python.org/3/library/stdtypes.html#list)[[int](https://docs.python.org/3/library/functions.html#int)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.helpers.standardize_percentages_ratio(frac_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), mixed_cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], years_to_standardize: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[int](https://docs.python.org/3/builtins/functions.html#int)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Standardize year-to-year changes in mixed percentage/ratio reporting in a column.
 
@@ -848,7 +864,7 @@ the years using 0-100 scales to 0-1 ratios/fractions.
 * **Returns:**
   The standardized dataframe.
 
-### pudl.helpers.calc_capacity_factor(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), freq: Literal['YS', 'MS'], min_cap_fact: [float](https://docs.python.org/3/library/functions.html#float) | [None](https://docs.python.org/3/library/constants.html#None) = None, max_cap_fact: [float](https://docs.python.org/3/library/functions.html#float) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.helpers.calc_capacity_factor(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), freq: Literal['YS', 'MS'], min_cap_fact: [float](https://docs.python.org/3/builtins/functions.html#float) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, max_cap_fact: [float](https://docs.python.org/3/builtins/functions.html#float) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Calculate capacity factor.
 
@@ -872,7 +888,7 @@ factor. Then records with capacity factors outside the range specified by
   Modified version of the input DataFrame with an additional `capacity_factor`
   column.
 
-### pudl.helpers.weighted_average(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), data_col: [str](https://docs.python.org/3/library/stdtypes.html#str), weight_col: [str](https://docs.python.org/3/library/stdtypes.html#str), by: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.helpers.weighted_average(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), data_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str), weight_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str), by: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Generate a weighted average.
 
@@ -885,7 +901,7 @@ Generate a weighted average.
 * **Returns:**
   A table with `by` columns as the index and the weighted `data_col`.
 
-### pudl.helpers.sum_and_weighted_average_agg(df_in: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), by: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], sum_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], wtavg_dict: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.helpers.sum_and_weighted_average_agg(df_in: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), by: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], sum_cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], wtavg_dict: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Aggregate dataframe by summing and using weighted averages.
 
@@ -921,7 +937,7 @@ Get map of EIA technology_description/pm codes <> ferc accounts.
 * **Return type:**
   [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
-### pudl.helpers.dedupe_n_flatten_list_of_lists(mega_list: [list](https://docs.python.org/3/library/stdtypes.html#list)) → [list](https://docs.python.org/3/library/stdtypes.html#list)
+### pudl.helpers.dedupe_n_flatten_list_of_lists(mega_list: [list](https://docs.python.org/3/builtins/stdtypes.html#list)) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)
 
 Flatten a list of lists and remove duplicates.
 
@@ -942,7 +958,7 @@ Convert a [`pandas.DataFrame`](https://pandas.pydata.org/pandas-docs/stable/refe
 * **Returns:**
   The contents of the input DataFrame, represented as an ExcelFile.
 
-### pudl.helpers.get_asset_keys(assets: [list](https://docs.python.org/3/library/stdtypes.html#list)[[dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)], exclude_asset_specs: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → [set](https://docs.python.org/3/library/stdtypes.html#set)[[dagster.AssetKey](https://docs.dagster.io/api/dagster/assets/#dagster.AssetKey)]
+### pudl.helpers.get_asset_keys(assets: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)], exclude_asset_specs: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True) → [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[dagster.AssetKey](https://dagster.io/docs/api/dagster/assets/#dagster.AssetKey)]
 
 Get a set of asset keys from a list of asset definitions.
 
@@ -953,7 +969,7 @@ Get a set of asset keys from a list of asset definitions.
 * **Returns:**
   A set of asset keys.
 
-### pudl.helpers.get_asset_group_keys(asset_group: [str](https://docs.python.org/3/library/stdtypes.html#str), all_assets: [list](https://docs.python.org/3/library/stdtypes.html#list)[[dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)]) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]
+### pudl.helpers.get_asset_group_keys(asset_group: [str](https://docs.python.org/3/builtins/stdtypes.html#str), all_assets: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)]) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]
 
 Get a list of asset names in a given asset group.
 
@@ -963,7 +979,7 @@ Get a list of asset names in a given asset group.
 * **Returns:**
   A list of asset names in the asset_group.
 
-### pudl.helpers.convert_col_to_bool(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), col_name: [str](https://docs.python.org/3/library/stdtypes.html#str), true_values: [list](https://docs.python.org/3/library/stdtypes.html#list), false_values: [list](https://docs.python.org/3/library/stdtypes.html#list)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.helpers.convert_col_to_bool(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), col_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), true_values: [list](https://docs.python.org/3/builtins/stdtypes.html#list), false_values: [list](https://docs.python.org/3/builtins/stdtypes.html#list)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Turn a column into a boolean while preserving NA values.
 
@@ -978,16 +994,16 @@ you add it to one of the input true/false lists.
   * **false_values** – The list of values appearing in col_name that you want to be
     False.
 * **Raises:**
-  * [**AssertionError**](https://docs.python.org/3/library/exceptions.html#AssertionError) – if there are non-NA values in col_name that aren’t specified in
+  * [**AssertionError**](https://docs.python.org/3/builtins/exceptions.html#AssertionError) – if there are non-NA values in col_name that aren’t specified in
     true_values or false_values.
-  * [**AssertionError**](https://docs.python.org/3/library/exceptions.html#AssertionError) – if there are values that appear in both true_values and
+  * [**AssertionError**](https://docs.python.org/3/builtins/exceptions.html#AssertionError) – if there are values that appear in both true_values and
     false_values.
 * **Returns:**
   The original dataframe with col_name as a boolean column.
 * **Return type:**
   pd.DataFrame
 
-### pudl.helpers.fix_boolean_columns(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), boolean_columns_to_fix: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], inplace: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.helpers.fix_boolean_columns(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), boolean_columns_to_fix: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], inplace: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Fix standard issues with boolean columns.
 
@@ -1006,7 +1022,7 @@ retaining a reference to the data will see the changes made here.
 
 Mirrors the `validate` literal accepted by [`pandas.DataFrame.merge()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.merge.html#pandas.DataFrame.merge).
 
-### pudl.helpers.scale_by_ownership(gens: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), own_eia860: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), scale_cols: [list](https://docs.python.org/3/library/stdtypes.html#list), validate: [MergeValidate](#pudl.helpers.MergeValidate) = '1:m') → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.helpers.scale_by_ownership(gens: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), own_eia860: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), scale_cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list), validate: [MergeValidate](#pudl.helpers.MergeValidate) = '1:m') → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Generate proportional data by ownership %s.
 
@@ -1038,12 +1054,10 @@ but assigning the `fraction_owned` to be 1 (i.e. 100%).
   * **gens** – table with records at the generator level and generator attributes
     to be scaled by ownership, must have columns `plant_id_eia`,
     `generator_id`, and `report_date`
-  * **own_eia860** – the `core_eia860__scd_ownership` table or the denormalized
-    [out_eia860_\_yearly_ownership](../../../data_dictionaries/pudl_db.html.md#out-eia860-yearly-ownership) table. If the denormalized table
-    is given and `gens` contains `utility_id_pudl` or
-    `utility_name_eia` columns, the owner’s PUDL utility ID and EIA
-    utility name are swapped in alongside the owner’s
-    `utility_id_eia`.
+  * **own_eia860** – the denormalized [out_eia860_\_yearly_ownership](../../../data_dictionaries/pudl_db.html.md#out-eia860-yearly-ownership) table. If
+    `gens` contains `utility_id_pudl` or `utility_name_eia` columns,
+    the owner’s PUDL utility ID and EIA utility name are swapped in
+    alongside the owner’s `utility_id_eia`.
   * **scale_cols** – a list of columns in the generator table to slice by ownership
     fraction
   * **validate** – how to validate merging the ownership table onto the
@@ -1058,7 +1072,7 @@ but assigning the `fraction_owned` to be 1 (i.e. 100%).
   the same 2-owner 200 MW generator as above, each owner will have a
   records with 200 MW).
 
-### pudl.helpers.assert_cols_areclose(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), a_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], b_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], mismatch_threshold: [float](https://docs.python.org/3/library/functions.html#float), message: [str](https://docs.python.org/3/library/stdtypes.html#str))
+### pudl.helpers.assert_cols_areclose(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), a_cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], b_cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], mismatch_threshold: [float](https://docs.python.org/3/builtins/functions.html#float), message: [str](https://docs.python.org/3/builtins/stdtypes.html#str))
 
 Check if two column sets of a dataframe are close to each other.
 
@@ -1080,7 +1094,7 @@ Represent a diff between two versions of the same table.
 
 #### new_df *: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)*
 
-### pudl.helpers.diff_wide_tables(primary_key: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[[str](https://docs.python.org/3/library/stdtypes.html#str)], old: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), new: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [TableDiff](#pudl.helpers.TableDiff)
+### pudl.helpers.diff_wide_tables(primary_key: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], old: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), new: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [TableDiff](#pudl.helpers.TableDiff)
 
 Diff values across multiple iterations of the same wide table.
 
@@ -1091,7 +1105,7 @@ won’t show which of the many values changed.
 So we melt the table based on some sort of primary key columns then diff
 the old and new values.
 
-### pudl.helpers.retry(func: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable), retry_on: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[type](../metadata/classes/index.html.md#pudl.metadata.classes.Field.type)[[BaseException](https://docs.python.org/3/library/exceptions.html#BaseException)], ...], max_retries=5, base_delay_sec=1, \*\*kwargs)
+### pudl.helpers.retry(func: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable), retry_on: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[type](../metadata/classes/index.html.md#pudl.metadata.classes.Field.type)[[BaseException](https://docs.python.org/3/builtins/exceptions.html#BaseException)], ...], max_retries=5, base_delay_sec=1, \*\*kwargs)
 
 Retry a function with a short sleep between each try.
 
@@ -1105,7 +1119,7 @@ seconds.
   * **kwargs** – keyword arguments to pass to the wrapped function. Pass non-kwargs as
     kwargs too.
 
-### pudl.helpers.get_parquet_table_polars(table_name: [str](https://docs.python.org/3/library/stdtypes.html#str), partitions: [dict](https://docs.python.org/3/library/stdtypes.html#dict) | [None](https://docs.python.org/3/library/constants.html#None) = None, paths: [pudl.workspace.setup.PudlPaths](../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None) → polars.LazyFrame
+### pudl.helpers.get_parquet_table_polars(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), partitions: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, paths: [pudl.workspace.setup.PudlPaths](../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → polars.LazyFrame
 
 Read a table from a parquet file and return as a polars LazyFrame.
 
@@ -1135,7 +1149,7 @@ Integer and datetime columns already come back from a
   Python `datetime.date` scalars, since pandas has no native nullable
   date-only dtype.
 
-### pudl.helpers.get_parquet_table(table_name: [str](https://docs.python.org/3/library/stdtypes.html#str), columns: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [None](https://docs.python.org/3/library/constants.html#None) = None, filters: [list](https://docs.python.org/3/library/stdtypes.html#list)[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str), Any]] | [list](https://docs.python.org/3/library/stdtypes.html#list)[[list](https://docs.python.org/3/library/stdtypes.html#list)[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, paths: [pudl.workspace.setup.PudlPaths](../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame)
+### pudl.helpers.get_parquet_table(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), columns: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None, filters: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]] | [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[list](https://docs.python.org/3/builtins/stdtypes.html#list)[[tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/builtins/constants.html#None) = None, paths: [pudl.workspace.setup.PudlPaths](../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame)
 
 Read a table from Parquet files with optional column selection and filtering.
 
@@ -1152,10 +1166,10 @@ filters for data subsetting.
 * **Returns:**
   DataFrame with the requested data, with PUDL schema validation applied.
 * **Raises:**
-  * [**FileNotFoundError**](https://docs.python.org/3/library/exceptions.html#FileNotFoundError) – If the Parquet file for the table doesn’t exist.
-  * [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – If the table_name is not a valid PUDL resource.
+  * [**FileNotFoundError**](https://docs.python.org/3/builtins/exceptions.html#FileNotFoundError) – If the Parquet file for the table doesn’t exist.
+  * [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – If the table_name is not a valid PUDL resource.
 
-### pudl.helpers.standardize_phone_column(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), columns: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.helpers.standardize_phone_column(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), columns: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Standardize phone numbers in the specified columns of the DataFrame.
 
@@ -1181,11 +1195,11 @@ Writing data to disk as parquet files enables the use of highly efficient
 processing/transforms with tools like Polars or duckdb. This class provides
 helpers for managing paths to parquet data on disk.
 
-#### table_name *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### table_name *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
 Name of the table corresponding to the parquet data.
 
-#### partitions *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]* *= None*
+#### partitions *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]*
 
 Optional dictionary of partition values indicating what data is being offloaded to disk.
 
@@ -1204,20 +1218,42 @@ Get path to directory for writing/reading parquet files.
 
 Get name of an individual parquet file corresponding to a single partition of data.
 
-### pudl.helpers.persist_table_as_parquet(table_data: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | polars.LazyFrame | [duckdb.DuckDBPyRelation](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyRelation), table_name: [str](https://docs.python.org/3/library/stdtypes.html#str), partitions: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any] | [None](https://docs.python.org/3/library/constants.html#None) = None, compression: Literal['zstd', 'snappy', 'gzip', 'brotli'] = 'zstd') → [ParquetData](#pudl.helpers.ParquetData)
+### pudl.helpers.persist_table_as_parquet(table_data: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | polars.LazyFrame | [duckdb.DuckDBPyRelation](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyRelation), table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), partitions: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any] | [None](https://docs.python.org/3/builtins/constants.html#None) = None, use_native_duckdb_writer: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, allow_enum_columns: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [ParquetData](#pudl.helpers.ParquetData)
 
 Write data from DataFrame or LazyFrame to disk as a parquet file.
 
 Offloading data to disk allows Polars and duckdb to perform highly efficient
 transforms.
 
+The file is compressed with [`pudl.PARQUET_COMPRESSION`](../index.html.md#pudl.PARQUET_COMPRESSION) at
+[`pudl.PARQUET_COMPRESSION_LEVEL`](../index.html.md#pudl.PARQUET_COMPRESSION_LEVEL).
+
 * **Parameters:**
   * **table_data** – Tabular data to write to disk.
   * **table_name** – Table name used to construct path to/name of parquet file.
   * **partitions** – Optional partition dimension values indicating the data to be
     written.
+  * **use_native_duckdb_writer** – Only used when `table_data` is a
+    `DuckDBPyRelation`. If `True`, use DuckDB’s own multi-threaded
+    `write_parquet()` instead of the default Arrow-based batch writer.
+    This is faster, but flattens any ENUM columns down to plain strings,
+    losing the dictionary/Categorical type that the default writer
+    preserves for consistency with PUDL’s pandas/Polars writers – only
+    set this when `table_data` is known not to contain ENUM columns
+    (e.g. it’s a raw-extraction relation with no metadata `Resource`
+    declaring an intended categorical type), or when that dtype loss is
+    acceptable (see `allow_enum_columns`).
+  * **allow_enum_columns** – Only used when `use_native_duckdb_writer` is
+    `True`. If `True`, skips the ENUM-column check above and writes
+    with the native writer regardless, flattening any ENUM column to a
+    plain string.
+* **Raises:**
+  * [**TypeError**](https://docs.python.org/3/builtins/exceptions.html#TypeError) – If `table_data` isn’t a `pd.DataFrame`, `pl.LazyFrame`, or
+    `duckdb.DuckDBPyRelation`.
+  * [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – If `use_native_duckdb_writer` is `True`, `table_data`
+    contains an ENUM column, and `allow_enum_columns` is `False`.
 
-### pudl.helpers.lf_from_parquet(parquet_data: [ParquetData](#pudl.helpers.ParquetData), use_all_partitions: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → polars.LazyFrame
+### pudl.helpers.lf_from_parquet(parquet_data: [ParquetData](#pudl.helpers.ParquetData), use_all_partitions: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → polars.LazyFrame
 
 Scan parquet file(s) from disk and return Polars LazyFrame.
 
@@ -1226,7 +1262,7 @@ Scan parquet file(s) from disk and return Polars LazyFrame.
   * **use_all_partitions** – If true read the entire directory of parquet files.
     Otherwise only read data from the partition specified in parquet_data.
 
-### pudl.helpers.df_from_parquet(parquet_data: [ParquetData](#pudl.helpers.ParquetData), use_all_partitions: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.helpers.df_from_parquet(parquet_data: [ParquetData](#pudl.helpers.ParquetData), use_all_partitions: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Read data from a set of parquet files and return a pandas DataFrame.
 
@@ -1235,7 +1271,25 @@ Read data from a set of parquet files and return a pandas DataFrame.
   * **use_all_partitions** – If true read the entire directory of parquet files.
     Otherwise only read data from the partition specified in parquet_data.
 
-### pudl.helpers.duckdb_relation_from_parquet(parquet_data: [ParquetData](#pudl.helpers.ParquetData), use_all_partitions: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[duckdb.DuckDBPyRelation](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyRelation), [duckdb.DuckDBPyConnection](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyConnection)]
+### pudl.helpers.duckdb_connect(\*\*overrides: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [duckdb.DuckDBPyConnection](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyConnection)
+
+Open a DuckDB connection with resource caps taken from the environment.
+
+A DuckDB connection defaults to using every CPU core and ~80% of system RAM.
+That is fine for one connection at a time, but PUDL runs many DuckDB-backed
+assets concurrently – most acutely the FERC EQR partition backfill, where a
+dozen-plus partition runs each open their own connection. Left at the
+defaults, N connections collectively oversubscribe the machine’s cores and
+can exhaust its memory (a load average in the hundreds, then an OOM).
+
+`PUDL_DUCKDB_THREADS`, `PUDL_DUCKDB_MEMORY_LIMIT` (e.g. `"6GB"`), and
+`PUDL_DUCKDB_TEMP_DIRECTORY` cap a single connection. When
+`memory_limit` is hit DuckDB spills to `temp_directory` rather than
+failing, so a too-low limit only slows a run down. All three are unset
+outside the batch jobs, so local and CI single-asset runs keep DuckDB’s
+defaults. Explicit *overrides* win over the environment.
+
+### pudl.helpers.duckdb_relation_from_parquet(parquet_data: [ParquetData](#pudl.helpers.ParquetData), use_all_partitions: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [collections.abc.Generator](https://docs.python.org/3/library/collections.abc.html#collections.abc.Generator)[[tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[duckdb.DuckDBPyRelation](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyRelation), [duckdb.DuckDBPyConnection](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyConnection)]]
 
 Create a duckdb relation to read from parquet files.
 
@@ -1247,7 +1301,36 @@ connection open while the relation is in use.
   * **use_all_partitions** – If true read the entire directory of parquet files.
     Otherwise only read data from the partition specified in parquet_data.
 
-### pudl.helpers.duckdb_extract_zipped_csv(dataset: [str](https://docs.python.org/3/library/stdtypes.html#str), partitions: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any], pages: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], datasore, zip_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path) = Path()) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), [ParquetData](#pudl.helpers.ParquetData)]
+### pudl.helpers.\_DUCKDB_INTEGER_TYPES
+
+### pudl.helpers.\_read_typed_csv_rejecting_narrowing(conn: [duckdb.DuckDBPyConnection](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyConnection), csv_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), column_types: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [duckdb.DuckDBPyRelation](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyRelation)
+
+Read a CSV with explicit column types, without silently rounding bad data.
+
+DuckDB’s CSV reader raises a `ConversionException` when a value can’t be
+converted to its declared type at all (e.g. text into `DOUBLE`), so those
+mismatches already fail loudly. But for integer types it silently rounds
+fractional values (e.g. `"10.5"` -> `11`) instead of erroring, which would
+let a caller’s incorrect `column_types` mapping corrupt data unnoticed.
+
+To catch that case, integer-typed columns are read as `DOUBLE` first, then cast
+down to the declared integer type. The check for a nonzero fractional part is
+fused into that same cast expression via DuckDB’s `error()` function, so a bad
+value raises during the same scan that produces the output, rather than requiring
+a separate pass that would re-read the CSV from disk a second time.
+
+* **Parameters:**
+  * **conn** – Open DuckDB connection to read with.
+  * **csv_path** – Path to the CSV file on disk.
+  * **column_types** – Mapping of cleaned column name to DuckDB type, as returned by
+    a `duckdb_extract_zipped_csv` `column_types` callable.
+* **Returns:**
+  A DuckDB relation with the given column names and types.
+* **Raises:**
+  [**duckdb.InvalidInputException**](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.InvalidInputException) – If an integer-typed column contains a
+  fractional value that DuckDB would otherwise silently round.
+
+### pudl.helpers.duckdb_extract_zipped_csv(dataset: [str](https://docs.python.org/3/builtins/stdtypes.html#str), partitions: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any], pages: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], datastore, zip_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path) = Path(), column_types: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]], [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]] | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [collections.abc.Generator](https://docs.python.org/3/library/collections.abc.html#collections.abc.Generator)[[tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [duckdb.DuckDBPyRelation](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyRelation)]]
 
 Extract data from zipped CSV page(s) in a data archive.
 
@@ -1258,15 +1341,27 @@ using duckdb. This function is a generator, which will yield a duckdb relation f
 each CSV file within a zipfile, allowing the caller to perform transforms using
 the relation before writing to disk with the `offload_table` function.
 
+`column_types`, when provided, allows the caller to avoid using DuckDB’s CSV
+column type auto-detection entirely in favor of providing an explicit schema. This
+is useful because header/type sniffing is the dominant cost for very wide CSVs. When
+omitted, the function falls back to DuckDB’s normal auto-detection.
+
 * **Parameters:**
   * **dataset** – Name of dataset (required to get archive from datastore).
-  * **partition** – Partitions of resource to extract data from.
+  * **partitions** – Partitions of resource to extract data from.
   * **pages** – List of csv files to extract from archive.
   * **datastore** – Instance of PUDL datastore to get raw data.
   * **zip_path** – Base path within zipfile that points to where CSV files are stored.
-    If not explicitly set, assume CSV files are at the top level of the zipfile.
+    If not explicitly set, assume CSV files are at the top level of the
+    zipfile.
+  * **column_types** – Optional callable that takes the raw header row (as read
+    directly from the CSV, before any cleaning) and returns a mapping of
+    cleaned column name to DuckDB type.
+* **Yields:**
+  A `(page, relation)` tuple for each requested page, where `page` is the
+  CSV filename and `relation` is a DuckDB relation over its contents.
 
-### pudl.helpers.normalize_year_fragments(raw_year: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), min_valid_year: [int](https://docs.python.org/3/library/functions.html#int), max_valid_year: [int](https://docs.python.org/3/library/functions.html#int), base_century: [int](https://docs.python.org/3/library/functions.html#int) = 2000) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
+### pudl.helpers.normalize_year_fragments(raw_year: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), min_valid_year: [int](https://docs.python.org/3/builtins/functions.html#int), max_valid_year: [int](https://docs.python.org/3/builtins/functions.html#int), base_century: [int](https://docs.python.org/3/builtins/functions.html#int) = 2000) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
 
 Normalize year fragments into 4-digit years using a rolling-century rule.
 
@@ -1292,22 +1387,30 @@ For example, with `base_century=2000` and `max_valid_year=2026`:
 * **Returns:**
   A Series of integer-like 4-digit year values.
 * **Raises:**
-  [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – If the valid year range is too wide to apply the rolling-century
+  [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – If the valid year range is too wide to apply the rolling-century
   logic, or if any resulting year falls outside the valid range.
 
-### pudl.helpers.make_changelog(df_all: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), idx: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)])
+### pudl.helpers.make_changelog(df_all: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), idx: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
-Make a changelog table with unique instances of values over start report and max report date.
+Make a changelog table with unique instances of values over time.
 
-### pudl.helpers.parse_address(addr: [str](https://docs.python.org/3/library/stdtypes.html#str))
+Each record is valid from its `report_date` until the `report_date` of the next
+distinct record in the same series. A series is a unique combination of the
+non-date `idx` columns and, if present, `column_name` (as in the “tall” forensics
+tables, where many different columns and values share one entity ID). Records
+reported on the entity’s last report date are valid for one more month.
+
+The output is fully sorted, so it doesn’t depend on the order of the input rows.
+
+### pudl.helpers.parse_address(addr: [str](https://docs.python.org/3/builtins/stdtypes.html#str))
 
 Parse a U.S. address into components.
 
-### pudl.helpers.listify(x: Any) → [list](https://docs.python.org/3/library/stdtypes.html#list)[Any]
+### pudl.helpers.listify(x: Any) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[Any]
 
 Listify an input that is sometimes a list and sometimes not.
 
-### pudl.helpers.env_var_is_true(env_var: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [bool](https://docs.python.org/3/library/functions.html#bool)
+### pudl.helpers.env_var_is_true(env_var: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [bool](https://docs.python.org/3/builtins/functions.html#bool)
 
 Check that environment variable is a ‘truthy’ value.
 

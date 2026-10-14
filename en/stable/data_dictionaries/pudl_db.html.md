@@ -269,7 +269,7 @@ df <- read_parquet(
 | functional_status_code_census | string     |             | The functional status (FUNCSTAT) code defines the current functional status of a geographic entity. These codes can be found in the TIGER/Line products, gazetteer files, and other products. |
 | geometry                      | geometry   |             | Geospatial representation of the feature.                                                                                                                                                     |
 | internal_point_latitude       | number     | degrees     | Internal point latitude in decimal degrees.                                                                                                                                                   |
-| internal_point_longitude      | number     | degrees     | Internal point longitude in decimal degrees.                                                                                                                                                  |
+| internal_point_longitude      | number     | degrees     | Internal point longitude in decimal degrees. Note that some Aleutian islands are west of the 180th meridian, and thus have positive longitudes.                                               |
 | land_area                     | number     | meter\*\*2  | Land area in square meters.                                                                                                                                                                   |
 | shape_area                    | number     | degree\*\*2 | Area of the feature in square degrees.                                                                                                                                                        |
 | shape_length                  | number     | degrees     | Length of the feature’s perimeter in degrees.                                                                                                                                                 |
@@ -349,204 +349,204 @@ df <- read_parquet(
 
 ### Columns
 
-| **Field Name**           | **Type**   | **Unit**    | **Description**                                                                                                                     |
-|--------------------------|------------|-------------|-------------------------------------------------------------------------------------------------------------------------------------|
-| dp0010001                | integer    |             | DPSF1. Sex and age - Total population                                                                                               |
-| dp0010002                | integer    |             | DPSF1. Sex and age - Total population under 5 years                                                                                 |
-| dp0010003                | integer    |             | DPSF1. Sex and age - Total population 5 to 9 years                                                                                  |
-| dp0010004                | integer    |             | DPSF1. Sex and age - Total population 10 to 14 years                                                                                |
-| dp0010005                | integer    |             | DPSF1. Sex and age - Total population 15 to 19 years                                                                                |
-| dp0010006                | integer    |             | DPSF1. Sex and age - Total population 20 to 24 years                                                                                |
-| dp0010007                | integer    |             | DPSF1. Sex and age - Total population 25 to 29 years                                                                                |
-| dp0010008                | integer    |             | DPSF1. Sex and age - Total population 30 to 34 years                                                                                |
-| dp0010009                | integer    |             | DPSF1. Sex and age - Total population 35 to 39 years                                                                                |
-| dp0010010                | integer    |             | DPSF1. Sex and age - Total population 40 to 44 years                                                                                |
-| dp0010011                | integer    |             | DPSF1. Sex and age - Total population 45 to 49 years                                                                                |
-| dp0010012                | integer    |             | DPSF1. Sex and age - Total population 50 to 54 years                                                                                |
-| dp0010013                | integer    |             | DPSF1. Sex and age - Total population 55 to 59 years                                                                                |
-| dp0010014                | integer    |             | DPSF1. Sex and age - Total population 60 to 64 years                                                                                |
-| dp0010015                | integer    |             | DPSF1. Sex and age - Total population 65 to 69 years                                                                                |
-| dp0010016                | integer    |             | DPSF1. Sex and age - Total population 70 to 74 years                                                                                |
-| dp0010017                | integer    |             | DPSF1. Sex and age - Total population 75 to 79 years                                                                                |
-| dp0010018                | integer    |             | DPSF1. Sex and age - Total population 80 to 84 years                                                                                |
-| dp0010019                | integer    |             | DPSF1. Sex and age - Total population 85 years and over                                                                             |
-| dp0010020                | integer    |             | DPSF1. Sex and age - Male population total                                                                                          |
-| dp0010021                | integer    |             | DPSF1. Sex and age - Male population under 5 years                                                                                  |
-| dp0010022                | integer    |             | DPSF1. Sex and age - Male population 5 to 9 years                                                                                   |
-| dp0010023                | integer    |             | DPSF1. Sex and age - Male population 10 to 14 years                                                                                 |
-| dp0010024                | integer    |             | DPSF1. Sex and age - Male population 15 to 19 years                                                                                 |
-| dp0010025                | integer    |             | DPSF1. Sex and age - Male population 20 to 24 years                                                                                 |
-| dp0010026                | integer    |             | DPSF1. Sex and age - Male population 25 to 29 years                                                                                 |
-| dp0010027                | integer    |             | DPSF1. Sex and age - Male population 30 to 34 years                                                                                 |
-| dp0010028                | integer    |             | DPSF1. Sex and age - Male population 35 to 39 years                                                                                 |
-| dp0010029                | integer    |             | DPSF1. Sex and age - Male population 40 to 44 years                                                                                 |
-| dp0010030                | integer    |             | DPSF1. Sex and age - Male population 45 to 49 years                                                                                 |
-| dp0010031                | integer    |             | DPSF1. Sex and age - Male population 50 to 54 years                                                                                 |
-| dp0010032                | integer    |             | DPSF1. Sex and age - Male population 55 to 59 years                                                                                 |
-| dp0010033                | integer    |             | DPSF1. Sex and age - Male population 60 to 64 years                                                                                 |
-| dp0010034                | integer    |             | DPSF1. Sex and age - Male population 65 to 69 years                                                                                 |
-| dp0010035                | integer    |             | DPSF1. Sex and age - Male population 70 to 74 years                                                                                 |
-| dp0010036                | integer    |             | DPSF1. Sex and age - Male population 75 to 79 years                                                                                 |
-| dp0010037                | integer    |             | DPSF1. Sex and age - Male population 80 to 84 years                                                                                 |
-| dp0010038                | integer    |             | DPSF1. Sex and age - Male population 85 years and over                                                                              |
-| dp0010039                | integer    |             | DPSF1. Sex and age - Female population total                                                                                        |
-| dp0010040                | integer    |             | DPSF1. Sex and age - Female population under 5 years                                                                                |
-| dp0010041                | integer    |             | DPSF1. Sex and age - Female population 5 to 9 years                                                                                 |
-| dp0010042                | integer    |             | DPSF1. Sex and age - Female population 10 to 14 years                                                                               |
-| dp0010043                | integer    |             | DPSF1. Sex and age - Female population 15 to 19 years                                                                               |
-| dp0010044                | integer    |             | DPSF1. Sex and age - Female population 20 to 24 years                                                                               |
-| dp0010045                | integer    |             | DPSF1. Sex and age - Female population 25 to 29 years                                                                               |
-| dp0010046                | integer    |             | DPSF1. Sex and age - Female population 30 to 34 years                                                                               |
-| dp0010047                | integer    |             | DPSF1. Sex and age - Female population 35 to 39 years                                                                               |
-| dp0010048                | integer    |             | DPSF1. Sex and age - Female population 40 to 44 years                                                                               |
-| dp0010049                | integer    |             | DPSF1. Sex and age - Female population 45 to 49 years                                                                               |
-| dp0010050                | integer    |             | DPSF1. Sex and age - Female population 50 to 54 years                                                                               |
-| dp0010051                | integer    |             | DPSF1. Sex and age - Female population 55 to 59 years                                                                               |
-| dp0010052                | integer    |             | DPSF1. Sex and age - Female population 60 to 64 years                                                                               |
-| dp0010053                | integer    |             | DPSF1. Sex and age - Female population 65 to 69 years                                                                               |
-| dp0010054                | integer    |             | DPSF1. Sex and age - Female population 70 to 74 years                                                                               |
-| dp0010055                | integer    |             | DPSF1. Sex and age - Female population 75 to 79 years                                                                               |
-| dp0010056                | integer    |             | DPSF1. Sex and age - Female population 80 to 84 years                                                                               |
-| dp0010057                | integer    |             | DPSF1. Sex and age - Female population 85 years and over                                                                            |
-| dp0020001                | number     |             | DPSF2. Median age by sex - Both sexes                                                                                               |
-| dp0020002                | number     |             | DPSF2. Median age by sex - Male                                                                                                     |
-| dp0020003                | number     |             | DPSF2. Median age by sex - Female                                                                                                   |
-| dp0030001                | integer    |             | DPSF3. Sex for population 16 years and over - Total                                                                                 |
-| dp0030002                | integer    |             | DPSF3. Sex for population 16 years and over - Male                                                                                  |
-| dp0030003                | integer    |             | DPSF3. Sex for population 16 years and over - Female                                                                                |
-| dp0040001                | integer    |             | DPSF4. Sex for population 18 years and over - Total                                                                                 |
-| dp0040002                | integer    |             | DPSF4. Sex for population 18 years and over - Male                                                                                  |
-| dp0040003                | integer    |             | DPSF4. Sex for population 18 years and over - Female                                                                                |
-| dp0050001                | integer    |             | DPSF5. Sex for population 21 years and over - Total                                                                                 |
-| dp0050002                | integer    |             | DPSF5. Sex for population 21 years and over - Male                                                                                  |
-| dp0050003                | integer    |             | DPSF5. Sex for population 21 years and over - Female                                                                                |
-| dp0060001                | integer    |             | DPSF6. Sex for population 62 years and over - Total                                                                                 |
-| dp0060002                | integer    |             | DPSF6. Sex for population 62 years and over - Male                                                                                  |
-| dp0060003                | integer    |             | DPSF6. Sex for population 62 years and over - Female                                                                                |
-| dp0070001                | integer    |             | DPSF7. Sex for population 65 years and over - Total                                                                                 |
-| dp0070002                | integer    |             | DPSF7. Sex for population 65 years and over - Male                                                                                  |
-| dp0070003                | integer    |             | DPSF7. Sex for population 65 years and over - Female                                                                                |
-| dp0080001                | integer    |             | DPSF8. Race - Total population                                                                                                      |
-| dp0080002                | integer    |             | DPSF8. Race - Population of one race                                                                                                |
-| dp0080003                | integer    |             | DPSF8. Race - White                                                                                                                 |
-| dp0080004                | integer    |             | DPSF8. Race - Black or African American                                                                                             |
-| dp0080005                | integer    |             | DPSF8. Race - American Indian and Alaska Native                                                                                     |
-| dp0080006                | integer    |             | DPSF8. Race - Asian total                                                                                                           |
-| dp0080007                | integer    |             | DPSF8. Race - Asian Indian                                                                                                          |
-| dp0080008                | integer    |             | DPSF8. Race - Chinese                                                                                                               |
-| dp0080009                | integer    |             | DPSF8. Race - Filipino                                                                                                              |
-| dp0080010                | integer    |             | DPSF8. Race - Japanese                                                                                                              |
-| dp0080011                | integer    |             | DPSF8. Race - Korean                                                                                                                |
-| dp0080012                | integer    |             | DPSF8. Race - Vietnamese                                                                                                            |
-| dp0080013                | integer    |             | DPSF8. Race - Other Asian                                                                                                           |
-| dp0080014                | integer    |             | DPSF8. Race - Native Hawaiian and Other Pacific Islander total                                                                      |
-| dp0080015                | integer    |             | DPSF8. Race - Native Hawaiian                                                                                                       |
-| dp0080016                | integer    |             | DPSF8. Race - Guamanian or Chamorro                                                                                                 |
-| dp0080017                | integer    |             | DPSF8. Race - Samoan                                                                                                                |
-| dp0080018                | integer    |             | DPSF8. Race - Other Pacific Islander                                                                                                |
-| dp0080019                | integer    |             | DPSF8. Race - Some Other Race                                                                                                       |
-| dp0080020                | integer    |             | DPSF8. Race - Population of Two or More Races                                                                                       |
-| dp0080021                | integer    |             | DPSF8. Race - White; American Indian and Alaska Native                                                                              |
-| dp0080022                | integer    |             | DPSF8. Race - White; Asian                                                                                                          |
-| dp0080023                | integer    |             | DPSF8. Race - White; Black or African American                                                                                      |
-| dp0080024                | integer    |             | DPSF8. Race - White; Some Other Race                                                                                                |
-| dp0090001                | integer    |             | DPSF9. Race (total races tallied) - White alone or in combination with one or more other races                                      |
-| dp0090002                | integer    |             | DPSF9. Race (total races tallied) - Black or African American alone or in combination with one or more other races                  |
-| dp0090003                | integer    |             | DPSF9. Race (total races tallied) - American Indian and Alaska Native alone or in combination with one or more other races          |
-| dp0090004                | integer    |             | DPSF9. Race (total races tallied) - Asian alone or in combination with one or more other races                                      |
-| dp0090005                | integer    |             | DPSF9. Race (total races tallied) - Native Hawaiian and Other Pacific Islander alone or in combination with one or more other races |
-| dp0090006                | integer    |             | DPSF9. Race (total races tallied) - Some Other Race alone or in combination with one or more other races                            |
-| dp0100001                | integer    |             | DPSF10. Hispanic or Latino by specific origin - Total population                                                                    |
-| dp0100002                | integer    |             | DPSF10. Hispanic or Latino by specific origin - Hispanic or Latino (of any race)                                                    |
-| dp0100003                | integer    |             | DPSF10. Hispanic or Latino by specific origin - Mexican                                                                             |
-| dp0100004                | integer    |             | DPSF10. Hispanic or Latino by specific origin - Puerto Rican                                                                        |
-| dp0100005                | integer    |             | DPSF10. Hispanic or Latino by specific origin - Cuban                                                                               |
-| dp0100006                | integer    |             | DPSF10. Hispanic or Latino by specific origin - Other Hispanic or Latino                                                            |
-| dp0100007                | integer    |             | DPSF10. Hispanic or Latino by specific origin - Not Hispanic or Latino                                                              |
-| dp0110001                | integer    |             | DPSF11. Hispanic or Latino and race - Total population                                                                              |
-| dp0110002                | integer    |             | DPSF11. Hispanic or Latino and race - Hispanic or Latino total                                                                      |
-| dp0110003                | integer    |             | DPSF11. Hispanic or Latino and race - Hispanic or Latino: White alone                                                               |
-| dp0110004                | integer    |             | DPSF11. Hispanic or Latino and race - Hispanic or Latino: Black or African American alone                                           |
-| dp0110005                | integer    |             | DPSF11. Hispanic or Latino and race - Hispanic or Latino: American Indian and Alaska Native alone                                   |
-| dp0110006                | integer    |             | DPSF11. Hispanic or Latino and race - Hispanic or Latino: Asian alone                                                               |
-| dp0110007                | integer    |             | DPSF11. Hispanic or Latino and race - Hispanic or Latino: Native Hawaiian and Other Pacific Islander alone                          |
-| dp0110008                | integer    |             | DPSF11. Hispanic or Latino and race - Hispanic or Latino: Some Other Race alone                                                     |
-| dp0110009                | integer    |             | DPSF11. Hispanic or Latino and race - Hispanic or Latino: Two or More Races                                                         |
-| dp0110010                | integer    |             | DPSF11. Hispanic or Latino and race - Not Hispanic or Latino total                                                                  |
-| dp0110011                | integer    |             | DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: White alone                                                           |
-| dp0110012                | integer    |             | DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: Black or African American alone                                       |
-| dp0110013                | integer    |             | DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: American Indian and Alaska Native alone                               |
-| dp0110014                | integer    |             | DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: Asian alone                                                           |
-| dp0110015                | integer    |             | DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: Native Hawaiian and Other Pacific Islander alone                      |
-| dp0110016                | integer    |             | DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: Some Other Race alone                                                 |
-| dp0110017                | integer    |             | DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: Two or More Races                                                     |
-| dp0120001                | integer    |             | DPSF12. Relationship - Total population                                                                                             |
-| dp0120002                | integer    |             | DPSF12. Relationship - In households                                                                                                |
-| dp0120003                | integer    |             | DPSF12. Relationship - Householder                                                                                                  |
-| dp0120004                | integer    |             | DPSF12. Relationship - Spouse                                                                                                       |
-| dp0120005                | integer    |             | DPSF12. Relationship - Child                                                                                                        |
-| dp0120006                | integer    |             | DPSF12. Relationship - Own child under 18 years                                                                                     |
-| dp0120007                | integer    |             | DPSF12. Relationship - Other relatives                                                                                              |
-| dp0120008                | integer    |             | DPSF12. Relationship - Other relatives under 18 years                                                                               |
-| dp0120009                | integer    |             | DPSF12. Relationship - Other relatives 65 years and over                                                                            |
-| dp0120010                | integer    |             | DPSF12. Relationship - Nonrelatives                                                                                                 |
-| dp0120011                | integer    |             | DPSF12. Relationship - Nonrelatives under 18 years                                                                                  |
-| dp0120012                | integer    |             | DPSF12. Relationship - Nonrelatives 65 years and over                                                                               |
-| dp0120013                | integer    |             | DPSF12. Relationship - Unmarried partner                                                                                            |
-| dp0120014                | integer    |             | DPSF12. Relationship - In group quarters                                                                                            |
-| dp0120015                | integer    |             | DPSF12. Relationship - Institutionalized population                                                                                 |
-| dp0120016                | integer    |             | DPSF12. Relationship - Institutionalized population: Male                                                                           |
-| dp0120017                | integer    |             | DPSF12. Relationship - Institutionalized population: Female                                                                         |
-| dp0120018                | integer    |             | DPSF12. Relationship - Noninstitutionalized population                                                                              |
-| dp0120019                | integer    |             | DPSF12. Relationship - Noninstitutionalized population: Male                                                                        |
-| dp0120020                | integer    |             | DPSF12. Relationship - Noninstitutionalized population: Female                                                                      |
-| dp0130001                | integer    |             | DPSF13. Households by type - Total households                                                                                       |
-| dp0130002                | integer    |             | DPSF13. Households by type - Family households (families)                                                                           |
-| dp0130003                | integer    |             | DPSF13. Households by type - Family households with own children under 18 years                                                     |
-| dp0130004                | integer    |             | DPSF13. Households by type - Husband-wife family                                                                                    |
-| dp0130005                | integer    |             | DPSF13. Households by type - Husband-wife family with own children under 18 years                                                   |
-| dp0130006                | integer    |             | DPSF13. Households by type - Male householder, no wife present                                                                      |
-| dp0130007                | integer    |             | DPSF13. Households by type - Male householder, no wife present, with own children under 18 years                                    |
-| dp0130008                | integer    |             | DPSF13. Households by type - Female householder, no husband present                                                                 |
-| dp0130009                | integer    |             | DPSF13. Households by type - Female householder, no husband present, with own children under 18 years                               |
-| dp0130010                | integer    |             | DPSF13. Households by type - Nonfamily households                                                                                   |
-| dp0130011                | integer    |             | DPSF13. Households by type - Householder living alone                                                                               |
-| dp0130012                | integer    |             | DPSF13. Households by type - Householder living alone: Male                                                                         |
-| dp0130013                | integer    |             | DPSF13. Households by type - Householder living alone: Male 65 years and over                                                       |
-| dp0130014                | integer    |             | DPSF13. Households by type - Householder living alone: Female                                                                       |
-| dp0130015                | integer    |             | DPSF13. Households by type - Householder living alone: Female 65 years and over                                                     |
-| dp0140001                | integer    |             | DPSF14. Households with individuals under 18 years - Total                                                                          |
-| dp0150001                | integer    |             | DPSF15. Households with individuals 65 years and over - Total                                                                       |
-| dp0160001                | number     |             | DPSF16. Average household size - Average household size                                                                             |
-| dp0170001                | number     |             | DPSF17. Average family size - Average family size                                                                                   |
-| dp0180001                | integer    |             | DPSF18. Housing occupancy - Total housing units                                                                                     |
-| dp0180002                | integer    |             | DPSF18. Housing occupancy - Occupied housing units                                                                                  |
-| dp0180003                | integer    |             | DPSF18. Housing occupancy - Vacant housing units                                                                                    |
-| dp0180004                | integer    |             | DPSF18. Housing occupancy - Vacant housing units for rent                                                                           |
-| dp0180005                | integer    |             | DPSF18. Housing occupancy - Vacant housing units rented, not occupied                                                               |
-| dp0180006                | integer    |             | DPSF18. Housing occupancy - Vacant housing units for sale only                                                                      |
-| dp0180007                | integer    |             | DPSF18. Housing occupancy - Vacant housing units sold, not occupied                                                                 |
-| dp0180008                | integer    |             | DPSF18. Housing occupancy - Vacant housing units for seasonal, recreational, or occasional use                                      |
-| dp0180009                | integer    |             | DPSF18. Housing occupancy - All other vacant housing units                                                                          |
-| dp0190001                | number     |             | DPSF19. Homeowner vacancy rate - Homeowner vacancy rate (percent)                                                                   |
-| dp0200001                | number     |             | DPSF20. Rental vacancy rate - Rental vacancy rate (percent)                                                                         |
-| dp0210001                | integer    |             | DPSF21. Housing tenure - Total occupied housing units                                                                               |
-| dp0210002                | integer    |             | DPSF21. Housing tenure - Owner-occupied housing units                                                                               |
-| dp0210003                | integer    |             | DPSF21. Housing tenure - Renter-occupied housing units                                                                              |
-| dp0220001                | integer    |             | DPSF22. Population in occupied housing units by tenure - Owner-occupied housing units                                               |
-| dp0220002                | integer    |             | DPSF22. Population in occupied housing units by tenure - Renter-occupied housing units                                              |
-| dp0230001                | number     |             | DPSF23. Average household size by tenure - Owner occupied                                                                           |
-| dp0230002                | number     |             | DPSF23. Average household size by tenure - Renter occupied                                                                          |
-| geometry                 | geometry   |             | Geospatial representation of the feature.                                                                                           |
-| internal_point_latitude  | number     | degrees     | Internal point latitude in decimal degrees.                                                                                         |
-| internal_point_longitude | number     | degrees     | Internal point longitude in decimal degrees.                                                                                        |
-| land_area                | number     | meter\*\*2  | Land area in square meters.                                                                                                         |
-| shape_area               | number     | degree\*\*2 | Area of the feature in square degrees.                                                                                              |
-| shape_length             | number     | degrees     | Length of the feature’s perimeter in degrees.                                                                                       |
-| state                    | string     |             | Two letter US state abbreviation.                                                                                                   |
-| state_id_fips            | string     |             | Two digit state FIPS code.                                                                                                          |
-| state_name               | string     |             | Full name of the state.                                                                                                             |
-| water_area               | number     | meter\*\*2  | Water area in square meters.                                                                                                        |
+| **Field Name**           | **Type**   | **Unit**    | **Description**                                                                                                                                 |
+|--------------------------|------------|-------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
+| dp0010001                | integer    |             | DPSF1. Sex and age - Total population                                                                                                           |
+| dp0010002                | integer    |             | DPSF1. Sex and age - Total population under 5 years                                                                                             |
+| dp0010003                | integer    |             | DPSF1. Sex and age - Total population 5 to 9 years                                                                                              |
+| dp0010004                | integer    |             | DPSF1. Sex and age - Total population 10 to 14 years                                                                                            |
+| dp0010005                | integer    |             | DPSF1. Sex and age - Total population 15 to 19 years                                                                                            |
+| dp0010006                | integer    |             | DPSF1. Sex and age - Total population 20 to 24 years                                                                                            |
+| dp0010007                | integer    |             | DPSF1. Sex and age - Total population 25 to 29 years                                                                                            |
+| dp0010008                | integer    |             | DPSF1. Sex and age - Total population 30 to 34 years                                                                                            |
+| dp0010009                | integer    |             | DPSF1. Sex and age - Total population 35 to 39 years                                                                                            |
+| dp0010010                | integer    |             | DPSF1. Sex and age - Total population 40 to 44 years                                                                                            |
+| dp0010011                | integer    |             | DPSF1. Sex and age - Total population 45 to 49 years                                                                                            |
+| dp0010012                | integer    |             | DPSF1. Sex and age - Total population 50 to 54 years                                                                                            |
+| dp0010013                | integer    |             | DPSF1. Sex and age - Total population 55 to 59 years                                                                                            |
+| dp0010014                | integer    |             | DPSF1. Sex and age - Total population 60 to 64 years                                                                                            |
+| dp0010015                | integer    |             | DPSF1. Sex and age - Total population 65 to 69 years                                                                                            |
+| dp0010016                | integer    |             | DPSF1. Sex and age - Total population 70 to 74 years                                                                                            |
+| dp0010017                | integer    |             | DPSF1. Sex and age - Total population 75 to 79 years                                                                                            |
+| dp0010018                | integer    |             | DPSF1. Sex and age - Total population 80 to 84 years                                                                                            |
+| dp0010019                | integer    |             | DPSF1. Sex and age - Total population 85 years and over                                                                                         |
+| dp0010020                | integer    |             | DPSF1. Sex and age - Male population total                                                                                                      |
+| dp0010021                | integer    |             | DPSF1. Sex and age - Male population under 5 years                                                                                              |
+| dp0010022                | integer    |             | DPSF1. Sex and age - Male population 5 to 9 years                                                                                               |
+| dp0010023                | integer    |             | DPSF1. Sex and age - Male population 10 to 14 years                                                                                             |
+| dp0010024                | integer    |             | DPSF1. Sex and age - Male population 15 to 19 years                                                                                             |
+| dp0010025                | integer    |             | DPSF1. Sex and age - Male population 20 to 24 years                                                                                             |
+| dp0010026                | integer    |             | DPSF1. Sex and age - Male population 25 to 29 years                                                                                             |
+| dp0010027                | integer    |             | DPSF1. Sex and age - Male population 30 to 34 years                                                                                             |
+| dp0010028                | integer    |             | DPSF1. Sex and age - Male population 35 to 39 years                                                                                             |
+| dp0010029                | integer    |             | DPSF1. Sex and age - Male population 40 to 44 years                                                                                             |
+| dp0010030                | integer    |             | DPSF1. Sex and age - Male population 45 to 49 years                                                                                             |
+| dp0010031                | integer    |             | DPSF1. Sex and age - Male population 50 to 54 years                                                                                             |
+| dp0010032                | integer    |             | DPSF1. Sex and age - Male population 55 to 59 years                                                                                             |
+| dp0010033                | integer    |             | DPSF1. Sex and age - Male population 60 to 64 years                                                                                             |
+| dp0010034                | integer    |             | DPSF1. Sex and age - Male population 65 to 69 years                                                                                             |
+| dp0010035                | integer    |             | DPSF1. Sex and age - Male population 70 to 74 years                                                                                             |
+| dp0010036                | integer    |             | DPSF1. Sex and age - Male population 75 to 79 years                                                                                             |
+| dp0010037                | integer    |             | DPSF1. Sex and age - Male population 80 to 84 years                                                                                             |
+| dp0010038                | integer    |             | DPSF1. Sex and age - Male population 85 years and over                                                                                          |
+| dp0010039                | integer    |             | DPSF1. Sex and age - Female population total                                                                                                    |
+| dp0010040                | integer    |             | DPSF1. Sex and age - Female population under 5 years                                                                                            |
+| dp0010041                | integer    |             | DPSF1. Sex and age - Female population 5 to 9 years                                                                                             |
+| dp0010042                | integer    |             | DPSF1. Sex and age - Female population 10 to 14 years                                                                                           |
+| dp0010043                | integer    |             | DPSF1. Sex and age - Female population 15 to 19 years                                                                                           |
+| dp0010044                | integer    |             | DPSF1. Sex and age - Female population 20 to 24 years                                                                                           |
+| dp0010045                | integer    |             | DPSF1. Sex and age - Female population 25 to 29 years                                                                                           |
+| dp0010046                | integer    |             | DPSF1. Sex and age - Female population 30 to 34 years                                                                                           |
+| dp0010047                | integer    |             | DPSF1. Sex and age - Female population 35 to 39 years                                                                                           |
+| dp0010048                | integer    |             | DPSF1. Sex and age - Female population 40 to 44 years                                                                                           |
+| dp0010049                | integer    |             | DPSF1. Sex and age - Female population 45 to 49 years                                                                                           |
+| dp0010050                | integer    |             | DPSF1. Sex and age - Female population 50 to 54 years                                                                                           |
+| dp0010051                | integer    |             | DPSF1. Sex and age - Female population 55 to 59 years                                                                                           |
+| dp0010052                | integer    |             | DPSF1. Sex and age - Female population 60 to 64 years                                                                                           |
+| dp0010053                | integer    |             | DPSF1. Sex and age - Female population 65 to 69 years                                                                                           |
+| dp0010054                | integer    |             | DPSF1. Sex and age - Female population 70 to 74 years                                                                                           |
+| dp0010055                | integer    |             | DPSF1. Sex and age - Female population 75 to 79 years                                                                                           |
+| dp0010056                | integer    |             | DPSF1. Sex and age - Female population 80 to 84 years                                                                                           |
+| dp0010057                | integer    |             | DPSF1. Sex and age - Female population 85 years and over                                                                                        |
+| dp0020001                | number     |             | DPSF2. Median age by sex - Both sexes                                                                                                           |
+| dp0020002                | number     |             | DPSF2. Median age by sex - Male                                                                                                                 |
+| dp0020003                | number     |             | DPSF2. Median age by sex - Female                                                                                                               |
+| dp0030001                | integer    |             | DPSF3. Sex for population 16 years and over - Total                                                                                             |
+| dp0030002                | integer    |             | DPSF3. Sex for population 16 years and over - Male                                                                                              |
+| dp0030003                | integer    |             | DPSF3. Sex for population 16 years and over - Female                                                                                            |
+| dp0040001                | integer    |             | DPSF4. Sex for population 18 years and over - Total                                                                                             |
+| dp0040002                | integer    |             | DPSF4. Sex for population 18 years and over - Male                                                                                              |
+| dp0040003                | integer    |             | DPSF4. Sex for population 18 years and over - Female                                                                                            |
+| dp0050001                | integer    |             | DPSF5. Sex for population 21 years and over - Total                                                                                             |
+| dp0050002                | integer    |             | DPSF5. Sex for population 21 years and over - Male                                                                                              |
+| dp0050003                | integer    |             | DPSF5. Sex for population 21 years and over - Female                                                                                            |
+| dp0060001                | integer    |             | DPSF6. Sex for population 62 years and over - Total                                                                                             |
+| dp0060002                | integer    |             | DPSF6. Sex for population 62 years and over - Male                                                                                              |
+| dp0060003                | integer    |             | DPSF6. Sex for population 62 years and over - Female                                                                                            |
+| dp0070001                | integer    |             | DPSF7. Sex for population 65 years and over - Total                                                                                             |
+| dp0070002                | integer    |             | DPSF7. Sex for population 65 years and over - Male                                                                                              |
+| dp0070003                | integer    |             | DPSF7. Sex for population 65 years and over - Female                                                                                            |
+| dp0080001                | integer    |             | DPSF8. Race - Total population                                                                                                                  |
+| dp0080002                | integer    |             | DPSF8. Race - Population of one race                                                                                                            |
+| dp0080003                | integer    |             | DPSF8. Race - White                                                                                                                             |
+| dp0080004                | integer    |             | DPSF8. Race - Black or African American                                                                                                         |
+| dp0080005                | integer    |             | DPSF8. Race - American Indian and Alaska Native                                                                                                 |
+| dp0080006                | integer    |             | DPSF8. Race - Asian total                                                                                                                       |
+| dp0080007                | integer    |             | DPSF8. Race - Asian Indian                                                                                                                      |
+| dp0080008                | integer    |             | DPSF8. Race - Chinese                                                                                                                           |
+| dp0080009                | integer    |             | DPSF8. Race - Filipino                                                                                                                          |
+| dp0080010                | integer    |             | DPSF8. Race - Japanese                                                                                                                          |
+| dp0080011                | integer    |             | DPSF8. Race - Korean                                                                                                                            |
+| dp0080012                | integer    |             | DPSF8. Race - Vietnamese                                                                                                                        |
+| dp0080013                | integer    |             | DPSF8. Race - Other Asian                                                                                                                       |
+| dp0080014                | integer    |             | DPSF8. Race - Native Hawaiian and Other Pacific Islander total                                                                                  |
+| dp0080015                | integer    |             | DPSF8. Race - Native Hawaiian                                                                                                                   |
+| dp0080016                | integer    |             | DPSF8. Race - Guamanian or Chamorro                                                                                                             |
+| dp0080017                | integer    |             | DPSF8. Race - Samoan                                                                                                                            |
+| dp0080018                | integer    |             | DPSF8. Race - Other Pacific Islander                                                                                                            |
+| dp0080019                | integer    |             | DPSF8. Race - Some Other Race                                                                                                                   |
+| dp0080020                | integer    |             | DPSF8. Race - Population of Two or More Races                                                                                                   |
+| dp0080021                | integer    |             | DPSF8. Race - White; American Indian and Alaska Native                                                                                          |
+| dp0080022                | integer    |             | DPSF8. Race - White; Asian                                                                                                                      |
+| dp0080023                | integer    |             | DPSF8. Race - White; Black or African American                                                                                                  |
+| dp0080024                | integer    |             | DPSF8. Race - White; Some Other Race                                                                                                            |
+| dp0090001                | integer    |             | DPSF9. Race (total races tallied) - White alone or in combination with one or more other races                                                  |
+| dp0090002                | integer    |             | DPSF9. Race (total races tallied) - Black or African American alone or in combination with one or more other races                              |
+| dp0090003                | integer    |             | DPSF9. Race (total races tallied) - American Indian and Alaska Native alone or in combination with one or more other races                      |
+| dp0090004                | integer    |             | DPSF9. Race (total races tallied) - Asian alone or in combination with one or more other races                                                  |
+| dp0090005                | integer    |             | DPSF9. Race (total races tallied) - Native Hawaiian and Other Pacific Islander alone or in combination with one or more other races             |
+| dp0090006                | integer    |             | DPSF9. Race (total races tallied) - Some Other Race alone or in combination with one or more other races                                        |
+| dp0100001                | integer    |             | DPSF10. Hispanic or Latino by specific origin - Total population                                                                                |
+| dp0100002                | integer    |             | DPSF10. Hispanic or Latino by specific origin - Hispanic or Latino (of any race)                                                                |
+| dp0100003                | integer    |             | DPSF10. Hispanic or Latino by specific origin - Mexican                                                                                         |
+| dp0100004                | integer    |             | DPSF10. Hispanic or Latino by specific origin - Puerto Rican                                                                                    |
+| dp0100005                | integer    |             | DPSF10. Hispanic or Latino by specific origin - Cuban                                                                                           |
+| dp0100006                | integer    |             | DPSF10. Hispanic or Latino by specific origin - Other Hispanic or Latino                                                                        |
+| dp0100007                | integer    |             | DPSF10. Hispanic or Latino by specific origin - Not Hispanic or Latino                                                                          |
+| dp0110001                | integer    |             | DPSF11. Hispanic or Latino and race - Total population                                                                                          |
+| dp0110002                | integer    |             | DPSF11. Hispanic or Latino and race - Hispanic or Latino total                                                                                  |
+| dp0110003                | integer    |             | DPSF11. Hispanic or Latino and race - Hispanic or Latino: White alone                                                                           |
+| dp0110004                | integer    |             | DPSF11. Hispanic or Latino and race - Hispanic or Latino: Black or African American alone                                                       |
+| dp0110005                | integer    |             | DPSF11. Hispanic or Latino and race - Hispanic or Latino: American Indian and Alaska Native alone                                               |
+| dp0110006                | integer    |             | DPSF11. Hispanic or Latino and race - Hispanic or Latino: Asian alone                                                                           |
+| dp0110007                | integer    |             | DPSF11. Hispanic or Latino and race - Hispanic or Latino: Native Hawaiian and Other Pacific Islander alone                                      |
+| dp0110008                | integer    |             | DPSF11. Hispanic or Latino and race - Hispanic or Latino: Some Other Race alone                                                                 |
+| dp0110009                | integer    |             | DPSF11. Hispanic or Latino and race - Hispanic or Latino: Two or More Races                                                                     |
+| dp0110010                | integer    |             | DPSF11. Hispanic or Latino and race - Not Hispanic or Latino total                                                                              |
+| dp0110011                | integer    |             | DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: White alone                                                                       |
+| dp0110012                | integer    |             | DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: Black or African American alone                                                   |
+| dp0110013                | integer    |             | DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: American Indian and Alaska Native alone                                           |
+| dp0110014                | integer    |             | DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: Asian alone                                                                       |
+| dp0110015                | integer    |             | DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: Native Hawaiian and Other Pacific Islander alone                                  |
+| dp0110016                | integer    |             | DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: Some Other Race alone                                                             |
+| dp0110017                | integer    |             | DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: Two or More Races                                                                 |
+| dp0120001                | integer    |             | DPSF12. Relationship - Total population                                                                                                         |
+| dp0120002                | integer    |             | DPSF12. Relationship - In households                                                                                                            |
+| dp0120003                | integer    |             | DPSF12. Relationship - Householder                                                                                                              |
+| dp0120004                | integer    |             | DPSF12. Relationship - Spouse                                                                                                                   |
+| dp0120005                | integer    |             | DPSF12. Relationship - Child                                                                                                                    |
+| dp0120006                | integer    |             | DPSF12. Relationship - Own child under 18 years                                                                                                 |
+| dp0120007                | integer    |             | DPSF12. Relationship - Other relatives                                                                                                          |
+| dp0120008                | integer    |             | DPSF12. Relationship - Other relatives under 18 years                                                                                           |
+| dp0120009                | integer    |             | DPSF12. Relationship - Other relatives 65 years and over                                                                                        |
+| dp0120010                | integer    |             | DPSF12. Relationship - Nonrelatives                                                                                                             |
+| dp0120011                | integer    |             | DPSF12. Relationship - Nonrelatives under 18 years                                                                                              |
+| dp0120012                | integer    |             | DPSF12. Relationship - Nonrelatives 65 years and over                                                                                           |
+| dp0120013                | integer    |             | DPSF12. Relationship - Unmarried partner                                                                                                        |
+| dp0120014                | integer    |             | DPSF12. Relationship - In group quarters                                                                                                        |
+| dp0120015                | integer    |             | DPSF12. Relationship - Institutionalized population                                                                                             |
+| dp0120016                | integer    |             | DPSF12. Relationship - Institutionalized population: Male                                                                                       |
+| dp0120017                | integer    |             | DPSF12. Relationship - Institutionalized population: Female                                                                                     |
+| dp0120018                | integer    |             | DPSF12. Relationship - Noninstitutionalized population                                                                                          |
+| dp0120019                | integer    |             | DPSF12. Relationship - Noninstitutionalized population: Male                                                                                    |
+| dp0120020                | integer    |             | DPSF12. Relationship - Noninstitutionalized population: Female                                                                                  |
+| dp0130001                | integer    |             | DPSF13. Households by type - Total households                                                                                                   |
+| dp0130002                | integer    |             | DPSF13. Households by type - Family households (families)                                                                                       |
+| dp0130003                | integer    |             | DPSF13. Households by type - Family households with own children under 18 years                                                                 |
+| dp0130004                | integer    |             | DPSF13. Households by type - Husband-wife family                                                                                                |
+| dp0130005                | integer    |             | DPSF13. Households by type - Husband-wife family with own children under 18 years                                                               |
+| dp0130006                | integer    |             | DPSF13. Households by type - Male householder, no wife present                                                                                  |
+| dp0130007                | integer    |             | DPSF13. Households by type - Male householder, no wife present, with own children under 18 years                                                |
+| dp0130008                | integer    |             | DPSF13. Households by type - Female householder, no husband present                                                                             |
+| dp0130009                | integer    |             | DPSF13. Households by type - Female householder, no husband present, with own children under 18 years                                           |
+| dp0130010                | integer    |             | DPSF13. Households by type - Nonfamily households                                                                                               |
+| dp0130011                | integer    |             | DPSF13. Households by type - Householder living alone                                                                                           |
+| dp0130012                | integer    |             | DPSF13. Households by type - Householder living alone: Male                                                                                     |
+| dp0130013                | integer    |             | DPSF13. Households by type - Householder living alone: Male 65 years and over                                                                   |
+| dp0130014                | integer    |             | DPSF13. Households by type - Householder living alone: Female                                                                                   |
+| dp0130015                | integer    |             | DPSF13. Households by type - Householder living alone: Female 65 years and over                                                                 |
+| dp0140001                | integer    |             | DPSF14. Households with individuals under 18 years - Total                                                                                      |
+| dp0150001                | integer    |             | DPSF15. Households with individuals 65 years and over - Total                                                                                   |
+| dp0160001                | number     |             | DPSF16. Average household size - Average household size                                                                                         |
+| dp0170001                | number     |             | DPSF17. Average family size - Average family size                                                                                               |
+| dp0180001                | integer    |             | DPSF18. Housing occupancy - Total housing units                                                                                                 |
+| dp0180002                | integer    |             | DPSF18. Housing occupancy - Occupied housing units                                                                                              |
+| dp0180003                | integer    |             | DPSF18. Housing occupancy - Vacant housing units                                                                                                |
+| dp0180004                | integer    |             | DPSF18. Housing occupancy - Vacant housing units for rent                                                                                       |
+| dp0180005                | integer    |             | DPSF18. Housing occupancy - Vacant housing units rented, not occupied                                                                           |
+| dp0180006                | integer    |             | DPSF18. Housing occupancy - Vacant housing units for sale only                                                                                  |
+| dp0180007                | integer    |             | DPSF18. Housing occupancy - Vacant housing units sold, not occupied                                                                             |
+| dp0180008                | integer    |             | DPSF18. Housing occupancy - Vacant housing units for seasonal, recreational, or occasional use                                                  |
+| dp0180009                | integer    |             | DPSF18. Housing occupancy - All other vacant housing units                                                                                      |
+| dp0190001                | number     |             | DPSF19. Homeowner vacancy rate - Homeowner vacancy rate (percent)                                                                               |
+| dp0200001                | number     |             | DPSF20. Rental vacancy rate - Rental vacancy rate (percent)                                                                                     |
+| dp0210001                | integer    |             | DPSF21. Housing tenure - Total occupied housing units                                                                                           |
+| dp0210002                | integer    |             | DPSF21. Housing tenure - Owner-occupied housing units                                                                                           |
+| dp0210003                | integer    |             | DPSF21. Housing tenure - Renter-occupied housing units                                                                                          |
+| dp0220001                | integer    |             | DPSF22. Population in occupied housing units by tenure - Owner-occupied housing units                                                           |
+| dp0220002                | integer    |             | DPSF22. Population in occupied housing units by tenure - Renter-occupied housing units                                                          |
+| dp0230001                | number     |             | DPSF23. Average household size by tenure - Owner occupied                                                                                       |
+| dp0230002                | number     |             | DPSF23. Average household size by tenure - Renter occupied                                                                                      |
+| geometry                 | geometry   |             | Geospatial representation of the feature.                                                                                                       |
+| internal_point_latitude  | number     | degrees     | Internal point latitude in decimal degrees.                                                                                                     |
+| internal_point_longitude | number     | degrees     | Internal point longitude in decimal degrees. Note that some Aleutian islands are west of the 180th meridian, and thus have positive longitudes. |
+| land_area                | number     | meter\*\*2  | Land area in square meters.                                                                                                                     |
+| shape_area               | number     | degree\*\*2 | Area of the feature in square degrees.                                                                                                          |
+| shape_length             | number     | degrees     | Length of the feature’s perimeter in degrees.                                                                                                   |
+| state                    | string     |             | Two letter US state abbreviation.                                                                                                               |
+| state_id_fips            | string     |             | Two digit state FIPS code.                                                                                                                      |
+| state_name               | string     |             | Full name of the state.                                                                                                                         |
+| water_area               | number     | meter\*\*2  | Water area in square meters.                                                                                                                    |
 
 <a id="out-censusdp1tract-tracts"></a>
 
@@ -622,203 +622,203 @@ df <- read_parquet(
 
 ### Columns
 
-| **Field Name**           | **Type**   | **Unit**    | **Description**                                                                                                                     |
-|--------------------------|------------|-------------|-------------------------------------------------------------------------------------------------------------------------------------|
-| dp0010001                | integer    |             | DPSF1. Sex and age - Total population                                                                                               |
-| dp0010002                | integer    |             | DPSF1. Sex and age - Total population under 5 years                                                                                 |
-| dp0010003                | integer    |             | DPSF1. Sex and age - Total population 5 to 9 years                                                                                  |
-| dp0010004                | integer    |             | DPSF1. Sex and age - Total population 10 to 14 years                                                                                |
-| dp0010005                | integer    |             | DPSF1. Sex and age - Total population 15 to 19 years                                                                                |
-| dp0010006                | integer    |             | DPSF1. Sex and age - Total population 20 to 24 years                                                                                |
-| dp0010007                | integer    |             | DPSF1. Sex and age - Total population 25 to 29 years                                                                                |
-| dp0010008                | integer    |             | DPSF1. Sex and age - Total population 30 to 34 years                                                                                |
-| dp0010009                | integer    |             | DPSF1. Sex and age - Total population 35 to 39 years                                                                                |
-| dp0010010                | integer    |             | DPSF1. Sex and age - Total population 40 to 44 years                                                                                |
-| dp0010011                | integer    |             | DPSF1. Sex and age - Total population 45 to 49 years                                                                                |
-| dp0010012                | integer    |             | DPSF1. Sex and age - Total population 50 to 54 years                                                                                |
-| dp0010013                | integer    |             | DPSF1. Sex and age - Total population 55 to 59 years                                                                                |
-| dp0010014                | integer    |             | DPSF1. Sex and age - Total population 60 to 64 years                                                                                |
-| dp0010015                | integer    |             | DPSF1. Sex and age - Total population 65 to 69 years                                                                                |
-| dp0010016                | integer    |             | DPSF1. Sex and age - Total population 70 to 74 years                                                                                |
-| dp0010017                | integer    |             | DPSF1. Sex and age - Total population 75 to 79 years                                                                                |
-| dp0010018                | integer    |             | DPSF1. Sex and age - Total population 80 to 84 years                                                                                |
-| dp0010019                | integer    |             | DPSF1. Sex and age - Total population 85 years and over                                                                             |
-| dp0010020                | integer    |             | DPSF1. Sex and age - Male population total                                                                                          |
-| dp0010021                | integer    |             | DPSF1. Sex and age - Male population under 5 years                                                                                  |
-| dp0010022                | integer    |             | DPSF1. Sex and age - Male population 5 to 9 years                                                                                   |
-| dp0010023                | integer    |             | DPSF1. Sex and age - Male population 10 to 14 years                                                                                 |
-| dp0010024                | integer    |             | DPSF1. Sex and age - Male population 15 to 19 years                                                                                 |
-| dp0010025                | integer    |             | DPSF1. Sex and age - Male population 20 to 24 years                                                                                 |
-| dp0010026                | integer    |             | DPSF1. Sex and age - Male population 25 to 29 years                                                                                 |
-| dp0010027                | integer    |             | DPSF1. Sex and age - Male population 30 to 34 years                                                                                 |
-| dp0010028                | integer    |             | DPSF1. Sex and age - Male population 35 to 39 years                                                                                 |
-| dp0010029                | integer    |             | DPSF1. Sex and age - Male population 40 to 44 years                                                                                 |
-| dp0010030                | integer    |             | DPSF1. Sex and age - Male population 45 to 49 years                                                                                 |
-| dp0010031                | integer    |             | DPSF1. Sex and age - Male population 50 to 54 years                                                                                 |
-| dp0010032                | integer    |             | DPSF1. Sex and age - Male population 55 to 59 years                                                                                 |
-| dp0010033                | integer    |             | DPSF1. Sex and age - Male population 60 to 64 years                                                                                 |
-| dp0010034                | integer    |             | DPSF1. Sex and age - Male population 65 to 69 years                                                                                 |
-| dp0010035                | integer    |             | DPSF1. Sex and age - Male population 70 to 74 years                                                                                 |
-| dp0010036                | integer    |             | DPSF1. Sex and age - Male population 75 to 79 years                                                                                 |
-| dp0010037                | integer    |             | DPSF1. Sex and age - Male population 80 to 84 years                                                                                 |
-| dp0010038                | integer    |             | DPSF1. Sex and age - Male population 85 years and over                                                                              |
-| dp0010039                | integer    |             | DPSF1. Sex and age - Female population total                                                                                        |
-| dp0010040                | integer    |             | DPSF1. Sex and age - Female population under 5 years                                                                                |
-| dp0010041                | integer    |             | DPSF1. Sex and age - Female population 5 to 9 years                                                                                 |
-| dp0010042                | integer    |             | DPSF1. Sex and age - Female population 10 to 14 years                                                                               |
-| dp0010043                | integer    |             | DPSF1. Sex and age - Female population 15 to 19 years                                                                               |
-| dp0010044                | integer    |             | DPSF1. Sex and age - Female population 20 to 24 years                                                                               |
-| dp0010045                | integer    |             | DPSF1. Sex and age - Female population 25 to 29 years                                                                               |
-| dp0010046                | integer    |             | DPSF1. Sex and age - Female population 30 to 34 years                                                                               |
-| dp0010047                | integer    |             | DPSF1. Sex and age - Female population 35 to 39 years                                                                               |
-| dp0010048                | integer    |             | DPSF1. Sex and age - Female population 40 to 44 years                                                                               |
-| dp0010049                | integer    |             | DPSF1. Sex and age - Female population 45 to 49 years                                                                               |
-| dp0010050                | integer    |             | DPSF1. Sex and age - Female population 50 to 54 years                                                                               |
-| dp0010051                | integer    |             | DPSF1. Sex and age - Female population 55 to 59 years                                                                               |
-| dp0010052                | integer    |             | DPSF1. Sex and age - Female population 60 to 64 years                                                                               |
-| dp0010053                | integer    |             | DPSF1. Sex and age - Female population 65 to 69 years                                                                               |
-| dp0010054                | integer    |             | DPSF1. Sex and age - Female population 70 to 74 years                                                                               |
-| dp0010055                | integer    |             | DPSF1. Sex and age - Female population 75 to 79 years                                                                               |
-| dp0010056                | integer    |             | DPSF1. Sex and age - Female population 80 to 84 years                                                                               |
-| dp0010057                | integer    |             | DPSF1. Sex and age - Female population 85 years and over                                                                            |
-| dp0020001                | number     |             | DPSF2. Median age by sex - Both sexes                                                                                               |
-| dp0020002                | number     |             | DPSF2. Median age by sex - Male                                                                                                     |
-| dp0020003                | number     |             | DPSF2. Median age by sex - Female                                                                                                   |
-| dp0030001                | integer    |             | DPSF3. Sex for population 16 years and over - Total                                                                                 |
-| dp0030002                | integer    |             | DPSF3. Sex for population 16 years and over - Male                                                                                  |
-| dp0030003                | integer    |             | DPSF3. Sex for population 16 years and over - Female                                                                                |
-| dp0040001                | integer    |             | DPSF4. Sex for population 18 years and over - Total                                                                                 |
-| dp0040002                | integer    |             | DPSF4. Sex for population 18 years and over - Male                                                                                  |
-| dp0040003                | integer    |             | DPSF4. Sex for population 18 years and over - Female                                                                                |
-| dp0050001                | integer    |             | DPSF5. Sex for population 21 years and over - Total                                                                                 |
-| dp0050002                | integer    |             | DPSF5. Sex for population 21 years and over - Male                                                                                  |
-| dp0050003                | integer    |             | DPSF5. Sex for population 21 years and over - Female                                                                                |
-| dp0060001                | integer    |             | DPSF6. Sex for population 62 years and over - Total                                                                                 |
-| dp0060002                | integer    |             | DPSF6. Sex for population 62 years and over - Male                                                                                  |
-| dp0060003                | integer    |             | DPSF6. Sex for population 62 years and over - Female                                                                                |
-| dp0070001                | integer    |             | DPSF7. Sex for population 65 years and over - Total                                                                                 |
-| dp0070002                | integer    |             | DPSF7. Sex for population 65 years and over - Male                                                                                  |
-| dp0070003                | integer    |             | DPSF7. Sex for population 65 years and over - Female                                                                                |
-| dp0080001                | integer    |             | DPSF8. Race - Total population                                                                                                      |
-| dp0080002                | integer    |             | DPSF8. Race - Population of one race                                                                                                |
-| dp0080003                | integer    |             | DPSF8. Race - White                                                                                                                 |
-| dp0080004                | integer    |             | DPSF8. Race - Black or African American                                                                                             |
-| dp0080005                | integer    |             | DPSF8. Race - American Indian and Alaska Native                                                                                     |
-| dp0080006                | integer    |             | DPSF8. Race - Asian total                                                                                                           |
-| dp0080007                | integer    |             | DPSF8. Race - Asian Indian                                                                                                          |
-| dp0080008                | integer    |             | DPSF8. Race - Chinese                                                                                                               |
-| dp0080009                | integer    |             | DPSF8. Race - Filipino                                                                                                              |
-| dp0080010                | integer    |             | DPSF8. Race - Japanese                                                                                                              |
-| dp0080011                | integer    |             | DPSF8. Race - Korean                                                                                                                |
-| dp0080012                | integer    |             | DPSF8. Race - Vietnamese                                                                                                            |
-| dp0080013                | integer    |             | DPSF8. Race - Other Asian                                                                                                           |
-| dp0080014                | integer    |             | DPSF8. Race - Native Hawaiian and Other Pacific Islander total                                                                      |
-| dp0080015                | integer    |             | DPSF8. Race - Native Hawaiian                                                                                                       |
-| dp0080016                | integer    |             | DPSF8. Race - Guamanian or Chamorro                                                                                                 |
-| dp0080017                | integer    |             | DPSF8. Race - Samoan                                                                                                                |
-| dp0080018                | integer    |             | DPSF8. Race - Other Pacific Islander                                                                                                |
-| dp0080019                | integer    |             | DPSF8. Race - Some Other Race                                                                                                       |
-| dp0080020                | integer    |             | DPSF8. Race - Population of Two or More Races                                                                                       |
-| dp0080021                | integer    |             | DPSF8. Race - White; American Indian and Alaska Native                                                                              |
-| dp0080022                | integer    |             | DPSF8. Race - White; Asian                                                                                                          |
-| dp0080023                | integer    |             | DPSF8. Race - White; Black or African American                                                                                      |
-| dp0080024                | integer    |             | DPSF8. Race - White; Some Other Race                                                                                                |
-| dp0090001                | integer    |             | DPSF9. Race (total races tallied) - White alone or in combination with one or more other races                                      |
-| dp0090002                | integer    |             | DPSF9. Race (total races tallied) - Black or African American alone or in combination with one or more other races                  |
-| dp0090003                | integer    |             | DPSF9. Race (total races tallied) - American Indian and Alaska Native alone or in combination with one or more other races          |
-| dp0090004                | integer    |             | DPSF9. Race (total races tallied) - Asian alone or in combination with one or more other races                                      |
-| dp0090005                | integer    |             | DPSF9. Race (total races tallied) - Native Hawaiian and Other Pacific Islander alone or in combination with one or more other races |
-| dp0090006                | integer    |             | DPSF9. Race (total races tallied) - Some Other Race alone or in combination with one or more other races                            |
-| dp0100001                | integer    |             | DPSF10. Hispanic or Latino by specific origin - Total population                                                                    |
-| dp0100002                | integer    |             | DPSF10. Hispanic or Latino by specific origin - Hispanic or Latino (of any race)                                                    |
-| dp0100003                | integer    |             | DPSF10. Hispanic or Latino by specific origin - Mexican                                                                             |
-| dp0100004                | integer    |             | DPSF10. Hispanic or Latino by specific origin - Puerto Rican                                                                        |
-| dp0100005                | integer    |             | DPSF10. Hispanic or Latino by specific origin - Cuban                                                                               |
-| dp0100006                | integer    |             | DPSF10. Hispanic or Latino by specific origin - Other Hispanic or Latino                                                            |
-| dp0100007                | integer    |             | DPSF10. Hispanic or Latino by specific origin - Not Hispanic or Latino                                                              |
-| dp0110001                | integer    |             | DPSF11. Hispanic or Latino and race - Total population                                                                              |
-| dp0110002                | integer    |             | DPSF11. Hispanic or Latino and race - Hispanic or Latino total                                                                      |
-| dp0110003                | integer    |             | DPSF11. Hispanic or Latino and race - Hispanic or Latino: White alone                                                               |
-| dp0110004                | integer    |             | DPSF11. Hispanic or Latino and race - Hispanic or Latino: Black or African American alone                                           |
-| dp0110005                | integer    |             | DPSF11. Hispanic or Latino and race - Hispanic or Latino: American Indian and Alaska Native alone                                   |
-| dp0110006                | integer    |             | DPSF11. Hispanic or Latino and race - Hispanic or Latino: Asian alone                                                               |
-| dp0110007                | integer    |             | DPSF11. Hispanic or Latino and race - Hispanic or Latino: Native Hawaiian and Other Pacific Islander alone                          |
-| dp0110008                | integer    |             | DPSF11. Hispanic or Latino and race - Hispanic or Latino: Some Other Race alone                                                     |
-| dp0110009                | integer    |             | DPSF11. Hispanic or Latino and race - Hispanic or Latino: Two or More Races                                                         |
-| dp0110010                | integer    |             | DPSF11. Hispanic or Latino and race - Not Hispanic or Latino total                                                                  |
-| dp0110011                | integer    |             | DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: White alone                                                           |
-| dp0110012                | integer    |             | DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: Black or African American alone                                       |
-| dp0110013                | integer    |             | DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: American Indian and Alaska Native alone                               |
-| dp0110014                | integer    |             | DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: Asian alone                                                           |
-| dp0110015                | integer    |             | DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: Native Hawaiian and Other Pacific Islander alone                      |
-| dp0110016                | integer    |             | DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: Some Other Race alone                                                 |
-| dp0110017                | integer    |             | DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: Two or More Races                                                     |
-| dp0120001                | integer    |             | DPSF12. Relationship - Total population                                                                                             |
-| dp0120002                | integer    |             | DPSF12. Relationship - In households                                                                                                |
-| dp0120003                | integer    |             | DPSF12. Relationship - Householder                                                                                                  |
-| dp0120004                | integer    |             | DPSF12. Relationship - Spouse                                                                                                       |
-| dp0120005                | integer    |             | DPSF12. Relationship - Child                                                                                                        |
-| dp0120006                | integer    |             | DPSF12. Relationship - Own child under 18 years                                                                                     |
-| dp0120007                | integer    |             | DPSF12. Relationship - Other relatives                                                                                              |
-| dp0120008                | integer    |             | DPSF12. Relationship - Other relatives under 18 years                                                                               |
-| dp0120009                | integer    |             | DPSF12. Relationship - Other relatives 65 years and over                                                                            |
-| dp0120010                | integer    |             | DPSF12. Relationship - Nonrelatives                                                                                                 |
-| dp0120011                | integer    |             | DPSF12. Relationship - Nonrelatives under 18 years                                                                                  |
-| dp0120012                | integer    |             | DPSF12. Relationship - Nonrelatives 65 years and over                                                                               |
-| dp0120013                | integer    |             | DPSF12. Relationship - Unmarried partner                                                                                            |
-| dp0120014                | integer    |             | DPSF12. Relationship - In group quarters                                                                                            |
-| dp0120015                | integer    |             | DPSF12. Relationship - Institutionalized population                                                                                 |
-| dp0120016                | integer    |             | DPSF12. Relationship - Institutionalized population: Male                                                                           |
-| dp0120017                | integer    |             | DPSF12. Relationship - Institutionalized population: Female                                                                         |
-| dp0120018                | integer    |             | DPSF12. Relationship - Noninstitutionalized population                                                                              |
-| dp0120019                | integer    |             | DPSF12. Relationship - Noninstitutionalized population: Male                                                                        |
-| dp0120020                | integer    |             | DPSF12. Relationship - Noninstitutionalized population: Female                                                                      |
-| dp0130001                | integer    |             | DPSF13. Households by type - Total households                                                                                       |
-| dp0130002                | integer    |             | DPSF13. Households by type - Family households (families)                                                                           |
-| dp0130003                | integer    |             | DPSF13. Households by type - Family households with own children under 18 years                                                     |
-| dp0130004                | integer    |             | DPSF13. Households by type - Husband-wife family                                                                                    |
-| dp0130005                | integer    |             | DPSF13. Households by type - Husband-wife family with own children under 18 years                                                   |
-| dp0130006                | integer    |             | DPSF13. Households by type - Male householder, no wife present                                                                      |
-| dp0130007                | integer    |             | DPSF13. Households by type - Male householder, no wife present, with own children under 18 years                                    |
-| dp0130008                | integer    |             | DPSF13. Households by type - Female householder, no husband present                                                                 |
-| dp0130009                | integer    |             | DPSF13. Households by type - Female householder, no husband present, with own children under 18 years                               |
-| dp0130010                | integer    |             | DPSF13. Households by type - Nonfamily households                                                                                   |
-| dp0130011                | integer    |             | DPSF13. Households by type - Householder living alone                                                                               |
-| dp0130012                | integer    |             | DPSF13. Households by type - Householder living alone: Male                                                                         |
-| dp0130013                | integer    |             | DPSF13. Households by type - Householder living alone: Male 65 years and over                                                       |
-| dp0130014                | integer    |             | DPSF13. Households by type - Householder living alone: Female                                                                       |
-| dp0130015                | integer    |             | DPSF13. Households by type - Householder living alone: Female 65 years and over                                                     |
-| dp0140001                | integer    |             | DPSF14. Households with individuals under 18 years - Total                                                                          |
-| dp0150001                | integer    |             | DPSF15. Households with individuals 65 years and over - Total                                                                       |
-| dp0160001                | number     |             | DPSF16. Average household size - Average household size                                                                             |
-| dp0170001                | number     |             | DPSF17. Average family size - Average family size                                                                                   |
-| dp0180001                | integer    |             | DPSF18. Housing occupancy - Total housing units                                                                                     |
-| dp0180002                | integer    |             | DPSF18. Housing occupancy - Occupied housing units                                                                                  |
-| dp0180003                | integer    |             | DPSF18. Housing occupancy - Vacant housing units                                                                                    |
-| dp0180004                | integer    |             | DPSF18. Housing occupancy - Vacant housing units for rent                                                                           |
-| dp0180005                | integer    |             | DPSF18. Housing occupancy - Vacant housing units rented, not occupied                                                               |
-| dp0180006                | integer    |             | DPSF18. Housing occupancy - Vacant housing units for sale only                                                                      |
-| dp0180007                | integer    |             | DPSF18. Housing occupancy - Vacant housing units sold, not occupied                                                                 |
-| dp0180008                | integer    |             | DPSF18. Housing occupancy - Vacant housing units for seasonal, recreational, or occasional use                                      |
-| dp0180009                | integer    |             | DPSF18. Housing occupancy - All other vacant housing units                                                                          |
-| dp0190001                | number     |             | DPSF19. Homeowner vacancy rate - Homeowner vacancy rate (percent)                                                                   |
-| dp0200001                | number     |             | DPSF20. Rental vacancy rate - Rental vacancy rate (percent)                                                                         |
-| dp0210001                | integer    |             | DPSF21. Housing tenure - Total occupied housing units                                                                               |
-| dp0210002                | integer    |             | DPSF21. Housing tenure - Owner-occupied housing units                                                                               |
-| dp0210003                | integer    |             | DPSF21. Housing tenure - Renter-occupied housing units                                                                              |
-| dp0220001                | integer    |             | DPSF22. Population in occupied housing units by tenure - Owner-occupied housing units                                               |
-| dp0220002                | integer    |             | DPSF22. Population in occupied housing units by tenure - Renter-occupied housing units                                              |
-| dp0230001                | number     |             | DPSF23. Average household size by tenure - Owner occupied                                                                           |
-| dp0230002                | number     |             | DPSF23. Average household size by tenure - Renter occupied                                                                          |
-| geometry                 | geometry   |             | Geospatial representation of the feature.                                                                                           |
-| internal_point_latitude  | number     | degrees     | Internal point latitude in decimal degrees.                                                                                         |
-| internal_point_longitude | number     | degrees     | Internal point longitude in decimal degrees.                                                                                        |
-| land_area                | number     | meter\*\*2  | Land area in square meters.                                                                                                         |
-| shape_area               | number     | degree\*\*2 | Area of the feature in square degrees.                                                                                              |
-| shape_length             | number     | degrees     | Length of the feature’s perimeter in degrees.                                                                                       |
-| tract_id_fips            | string     |             | Census tract 10-digit FIPS code                                                                                                     |
-| tract_name               | string     |             | Census tract legal/statistical area description                                                                                     |
-| water_area               | number     | meter\*\*2  | Water area in square meters.                                                                                                        |
+| **Field Name**           | **Type**   | **Unit**    | **Description**                                                                                                                                 |
+|--------------------------|------------|-------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
+| dp0010001                | integer    |             | DPSF1. Sex and age - Total population                                                                                                           |
+| dp0010002                | integer    |             | DPSF1. Sex and age - Total population under 5 years                                                                                             |
+| dp0010003                | integer    |             | DPSF1. Sex and age - Total population 5 to 9 years                                                                                              |
+| dp0010004                | integer    |             | DPSF1. Sex and age - Total population 10 to 14 years                                                                                            |
+| dp0010005                | integer    |             | DPSF1. Sex and age - Total population 15 to 19 years                                                                                            |
+| dp0010006                | integer    |             | DPSF1. Sex and age - Total population 20 to 24 years                                                                                            |
+| dp0010007                | integer    |             | DPSF1. Sex and age - Total population 25 to 29 years                                                                                            |
+| dp0010008                | integer    |             | DPSF1. Sex and age - Total population 30 to 34 years                                                                                            |
+| dp0010009                | integer    |             | DPSF1. Sex and age - Total population 35 to 39 years                                                                                            |
+| dp0010010                | integer    |             | DPSF1. Sex and age - Total population 40 to 44 years                                                                                            |
+| dp0010011                | integer    |             | DPSF1. Sex and age - Total population 45 to 49 years                                                                                            |
+| dp0010012                | integer    |             | DPSF1. Sex and age - Total population 50 to 54 years                                                                                            |
+| dp0010013                | integer    |             | DPSF1. Sex and age - Total population 55 to 59 years                                                                                            |
+| dp0010014                | integer    |             | DPSF1. Sex and age - Total population 60 to 64 years                                                                                            |
+| dp0010015                | integer    |             | DPSF1. Sex and age - Total population 65 to 69 years                                                                                            |
+| dp0010016                | integer    |             | DPSF1. Sex and age - Total population 70 to 74 years                                                                                            |
+| dp0010017                | integer    |             | DPSF1. Sex and age - Total population 75 to 79 years                                                                                            |
+| dp0010018                | integer    |             | DPSF1. Sex and age - Total population 80 to 84 years                                                                                            |
+| dp0010019                | integer    |             | DPSF1. Sex and age - Total population 85 years and over                                                                                         |
+| dp0010020                | integer    |             | DPSF1. Sex and age - Male population total                                                                                                      |
+| dp0010021                | integer    |             | DPSF1. Sex and age - Male population under 5 years                                                                                              |
+| dp0010022                | integer    |             | DPSF1. Sex and age - Male population 5 to 9 years                                                                                               |
+| dp0010023                | integer    |             | DPSF1. Sex and age - Male population 10 to 14 years                                                                                             |
+| dp0010024                | integer    |             | DPSF1. Sex and age - Male population 15 to 19 years                                                                                             |
+| dp0010025                | integer    |             | DPSF1. Sex and age - Male population 20 to 24 years                                                                                             |
+| dp0010026                | integer    |             | DPSF1. Sex and age - Male population 25 to 29 years                                                                                             |
+| dp0010027                | integer    |             | DPSF1. Sex and age - Male population 30 to 34 years                                                                                             |
+| dp0010028                | integer    |             | DPSF1. Sex and age - Male population 35 to 39 years                                                                                             |
+| dp0010029                | integer    |             | DPSF1. Sex and age - Male population 40 to 44 years                                                                                             |
+| dp0010030                | integer    |             | DPSF1. Sex and age - Male population 45 to 49 years                                                                                             |
+| dp0010031                | integer    |             | DPSF1. Sex and age - Male population 50 to 54 years                                                                                             |
+| dp0010032                | integer    |             | DPSF1. Sex and age - Male population 55 to 59 years                                                                                             |
+| dp0010033                | integer    |             | DPSF1. Sex and age - Male population 60 to 64 years                                                                                             |
+| dp0010034                | integer    |             | DPSF1. Sex and age - Male population 65 to 69 years                                                                                             |
+| dp0010035                | integer    |             | DPSF1. Sex and age - Male population 70 to 74 years                                                                                             |
+| dp0010036                | integer    |             | DPSF1. Sex and age - Male population 75 to 79 years                                                                                             |
+| dp0010037                | integer    |             | DPSF1. Sex and age - Male population 80 to 84 years                                                                                             |
+| dp0010038                | integer    |             | DPSF1. Sex and age - Male population 85 years and over                                                                                          |
+| dp0010039                | integer    |             | DPSF1. Sex and age - Female population total                                                                                                    |
+| dp0010040                | integer    |             | DPSF1. Sex and age - Female population under 5 years                                                                                            |
+| dp0010041                | integer    |             | DPSF1. Sex and age - Female population 5 to 9 years                                                                                             |
+| dp0010042                | integer    |             | DPSF1. Sex and age - Female population 10 to 14 years                                                                                           |
+| dp0010043                | integer    |             | DPSF1. Sex and age - Female population 15 to 19 years                                                                                           |
+| dp0010044                | integer    |             | DPSF1. Sex and age - Female population 20 to 24 years                                                                                           |
+| dp0010045                | integer    |             | DPSF1. Sex and age - Female population 25 to 29 years                                                                                           |
+| dp0010046                | integer    |             | DPSF1. Sex and age - Female population 30 to 34 years                                                                                           |
+| dp0010047                | integer    |             | DPSF1. Sex and age - Female population 35 to 39 years                                                                                           |
+| dp0010048                | integer    |             | DPSF1. Sex and age - Female population 40 to 44 years                                                                                           |
+| dp0010049                | integer    |             | DPSF1. Sex and age - Female population 45 to 49 years                                                                                           |
+| dp0010050                | integer    |             | DPSF1. Sex and age - Female population 50 to 54 years                                                                                           |
+| dp0010051                | integer    |             | DPSF1. Sex and age - Female population 55 to 59 years                                                                                           |
+| dp0010052                | integer    |             | DPSF1. Sex and age - Female population 60 to 64 years                                                                                           |
+| dp0010053                | integer    |             | DPSF1. Sex and age - Female population 65 to 69 years                                                                                           |
+| dp0010054                | integer    |             | DPSF1. Sex and age - Female population 70 to 74 years                                                                                           |
+| dp0010055                | integer    |             | DPSF1. Sex and age - Female population 75 to 79 years                                                                                           |
+| dp0010056                | integer    |             | DPSF1. Sex and age - Female population 80 to 84 years                                                                                           |
+| dp0010057                | integer    |             | DPSF1. Sex and age - Female population 85 years and over                                                                                        |
+| dp0020001                | number     |             | DPSF2. Median age by sex - Both sexes                                                                                                           |
+| dp0020002                | number     |             | DPSF2. Median age by sex - Male                                                                                                                 |
+| dp0020003                | number     |             | DPSF2. Median age by sex - Female                                                                                                               |
+| dp0030001                | integer    |             | DPSF3. Sex for population 16 years and over - Total                                                                                             |
+| dp0030002                | integer    |             | DPSF3. Sex for population 16 years and over - Male                                                                                              |
+| dp0030003                | integer    |             | DPSF3. Sex for population 16 years and over - Female                                                                                            |
+| dp0040001                | integer    |             | DPSF4. Sex for population 18 years and over - Total                                                                                             |
+| dp0040002                | integer    |             | DPSF4. Sex for population 18 years and over - Male                                                                                              |
+| dp0040003                | integer    |             | DPSF4. Sex for population 18 years and over - Female                                                                                            |
+| dp0050001                | integer    |             | DPSF5. Sex for population 21 years and over - Total                                                                                             |
+| dp0050002                | integer    |             | DPSF5. Sex for population 21 years and over - Male                                                                                              |
+| dp0050003                | integer    |             | DPSF5. Sex for population 21 years and over - Female                                                                                            |
+| dp0060001                | integer    |             | DPSF6. Sex for population 62 years and over - Total                                                                                             |
+| dp0060002                | integer    |             | DPSF6. Sex for population 62 years and over - Male                                                                                              |
+| dp0060003                | integer    |             | DPSF6. Sex for population 62 years and over - Female                                                                                            |
+| dp0070001                | integer    |             | DPSF7. Sex for population 65 years and over - Total                                                                                             |
+| dp0070002                | integer    |             | DPSF7. Sex for population 65 years and over - Male                                                                                              |
+| dp0070003                | integer    |             | DPSF7. Sex for population 65 years and over - Female                                                                                            |
+| dp0080001                | integer    |             | DPSF8. Race - Total population                                                                                                                  |
+| dp0080002                | integer    |             | DPSF8. Race - Population of one race                                                                                                            |
+| dp0080003                | integer    |             | DPSF8. Race - White                                                                                                                             |
+| dp0080004                | integer    |             | DPSF8. Race - Black or African American                                                                                                         |
+| dp0080005                | integer    |             | DPSF8. Race - American Indian and Alaska Native                                                                                                 |
+| dp0080006                | integer    |             | DPSF8. Race - Asian total                                                                                                                       |
+| dp0080007                | integer    |             | DPSF8. Race - Asian Indian                                                                                                                      |
+| dp0080008                | integer    |             | DPSF8. Race - Chinese                                                                                                                           |
+| dp0080009                | integer    |             | DPSF8. Race - Filipino                                                                                                                          |
+| dp0080010                | integer    |             | DPSF8. Race - Japanese                                                                                                                          |
+| dp0080011                | integer    |             | DPSF8. Race - Korean                                                                                                                            |
+| dp0080012                | integer    |             | DPSF8. Race - Vietnamese                                                                                                                        |
+| dp0080013                | integer    |             | DPSF8. Race - Other Asian                                                                                                                       |
+| dp0080014                | integer    |             | DPSF8. Race - Native Hawaiian and Other Pacific Islander total                                                                                  |
+| dp0080015                | integer    |             | DPSF8. Race - Native Hawaiian                                                                                                                   |
+| dp0080016                | integer    |             | DPSF8. Race - Guamanian or Chamorro                                                                                                             |
+| dp0080017                | integer    |             | DPSF8. Race - Samoan                                                                                                                            |
+| dp0080018                | integer    |             | DPSF8. Race - Other Pacific Islander                                                                                                            |
+| dp0080019                | integer    |             | DPSF8. Race - Some Other Race                                                                                                                   |
+| dp0080020                | integer    |             | DPSF8. Race - Population of Two or More Races                                                                                                   |
+| dp0080021                | integer    |             | DPSF8. Race - White; American Indian and Alaska Native                                                                                          |
+| dp0080022                | integer    |             | DPSF8. Race - White; Asian                                                                                                                      |
+| dp0080023                | integer    |             | DPSF8. Race - White; Black or African American                                                                                                  |
+| dp0080024                | integer    |             | DPSF8. Race - White; Some Other Race                                                                                                            |
+| dp0090001                | integer    |             | DPSF9. Race (total races tallied) - White alone or in combination with one or more other races                                                  |
+| dp0090002                | integer    |             | DPSF9. Race (total races tallied) - Black or African American alone or in combination with one or more other races                              |
+| dp0090003                | integer    |             | DPSF9. Race (total races tallied) - American Indian and Alaska Native alone or in combination with one or more other races                      |
+| dp0090004                | integer    |             | DPSF9. Race (total races tallied) - Asian alone or in combination with one or more other races                                                  |
+| dp0090005                | integer    |             | DPSF9. Race (total races tallied) - Native Hawaiian and Other Pacific Islander alone or in combination with one or more other races             |
+| dp0090006                | integer    |             | DPSF9. Race (total races tallied) - Some Other Race alone or in combination with one or more other races                                        |
+| dp0100001                | integer    |             | DPSF10. Hispanic or Latino by specific origin - Total population                                                                                |
+| dp0100002                | integer    |             | DPSF10. Hispanic or Latino by specific origin - Hispanic or Latino (of any race)                                                                |
+| dp0100003                | integer    |             | DPSF10. Hispanic or Latino by specific origin - Mexican                                                                                         |
+| dp0100004                | integer    |             | DPSF10. Hispanic or Latino by specific origin - Puerto Rican                                                                                    |
+| dp0100005                | integer    |             | DPSF10. Hispanic or Latino by specific origin - Cuban                                                                                           |
+| dp0100006                | integer    |             | DPSF10. Hispanic or Latino by specific origin - Other Hispanic or Latino                                                                        |
+| dp0100007                | integer    |             | DPSF10. Hispanic or Latino by specific origin - Not Hispanic or Latino                                                                          |
+| dp0110001                | integer    |             | DPSF11. Hispanic or Latino and race - Total population                                                                                          |
+| dp0110002                | integer    |             | DPSF11. Hispanic or Latino and race - Hispanic or Latino total                                                                                  |
+| dp0110003                | integer    |             | DPSF11. Hispanic or Latino and race - Hispanic or Latino: White alone                                                                           |
+| dp0110004                | integer    |             | DPSF11. Hispanic or Latino and race - Hispanic or Latino: Black or African American alone                                                       |
+| dp0110005                | integer    |             | DPSF11. Hispanic or Latino and race - Hispanic or Latino: American Indian and Alaska Native alone                                               |
+| dp0110006                | integer    |             | DPSF11. Hispanic or Latino and race - Hispanic or Latino: Asian alone                                                                           |
+| dp0110007                | integer    |             | DPSF11. Hispanic or Latino and race - Hispanic or Latino: Native Hawaiian and Other Pacific Islander alone                                      |
+| dp0110008                | integer    |             | DPSF11. Hispanic or Latino and race - Hispanic or Latino: Some Other Race alone                                                                 |
+| dp0110009                | integer    |             | DPSF11. Hispanic or Latino and race - Hispanic or Latino: Two or More Races                                                                     |
+| dp0110010                | integer    |             | DPSF11. Hispanic or Latino and race - Not Hispanic or Latino total                                                                              |
+| dp0110011                | integer    |             | DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: White alone                                                                       |
+| dp0110012                | integer    |             | DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: Black or African American alone                                                   |
+| dp0110013                | integer    |             | DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: American Indian and Alaska Native alone                                           |
+| dp0110014                | integer    |             | DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: Asian alone                                                                       |
+| dp0110015                | integer    |             | DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: Native Hawaiian and Other Pacific Islander alone                                  |
+| dp0110016                | integer    |             | DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: Some Other Race alone                                                             |
+| dp0110017                | integer    |             | DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: Two or More Races                                                                 |
+| dp0120001                | integer    |             | DPSF12. Relationship - Total population                                                                                                         |
+| dp0120002                | integer    |             | DPSF12. Relationship - In households                                                                                                            |
+| dp0120003                | integer    |             | DPSF12. Relationship - Householder                                                                                                              |
+| dp0120004                | integer    |             | DPSF12. Relationship - Spouse                                                                                                                   |
+| dp0120005                | integer    |             | DPSF12. Relationship - Child                                                                                                                    |
+| dp0120006                | integer    |             | DPSF12. Relationship - Own child under 18 years                                                                                                 |
+| dp0120007                | integer    |             | DPSF12. Relationship - Other relatives                                                                                                          |
+| dp0120008                | integer    |             | DPSF12. Relationship - Other relatives under 18 years                                                                                           |
+| dp0120009                | integer    |             | DPSF12. Relationship - Other relatives 65 years and over                                                                                        |
+| dp0120010                | integer    |             | DPSF12. Relationship - Nonrelatives                                                                                                             |
+| dp0120011                | integer    |             | DPSF12. Relationship - Nonrelatives under 18 years                                                                                              |
+| dp0120012                | integer    |             | DPSF12. Relationship - Nonrelatives 65 years and over                                                                                           |
+| dp0120013                | integer    |             | DPSF12. Relationship - Unmarried partner                                                                                                        |
+| dp0120014                | integer    |             | DPSF12. Relationship - In group quarters                                                                                                        |
+| dp0120015                | integer    |             | DPSF12. Relationship - Institutionalized population                                                                                             |
+| dp0120016                | integer    |             | DPSF12. Relationship - Institutionalized population: Male                                                                                       |
+| dp0120017                | integer    |             | DPSF12. Relationship - Institutionalized population: Female                                                                                     |
+| dp0120018                | integer    |             | DPSF12. Relationship - Noninstitutionalized population                                                                                          |
+| dp0120019                | integer    |             | DPSF12. Relationship - Noninstitutionalized population: Male                                                                                    |
+| dp0120020                | integer    |             | DPSF12. Relationship - Noninstitutionalized population: Female                                                                                  |
+| dp0130001                | integer    |             | DPSF13. Households by type - Total households                                                                                                   |
+| dp0130002                | integer    |             | DPSF13. Households by type - Family households (families)                                                                                       |
+| dp0130003                | integer    |             | DPSF13. Households by type - Family households with own children under 18 years                                                                 |
+| dp0130004                | integer    |             | DPSF13. Households by type - Husband-wife family                                                                                                |
+| dp0130005                | integer    |             | DPSF13. Households by type - Husband-wife family with own children under 18 years                                                               |
+| dp0130006                | integer    |             | DPSF13. Households by type - Male householder, no wife present                                                                                  |
+| dp0130007                | integer    |             | DPSF13. Households by type - Male householder, no wife present, with own children under 18 years                                                |
+| dp0130008                | integer    |             | DPSF13. Households by type - Female householder, no husband present                                                                             |
+| dp0130009                | integer    |             | DPSF13. Households by type - Female householder, no husband present, with own children under 18 years                                           |
+| dp0130010                | integer    |             | DPSF13. Households by type - Nonfamily households                                                                                               |
+| dp0130011                | integer    |             | DPSF13. Households by type - Householder living alone                                                                                           |
+| dp0130012                | integer    |             | DPSF13. Households by type - Householder living alone: Male                                                                                     |
+| dp0130013                | integer    |             | DPSF13. Households by type - Householder living alone: Male 65 years and over                                                                   |
+| dp0130014                | integer    |             | DPSF13. Households by type - Householder living alone: Female                                                                                   |
+| dp0130015                | integer    |             | DPSF13. Households by type - Householder living alone: Female 65 years and over                                                                 |
+| dp0140001                | integer    |             | DPSF14. Households with individuals under 18 years - Total                                                                                      |
+| dp0150001                | integer    |             | DPSF15. Households with individuals 65 years and over - Total                                                                                   |
+| dp0160001                | number     |             | DPSF16. Average household size - Average household size                                                                                         |
+| dp0170001                | number     |             | DPSF17. Average family size - Average family size                                                                                               |
+| dp0180001                | integer    |             | DPSF18. Housing occupancy - Total housing units                                                                                                 |
+| dp0180002                | integer    |             | DPSF18. Housing occupancy - Occupied housing units                                                                                              |
+| dp0180003                | integer    |             | DPSF18. Housing occupancy - Vacant housing units                                                                                                |
+| dp0180004                | integer    |             | DPSF18. Housing occupancy - Vacant housing units for rent                                                                                       |
+| dp0180005                | integer    |             | DPSF18. Housing occupancy - Vacant housing units rented, not occupied                                                                           |
+| dp0180006                | integer    |             | DPSF18. Housing occupancy - Vacant housing units for sale only                                                                                  |
+| dp0180007                | integer    |             | DPSF18. Housing occupancy - Vacant housing units sold, not occupied                                                                             |
+| dp0180008                | integer    |             | DPSF18. Housing occupancy - Vacant housing units for seasonal, recreational, or occasional use                                                  |
+| dp0180009                | integer    |             | DPSF18. Housing occupancy - All other vacant housing units                                                                                      |
+| dp0190001                | number     |             | DPSF19. Homeowner vacancy rate - Homeowner vacancy rate (percent)                                                                               |
+| dp0200001                | number     |             | DPSF20. Rental vacancy rate - Rental vacancy rate (percent)                                                                                     |
+| dp0210001                | integer    |             | DPSF21. Housing tenure - Total occupied housing units                                                                                           |
+| dp0210002                | integer    |             | DPSF21. Housing tenure - Owner-occupied housing units                                                                                           |
+| dp0210003                | integer    |             | DPSF21. Housing tenure - Renter-occupied housing units                                                                                          |
+| dp0220001                | integer    |             | DPSF22. Population in occupied housing units by tenure - Owner-occupied housing units                                                           |
+| dp0220002                | integer    |             | DPSF22. Population in occupied housing units by tenure - Renter-occupied housing units                                                          |
+| dp0230001                | number     |             | DPSF23. Average household size by tenure - Owner occupied                                                                                       |
+| dp0230002                | number     |             | DPSF23. Average household size by tenure - Renter occupied                                                                                      |
+| geometry                 | geometry   |             | Geospatial representation of the feature.                                                                                                       |
+| internal_point_latitude  | number     | degrees     | Internal point latitude in decimal degrees.                                                                                                     |
+| internal_point_longitude | number     | degrees     | Internal point longitude in decimal degrees. Note that some Aleutian islands are west of the 180th meridian, and thus have positive longitudes. |
+| land_area                | number     | meter\*\*2  | Land area in square meters.                                                                                                                     |
+| shape_area               | number     | degree\*\*2 | Area of the feature in square degrees.                                                                                                          |
+| shape_length             | number     | degrees     | Length of the feature’s perimeter in degrees.                                                                                                   |
+| tract_id_fips            | string     |             | Census tract 10-digit FIPS code                                                                                                                 |
+| tract_name               | string     |             | Census tract legal/statistical area description                                                                                                 |
+| water_area               | number     | meter\*\*2  | Water area in square meters.                                                                                                                    |
 
 <a id="out-eia860-yearly-emissions-control-equipment"></a>
 
@@ -3903,6 +3903,7 @@ df <- read_parquet(
 | carbon_capture                            | boolean    |             | Indicates whether the generator uses carbon capture technology.                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | city                                      | string     |             | Name of the city.                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | county                                    | string     |             | County name.                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| county_id_fips                            | string     |             | County ID from the Federal Information Processing Standard Publication 6-4.                                                                                                                                                                                                                                                                                                                                                                                                         |
 | current_planned_generator_operating_date  | date       |             | The most recently updated effective date on which the generator is scheduled to start operation                                                                                                                                                                                                                                                                                                                                                                                     |
 | data_maturity                             | string     |             | Maturity of the source data published by EIA that is reflected in this record. EIA releases data incrementally over time, including monthly updates, annual year-to-date updates, provisional early releases of annual data, and final annual release data that is not expected to change further. Records sourced from multiple upstream EIA datasets may have no well defined data maturity. Records whose values have been inferred within PUDL will also have no data maturity. |
 | deliver_power_transgrid                   | boolean    |             | Indicate whether the generator can deliver power to the transmission grid.                                                                                                                                                                                                                                                                                                                                                                                                          |
@@ -3973,6 +3974,7 @@ df <- read_parquet(
 | startup_source_code_3                     | string     |             | The code representing the first, second, third or fourth start-up and flame stabilization energy source used by the combustion unit(s) associated with this generator.                                                                                                                                                                                                                                                                                                              |
 | startup_source_code_4                     | string     |             | The code representing the first, second, third or fourth start-up and flame stabilization energy source used by the combustion unit(s) associated with this generator.                                                                                                                                                                                                                                                                                                              |
 | state                                     | string     |             | Two letter US state abbreviation.                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| state_id_fips                             | string     |             | Two digit state FIPS code.                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | stoker_tech                               | boolean    |             | Indicates whether the generator uses stoker technology                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | street_address                            | string     |             | Physical street address.                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | subcritical_tech                          | boolean    |             | Indicates whether the generator uses subcritical technology                                                                                                                                                                                                                                                                                                                                                                                                                         |
@@ -4424,6 +4426,7 @@ df <- read_parquet(
 | carbon_capture                            | boolean    |             | Indicates whether the generator uses carbon capture technology.                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | city                                      | string     |             | Name of the city.                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | county                                    | string     |             | County name.                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| county_id_fips                            | string     |             | County ID from the Federal Information Processing Standard Publication 6-4.                                                                                                                                                                                                                                                                                                                                                                                                         |
 | current_planned_generator_operating_date  | date       |             | The most recently updated effective date on which the generator is scheduled to start operation                                                                                                                                                                                                                                                                                                                                                                                     |
 | data_maturity                             | string     |             | Maturity of the source data published by EIA that is reflected in this record. EIA releases data incrementally over time, including monthly updates, annual year-to-date updates, provisional early releases of annual data, and final annual release data that is not expected to change further. Records sourced from multiple upstream EIA datasets may have no well defined data maturity. Records whose values have been inferred within PUDL will also have no data maturity. |
 | deliver_power_transgrid                   | boolean    |             | Indicate whether the generator can deliver power to the transmission grid.                                                                                                                                                                                                                                                                                                                                                                                                          |
@@ -4494,6 +4497,7 @@ df <- read_parquet(
 | startup_source_code_3                     | string     |             | The code representing the first, second, third or fourth start-up and flame stabilization energy source used by the combustion unit(s) associated with this generator.                                                                                                                                                                                                                                                                                                              |
 | startup_source_code_4                     | string     |             | The code representing the first, second, third or fourth start-up and flame stabilization energy source used by the combustion unit(s) associated with this generator.                                                                                                                                                                                                                                                                                                              |
 | state                                     | string     |             | Two letter US state abbreviation.                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| state_id_fips                             | string     |             | Two digit state FIPS code.                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | stoker_tech                               | boolean    |             | Indicates whether the generator uses stoker technology                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | street_address                            | string     |             | Physical street address.                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | subcritical_tech                          | boolean    |             | Indicates whether the generator uses subcritical technology                                                                                                                                                                                                                                                                                                                                                                                                                         |
@@ -4562,6 +4566,14 @@ these generator-owner records are scaled to the ownership stake (represented by
 
 This table was created to represent every possible version of ownership slices of the
 EIA generators. It is primarily used as an input to [out_eia_\_yearly_plant_parts](#out-eia-yearly-plant-parts).
+
+The `utility_id_eia`, `utility_id_pudl` and `utility_name_eia` columns describe
+the *owner* of each generator slice. Jointly owned generators are typically run by a
+single utility on behalf of all of their owners, and that operator is identified
+separately by the `operator_utility_id_eia`, `operator_utility_id_pudl` and
+`operator_utility_name_eia` columns.
+For generators that are absent from [core_eia860_\_scd_ownership](#core-eia860-scd-ownership) the owner and the
+operator are the same utility.
 
 This table inherits canonicalized values for generators, plants, and utilities.
 EIA reports many attributes in many different tables across
@@ -4638,6 +4650,9 @@ df <- read_parquet(
 | net_generation_mwh                | number     | MWh         | Net electricity generation for the specified period in megawatt-hours (MWh).                                                                                                                                                                                                                                                                         |
 | operational_status                | string     |             | The operating status of the asset. For generators this is based on which tab the generator was listed in in EIA 860.                                                                                                                                                                                                                                 |
 | operational_status_pudl           | string     |             | The operating status of the asset using PUDL categories.                                                                                                                                                                                                                                                                                             |
+| operator_utility_id_eia           | integer    |             | The EIA utility Identification number for the operator utility.                                                                                                                                                                                                                                                                                      |
+| operator_utility_id_pudl          | integer    |             | A manually assigned PUDL utility ID for the operator utility. May not be stable over time.                                                                                                                                                                                                                                                           |
+| operator_utility_name_eia         | string     |             | The name of the EIA operator utility.                                                                                                                                                                                                                                                                                                                |
 | ownership_record_type             | string     |             | Whether each generator record is for one owner or represents a total of all ownerships.                                                                                                                                                                                                                                                              |
 | planned_generator_retirement_date | date       |             | Planned effective date of the scheduled retirement of the generator.                                                                                                                                                                                                                                                                                 |
 | plant_id_eia                      | integer    |             | The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.                                                                                                                                                                                                                       |
@@ -4650,9 +4665,9 @@ df <- read_parquet(
 | total_mmbtu                       | number     | MMBtu       | Total annual heat content of fuel consumed by a plant part record in the plant parts list.                                                                                                                                                                                                                                                           |
 | unit_heat_rate_mmbtu_per_mwh      | number     | MMBtu / MWh | Fuel content per unit of electricity generated. Coming from MCOE calculation.                                                                                                                                                                                                                                                                        |
 | unit_id_pudl                      | integer    |             | Dynamically assigned PUDL unit id. WARNING: This ID is not guaranteed to be static long term as the input data and algorithm may evolve over time.                                                                                                                                                                                                   |
-| utility_id_eia                    | integer    |             | The EIA Utility Identification number.                                                                                                                                                                                                                                                                                                               |
-| utility_id_pudl                   | integer    |             | A manually assigned PUDL utility ID. May not be stable over time.                                                                                                                                                                                                                                                                                    |
-| utility_name_eia                  | string     |             | The name of the utility.                                                                                                                                                                                                                                                                                                                             |
+| utility_id_eia                    | integer    |             | The EIA utility Identification number for the utility that owns the share of the generator described by this record. Generators that are absent from the EIA ownership table are assumed to be owned outright by their operator, so for those records this is the operator utility.                                                                  |
+| utility_id_pudl                   | integer    |             | A manually assigned PUDL utility ID for the owner utility. May not be stable over time.                                                                                                                                                                                                                                                              |
+| utility_name_eia                  | string     |             | The name of the owner utility.                                                                                                                                                                                                                                                                                                                       |
 
 <a id="out-eia-yearly-plant-parts"></a>
 
@@ -6050,6 +6065,7 @@ df <- read_parquet(
 | **Field Name**        | **Type**   | **Unit**   | **Description**                                                                                                                                                                                                                                                                                                                              |
 |-----------------------|------------|------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | ending_balance        | number     | USD        | Account balance at end of year.                                                                                                                                                                                                                                                                                                              |
+| ferc_account          | string     |            | Actual FERC Account number (e.g. ‘359.1’) if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting.                                                                                                                                                                                                   |
 | in_rate_base          | boolean    |            | Whether or not a record from the detailed FERC1 accounting tables should be considered allowable in a utility’s rate base based on utility accounting standards. This flag was manually compiled by RMI utility accounting experts based on the xbrl_factoid and sometimes varies based on the utility_type, plant_status or plant_function. |
 | plant_function        | string     |            | Functional role played by utility plant (steam production, nuclear production, distribution, transmission, etc.).                                                                                                                                                                                                                            |
 | plant_status          | string     |            | Utility plant financial status (in service, future, leased, total).                                                                                                                                                                                                                                                                          |
@@ -6150,6 +6166,7 @@ df <- read_parquet(
 | **Field Name**        | **Type**   | **Unit**   | **Description**                                                                                                                                                                                                                                                                                                                              |
 |-----------------------|------------|------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | ending_balance        | number     | USD        | Account balance at end of year.                                                                                                                                                                                                                                                                                                              |
+| ferc_account          | string     |            | Actual FERC Account number (e.g. ‘359.1’) if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting.                                                                                                                                                                                                   |
 | in_rate_base          | boolean    |            | Whether or not a record from the detailed FERC1 accounting tables should be considered allowable in a utility’s rate base based on utility accounting standards. This flag was manually compiled by RMI utility accounting experts based on the xbrl_factoid and sometimes varies based on the utility_type, plant_status or plant_function. |
 | rate_base_category    | string     |            | A category of asset or liability that RMI compiled to use as a shorthand for various types of utility assets. These tags were compiled manually based on the xbrl_factoid and sometimes varies based on the utility_type, plant_function or plant_status as well.                                                                            |
 | report_year           | integer    |            | Four-digit year in which the data was reported.                                                                                                                                                                                                                                                                                              |
@@ -7362,7 +7379,7 @@ Here are the three direct upstream inputs - the two `detailed` tables have sever
 * [core_ferc1_\_yearly_operating_expenses_sched320](#core-ferc1-yearly-operating-expenses-sched320)
 
 We applied slight modifications to three columns (utility_type, plant_function & plant_status) as compared to the originally reported values in our core tables. The modifications were applied to either provide more specificity (i.e. we converted some total utility_type’s into electric) or to condense similar categories for easier analysis (i.e. creating a hydraulic_production plant_function by combining hydraulic_production_conventional and hydraulic_production_pumped_storage).
-See `pudl.output.ferc1.Exploder` for more details. This table was made entirely with support and direction from RMI.
+Note that in the 2025 taxonomy, additional plant functions (solar, wind, energy storage, other renewables) were added - these plant functions have not been retroactively applied to prior taxonomies, and will appear under ‘other_production’ in prior years. See `pudl.output.ferc1.Exploder` for more details. This table was made entirely with support and direction from RMI.
 
 ### Access methods
 
@@ -15971,8 +15988,8 @@ df <- read_parquet(
 | generator_id                             | string     |            | Generator ID is usually numeric, but sometimes includes letters. Make sure you treat it as a string!                                                                                                                                                                                                                                                                                                                                                                                |
 | generator_operating_date                 | date       |            | Date the generator began commercial operation. If harvested values are inconsistent, we default to using the most recently reported date.                                                                                                                                                                                                                                                                                                                                           |
 | generator_retirement_date                | date       |            | Date of the scheduled or effected retirement of the generator.                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| latitude                                 | number     | degrees    | Latitude of the plant’s location, in degrees.                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| longitude                                | number     | degrees    | Longitude of the plant’s location, in degrees.                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| latitude                                 | number     | degrees    | Latitude of the plant’s location, in degrees. These values are reported as-is in EIA-860M and have not been cleaned up. They include a handful (<0.05%) of out-of-range values, zeros, and values with the wrong sign, or with latitude and longitude swapped.                                                                                                                                                                                                                      |
+| longitude                                | number     | degrees    | Longitude of the plant’s location, in degrees. These values are reported as-is in EIA-860M and have not been cleaned up. They include a handful (<0.05%) of out-of-range values, zeros, and values with the wrong sign, or with latitude and longitude swapped.                                                                                                                                                                                                                     |
 | net_capacity_mwdc                        | number     | MW         | Generation capacity in megawatts of direct current that is subject to a net metering agreement. Typically used for behind-the-meter solar PV.                                                                                                                                                                                                                                                                                                                                       |
 | operational_status                       | string     |            | The operating status of the asset. For generators this is based on which tab the generator was listed in in EIA 860.                                                                                                                                                                                                                                                                                                                                                                |
 | operational_status_code                  | string     |            | The operating status of the asset.                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
@@ -22755,11 +22772,13 @@ df <- read_parquet(
 |------------------|------------|------------|--------------------------------------------------------------------------------------------------------------------------------|
 | city             | string     |            | Name of the city.                                                                                                              |
 | county           | string     |            | County name.                                                                                                                   |
+| county_id_fips   | string     |            | County ID from the Federal Information Processing Standard Publication 6-4.                                                    |
 | latitude         | number     | degrees    | Latitude of the plant’s location, in degrees.                                                                                  |
 | longitude        | number     | degrees    | Longitude of the plant’s location, in degrees.                                                                                 |
 | plant_id_eia     | integer    |            | The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration. |
 | plant_name_eia   | string     |            | Plant name.                                                                                                                    |
 | state            | string     |            | Two letter US state abbreviation.                                                                                              |
+| state_id_fips    | string     |            | Two digit state FIPS code.                                                                                                     |
 | street_address   | string     |            | Physical street address.                                                                                                       |
 | timezone         | string     |            | IANA timezone name                                                                                                             |
 | zip_code         | string     |            | Five digit US Zip Code.                                                                                                        |
@@ -23489,7 +23508,7 @@ EPA CAMD IDs ensure there is complete coverage of EPA CAMD reporting units. The 
 table addition ensures there is also complete coverage of those units as well.
 
 For more information about the how this subplant_id is made, see the documentation for
-[`pudl.dagster.assets.core.glue.make_subplant_ids()`](../autoapi/pudl/dagster/assets/core/glue/index.html.md#pudl.dagster.assets.core.glue.make_subplant_ids) and [`pudl.dagster.assets.core.glue.update_subplant_ids()`](../autoapi/pudl/dagster/assets/core/glue/index.html.md#pudl.dagster.assets.core.glue.update_subplant_ids).
+[`pudl.dagster.assets.core.glue.make_subplant_ids()`](../autoapi/pudl/dagster/assets/core/glue/index.html.md#pudl.dagster.assets.core.glue.make_subplant_ids).
 
 But by analyzing the relationships between combustors and generators,
 as provided in the core_epa_\_assn_eia_epacamd crosswalk, we can identify distinct power plants.
@@ -23686,6 +23705,131 @@ WHERE
 | state                     | string     |            | Two letter US state abbreviation.                                                                                              |
 | steam_load_lbs            | number     | pound      | Total steam pressure produced by a unit during the reported hour.                                                              |
 | year                      | integer    |            | Year the data was reported in, used for partitioning EPA CEMS.                                                                 |
+
+<a id="core-epamats-hourly-emissions"></a>
+
+## core_epamats_\_hourly_emissions
+
+Noticed any irregularities with this table? [File a report.](https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=core_epamats__hourly_emissions)
+
+Hourly time series of hourly emissions of mercury (Hg) and hydrogen chloride (HCl) from coal- and oil-fired power plants.
+
+Most-recent data:
+: 2026
+
+Processing:
+: Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
+
+Source:
+: EPA MATS – Mercury and Air Toxics Standards
+
+Primary key:
+: plant_id_epa, emissions_unit_id_epa, operating_datetime_utc
+
+### Usage Warnings
+
+* Not all IDs are present.
+* Contains information from multiple raw inputs.
+
+### Additional Details
+
+The EPA Mercury and Air Toxics Standards
+(MATS) dataset provides detailed information on emissions of hazardous air
+pollutants, specifically mercury (Hg), hydrogen chloride (HCl), and hydrogen
+fluoride (HF), from coal- and oil-fired power plants in the United States.
+Established under the Clean Air Act, MATS requires affected units to install
+and operate continuous emissions monitoring systems (CEMS) to track pollutant
+output rates and mass emissions.
+
+Only coal- and oil-fired units above a certain capacity threshold are required
+to comply with MATS, so not all plants that report to EIA have corresponding
+MATS monitoring data. The data covers roughly 2015 onward and is reported
+hourly.
+
+MATS does not require reporting of hourly hydrogen fluoride (HF) emissions, and the
+four HF columns are entirely null throughout the raw data, so they are dropped
+from this table. Only the mercury (Hg) and hydrogen chloride (HCl) columns
+contain data.
+
+Units in the MATS data are identified by their EPA emissions unit IDs, which
+may differ from EIA generator IDs. Use the core_epa_\_assn_eia_epacamd
+crosswalk to connect MATS emissions units to EIA plant IDs and generators.
+
+### Access methods
+
+* [Browse and query this table online](https://data.catalyst.coop/preview/pudl/core_epamats__hourly_emissions)
+* [Download this table as a Parquet file](https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_epamats__hourly_emissions.parquet)
+
+### pandas
+
+```python
+import pandas as pd
+df = pd.read_parquet(
+      "s3://pudl.catalyst.coop/nightly/core_epamats__hourly_emissions.parquet",
+      dtype_backend="pyarrow",
+)
+```
+
+### polars
+
+```python
+import polars as pl
+df = pl.read_parquet(
+      "s3://pudl.catalyst.coop/nightly/core_epamats__hourly_emissions.parquet",
+      storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+)
+```
+
+### SQL (DuckDB)
+
+```sql
+INSTALL httpfs;
+LOAD httpfs;
+-- Path-style S3 addressing is required because our bucket name contains dots.
+CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
+SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_epamats__hourly_emissions.parquet';
+```
+
+### R
+
+```r
+library(arrow)
+df <- read_parquet(
+      "s3://pudl.catalyst.coop/nightly/core_epamats__hourly_emissions.parquet"
+)
+```
+
+### Columns
+
+| **Field Name**              | **Type**   | **Unit**   | **Description**                                                                                                                           |
+|-----------------------------|------------|------------|-------------------------------------------------------------------------------------------------------------------------------------------|
+| associated_stacks           | string     |            | EPA-associated stack IDs for the emissions unit.                                                                                          |
+| emissions_unit_id_epa       | string     |            | Emissions (smokestack) unit monitored by EPA CEMS.                                                                                        |
+| gross_load_mw               | number     | MW         | Average power in megawatts delivered during time interval measured.                                                                       |
+| hcl_input_rate_lb_per_mmbtu | number     | lb / MMBtu | Hydrogen chloride (HCl) emissions per unit of heat content.                                                                               |
+| hcl_mass_lbs                | number     | pound      | Hydrogen chloride (HCl) emissions in pounds.                                                                                              |
+| hcl_mass_measurement_code   | string     |            | Identifies whether the reported value of hydrogen chloride (HCl) emissions was measured, calculated, startup or shutdown, or unavailable. |
+| hcl_output_rate_lb_per_mwh  | number     | lb / MWh   | Hydrogen chloride (HCl) output emissions rate.                                                                                            |
+| heat_content_mmbtu          | number     | MMBtu      | The energy contained in fuel burned, measured in million BTU.                                                                             |
+| hg_controls                 | string     |            | Type of mercury (Hg) control technology installed.                                                                                        |
+| hg_input_rate_lb_per_tbtu   | number     | lb / TBtu  | Mercury (Hg) emissions per unit of heat content.                                                                                          |
+| hg_mass_lbs                 | number     | pound      | Mercury (Hg) emissions in pounds.                                                                                                         |
+| hg_mass_measurement_code    | string     |            | Identifies whether the reported value of mercury (Hg) emissions was measured, calculated, startup or shutdown, or unavailable.            |
+| hg_output_rate_lb_per_gwh   | number     | lb / GWh   | Mercury (Hg) output emissions rate.                                                                                                       |
+| nox_controls                | string     |            | Type of nitrogen oxide (NOx) control technology installed.                                                                                |
+| operating_datetime_utc      | datetime   |            | Date and time measurement began (UTC).                                                                                                    |
+| operating_time_hours        | number     | hour       | Length of time interval measured.                                                                                                         |
+| plant_id_eia                | integer    |            | The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.            |
+| plant_id_epa                | integer    |            | The ORISPL ID used by EPA to refer to the plant. Usually but not always the same as plant_id_eia.                                         |
+| plant_name_epa              | string     |            | Plant name as reported to the EPA.                                                                                                        |
+| pm_controls                 | string     |            | Type of particulate matter (PM) control technology installed.                                                                             |
+| primary_fuel_type           | string     |            | Primary fuel type burned by the unit.                                                                                                     |
+| secondary_fuel_type         | string     |            | Secondary fuel type burned by the unit.                                                                                                   |
+| so2_controls                | string     |            | Type of sulfur dioxide (SO2) control technology installed.                                                                                |
+| state                       | string     |            | Two letter US state abbreviation.                                                                                                         |
+| steam_load_lbs              | number     | pound      | Total steam pressure produced by a unit during the reported hour.                                                                         |
+| unit_type                   | string     |            | Type of emissions unit (e.g. boiler, combustion turbine).                                                                                 |
+| year                        | integer    |            | Year the data was reported in, used for partitioning EPA CEMS.                                                                            |
 
 <a id="core-ferc1-codes-power-purchase-types"></a>
 

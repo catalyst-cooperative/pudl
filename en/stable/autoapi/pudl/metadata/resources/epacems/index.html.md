@@ -9,7 +9,7 @@ Table definitions for the EPA CEMS data group.
 
 ## Module Contents
 
-### pudl.metadata.resources.epacems.RESOURCE_METADATA *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]*
+### pudl.metadata.resources.epacems.RESOURCE_METADATA *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]]*
 
 EPA CEMS resource attributes by PUDL identifier (`resource.name`).
 

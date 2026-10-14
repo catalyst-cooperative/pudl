@@ -28,7 +28,7 @@ Take the latest reported non-null value for each group.
 
 Take the row that has most non-null values out of each group.
 
-### pudl.transform.ferc.\_\_compare_dedupe_methodologies(applied_diffs: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), best_snapshot: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), xbrl_context_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)])
+### pudl.transform.ferc.\_\_compare_dedupe_methodologies(applied_diffs: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), best_snapshot: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), xbrl_context_cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)])
 
 Compare deduplication methodologies.
 
@@ -39,7 +39,7 @@ The main things we want to keep tabs on are: whether apply-diff is
 adding more than expected differences compared to best-snapshot and
 whether or not apply-diff is giving us more values than best-snapshot.
 
-### pudl.transform.ferc.filter_for_freshest_data_xbrl(xbrl_table: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), primary_keys: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], compare_methods: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.transform.ferc.filter_for_freshest_data_xbrl(xbrl_table: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), primary_keys: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], compare_methods: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Get most updated values for each XBRL context.
 
@@ -59,7 +59,7 @@ either reports a null value for it or simply omits it from the report,
 we keep the old non-null value, which may be erroneous. This appears to
 be fairly rare, affecting < 0.005% of reported values.
 
-### pudl.transform.ferc.get_primary_key_raw_xbrl(sched_table_name: [str](https://docs.python.org/3/library/stdtypes.html#str), ferc_form: Literal['ferc1', 'ferc714'], pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths)) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]
+### pudl.transform.ferc.get_primary_key_raw_xbrl(sched_table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), ferc_form: Literal['ferc1', 'ferc714'], pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths)) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]
 
 Get the primary key for a raw XBRL table from the XBRL datapackage.
 

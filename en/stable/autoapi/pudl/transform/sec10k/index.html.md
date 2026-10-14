@@ -79,7 +79,7 @@ fill in missing industry descriptions based on the industry code.
 
 See e.g. [https://www.osha.gov/data/sic-manual](https://www.osha.gov/data/sic-manual) for code definitions.”
 
-### pudl.transform.sec10k.\_pivot_info_block(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), block: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.transform.sec10k.\_pivot_info_block(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), block: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Select and pivot distinct blocks of company information for further processing.
 

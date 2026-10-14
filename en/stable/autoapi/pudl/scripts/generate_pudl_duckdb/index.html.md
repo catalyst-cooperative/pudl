@@ -9,6 +9,6 @@ Basic script to generate a duckdb file with views to local/nightly parquet files
 
 ## Module Contents
 
-### pudl.scripts.generate_pudl_duckdb.main() → [int](https://docs.python.org/3/library/functions.html#int)
+### pudl.scripts.generate_pudl_duckdb.main() → [int](https://docs.python.org/3/builtins/functions.html#int)
 
 Create duckdb file.

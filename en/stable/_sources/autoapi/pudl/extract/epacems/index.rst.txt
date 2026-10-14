@@ -111,7 +111,28 @@ Module Contents
 
    EpaCems resources are identified by a year and a quarter. Each of these zip files
    contains one csv file. This class implements get_data_frame method that will
-   rename columns for a quarterly CSV file.
+   rename columns for a quarterly CSV file. Subclasses (e.g. the MATS extractor)
+   can override ``dataset_name``, ``rename_dict``, and ``dtype_dict`` to reuse the
+   same zip-reading logic for similarly-structured datasets.
+
+
+   .. py:attribute:: dataset_name
+      :type:  str
+      :value: 'epacems'
+
+
+      Name of the dataset used to fetch zipfile resources from the datastore.
+
+
+   .. py:attribute:: rename_dict
+      :type:  dict[str, str]
+
+      Mapping from raw column names to PUDL column names.
+
+
+   .. py:attribute:: dtype_dict
+
+      Data types for the raw columns.
 
 
    .. py:attribute:: datastore

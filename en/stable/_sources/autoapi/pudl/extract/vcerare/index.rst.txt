@@ -28,6 +28,7 @@ Attributes
 
    pudl.extract.vcerare.logger
    pudl.extract.vcerare.VCERARE_PAGES
+   pudl.extract.vcerare.DATETIME_HOUR_OF_YEAR_START_YEAR
 
 
 Functions
@@ -35,7 +36,8 @@ Functions
 
 .. autoapisummary::
 
-   pudl.extract.vcerare._clean_column_names
+   pudl.extract.vcerare._clean_column_name
+   pudl.extract.vcerare._vcerare_column_types
    pudl.extract.vcerare.extract_vcerare
    pudl.extract.vcerare.raw_vcerare__lat_lon_fips
 
@@ -47,9 +49,24 @@ Module Contents
 
 .. py:data:: VCERARE_PAGES
 
-.. py:function:: _clean_column_names(table_relation: duckdb.DuckDBPyRelation) -> duckdb.DuckDBPyRelation
+.. py:data:: DATETIME_HOUR_OF_YEAR_START_YEAR
+   :value: 2024
 
-   Apply basic cleaning to column names.
+
+.. py:function:: _clean_column_name(col: str) -> str
+
+   Match the raw VCE RARE column naming convention to PUDL's snake_case.
+
+
+.. py:function:: _vcerare_column_types(year: int) -> collections.abc.Callable[[list[str]], dict[str, str]]
+
+   Build a DuckDB ``columns`` schema from a raw VCE RARE CSV header row.
+
+   Every column is a per-county/subregion capacity factor (``DOUBLE``) except the
+   first, unnamed column, which is always ``hour_of_year`` and whose type depends
+   on the report year (see ``DATETIME_HOUR_OF_YEAR_START_YEAR``). The set of
+   county/subregion columns is not stable across vintages, so it's always derived
+   from the actual header row rather than hardcoded.
 
 
 .. py:function:: extract_vcerare(context) -> tuple[dict[int, pudl.helpers.ParquetData], dict[int, pudl.helpers.ParquetData], dict[int, pudl.helpers.ParquetData]]

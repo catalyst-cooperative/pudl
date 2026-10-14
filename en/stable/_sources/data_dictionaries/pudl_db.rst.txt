@@ -869,7 +869,7 @@ Columns
   * - internal_point_longitude
     - number
     - degrees
-    - Internal point longitude in decimal degrees.
+    - Internal point longitude in decimal degrees. Note that some Aleutian islands are west of the 180th meridian, and thus have positive longitudes.
   * - land_area
     - number
     - meter**2
@@ -1739,7 +1739,7 @@ Columns
   * - internal_point_longitude
     - number
     - degrees
-    - Internal point longitude in decimal degrees.
+    - Internal point longitude in decimal degrees. Note that some Aleutian islands are west of the 180th meridian, and thus have positive longitudes.
   * - land_area
     - number
     - meter**2
@@ -2621,7 +2621,7 @@ Columns
   * - internal_point_longitude
     - number
     - degrees
-    - Internal point longitude in decimal degrees.
+    - Internal point longitude in decimal degrees. Note that some Aleutian islands are west of the 180th meridian, and thus have positive longitudes.
   * - land_area
     - number
     - meter**2
@@ -7609,6 +7609,10 @@ Columns
     - string
     - 
     - County name.
+  * - county_id_fips
+    - string
+    - 
+    - County ID from the Federal Information Processing Standard Publication 6-4.
   * - current_planned_generator_operating_date
     - date
     - 
@@ -7889,6 +7893,10 @@ Columns
     - string
     - 
     - Two letter US state abbreviation.
+  * - state_id_fips
+    - string
+    - 
+    - Two digit state FIPS code.
   * - stoker_tech
     - boolean
     - 
@@ -8905,6 +8913,10 @@ Columns
     - string
     - 
     - County name.
+  * - county_id_fips
+    - string
+    - 
+    - County ID from the Federal Information Processing Standard Publication 6-4.
   * - current_planned_generator_operating_date
     - date
     - 
@@ -9185,6 +9197,10 @@ Columns
     - string
     - 
     - Two letter US state abbreviation.
+  * - state_id_fips
+    - string
+    - 
+    - Two digit state FIPS code.
   * - stoker_tech
     - boolean
     - 
@@ -9351,6 +9367,14 @@ these generator-owner records are scaled to the ownership stake (represented by
 This table was created to represent every possible version of ownership slices of the
 EIA generators. It is primarily used as an input to :ref:`out_eia__yearly_plant_parts`.
 
+The ``utility_id_eia``, ``utility_id_pudl`` and ``utility_name_eia`` columns describe
+the *owner* of each generator slice. Jointly owned generators are typically run by a
+single utility on behalf of all of their owners, and that operator is identified
+separately by the ``operator_utility_id_eia``, ``operator_utility_id_pudl`` and
+``operator_utility_name_eia`` columns.
+For generators that are absent from :ref:`core_eia860__scd_ownership` the owner and the
+operator are the same utility.
+
 This table inherits canonicalized values for generators, plants, and utilities.
 EIA reports many attributes in many different tables across
 EIA-860 and EIA-923. In order to compile tidy, well-normalized database tables, PUDL
@@ -9487,6 +9511,18 @@ Columns
     - string
     - 
     - The operating status of the asset using PUDL categories.
+  * - operator_utility_id_eia
+    - integer
+    - 
+    - The EIA utility Identification number for the operator utility.
+  * - operator_utility_id_pudl
+    - integer
+    - 
+    - A manually assigned PUDL utility ID for the operator utility. May not be stable over time.
+  * - operator_utility_name_eia
+    - string
+    - 
+    - The name of the EIA operator utility.
   * - ownership_record_type
     - string
     - 
@@ -9538,15 +9574,15 @@ Columns
   * - utility_id_eia
     - integer
     - 
-    - The EIA Utility Identification number.
+    - The EIA utility Identification number for the utility that owns the share of the generator described by this record. Generators that are absent from the EIA ownership table are assumed to be owned outright by their operator, so for those records this is the operator utility.
   * - utility_id_pudl
     - integer
     - 
-    - A manually assigned PUDL utility ID. May not be stable over time.
+    - A manually assigned PUDL utility ID for the owner utility. May not be stable over time.
   * - utility_name_eia
     - string
     - 
-    - The name of the utility.
+    - The name of the owner utility.
 
 .. _out_eia__yearly_plant_parts:
 
@@ -12162,6 +12198,10 @@ Columns
     - number
     - USD
     - Account balance at end of year.
+  * - ferc_account
+    - string
+    - 
+    - Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting.
   * - in_rate_base
     - boolean
     - 
@@ -12329,6 +12369,10 @@ Columns
     - number
     - USD
     - Account balance at end of year.
+  * - ferc_account
+    - string
+    - 
+    - Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting.
   * - in_rate_base
     - boolean
     - 
@@ -14523,7 +14567,7 @@ Here are the three direct upstream inputs - the two ``detailed`` tables have sev
 * :ref:`core_ferc1__yearly_operating_expenses_sched320`
 
 We applied slight modifications to three columns (utility_type, plant_function & plant_status) as compared to the originally reported values in our core tables. The modifications were applied to either provide more specificity (i.e. we converted some `total` utility_type's into `electric`) or to condense similar categories for easier analysis (i.e. creating a `hydraulic_production` plant_function by combining `hydraulic_production_conventional` and `hydraulic_production_pumped_storage`).
-See ``pudl.output.ferc1.Exploder`` for more details. This table was made entirely with support and direction from RMI.
+Note that in the 2025 taxonomy, additional plant functions (solar, wind, energy storage, other renewables) were added - these plant functions have not been retroactively applied to prior taxonomies, and will appear under 'other_production' in prior years. See ``pudl.output.ferc1.Exploder`` for more details. This table was made entirely with support and direction from RMI.
 
 Access methods
 ^^^^^^^^^^^^^^^
@@ -29230,11 +29274,11 @@ Columns
   * - latitude
     - number
     - degrees
-    - Latitude of the plant's location, in degrees.
+    - Latitude of the plant's location, in degrees. These values are reported as-is in EIA-860M and have not been cleaned up. They include a handful (<0.05%) of out-of-range values, zeros, and values with the wrong sign, or with latitude and longitude swapped.
   * - longitude
     - number
     - degrees
-    - Longitude of the plant's location, in degrees.
+    - Longitude of the plant's location, in degrees. These values are reported as-is in EIA-860M and have not been cleaned up. They include a handful (<0.05%) of out-of-range values, zeros, and values with the wrong sign, or with latitude and longitude swapped.
   * - net_capacity_mwdc
     - number
     - MW
@@ -39256,6 +39300,10 @@ Columns
     - string
     - 
     - County name.
+  * - county_id_fips
+    - string
+    - 
+    - County ID from the Federal Information Processing Standard Publication 6-4.
   * - latitude
     - number
     - degrees
@@ -39276,6 +39324,10 @@ Columns
     - string
     - 
     - Two letter US state abbreviation.
+  * - state_id_fips
+    - string
+    - 
+    - Two digit state FIPS code.
   * - street_address
     - string
     - 
@@ -40321,7 +40373,7 @@ EPA CAMD IDs ensure there is complete coverage of EPA CAMD reporting units. The 
 table addition ensures there is also complete coverage of those units as well.
 
 For more information about the how this subplant_id is made, see the documentation for
-:func:`pudl.dagster.assets.core.glue.make_subplant_ids` and :func:`pudl.dagster.assets.core.glue.update_subplant_ids`.
+:func:`pudl.dagster.assets.core.glue.make_subplant_ids`.
 
 But by analyzing the relationships between combustors and generators,
 as provided in the core_epa__assn_eia_epacamd crosswalk, we can identify distinct power plants.
@@ -40615,6 +40667,234 @@ Columns
     - number
     - pound
     - Total steam pressure produced by a unit during the reported hour.
+  * - year
+    - integer
+    - 
+    - Year the data was reported in, used for partitioning EPA CEMS.
+
+.. _core_epamats__hourly_emissions:
+
+-------------------------------------------------------------------------------
+core_epamats__hourly_emissions
+-------------------------------------------------------------------------------
+Noticed any irregularities with this table? `File a report. <https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=core_epamats__hourly_emissions>`__
+
+Hourly time series of hourly emissions of mercury (Hg) and hydrogen chloride (HCl) from coal- and oil-fired power plants.
+
+
+Most-recent data:
+  2026
+
+
+Processing:
+  Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
+
+Source:
+  EPA MATS -- Mercury and Air Toxics Standards
+
+Primary key:
+  plant_id_epa, emissions_unit_id_epa, operating_datetime_utc
+
+
+Usage Warnings
+^^^^^^^^^^^^^^
+
+
+* Not all IDs are present.
+
+* Contains information from multiple raw inputs.
+
+
+
+
+
+Additional Details
+^^^^^^^^^^^^^^^^^^
+
+The EPA Mercury and Air Toxics Standards
+(MATS) dataset provides detailed information on emissions of hazardous air
+pollutants, specifically mercury (Hg), hydrogen chloride (HCl), and hydrogen
+fluoride (HF), from coal- and oil-fired power plants in the United States.
+Established under the Clean Air Act, MATS requires affected units to install
+and operate continuous emissions monitoring systems (CEMS) to track pollutant
+output rates and mass emissions.
+
+Only coal- and oil-fired units above a certain capacity threshold are required
+to comply with MATS, so not all plants that report to EIA have corresponding
+MATS monitoring data. The data covers roughly 2015 onward and is reported
+hourly.
+
+MATS does not require reporting of hourly hydrogen fluoride (HF) emissions, and the
+four HF columns are entirely null throughout the raw data, so they are dropped
+from this table. Only the mercury (Hg) and hydrogen chloride (HCl) columns
+contain data.
+
+Units in the MATS data are identified by their EPA emissions unit IDs, which
+may differ from EIA generator IDs. Use the core_epa__assn_eia_epacamd
+crosswalk to connect MATS emissions units to EIA plant IDs and generators.
+
+Access methods
+^^^^^^^^^^^^^^^
+
+* `Browse and query this table online <https://data.catalyst.coop/preview/pudl/core_epamats__hourly_emissions>`__
+* `Download this table as a Parquet file <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_epamats__hourly_emissions.parquet>`__
+
+.. tab-set::
+
+   .. tab-item:: pandas
+
+      .. code-block:: python
+
+         import pandas as pd
+         df = pd.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_epamats__hourly_emissions.parquet",
+               dtype_backend="pyarrow",
+         )
+
+   .. tab-item:: polars
+
+      .. code-block:: python
+
+         import polars as pl
+         df = pl.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_epamats__hourly_emissions.parquet",
+               storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+         )
+
+   .. tab-item:: SQL (DuckDB)
+
+      .. code-block:: sql
+
+         INSTALL httpfs;
+         LOAD httpfs;
+         -- Path-style S3 addressing is required because our bucket name contains dots.
+         CREATE SECRET (TYPE s3, PROVIDER config, REGION 'us-west-2', URL_STYLE 'path');
+         SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_epamats__hourly_emissions.parquet';
+
+   .. tab-item:: R
+
+      .. code-block:: r
+
+         library(arrow)
+         df <- read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_epamats__hourly_emissions.parquet"
+         )
+
+Columns
+^^^^^^^
+
+.. list-table::
+  :widths: auto
+  :header-rows: 1
+
+  * - **Field Name**
+    - **Type**
+    - **Unit**
+    - **Description**
+  * - associated_stacks
+    - string
+    - 
+    - EPA-associated stack IDs for the emissions unit.
+  * - emissions_unit_id_epa
+    - string
+    - 
+    - Emissions (smokestack) unit monitored by EPA CEMS.
+  * - gross_load_mw
+    - number
+    - MW
+    - Average power in megawatts delivered during time interval measured.
+  * - hcl_input_rate_lb_per_mmbtu
+    - number
+    - lb / MMBtu
+    - Hydrogen chloride (HCl) emissions per unit of heat content.
+  * - hcl_mass_lbs
+    - number
+    - pound
+    - Hydrogen chloride (HCl) emissions in pounds.
+  * - hcl_mass_measurement_code
+    - string
+    - 
+    - Identifies whether the reported value of hydrogen chloride (HCl) emissions was measured, calculated, startup or shutdown, or unavailable.
+  * - hcl_output_rate_lb_per_mwh
+    - number
+    - lb / MWh
+    - Hydrogen chloride (HCl) output emissions rate.
+  * - heat_content_mmbtu
+    - number
+    - MMBtu
+    - The energy contained in fuel burned, measured in million BTU.
+  * - hg_controls
+    - string
+    - 
+    - Type of mercury (Hg) control technology installed.
+  * - hg_input_rate_lb_per_tbtu
+    - number
+    - lb / TBtu
+    - Mercury (Hg) emissions per unit of heat content.
+  * - hg_mass_lbs
+    - number
+    - pound
+    - Mercury (Hg) emissions in pounds.
+  * - hg_mass_measurement_code
+    - string
+    - 
+    - Identifies whether the reported value of mercury (Hg) emissions was measured, calculated, startup or shutdown, or unavailable.
+  * - hg_output_rate_lb_per_gwh
+    - number
+    - lb / GWh
+    - Mercury (Hg) output emissions rate.
+  * - nox_controls
+    - string
+    - 
+    - Type of nitrogen oxide (NOx) control technology installed.
+  * - operating_datetime_utc
+    - datetime
+    - 
+    - Date and time measurement began (UTC).
+  * - operating_time_hours
+    - number
+    - hour
+    - Length of time interval measured.
+  * - plant_id_eia
+    - integer
+    - 
+    - The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.
+  * - plant_id_epa
+    - integer
+    - 
+    - The ORISPL ID used by EPA to refer to the plant. Usually but not always the same as plant_id_eia.
+  * - plant_name_epa
+    - string
+    - 
+    - Plant name as reported to the EPA.
+  * - pm_controls
+    - string
+    - 
+    - Type of particulate matter (PM) control technology installed.
+  * - primary_fuel_type
+    - string
+    - 
+    - Primary fuel type burned by the unit.
+  * - secondary_fuel_type
+    - string
+    - 
+    - Secondary fuel type burned by the unit.
+  * - so2_controls
+    - string
+    - 
+    - Type of sulfur dioxide (SO2) control technology installed.
+  * - state
+    - string
+    - 
+    - Two letter US state abbreviation.
+  * - steam_load_lbs
+    - number
+    - pound
+    - Total steam pressure produced by a unit during the reported hour.
+  * - unit_type
+    - string
+    - 
+    - Type of emissions unit (e.g. boiler, combustion turbine).
   * - year
     - integer
     - 

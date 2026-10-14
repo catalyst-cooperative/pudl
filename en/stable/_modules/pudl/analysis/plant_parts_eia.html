@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 
 
@@ -16,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.analysis.plant_parts_eia &#8212; PUDL 2026.9.0 documentation</title>
+    <title>pudl.analysis.plant_parts_eia &#8212; PUDL 2026.10.0 documentation</title>
   
   
   
@@ -35,8 +34,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
@@ -44,12 +43,12 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=f05d84ed"></script>
+    <script src="../../../_static/documentation_options.js?v=c6b11c07"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -413,7 +412,7 @@ window.addEventListener("load", load);
 window.runMermaid = runMermaid;</script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/analysis/plant_parts_eia';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.23.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'stable';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -423,6 +422,7 @@ window.runMermaid = runMermaid;</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
   
@@ -472,7 +472,7 @@ window.runMermaid = runMermaid;</script>
   
     <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
-  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
     <span class="fa-solid fa-bars"></span>
   </button>
   
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.0 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.0 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.0 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.0 documentation - Home"/>
   
   
 </a></div>
@@ -570,7 +570,7 @@ window.runMermaid = runMermaid;</script>
         <div class="navbar-item navbar-persistent--container">
           
 
-<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
  <i class="fa-solid fa-magnifying-glass"></i>
  <span class="search-button__default-text">Search</span>
  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
@@ -581,15 +581,15 @@ window.runMermaid = runMermaid;</script>
         <div class="navbar-item">
 
 <div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
-  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
     <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
     <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
     <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
   </button>
   <ul class="dropdown-menu dropdown-menu-end">
-    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
-    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
-    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
   </ul>
 </div></div>
       
@@ -659,7 +659,7 @@ window.runMermaid = runMermaid;</script>
   
     <div class="navbar-persistent--mobile">
 
-<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
  <i class="fa-solid fa-magnifying-glass"></i>
  <span class="search-button__default-text">Search</span>
  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
@@ -736,15 +736,15 @@ window.runMermaid = runMermaid;</script>
           <div class="navbar-item">
 
 <div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
-  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
     <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
     <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
     <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
   </button>
   <ul class="dropdown-menu dropdown-menu-end">
-    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
-    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
-    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
   </ul>
 </div></div>
         
@@ -1037,7 +1037,6 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">OrderedDict</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">importlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">resources</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span>
 
@@ -1047,6 +1046,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pudl.helpers</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pudl.logging_helpers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl</span><span class="w"> </span><span class="kn">import</span> <span class="n">PUDL_PACKAGE_DATA_PATH</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Resource</span>
 
 <div class="viewcode-block" id="logger">
@@ -1230,7 +1230,7 @@ window.runMermaid = runMermaid;</script>
 
 
 <span class="nd">@asset</span><span class="p">(</span>
-    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">,</span>
+    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span><span class="p">,</span>
     <span class="n">compute_kind</span><span class="o">=</span><span class="s2">"Python"</span><span class="p">,</span>
     <span class="n">op_tags</span><span class="o">=</span><span class="p">{</span>
         <span class="s2">"memory-use"</span><span class="p">:</span> <span class="s2">"high"</span><span class="p">,</span>
@@ -1284,7 +1284,7 @@ window.runMermaid = runMermaid;</script>
 
 
 <span class="nd">@asset</span><span class="p">(</span>
-    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">,</span>
+    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span><span class="p">,</span>
     <span class="n">compute_kind</span><span class="o">=</span><span class="s2">"Python"</span><span class="p">,</span>
     <span class="n">op_tags</span><span class="o">=</span><span class="p">{</span>
         <span class="s2">"memory-use"</span><span class="p">:</span> <span class="s2">"high"</span><span class="p">,</span>
@@ -1429,9 +1429,14 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        """</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Generating the mega generator table with ownership."</span><span class="p">)</span>
 
+        <span class="c1"># label_operator_utility must run before scale_by_ownership, which</span>
+        <span class="c1"># overwrites the utility_id_eia, utility_id_pudl and utility_name_eia</span>
+        <span class="c1"># columns it copies from with the owner's values. Reordering these two</span>
+        <span class="c1"># steps would silently label every record's owner as its operator.</span>
         <span class="n">gens_mega</span> <span class="o">=</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">get_gens_mega_table</span><span class="p">(</span><span class="n">mcoe</span><span class="p">)</span>
             <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label_operating_gens</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label_operator_utility</span><span class="p">)</span>
             <span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
                 <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">scale_by_ownership</span><span class="p">,</span>
                 <span class="n">own_eia860</span><span class="p">,</span>
@@ -1519,6 +1524,39 @@ window.runMermaid = runMermaid;</script>
             <span class="s2">"generators as non-operative."</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">gen_df</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="MakeMegaGenTbl.label_operator_utility">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/plant_parts_eia/index.html#pudl.analysis.plant_parts_eia.MakeMegaGenTbl.label_operator_utility">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">label_operator_utility</span><span class="p">(</span><span class="n">gen_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Preserve the operator utility's IDs and name before ownership is integrated.</span>
+
+<span class="sd">        The ``utility_id_eia``, ``utility_id_pudl`` and ``utility_name_eia`` columns</span>
+<span class="sd">        of the generators table identify the utility that operates each generator. Once</span>
+<span class="sd">        :func:`pudl.helpers.scale_by_ownership` runs, those columns describe each</span>
+<span class="sd">        generator's owners instead, so we stash the operator's IDs and name in</span>
+<span class="sd">        dedicated columns first. Jointly owned generators typically have a single operator</span>
+<span class="sd">        and several owners, and knowing who operates a generator makes it</span>
+<span class="sd">        possible to reconcile ownership-scaled generation with the utility-level</span>
+<span class="sd">        data reported in EIA-861.</span>
+<span class="sd">        See https://github.com/catalyst-cooperative/pudl/issues/5550</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            gen_df: annual table of all generators from EIA, with the operator</span>
+<span class="sd">                utility's ``utility_id_eia``, ``utility_id_pudl`` and</span>
+<span class="sd">                ``utility_name_eia``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The same table with ``operator_utility_id_eia``,</span>
+<span class="sd">            ``operator_utility_id_pudl`` and ``operator_utility_name_eia`` columns</span>
+<span class="sd">            added.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="n">gen_df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">operator_utility_id_eia</span><span class="o">=</span><span class="n">gen_df</span><span class="p">[</span><span class="s2">"utility_id_eia"</span><span class="p">],</span>
+            <span class="n">operator_utility_id_pudl</span><span class="o">=</span><span class="n">gen_df</span><span class="p">[</span><span class="s2">"utility_id_pudl"</span><span class="p">],</span>
+            <span class="n">operator_utility_name_eia</span><span class="o">=</span><span class="n">gen_df</span><span class="p">[</span><span class="s2">"utility_name_eia"</span><span class="p">],</span>
+        <span class="p">)</span></div>
 </div>
 
 
@@ -1596,9 +1634,9 @@ window.runMermaid = runMermaid;</script>
         <span class="bp">self</span><span class="o">.</span><span class="n">plant_parts_eia</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_one_to_many</span><span class="p">(</span>
             <span class="n">plant_parts_eia</span><span class="o">=</span><span class="n">concatenated_plant_parts</span><span class="p">,</span>
             <span class="n">part_name</span><span class="o">=</span><span class="s2">"plant_match_ferc1"</span><span class="p">,</span>
-            <span class="n">path_to_one_to_many</span><span class="o">=</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s2">"pudl.package_data.glue"</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span>
-                <span class="s2">"eia_ferc1_one_to_many.csv"</span><span class="p">,</span>
-            <span class="p">),</span>
+            <span class="n">path_to_one_to_many</span><span class="o">=</span><span class="n">PUDL_PACKAGE_DATA_PATH</span>
+            <span class="o">/</span> <span class="s2">"glue"</span>
+            <span class="o">/</span> <span class="s2">"eia_ferc1_one_to_many.csv"</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">plant_parts_eia</span> <span class="o">=</span> <span class="n">TrueGranLabeler</span><span class="p">()</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plant_parts_eia</span><span class="p">)</span>
         <span class="c1"># clean up, add additional columns</span>
@@ -1637,7 +1675,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            plant_parts_eia: the master unit list table.</span>
 <span class="sd">            part_name: should always be "plant_match_ferc1".</span>
 <span class="sd">            path_to_one_to_many: a Path to the one_to_many csv file in</span>
-<span class="sd">                :mod:`pudl.package_data.glue`.</span>
+<span class="sd">                ``src/pudl/package_data/glue``.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The EIA plant parts table with one-to-many matches aggregated as plant</span>
@@ -1645,8 +1683,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        """</span>
         <span class="c1"># Read in csv.</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">with</span> <span class="n">resources</span><span class="o">.</span><span class="n">as_file</span><span class="p">(</span><span class="n">path_to_one_to_many</span><span class="p">)</span> <span class="k">as</span> <span class="n">override_source</span><span class="p">:</span>
-                <span class="n">one_to_many</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">override_source</span><span class="p">)</span>
+            <span class="n">one_to_many</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">path_to_one_to_many</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">plant_parts_eia</span>
 
@@ -1946,19 +1983,15 @@ window.runMermaid = runMermaid;</script>
             <span class="n">wtavg_dict</span><span class="o">=</span><span class="n">wtavg_dict</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="c1"># we want a "total" record for each of the utilities that own any slice</span>
-        <span class="c1"># of a particular plant-part. To achieve this, we are going to remove</span>
-        <span class="c1"># the utility info (and drop duplicates bc a plant-part with many</span>
-        <span class="c1"># generators will have multiple duplicate records for each owner)</span>
-        <span class="c1"># we are going to generate the aggregated output for a utility-less</span>
-        <span class="c1"># "total" record and then merge back in the many utilities so each of</span>
-        <span class="c1"># the utilities is associated with an aggregated "total" plant-part</span>
-        <span class="c1"># record</span>
-        <span class="n">part_tot_no_utils</span> <span class="o">=</span> <span class="n">part_tot</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"utility_id_eia"</span><span class="p">])</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+        <span class="c1"># A jointly owned generator has one "total" record per owner, so keep a single</span>
+        <span class="c1"># record per generator before aggregating, then merge the owners back in.</span>
+        <span class="n">part_tot_dedup</span> <span class="o">=</span> <span class="n">part_tot</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span>
+            <span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"generator_id"</span><span class="p">,</span> <span class="s2">"report_date"</span><span class="p">]</span>
+        <span class="p">)</span>
         <span class="c1"># still need to re-calc the fraction owned for the part</span>
         <span class="n">part_tot_out</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">sum_and_weighted_average_agg</span><span class="p">(</span>
-                <span class="n">df_in</span><span class="o">=</span><span class="n">part_tot_no_utils</span><span class="p">,</span>
+                <span class="n">df_in</span><span class="o">=</span><span class="n">part_tot_dedup</span><span class="p">,</span>
                 <span class="n">by</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id_cols</span> <span class="o">+</span> <span class="n">IDX_TO_ADD</span><span class="p">,</span>
                 <span class="n">sum_cols</span><span class="o">=</span><span class="n">sum_cols</span><span class="p">,</span>
                 <span class="n">wtavg_dict</span><span class="o">=</span><span class="n">wtavg_dict</span><span class="p">,</span>
@@ -2687,7 +2720,7 @@ window.runMermaid = runMermaid;</script>
 
 
 <span class="nd">@asset</span><span class="p">(</span>
-    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">,</span>
+    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span><span class="p">,</span>
     <span class="n">compute_kind</span><span class="o">=</span><span class="s2">"Python"</span><span class="p">,</span>
     <span class="n">op_tags</span><span class="o">=</span><span class="p">{</span><span class="s2">"dagster/priority"</span><span class="p">:</span> <span class="mi">10</span><span class="p">},</span>
 <span class="p">)</span>
@@ -2761,8 +2794,8 @@ window.runMermaid = runMermaid;</script>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
-<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -2783,7 +2816,6 @@ window.runMermaid = runMermaid;</script>
 
   <p class="sphinx-version">
     Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
-    <br/>
   </p>
 </div>
       
@@ -2796,7 +2828,7 @@ window.runMermaid = runMermaid;</script>
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.23.0.
 </p></div>
       
         <div class="footer-item">

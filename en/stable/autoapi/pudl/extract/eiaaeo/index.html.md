@@ -34,15 +34,15 @@ Describe how the AEO data is categorized.
 Categories are the basic way in which metadata that is shared across
 multiple data series is represented.
 
-#### category_id *: [int](https://docs.python.org/3/library/functions.html#int)*
+#### category_id *: [int](https://docs.python.org/3/builtins/functions.html#int)*
 
-#### parent_category_id *: [int](https://docs.python.org/3/library/functions.html#int)*
+#### parent_category_id *: [int](https://docs.python.org/3/builtins/functions.html#int)*
 
-#### name *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### name *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### notes *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### notes *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### childseries *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+#### childseries *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
 ### *class* pudl.extract.eiaaeo.AEOSeries(/, \*\*data: Any)
 
@@ -53,15 +53,15 @@ Describe actual AEO timeseries data.
 This includes the data itself as well as some timeseries-specific metadata
 that may not be shared across multiple timeseries.
 
-#### series_id *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### series_id *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### name *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### name *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### last_updated *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### last_updated *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### units *: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### units *: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
-#### data *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str) | [float](https://docs.python.org/3/library/functions.html#float)]]*
+#### data *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [float](https://docs.python.org/3/builtins/functions.html#float)]]*
 
 ### *class* pudl.extract.eiaaeo.AEOTable
 
@@ -69,23 +69,23 @@ Bases: `pandera.pandas.DataFrameModel`
 
 Data schema for a raw AEO table.
 
-#### projection_year *: [int](https://docs.python.org/3/library/functions.html#int)*
+#### projection_year *: [int](https://docs.python.org/3/builtins/functions.html#int)*
 
-#### value *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### value *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### units *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### units *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### series_name *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### series_name *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### series_id *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### series_id *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### category_name *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### category_name *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### model_case_eiaaeo *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### model_case_eiaaeo *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### report_year *: [int](https://docs.python.org/3/library/functions.html#int)*
+#### report_year *: [int](https://docs.python.org/3/builtins/functions.html#int)*
 
-### *class* pudl.extract.eiaaeo.AEOTaxonomy(records: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[[str](https://docs.python.org/3/library/stdtypes.html#str)])
+### *class* pudl.extract.eiaaeo.AEOTaxonomy(records: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)])
 
 Container for *all* the information in one AEO report.
 
@@ -136,7 +136,7 @@ Note, also, that there is no structural notion of a “Table” in the AEO
 data. That information is carried purely by the names of the leaf
 categories.
 
-#### *class* EntityType(\*args, \*\*kwds)
+#### *class* EntityType
 
 Bases: [`enum.Enum`](https://docs.python.org/3/library/enum.html#enum.Enum)
 
@@ -152,13 +152,13 @@ These are the three types of entities in AEO.
 
 Encapsulate shared checks for the taxonomy structure.
 
-#### generation *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### generation *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### typecheck *: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[int](https://docs.python.org/3/library/functions.html#int) | [str](https://docs.python.org/3/library/stdtypes.html#str)], [bool](https://docs.python.org/3/library/functions.html#bool)]*
+#### typecheck *: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[int](https://docs.python.org/3/builtins/functions.html#int) | [str](https://docs.python.org/3/builtins/stdtypes.html#str)], [bool](https://docs.python.org/3/builtins/functions.html#bool)]*
 
-#### in_degree *: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[int](https://docs.python.org/3/library/functions.html#int)], [bool](https://docs.python.org/3/library/functions.html#bool)]*
+#### in_degree *: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[int](https://docs.python.org/3/builtins/functions.html#int)], [bool](https://docs.python.org/3/builtins/functions.html#bool)]*
 
-#### out_degree *: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[int](https://docs.python.org/3/library/functions.html#int)], [bool](https://docs.python.org/3/library/functions.html#bool)]*
+#### out_degree *: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[int](https://docs.python.org/3/builtins/functions.html#int)], [bool](https://docs.python.org/3/builtins/functions.html#bool)]*
 
 #### graph
 
@@ -166,18 +166,18 @@ Encapsulate shared checks for the taxonomy structure.
 
 #### \_\_sanitize_re
 
-#### \_\_load_records(records: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[int](https://docs.python.org/3/library/functions.html#int), [AEOCategory](#pudl.extract.eiaaeo.AEOCategory)], [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [AEOSeries](#pudl.extract.eiaaeo.AEOSeries)]]
+#### \_\_load_records(records: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[int](https://docs.python.org/3/builtins/functions.html#int), [AEOCategory](#pudl.extract.eiaaeo.AEOCategory)], [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [AEOSeries](#pudl.extract.eiaaeo.AEOSeries)]]
 
 Read AEO JSON blob into memory.
 
 A single JSON object can represent either a category or a series, so we
 parse those into two separate mappings.
 
-#### \_\_generate_graph(categories: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[int](https://docs.python.org/3/library/functions.html#int), [AEOCategory](#pudl.extract.eiaaeo.AEOCategory)], series: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [AEOSeries](#pudl.extract.eiaaeo.AEOSeries)]) → [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)
+#### \_\_generate_graph(categories: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[int](https://docs.python.org/3/builtins/functions.html#int), [AEOCategory](#pudl.extract.eiaaeo.AEOCategory)], series: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [AEOSeries](#pudl.extract.eiaaeo.AEOSeries)]) → [networkx.DiGraph](https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph)
 
 Stitch categories and series together into a DAG.
 
-#### \_\_generation_invariants() → [list](https://docs.python.org/3/library/stdtypes.html#list)
+#### \_\_generation_invariants() → [list](https://docs.python.org/3/builtins/stdtypes.html#list)
 
 Check that the graph behaves the way we expect.
 
@@ -188,9 +188,9 @@ We also have bespoke checks for individual generations as needed.
 
 Returns the list of generations for further manipulation.
 
-#### \_\_sanitize(s: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+#### \_\_sanitize(s: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
-#### \_\_series_to_records(series_id: [str](https://docs.python.org/3/library/stdtypes.html#str), potential_parents: [set](https://docs.python.org/3/library/stdtypes.html#set)[[int](https://docs.python.org/3/library/functions.html#int)], report_year: [int](https://docs.python.org/3/library/functions.html#int)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### \_\_series_to_records(series_id: [str](https://docs.python.org/3/builtins/stdtypes.html#str), potential_parents: [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[int](https://docs.python.org/3/builtins/functions.html#int)], report_year: [int](https://docs.python.org/3/builtins/functions.html#int)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Turn a data series into records we can feed into a DataFrame.
 
@@ -202,11 +202,11 @@ graph. In that case, we’ll need to filter down only to the leaf
 categories that are relevant to the table we’re creating a DataFrame
 for. We do that by passing in `potential_parents` as a parameter.
 
-#### get_table(table_number: [int](https://docs.python.org/3/library/functions.html#int), report_year: [int](https://docs.python.org/3/library/functions.html#int)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### get_table(table_number: [int](https://docs.python.org/3/builtins/functions.html#int), report_year: [int](https://docs.python.org/3/builtins/functions.html#int)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Get a specific table number and report year as a DataFrame.
 
-### pudl.extract.eiaaeo.raw_eiaaeo(context: [dagster.AssetExecutionContext](https://docs.dagster.io/api/dagster/execution/#dagster.AssetExecutionContext))
+### pudl.extract.eiaaeo.raw_eiaaeo(context: [dagster.AssetExecutionContext](https://dagster.io/docs/api/dagster/execution/#dagster.AssetExecutionContext))
 
 Extract tables from EIA’s Annual Energy Outlook.
 
@@ -227,6 +227,6 @@ such as a series name and units. Many different dimensions can be inferred
 from the series names, but the data is somewhat heterogeneous so we do not
 try to infer those here and leave that to the transformation step.
 
-### pudl.extract.eiaaeo.raw_table_54_invariants(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [dagster.AssetCheckResult](https://docs.dagster.io/api/dagster/asset-checks/#dagster.AssetCheckResult)
+### pudl.extract.eiaaeo.raw_table_54_invariants(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [dagster.AssetCheckResult](https://dagster.io/docs/api/dagster/asset-checks/#dagster.AssetCheckResult)
 
 Check that the AEO Table 54 raw data conforms to *some* assumptions.

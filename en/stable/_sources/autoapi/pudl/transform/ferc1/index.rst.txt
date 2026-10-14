@@ -171,7 +171,7 @@ Module Contents
    which the calculated field is being reported, label the source table.
 
 
-.. py:class:: SourceFerc1(*args, **kwds)
+.. py:class:: SourceFerc1
 
    Bases: :py:obj:`enum.Enum`
 
@@ -189,7 +189,7 @@ Module Contents
 
 
 
-.. py:class:: TableIdFerc1(*args, **kwds)
+.. py:class:: TableIdFerc1
 
    Bases: :py:obj:`enum.Enum`
 
@@ -718,7 +718,7 @@ Module Contents
 
 
    .. py:attribute:: axis_columns_to_combine
-      :type:  list | None
+      :type:  list[str] | None
       :value: None
 
 
@@ -1218,7 +1218,7 @@ Module Contents
 
 
 
-   .. py:method:: metric(gb: pandas.core.groupby.DataFrameGroupBy) -> pandas.Series
+   .. py:method:: metric(df: pandas.DataFrame) -> float
       :abstractmethod:
 
 
@@ -1274,7 +1274,7 @@ Module Contents
    Check error frequency in XBRL calculations.
 
 
-   .. py:method:: metric(gb: pandas.core.groupby.DataFrameGroupBy) -> pandas.Series
+   .. py:method:: metric(df: pandas.DataFrame) -> float
 
       Calculate the frequency with which records are tagged as errors.
 
@@ -1288,7 +1288,7 @@ Module Contents
    Check relative magnitude of errors in XBRL calculations.
 
 
-   .. py:method:: metric(gb: pandas.core.groupby.DataFrameGroupBy) -> pandas.Series
+   .. py:method:: metric(df: pandas.DataFrame) -> float
 
       Calculate the magnitude of the errors relative to total reported value.
 
@@ -1305,7 +1305,7 @@ Module Contents
    expected errors are provided here...
 
 
-   .. py:method:: metric(gb: pandas.core.groupby.DataFrameGroupBy) -> pandas.Series
+   .. py:method:: metric(df: pandas.DataFrame) -> float
 
       Calculate the absolute magnitude of XBRL calculation errors.
 
@@ -1325,7 +1325,7 @@ Module Contents
 
 
 
-   .. py:method:: metric(gb: pandas.core.groupby.DataFrameGroupBy) -> pandas.Series
+   .. py:method:: metric(df: pandas.DataFrame) -> float
 
       Fraction of non-null reported values that have null corresponding calculated values.
 
@@ -1339,7 +1339,7 @@ Module Contents
    Check the frequency of null reported values.
 
 
-   .. py:method:: metric(gb: pandas.core.groupby.DataFrameGroupBy) -> pandas.Series
+   .. py:method:: metric(df: pandas.DataFrame) -> float
 
       Frequency with which the reported values are Null.
 
@@ -1616,8 +1616,11 @@ Module Contents
 
 
    .. py:attribute:: pudl_paths
+      :type:  pudl.workspace.setup.PudlPaths | None
       :value: None
 
+
+      Object providing access to PUDL input/output directory paths.
 
 
    .. py:method:: transform_start(raw_dbf_dfs: dict[str, pandas.DataFrame], raw_xbrl_dfs: dict[str, pandas.DataFrame]) -> pandas.DataFrame
@@ -1836,7 +1839,7 @@ Module Contents
 
 
 
-   .. py:method:: preprocess_xbrl(raw_xbrl_dfs: dict[str, pandas.DataFrame]) -> pandas.DataFrame
+   .. py:method:: preprocess_xbrl(raw_xbrl_dfs: dict[str, pandas.DataFrame]) -> tuple[pandas.DataFrame, pandas.DataFrame]
 
       Pre-process XBRL inputs into one dataframe. Grab freshest data and concat by default.
 
@@ -1854,7 +1857,7 @@ Module Contents
 
 
 
-   .. py:method:: rename_columns(df: pandas.DataFrame, rename_stage: Literal['dbf', 'xbrl', 'xbrl_instant', 'xbrl_duration'] | None = None, params: pudl.transform.classes.RenameColumns | None = None)
+   .. py:method:: rename_columns(df: pandas.DataFrame, rename_stage: Literal['dbf', 'xbrl', 'instant_xbrl', 'duration_xbrl'] | None = None, params: pudl.transform.classes.RenameColumns | None = None) -> pandas.DataFrame
 
       Grab the params based on the rename stage and run default rename_columns.
 
@@ -1886,7 +1889,7 @@ Module Contents
 
 
 
-   .. py:method:: wide_to_tidy(df: pandas.DataFrame, source_ferc1: SourceFerc1, params: WideToTidy | None = None) -> pandas.DataFrame
+   .. py:method:: wide_to_tidy(df: pandas.DataFrame, source_ferc1: SourceFerc1, params: WideToTidy | list[WideToTidy] | None = None) -> pandas.DataFrame
 
       Reshape wide tables with FERC account columns to tidy format.
 
@@ -2051,7 +2054,7 @@ Module Contents
       the appropriate :class:`TableTransformParams` object.
 
 
-   .. py:method:: preprocess_xbrl(raw_xbrl_dfs: dict[str, pandas.DataFrame]) -> pandas.DataFrame
+   .. py:method:: preprocess_xbrl(raw_xbrl_dfs: dict[str, pandas.DataFrame]) -> tuple[pandas.DataFrame, pandas.DataFrame]
 
       Pre-process XBRL inputs into one dataframe. Grab freshest data and concat by default.
 
@@ -2558,7 +2561,7 @@ Module Contents
 
 
 
-   .. py:method:: _find_note_clumps(group: pandas.core.groupby.DataFrameGroupBy) -> tuple[pandas.core.groupby.DataFrameGroupBy, pandas.DataFrame]
+   .. py:method:: _find_note_clumps(group: pandas.DataFrame) -> tuple[pandas.core.groupby.DataFrameGroupBy, pandas.DataFrame]
 
       Find groups of rows likely to be notes.
 
@@ -2658,7 +2661,7 @@ Module Contents
 
 
 
-   .. py:method:: _label_note_rows_group(util_year_group: pandas.core.groupby.DataFrameGroupBy) -> pandas.core.groupby.DataFrameGroupBy
+   .. py:method:: _label_note_rows_group(util_year_group: pandas.DataFrame) -> pandas.DataFrame
 
       Label note rows by adding ``note`` to ``row_type`` column.
 
@@ -2683,7 +2686,7 @@ Module Contents
       hopefully there aren't very many of these.
 
       Params:
-          util_year_group: A groupby object that contains a single year and utility.
+          util_year_group: A DataFrame containing a single year and utility.
 
       :returns: The same input but with likely note rows containing the string ``note`` in
                 the ``row_type`` column.
@@ -4015,7 +4018,8 @@ Module Contents
       Replace the name of the balance column reported in the XBRL Instant table with
       starting_balance / ending_balance since we pull those two values into their own
       separate labeled rows, each of which should get the original metadata for the
-      Instant column.
+      Instant column. Mirrors the process found in
+      :meth:`DepreciationChangesTableTransformer.convert_xbrl_metadata_json_to_df`
 
 
 
@@ -4160,7 +4164,7 @@ Module Contents
 
 .. py:data:: _FERC1_PLANT_TABLES
 
-.. py:function:: ferc1_transform_asset_factory(table_name: str, tfr_class: Ferc1AbstractTableTransformer, io_manager_key: str = 'pudl_io_manager', convert_dtypes: bool = True, generic: bool = False, op_tags: dict[str, Any] | None = None) -> dagster.AssetsDefinition
+.. py:function:: ferc1_transform_asset_factory(table_name: str, tfr_class: Ferc1AbstractTableTransformer, io_manager_key: str = 'parquet_io_manager', convert_dtypes: bool = True, generic: bool = False, op_tags: dict[str, Any] | None = None) -> dagster.AssetsDefinition
 
    Create an asset that pulls in raw ferc Form 1 assets and applies transformations.
 
@@ -4197,8 +4201,12 @@ Module Contents
 
    Build a dictionary of table name (keys) to ``xbrl_factoid`` column name.
 
+   Only includes tables whose ``merge_xbrl_metadata.on`` param is set — not every
+   FERC1 table participates in the XBRL metadata/calculation reconciliation, so
+   ``xbrl_factoid_name`` is undefined for the rest.
 
-.. py:function:: table_to_column_to_check() -> dict[str, list[str]]
+
+.. py:function:: table_to_column_to_check() -> dict[str, str]
 
    Build a dictionary of table name (keys) to column_to_check from reconcile_table_calculations.
 

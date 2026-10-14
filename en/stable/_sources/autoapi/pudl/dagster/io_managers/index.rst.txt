@@ -84,7 +84,7 @@ Module Contents
 
 
    .. py:attribute:: pudl_paths
-      :type:  dagster.ResourceDependency[pudl.dagster.resources.PudlPathsResource]
+      :type:  dagster.ResourceDependency[pudl.workspace.setup.PudlPaths]
 
 
    .. py:method:: _record_parquet_file_metadata(context: dagster.OutputContext, parquet_path: pathlib.Path) -> None
@@ -134,15 +134,15 @@ Module Contents
 
 
    .. py:attribute:: global_data_config
-      :type:  dagster.ResourceDependency[pudl.dagster.resources.GlobalDataConfigResource]
+      :type:  dagster.ResourceDependency[pudl.settings.GlobalDataConfig]
 
 
    .. py:attribute:: pudl_paths
-      :type:  dagster.ResourceDependency[pudl.dagster.resources.PudlPathsResource]
+      :type:  dagster.ResourceDependency[pudl.workspace.setup.PudlPaths]
 
 
    .. py:attribute:: zenodo_dois
-      :type:  dagster.ResourceDependency[pudl.dagster.resources.ZenodoDoiSettingsResource]
+      :type:  dagster.ResourceDependency[pudl.workspace.datastore.ZenodoDoiSettings]
 
 
    .. py:attribute:: dataset
@@ -150,19 +150,15 @@ Module Contents
 
 
    .. py:attribute:: data_format
-      :type:  ClassVar[str]
+      :type:  ClassVar[Literal['dbf', 'xbrl']]
 
 
    .. py:attribute:: _engine
       :type:  sqlalchemy.Engine | None
-      :value: None
-
 
 
    .. py:attribute:: _metadata
       :type:  sqlalchemy.MetaData | None
-      :value: None
-
 
 
    .. py:property:: _years_key
@@ -189,6 +185,12 @@ Module Contents
 
 
       Return a cached SQLAlchemy engine for this FERC SQLite database.
+
+
+   .. py:method:: teardown_after_execution(context: dagster.InitResourceContext) -> None
+
+      Dispose the cached engine when the resource's lifecycle ends.
+
 
 
    .. py:property:: metadata
@@ -254,7 +256,7 @@ Module Contents
 
 
    .. py:attribute:: data_format
-      :type:  ClassVar[str]
+      :type:  ClassVar[Literal['dbf', 'xbrl']]
       :value: 'dbf'
 
 
@@ -276,7 +278,7 @@ Module Contents
 
 
    .. py:attribute:: data_format
-      :type:  ClassVar[str]
+      :type:  ClassVar[Literal['dbf', 'xbrl']]
       :value: 'xbrl'
 
 

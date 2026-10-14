@@ -24,11 +24,11 @@ slash-with-spaces convention for compound units, e.g. `MMBtu / MWh`,
 
 ## Module Contents
 
-### pudl.metadata.units.PUDL_UNIT_DEFINITIONS *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]* *= ['MMBtu = 1e6 \* BTU = MMBTU', 'Mcf = 1000 \* cubic_foot', 'MMcf = 1e6 \* cubic_foot', 'TBtu = 1e12...*
+### pudl.metadata.units.PUDL_UNIT_DEFINITIONS *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= ['MMBtu = 1e6 \* BTU = MMBTU', 'Mcf = 1000 \* cubic_foot', 'MMcf = 1e6 \* cubic_foot', 'TBtu = 1e12...*
 
 ### pudl.metadata.units.PUDL_UNIT_REGISTRY *: pint.UnitRegistry*
 
-### pudl.metadata.units.unit_registry_to_frictionless() → [dict](https://docs.python.org/3/library/stdtypes.html#dict)
+### pudl.metadata.units.unit_registry_to_frictionless() → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)
 
 Return a JSON-serializable dict describing PUDL’s custom unit definitions.
 

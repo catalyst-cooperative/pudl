@@ -25,13 +25,13 @@ Bases: `NamedTuple`
 
 Uniquely identifies a specific resource.
 
-#### dataset *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### dataset *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### doi *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### doi *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### name *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+#### name *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
 
-#### \_\_repr_\_() → [str](https://docs.python.org/3/library/stdtypes.html#str)
+#### \_\_repr_\_() → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Returns string representation of PudlResourceKey.
 
@@ -39,7 +39,7 @@ Returns string representation of PudlResourceKey.
 
 Returns (relative) path that should be used when caching this resource.
 
-### *class* pudl.workspace.resource_cache.AbstractCache(read_only: [bool](https://docs.python.org/3/library/functions.html#bool) = False)
+### *class* pudl.workspace.resource_cache.AbstractCache(read_only: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False)
 
 Bases: [`abc.ABC`](https://docs.python.org/3/library/abc.html#abc.ABC)
 
@@ -47,23 +47,23 @@ Defines interaface for the generic resource caching layer.
 
 #### \_read_only *= False*
 
-#### is_read_only() → [bool](https://docs.python.org/3/library/functions.html#bool)
+#### is_read_only() → [bool](https://docs.python.org/3/builtins/functions.html#bool)
 
 Returns true if the cache is read-only and should not be modified.
 
-#### *abstractmethod* get(resource: [PudlResourceKey](#pudl.workspace.resource_cache.PudlResourceKey)) → [bytes](https://docs.python.org/3/library/stdtypes.html#bytes)
+#### *abstractmethod* get(resource: [PudlResourceKey](#pudl.workspace.resource_cache.PudlResourceKey)) → [bytes](https://docs.python.org/3/builtins/stdtypes.html#bytes)
 
 Retrieves content of given resource or throws KeyError.
 
-#### *abstractmethod* add(resource: [PudlResourceKey](#pudl.workspace.resource_cache.PudlResourceKey), content: [bytes](https://docs.python.org/3/library/stdtypes.html#bytes)) → [None](https://docs.python.org/3/library/constants.html#None)
+#### *abstractmethod* add(resource: [PudlResourceKey](#pudl.workspace.resource_cache.PudlResourceKey), content: [bytes](https://docs.python.org/3/builtins/stdtypes.html#bytes)) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Adds resource to the cache and sets the content.
 
-#### *abstractmethod* delete(resource: [PudlResourceKey](#pudl.workspace.resource_cache.PudlResourceKey)) → [None](https://docs.python.org/3/library/constants.html#None)
+#### *abstractmethod* delete(resource: [PudlResourceKey](#pudl.workspace.resource_cache.PudlResourceKey)) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Removes the resource from cache.
 
-#### *abstractmethod* contains(resource: [PudlResourceKey](#pudl.workspace.resource_cache.PudlResourceKey)) → [bool](https://docs.python.org/3/library/functions.html#bool)
+#### *abstractmethod* contains(resource: [PudlResourceKey](#pudl.workspace.resource_cache.PudlResourceKey)) → [bool](https://docs.python.org/3/builtins/functions.html#bool)
 
 Returns True if the resource is present in the cache.
 
@@ -82,7 +82,7 @@ Requires UPath objects with explicit protocols:
   - gs://bucket-name/path/prefix
   - [file:///local/path](file:///local/path)
 
-#### supported_protocols *: [set](https://docs.python.org/3/library/stdtypes.html#set)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+#### supported_protocols *: [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
 
 #### \_protocol
 
@@ -90,11 +90,11 @@ Requires UPath objects with explicit protocols:
 
 #### \_base_path
 
-#### \_\_repr_\_() → [str](https://docs.python.org/3/library/stdtypes.html#str)
+#### \_\_repr_\_() → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Returns string representation of UPathCache.
 
-#### \_setup_credentials() → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]
+#### \_setup_credentials() → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]
 
 Set up backend-specific credentials and storage options.
 
@@ -112,11 +112,11 @@ Get the UPath for a given resource.
 * **Returns:**
   UPath object pointing to the resource location
 
-#### is_anonymous() → [bool](https://docs.python.org/3/library/functions.html#bool)
+#### is_anonymous() → [bool](https://docs.python.org/3/builtins/functions.html#bool)
 
 Returns True if the cache is using anonymous access (no credentials).
 
-#### get(resource: [PudlResourceKey](#pudl.workspace.resource_cache.PudlResourceKey)) → [bytes](https://docs.python.org/3/library/stdtypes.html#bytes)
+#### get(resource: [PudlResourceKey](#pudl.workspace.resource_cache.PudlResourceKey)) → [bytes](https://docs.python.org/3/builtins/stdtypes.html#bytes)
 
 Retrieves value associated with given resource.
 
@@ -125,10 +125,10 @@ Retrieves value associated with given resource.
 * **Returns:**
   The content of the resource as bytes
 * **Raises:**
-  * [**KeyError**](https://docs.python.org/3/library/exceptions.html#KeyError) – if the resource doesn’t exist
-  * [**Exception**](https://docs.python.org/3/library/exceptions.html#Exception) – for other storage backend errors
+  * [**KeyError**](https://docs.python.org/3/builtins/exceptions.html#KeyError) – if the resource doesn’t exist
+  * [**Exception**](https://docs.python.org/3/builtins/exceptions.html#Exception) – for other storage backend errors
 
-#### add(resource: [PudlResourceKey](#pudl.workspace.resource_cache.PudlResourceKey), content: [bytes](https://docs.python.org/3/library/stdtypes.html#bytes))
+#### add(resource: [PudlResourceKey](#pudl.workspace.resource_cache.PudlResourceKey), content: [bytes](https://docs.python.org/3/builtins/stdtypes.html#bytes))
 
 Adds (or updates) resource to the cache with given content.
 
@@ -136,7 +136,7 @@ Adds (or updates) resource to the cache with given content.
   * **resource** – The resource to add
   * **content** – The content to store
 * **Raises:**
-  [**RuntimeError**](https://docs.python.org/3/library/exceptions.html#RuntimeError) – if cache is read-only or credentials are insufficient
+  [**RuntimeError**](https://docs.python.org/3/builtins/exceptions.html#RuntimeError) – if cache is read-only or credentials are insufficient
 
 #### delete(resource: [PudlResourceKey](#pudl.workspace.resource_cache.PudlResourceKey))
 
@@ -145,9 +145,9 @@ Deletes resource from the cache.
 * **Parameters:**
   **resource** – The resource to delete
 * **Raises:**
-  [**RuntimeError**](https://docs.python.org/3/library/exceptions.html#RuntimeError) – if cache is read-only or credentials are insufficient
+  [**RuntimeError**](https://docs.python.org/3/builtins/exceptions.html#RuntimeError) – if cache is read-only or credentials are insufficient
 
-#### contains(resource: [PudlResourceKey](#pudl.workspace.resource_cache.PudlResourceKey)) → [bool](https://docs.python.org/3/library/functions.html#bool)
+#### contains(resource: [PudlResourceKey](#pudl.workspace.resource_cache.PudlResourceKey)) → [bool](https://docs.python.org/3/builtins/functions.html#bool)
 
 Returns True if resource is present in the cache.
 
@@ -169,7 +169,7 @@ be accessed in case of missing content.
 Only the closest layer is being written to (set, delete), while all remaining layers
 are read-only (get).
 
-#### \_caches *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[AbstractCache](#pudl.workspace.resource_cache.AbstractCache)]* *= []*
+#### \_caches *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[AbstractCache](#pudl.workspace.resource_cache.AbstractCache)]* *= []*
 
 #### add_cache_layer(cache: [AbstractCache](#pudl.workspace.resource_cache.AbstractCache))
 
@@ -181,7 +181,7 @@ The priority is below all other.
 
 Returns number of caching layers that are in this LayeredCache.
 
-#### get(resource: [PudlResourceKey](#pudl.workspace.resource_cache.PudlResourceKey)) → [bytes](https://docs.python.org/3/library/stdtypes.html#bytes)
+#### get(resource: [PudlResourceKey](#pudl.workspace.resource_cache.PudlResourceKey)) → [bytes](https://docs.python.org/3/builtins/stdtypes.html#bytes)
 
 Returns content of a given resource.
 
@@ -197,10 +197,10 @@ Adds (or replaces) resource into the cache with given content.
 
 Removes resource from the cache if the cache is not in the read_only mode.
 
-#### contains(resource: [PudlResourceKey](#pudl.workspace.resource_cache.PudlResourceKey)) → [bool](https://docs.python.org/3/library/functions.html#bool)
+#### contains(resource: [PudlResourceKey](#pudl.workspace.resource_cache.PudlResourceKey)) → [bool](https://docs.python.org/3/builtins/functions.html#bool)
 
 Returns True if resource is present in the cache.
 
-#### is_optimally_cached(resource: [PudlResourceKey](#pudl.workspace.resource_cache.PudlResourceKey)) → [bool](https://docs.python.org/3/library/functions.html#bool)
+#### is_optimally_cached(resource: [PudlResourceKey](#pudl.workspace.resource_cache.PudlResourceKey)) → [bool](https://docs.python.org/3/builtins/functions.html#bool)
 
 Return True if resource is contained in the closest write-enabled layer.

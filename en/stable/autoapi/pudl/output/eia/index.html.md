@@ -189,11 +189,11 @@ new unit ID values back in to the generators dataframe.
   `unit_id_pudl` and `bga_source` columns have been filled in with real
   values.
 * **Raises:**
-  * [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – If the input dataframe is missing required columns.
-  * [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – If any generator is associated with more than one unit_id_pudl.
-  * [**AssertionError**](https://docs.python.org/3/library/exceptions.html#AssertionError) – If row or column indices are changed.
-  * [**AssertionError**](https://docs.python.org/3/library/exceptions.html#AssertionError) – If pre-existing unit_id_pudl or bga_source values are altered.
-  * [**AssertionError**](https://docs.python.org/3/library/exceptions.html#AssertionError) – If contents of any other columns are altered at all.
+  * [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – If the input dataframe is missing required columns.
+  * [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – If any generator is associated with more than one unit_id_pudl.
+  * [**AssertionError**](https://docs.python.org/3/builtins/exceptions.html#AssertionError) – If row or column indices are changed.
+  * [**AssertionError**](https://docs.python.org/3/builtins/exceptions.html#AssertionError) – If pre-existing unit_id_pudl or bga_source values are altered.
+  * [**AssertionError**](https://docs.python.org/3/builtins/exceptions.html#AssertionError) – If contents of any other columns are altered at all.
 
 ### pudl.output.eia.fill_unit_ids(gens_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
@@ -252,7 +252,7 @@ generators and units still available in the dataframe!
 * **Return type:**
   A DataFrame having two columns
 
-### pudl.output.eia.\_append_masked_units(gens_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), row_mask: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), unit_ids: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), on: [str](https://docs.python.org/3/library/stdtypes.html#str) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.output.eia.\_append_masked_units(gens_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), row_mask: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), unit_ids: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), on: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Replace rows with new PUDL Unit IDs in the original dataframe.
 
@@ -274,7 +274,7 @@ this to work.
 * **Returns:**
   A DataFrame with unit IDs.
 
-### pudl.output.eia.assign_single_gen_unit_ids(gens_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), prime_mover_codes: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], fuel_type_code_pudl: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, label_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'single') → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.output.eia.assign_single_gen_unit_ids(gens_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), prime_mover_codes: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], fuel_type_code_pudl: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, label_prefix: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'single') → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Assign a unique PUDL Unit ID to each generator of a given prime mover type.
 
@@ -334,7 +334,7 @@ part of the same inferred unit.
 * **Returns:**
   A dataframe with assigned PUDL unit IDs.
 
-### pudl.output.eia.assign_prime_fuel_unit_ids(gens_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), prime_mover_code: [str](https://docs.python.org/3/library/stdtypes.html#str), fuel_type_code_pudl: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.output.eia.assign_prime_fuel_unit_ids(gens_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), prime_mover_code: [str](https://docs.python.org/3/builtins/stdtypes.html#str), fuel_type_code_pudl: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Assign a PUDL Unit ID to all generators with a given prime mover and fuel.
 
@@ -359,9 +359,9 @@ of “units.”
   * **gens_df** ([*pandas.DataFrame*](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) – A collection of EIA generator records.
     Must include the `plant_id_eia`, `generator_id` and
     `prime_mover_code` and `unit_id_pudl` columns.
-  * **prime_mover_code** ([*str*](https://docs.python.org/3/library/stdtypes.html#str)) – List of prime mover codes for which we are
+  * **prime_mover_code** ([*str*](https://docs.python.org/3/builtins/stdtypes.html#str)) – List of prime mover codes for which we are
     attempting to assign simple Unit IDs.
-  * **fuel_type_code_pudl** ([*str*](https://docs.python.org/3/library/stdtypes.html#str)) – If not None, then limit the records
+  * **fuel_type_code_pudl** ([*str*](https://docs.python.org/3/builtins/stdtypes.html#str)) – If not None, then limit the records
     assigned a unit_id to those that have the specified
     fuel_type_code_pudl (e.g. “coal”, “gas”, “oil”, “nuclear”)
 * **Returns:**
