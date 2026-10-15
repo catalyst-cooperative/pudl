@@ -2,9 +2,21 @@
 
 <a id="release-v2026-10-0"></a>
 
-## v2026.10.0 (2026-10-XX)
+## v2026.10.0 (2026-10-14)
 
-This is the upcoming PUDL data release, scheduled for early October, 2026.
+This is a regular monthly PUDL data release, primarily motivated by updating the
+EIA-860M monthly data through August 2026. It also brings in final release 2025 data
+for the EIA-860, EIA-861, and EIA-923, plus straggler FERC Form 1 filings from 2025.
+
+We made several important improvements for reproducibility in this release. These
+changes make all outputs fully deterministic, which will make it possible to detect
+specific changes between builds. We’ve also added the new table
+[core_epamats_\_hourly_emissions](data_dictionaries/pudl_db.md#core-epamats-hourly-emissions) brings hourly mercury and hydrogen chloride
+emissions into PUDL. Thanks to [@bsousa22](https://github.com/sponsors/bsousa22) for this contribution! Finally, we
+fixed a longstanding bug in the net generation and fuel allocation that silently
+dropped legitimate data for generators transitioning between
+`proposed`/`existing`/`retired` status across a multi-year
+ETL run.
 
 ### Enhancements
 
@@ -191,6 +203,10 @@ This is the upcoming PUDL data release, scheduled for early October, 2026.
   tests to the terminal. Fast ETL in pipeline tests will still log. Made `pixi.lock`
   drift checking in pre-commit hooks more robust. Fixed open SQLite database warnings
   coming from FERC SQLite IO Manager. See PR [#5573](https://github.com/catalyst-cooperative/pudl/pull/5573).
+* Upgraded to Splink 5.0 and ported the FERC 1 to EIA plant-parts record linkage to its
+  new API (registering inputs with `DuckDBAPI.register()`, and using `CustomRule`
+  and `CustomComparison`). The model’s behavior is not intentionally changed. See PR
+  [#5698](https://github.com/catalyst-cooperative/pudl/pull/5698).
 
 <a id="release-v2026-9-0"></a>
 

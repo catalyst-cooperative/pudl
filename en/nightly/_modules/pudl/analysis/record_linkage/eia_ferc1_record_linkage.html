@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.analysis.record_linkage.eia_ferc1_record_linkage &#8212; PUDL 2026.9.1.dev50 documentation</title>
+    <title>pudl.analysis.record_linkage.eia_ferc1_record_linkage &#8212; PUDL 2026.10.1.dev1 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=385f3a78"></script>
+    <script src="../../../../_static/documentation_options.js?v=35c0d302"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.9.1.dev50 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.9.1.dev50 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev1 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev1 documentation - Home"/>
   
   
 </a></div>
@@ -1139,16 +1139,19 @@ window.runMermaid = runMermaid;</script>
         <span class="n">retain_intermediate_calculation_columns</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">probability_two_random_records_match</span><span class="o">=</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">eia_df</span><span class="p">)),</span>
     <span class="p">)</span>
-    <span class="n">linker</span> <span class="o">=</span> <span class="n">Linker</span><span class="p">(</span>
-        <span class="p">[</span><span class="n">eia_df</span><span class="p">,</span> <span class="n">ferc_df</span><span class="p">],</span>
-        <span class="n">settings</span><span class="o">=</span><span class="n">settings</span><span class="p">,</span>
-        <span class="n">input_table_aliases</span><span class="o">=</span><span class="p">[</span><span class="s2">"eia_df"</span><span class="p">,</span> <span class="s2">"ferc_df"</span><span class="p">],</span>
-        <span class="n">db_api</span><span class="o">=</span><span class="n">DuckDBAPI</span><span class="p">(),</span>
-    <span class="p">)</span>
+    <span class="c1"># The display names become the values of the ``source_dataset`` column, which the</span>
+    <span class="c1"># training labels refer to.</span>
+    <span class="n">db_api</span> <span class="o">=</span> <span class="n">DuckDBAPI</span><span class="p">()</span>
+    <span class="n">eia_sdf</span> <span class="o">=</span> <span class="n">db_api</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">eia_df</span><span class="p">,</span> <span class="n">dataset_display_name</span><span class="o">=</span><span class="s2">"eia_df"</span><span class="p">)</span>
+    <span class="n">ferc_sdf</span> <span class="o">=</span> <span class="n">db_api</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">ferc_df</span><span class="p">,</span> <span class="n">dataset_display_name</span><span class="o">=</span><span class="s2">"ferc_df"</span><span class="p">)</span>
+    <span class="n">linker</span> <span class="o">=</span> <span class="n">Linker</span><span class="p">([</span><span class="n">eia_sdf</span><span class="p">,</span> <span class="n">ferc_sdf</span><span class="p">],</span> <span class="n">settings</span><span class="o">=</span><span class="n">settings</span><span class="p">)</span>
     <span class="n">linker</span><span class="o">.</span><span class="n">table_management</span><span class="o">.</span><span class="n">register_table</span><span class="p">(</span><span class="n">train_df</span><span class="p">,</span> <span class="s2">"training_labels"</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="c1"># Seed the random sampling so the trained model is reproducible between runs.</span>
+    <span class="c1"># Splink 5 stops sampling as soon as every comparison level has 100 observations by</span>
+    <span class="c1"># default, which leaves the u values of the rarest levels noisy. Use all of the</span>
+    <span class="c1"># sampled pairs, as Splink 4 did.</span>
     <span class="n">linker</span><span class="o">.</span><span class="n">training</span><span class="o">.</span><span class="n">estimate_u_using_random_sampling</span><span class="p">(</span>
-        <span class="n">max_pairs</span><span class="o">=</span><span class="mf">1e7</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">U_ESTIMATION_SEED</span>
+        <span class="n">max_pairs</span><span class="o">=</span><span class="mf">1e7</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">U_ESTIMATION_SEED</span><span class="p">,</span> <span class="n">min_count_per_level</span><span class="o">=</span><span class="kc">None</span>
     <span class="p">)</span>
     <span class="n">linker</span><span class="o">.</span><span class="n">training</span><span class="o">.</span><span class="n">estimate_m_from_pairwise_labels</span><span class="p">(</span><span class="s2">"training_labels"</span><span class="p">)</span>
     <span class="n">threshold_prob</span> <span class="o">=</span> <span class="mf">0.9</span>
