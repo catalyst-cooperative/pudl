@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="release_notes.html.md" />
 <link rel="alternate" type="text/markdown" href="release_notes.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>PUDL Release Notes &#8212; PUDL 2026.10.1.dev1 documentation</title>
+    <title>PUDL Release Notes &#8212; PUDL 2026.10.1.dev2 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="_static/documentation_options.js?v=35c0d302"></script>
+    <script src="_static/documentation_options.js?v=157149e9"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
@@ -143,8 +143,8 @@
       
     
     
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev1 documentation - Home"/>
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev1 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev2 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev2 documentation - Home"/>
   
   
 </a></div>
@@ -615,6 +615,11 @@ to catch impossible locations. EIA-860M coordinates are not cleaned up (about
 0.04% of its records are obviously wrong), so
 <a class="reference internal" href="data_dictionaries/pudl_db.html#core-eia860m-changelog-generators"><span class="std std-ref">core_eia860m__changelog_generators</span></a> is exempt, and new dbt tests cap the number
 of known bad records in it instead. See PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5697">#5697</a>.</p></li>
+<li><p>Added dbt tests that check whether plant coordinates fall in the state and county
+they report, using the DuckDB spatial extension and Census boundaries. Applied to
+<a class="reference internal" href="data_dictionaries/pudl_db.html#core-eia-entity-plants"><span class="std std-ref">core_eia__entity_plants</span></a>, they currently flag 32 plants more than 5 km outside
+their reported state (including offshore wind farms) and 204 outside their reported
+county. These are not fixed yet. See PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5700">#5700</a>.</p></li>
 </ul>
 </section>
 <section id="bug-fixes-data-cleaning">
