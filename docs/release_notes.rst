@@ -31,6 +31,13 @@ Enhancements
   operator as well as its owners, via new ``operator_utility_id_eia``,
   ``operator_utility_id_pudl`` and ``operator_utility_name_eia`` columns, with foreign
   key checks on the IDs. See issue :issue:`5550` and PR :pr:`5585`.
+* Changed how the FERC 1 to EIA plant-parts record linkage compares and blocks records.
+  Installation and construction years are compared as integers instead of timestamps,
+  capacity and net generation are blocked on logarithmic buckets instead of exact
+  values, and four redundant blocking rules were disabled, which removes about 2 million
+  of the 9.2 million candidate pairs and changes 1 of 34,420 best matches. Also,
+  ``match_type`` in :ref:`out_pudl__yearly_assn_eia_ferc1_plant_parts` now says
+  ``overridden`` where it said ``overwritten``. See PR :pr:`5692`.
 
 New Data
 ^^^^^^^^
