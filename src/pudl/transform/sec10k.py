@@ -50,11 +50,7 @@ def _compute_fraction_owned(percent_ownership: pd.Series) -> pd.Series:
     nothing but dots are treated as missing.
     """
     only_dots = percent_ownership.str.fullmatch(r"\.+", na=False)
-    cleaned = (
-        percent_ownership.mask(only_dots)
-        .str.replace(r"\.{2,}", "", regex=True)
-        .replace(r"\\", "", regex=True)
-    )
+    cleaned = percent_ownership.mask(only_dots).str.replace(r"\.{2,}", "", regex=True)
     return cleaned.astype("float") / 100.0
 
 

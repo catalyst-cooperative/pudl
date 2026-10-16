@@ -103,7 +103,6 @@ subsidiary_company_id_sec10k,subsidiary_company_name,subsidiary_company_location
             [2.69e-07, 1e-07, 1.001e15],
             id="scientific_notation",
         ),
-        pytest.param(["5\\0", "\\100"], [0.5, 1.0], id="backslashes"),
         pytest.param(["50.0", None, "25"], [0.5, np.nan, 0.25], id="missing_values"),
     ],
 )
