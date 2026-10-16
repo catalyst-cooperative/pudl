@@ -2,9 +2,15 @@
 
 from io import StringIO
 
+import numpy as np
 import pandas as pd
+import pytest
+from pandas.testing import assert_series_equal
 
-from pudl.transform.sec10k import _match_ex21_subsidiaries_to_filer_company
+from pudl.transform.sec10k import (
+    _compute_fraction_owned,
+    _match_ex21_subsidiaries_to_filer_company,
+)
 
 
 def test_match_ex21_subsidiaries_to_filer_company():
@@ -70,3 +76,43 @@ subsidiary_company_id_sec10k,subsidiary_company_name,subsidiary_company_location
         actual["subsidiary_company_central_index_key"].astype("string").str.zfill(10)
     )
     pd.testing.assert_frame_equal(actual, subs_to_filers_match_expected)
+
+
+@pytest.mark.parametrize("dtype", [object, "string", "string[pyarrow]"])
+@pytest.mark.parametrize(
+    "percent_ownership,expected",
+    [
+        pytest.param(
+            ["100.0", "100", "50.0", "99.9"], [1.0, 1.0, 0.5, 0.999], id="plain"
+        ),
+        pytest.param(
+            [".5", ".04", ".50", "1."],
+            [0.005, 0.0004, 0.005, 0.01],
+            id="single_leading_or_trailing_dot",
+        ),
+        pytest.param(
+            ["..99", "......100", "20..", "49.................."],
+            [0.99, 1.0, 0.2, 0.49],
+            id="leader_dots_are_stripped",
+        ),
+        pytest.param(
+            [".", "...", "......."], [np.nan, np.nan, np.nan], id="only_dots_is_na"
+        ),
+        pytest.param(
+            ["2.69e-05", "1e-05", "1.001e+17"],
+            [2.69e-07, 1e-07, 1.001e15],
+            id="scientific_notation",
+        ),
+        pytest.param(["5\\0", "\\100"], [0.5, 1.0], id="backslashes"),
+        pytest.param(["50.0", None, "25"], [0.5, np.nan, 0.25], id="missing_values"),
+    ],
+)
+def test_compute_fraction_owned(percent_ownership, expected, dtype):
+    """Percent ownership strings seen in raw SEC 10-K Exhibit 21 data become ratios.
+
+    The raw ``ownership_percentage`` column holds strings (mostly plain numbers, but
+    also stray repeated dots, trailing dots, scientific notation) and nulls. It should
+    be cleaned the same way whichever string-like dtype it arrives in.
+    """
+    actual = _compute_fraction_owned(pd.Series(percent_ownership, dtype=dtype))
+    assert_series_equal(actual, pd.Series(expected, dtype="float64"))
