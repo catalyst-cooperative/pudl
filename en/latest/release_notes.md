@@ -1,5 +1,25 @@
 # PUDL Release Notes
 
+<a id="release-v2026-11-0"></a>
+
+## v2026.11.0 (2026-11-XX)
+
+### Enhancements
+
+### New Data
+
+### Expanded Data Coverage
+
+### Documentation
+
+### New Data Tests & Validations
+
+### Bug Fixes & Data Cleaning
+
+### Performance Improvements
+
+### Developer Experience
+
 <a id="release-v2026-10-0"></a>
 
 ## v2026.10.0 (2026-10-14)
