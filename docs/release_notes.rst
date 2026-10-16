@@ -26,6 +26,16 @@ New Data Tests & Validations
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Made transforms in FERC 1, FERC 714, SEC 10-K, PHMSA, RUS and the EIA API extractor
+  behave identically under pandas 2 and 3 by replacing in-place, chained and
+  dtype-changing assignments. Along the way: the PHMSA operators cleanup no longer
+  nulls non-string values like numeric zip codes; SEC 10-K ownership percentages no
+  longer misread leader dots (``"...99"`` was 0.0099, now 0.99) and dots-only entries
+  are null; and ``drop_invalid_rows()`` treats ``pd.NA``, ``np.nan`` and ``None``
+  alike. A new dbt test expects 90% of SEC 10-K ``fraction_owned`` values to be <= 1.
+  See :issue:`5616`, :issue:`5623` and :pr:`5665`. Part of the Pandas 3.0 migration
+  epic :pr:`3737`.
+
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -209,14 +219,6 @@ Bug Fixes & Data Cleaning
 * Fixed a bug that gave plants with no reported state the state FIPS code ``74`` (U.S.
   Minor Outlying Islands). Those plants in :ref:`core_eia__entity_plants`, and the
   generators built from them, now have a null ``state_id_fips``. See PR :pr:`5697`.
-* Made transforms in FERC 1, FERC 714, SEC 10-K, PHMSA, RUS and the EIA API extractor
-  behave identically under pandas 2 and 3 by replacing in-place, chained and
-  dtype-changing assignments. Along the way: the PHMSA operators cleanup no longer
-  nulls non-string values like numeric zip codes; SEC 10-K ownership percentages no
-  longer misread leader dots (``"...99"`` was 0.0099, now 0.99) and dots-only entries
-  are null; and ``drop_invalid_rows()`` treats ``pd.NA``, ``np.nan`` and ``None``
-  alike. A new dbt test expects 90% of SEC 10-K ``fraction_owned`` values to be <= 1.
-  See :issue:`5616`, :issue:`5632` and :pr:`5665`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
