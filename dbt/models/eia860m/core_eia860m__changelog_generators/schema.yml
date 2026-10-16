@@ -50,6 +50,12 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 partition_expr: EXTRACT(YEAR FROM report_date)
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: (latitude IS NULL) = (longitude IS NULL)
+              config:
+                error_if: ">20"
+              description: Latitude and longitude should either both be reported or both be null.
         columns:
           - name: report_date
           - name: valid_until_date
@@ -69,7 +75,27 @@ sources:
           - name: generator_operating_date
           - name: generator_retirement_date
           - name: latitude
+            data_tests:
+              - dbt_utils.expression_is_true:
+                  arguments:
+                    expression: BETWEEN 17 AND 72
+                  config:
+                    error_if: ">25"
+                  description: |-
+                    Latitudes in the EIA-860M data have not been cleaned up. A handful of records are
+                    outside the range of US plant locations (including a few zeros and swapped or
+                    out-of-range values). Nulls pass this test.
           - name: longitude
+            data_tests:
+              - dbt_utils.expression_is_true:
+                  arguments:
+                    expression: BETWEEN -180 AND -64
+                  config:
+                    error_if: ">80"
+                  description: |-
+                    Longitudes in the EIA-860M data have not been cleaned up. A handful of records are
+                    outside the range of US plant locations (mostly positive values with the wrong sign,
+                    plus a few zeros and out-of-range values). Nulls pass this test.
           - name: net_capacity_mwdc
           - name: operational_status
           - name: operational_status_code

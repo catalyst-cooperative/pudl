@@ -8,14 +8,23 @@ pudl_dbt:
       extensions:
         - httpfs
         - parquet
+        - spatial
       secrets:
         - type: s3
           region: us-west-2
           url_style: path
           provider: config
+      settings:
+        # Treat all geometries as (longitude, latitude), as the spatial tests assume.
+        geometry_always_xy: true
     etl-fast:
       threads: 1
       type: duckdb
       path: "{{ env_var('PUDL_OUTPUT') }}/pudl_dbt_tests.duckdb"
+      extensions:
+        - spatial
+      settings:
+        # Treat all geometries as (longitude, latitude), as the spatial tests assume.
+        geometry_always_xy: true
 
   target: etl-full
