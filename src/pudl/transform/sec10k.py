@@ -43,15 +43,17 @@ def _extract_filer_cik_from_filename(filename_col: pd.Series) -> pd.Series:
 
 
 def _compute_fraction_owned(percent_ownership: pd.Series) -> pd.Series:
-    """Clean percent ownership, convert to float, then convert percent to ratio."""
-    # Work on an object-dtype copy: the regex replacements below use Python `re`
-    # semantics (backslash escapes, replacement strings) that the Arrow-backed string
-    # dtype's pyarrow/RE2 engine rejects under pandas 3.
+    """Clean percent ownership, convert to float, then convert percent to ratio.
+
+    The percentages were extracted from text tables, so some carry runs of leader dots
+    (e.g. ``"....99"`` or ``"65......"``). These are removed, and entries containing
+    nothing but dots are treated as missing.
+    """
+    only_dots = percent_ownership.str.fullmatch(r"\.+", na=False)
     cleaned = (
-        percent_ownership.astype(object)
-        .str.replace(r"\.{2,}", ".", regex=True)
+        percent_ownership.mask(only_dots)
+        .str.replace(r"\.{2,}", "", regex=True)
         .replace(r"\\", "", regex=True)
-        .replace(".", "0.0", regex=False)
     )
     return cleaned.astype("float") / 100.0
 
