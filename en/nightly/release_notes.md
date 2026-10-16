@@ -1,5 +1,25 @@
 # PUDL Release Notes
 
+<a id="release-v2026-11-0"></a>
+
+## v2026.11.0 (2026-11-XX)
+
+### Enhancements
+
+### New Data
+
+### Expanded Data Coverage
+
+### Documentation
+
+### New Data Tests & Validations
+
+### Bug Fixes & Data Cleaning
+
+### Performance Improvements
+
+### Developer Experience
+
 <a id="release-v2026-10-0"></a>
 
 ## v2026.10.0 (2026-10-14)
@@ -86,6 +106,11 @@ ETL run.
   0.04% of its records are obviously wrong), so
   [core_eia860m_\_changelog_generators](data_dictionaries/pudl_db.md#core-eia860m-changelog-generators) is exempt, and new dbt tests cap the number
   of known bad records in it instead. See PR [#5697](https://github.com/catalyst-cooperative/pudl/pull/5697).
+* Added dbt tests that check whether plant coordinates fall in the state and county
+  they report, using the DuckDB spatial extension and Census boundaries. Applied to
+  [core_eia_\_entity_plants](data_dictionaries/pudl_db.md#core-eia-entity-plants), they currently flag 32 plants more than 5 km outside
+  their reported state (including offshore wind farms) and 204 outside their reported
+  county. These are not fixed yet. See PR [#5700](https://github.com/catalyst-cooperative/pudl/pull/5700).
 
 ### Bug Fixes & Data Cleaning
 
