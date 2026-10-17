@@ -181,13 +181,13 @@ def add_new_matches_to_dataframe(
                 raise ValueError(
                     f"Found a complex match that connects to different FERC and EIA utilities. This will require manual debugging: {match}"
                 )
-            match.utility_id_pudl = match.utility_id_pudl_ferc1
+            match["utility_id_pudl"] = match.utility_id_pudl_ferc1
         elif match.utility_id_eia in set(existing_glue_df.utility_id_eia):
             if match.utility_id_ferc1 in set(existing_glue_df.utility_id_ferc1):
                 raise ValueError(
                     f"Found a complex match that connects to different FERC and EIA utilities. This will require manual debugging: {match}"
                 )
-            match.utility_id_pudl = match.utility_id_pudl_eia
+            match["utility_id_pudl"] = match.utility_id_pudl_eia
         final_updates.append(match)
 
     updates_df = pd.DataFrame(final_updates)
@@ -210,7 +210,7 @@ def add_new_matches_to_dataframe(
         group_id=lambda x: x.groupby("cleaned_utility_name").ngroup()
     )
     # Then use this value to fill NAs in the utility ID PUDL.
-    updates_df.utility_id_pudl = updates_df.utility_id_pudl.fillna(
+    updates_df["utility_id_pudl"] = updates_df.utility_id_pudl.fillna(
         updates_df.group_id + max(existing_glue_df.utility_id_pudl)
     ).astype("Int64")
     updates_df = updates_df.drop(columns=["group_id", "cleaned_utility_name"])

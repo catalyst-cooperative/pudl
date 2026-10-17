@@ -258,7 +258,7 @@ def _out_eia__yearly_generators(
         on=["plant_id_eia"],
     )
 
-    out_df.report_date = pd.to_datetime(out_df.report_date)
+    out_df["report_date"] = pd.to_datetime(out_df.report_date)
 
     # Bring in some generic plant & utility information:
     pu_eia = _out_eia__plants_utilities.drop(
@@ -364,7 +364,7 @@ def out_eia__yearly_boilers(
         out_df, core_eia__entity_boilers, how="left", on=["plant_id_eia", "boiler_id"]
     )
 
-    out_df.report_date = pd.to_datetime(out_df.report_date)
+    out_df["report_date"] = pd.to_datetime(out_df.report_date)
 
     # Bring in some generic plant & utility information:
     out_df = pd.merge(

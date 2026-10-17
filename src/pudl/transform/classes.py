@@ -105,35 +105,18 @@ class TransformParams(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
 
-class MultiColumnTransformParams(TransformParams):
-    """A dictionary of :class:`TransformParams` to apply to several columns in a table.
+type MultiColumnTransformParams[ParamsT: TransformParams] = dict[str, ParamsT]
+"""A dictionary of :class:`TransformParams` to apply to several columns in a table.
 
-    These parameter dictionaries are dynamically generated for each multi-column
-    transformation specified within a :class:`TableTransformParams` object, and passed
-    in to the :class:`MultiColumnTransformFunc` callables which are constructed by
-    :func:`multicol_transform_factory`
+These parameter dictionaries are dynamically generated for each multi-column
+transformation specified within a :class:`TableTransformParams` object, and passed in to
+the :class:`MultiColumnTransformFunc` callables which are constructed by
+:func:`multicol_transform_factory`
 
-    The keys are column names, values must all be the same type of
-    :class:`TransformParams` object. For examples, see e.g. the ``categorize_strings``
-    or ``convert_units`` elements within
-    :py:const:`pudl.transform.ferc1.TRANSFORM_PARAMS`.
-
-    The dictionary structure is not explicitly stated in this class, because it's messy
-    to use Pydantic for validation when the data to be validated isn't contained within
-    a Pydantic model. When Pydantic v2 is available, it will be easy, and we'll do it:
-    https://pydantic-docs.helpmanual.io/blog/pydantic-v2/#validation-without-a-model
-    """
-
-    @model_validator(mode="after")
-    def single_param_type(self: Self, info: ValidationInfo):
-        """Check that all TransformParams in the dictionary are of the same type."""
-        param_types = {type(info.data[col]) for col in info.data}
-        if len(param_types) > 1:
-            raise ValueError(
-                "Found multiple parameter types in multi-column transform params: "
-                f"{param_types}"
-            )
-        return self
+The keys are column names, values must all be the same type of :class:`TransformParams`
+object. For examples, see e.g. the ``categorize_strings`` or ``convert_units`` elements
+within :py:const:`pudl.transform.ferc1.TRANSFORM_PARAMS`.
+"""
 
 
 #####################################################################################
@@ -144,10 +127,12 @@ class MultiColumnTransformParams(TransformParams):
 # https://realpython.com/python-type-checking/#callables
 # https://mypy.readthedocs.io/en/stable/protocols.html#callback-protocols
 #####################################################################################
-class ColumnTransformFunc(Protocol):
+class ColumnTransformFunc[ParamsT: TransformParams](Protocol):
     """Callback protocol defining a per-column transformation function."""
 
-    def __call__(self, col: pd.Series, params: TransformParams) -> pd.Series:
+    __name__: str
+
+    def __call__(self, col: pd.Series, params: ParamsT) -> pd.Series:
         """Create a callable."""
         ...
 
@@ -160,20 +145,20 @@ class TableTransformFunc(Protocol):
         ...
 
 
-class MultiColumnTransformFunc(Protocol):
+class MultiColumnTransformFunc[ParamsT: TransformParams](Protocol):
     """Callback protocol defining a per-table transformation function."""
 
     def __call__(
-        self, df: pd.DataFrame, params: MultiColumnTransformParams
+        self, df: pd.DataFrame, params: MultiColumnTransformParams[ParamsT]
     ) -> pd.DataFrame:
         """Create a callable."""
         ...
 
 
-def multicol_transform_factory(
-    col_func: ColumnTransformFunc,
+def multicol_transform_factory[ParamsT: TransformParams](
+    col_func: ColumnTransformFunc[ParamsT],
     drop=True,
-) -> MultiColumnTransformFunc:
+) -> MultiColumnTransformFunc[ParamsT]:
     """Construct :class:`MultiColumnTransformFunc` from a :class:`ColumnTransformFunc`.
 
     This factory function saves us from having to iterate over dataframes in many
@@ -223,30 +208,25 @@ def multicol_transform_factory(
         >>> pd.testing.assert_frame_equal(actual, expected)
     """
 
-    class InnerMultiColumnTransformFunc(
-        Callable[[pd.DataFrame, MultiColumnTransformParams], pd.DataFrame]
-    ):
-        __name__ = col_func.__name__ + "_multicol"
+    def inner_multicol_transform_func(
+        df: pd.DataFrame, params: MultiColumnTransformParams[ParamsT]
+    ) -> pd.DataFrame:
+        for col_name in params:
+            if col_name in df.columns:
+                logger.debug(f"Applying {col_func.__name__} to {col_name}")
+                new_col = col_func(col=df[col_name], params=params[col_name])
+                if drop:
+                    df = df.drop(columns=col_name)
+                df = pd.concat([df, new_col], axis="columns")
+            else:
+                logger.warning(
+                    f"Expected column {col_name} not found in dataframe during "
+                    f"application of {col_func.__name__}."
+                )
+        return df
 
-        def __call__(
-            self, df: pd.DataFrame, params: MultiColumnTransformParams
-        ) -> pd.DataFrame:
-            drop_col: bool = drop
-            for col_name in params:
-                if col_name in df.columns:
-                    logger.debug(f"Applying {col_func.__name__} to {col_name}")
-                    new_col = col_func(col=df[col_name], params=params[col_name])
-                    if drop_col:
-                        df = df.drop(columns=col_name)
-                    df = pd.concat([df, new_col], axis="columns")
-                else:
-                    logger.warning(
-                        f"Expected column {col_name} not found in dataframe during "
-                        f"application of {col_func.__name__}."
-                    )
-            return df
-
-    return InnerMultiColumnTransformFunc()
+    inner_multicol_transform_func.__name__ = col_func.__name__ + "_multicol"
+    return inner_multicol_transform_func
 
 
 ################################################################################
@@ -273,6 +253,8 @@ def rename_columns(
     Raise an error if there's any mismatch between the columns in the dataframe, and
     the columns that have been defined in the mapping for renaming.
     """
+    if params is None:
+        params = RenameColumns()
     # If we are attempting to rename columns that do *not* appear in the dataframe,
     # raise an error.
     if len(params.columns) > 0:
@@ -383,7 +365,9 @@ def enforce_snake_case(
     return col
 
 
-enforce_snake_case_multicol = multicol_transform_factory(enforce_snake_case)
+enforce_snake_case_multicol: MultiColumnTransformFunc[EnforceSnakeCase] = (
+    multicol_transform_factory(enforce_snake_case)
+)
 
 
 ################################################################################
@@ -431,7 +415,11 @@ def strip_non_numeric_values(
     return col
 
 
-strip_non_numeric_values_multicol = multicol_transform_factory(strip_non_numeric_values)
+# Annotated explicitly because strip_non_numeric_values() takes ``params | None``,
+# which would otherwise be inferred as the multi-column parameter type.
+strip_non_numeric_values_multicol: MultiColumnTransformFunc[StripNonNumericValues] = (
+    multicol_transform_factory(strip_non_numeric_values)
+)
 
 
 ################################################################################
@@ -849,6 +837,8 @@ def drop_invalid_rows(df: pd.DataFrame, params: InvalidRows) -> pd.DataFrame:
         return df
 
     pre_drop_len = len(df)
+    # If only ``like`` or ``regex`` is given, no explicit column list is needed.
+    items: list | None = None
     if params.required_valid_cols or params.allowed_invalid_cols:
         # check if the columns enumerated are actually in the df
         possible_cols = (params.required_valid_cols or []) + (
@@ -1293,7 +1283,7 @@ class AbstractTableTransformer(ABC):
     def normalize_strings(
         self,
         df: pd.DataFrame,
-        params: dict[str, bool] | None = None,
+        params: dict[str, StringNormalization] | None = None,
     ) -> pd.DataFrame:
         """Method wrapper for string normalization."""
         if params is None:
@@ -1304,7 +1294,7 @@ class AbstractTableTransformer(ABC):
     def strip_non_numeric_values(
         self,
         df: pd.DataFrame,
-        params: dict[str, bool] | None = None,
+        params: dict[str, StripNonNumericValues] | None = None,
     ) -> pd.DataFrame:
         """Method wrapper for stripping non-numeric values."""
         if params is None:

@@ -1,41 +1,6 @@
 {
   "errors": [
     {
-      "path": "src/pudl/transform/classes.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `(col: Series, params: EnforceSnakeCase | None = None) -> Series` is not assignable to parameter `col_func` with type `ColumnTransformFunc` in function `multicol_transform_factory`"
-    },
-    {
-      "path": "src/pudl/transform/classes.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `(col: Series, params: ReplaceWithNa) -> Series` is not assignable to parameter `col_func` with type `ColumnTransformFunc` in function `multicol_transform_factory`"
-    },
-    {
-      "path": "src/pudl/transform/classes.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `(col: Series, params: StringCategories) -> Series` is not assignable to parameter `col_func` with type `ColumnTransformFunc` in function `multicol_transform_factory`"
-    },
-    {
-      "path": "src/pudl/transform/classes.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `(col: Series, params: StringNormalization) -> Series` is not assignable to parameter `col_func` with type `ColumnTransformFunc` in function `multicol_transform_factory`"
-    },
-    {
-      "path": "src/pudl/transform/classes.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `(col: Series, params: StripNonNumericValues | None = None) -> Series` is not assignable to parameter `col_func` with type `ColumnTransformFunc` in function `multicol_transform_factory`"
-    },
-    {
-      "path": "src/pudl/transform/classes.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `(col: Series, params: UnitConversion) -> Series` is not assignable to parameter `col_func` with type `ColumnTransformFunc` in function `multicol_transform_factory`"
-    },
-    {
-      "path": "src/pudl/transform/classes.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `(col: Series, params: ValidRange) -> Series` is not assignable to parameter `col_func` with type `ColumnTransformFunc` in function `multicol_transform_factory`"
-    },
-    {
       "path": "src/pudl/transform/phmsagas.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `(raw_df: DataFrame) -> None` is not assignable to parameter with type `(...) -> AssetCheckResult`"
@@ -81,16 +46,6 @@
       "concise_description": "Argument `DataFrame | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` is not assignable to parameter `col` with type `Series` in function `CompanyNameCleaner.get_clean_data`"
     },
     {
-      "path": "src/pudl/transform/eiaaeo.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `DataFrame | Series` is not assignable to parameter `df` with type `DataFrame` in function `_decumulate`"
-    },
-    {
-      "path": "src/pudl/transform/eia176.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `DataFrame | Series` is not assignable to parameter `df` with type `DataFrame` in function `pudl.helpers.simplify_columns`"
-    },
-    {
       "path": "tests/unit/transform/eiaaeo_test.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `DataFrame | Series` is not assignable to parameter `summands` with type `DataFrame` in function `pudl.transform.eiaaeo.series_sum_ratio`"
@@ -119,11 +74,6 @@
       "path": "src/pudl/analysis/spatial.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `GeometrySequence[GeometryCollection[Polygon]]` is not assignable to parameter `data` with type `Buffer | Geometry | IndexOpsMixin | Mapping[int, Geometry] | Mapping[str, Geometry] | Sequence[Geometry] | _NestedSequence[bytes | complex | str] | _NestedSequence[_SupportsArray[dtype]] | _SupportsArray[dtype] | bytes | complex | str | None` in function `geopandas.geoseries.GeoSeries.__new__`"
-    },
-    {
-      "path": "src/pudl/helpers.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `Iterable[str]` is not assignable to parameter `id_vars` with type `Sequence[Unknown] | ndarray | tuple[Unknown, ...] | None` in function `pandas.core.frame.DataFrame.melt`"
     },
     {
       "path": "src/pudl/metadata/classes.py",
@@ -266,11 +216,6 @@
       "concise_description": "Argument `Unknown | None` is not assignable to parameter `type` with type `bytearray | bytes | str` in function `ResourceTrait.__init__`"
     },
     {
-      "path": "src/pudl/extract/eiaaeo.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `_Node` is not assignable to parameter with type `int | str`"
-    },
-    {
       "path": "src/pudl/workspace/datastore.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `bytes | Any` is not assignable to parameter `content` with type `str` in function `DatapackageDescriptor.validate_checksum`"
@@ -281,11 +226,6 @@
       "concise_description": "Argument `bytes` is not assignable to parameter `content` with type `str` in function `DatapackageDescriptor.validate_checksum`"
     },
     {
-      "path": "src/pudl/extract/eiaaeo.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `chain[Hashable]` is not assignable to parameter `data` with type `Iterable[Mapping[@_, Any]] | Iterable[SequenceNotStr[Any]] | Mapping[@_, SequenceNotStr[Any]] | Mapping[@_, Any] | ndarray[tuple[int, int]]` in function `pandas.core.frame.DataFrame.from_records`"
-    },
-    {
       "path": "src/pudl/analysis/record_linkage/link_cross_year.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `csr_matrix | ndarray` is not assignable to parameter `feature_matrix` with type `ndarray` in function `DistanceMatrix.__init__`"
@@ -294,11 +234,6 @@
       "path": "src/pudl/output/ferc714.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `dict[Hashable | str, Timestamp | Any]` is not assignable to parameter `object` with type `dict[str, Any]` in function `list.append`"
-    },
-    {
-      "path": "tests/unit/transform/classes_test.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `dict[Unknown, Unknown]` is not assignable to parameter `params` with type `MultiColumnTransformParams` in function `pudl.transform.classes.MultiColumnTransformFunc.__call__`"
     },
     {
       "path": "tests/unit/metadata/harvest_test.py",
@@ -316,34 +251,9 @@
       "concise_description": "Argument `dict[str, DataType]` is not assignable to parameter `dtypes` with type `DataType | DataTypeClass | DataTypeExpr | Mapping[DataType | DataTypeClass | Selector | str, DataType | DataTypeClass | type[Decimal | bool | bytes | date | datetime | float | int | list[Any] | object | str | time | timedelta | tuple[Any, ...] | None]] | Schema` in function `polars.lazyframe.frame.LazyFrame.cast`"
     },
     {
-      "path": "src/pudl/transform/classes.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `dict[str, ReplaceWithNa]` is not assignable to parameter `params` with type `MultiColumnTransformParams` in function `MultiColumnTransformFunc.__call__`"
-    },
-    {
-      "path": "src/pudl/transform/classes.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `dict[str, StringCategories]` is not assignable to parameter `params` with type `MultiColumnTransformParams` in function `MultiColumnTransformFunc.__call__`"
-    },
-    {
       "path": "src/pudl/extract/dbf.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `dict[str, TypeEngine[Any]]` is not assignable to parameter `dtype` with type `ExtensionDtype | Mapping[Hashable, ExtensionDtype | dtype[generic] | str | type[bool | complex | object | str]] | dtype[generic] | str | type[bool | complex | object | str] | None` in function `pandas.core.generic.NDFrame.to_sql`"
-    },
-    {
-      "path": "src/pudl/transform/classes.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `dict[str, UnitConversion]` is not assignable to parameter `params` with type `MultiColumnTransformParams` in function `MultiColumnTransformFunc.__call__`"
-    },
-    {
-      "path": "src/pudl/transform/classes.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `dict[str, ValidRange]` is not assignable to parameter `params` with type `MultiColumnTransformParams` in function `MultiColumnTransformFunc.__call__`"
-    },
-    {
-      "path": "src/pudl/transform/classes.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `dict[str, bool] | None` is not assignable to parameter `params` with type `MultiColumnTransformParams` in function `MultiColumnTransformFunc.__call__`"
     },
     {
       "path": "src/pudl/transform/rus12.py",
@@ -354,16 +264,6 @@
       "path": "src/pudl/transform/rus7.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `dict[str, int]` is not assignable to parameter `special_case_strictness` with type `dict[str, float]` in function `pudl.transform.eia.harvest_entity_tables`"
-    },
-    {
-      "path": "src/pudl/transform/classes.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `dict[str, str] | object` is not assignable to parameter `iterable` with type `Iterable[str]` in function `set.__init__`"
-    },
-    {
-      "path": "tests/unit/dagster/io_managers_test.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `dict[str, str]` is not assignable to parameter `obj` with type `DataFrame | GeoDataFrame | LazyFrame` in function `pudl.dagster.io_managers.PudlParquetIOManager.handle_output`"
     },
     {
       "path": "src/pudl/metadata/classes.py",
@@ -379,16 +279,6 @@
       "path": "src/pudl/analysis/record_linkage/link_cross_year.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `int` is not assignable to parameter `i` with type `SupportsNext[@_]` in function `next`"
-    },
-    {
-      "path": "src/pudl/analysis/record_linkage/eia_ferc1_record_linkage.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `list[BlockingRuleCreator | str]` is not assignable to parameter `blocking_rules_to_generate_predictions` with type `list[BlockingRuleCreator | dict[str, Any]]` in function `splink.internals.settings_creator.SettingsCreator.__init__`"
-    },
-    {
-      "path": "src/pudl/analysis/record_linkage/eia_ferc1_record_linkage.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `list[DateOfBirthComparison | ExactMatch | NameComparison | dict[str, list[ElseLevel | NullLevel | PercentageDifferenceLevel] | str]]` is not assignable to parameter `comparisons` with type `list[ComparisonCreator | dict[str, Any]]` in function `splink.internals.settings_creator.SettingsCreator.__init__`"
     },
     {
       "path": "tests/unit/analysis/plant_parts_eia_test.py",
@@ -426,19 +316,9 @@
       "concise_description": "Argument `ndarray[tuple[int]]` is not assignable to parameter `eia_codes` with type `list[int]` in function `categorize_eia_code`"
     },
     {
-      "path": "src/pudl/helpers.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `ndarray[tuple[int]]` is not assignable to parameter `to_replace` with type `Mapping[Unknown, Unknown] | NAType | Pattern[Unknown] | Sequence[Pattern[Unknown] | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64 | None` in function `pandas.core.series.Series.replace`"
-    },
-    {
       "path": "tests/unit/transform/eia923_test.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `object` is not assignable to parameter `obj` with type `Sized` in function `len`"
-    },
-    {
-      "path": "src/pudl/analysis/timeseries_evaluation.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `set[Unknown]` is not assignable to parameter `categories` with type `Index | Series | list[Any] | None` in function `pandas.core.dtypes.dtypes.CategoricalDtype.__init__`"
     },
     {
       "path": "src/pudl/metadata/classes.py",
@@ -556,16 +436,6 @@
       "concise_description": "Argument `tuple[Literal['SWPP'], Literal['OPPD']]` is not assignable to parameter `idx_vals` with type `tuple[Any]` in function `pudl.analysis.timeseries_evaluation.plot_imputation`"
     },
     {
-      "path": "src/pudl/extract/eiaaeo.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `tuple[Literal['no_table_name'], Literal['leaf_category'], list[_Node]]` is not assignable to parameter `object` with type `tuple[str, str, _Node]` in function `list.append`"
-    },
-    {
-      "path": "src/pudl/extract/eiaaeo.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `tuple[Literal['wrong_length'], Literal['root'], list[_Node]]` is not assignable to parameter `object` with type `tuple[str, str, _Node]` in function `list.append`"
-    },
-    {
       "path": "tests/pipeline/analysis/timeseries_plot_test.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `tuple[float, float]` is not assignable to parameter `xylim` with type `tuple[float] | None` in function `pudl.analysis.timeseries_evaluation.plot_correlation`"
@@ -601,19 +471,9 @@
       "concise_description": "Argument `type[GenericPlantFerc1TableTransformer]` is not assignable to parameter `tfr_class` with type `Ferc1AbstractTableTransformer` in function `pudl.transform.ferc1.ferc1_transform_asset_factory`"
     },
     {
-      "path": "tests/unit/dagster/io_managers_test.py",
-      "name": "read-only",
-      "concise_description": "Attribute `is_ephemeral` of class `DagsterInstance` is a read-only property and cannot be set"
-    },
-    {
       "path": "src/pudl/dagster/assets/raw/ferc_to_sqlite.py",
       "name": "bad-assignment",
       "concise_description": "Augmented assignment result `dict[str, UPath]` is not assignable to `PudlPaths`"
-    },
-    {
-      "path": "src/pudl/transform/classes.py",
-      "name": "bad-index",
-      "concise_description": "Cannot index into `MultiColumnTransformParams`"
     },
     {
       "path": "src/pudl/analysis/timeseries_evaluation.py",
@@ -751,11 +611,6 @@
       "concise_description": "Generator function should return `Generator`"
     },
     {
-      "path": "src/pudl/transform/classes.py",
-      "name": "invalid-inheritance",
-      "concise_description": "Invalid base class: `(...) -> Unknown`"
-    },
-    {
       "path": "src/pudl/analysis/plant_parts_eia.py",
       "name": "bad-argument-type",
       "concise_description": "Keyword argument `ferc1_generator_agg_id` with type `NAType` is not assignable to parameter `**kwargs` with type `((DataFrame) -> ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None) | ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None` in function `pandas.core.frame.DataFrame.assign`"
@@ -786,31 +641,6 @@
       "concise_description": "Keyword argument `year_in_date_range` with type `(x: DataFrame) -> DataFrame` is not assignable to parameter `**kwargs` with type `((DataFrame) -> ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None) | ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None` in function `pandas.core.frame.DataFrame.assign`"
     },
     {
-      "path": "src/pudl/extract/extractor.py",
-      "name": "missing-argument",
-      "concise_description": "Missing argument `code_version` in function `dagster._core.definitions.output.DynamicOut.__new__`"
-    },
-    {
-      "path": "src/pudl/extract/extractor.py",
-      "name": "missing-argument",
-      "concise_description": "Missing argument `dagster_type` in function `dagster._core.definitions.output.DynamicOut.__new__`"
-    },
-    {
-      "path": "src/pudl/extract/extractor.py",
-      "name": "missing-argument",
-      "concise_description": "Missing argument `description` in function `dagster._core.definitions.output.DynamicOut.__new__`"
-    },
-    {
-      "path": "src/pudl/extract/extractor.py",
-      "name": "missing-argument",
-      "concise_description": "Missing argument `io_manager_key` in function `dagster._core.definitions.output.DynamicOut.__new__`"
-    },
-    {
-      "path": "src/pudl/extract/extractor.py",
-      "name": "missing-argument",
-      "concise_description": "Missing argument `is_required` in function `dagster._core.definitions.output.DynamicOut.__new__`"
-    },
-    {
       "path": "src/pudl/dagster/assets/raw/ferc_to_sqlite.py",
       "name": "missing-argument",
       "concise_description": "Missing argument `local_datapackage_path` in function `FercPaths.__init__`"
@@ -821,11 +651,6 @@
       "concise_description": "Missing argument `local_sqlite_path` in function `FercPaths.__init__`"
     },
     {
-      "path": "src/pudl/extract/extractor.py",
-      "name": "missing-argument",
-      "concise_description": "Missing argument `metadata` in function `dagster._core.definitions.output.DynamicOut.__new__`"
-    },
-    {
       "path": "src/pudl/dagster/assets/raw/ferc_to_sqlite.py",
       "name": "missing-argument",
       "concise_description": "Missing argument `nightly_datapackage_path` in function `FercPaths.__init__`"
@@ -834,16 +659,6 @@
       "path": "src/pudl/dagster/assets/raw/ferc_to_sqlite.py",
       "name": "missing-argument",
       "concise_description": "Missing argument `nightly_sqlite_path` in function `FercPaths.__init__`"
-    },
-    {
-      "path": "tests/unit/dagster/io_managers_test.py",
-      "name": "missing-argument",
-      "concise_description": "Missing argument `pudl_paths` in function `pudl.dagster.io_managers.FercDbfSqliteIOManager.__init__`"
-    },
-    {
-      "path": "tests/unit/dagster/io_managers_test.py",
-      "name": "missing-argument",
-      "concise_description": "Missing argument `pudl_paths` in function `pudl.dagster.io_managers.FercXbrlSqliteIOManager.__init__`"
     },
     {
       "path": "src/pudl/helpers.py",
@@ -869,11 +684,6 @@
       "path": "src/pudl/metadata/helpers.py",
       "name": "no-matching-overload",
       "concise_description": "No matching overload found for function `pandas.core.frame.DataFrame.groupby` called with arguments: (Iterable[Unknown])"
-    },
-    {
-      "path": "src/pudl/glue/ferc1_eia.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `pandas.core.generic.NDFrame.pipe` called with arguments: (MultiColumnTransformFunc, dict[str, StringNormalization])"
     },
     {
       "path": "tests/unit/validate/dbt_helper_test.py",
@@ -906,11 +716,6 @@
       "concise_description": "Object of class `BaseResult` has no attribute `node`"
     },
     {
-      "path": "src/pudl/transform/classes.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `ColumnTransformFunc` has no attribute `__name__`"
-    },
-    {
       "path": "src/pudl/metadata/descriptions.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `FunctionType` has no attribute `__is_component`"
@@ -919,11 +724,6 @@
       "path": "src/pudl/metadata/helpers.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `FunctionType` has no attribute `format`"
-    },
-    {
-      "path": "tests/unit/dagster/io_managers_test.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `FunctionType` has no attribute `return_value`"
     },
     {
       "path": "src/pudl/extract/excel.py",
@@ -1006,11 +806,6 @@
       "concise_description": "Object of class `NoneType` has no attribute `columns`"
     },
     {
-      "path": "src/pudl/transform/classes.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `columns`"
-    },
-    {
       "path": "tests/unit/scripts/auto_match_utilities_test.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `NoneType` has no attribute `columns`"
@@ -1024,11 +819,6 @@
       "path": "src/pudl/analysis/spatial.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `NoneType` has no attribute `drop`"
-    },
-    {
-      "path": "tests/unit/dagster/io_managers_test.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `ferc1`"
     },
     {
       "path": "tests/unit/settings_test.py",
@@ -1051,11 +841,6 @@
       "concise_description": "Object of class `NoneType` has no attribute `get_dataset_years`"
     },
     {
-      "path": "tests/unit/dagster/io_managers_test.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `get_dataset_years`"
-    },
-    {
       "path": "tests/unit/settings_test.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `NoneType` has no attribute `get_datasets`"
@@ -1069,11 +854,6 @@
       "path": "src/pudl/metadata/classes.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `NoneType` has no attribute `ignored_codes`"
-    },
-    {
-      "path": "src/pudl/transform/classes.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `keys`"
     },
     {
       "path": "tests/unit/settings_test.py",
@@ -1114,86 +894,6 @@
       "path": "tests/unit/extract/xbrl_test.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `Path` has no attribute `pudl_output`"
-    },
-    {
-      "path": "src/pudl/transform/sec10k.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Properties` has no attribute `days`"
-    },
-    {
-      "path": "src/pudl/helpers.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Properties` has no attribute `month`"
-    },
-    {
-      "path": "src/pudl/transform/ferc714.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Properties` has no attribute `second`"
-    },
-    {
-      "path": "src/pudl/settings.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Properties` has no attribute `strftime`"
-    },
-    {
-      "path": "src/pudl/analysis/allocate_gen_fuel.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Properties` has no attribute `year`"
-    },
-    {
-      "path": "src/pudl/analysis/plant_parts_eia.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Properties` has no attribute `year`"
-    },
-    {
-      "path": "src/pudl/analysis/record_linkage/eia_ferc1_train.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Properties` has no attribute `year`"
-    },
-    {
-      "path": "src/pudl/analysis/service_territory.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Properties` has no attribute `year`"
-    },
-    {
-      "path": "src/pudl/helpers.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Properties` has no attribute `year`"
-    },
-    {
-      "path": "src/pudl/output/ferc714.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Properties` has no attribute `year`"
-    },
-    {
-      "path": "src/pudl/scripts/pudl_null_cols.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Properties` has no attribute `year`"
-    },
-    {
-      "path": "src/pudl/transform/eia860.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Properties` has no attribute `year`"
-    },
-    {
-      "path": "src/pudl/transform/eia923.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Properties` has no attribute `year`"
-    },
-    {
-      "path": "src/pudl/transform/ferc714.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Properties` has no attribute `year`"
-    },
-    {
-      "path": "src/pudl/transform/rus12.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Properties` has no attribute `year`"
-    },
-    {
-      "path": "src/pudl/transform/rus7.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Properties` has no attribute `year`"
     },
     {
       "path": "tests/unit/metadata/harvest_test.py",
@@ -1341,11 +1041,6 @@
       "concise_description": "Returned type `FercDbfToSqliteDataConfig | FercGenericXbrlToSqliteDataConfig | None` is not assignable to declared return type `FercDbfToSqliteDataConfig`"
     },
     {
-      "path": "src/pudl/extract/eiaaeo.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `Generator[dict[str, int | Any | Unknown]]` is not assignable to declared return type `DataFrame`"
-    },
-    {
       "path": "src/pudl/helpers.py",
       "name": "bad-return",
       "concise_description": "Returned type `NAType | str` is not assignable to declared return type `str | None`"
@@ -1416,11 +1111,6 @@
       "concise_description": "Returned type `tuple[dict[Unknown, Unknown], ...]` is not assignable to declared return type `tuple[dict[int, ParquetData], dict[int, ParquetData], dict[int, ParquetData]]`"
     },
     {
-      "path": "src/pudl/metadata/classes.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `tuple[str, ...]` is not assignable to declared return type `tuple[str]`"
-    },
-    {
       "path": "tests/unit/transform/eia176_test.py",
       "name": "not-iterable",
       "concise_description": "Type `object` is not iterable"
@@ -1486,19 +1176,9 @@
       "concise_description": "`+` is not supported between `Hashable` and `Literal['_filled']`"
     },
     {
-      "path": "src/pudl/helpers.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `Iterable[str]` and `list[str]`"
-    },
-    {
       "path": "tests/unit/transform/classes_test.py",
       "name": "unsupported-operation",
       "concise_description": "`+` is not supported between `None` and `Literal['_filled']`"
-    },
-    {
-      "path": "src/pudl/helpers.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `Series` and `Literal['x']`"
     },
     {
       "path": "tests/unit/extract/xbrl_test.py",
@@ -1571,16 +1251,6 @@
       "concise_description": "`dict[str, Path]` is not assignable to variable `paths` with type `PudlPaths`"
     },
     {
-      "path": "src/pudl/transform/classes.py",
-      "name": "bad-assignment",
-      "concise_description": "`dict[str, StringNormalization]` is not assignable to variable `params` with type `dict[str, bool] | None`"
-    },
-    {
-      "path": "src/pudl/transform/classes.py",
-      "name": "bad-assignment",
-      "concise_description": "`dict[str, StripNonNumericValues]` is not assignable to variable `params` with type `dict[str, bool] | None`"
-    },
-    {
       "path": "src/pudl/transform/params/ferc1.py",
       "name": "bad-assignment",
       "concise_description": "`dict[str, set[str]]` is not assignable to dict value type `set[str]`"
@@ -1606,19 +1276,9 @@
       "concise_description": "`in` is not supported between `Literal['control_id_eia']` and `Hashable`"
     },
     {
-      "path": "src/pudl/transform/classes.py",
-      "name": "unbound-name",
-      "concise_description": "`items` may be uninitialized"
-    },
-    {
       "path": "src/pudl/analysis/spatial.py",
       "name": "bad-assignment",
       "concise_description": "`list[GeoDataFrame]` is not assignable to variable `gdfs` with type `tuple[GeoDataFrame, ...]`"
-    },
-    {
-      "path": "src/pudl/analysis/timeseries_evaluation.py",
-      "name": "bad-assignment",
-      "concise_description": "`ndarray` is not assignable to variable `lengths` with type `Sequence[int]`"
     },
     {
       "path": "src/pudl/transform/eia860.py",

@@ -971,7 +971,7 @@ def cleanstrings_series(
         # leftover strings to fix -- otherwise it runs forever because we
         # are replacing nothing with nothing.
         if len(badstrings) > 0:
-            col = col.replace(badstrings, unmapped)
+            col = col.replace(badstrings.tolist(), unmapped)
 
     return col
 
@@ -1619,7 +1619,8 @@ def zero_pad_numeric_string(col: pd.Series, n_digits: int) -> pd.Series:
         .str.zfill(n_digits)
         # All-zero ZIP & FIPS codes are invalid.
         # Also catches empty strings that were zero padded.
-        .replace({n_digits * "0": pd.NA})
+        # pandas-stubs' Scalar type does not include pd.NA
+        .replace({n_digits * "0": pd.NA})  # type: ignore[bad-assignment]
     )
     if not out_col.str.match(f"^[\\d]{{{n_digits}}}$").all():
         raise ValueError(
@@ -2068,7 +2069,8 @@ def fix_boolean_columns(
     retaining a reference to the data will see the changes made here.
     """
     fillna_cols = dict.fromkeys(boolean_columns_to_fix, pd.NA)
-    boolean_replace_cols = {
+    # Annotated loosely because pandas-stubs' Scalar type does not include pd.NA
+    boolean_replace_cols: dict[str, Any] = {
         col: {"Y": True, "N": False, "X": False, "U": pd.NA, 1: True, 0: False}
         for col in boolean_columns_to_fix
     }
@@ -2270,6 +2272,7 @@ def diff_wide_tables(
     So we melt the table based on some sort of primary key columns then diff
     the old and new values.
     """
+    primary_key = list(primary_key)
     old_melted = old.melt(id_vars=primary_key, var_name="field").set_index(
         primary_key + ["field"]
     )
