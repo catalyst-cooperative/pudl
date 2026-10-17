@@ -4067,12 +4067,18 @@ class PlantInServiceTableTransformer(Ferc1AbstractTableTransformer):
         logger.info(
             f"{self.table_id.value}: Converted {len(df[neg_values])} negative values to positive."
         )
-        # Add two exceptions for plant status
-        df.loc[
-            df.ferc_account_label.isin(
-                ["electric_plant_sold", "electric_plant_purchased"]
-            )
-        ].plant_status = pd.NA
+        # Intended exception: plant_status should probably be NA for the sold and
+        # purchased accounts, as it already is in the XBRL metadata. The previous
+        # version of this assignment was a chained assignment with no effect, and
+        # this working version breaks the calculation reconciliation because null
+        # child dimensions yield null parent dimensions. Disabled until that is
+        # resolved. See https://github.com/catalyst-cooperative/pudl/issues/5713
+        # df.loc[
+        #     df.ferc_account_label.isin(
+        #         ["electric_plant_sold", "electric_plant_purchased"]
+        #     ),
+        #     "plant_status",
+        # ] = pd.NA
         return df
 
 
