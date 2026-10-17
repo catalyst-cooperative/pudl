@@ -104,13 +104,13 @@ class FercSqliteProvenanceRecord(BaseModel):
     @classmethod
     def from_datapackage(
         cls,
-        datapackage_path: UPath,
+        datapackage_path: Path | UPath,
         source: Literal["nightly", "local_cache", "local_new"],
     ) -> FercSqliteProvenanceRecord | None:
         """Read SQLite provenance metadata from datapackage JSON file.
 
         Note that this method accepts ``datapackage_path`` as a ``UPath`` as we read
-        provenance metadata directly from nightly builds, but ``to_datapackage`` only
+        provenance metadata directly from nightly builds (or a local ``Path``), but ``to_datapackage`` only
         accepts a regular ``Path``, as we should never try to write directly to s3.
         """
         if datapackage_path.exists():
