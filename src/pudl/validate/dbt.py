@@ -3,6 +3,7 @@
 import io
 import json
 import logging
+import os
 from contextlib import chdir, contextmanager, redirect_stdout
 from pathlib import Path
 from typing import NamedTuple, cast
@@ -14,7 +15,7 @@ from dbt.artifacts.schemas.run import RunExecutionResult
 from dbt.cli.main import dbtRunner, dbtRunnerResult
 from dbt.contracts.graph.nodes import GenericTestNode
 
-from pudl import PUDL_DBT_PATH
+from pudl import FERCEQR_BUILDS_BASE_PATH, PUDL_DBT_PATH, PUDL_NIGHTLY_BUILDS_BASE_PATH
 from pudl.logging_helpers import get_logger
 from pudl.workspace.setup import PudlPaths
 
@@ -146,6 +147,7 @@ def build_with_context(
     node_selection: str,
     dbt_target: str,
     node_exclusion: str | None = None,
+    use_nightly_builds: bool = False,
 ) -> BuildResult:
     """Run the DBT build and get failure information back.
 
@@ -159,6 +161,11 @@ def build_with_context(
     cli_args = ["--target", dbt_target, "--select", node_selection]
     if node_exclusion is not None:
         cli_args += ["--exclude", node_exclusion]
+    if use_nightly_builds:
+        # These will live on for the full python process, but won't persist beyond that
+        os.environ["PUDL_PARQUET_BASE_PATH"] = str(PUDL_NIGHTLY_BUILDS_BASE_PATH)
+        os.environ["FERCEQR_PARQUET_BASE_PATH"] = str(FERCEQR_BUILDS_BASE_PATH)
+
     dbt = install_dbt_deps()
 
     with _preserve_logging_propagation(), chdir(PUDL_DBT_PATH):

@@ -318,9 +318,10 @@ class ResourceDescriptionBuilder:
         rowcount_partition_lookups = (
             pd.read_csv(
                 PUDL_DBT_PATH / "seeds" / "etl_full_row_counts.csv",
-                # [kmm dec 2025] currently all non-null row count partitions are integer years.
-                # if we add other kinds of partitions to the row counts file, we'll need to revise this code.
-                dtype={"partition": "Int64", "table_name": "string"},
+                # Row count partitions are either integer years (e.g. 2020)
+                # or year-quarter strings (e.g. 2020q1). Keep them as strings so we can
+                # compare them consistently within a resource_id.
+                dtype={"partition": "string", "table_name": "string"},
             )
             .set_index("table_name")
             .loc[resource_id:resource_id]
