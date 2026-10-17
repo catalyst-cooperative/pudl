@@ -281,11 +281,6 @@
       "concise_description": "Argument `dict[str, int]` is not assignable to parameter `special_case_strictness` with type `dict[str, float]` in function `pudl.transform.eia.harvest_entity_tables`"
     },
     {
-      "path": "tests/unit/dagster/io_managers_test.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `dict[str, str]` is not assignable to parameter `obj` with type `DataFrame | GeoDataFrame | LazyFrame` in function `pudl.dagster.io_managers.PudlParquetIOManager.handle_output`"
-    },
-    {
       "path": "src/pudl/metadata/classes.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `dict_keys[str, CategoricalDtype | str]` is not assignable to parameter `columns` with type `ExtensionArray | Index | SequenceNotStr[Any] | Series | ndarray | range | None` in function `pandas.core.frame.DataFrame.reindex`"
@@ -496,11 +491,6 @@
       "concise_description": "Argument `type[GenericPlantFerc1TableTransformer]` is not assignable to parameter `tfr_class` with type `Ferc1AbstractTableTransformer` in function `pudl.transform.ferc1.ferc1_transform_asset_factory`"
     },
     {
-      "path": "tests/unit/dagster/io_managers_test.py",
-      "name": "read-only",
-      "concise_description": "Attribute `is_ephemeral` of class `DagsterInstance` is a read-only property and cannot be set"
-    },
-    {
       "path": "src/pudl/dagster/assets/raw/ferc_to_sqlite.py",
       "name": "bad-assignment",
       "concise_description": "Augmented assignment result `dict[str, UPath]` is not assignable to `PudlPaths`"
@@ -691,16 +681,6 @@
       "concise_description": "Missing argument `nightly_sqlite_path` in function `FercPaths.__init__`"
     },
     {
-      "path": "tests/unit/dagster/io_managers_test.py",
-      "name": "missing-argument",
-      "concise_description": "Missing argument `pudl_paths` in function `pudl.dagster.io_managers.FercDbfSqliteIOManager.__init__`"
-    },
-    {
-      "path": "tests/unit/dagster/io_managers_test.py",
-      "name": "missing-argument",
-      "concise_description": "Missing argument `pudl_paths` in function `pudl.dagster.io_managers.FercXbrlSqliteIOManager.__init__`"
-    },
-    {
       "path": "src/pudl/helpers.py",
       "name": "missing-attribute",
       "concise_description": "No attribute `RepeatedLabelError` in module `usaddress`"
@@ -764,11 +744,6 @@
       "path": "src/pudl/metadata/helpers.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `FunctionType` has no attribute `format`"
-    },
-    {
-      "path": "tests/unit/dagster/io_managers_test.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `FunctionType` has no attribute `return_value`"
     },
     {
       "path": "src/pudl/extract/excel.py",
@@ -866,11 +841,6 @@
       "concise_description": "Object of class `NoneType` has no attribute `drop`"
     },
     {
-      "path": "tests/unit/dagster/io_managers_test.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `ferc1`"
-    },
-    {
       "path": "tests/unit/settings_test.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `NoneType` has no attribute `ferc1`"
@@ -887,11 +857,6 @@
     },
     {
       "path": "tests/pipeline/extract/ferc_xbrl_extract_test.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `get_dataset_years`"
-    },
-    {
-      "path": "tests/unit/dagster/io_managers_test.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `NoneType` has no attribute `get_dataset_years`"
     },
