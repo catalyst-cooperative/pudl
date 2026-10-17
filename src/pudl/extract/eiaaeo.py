@@ -3,9 +3,10 @@
 import io
 import itertools
 import re
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Iterator
 from dataclasses import dataclass
 from enum import Enum
+from typing import Any
 
 import networkx as nx
 import pandas as pd
@@ -320,7 +321,7 @@ class AEOTaxonomy:
 
     def __series_to_records(
         self, series_id: str, potential_parents: set[int], report_year: int
-    ) -> pd.DataFrame:
+    ) -> Iterator[dict[str, Any]]:
         """Turn a data series into records we can feed into a DataFrame.
 
         This uses graph ancestor data to figure out what case this series
