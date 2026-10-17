@@ -416,11 +416,6 @@
       "concise_description": "Argument `object` is not assignable to parameter `obj` with type `Sized` in function `len`"
     },
     {
-      "path": "src/pudl/analysis/timeseries_evaluation.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `set[Unknown]` is not assignable to parameter `categories` with type `Index | Series | list[Any] | None` in function `pandas.core.dtypes.dtypes.CategoricalDtype.__init__`"
-    },
-    {
       "path": "src/pudl/metadata/classes.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `str | None` is not assignable to parameter `name` with type `str` in function `Package.get_resource`"
