@@ -331,11 +331,6 @@
       "concise_description": "Argument `dict[str, ValidRange]` is not assignable to parameter `params` with type `MultiColumnTransformParams` in function `MultiColumnTransformFunc.__call__`"
     },
     {
-      "path": "src/pudl/transform/classes.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `dict[str, bool] | None` is not assignable to parameter `params` with type `MultiColumnTransformParams` in function `MultiColumnTransformFunc.__call__`"
-    },
-    {
       "path": "src/pudl/transform/rus12.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `dict[str, int]` is not assignable to parameter `special_case_strictness` with type `dict[str, float]` in function `pudl.transform.eia.harvest_entity_tables`"
@@ -344,11 +339,6 @@
       "path": "src/pudl/transform/rus7.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `dict[str, int]` is not assignable to parameter `special_case_strictness` with type `dict[str, float]` in function `pudl.transform.eia.harvest_entity_tables`"
-    },
-    {
-      "path": "src/pudl/transform/classes.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `dict[str, str] | object` is not assignable to parameter `iterable` with type `Iterable[str]` in function `set.__init__`"
     },
     {
       "path": "tests/unit/dagster/io_managers_test.py",
@@ -941,11 +931,6 @@
       "concise_description": "Object of class `NoneType` has no attribute `columns`"
     },
     {
-      "path": "src/pudl/transform/classes.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `columns`"
-    },
-    {
       "path": "tests/unit/scripts/auto_match_utilities_test.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `NoneType` has no attribute `columns`"
@@ -1004,11 +989,6 @@
       "path": "src/pudl/metadata/classes.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `NoneType` has no attribute `ignored_codes`"
-    },
-    {
-      "path": "src/pudl/transform/classes.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `keys`"
     },
     {
       "path": "tests/unit/settings_test.py",
@@ -1411,16 +1391,6 @@
       "concise_description": "`dict[str, Path]` is not assignable to variable `paths` with type `PudlPaths`"
     },
     {
-      "path": "src/pudl/transform/classes.py",
-      "name": "bad-assignment",
-      "concise_description": "`dict[str, StringNormalization]` is not assignable to variable `params` with type `dict[str, bool] | None`"
-    },
-    {
-      "path": "src/pudl/transform/classes.py",
-      "name": "bad-assignment",
-      "concise_description": "`dict[str, StripNonNumericValues]` is not assignable to variable `params` with type `dict[str, bool] | None`"
-    },
-    {
       "path": "src/pudl/transform/params/ferc1.py",
       "name": "bad-assignment",
       "concise_description": "`dict[str, set[str]]` is not assignable to dict value type `set[str]`"
@@ -1444,11 +1414,6 @@
       "path": "src/pudl/transform/eia860.py",
       "name": "not-iterable",
       "concise_description": "`in` is not supported between `Literal['control_id_eia']` and `Hashable`"
-    },
-    {
-      "path": "src/pudl/transform/classes.py",
-      "name": "unbound-name",
-      "concise_description": "`items` may be uninitialized"
     },
     {
       "path": "src/pudl/analysis/spatial.py",

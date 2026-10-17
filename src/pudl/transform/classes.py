@@ -273,6 +273,8 @@ def rename_columns(
     Raise an error if there's any mismatch between the columns in the dataframe, and
     the columns that have been defined in the mapping for renaming.
     """
+    if params is None:
+        params = RenameColumns()
     # If we are attempting to rename columns that do *not* appear in the dataframe,
     # raise an error.
     if len(params.columns) > 0:
@@ -849,6 +851,8 @@ def drop_invalid_rows(df: pd.DataFrame, params: InvalidRows) -> pd.DataFrame:
         return df
 
     pre_drop_len = len(df)
+    # If only ``like`` or ``regex`` is given, no explicit column list is needed.
+    items: list | None = None
     if params.required_valid_cols or params.allowed_invalid_cols:
         # check if the columns enumerated are actually in the df
         possible_cols = (params.required_valid_cols or []) + (
@@ -1293,7 +1297,7 @@ class AbstractTableTransformer(ABC):
     def normalize_strings(
         self,
         df: pd.DataFrame,
-        params: dict[str, bool] | None = None,
+        params: dict[str, StringNormalization] | None = None,
     ) -> pd.DataFrame:
         """Method wrapper for string normalization."""
         if params is None:
@@ -1304,7 +1308,7 @@ class AbstractTableTransformer(ABC):
     def strip_non_numeric_values(
         self,
         df: pd.DataFrame,
-        params: dict[str, bool] | None = None,
+        params: dict[str, StripNonNumericValues] | None = None,
     ) -> pd.DataFrame:
         """Method wrapper for stripping non-numeric values."""
         if params is None:
