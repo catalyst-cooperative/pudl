@@ -189,6 +189,8 @@ types-pytz = ">=2026.3.1"
 types-python-dateutil = ">=2.9.0"
 types-networkx = ">=3.6.1"
 types-shapely = ">=2.1.0"
+types-geopandas = ">=1.1.4"
+pandas-stubs = ">=2.3,<3"
 
 # On conda-forge, linux-aarch64 only has marimo <=0.13, which doesn't support our
 # minimum supported Python version, so to get a modern version in all the other

@@ -46,16 +46,6 @@
       "concise_description": "Argument `DataFrame | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` is not assignable to parameter `col` with type `Series` in function `CompanyNameCleaner.get_clean_data`"
     },
     {
-      "path": "src/pudl/transform/eiaaeo.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `DataFrame | Series` is not assignable to parameter `df` with type `DataFrame` in function `_decumulate`"
-    },
-    {
-      "path": "src/pudl/transform/eia176.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `DataFrame | Series` is not assignable to parameter `df` with type `DataFrame` in function `pudl.helpers.simplify_columns`"
-    },
-    {
       "path": "tests/unit/transform/eiaaeo_test.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `DataFrame | Series` is not assignable to parameter `summands` with type `DataFrame` in function `pudl.transform.eiaaeo.series_sum_ratio`"
@@ -84,11 +74,6 @@
       "path": "src/pudl/analysis/spatial.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `GeometrySequence[GeometryCollection[Polygon]]` is not assignable to parameter `data` with type `Buffer | Geometry | IndexOpsMixin | Mapping[int, Geometry] | Mapping[str, Geometry] | Sequence[Geometry] | _NestedSequence[bytes | complex | str] | _NestedSequence[_SupportsArray[dtype]] | _SupportsArray[dtype] | bytes | complex | str | None` in function `geopandas.geoseries.GeoSeries.__new__`"
-    },
-    {
-      "path": "src/pudl/helpers.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `Iterable[str]` is not assignable to parameter `id_vars` with type `Sequence[Unknown] | ndarray | tuple[Unknown, ...] | None` in function `pandas.core.frame.DataFrame.melt`"
     },
     {
       "path": "src/pudl/metadata/classes.py",
@@ -329,11 +314,6 @@
       "path": "src/pudl/output/ferc714.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `ndarray[tuple[int]]` is not assignable to parameter `eia_codes` with type `list[int]` in function `categorize_eia_code`"
-    },
-    {
-      "path": "src/pudl/helpers.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `ndarray[tuple[int]]` is not assignable to parameter `to_replace` with type `Mapping[Unknown, Unknown] | NAType | Pattern[Unknown] | Sequence[Pattern[Unknown] | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64 | None` in function `pandas.core.series.Series.replace`"
     },
     {
       "path": "tests/unit/transform/eia923_test.py",
@@ -1194,11 +1174,6 @@
       "path": "tests/unit/transform/classes_test.py",
       "name": "unsupported-operation",
       "concise_description": "`+` is not supported between `Hashable` and `Literal['_filled']`"
-    },
-    {
-      "path": "src/pudl/helpers.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `Iterable[str]` and `list[str]`"
     },
     {
       "path": "tests/unit/transform/classes_test.py",

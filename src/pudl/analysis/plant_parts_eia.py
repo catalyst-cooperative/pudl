@@ -1174,7 +1174,7 @@ class TrueGranLabeler:
 
         # categorical columns allow sorting by PLANT_PARTS key order
         parts_to_gens["plant_part"] = pd.Categorical(
-            parts_to_gens["plant_part"], PLANT_PARTS.keys()
+            parts_to_gens["plant_part"], list(PLANT_PARTS.keys())
         )
         # Sort by record_id_eia as a tiebreaker: records tied on plant_part
         # and gens_combo (e.g. ownership total/owned duplicates) would

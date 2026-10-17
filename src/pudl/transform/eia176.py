@@ -237,6 +237,7 @@ def get_wide_table(long_table: pd.DataFrame, primary_key: list[str]) -> pd.DataF
     unstacked = long_table.set_index(primary_key + ["variable_name"]).unstack(
         level="variable_name"
     )
+    assert isinstance(unstacked, pd.DataFrame)
     unstacked.columns = unstacked.columns.droplevel(0)
     unstacked = simplify_columns(unstacked)  # Clean up column names
     unstacked.columns.name = None  # gets rid of "item" name of columns index
@@ -651,7 +652,8 @@ def core_eia176__yearly_gas_imports(
         df["mode_of_transportation"]
         .astype("string")
         .str.strip()
-        .replace({".": pd.NA, "0": pd.NA})
+        # pandas-stubs' Scalar type does not include pd.NA
+        .replace({".": pd.NA, "0": pd.NA})  # type: ignore[bad-assignment]
         .str.casefold()
     )
     df = df[
@@ -792,7 +794,8 @@ def core_eia176__yearly_gas_exports(
         df["mode_of_transportation"]
         .astype("string")
         .str.strip()
-        .replace({".": pd.NA, "0": pd.NA})
+        # pandas-stubs' Scalar type does not include pd.NA
+        .replace({".": pd.NA, "0": pd.NA})  # type: ignore[bad-assignment]
         .str.casefold()
     )
     df = df[
