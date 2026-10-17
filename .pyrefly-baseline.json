@@ -1,41 +1,6 @@
 {
   "errors": [
     {
-      "path": "src/pudl/transform/classes.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `(col: Series, params: EnforceSnakeCase | None = None) -> Series` is not assignable to parameter `col_func` with type `ColumnTransformFunc` in function `multicol_transform_factory`"
-    },
-    {
-      "path": "src/pudl/transform/classes.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `(col: Series, params: ReplaceWithNa) -> Series` is not assignable to parameter `col_func` with type `ColumnTransformFunc` in function `multicol_transform_factory`"
-    },
-    {
-      "path": "src/pudl/transform/classes.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `(col: Series, params: StringCategories) -> Series` is not assignable to parameter `col_func` with type `ColumnTransformFunc` in function `multicol_transform_factory`"
-    },
-    {
-      "path": "src/pudl/transform/classes.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `(col: Series, params: StringNormalization) -> Series` is not assignable to parameter `col_func` with type `ColumnTransformFunc` in function `multicol_transform_factory`"
-    },
-    {
-      "path": "src/pudl/transform/classes.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `(col: Series, params: StripNonNumericValues | None = None) -> Series` is not assignable to parameter `col_func` with type `ColumnTransformFunc` in function `multicol_transform_factory`"
-    },
-    {
-      "path": "src/pudl/transform/classes.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `(col: Series, params: UnitConversion) -> Series` is not assignable to parameter `col_func` with type `ColumnTransformFunc` in function `multicol_transform_factory`"
-    },
-    {
-      "path": "src/pudl/transform/classes.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `(col: Series, params: ValidRange) -> Series` is not assignable to parameter `col_func` with type `ColumnTransformFunc` in function `multicol_transform_factory`"
-    },
-    {
       "path": "src/pudl/transform/phmsagas.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `(raw_df: DataFrame) -> None` is not assignable to parameter with type `(...) -> AssetCheckResult`"
@@ -286,11 +251,6 @@
       "concise_description": "Argument `dict[Hashable | str, Timestamp | Any]` is not assignable to parameter `object` with type `dict[str, Any]` in function `list.append`"
     },
     {
-      "path": "tests/unit/transform/classes_test.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `dict[Unknown, Unknown]` is not assignable to parameter `params` with type `MultiColumnTransformParams` in function `pudl.transform.classes.MultiColumnTransformFunc.__call__`"
-    },
-    {
       "path": "tests/unit/metadata/harvest_test.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `dict[int, DataFrame]` is not assignable to parameter `dfs` with type `dict[str, DataFrame]` in function `pudl.metadata.classes.Resource.harvest_dfs`"
@@ -306,29 +266,9 @@
       "concise_description": "Argument `dict[str, DataType]` is not assignable to parameter `dtypes` with type `DataType | DataTypeClass | DataTypeExpr | Mapping[DataType | DataTypeClass | Selector | str, DataType | DataTypeClass | type[Decimal | bool | bytes | date | datetime | float | int | list[Any] | object | str | time | timedelta | tuple[Any, ...] | None]] | Schema` in function `polars.lazyframe.frame.LazyFrame.cast`"
     },
     {
-      "path": "src/pudl/transform/classes.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `dict[str, ReplaceWithNa]` is not assignable to parameter `params` with type `MultiColumnTransformParams` in function `MultiColumnTransformFunc.__call__`"
-    },
-    {
-      "path": "src/pudl/transform/classes.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `dict[str, StringCategories]` is not assignable to parameter `params` with type `MultiColumnTransformParams` in function `MultiColumnTransformFunc.__call__`"
-    },
-    {
       "path": "src/pudl/extract/dbf.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `dict[str, TypeEngine[Any]]` is not assignable to parameter `dtype` with type `ExtensionDtype | Mapping[Hashable, ExtensionDtype | dtype[generic] | str | type[bool | complex | object | str]] | dtype[generic] | str | type[bool | complex | object | str] | None` in function `pandas.core.generic.NDFrame.to_sql`"
-    },
-    {
-      "path": "src/pudl/transform/classes.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `dict[str, UnitConversion]` is not assignable to parameter `params` with type `MultiColumnTransformParams` in function `MultiColumnTransformFunc.__call__`"
-    },
-    {
-      "path": "src/pudl/transform/classes.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `dict[str, ValidRange]` is not assignable to parameter `params` with type `MultiColumnTransformParams` in function `MultiColumnTransformFunc.__call__`"
     },
     {
       "path": "src/pudl/transform/rus12.py",
@@ -566,11 +506,6 @@
       "concise_description": "Augmented assignment result `dict[str, UPath]` is not assignable to `PudlPaths`"
     },
     {
-      "path": "src/pudl/transform/classes.py",
-      "name": "bad-index",
-      "concise_description": "Cannot index into `MultiColumnTransformParams`"
-    },
-    {
       "path": "src/pudl/analysis/timeseries_evaluation.py",
       "name": "bad-index",
       "concise_description": "Cannot index into `_LocIndexerFrame[DataFrame]`"
@@ -706,11 +641,6 @@
       "concise_description": "Generator function should return `Generator`"
     },
     {
-      "path": "src/pudl/transform/classes.py",
-      "name": "invalid-inheritance",
-      "concise_description": "Invalid base class: `(...) -> Unknown`"
-    },
-    {
       "path": "src/pudl/analysis/plant_parts_eia.py",
       "name": "bad-argument-type",
       "concise_description": "Keyword argument `ferc1_generator_agg_id` with type `NAType` is not assignable to parameter `**kwargs` with type `((DataFrame) -> ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None) | ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None` in function `pandas.core.frame.DataFrame.assign`"
@@ -796,11 +726,6 @@
       "concise_description": "No matching overload found for function `pandas.core.frame.DataFrame.groupby` called with arguments: (Iterable[Unknown])"
     },
     {
-      "path": "src/pudl/glue/ferc1_eia.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `pandas.core.generic.NDFrame.pipe` called with arguments: (MultiColumnTransformFunc, dict[str, StringNormalization])"
-    },
-    {
       "path": "tests/unit/validate/dbt_helper_test.py",
       "name": "no-matching-overload",
       "concise_description": "No matching overload found for function `pandas.core.series.Series.apply` called with arguments: (type[type])"
@@ -829,11 +754,6 @@
       "path": "src/pudl/validate/dbt.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `BaseResult` has no attribute `node`"
-    },
-    {
-      "path": "src/pudl/transform/classes.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `ColumnTransformFunc` has no attribute `__name__`"
     },
     {
       "path": "src/pudl/metadata/descriptions.py",
