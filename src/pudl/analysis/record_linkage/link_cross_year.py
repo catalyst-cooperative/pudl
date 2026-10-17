@@ -1,5 +1,6 @@
 """Define a record linkage model interface and implement common functionality."""
 
+from collections.abc import Iterator
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -207,7 +208,7 @@ def split_clusters(
     much faster and uses much less memory.
     """
 
-    def _generate_cluster_ids(max_cluster_id: int) -> int:
+    def _generate_cluster_ids(max_cluster_id: int) -> Iterator[int]:
         """Get new unique cluster id."""
         while True:
             max_cluster_id += 1

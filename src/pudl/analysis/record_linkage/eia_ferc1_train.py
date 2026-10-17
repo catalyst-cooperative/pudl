@@ -701,8 +701,7 @@ def validate_and_add_to_training(
     path_to_new_training = input_dir_path
     current_training_df = pd.read_csv(path_to_current_training)
     path_to_null_overrides = glue_resource_path / "eia_ferc1_null.csv"
-    if one_to_many:
-        path_to_one_to_many = glue_resource_path / "eia_ferc1_one_to_many.csv"
+    path_to_one_to_many = glue_resource_path / "eia_ferc1_one_to_many.csv"
     override_cols = [
         "record_id_eia",
         "record_id_ferc1",
@@ -713,12 +712,11 @@ def validate_and_add_to_training(
     null_match_cols = ["record_id_ferc1"]
     all_overrides_list = []
     all_null_matches_list = []
-    if one_to_many:
-        all_multi_matches_list = []
+    all_multi_matches_list = []
 
     # Loop through all the files, validate, and combine them.
     all_files = pathlib.Path(path_to_new_training).iterdir()
-    excel_files = [file for file in all_files if file.endswith(".xlsx")]
+    excel_files = [file for file in all_files if file.suffix == ".xlsx"]
     if not excel_files:
         raise AssertionError("Found no override files in the add_to_training directory")
     for file in excel_files:
