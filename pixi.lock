@@ -16939,7 +16939,7 @@ packages:
   license: Apache-2.0
   license_family: APACHE
   purls:
-  - pkg:pypi/dbt-protos?source=hash-mapping
+  - pkg:pypi/dbt-protos?source=compressed-mapping
   run_exports: {}
   size: 175367
   timestamp: 1791300613333
@@ -17832,7 +17832,7 @@ packages:
   license: Apache-2.0
   license_family: APACHE
   purls:
-  - pkg:pypi/grpc-google-iam-v1?source=compressed-mapping
+  - pkg:pypi/grpc-google-iam-v1?source=hash-mapping
   run_exports: {}
   size: 31304
   timestamp: 1786690822648
@@ -17955,7 +17955,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/huey?source=compressed-mapping
+  - pkg:pypi/huey?source=hash-mapping
   run_exports: {}
   size: 114005
   timestamp: 1788520584930
@@ -19895,7 +19895,7 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/pydata-sphinx-theme?source=hash-mapping
+  - pkg:pypi/pydata-sphinx-theme?source=compressed-mapping
   run_exports: {}
   size: 1321107
   timestamp: 1791465745973
@@ -20731,7 +20731,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/sphinx-autoapi?source=hash-mapping
+  - pkg:pypi/sphinx-autoapi?source=compressed-mapping
   run_exports: {}
   size: 36858
   timestamp: 1788306503410
@@ -21602,7 +21602,7 @@ packages:
   license: Apache-2.0
   license_family: APACHE
   purls:
-  - pkg:pypi/websocket-client?source=hash-mapping
+  - pkg:pypi/websocket-client?source=compressed-mapping
   run_exports: {}
   size: 78254
   timestamp: 1788531123810
