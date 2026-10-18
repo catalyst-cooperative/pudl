@@ -106,7 +106,8 @@ def _standardize_industrial_classification(sic: pd.Series) -> pd.DataFrame:
     sic_name_zero = sic_df["industry_name_sic"].str.contains("0000").fillna(False)
     sic_df.loc[sic_name_zero, "industry_name_sic"] = pd.NA
     sic_df["industry_id_sic"] = sic_df["industry_id_sic"].fillna(
-        sic.where(sic.str.match(r"^\d{4}$"), pd.NA)
+        # pandas-stubs does not accept a scalar pd.NA as the replacement value.
+        sic.where(sic.str.match(r"^\d{4}$"), pd.NA)  # type: ignore[bad-argument-type]
     )
     sic_id_zero = (sic_df["industry_id_sic"] == "0000").fillna(False)
     sic_df.loc[sic_id_zero, "industry_id_sic"] = pd.NA
@@ -204,7 +205,8 @@ def _remove_bad_subsidiary_names(col: pd.Series) -> pd.Series:
         ],
         pd.NA,
     )
-    return col.where(~clean_col.isnull(), pd.NA)
+    # pandas-stubs does not accept a scalar pd.NA as the replacement value.
+    return col.where(~clean_col.isnull(), pd.NA)  # type: ignore[bad-argument-type]
 
 
 def _standardize_location(loc_col: pd.Series) -> pd.Series:

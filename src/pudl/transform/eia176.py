@@ -1,5 +1,7 @@
 """Module to perform data cleaning functions on EIA176 data tables."""
 
+from typing import cast
+
 import pandas as pd
 from dagster import (
     AssetCheckResult,
@@ -397,7 +399,8 @@ def validate_totals(
     # to see that they are all this specific case and then ignore them.
     if not state_diff.empty:
         assert (
-            state_diff.columns.levels[0] == ["alternative_fuel_fleet_1_yes_0_no"]
+            cast(pd.MultiIndex, state_diff.columns).levels[0]
+            == ["alternative_fuel_fleet_1_yes_0_no"]
         ).all()
         assert (state_diff["alternative_fuel_fleet_1_yes_0_no"]["self"] == 1.0).all()
         assert (
@@ -406,7 +409,8 @@ def validate_totals(
 
     if not us_diff.empty:
         assert (
-            us_diff.columns.levels[0] == ["alternative_fuel_fleet_1_yes_0_no"]
+            cast(pd.MultiIndex, us_diff.columns).levels[0]
+            == ["alternative_fuel_fleet_1_yes_0_no"]
         ).all()
         assert (us_diff["alternative_fuel_fleet_1_yes_0_no"]["self"] == 1.0).all()
         assert (

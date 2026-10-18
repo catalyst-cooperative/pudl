@@ -418,7 +418,7 @@ def _filter_for_freshest_data_xbrl(
     raw_xbrl: pd.DataFrame,
     table_name: str,
     instant_or_duration: Literal["instant", "duration"],
-    pudl_paths: PudlPaths | None = None,
+    pudl_paths: PudlPaths,
 ):
     """Wrapper around filter_for_freshest_data_xbrl.
 

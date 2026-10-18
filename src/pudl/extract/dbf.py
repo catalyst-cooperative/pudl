@@ -469,9 +469,14 @@ class FercDbfExtractor:
         self, ferc_to_sqlite_data_config: FercToSqliteDataConfig
     ) -> FercDbfToSqliteDataConfig:
         """Returns dataset relevant data configuration from ferc_to_sqlite_data_config."""
-        return ferc_to_sqlite_data_config.get_data_config(
+        data_config = ferc_to_sqlite_data_config.get_data_config(
             dataset=self.DATASET, data_format="dbf"
         )
+        if not isinstance(data_config, FercDbfToSqliteDataConfig):
+            raise ValueError(
+                f"ferc_to_sqlite.{self.DATASET}_dbf must be configured but is not set."
+            )
+        return data_config
 
     def get_dbf_reader(self, datastore: Datastore) -> AbstractFercDbfReader:
         """Returns appropriate instance of AbstractFercDbfReader to access the data."""
