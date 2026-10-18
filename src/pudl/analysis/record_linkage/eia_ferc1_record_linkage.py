@@ -105,14 +105,12 @@ col_cleaner = embed_dataframe.dataframe_cleaner_factory(
     {
         "plant_name": embed_dataframe.ColumnVectorizer(
             transform_steps=[
-                embed_dataframe.NameCleaner(
-                    company_cleaner=plant_name_cleaner, return_as_dframe=True
-                )
+                embed_dataframe.NameCleaner(company_cleaner=plant_name_cleaner)
             ],
             columns=["plant_name"],
         ),
         "utility_name": embed_dataframe.ColumnVectorizer(
-            transform_steps=[embed_dataframe.NameCleaner(return_as_dframe=True)],
+            transform_steps=[embed_dataframe.NameCleaner()],
             columns=["utility_name"],
         ),
         "fuel_type_code_pudl": embed_dataframe.ColumnVectorizer(
