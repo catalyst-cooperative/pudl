@@ -2,6 +2,7 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from typing import cast
 
 import mlflow
 import numpy as np
@@ -137,7 +138,9 @@ def dataframe_embedder_factory(
     @op(name=f"{name_prefix}_apply")
     def apply_dataframe_embedder(df: pd.DataFrame, transformer: ColumnTransformer):
         """Use :class:`sklearn.compose.ColumnTransformer` to transform input."""
-        return FeatureMatrix(matrix=transformer.transform(df), index=df.index)
+        # ColumnTransformer returns a CSR matrix when the output is mostly sparse.
+        matrix = cast(np.ndarray | scipy.sparse.csr_matrix, transformer.transform(df))
+        return FeatureMatrix(matrix=matrix, index=df.index)
 
     @graph(name=f"{name_prefix}_embed_graph")
     def embed_dataframe_graph(
@@ -166,7 +169,9 @@ def dataframe_cleaner_factory(
                 (name, column_transform.as_pipeline(), column_transform.columns)
                 for name, column_transform in vectorizers.items()
             ],
-        ).set_output(transform="pandas")
+        )
+        # Modifies the transformer in place, and returns it as a BaseEstimator.
+        column_transformer.set_output(transform="pandas")
 
         return column_transformer.fit(df)
 
@@ -179,6 +184,7 @@ def dataframe_cleaner_factory(
             transformer key (i.e. the key from the ``vectorizers`` dict).
         """
         result = transformer.transform(df)
+        assert isinstance(result, pd.DataFrame)  # set_output(transform="pandas")
         result.columns = list(vectorizers.keys())
         return result
 
