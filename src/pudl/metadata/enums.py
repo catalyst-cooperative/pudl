@@ -16,7 +16,12 @@ DIVISION_CODES_US_CENSUS: set[str] = set(
 )
 
 APPROXIMATE_TIMEZONES: dict[str, str] = {
-    x.subdivision_code: x.timezone_approx for x in POLITICAL_SUBDIVISIONS.itertuples()
+    str(code): str(timezone)
+    for code, timezone in zip(
+        POLITICAL_SUBDIVISIONS.subdivision_code,
+        POLITICAL_SUBDIVISIONS.timezone_approx,
+        strict=True,
+    )
 }
 """Mapping of political subdivision code to the most common timezone in that area.
 
