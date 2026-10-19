@@ -14,6 +14,7 @@ from pudl.metadata.enums import (
     UTILITY_PLANT_GROUP_RUS12,
 )
 from pudl.metadata.resource_helpers import HARVESTED_CORE_TABLES_RUS12
+from pudl.metadata.resources import RusEntity
 from pudl.transform.eia import harvest_entity_tables
 
 logger = logging_helpers.get_logger(__name__)
@@ -924,7 +925,7 @@ _CORE_RUS12_TABLES = [f"_{t}" for t in HARVESTED_CORE_TABLES_RUS12]
 )
 def core_rus12__entity_borrowers(context, **clean_dfs):
     """Harvesting IDs & consistent static attributes for RUS12 entity."""
-    entity = rus.RusEntity.BORROWERS
+    entity = RusEntity.BORROWERS
     logger.info("Harvesting IDs & consistent static attributes for RUS Borrowers")
     # We want **all** borrowers to have non-null names in this entity
     # table. They aren't always super consistent over time, but we have
