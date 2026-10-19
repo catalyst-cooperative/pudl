@@ -709,6 +709,7 @@ def unstack_balances_to_report_year_instant_xbrl(
         .unstack("balance_type")
     )
     # munge multi-index into flat index, separated by _
+    assert isinstance(unstacked_by_year, pd.DataFrame)
     unstacked_by_year.columns = ["_".join(items) for items in unstacked_by_year.columns]
     return unstacked_by_year.reset_index()
 
@@ -2559,7 +2560,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 Result of :meth:`convert_xbrl_metadata_json_to_df`.
         """
         metadata = xbrl_metadata_converted.copy()
-        metadata.calculations = metadata.calculations.apply(json.loads)
+        metadata["calculations"] = metadata.calculations.apply(json.loads)
         # reset the index post calc explosion so we can merge on index later
         metadata = metadata.explode("calculations").reset_index(drop=True)
         if all(metadata.calculations.isnull()):
@@ -3171,7 +3172,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 f"{self.table_id.value}: Null sched_table_name's were found where none "
                 "were expected."
             )
-        df.record_id = enforce_snake_case(df.record_id)
+        df["record_id"] = enforce_snake_case(df.record_id)
 
         dupe_ids = df.record_id[df.record_id.duplicated()].to_numpy()
         if dupe_ids.any() and self.has_unique_record_ids:
@@ -5877,7 +5878,7 @@ class RetainedEarningsTableTransformer(Ferc1AbstractTableTransformer):
 
         # Since we've created an ending balance column, we should use the 'amount'
         # value to fill it across the table and drop the amount column.
-        df.ending_balance = df.ending_balance.fillna(df.amount)
+        df["ending_balance"] = df.ending_balance.fillna(df.amount)
         df = df.drop("amount", axis=1)
 
         return df
@@ -6004,7 +6005,8 @@ def convert_pnynmndtnhnmns_to_years(dep_factors: pd.DataFrame, life_col: str):
     As a format, its a fine standard despite not being a widely used format for
     duration of time. not super standard but is acceptable. but the DBF data is all reported - seemingly - in years.
     """
-    dep_factors = dep_factors.replace({life_col: {"": pd.NA}})
+    # pandas-stubs' Scalar type does not include pd.NA
+    dep_factors = dep_factors.replace({life_col: {"": pd.NA}})  # type: ignore[bad-assignment]
     # the new format is only in the xbrl data
     duration_format_mask = dep_factors.report_year > 2020
     temp_date_cols = ["year", "month", "day"]

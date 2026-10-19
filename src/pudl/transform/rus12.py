@@ -32,7 +32,7 @@ def _core_rus12__yearly_meeting_and_board(raw_rus12__meeting_and_board):
     )
     rus.early_check_pk(df)
 
-    df.last_annual_meeting_date = pd.to_datetime(
+    df["last_annual_meeting_date"] = pd.to_datetime(
         df.last_annual_meeting_date, format="mixed"
     )
     return df
@@ -52,7 +52,7 @@ def _core_rus12__yearly_balance_sheet_assets(raw_rus12__balance_sheet):
         var_name="asset_type",
         value_name="ending_balance",
     )
-    df.asset_type = df.asset_type.str.removesuffix("_assets")
+    df["asset_type"] = df.asset_type.str.removesuffix("_assets")
     # POST-MELT
     df["is_total"] = df.asset_type.str.startswith("total_")
     return df
@@ -72,7 +72,7 @@ def _core_rus12__yearly_balance_sheet_liabilities(raw_rus12__balance_sheet):
         var_name="liability_type",
         value_name="ending_balance",
     )
-    df.liability_type = df.liability_type.str.removesuffix("_liabilities")
+    df["liability_type"] = df.liability_type.str.removesuffix("_liabilities")
     # POST-MELT
     df["is_total"] = df.liability_type.str.startswith("total_")
     return df
@@ -136,7 +136,7 @@ def _core_rus12__yearly_renewable_plants(raw_rus12__renewable_plants):
     df = rus.early_transform(raw_df=raw_rus12__renewable_plants)
 
     # Convert date_created to datetime
-    df.date_created = pd.to_datetime(df.date_created, format="mixed")
+    df["date_created"] = pd.to_datetime(df.date_created, format="mixed")
 
     # Convert units
     df = rus.convert_units(
@@ -150,7 +150,7 @@ def _core_rus12__yearly_renewable_plants(raw_rus12__renewable_plants):
     )
 
     # Fix typo in primary_renewable_fuel_type values
-    df.primary_renewable_fuel_type = df.primary_renewable_fuel_type.replace(
+    df["primary_renewable_fuel_type"] = df.primary_renewable_fuel_type.replace(
         {"Solar - photvoltaic": "Solar - photovoltaic"}
     )
 
@@ -211,7 +211,7 @@ def _core_rus12__yearly_loans(raw_rus12__loans, raw_rus12__loan_guarantees):
     ).assign(is_loan_guarantee=True)
     df = pd.concat([df_loans, df_loan_guarantees], ignore_index=True)
     # Convert all loan_maturity_dates to datetime
-    df.loan_maturity_date = pd.to_datetime(df.loan_maturity_date, format="mixed")
+    df["loan_maturity_date"] = pd.to_datetime(df.loan_maturity_date, format="mixed")
     return df
 
 
