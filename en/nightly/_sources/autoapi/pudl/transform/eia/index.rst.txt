@@ -42,7 +42,6 @@ Classes
 
 .. autoapisummary::
 
-   pudl.transform.eia.EiaEntity
    pudl.transform.eia.SpecialCaseHarvester
 
 
@@ -76,26 +75,6 @@ Module Contents
 
 .. py:data:: HARVESTABLE_ASSETS
    :value: ('_core_eia860__boiler_cooling', '_core_eia860__boiler_emissions_control_equipment_assn',...
-
-
-.. py:class:: EiaEntity
-
-   Bases: :py:obj:`enum.StrEnum`
-
-
-   Enum for the different types of EIA entities.
-
-
-   .. py:attribute:: PLANTS
-
-
-   .. py:attribute:: UTILITIES
-
-
-   .. py:attribute:: BOILERS
-
-
-   .. py:attribute:: GENERATORS
 
 
 .. py:data:: EIA_FIPS_COUNTY_FIXES
@@ -248,7 +227,7 @@ Module Contents
    :returns: The same plants_entity table, with the addition of some missing EPA CEMS plants.
 
 
-.. py:function:: _compile_all_entity_records(entity: EiaEntity, clean_dfs: dict[str, pandas.DataFrame]) -> pandas.DataFrame
+.. py:function:: _compile_all_entity_records(entity: pudl.metadata.resources.HarvestableEntity, clean_dfs: dict[str, pandas.DataFrame]) -> pandas.DataFrame
 
    Compile all of the entity records from each table they appear in.
 
@@ -256,7 +235,7 @@ Module Contents
    entity id.
 
 
-.. py:function:: _manage_strictness(col: str, special_case_strictness: dict[str, float]) -> float
+.. py:function:: _manage_strictness(col: str, special_case_strictness: collections.abc.Mapping[str, float]) -> float
 
    Manage the strictness level for each column.
 
@@ -289,7 +268,7 @@ Module Contents
 
    Columns that get special harvesting treatment, and the function that does it.
 
-.. py:function:: harvest_entity_tables(entity: EiaEntity, clean_dfs: dict[str, pandas.DataFrame], special_case_strictness: dict[str, float] = {}, debug: bool = False) -> tuple
+.. py:function:: harvest_entity_tables(entity: pudl.metadata.resources.HarvestableEntity, clean_dfs: dict[str, pandas.DataFrame], special_case_strictness: collections.abc.Mapping[str, float] = {}, debug: bool = False) -> tuple
 
    Compile consistent records for various entities.
 
@@ -317,7 +296,8 @@ Module Contents
    and in part by an understanding of how the entities and columns relate in
    the real world.
 
-   :param entity: One of: plants, generators, boilers, or utilities
+   :param entity: An :class:`~pudl.metadata.resources.EiaEntity` (plants, generators,
+                  boilers, or utilities) or :class:`~pudl.metadata.resources.RusEntity`.
    :param clean_dfs: A dictionary of table names (keys) and clean dfs (values).
    :param special_case_strictness: dictionary of column names (keys) and strictness
                                    values. The default strictness for harvesting consistent records is
@@ -435,7 +415,7 @@ Module Contents
              ``balancing_authority_name_eia`` column.
 
 
-.. py:function:: harvested_entity_asset_factory(entity: EiaEntity, io_manager_key: str | None = None) -> dagster.AssetsDefinition
+.. py:function:: harvested_entity_asset_factory(entity: pudl.metadata.resources.EiaEntity, io_manager_key: str | None = None) -> dagster.AssetsDefinition
 
    Create an asset definition for the harvested entity tables.
 

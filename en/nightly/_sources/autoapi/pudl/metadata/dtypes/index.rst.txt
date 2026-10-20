@@ -38,6 +38,7 @@ Attributes
 
    pudl.metadata.dtypes.FIELD_DTYPES_POLARS
    pudl.metadata.dtypes.FIELD_DTYPES_DUCKDB
+   pudl.metadata.dtypes.PandasDtype
    pudl.metadata.dtypes.FIELD_DTYPES_PANDAS
    pudl.metadata.dtypes.FIELD_DTYPES_PYARROW
    pudl.metadata.dtypes.FIELD_DTYPES_SQLALCHEMY
@@ -74,8 +75,17 @@ Module Contents
 
    DuckDB data type by simplified PUDL field type.
 
+.. py:data:: PandasDtype
+
+   a dtype name or object.
+
+   PUDL uses dtype names (e.g. ``"Int64"``) for most fields and
+   :class:`pandas.CategoricalDtype` instances (an ``ExtensionDtype``) for enum fields.
+
+   :type: A pandas dtype as given to :meth:`pandas.Series.astype`
+
 .. py:data:: FIELD_DTYPES_PANDAS
-   :type:  dict[str, str]
+   :type:  dict[str, PandasDtype]
 
    Pandas data type by simplified PUDL field type.
 

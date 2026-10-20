@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.dtypes &#8212; PUDL 2026.10.1.dev4 documentation</title>
+    <title>pudl.metadata.dtypes &#8212; PUDL 2026.10.1.dev6 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=54127c3f"></script>
+    <script src="../../../_static/documentation_options.js?v=dde392b2"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev4 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev4 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev6 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev6 documentation - Home"/>
   
   
 </a></div>
@@ -941,16 +941,26 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">"""DuckDB data type by simplified PUDL field type."""</span>
 
+<div class="viewcode-block" id="PandasDtype">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes.PandasDtype">[docs]</a>
+<span class="n">PandasDtype</span> <span class="o">=</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">extensions</span><span class="o">.</span><span class="n">ExtensionDtype</span></div>
+
+<span class="sd">"""A pandas dtype as given to :meth:`pandas.Series.astype`: a dtype name or object.</span>
+
+<span class="sd">PUDL uses dtype names (e.g. ``"Int64"``) for most fields and</span>
+<span class="sd">:class:`pandas.CategoricalDtype` instances (an ``ExtensionDtype``) for enum fields.</span>
+<span class="sd">"""</span>
+
 <div class="viewcode-block" id="FIELD_DTYPES_PANDAS">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes.FIELD_DTYPES_PANDAS">[docs]</a>
-<span class="n">FIELD_DTYPES_PANDAS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">"boolean"</span><span class="p">:</span> <span class="s2">"boolean"</span><span class="p">,</span>
+<span class="n">FIELD_DTYPES_PANDAS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">PandasDtype</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"boolean"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">BooleanDtype</span><span class="p">(),</span>
     <span class="s2">"date"</span><span class="p">:</span> <span class="s2">"datetime64[us]"</span><span class="p">,</span>
     <span class="s2">"datetime"</span><span class="p">:</span> <span class="s2">"datetime64[us]"</span><span class="p">,</span>
     <span class="s2">"geometry"</span><span class="p">:</span> <span class="s2">"geometry"</span><span class="p">,</span>
-    <span class="s2">"integer"</span><span class="p">:</span> <span class="s2">"Int64"</span><span class="p">,</span>
+    <span class="s2">"integer"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Int64Dtype</span><span class="p">(),</span>
     <span class="s2">"number"</span><span class="p">:</span> <span class="s2">"float64"</span><span class="p">,</span>
-    <span class="s2">"string"</span><span class="p">:</span> <span class="s2">"string"</span><span class="p">,</span>
+    <span class="s2">"string"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">StringDtype</span><span class="p">(),</span>
     <span class="s2">"year"</span><span class="p">:</span> <span class="s2">"datetime64[us]"</span><span class="p">,</span>
 <span class="p">}</span></div>
 

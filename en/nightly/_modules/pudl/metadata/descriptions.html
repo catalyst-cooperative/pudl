@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.descriptions &#8212; PUDL 2026.10.1.dev4 documentation</title>
+    <title>pudl.metadata.descriptions &#8212; PUDL 2026.10.1.dev6 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=54127c3f"></script>
+    <script src="../../../_static/documentation_options.js?v=dde392b2"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev4 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev4 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev6 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev6 documentation - Home"/>
   
   
 </a></div>
@@ -876,7 +876,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">namedtuple</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Self</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Self</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">ConfigDict</span><span class="p">,</span> <span class="n">model_validator</span>
@@ -1005,10 +1005,10 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">half_year_offset</span><span class="p">(</span><span class="n">partition</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Offset a half_year partition by the specified number of half_years."""</span>
     <span class="n">yr</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">half</span> <span class="o">=</span> <span class="n">partition</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s2">"half"</span><span class="p">)</span>
-    <span class="n">offset</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span>
+    <span class="n">shifted</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span>
         <span class="n">year</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">yr</span><span class="p">),</span> <span class="n">month</span><span class="o">=</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">half</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="mi">1</span>
     <span class="p">)</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">DateOffset</span><span class="p">(</span><span class="n">months</span><span class="o">=</span><span class="n">offset</span> <span class="o">*</span> <span class="mi">6</span><span class="p">)</span>
-    <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">offset</span><span class="o">.</span><span class="n">year</span><span class="si">}</span><span class="s2">half</span><span class="si">{</span><span class="n">offset</span><span class="o">.</span><span class="n">month</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">6</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">"</span></div>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">shifted</span><span class="o">.</span><span class="n">year</span><span class="si">}</span><span class="s2">half</span><span class="si">{</span><span class="n">shifted</span><span class="o">.</span><span class="n">month</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">6</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">"</span></div>
 
 
 
@@ -1082,7 +1082,7 @@ window.runMermaid = runMermaid;</script>
 <span class="c1"># [jul 2025 kmm] it feels like this should already exist somewhere but all I found were terrible Python Golf one-liners</span>
 <div class="viewcode-block" id="first_non_none">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.first_non_none">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">first_non_none</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">first_non_none</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Return the first argument which is not None.</span>
 
 <span class="sd">    Useful when you have multiple candidates for a value, some of which are preferred but rarely available.</span>
@@ -1194,7 +1194,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">ResourceTrait</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">ResourceTrait</span><span class="p">]],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">ResourceTrait</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">ResourceTrait</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">"""Decorator for functions which resolve a description component."""</span>
-    <span class="n">fn</span><span class="o">.</span><span class="n">__is_component</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">fn</span><span class="o">.</span><span class="n">__is_component</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># type: ignore[missing-attribute]</span>
     <span class="k">return</span> <span class="n">fn</span></div>
 
 

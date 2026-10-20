@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.resources &#8212; PUDL 2026.10.1.dev4 documentation</title>
+    <title>pudl.metadata.resources &#8212; PUDL 2026.10.1.dev6 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=54127c3f"></script>
+    <script src="../../../_static/documentation_options.js?v=dde392b2"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev4 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev4 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev6 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev6 documentation - Home"/>
   
   
 </a></div>
@@ -874,6 +874,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pkgutil</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">StrEnum</span><span class="p">,</span> <span class="n">auto</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">NotRequired</span><span class="p">,</span> <span class="n">TypedDict</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_foreign_keys</span>
@@ -898,6 +899,49 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">See :func:`pudl.metadata.helpers.build_foreign_keys`.</span>
 <span class="sd">"""</span>
+
+
+<div class="viewcode-block" id="EiaEntity">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/resources/index.html#pudl.metadata.resources.EiaEntity">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">EiaEntity</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Enum for the different types of EIA entities."""</span>
+
+<div class="viewcode-block" id="EiaEntity.PLANTS">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/resources/index.html#pudl.metadata.resources.EiaEntity.PLANTS">[docs]</a>
+    <span class="n">PLANTS</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="EiaEntity.UTILITIES">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/resources/index.html#pudl.metadata.resources.EiaEntity.UTILITIES">[docs]</a>
+    <span class="n">UTILITIES</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="EiaEntity.BOILERS">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/resources/index.html#pudl.metadata.resources.EiaEntity.BOILERS">[docs]</a>
+    <span class="n">BOILERS</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="EiaEntity.GENERATORS">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/resources/index.html#pudl.metadata.resources.EiaEntity.GENERATORS">[docs]</a>
+    <span class="n">GENERATORS</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="RusEntity">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/resources/index.html#pudl.metadata.resources.RusEntity">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RusEntity</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Enum for the different types of RUS entities."""</span>
+
+<div class="viewcode-block" id="RusEntity.BORROWERS">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/resources/index.html#pudl.metadata.resources.RusEntity.BORROWERS">[docs]</a>
+    <span class="n">BORROWERS</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="HarvestableEntity">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/resources/index.html#pudl.metadata.resources.HarvestableEntity">[docs]</a>
+<span class="nb">type</span> <span class="n">HarvestableEntity</span> <span class="o">=</span> <span class="n">EiaEntity</span> <span class="o">|</span> <span class="n">RusEntity</span></div>
+
+<span class="sd">"""An entity that can be harvested, which is a key of :data:`ENTITIES`."""</span>
 
 
 <div class="viewcode-block" id="EntitySpec">
@@ -926,8 +970,8 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="ENTITIES">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/resources/index.html#pudl.metadata.resources.ENTITIES">[docs]</a>
-<span class="n">ENTITIES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">EntitySpec</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">"plants"</span><span class="p">:</span> <span class="p">{</span>
+<span class="n">ENTITIES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">HarvestableEntity</span><span class="p">,</span> <span class="n">EntitySpec</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">EiaEntity</span><span class="o">.</span><span class="n">PLANTS</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">"id_cols"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">],</span>
         <span class="s2">"static_cols"</span><span class="p">:</span> <span class="p">[</span>
             <span class="s2">"city"</span><span class="p">,</span>
@@ -987,7 +1031,7 @@ window.runMermaid = runMermaid;</script>
             <span class="p">{</span><span class="s2">"plant_id_eia_direct_support_3"</span><span class="p">:</span> <span class="s2">"plant_id_eia"</span><span class="p">},</span>
         <span class="p">],</span>
     <span class="p">},</span>
-    <span class="s2">"generators"</span><span class="p">:</span> <span class="p">{</span>
+    <span class="n">EiaEntity</span><span class="o">.</span><span class="n">GENERATORS</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">"id_cols"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"generator_id"</span><span class="p">],</span>
         <span class="s2">"static_cols"</span><span class="p">:</span> <span class="p">[</span>
             <span class="s2">"duct_burners"</span><span class="p">,</span>
@@ -1093,7 +1137,7 @@ window.runMermaid = runMermaid;</script>
             <span class="p">},</span>
         <span class="p">],</span>
     <span class="p">},</span>
-    <span class="s2">"boilers"</span><span class="p">:</span> <span class="p">{</span>
+    <span class="n">EiaEntity</span><span class="o">.</span><span class="n">BOILERS</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">"id_cols"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"boiler_id"</span><span class="p">],</span>
         <span class="s2">"static_cols"</span><span class="p">:</span> <span class="p">[</span>
             <span class="s2">"boiler_manufacturer"</span><span class="p">,</span>
@@ -1190,7 +1234,7 @@ window.runMermaid = runMermaid;</script>
             <span class="s2">"data_maturity"</span><span class="p">,</span>
         <span class="p">],</span>
     <span class="p">},</span>
-    <span class="s2">"utilities"</span><span class="p">:</span> <span class="p">{</span>
+    <span class="n">EiaEntity</span><span class="o">.</span><span class="n">UTILITIES</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">"id_cols"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"utility_id_eia"</span><span class="p">],</span>
         <span class="s2">"static_cols"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"utility_name_eia"</span><span class="p">],</span>
         <span class="s2">"annual_cols"</span><span class="p">:</span> <span class="p">[</span>
@@ -1236,7 +1280,7 @@ window.runMermaid = runMermaid;</script>
         <span class="p">],</span>
     <span class="p">},</span>
     <span class="c1"># THIS IS A RUS ENTITY (everything above is from EIA)</span>
-    <span class="s2">"borrowers"</span><span class="p">:</span> <span class="p">{</span>
+    <span class="n">RusEntity</span><span class="o">.</span><span class="n">BORROWERS</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">"id_cols"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"borrower_id_rus"</span><span class="p">],</span>
         <span class="s2">"static_cols"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"borrower_name_rus"</span><span class="p">,</span> <span class="s2">"state"</span><span class="p">],</span>
         <span class="s2">"annual_cols"</span><span class="p">:</span> <span class="p">[],</span>

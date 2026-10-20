@@ -383,7 +383,7 @@ Module Contents
    (array([nan,  1., nan,  1.]), array([1, 2, 1, 1]))
 
 
-.. py:function:: insert_run_length(x: collections.abc.Sequence | numpy.ndarray, values: collections.abc.Sequence | numpy.ndarray, lengths: collections.abc.Sequence[int], mask: collections.abc.Sequence[bool] | numpy.ndarray | None = None, padding: int = 0, intersect: bool = False, rng: numpy.random.Generator | None = None) -> numpy.ndarray
+.. py:function:: insert_run_length(x: collections.abc.Sequence | numpy.ndarray, values: collections.abc.Sequence | numpy.ndarray, lengths: collections.abc.Sequence[int] | numpy.ndarray, mask: collections.abc.Sequence[bool] | numpy.ndarray | None = None, padding: int = 0, intersect: bool = False, rng: numpy.random.Generator | None = None) -> numpy.ndarray
 
    Insert run-length encoded values into a vector.
 

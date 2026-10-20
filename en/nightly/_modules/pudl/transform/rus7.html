@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.rus7 &#8212; PUDL 2026.10.1.dev4 documentation</title>
+    <title>pudl.transform.rus7 &#8212; PUDL 2026.10.1.dev6 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=54127c3f"></script>
+    <script src="../../../_static/documentation_options.js?v=dde392b2"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev4 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev4 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev6 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev6 documentation - Home"/>
   
   
 </a></div>
@@ -888,6 +888,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">UTILITY_PLANT_GROUP_RUS7</span><span class="p">,</span>
     <span class="n">UTILITY_PLANT_ITEM_RUS7</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">RusEntity</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.resources.rus12</span><span class="w"> </span><span class="kn">import</span> <span class="n">HARVESTED_CORE_TABLES_RUS7</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.transform.eia</span><span class="w"> </span><span class="kn">import</span> <span class="n">harvest_entity_tables</span>
 
@@ -911,7 +912,7 @@ window.runMermaid = runMermaid;</script>
     <span class="p">)</span>
     <span class="n">rus</span><span class="o">.</span><span class="n">early_check_pk</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
 
-    <span class="n">df</span><span class="o">.</span><span class="n">last_annual_meeting_date</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">"last_annual_meeting_date"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
         <span class="n">df</span><span class="o">.</span><span class="n">last_annual_meeting_date</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">"mixed"</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span></div>
@@ -934,7 +935,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">var_name</span><span class="o">=</span><span class="s2">"asset_type"</span><span class="p">,</span>
         <span class="n">value_name</span><span class="o">=</span><span class="s2">"ending_balance"</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">df</span><span class="o">.</span><span class="n">asset_type</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">asset_type</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">removesuffix</span><span class="p">(</span><span class="s2">"_assets"</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">"asset_type"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">asset_type</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">removesuffix</span><span class="p">(</span><span class="s2">"_assets"</span><span class="p">)</span>
     <span class="c1"># POST-MELT</span>
     <span class="n">df</span><span class="p">[</span><span class="s2">"is_total"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">asset_type</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"total_"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span></div>
@@ -957,7 +958,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">var_name</span><span class="o">=</span><span class="s2">"liability_type"</span><span class="p">,</span>
         <span class="n">value_name</span><span class="o">=</span><span class="s2">"ending_balance"</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">df</span><span class="o">.</span><span class="n">liability_type</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">liability_type</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">removesuffix</span><span class="p">(</span><span class="s2">"_liabilities"</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">"liability_type"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">liability_type</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">removesuffix</span><span class="p">(</span><span class="s2">"_liabilities"</span><span class="p">)</span>
     <span class="c1"># POST-MELT</span>
     <span class="n">df</span><span class="p">[</span><span class="s2">"is_total"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">liability_type</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"total_"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span></div>
@@ -1477,7 +1478,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask2</span><span class="p">,</span> <span class="s2">"loan_maturity_date"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">NaT</span>
 
     <span class="c1"># Convert all loan_maturity_dates to datetime</span>
-    <span class="n">df</span><span class="o">.</span><span class="n">loan_maturity_date</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">loan_maturity_date</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">"loan_maturity_date"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">loan_maturity_date</span><span class="p">)</span>
 
     <span class="c1"># TO-DO: could standardize loan_recipient    names</span>
     <span class="c1"># TO-DO: there are some validation cases where loan balance exceeds the original amount.</span>
@@ -1633,7 +1634,7 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/rus7/index.html#pudl.transform.rus7.core_rus7__entity_borrowers">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">core_rus7__entity_borrowers</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="o">**</span><span class="n">clean_dfs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Harvesting IDs &amp; consistent static attributes for RUS7 entity."""</span>
-    <span class="n">entity</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">RusEntity</span><span class="o">.</span><span class="n">BORROWERS</span>
+    <span class="n">entity</span> <span class="o">=</span> <span class="n">RusEntity</span><span class="o">.</span><span class="n">BORROWERS</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Harvesting IDs &amp; consistent static attributes for RUS Borrowers"</span><span class="p">)</span>
     <span class="c1"># We want **all** borrowers to have non-null names in this entity</span>
     <span class="c1"># table. They aren't always super consistent over time, but we have</span>
