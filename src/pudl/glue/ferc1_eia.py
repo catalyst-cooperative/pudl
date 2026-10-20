@@ -505,7 +505,7 @@ def get_util_ids_eia_unmapped(
     unmapped_utils_eia["link_to_ferc1"] = False
     # Any utility ID that's both unmapped and has EIA 923 data should get linked:
     idx_to_link = unmapped_utils_eia.index.intersection(
-        utils_with_data_in_eia923["utility_id_eia"]
+        pd.Index(utils_with_data_in_eia923["utility_id_eia"])
     )
     unmapped_utils_eia.loc[idx_to_link, "link_to_ferc1"] = True
 
