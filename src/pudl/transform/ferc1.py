@@ -1347,8 +1347,15 @@ def calculate_values_from_components(
     # Data types were very messy here, including pandas Float64 for the
     # calculated_value columns which did not work with the np.isclose(). Not sure
     # why these are cropping up.
-    calculated_df = calculated_df.convert_dtypes(convert_floating=False).astype(
-        {value_col: "float64", "calculated_value": "float64"}
+    # These columns can arrive as object or nullable dtypes containing pd.NA, which
+    # can't be cast directly to numpy float64 (an object column holding pd.NA raises
+    # TypeError). Casting to nullable Float64 first converts the NAs to NaN.
+    # TODO: find out why these columns end up with object dtype after the merge above
+    # and fix it there.
+    calculated_df = (
+        calculated_df.convert_dtypes(convert_floating=False)
+        .astype({value_col: "Float64", "calculated_value": "Float64"})
+        .astype({value_col: "float64", "calculated_value": "float64"})
     )
     # For all of these below, only assign values when the record is a calculated record
     # Also, make sure we are filling nulls so we capture the differences when there are
@@ -4627,8 +4634,13 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
             strings ``header``, ``note``, ``total``, or NA to indicate what type of row
             it is.
         """
-        # Add a column to show final row type
-        df.insert(3, "row_type", np.nan)
+        # Add a column to show final row type. A scalar pd.NA makes an object column,
+        # which can hold the string labels assigned later (np.nan would make a float
+        # column that pandas 3 won't assign strings into). Keep it object, not string:
+        # on object, comparisons like ``row_type != "note"`` return plain bools (True
+        # for NA rows), which the .loc masks and cumsum() downstream rely on. On a
+        # string dtype they would return NA, and .loc would skip those rows.
+        df.insert(3, "row_type", pd.NA)
 
         # Label the row types
         df_labeled = (
@@ -4962,7 +4974,7 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
                 # We update the ferc lic col because some were already there from the
                 # plant name extraction. However, we want to override with the notes
                 # ferc licenses because they are more likely to be accurate.
-                group.license_id_ferc1.update(updated_ferc_license_col)
+                group.update({"license_id_ferc1": updated_ferc_license_col})
                 group.loc[regular_row, "notes"] = notes_col
 
             return group

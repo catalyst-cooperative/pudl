@@ -43,13 +43,15 @@ def _extract_filer_cik_from_filename(filename_col: pd.Series) -> pd.Series:
 
 
 def _compute_fraction_owned(percent_ownership: pd.Series) -> pd.Series:
-    """Clean percent ownership, convert to float, then convert percent to ratio."""
-    return (
-        percent_ownership.str.replace(r"(\.{2,})", r"\.", regex=True)
-        .replace("\\\\", "", regex=True)
-        .replace(".", "0.0", regex=False)
-        .astype("float")
-    ) / 100.0
+    """Clean percent ownership, convert to float, then convert percent to ratio.
+
+    The percentages were extracted from text tables, so some carry runs of leader dots
+    (e.g. ``"....99"`` or ``"65......"``). These are removed, and entries containing
+    nothing but dots are treated as missing.
+    """
+    only_dots = percent_ownership.str.fullmatch(r"\.+", na=False)
+    cleaned = percent_ownership.mask(only_dots).str.replace(r"\.{2,}", "", regex=True)
+    return cleaned.astype("float") / 100.0
 
 
 def _standardize_taxpayer_id_irs(taxpayer_id_irs: pd.Series) -> pd.Series:
@@ -60,11 +62,11 @@ def _standardize_taxpayer_id_irs(taxpayer_id_irs: pd.Series) -> pd.Series:
     - Reformat to NN-NNNNNNN format.
     """
     tin = taxpayer_id_irs.astype("string").str.replace(r"[^\d]", "", regex=True)
-    not_nine_digits = ~tin.str.match(r"^\d{9}$")
+    not_nine_digits = ~tin.str.match(r"^\d{9}$").fillna(False)
     logger.info(f"Nulling {sum(not_nine_digits.dropna())} invalid TINs.")
-    nine_zeroes = tin == "000000000"
+    nine_zeroes = (tin == "000000000").fillna(False)
     logger.info(f"Nulling {sum(nine_zeroes.dropna())} all-zero TINs.")
-    tin.loc[(not_nine_digits | nine_zeroes)] = pd.NA
+    tin = tin.mask(not_nine_digits | nine_zeroes, pd.NA)
     tin = tin.str[:2] + "-" + tin.str[2:]
     return tin
 

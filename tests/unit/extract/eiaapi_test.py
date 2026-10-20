@@ -67,9 +67,7 @@ def test__parse_data_column(elec_txt_dataframe):
             ],
         },
     ).convert_dtypes()
-    expected.loc[:, "series_id"] = expected.loc[:, "series_id"].astype(
-        "category", copy=False
-    )
+    expected["series_id"] = expected["series_id"].astype("string").astype("category")
 
     actual = bulk._parse_data_column(input_)
     pd.testing.assert_frame_equal(actual, expected)

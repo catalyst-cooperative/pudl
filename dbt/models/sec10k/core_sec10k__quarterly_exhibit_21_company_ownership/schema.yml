@@ -12,3 +12,9 @@ sources:
           - name: subsidiary_company_location
           - name: subsidiary_company_id_sec10k
           - name: fraction_owned
+            data_tests:
+              - expect_column_fraction_outside_range:
+                  arguments:
+                    min_value: 0.0
+                    max_value: 1.0
+                    max_fraction_above: 0.1
