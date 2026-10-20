@@ -1781,6 +1781,10 @@ def standardize_percentages_ratio(
             dates = (frac_df.report_date.dt.year >= min(years_to_standardize)) & (
                 frac_df.report_date.dt.year <= max(years_to_standardize)
             )
+        else:
+            raise AssertionError(
+                "Standardization requires a report_year or report_date column."
+            )
         frac_df.loc[dates, col] = frac_df.loc[dates, col] / 100
         if frac_df[col].max() > 1:
             raise AssertionError(
