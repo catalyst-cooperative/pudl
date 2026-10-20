@@ -1979,13 +1979,13 @@ def get_asset_keys(
     Returns:
         A set of asset keys.
     """
-    asset_keys = set()
+    asset_keys: set[AssetKey] = set()
     for asset in assets:
         if isinstance(asset, AssetSpec):
             if not exclude_asset_specs:
-                asset_keys = asset_keys.union(asset.key)
+                asset_keys.add(asset.key)
         else:
-            asset_keys = asset_keys.union(asset.keys)
+            asset_keys.update(asset.keys)
     return asset_keys
 
 
