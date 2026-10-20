@@ -54,6 +54,7 @@ Attributes
    pudl.metadata.resources.RESOURCE_METADATA
    pudl.metadata.resources.module
    pudl.metadata.resources.FOREIGN_KEYS
+   pudl.metadata.resources.HarvestableEntity
    pudl.metadata.resources.ENTITIES
 
 
@@ -62,6 +63,8 @@ Classes
 
 .. autoapisummary::
 
+   pudl.metadata.resources.EiaEntity
+   pudl.metadata.resources.RusEntity
    pudl.metadata.resources.EntitySpec
 
 
@@ -136,6 +139,43 @@ Package Contents
 
    See :func:`pudl.metadata.helpers.build_foreign_keys`.
 
+.. py:class:: EiaEntity
+
+   Bases: :py:obj:`enum.StrEnum`
+
+
+   Enum for the different types of EIA entities.
+
+
+   .. py:attribute:: PLANTS
+
+
+   .. py:attribute:: UTILITIES
+
+
+   .. py:attribute:: BOILERS
+
+
+   .. py:attribute:: GENERATORS
+
+
+.. py:class:: RusEntity
+
+   Bases: :py:obj:`enum.StrEnum`
+
+
+   Enum for the different types of RUS entities.
+
+
+   .. py:attribute:: BORROWERS
+
+
+.. py:type:: HarvestableEntity
+   :canonical: EiaEntity | RusEntity
+
+
+   An entity that can be harvested, which is a key of :data:`ENTITIES`.
+
 .. py:class:: EntitySpec
 
    Bases: :py:obj:`TypedDict`
@@ -161,7 +201,7 @@ Package Contents
 
 
 .. py:data:: ENTITIES
-   :type:  dict[str, EntitySpec]
+   :type:  dict[HarvestableEntity, EntitySpec]
 
    Columns kept for either entity or annual EIA tables in the harvesting process.
 

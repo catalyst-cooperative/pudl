@@ -421,7 +421,7 @@ Module Contents
       A mapping of all known codes to their standardized values, or NA.
 
 
-   .. py:method:: encode(col: pandas.Series, dtype: type | None = None) -> pandas.Series
+   .. py:method:: encode(col: pandas.Series, dtype: pudl.metadata.dtypes.PandasDtype | None = None) -> pandas.Series
 
       Apply the stored code mapping to an input Series.
 
@@ -575,13 +575,13 @@ Module Contents
 
 
 
-   .. py:method:: to_pandas_dtype() -> str | pandas.CategoricalDtype
+   .. py:method:: to_pandas_dtype() -> pudl.metadata.dtypes.PandasDtype
 
       Return Pandas data type.
 
 
 
-   .. py:method:: to_sqlite_dtype() -> type
+   .. py:method:: to_sqlite_dtype() -> sqlalchemy.types.TypeEngine | type[sqlalchemy.types.TypeEngine]
 
       Return SQLAlchemy data type.
 
@@ -623,7 +623,7 @@ Module Contents
 
 
 
-   .. py:method:: encode(col: pandas.Series, dtype: type | None = None) -> pandas.Series
+   .. py:method:: encode(col: pandas.Series, dtype: pudl.metadata.dtypes.PandasDtype | None = None) -> pandas.Series
 
       Recode the Field if it has an associated encoder.
 
@@ -1818,7 +1818,7 @@ Module Contents
 
 
 
-   .. py:method:: to_pandas_dtypes() -> dict[str, str | pandas.CategoricalDtype]
+   .. py:method:: to_pandas_dtypes() -> dict[str, pudl.metadata.dtypes.PandasDtype]
 
       Return Pandas data type of each field by field name.
 

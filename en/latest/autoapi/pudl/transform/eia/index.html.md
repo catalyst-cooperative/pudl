@@ -29,9 +29,8 @@ found in `pudl.transform.eia._boiler_generator_assn()`.
 
 ## Classes
 
-| [`EiaEntity`](#pudl.transform.eia.EiaEntity)            | Enum for the different types of EIA entities.                              |
-|-----------------------------------------------------------------------|----------------------------------------------------------------------------|
-| [`SpecialCaseHarvester`](#pudl.transform.eia.SpecialCaseHarvester) | The call signature of a function that harvests an entity column specially. |
+| [`SpecialCaseHarvester`](#pudl.transform.eia.SpecialCaseHarvester)   | The call signature of a function that harvests an entity column specially.   |
+|-------------------------------------------------------------------------|------------------------------------------------------------------------------|
 
 ## Functions
 
@@ -58,20 +57,6 @@ found in `pudl.transform.eia._boiler_generator_assn()`.
 ### pudl.transform.eia.logger
 
 ### pudl.transform.eia.HARVESTABLE_ASSETS *= ('_core_eia860_\_boiler_cooling', '_core_eia860_\_boiler_emissions_control_equipment_assn',...*
-
-### *class* pudl.transform.eia.EiaEntity
-
-Bases: [`enum.StrEnum`](https://docs.python.org/3/library/enum.html#enum.StrEnum)
-
-Enum for the different types of EIA entities.
-
-#### PLANTS
-
-#### UTILITIES
-
-#### BOILERS
-
-#### GENERATORS
 
 ### pudl.transform.eia.EIA_FIPS_COUNTY_FIXES *: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)*
 
@@ -217,14 +202,14 @@ for EIA 923, 2011-2017 for EIA 860).
 * **Returns:**
   The same plants_entity table, with the addition of some missing EPA CEMS plants.
 
-### pudl.transform.eia.\_compile_all_entity_records(entity: [EiaEntity](#pudl.transform.eia.EiaEntity), clean_dfs: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.transform.eia.\_compile_all_entity_records(entity: [pudl.metadata.resources.HarvestableEntity](../../metadata/resources/index.html.md#pudl.metadata.resources.HarvestableEntity), clean_dfs: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Compile all of the entity records from each table they appear in.
 
 Comb through each of the dataframes in clean_dfs to pull out every instance of the
 entity id.
 
-### pudl.transform.eia.\_manage_strictness(col: [str](https://docs.python.org/3/builtins/stdtypes.html#str), special_case_strictness: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [float](https://docs.python.org/3/builtins/functions.html#float)]) → [float](https://docs.python.org/3/builtins/functions.html#float)
+### pudl.transform.eia.\_manage_strictness(col: [str](https://docs.python.org/3/builtins/stdtypes.html#str), special_case_strictness: [collections.abc.Mapping](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [float](https://docs.python.org/3/builtins/functions.html#float)]) → [float](https://docs.python.org/3/builtins/functions.html#float)
 
 Manage the strictness level for each column.
 
@@ -252,7 +237,7 @@ Return `entity_id_df` with harvested values for `col`.
 
 Columns that get special harvesting treatment, and the function that does it.
 
-### pudl.transform.eia.harvest_entity_tables(entity: [EiaEntity](#pudl.transform.eia.EiaEntity), clean_dfs: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)], special_case_strictness: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [float](https://docs.python.org/3/builtins/functions.html#float)] = {}, debug: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)
+### pudl.transform.eia.harvest_entity_tables(entity: [pudl.metadata.resources.HarvestableEntity](../../metadata/resources/index.html.md#pudl.metadata.resources.HarvestableEntity), clean_dfs: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)], special_case_strictness: [collections.abc.Mapping](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [float](https://docs.python.org/3/builtins/functions.html#float)] = {}, debug: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)
 
 Compile consistent records for various entities.
 
@@ -281,7 +266,8 @@ and in part by an understanding of how the entities and columns relate in
 the real world.
 
 * **Parameters:**
-  * **entity** – One of: plants, generators, boilers, or utilities
+  * **entity** – An [`EiaEntity`](../../metadata/resources/index.html.md#pudl.metadata.resources.EiaEntity) (plants, generators,
+    boilers, or utilities) or [`RusEntity`](../../metadata/resources/index.html.md#pudl.metadata.resources.RusEntity).
   * **clean_dfs** – A dictionary of table names (keys) and clean dfs (values).
   * **special_case_strictness** – dictionary of column names (keys) and strictness
     values. The default strictness for harvesting consistent records is
@@ -392,7 +378,7 @@ the BA codes:
   `balancing_authority_code_eia` column and an updated corresponding
   `balancing_authority_name_eia` column.
 
-### pudl.transform.eia.harvested_entity_asset_factory(entity: [EiaEntity](#pudl.transform.eia.EiaEntity), io_manager_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)
+### pudl.transform.eia.harvested_entity_asset_factory(entity: [pudl.metadata.resources.EiaEntity](../../metadata/resources/index.html.md#pudl.metadata.resources.EiaEntity), io_manager_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)
 
 Create an asset definition for the harvested entity tables.
 

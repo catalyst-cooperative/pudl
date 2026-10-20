@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.metadata.resources &#8212; PUDL 2026.10.1.dev5 documentation</title>
+    <title>pudl.metadata.resources &#8212; PUDL 2026.10.1.dev6 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=fd520859"></script>
+    <script src="../../../../_static/documentation_options.js?v=dde392b2"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev5 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev5 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev6 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev6 documentation - Home"/>
   
   
 </a></div>
@@ -854,7 +854,10 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.resources.FOREIGN_KEYS" title="pudl.metadata.resources.FOREIGN_KEYS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FOREIGN_KEYS</span></code></a></p></td>
 <td><p>Generated foreign key constraints by resource name.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.resources.ENTITIES" title="pudl.metadata.resources.ENTITIES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ENTITIES</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.resources.HarvestableEntity" title="pudl.metadata.resources.HarvestableEntity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HarvestableEntity</span></code></a></p></td>
+<td><p>An entity that can be harvested, which is a key of <a class="reference internal" href="#pudl.metadata.resources.ENTITIES" title="pudl.metadata.resources.ENTITIES"><code class="xref py py-data docutils literal notranslate"><span class="pre">ENTITIES</span></code></a>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.resources.ENTITIES" title="pudl.metadata.resources.ENTITIES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ENTITIES</span></code></a></p></td>
 <td><p>Columns kept for either entity or annual EIA tables in the harvesting process.</p></td>
 </tr>
 </tbody>
@@ -865,6 +868,12 @@
 <h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.resources.EiaEntity" title="pudl.metadata.resources.EiaEntity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EiaEntity</span></code></a></p></td>
+<td><p>Enum for the different types of EIA entities.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.resources.RusEntity" title="pudl.metadata.resources.RusEntity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RusEntity</span></code></a></p></td>
+<td><p>Enum for the different types of RUS entities.</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.resources.EntitySpec" title="pudl.metadata.resources.EntitySpec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EntitySpec</span></code></a></p></td>
 <td><p>Column groupings used to harvest a single EIA entity.</p></td>
 </tr>
@@ -961,6 +970,51 @@ These are assumed to match the order of the reference’s primary key fields.</p
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="pudl.metadata.resources.EiaEntity">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.metadata.resources.</span></span><span class="sig-name descname"><span class="pre">EiaEntity</span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/resources.html#EiaEntity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.resources.EiaEntity" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.StrEnum" title="(in Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.StrEnum</span></code></a></p>
+<p>Enum for the different types of EIA entities.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.metadata.resources.EiaEntity.PLANTS">
+<span class="sig-name descname"><span class="pre">PLANTS</span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/resources.html#EiaEntity.PLANTS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.resources.EiaEntity.PLANTS" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.metadata.resources.EiaEntity.UTILITIES">
+<span class="sig-name descname"><span class="pre">UTILITIES</span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/resources.html#EiaEntity.UTILITIES"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.resources.EiaEntity.UTILITIES" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.metadata.resources.EiaEntity.BOILERS">
+<span class="sig-name descname"><span class="pre">BOILERS</span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/resources.html#EiaEntity.BOILERS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.resources.EiaEntity.BOILERS" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.metadata.resources.EiaEntity.GENERATORS">
+<span class="sig-name descname"><span class="pre">GENERATORS</span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/resources.html#EiaEntity.GENERATORS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.resources.EiaEntity.GENERATORS" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pudl.metadata.resources.RusEntity">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.metadata.resources.</span></span><span class="sig-name descname"><span class="pre">RusEntity</span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/resources.html#RusEntity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.resources.RusEntity" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.StrEnum" title="(in Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.StrEnum</span></code></a></p>
+<p>Enum for the different types of RUS entities.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.metadata.resources.RusEntity.BORROWERS">
+<span class="sig-name descname"><span class="pre">BORROWERS</span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/resources.html#RusEntity.BORROWERS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.resources.RusEntity.BORROWERS" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py type">
+<dt class="sig sig-object py" id="pudl.metadata.resources.HarvestableEntity">
+<span class="property"><span class="k"><span class="pre">type</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.metadata.resources.</span></span><span class="sig-name descname"><span class="pre">HarvestableEntity</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="#pudl.metadata.resources.EiaEntity" title="pudl.metadata.resources.EiaEntity"><span class="pre">EiaEntity</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#pudl.metadata.resources.RusEntity" title="pudl.metadata.resources.RusEntity"><span class="pre">RusEntity</span></a></span><a class="reference internal" href="../../../../_modules/pudl/metadata/resources.html#HarvestableEntity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.resources.HarvestableEntity" title="Link to this definition">#</a></dt>
+<dd><p>An entity that can be harvested, which is a key of <a class="reference internal" href="#pudl.metadata.resources.ENTITIES" title="pudl.metadata.resources.ENTITIES"><code class="xref py py-data docutils literal notranslate"><span class="pre">ENTITIES</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="pudl.metadata.resources.EntitySpec">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.metadata.resources.</span></span><span class="sig-name descname"><span class="pre">EntitySpec</span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/resources.html#EntitySpec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.resources.EntitySpec" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">TypedDict</span></code></p>
@@ -989,7 +1043,7 @@ These are assumed to match the order of the reference’s primary key fields.</p
 
 <dl class="py data">
 <dt class="sig sig-object py" id="pudl.metadata.resources.ENTITIES">
-<span class="sig-prename descclassname"><span class="pre">pudl.metadata.resources.</span></span><span class="sig-name descname"><span class="pre">ENTITIES</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#pudl.metadata.resources.EntitySpec" title="pudl.metadata.resources.EntitySpec"><span class="pre">EntitySpec</span></a><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/resources.html#ENTITIES"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.resources.ENTITIES" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pudl.metadata.resources.</span></span><span class="sig-name descname"><span class="pre">ENTITIES</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pudl.metadata.resources.HarvestableEntity" title="pudl.metadata.resources.HarvestableEntity"><span class="pre">HarvestableEntity</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#pudl.metadata.resources.EntitySpec" title="pudl.metadata.resources.EntitySpec"><span class="pre">EntitySpec</span></a><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/resources.html#ENTITIES"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.resources.ENTITIES" title="Link to this definition">#</a></dt>
 <dd><p>Columns kept for either entity or annual EIA tables in the harvesting process.</p>
 <p>For each entity type (key), the ID columns, static columns, annual columns, and mapped
 columns.</p>
@@ -1065,6 +1119,18 @@ renamed so the relationship can be harvested and added to the normalized entity 
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.resources.RESOURCE_METADATA"><code class="docutils literal notranslate"><span class="pre">RESOURCE_METADATA</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.resources.module"><code class="docutils literal notranslate"><span class="pre">module</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.resources.FOREIGN_KEYS"><code class="docutils literal notranslate"><span class="pre">FOREIGN_KEYS</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.resources.EiaEntity"><code class="docutils literal notranslate"><span class="pre">EiaEntity</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.resources.EiaEntity.PLANTS"><code class="docutils literal notranslate"><span class="pre">EiaEntity.PLANTS</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.resources.EiaEntity.UTILITIES"><code class="docutils literal notranslate"><span class="pre">EiaEntity.UTILITIES</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.resources.EiaEntity.BOILERS"><code class="docutils literal notranslate"><span class="pre">EiaEntity.BOILERS</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.resources.EiaEntity.GENERATORS"><code class="docutils literal notranslate"><span class="pre">EiaEntity.GENERATORS</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.resources.RusEntity"><code class="docutils literal notranslate"><span class="pre">RusEntity</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.resources.RusEntity.BORROWERS"><code class="docutils literal notranslate"><span class="pre">RusEntity.BORROWERS</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.resources.HarvestableEntity"><code class="docutils literal notranslate"><span class="pre">HarvestableEntity</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.resources.EntitySpec"><code class="docutils literal notranslate"><span class="pre">EntitySpec</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.resources.EntitySpec.id_cols"><code class="docutils literal notranslate"><span class="pre">EntitySpec.id_cols</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.resources.EntitySpec.static_cols"><code class="docutils literal notranslate"><span class="pre">EntitySpec.static_cols</span></code></a></li>

@@ -153,7 +153,7 @@ Module Contents
       Text to be included in the rendered resource description.
 
 
-.. py:function:: first_non_none(*args)
+.. py:function:: first_non_none(*args: Any) -> Any
 
    Return the first argument which is not None.
 

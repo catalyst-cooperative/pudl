@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.helpers &#8212; PUDL 2026.10.1.dev5 documentation</title>
+    <title>pudl.helpers &#8212; PUDL 2026.10.1.dev6 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../_static/documentation_options.js?v=fd520859"></script>
+    <script src="../../_static/documentation_options.js?v=dde392b2"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev5 documentation - Home"/>
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev5 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev6 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev6 documentation - Home"/>
   
   
 </a></div>
@@ -1914,7 +1914,7 @@ window.runMermaid = runMermaid;</script>
         <span class="c1"># leftover strings to fix -- otherwise it runs forever because we</span>
         <span class="c1"># are replacing nothing with nothing.</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">badstrings</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">col</span> <span class="o">=</span> <span class="n">col</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">badstrings</span><span class="p">,</span> <span class="n">unmapped</span><span class="p">)</span>
+            <span class="n">col</span> <span class="o">=</span> <span class="n">col</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">badstrings</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">unmapped</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">col</span></div>
 
@@ -2610,7 +2610,8 @@ window.runMermaid = runMermaid;</script>
         <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="n">n_digits</span><span class="p">)</span>
         <span class="c1"># All-zero ZIP &amp; FIPS codes are invalid.</span>
         <span class="c1"># Also catches empty strings that were zero padded.</span>
-        <span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="n">n_digits</span> <span class="o">*</span> <span class="s2">"0"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">})</span>
+        <span class="c1"># pandas-stubs' Scalar type does not include pd.NA</span>
+        <span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="n">n_digits</span> <span class="o">*</span> <span class="s2">"0"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">})</span>  <span class="c1"># type: ignore[bad-assignment]</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">out_col</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">f</span><span class="s2">"^[</span><span class="se">\\</span><span class="s2">d]</span><span class="se">{{</span><span class="si">{</span><span class="n">n_digits</span><span class="si">}</span><span class="se">}}</span><span class="s2">$"</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -3107,7 +3108,8 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    retaining a reference to the data will see the changes made here.</span>
 <span class="sd">    """</span>
     <span class="n">fillna_cols</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">boolean_columns_to_fix</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">)</span>
-    <span class="n">boolean_replace_cols</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># Annotated loosely because pandas-stubs' Scalar type does not include pd.NA</span>
+    <span class="n">boolean_replace_cols</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
         <span class="n">col</span><span class="p">:</span> <span class="p">{</span><span class="s2">"Y"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">"N"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">"X"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">"U"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="mi">0</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
         <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">boolean_columns_to_fix</span>
     <span class="p">}</span>
@@ -3339,6 +3341,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    So we melt the table based on some sort of primary key columns then diff</span>
 <span class="sd">    the old and new values.</span>
 <span class="sd">    """</span>
+    <span class="n">primary_key</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">primary_key</span><span class="p">)</span>
     <span class="n">old_melted</span> <span class="o">=</span> <span class="n">old</span><span class="o">.</span><span class="n">melt</span><span class="p">(</span><span class="n">id_vars</span><span class="o">=</span><span class="n">primary_key</span><span class="p">,</span> <span class="n">var_name</span><span class="o">=</span><span class="s2">"field"</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span>
         <span class="n">primary_key</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"field"</span><span class="p">]</span>
     <span class="p">)</span>

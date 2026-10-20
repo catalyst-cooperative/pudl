@@ -26,7 +26,7 @@ Mechanisms and constants for setting standard resource descriptions.
 
 | [`half_year_offset`](#pudl.metadata.descriptions.half_year_offset)(→ str)                        | Offset a half_year partition by the specified number of half_years.   |
 |-------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------|
-| [`first_non_none`](#pudl.metadata.descriptions.first_non_none)(\*args)                         | Return the first argument which is not None.                          |
+| [`first_non_none`](#pudl.metadata.descriptions.first_non_none)(→ Any)                          | Return the first argument which is not None.                          |
 | [`component`](#pudl.metadata.descriptions.component)(→ collections.abc.Callable[..., ...) | Decorator for functions which resolve a description component.        |
 
 ## Module Contents
@@ -115,7 +115,7 @@ Primarily used for debugging descriptions; not shown to users.
 
 Text to be included in the rendered resource description.
 
-### pudl.metadata.descriptions.first_non_none(\*args)
+### pudl.metadata.descriptions.first_non_none(\*args: Any) → Any
 
 Return the first argument which is not None.
 

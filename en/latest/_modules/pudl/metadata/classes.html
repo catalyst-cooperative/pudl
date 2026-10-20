@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.classes &#8212; PUDL 2026.10.1.dev5 documentation</title>
+    <title>pudl.metadata.classes &#8212; PUDL 2026.10.1.dev6 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=fd520859"></script>
+    <script src="../../../_static/documentation_options.js?v=dde392b2"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev5 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev5 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev6 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev6 documentation - Home"/>
   
   
 </a></div>
@@ -935,6 +935,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">FIELD_DTYPES_SQLALCHEMY</span><span class="p">,</span>
     <span class="n">FIELD_DTYPES_SQLITE</span><span class="p">,</span>
     <span class="n">PERIODS</span><span class="p">,</span>
+    <span class="n">PandasDtype</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.fields</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">FIELD_METADATA</span><span class="p">,</span>
@@ -1573,7 +1574,7 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="nf">encode</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">col</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
-        <span class="n">dtype</span><span class="p">:</span> <span class="nb">type</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="p">:</span> <span class="n">PandasDtype</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Apply the stored code mapping to an input Series."""</span>
         <span class="c1"># Every value in the Series should appear in the map. If that's not the</span>
@@ -1589,7 +1590,8 @@ window.runMermaid = runMermaid;</script>
             <span class="p">)</span>
         <span class="n">col</span> <span class="o">=</span> <span class="n">col</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">code_map</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">dtype</span><span class="p">:</span>
-            <span class="n">col</span> <span class="o">=</span> <span class="n">col</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+            <span class="c1"># pandas' astype() overloads only cover Literal dtype strings.</span>
+            <span class="n">col</span> <span class="o">=</span> <span class="n">col</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>  <span class="c1"># type: ignore[no-matching-overload]</span>
 
         <span class="k">return</span> <span class="n">col</span></div>
 
@@ -1631,6 +1633,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">template</span> <span class="o">=</span> <span class="n">_get_jinja_environment</span><span class="p">(</span><span class="n">top_dir</span><span class="p">)</span><span class="o">.</span><span class="n">get_template</span><span class="p">(</span>
             <span class="s2">"codemetadata.rst.jinja"</span>
         <span class="p">)</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"Cannot render an Encoder without a name."</span>
         <span class="n">rendered</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
             <span class="n">Encoder</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
             <span class="c1"># just get the resolved resource summary &amp; drop all the other sections of the description</span>
@@ -1819,7 +1822,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="Field.to_pandas_dtype">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Field.to_pandas_dtype">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_pandas_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">CategoricalDtype</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_pandas_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PandasDtype</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return Pandas data type."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">enum</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">CategoricalDtype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">enum</span><span class="p">)</span>
@@ -1828,7 +1831,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="Field.to_sqlite_dtype">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Field.to_sqlite_dtype">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_sqlite_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">:</span>  <span class="c1"># noqa: A003</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_sqlite_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sa</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">TypeEngine</span> <span class="o">|</span> <span class="nb">type</span><span class="p">[</span><span class="n">sa</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">TypeEngine</span><span class="p">]:</span>  <span class="c1"># noqa: A003</span>
 <span class="w">        </span><span class="sd">"""Return SQLAlchemy data type."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">enum</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">sa</span><span class="o">.</span><span class="n">Enum</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">enum</span><span class="p">)</span>
@@ -2036,7 +2039,9 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="Field.encode">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Field.encode">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="nb">type</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>  <span class="c1"># noqa: A003</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">encode</span><span class="p">(</span>  <span class="c1"># noqa: A003</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">PandasDtype</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Recode the Field if it has an associated encoder."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span> <span class="k">else</span> <span class="n">col</span></div>
 
@@ -3371,8 +3376,11 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">value</span> <span class="o">=</span> <span class="n">Field</span><span class="o">.</span><span class="n">dict_from_id</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
                 <span class="c1"># Update with any custom group-level metadata</span>
                 <span class="n">namespace</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"field_namespace"</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">FIELD_METADATA_BY_NAMESPACE</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="p">{}):</span>
-                    <span class="n">value</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">value</span><span class="p">,</span> <span class="o">**</span><span class="n">FIELD_METADATA_BY_NAMESPACE</span><span class="p">[</span><span class="n">namespace</span><span class="p">][</span><span class="n">name</span><span class="p">]}</span>
+                <span class="n">namespace_metadata</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">FIELD_METADATA_BY_NAMESPACE</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="p">{})</span> <span class="k">if</span> <span class="n">namespace</span> <span class="k">else</span> <span class="p">{}</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">namespace_metadata</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">value</span><span class="p">,</span> <span class="o">**</span><span class="n">namespace_metadata</span><span class="p">[</span><span class="n">name</span><span class="p">]}</span>
                 <span class="c1"># Update with any custom resource-level metadata</span>
                 <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">FIELD_METADATA_BY_RESOURCE</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">resource_id</span><span class="p">,</span> <span class="p">{}):</span>
                     <span class="n">value</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">value</span><span class="p">,</span> <span class="o">**</span><span class="n">FIELD_METADATA_BY_RESOURCE</span><span class="p">[</span><span class="n">resource_id</span><span class="p">][</span><span class="n">name</span><span class="p">]}</span>
@@ -3570,7 +3578,7 @@ window.runMermaid = runMermaid;</script>
             <span class="p">],</span>
             <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span>
             <span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
-            <span class="n">extrapaths</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">extrapaths</span><span class="p">,</span>
+            <span class="n">extrapaths</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">extrapaths</span> <span class="ow">or</span> <span class="p">[],</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">keywords</span><span class="p">:</span>
             <span class="n">resource</span><span class="o">.</span><span class="n">custom</span><span class="p">[</span><span class="s2">"keywords"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keywords</span><span class="p">)</span>
@@ -3610,7 +3618,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="Resource.to_pandas_dtypes">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Resource.to_pandas_dtypes">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_pandas_dtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">CategoricalDtype</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_pandas_dtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">PandasDtype</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""Return Pandas data type of each field by field name."""</span>
         <span class="k">return</span> <span class="p">{</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">f</span><span class="o">.</span><span class="n">to_pandas_dtype</span><span class="p">()</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">fields</span><span class="p">}</span></div>
 
@@ -3662,6 +3670,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            Traceback (most recent call last):</span>
 <span class="sd">            ValueError: ... {'x_month', 'x_date'} match primary key field 'x_year'</span>
 <span class="sd">        """</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">names</span><span class="p">)):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Field names are not unique"</span><span class="p">)</span>
         <span class="n">keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">primary_key</span> <span class="ow">or</span> <span class="p">[]</span>
@@ -3745,7 +3754,7 @@ window.runMermaid = runMermaid;</script>
                     <span class="p">)</span>
         <span class="n">df</span> <span class="o">=</span> <span class="p">(</span>
             <span class="c1"># Reorder columns and insert missing columns</span>
-            <span class="n">df</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">dtypes</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">dtypes</span><span class="p">),</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
             <span class="c1"># Coerce columns to correct data type</span>
             <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtypes</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="p">)</span>
@@ -4612,14 +4621,16 @@ window.runMermaid = runMermaid;</script>
         <span class="p">]</span>
         <span class="n">encoders</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">SnakeCase</span><span class="p">,</span> <span class="n">Encoder</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">encoded_fields</span><span class="p">:</span>
+            <span class="n">encoder</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">encoder</span>
+            <span class="k">assert</span> <span class="n">encoder</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>  <span class="c1"># Guaranteed by the filter above</span>
             <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">encoders</span><span class="p">:</span>
-                <span class="n">encoders</span><span class="p">[</span><span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">encoder</span>
+                <span class="n">encoders</span><span class="p">[</span><span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">encoder</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># We have a field which shows up in multiple tables, and we want to</span>
                 <span class="c1"># verify that the encoders are the same across all of them.</span>
-                <span class="n">pd</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_frame_equal</span><span class="p">(</span><span class="n">encoders</span><span class="p">[</span><span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">df</span><span class="p">,</span> <span class="n">field</span><span class="o">.</span><span class="n">encoder</span><span class="o">.</span><span class="n">df</span><span class="p">)</span>
-                <span class="k">assert</span> <span class="n">encoders</span><span class="p">[</span><span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">code_fixes</span> <span class="o">==</span> <span class="n">field</span><span class="o">.</span><span class="n">encoder</span><span class="o">.</span><span class="n">code_fixes</span>
-                <span class="k">assert</span> <span class="n">encoders</span><span class="p">[</span><span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">ignored_codes</span> <span class="o">==</span> <span class="n">field</span><span class="o">.</span><span class="n">encoder</span><span class="o">.</span><span class="n">ignored_codes</span>
+                <span class="n">pd</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_frame_equal</span><span class="p">(</span><span class="n">encoders</span><span class="p">[</span><span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">df</span><span class="p">,</span> <span class="n">encoder</span><span class="o">.</span><span class="n">df</span><span class="p">)</span>
+                <span class="k">assert</span> <span class="n">encoders</span><span class="p">[</span><span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">code_fixes</span> <span class="o">==</span> <span class="n">encoder</span><span class="o">.</span><span class="n">code_fixes</span>
+                <span class="k">assert</span> <span class="n">encoders</span><span class="p">[</span><span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">ignored_codes</span> <span class="o">==</span> <span class="n">encoder</span><span class="o">.</span><span class="n">ignored_codes</span>
         <span class="k">return</span> <span class="n">encoders</span></div>
 
 

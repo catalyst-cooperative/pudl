@@ -36,16 +36,19 @@ A subpackage to define and organize PUDL database tables by data group.
 
 ## Attributes
 
-| [`RESOURCE_METADATA`](#pudl.metadata.resources.RESOURCE_METADATA)   |                                                                                |
-|----------------------------------------------------------------------|--------------------------------------------------------------------------------|
-| [`module`](#pudl.metadata.resources.module)              |                                                                                |
-| [`FOREIGN_KEYS`](#pudl.metadata.resources.FOREIGN_KEYS)        | Generated foreign key constraints by resource name.                            |
-| [`ENTITIES`](#pudl.metadata.resources.ENTITIES)            | Columns kept for either entity or annual EIA tables in the harvesting process. |
+| [`RESOURCE_METADATA`](#pudl.metadata.resources.RESOURCE_METADATA)   |                                                                                                               |
+|----------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|
+| [`module`](#pudl.metadata.resources.module)              |                                                                                                               |
+| [`FOREIGN_KEYS`](#pudl.metadata.resources.FOREIGN_KEYS)        | Generated foreign key constraints by resource name.                                                           |
+| [`HarvestableEntity`](#pudl.metadata.resources.HarvestableEntity)   | An entity that can be harvested, which is a key of [`ENTITIES`](#pudl.metadata.resources.ENTITIES). |
+| [`ENTITIES`](#pudl.metadata.resources.ENTITIES)            | Columns kept for either entity or annual EIA tables in the harvesting process.                                |
 
 ## Classes
 
-| [`EntitySpec`](#pudl.metadata.resources.EntitySpec)   | Column groupings used to harvest a single EIA entity.   |
-|---------------------------------------------------------------|---------------------------------------------------------|
+| [`EiaEntity`](#pudl.metadata.resources.EiaEntity)   | Enum for the different types of EIA entities.         |
+|--------------------------------------------------------------|-------------------------------------------------------|
+| [`RusEntity`](#pudl.metadata.resources.RusEntity)   | Enum for the different types of RUS entities.         |
+| [`EntitySpec`](#pudl.metadata.resources.EntitySpec)  | Column groupings used to harvest a single EIA entity. |
 
 ## Functions
 
@@ -114,6 +117,32 @@ Generated foreign key constraints by resource name.
 
 See [`pudl.metadata.helpers.build_foreign_keys()`](../helpers/index.md#pudl.metadata.helpers.build_foreign_keys).
 
+### *class* pudl.metadata.resources.EiaEntity
+
+Bases: [`enum.StrEnum`](https://docs.python.org/3/library/enum.html#enum.StrEnum)
+
+Enum for the different types of EIA entities.
+
+#### PLANTS
+
+#### UTILITIES
+
+#### BOILERS
+
+#### GENERATORS
+
+### *class* pudl.metadata.resources.RusEntity
+
+Bases: [`enum.StrEnum`](https://docs.python.org/3/library/enum.html#enum.StrEnum)
+
+Enum for the different types of RUS entities.
+
+#### BORROWERS
+
+### *type* pudl.metadata.resources.HarvestableEntity *= [EiaEntity](#pudl.metadata.resources.EiaEntity) | [RusEntity](#pudl.metadata.resources.RusEntity)*
+
+An entity that can be harvested, which is a key of [`ENTITIES`](#pudl.metadata.resources.ENTITIES).
+
 ### *class* pudl.metadata.resources.EntitySpec
 
 Bases: `TypedDict`
@@ -128,7 +157,7 @@ Column groupings used to harvest a single EIA entity.
 
 #### mapped_schemas *: NotRequired[[list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]]]*
 
-### pudl.metadata.resources.ENTITIES *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [EntitySpec](#pudl.metadata.resources.EntitySpec)]*
+### pudl.metadata.resources.ENTITIES *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[HarvestableEntity](#pudl.metadata.resources.HarvestableEntity), [EntitySpec](#pudl.metadata.resources.EntitySpec)]*
 
 Columns kept for either entity or annual EIA tables in the harvesting process.
 

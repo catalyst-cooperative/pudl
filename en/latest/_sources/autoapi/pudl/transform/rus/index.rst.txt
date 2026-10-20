@@ -17,14 +17,6 @@ Attributes
    pudl.transform.rus.logger
 
 
-Classes
--------
-
-.. autoapisummary::
-
-   pudl.transform.rus.RusEntity
-
-
 Functions
 ---------
 
@@ -72,17 +64,6 @@ Module Contents
                     empty string ()"").
    :param converter: the float or integer you need to multiply the old values by to
                      convert the units.
-
-
-.. py:class:: RusEntity
-
-   Bases: :py:obj:`enum.StrEnum`
-
-
-   Enum for the different types of RUS entities.
-
-
-   .. py:attribute:: BORROWERS
 
 
 .. py:function:: finished_rus_asset_factory(table_name: str, _core_table_name: str, io_manager_key: str | None = None) -> dagster.AssetsDefinition

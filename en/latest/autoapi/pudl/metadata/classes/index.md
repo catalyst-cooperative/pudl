@@ -311,7 +311,7 @@ Check that every fixed code is also one of the good codes.
 
 A mapping of all known codes to their standardized values, or NA.
 
-#### encode(col: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), dtype: [type](#pudl.metadata.classes.Field.type) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
+#### encode(col: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), dtype: [pudl.metadata.dtypes.PandasDtype](../dtypes/index.md#pudl.metadata.dtypes.PandasDtype) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
 
 Apply the stored code mapping to an input Series.
 
@@ -405,11 +405,11 @@ metadata, which permanently pins the physical dtype: any later attempt to scan
 that file with a different schema or even slightly different `Enum` fails
 instead of being coerced. `Categorical` round-trips through Parquet fine.
 
-#### to_pandas_dtype() → [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [pandas.CategoricalDtype](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.CategoricalDtype.html#pandas.CategoricalDtype)
+#### to_pandas_dtype() → [pudl.metadata.dtypes.PandasDtype](../dtypes/index.md#pudl.metadata.dtypes.PandasDtype)
 
 Return Pandas data type.
 
-#### to_sqlite_dtype() → [type](#pudl.metadata.classes.Field.type)
+#### to_sqlite_dtype() → [sqlalchemy.types.TypeEngine](https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine) | [type](#pudl.metadata.classes.Field.type)[[sqlalchemy.types.TypeEngine](https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine)]
 
 Return SQLAlchemy data type.
 
@@ -439,7 +439,7 @@ structurally can’t hold a string value. The `TYPEOF`/`DATETIME`/`GLOB`
 checks built for SQLite exist specifically to compensate for SQLite’s
 dynamic typing, and have no analog under DuckDB’s native column types.
 
-#### encode(col: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), dtype: [type](#pudl.metadata.classes.Field.type) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
+#### encode(col: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), dtype: [pudl.metadata.dtypes.PandasDtype](../dtypes/index.md#pudl.metadata.dtypes.PandasDtype) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
 
 Recode the Field if it has an associated encoder.
 
@@ -1238,7 +1238,7 @@ Return Polars data type of each field by field name.
 
 Return Polars data type of each field by field name.
 
-#### to_pandas_dtypes() → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [pandas.CategoricalDtype](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.CategoricalDtype.html#pandas.CategoricalDtype)]
+#### to_pandas_dtypes() → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pudl.metadata.dtypes.PandasDtype](../dtypes/index.md#pudl.metadata.dtypes.PandasDtype)]
 
 Return Pandas data type of each field by field name.
 

@@ -29,6 +29,7 @@ cycle.
 | [`FIELD_DTYPES_POLARS`](#pudl.metadata.dtypes.FIELD_DTYPES_POLARS)     | Polars data type by simplified PUDL field type.                       |
 |--------------------------------------------------------------------------|-----------------------------------------------------------------------|
 | [`FIELD_DTYPES_DUCKDB`](#pudl.metadata.dtypes.FIELD_DTYPES_DUCKDB)     | DuckDB data type by simplified PUDL field type.                       |
+| [`PandasDtype`](#pudl.metadata.dtypes.PandasDtype)             | a dtype name or object.                                               |
 | [`FIELD_DTYPES_PANDAS`](#pudl.metadata.dtypes.FIELD_DTYPES_PANDAS)     | Pandas data type by simplified PUDL field type.                       |
 | [`FIELD_DTYPES_PYARROW`](#pudl.metadata.dtypes.FIELD_DTYPES_PYARROW)    | Pyarrow data type by simplified PUDL field type.                      |
 | [`FIELD_DTYPES_SQLALCHEMY`](#pudl.metadata.dtypes.FIELD_DTYPES_SQLALCHEMY) | Generic SQLAlchemy column types by simplified PUDL field type.        |
@@ -58,7 +59,17 @@ Polars data type by simplified PUDL field type.
 
 DuckDB data type by simplified PUDL field type.
 
-### pudl.metadata.dtypes.FIELD_DTYPES_PANDAS *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
+### pudl.metadata.dtypes.PandasDtype
+
+a dtype name or object.
+
+PUDL uses dtype names (e.g. `"Int64"`) for most fields and
+[`pandas.CategoricalDtype`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.CategoricalDtype.html#pandas.CategoricalDtype) instances (an `ExtensionDtype`) for enum fields.
+
+* **Type:**
+  A pandas dtype as given to [`pandas.Series.astype()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.astype.html#pandas.Series.astype)
+
+### pudl.metadata.dtypes.FIELD_DTYPES_PANDAS *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [PandasDtype](#pudl.metadata.dtypes.PandasDtype)]*
 
 Pandas data type by simplified PUDL field type.
 

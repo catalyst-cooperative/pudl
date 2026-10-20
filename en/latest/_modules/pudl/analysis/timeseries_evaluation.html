@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.analysis.timeseries_evaluation &#8212; PUDL 2026.10.1.dev5 documentation</title>
+    <title>pudl.analysis.timeseries_evaluation &#8212; PUDL 2026.10.1.dev6 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=fd520859"></script>
+    <script src="../../../_static/documentation_options.js?v=dde392b2"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev5 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev5 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev6 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev6 documentation - Home"/>
   
   
 </a></div>
@@ -890,14 +890,12 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">zipfile</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="n">BytesIO</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mpl</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.colors</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mcolors</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
 
@@ -909,7 +907,7 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">_filter_df</span><span class="p">(</span>
     <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">idx_cols</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-    <span class="n">idx_vals</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span>
+    <span class="n">idx_vals</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
     <span class="n">start_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">end_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">time_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"datetime_utc"</span><span class="p">,</span>
@@ -987,8 +985,8 @@ window.runMermaid = runMermaid;</script>
     <span class="n">timeseries_x</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">timeseries_y</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">idx_cols</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-    <span class="n">idx_vals</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">xylim</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">idx_vals</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">xylim</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">xlabel</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
     <span class="n">ylabel</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
     <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
@@ -1013,7 +1011,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">filtered</span> <span class="o">=</span> <span class="n">_filter_df</span><span class="p">(</span>
             <span class="n">df</span><span class="p">,</span>
             <span class="n">idx_cols</span><span class="o">=</span><span class="n">idx_cols</span><span class="p">,</span>
-            <span class="n">idx_vals</span><span class="o">=</span><span class="n">idx</span><span class="p">,</span>
+            <span class="n">idx_vals</span><span class="o">=</span><span class="n">idx</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="k">else</span> <span class="p">(</span><span class="n">idx</span><span class="p">,),</span>
             <span class="n">start_date</span><span class="o">=</span><span class="n">start_date</span><span class="p">,</span>
             <span class="n">end_date</span><span class="o">=</span><span class="n">end_date</span><span class="p">,</span>
             <span class="n">time_col</span><span class="o">=</span><span class="n">time_col</span><span class="p">,</span>
@@ -1058,7 +1056,8 @@ window.runMermaid = runMermaid;</script>
             <span class="n">labelspacing</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">for</span> <span class="n">lh</span> <span class="ow">in</span> <span class="n">leg</span><span class="o">.</span><span class="n">legend_handles</span><span class="p">:</span>
-            <span class="n">lh</span><span class="o">.</span><span class="n">set_alpha</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">lh</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">lh</span><span class="o">.</span><span class="n">set_alpha</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
 
     <span class="c1"># Label the plot</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">xlabel</span><span class="p">)</span>
@@ -1075,7 +1074,7 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">plot_imputation</span><span class="p">(</span>
     <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">idx_cols</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-    <span class="n">idx_vals</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span>
+    <span class="n">idx_vals</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
     <span class="n">start_date</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">end_date</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">reported_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -1164,296 +1163,6 @@ window.runMermaid = runMermaid;</script>
     <span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>  <span class="c1"># Adjust layout to make room for the legend</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
-
-
-
-<span class="c1">###############################################################################</span>
-<span class="c1">### Old helper functions to adapt or repurpose</span>
-<span class="c1">###############################################################################</span>
-
-
-<div class="viewcode-block" id="encode_run_length">
-<a class="viewcode-back" href="../../../autoapi/pudl/analysis/timeseries_evaluation/index.html#pudl.analysis.timeseries_evaluation.encode_run_length">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">encode_run_length</span><span class="p">(</span>
-    <span class="n">x</span><span class="p">:</span> <span class="n">Sequence</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>  <span class="c1"># pragma: no cover</span>
-<span class="w">    </span><span class="sd">"""Encode vector with run-length encoding.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        x: Vector to encode.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        Values and their run lengths.</span>
-
-<span class="sd">    Examples:</span>
-<span class="sd">        &gt;&gt;&gt; x = np.array([0, 1, 1, 0, 1])</span>
-<span class="sd">        &gt;&gt;&gt; encode_run_length(x)</span>
-<span class="sd">        (array([0, 1, 0, 1]), array([1, 2, 1, 1]))</span>
-<span class="sd">        &gt;&gt;&gt; encode_run_length(x.astype('bool'))</span>
-<span class="sd">        (array([False,  True, False,  True]), array([1, 2, 1, 1]))</span>
-<span class="sd">        &gt;&gt;&gt; encode_run_length(x.astype('&lt;U1'))</span>
-<span class="sd">        (array(['0', '1', '0', '1'], dtype='&lt;U1'), array([1, 2, 1, 1]))</span>
-<span class="sd">        &gt;&gt;&gt; encode_run_length(np.where(x == 0, np.nan, x))</span>
-<span class="sd">        (array([nan,  1., nan,  1.]), array([1, 2, 1, 1]))</span>
-<span class="sd">    """</span>
-    <span class="c1"># Inspired by https://stackoverflow.com/a/32681075</span>
-    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">n</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
-    <span class="c1"># Pairwise unequal (string safe)</span>
-    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">!=</span> <span class="n">x</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-    <span class="c1"># Must include last element position</span>
-    <span class="n">i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">lengths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
-    <span class="c1"># starts = np.cumsum(np.append(0, lengths))[:-1]</span>
-    <span class="k">return</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">lengths</span></div>
-
-
-
-<div class="viewcode-block" id="insert_run_length">
-<a class="viewcode-back" href="../../../autoapi/pudl/analysis/timeseries_evaluation/index.html#pudl.analysis.timeseries_evaluation.insert_run_length">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">insert_run_length</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
-    <span class="n">x</span><span class="p">:</span> <span class="n">Sequence</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">values</span><span class="p">:</span> <span class="n">Sequence</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">lengths</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
-    <span class="n">mask</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">padding</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-    <span class="n">intersect</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
-<span class="w">    </span><span class="sd">"""Insert run-length encoded values into a vector.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        x: Vector to insert values into.</span>
-<span class="sd">        values: Values to insert.</span>
-<span class="sd">        lengths: Length of run to insert for each value in `values`.</span>
-<span class="sd">        mask: Boolean mask, of the same length as `x`, where values can be inserted.</span>
-<span class="sd">            By default, values can be inserted anywhere in `x`.</span>
-<span class="sd">        padding: Minimum space between inserted runs and,</span>
-<span class="sd">            if `mask` is provided, the edges of masked-out areas.</span>
-<span class="sd">        intersect: Whether to allow inserted runs to intersect each other.</span>
-
-<span class="sd">    Raises:</span>
-<span class="sd">        ValueError: Padding must zero or greater.</span>
-<span class="sd">        ValueError: Run length must be greater than zero.</span>
-<span class="sd">        ValueError: Could not find space for run of length {length}.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        Copy of array `x` with values inserted.</span>
-
-<span class="sd">    Example:</span>
-<span class="sd">        &gt;&gt;&gt; x = [0, 0, 0, 0]</span>
-<span class="sd">        &gt;&gt;&gt; mask = [True, False, True, True]</span>
-<span class="sd">        &gt;&gt;&gt; insert_run_length(x, values=[1, 2], lengths=[1, 2], mask=mask)</span>
-<span class="sd">        array([1, 0, 2, 2])</span>
-
-<span class="sd">        If we use unique values for the background and each inserted run,</span>
-<span class="sd">        the run length encoding of the result (ignoring the background)</span>
-<span class="sd">        is the same as the inserted run, albeit in a different order.</span>
-
-<span class="sd">        &gt;&gt;&gt; x = np.zeros(10, dtype=int)</span>
-<span class="sd">        &gt;&gt;&gt; values = [1, 2, 3]</span>
-<span class="sd">        &gt;&gt;&gt; lengths = [1, 2, 3]</span>
-<span class="sd">        &gt;&gt;&gt; x = insert_run_length(x, values=values, lengths=lengths)</span>
-<span class="sd">        &gt;&gt;&gt; rvalues, rlengths = encode_run_length(x[x != 0])</span>
-<span class="sd">        &gt;&gt;&gt; order = np.argsort(rvalues)</span>
-<span class="sd">        &gt;&gt;&gt; all(rvalues[order] == values) and all(rlengths[order] == lengths)</span>
-<span class="sd">        True</span>
-
-<span class="sd">        Null values can be inserted into a vector such that the new null runs</span>
-<span class="sd">        match the run length encoding of the existing null runs.</span>
-
-<span class="sd">        &gt;&gt;&gt; x = [1, 2, np.nan, np.nan, 5, 6, 7, 8, np.nan]</span>
-<span class="sd">        &gt;&gt;&gt; is_nan = np.isnan(x)</span>
-<span class="sd">        &gt;&gt;&gt; rvalues, rlengths = encode_run_length(is_nan)</span>
-<span class="sd">        &gt;&gt;&gt; xi = insert_run_length(</span>
-<span class="sd">        ...     x,</span>
-<span class="sd">        ...     values=[np.nan] * rvalues.sum(),</span>
-<span class="sd">        ...     lengths=rlengths[rvalues],</span>
-<span class="sd">        ...     mask=~is_nan</span>
-<span class="sd">        ... )</span>
-<span class="sd">        &gt;&gt;&gt; np.isnan(xi).sum() == 2 * is_nan.sum()</span>
-<span class="sd">        np.True_</span>
-
-<span class="sd">        The same as above, with non-zero `padding`, yields a unique solution:</span>
-
-<span class="sd">        &gt;&gt;&gt; insert_run_length(</span>
-<span class="sd">        ...     x,</span>
-<span class="sd">        ...     values=[np.nan] * rvalues.sum(),</span>
-<span class="sd">        ...     lengths=rlengths[rvalues],</span>
-<span class="sd">        ...     mask=~is_nan,</span>
-<span class="sd">        ...     padding=1</span>
-<span class="sd">        ... )</span>
-<span class="sd">        array([nan,  2., nan, nan,  5., nan, nan,  8., nan])</span>
-<span class="sd">    """</span>
-    <span class="k">if</span> <span class="n">padding</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Padding must zero or greater"</span><span class="p">)</span>
-    <span class="c1"># Make a new array to modify in place</span>
-    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-    <span class="c1"># Compute runs available for insertions</span>
-    <span class="k">if</span> <span class="n">mask</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">run_starts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">])</span>
-        <span class="n">run_lengths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)])</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">mask_values</span><span class="p">,</span> <span class="n">mask_lengths</span> <span class="o">=</span> <span class="n">encode_run_length</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
-        <span class="n">run_starts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">mask_lengths</span><span class="p">))[:</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">mask_values</span><span class="p">]</span>
-        <span class="n">run_lengths</span> <span class="o">=</span> <span class="n">mask_lengths</span><span class="p">[</span><span class="n">mask_values</span><span class="p">]</span>
-    <span class="k">if</span> <span class="n">padding</span><span class="p">:</span>
-        <span class="c1"># Constrict runs</span>
-        <span class="n">run_ends</span> <span class="o">=</span> <span class="n">run_starts</span> <span class="o">+</span> <span class="n">run_lengths</span>
-        <span class="c1"># Move run starts forward, unless endpoint</span>
-        <span class="n">moved</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">run_starts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="n">run_starts</span><span class="p">[</span><span class="n">moved</span><span class="p">]</span> <span class="o">+=</span> <span class="n">padding</span>
-        <span class="c1"># Move run ends backward, unless endpoint</span>
-        <span class="n">moved</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span> <span class="k">if</span> <span class="n">run_ends</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="n">run_ends</span><span class="p">[</span><span class="n">moved</span><span class="p">]</span> <span class="o">-=</span> <span class="n">padding</span>
-        <span class="c1"># Recalculate run lengths and keep runs with positive length</span>
-        <span class="n">run_lengths</span> <span class="o">=</span> <span class="n">run_ends</span> <span class="o">-</span> <span class="n">run_starts</span>
-        <span class="n">keep</span> <span class="o">=</span> <span class="n">run_lengths</span> <span class="o">&gt;</span> <span class="mi">0</span>
-        <span class="n">run_starts</span> <span class="o">=</span> <span class="n">run_starts</span><span class="p">[</span><span class="n">keep</span><span class="p">]</span>
-        <span class="n">run_lengths</span> <span class="o">=</span> <span class="n">run_lengths</span><span class="p">[</span><span class="n">keep</span><span class="p">]</span>
-    <span class="c1"># Grow runs by maximum number of insertions (for speed)</span>
-    <span class="n">n_runs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">run_starts</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">intersect</span><span class="p">:</span>
-        <span class="n">buffer</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
-        <span class="n">run_starts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">run_starts</span><span class="p">,</span> <span class="n">buffer</span><span class="p">))</span>
-        <span class="n">run_lengths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">run_lengths</span><span class="p">,</span> <span class="n">buffer</span><span class="p">))</span>
-    <span class="c1"># Initialize random number generator</span>
-    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">()</span>
-    <span class="c1"># Sort insertions from longest to shortest</span>
-    <span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">lengths</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">values</span><span class="p">)[</span><span class="n">order</span><span class="p">]</span>
-    <span class="n">lengths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">lengths</span><span class="p">)[</span><span class="n">order</span><span class="p">]</span>
-    <span class="k">for</span> <span class="n">value</span><span class="p">,</span> <span class="n">length</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">lengths</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">length</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Run length must be greater than zero"</span><span class="p">)</span>
-        <span class="c1"># Choose runs of adequate length</span>
-        <span class="n">choices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">run_lengths</span><span class="p">[:</span><span class="n">n_runs</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">length</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">choices</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Could not find space for run of length </span><span class="si">{</span><span class="n">length</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-        <span class="n">idx</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">choices</span><span class="p">)</span>
-        <span class="c1"># Choose adequate start position in run</span>
-        <span class="n">offset</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">run_lengths</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">-</span> <span class="n">length</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">start</span> <span class="o">=</span> <span class="n">run_starts</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">+</span> <span class="n">offset</span>
-        <span class="c1"># Insert value</span>
-        <span class="n">x</span><span class="p">[</span><span class="n">start</span> <span class="p">:</span> <span class="n">start</span> <span class="o">+</span> <span class="n">length</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
-        <span class="k">if</span> <span class="n">intersect</span><span class="p">:</span>
-            <span class="k">continue</span>
-        <span class="c1"># Update runs</span>
-        <span class="n">padded_length</span> <span class="o">=</span> <span class="n">length</span> <span class="o">+</span> <span class="n">padding</span>
-        <span class="k">if</span> <span class="n">offset</span><span class="p">:</span>
-            <span class="n">tail</span> <span class="o">=</span> <span class="n">run_lengths</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">-</span> <span class="n">offset</span> <span class="o">-</span> <span class="n">padded_length</span>
-            <span class="k">if</span> <span class="n">tail</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="c1"># Insert run</span>
-                <span class="n">run_starts</span><span class="p">[</span><span class="n">n_runs</span><span class="p">]</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">padded_length</span>
-                <span class="n">run_lengths</span><span class="p">[</span><span class="n">n_runs</span><span class="p">]</span> <span class="o">=</span> <span class="n">tail</span>
-                <span class="n">n_runs</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="c1"># Shorten run</span>
-            <span class="n">run_lengths</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">offset</span> <span class="o">-</span> <span class="n">padding</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># Shift and shorten run</span>
-            <span class="n">run_starts</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">+=</span> <span class="n">padded_length</span>
-            <span class="n">run_lengths</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">-=</span> <span class="n">padded_length</span>
-    <span class="k">return</span> <span class="n">x</span></div>
-
-
-
-<div class="viewcode-block" id="summarize_flags">
-<a class="viewcode-back" href="../../../autoapi/pudl/analysis/timeseries_evaluation/index.html#pudl.analysis.timeseries_evaluation.summarize_flags">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">summarize_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
-<span class="w">    </span><span class="sd">"""Summarize flagged values by flag, count and median."""</span>
-    <span class="n">stats</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xi</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
-        <span class="n">stats</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">col</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xi</span><span class="p">[:,</span> <span class="n">col</span><span class="p">])</span>
-            <span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flags</span><span class="p">[:,</span> <span class="n">col</span><span class="p">])</span>
-            <span class="o">.</span><span class="n">agg</span><span class="p">([</span><span class="s2">"count"</span><span class="p">,</span> <span class="s2">"median"</span><span class="p">])</span>
-        <span class="p">)</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">stats</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">"column"</span><span class="p">,</span> <span class="s2">"flag"</span><span class="p">])</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
-    <span class="c1"># Sort flags by flagged order</span>
-    <span class="n">ordered</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">"flag"</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">CategoricalDtype</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flagged</span><span class="p">)))</span>
-    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="n">ordered</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">"column"</span><span class="p">,</span> <span class="s2">"flag"</span><span class="p">])</span></div>
-
-
-
-<div class="viewcode-block" id="plot_flags">
-<a class="viewcode-back" href="../../../autoapi/pudl/analysis/timeseries_evaluation/index.html#pudl.analysis.timeseries_evaluation.plot_flags">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">plot_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
-<span class="w">    </span><span class="sd">"""Plot cleaned series and anomalous values colored by flag.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        name: Series to plot, as either an integer index or name in :attr:`columns`.</span>
-<span class="sd">    """</span>
-    <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
-    <span class="n">col</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[:,</span> <span class="n">col</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">"lightgrey"</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">"."</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">colors</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">"NEGATIVE_OR_ZERO"</span><span class="p">:</span> <span class="s2">"pink"</span><span class="p">,</span>
-        <span class="s2">"IDENTICAL_RUN"</span><span class="p">:</span> <span class="s2">"blue"</span><span class="p">,</span>
-        <span class="s2">"GLOBAL_OUTLIER"</span><span class="p">:</span> <span class="s2">"brown"</span><span class="p">,</span>
-        <span class="s2">"GLOBAL_OUTLIER_NEIGHBOR"</span><span class="p">:</span> <span class="s2">"brown"</span><span class="p">,</span>
-        <span class="s2">"LOCAL_OUTLIER_HIGH"</span><span class="p">:</span> <span class="s2">"purple"</span><span class="p">,</span>
-        <span class="s2">"LOCAL_OUTLIER_LOW"</span><span class="p">:</span> <span class="s2">"purple"</span><span class="p">,</span>
-        <span class="s2">"DOUBLE_DELTA"</span><span class="p">:</span> <span class="s2">"green"</span><span class="p">,</span>
-        <span class="s2">"SINGLE_DELTA"</span><span class="p">:</span> <span class="s2">"red"</span><span class="p">,</span>
-        <span class="s2">"ANOMALOUS_REGION"</span><span class="p">:</span> <span class="s2">"orange"</span><span class="p">,</span>
-    <span class="p">}</span>
-    <span class="k">for</span> <span class="n">flag</span> <span class="ow">in</span> <span class="n">colors</span><span class="p">:</span>
-        <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flags</span><span class="p">[:,</span> <span class="n">col</span><span class="p">]</span> <span class="o">==</span> <span class="n">flag</span>
-        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">xi</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span>
-        <span class="c1"># Set zorder manually to ensure flagged points are drawn on top</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">flag</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">flag</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span></div>
-
-
-
-<div class="viewcode-block" id="simulate_nulls">
-<a class="viewcode-back" href="../../../autoapi/pudl/analysis/timeseries_evaluation/index.html#pudl.analysis.timeseries_evaluation.simulate_nulls">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">simulate_nulls</span><span class="p">(</span>  <span class="c1"># pragma: no cover</span>
-    <span class="bp">self</span><span class="p">,</span>
-    <span class="n">lengths</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">padding</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-    <span class="n">intersect</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="n">overlap</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Find non-null values to null to match a run-length distribution.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        length: Length of null runs to simulate for each series.</span>
-<span class="sd">            By default, uses the run lengths of null values in each series.</span>
-<span class="sd">        padding: Minimum number of non-null values between simulated null runs</span>
-<span class="sd">            and between simulated and existing null runs.</span>
-<span class="sd">        intersect: Whether simulated null runs can intersect each other.</span>
-<span class="sd">        overlap: Whether simulated null runs can overlap existing null runs.</span>
-<span class="sd">            If `True`, `padding` is ignored.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        Boolean mask of current non-null values to set to null.</span>
-
-<span class="sd">    Raises:</span>
-<span class="sd">        ValueError: Could not find space for run of length {length}.</span>
-<span class="sd">    """</span>
-    <span class="n">new_nulls</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
-        <span class="n">is_null</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[:,</span> <span class="n">col</span><span class="p">])</span>
-        <span class="k">if</span> <span class="n">lengths</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">run_values</span><span class="p">,</span> <span class="n">run_lengths</span> <span class="o">=</span> <span class="n">encode_run_length</span><span class="p">(</span><span class="n">is_null</span><span class="p">)</span>
-            <span class="n">run_lengths</span> <span class="o">=</span> <span class="n">run_lengths</span><span class="p">[</span><span class="n">run_values</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">run_lengths</span> <span class="o">=</span> <span class="n">lengths</span>
-        <span class="n">is_new_null</span> <span class="o">=</span> <span class="n">insert_run_length</span><span class="p">(</span>
-            <span class="n">new_nulls</span><span class="p">[:,</span> <span class="n">col</span><span class="p">],</span>
-            <span class="n">values</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">run_lengths</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">),</span>
-            <span class="n">lengths</span><span class="o">=</span><span class="n">run_lengths</span><span class="p">,</span>
-            <span class="n">mask</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="n">overlap</span> <span class="k">else</span> <span class="o">~</span><span class="n">is_null</span><span class="p">,</span>
-            <span class="n">padding</span><span class="o">=</span><span class="mi">0</span> <span class="k">if</span> <span class="n">overlap</span> <span class="k">else</span> <span class="n">padding</span><span class="p">,</span>
-            <span class="n">intersect</span><span class="o">=</span><span class="n">intersect</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="k">if</span> <span class="n">overlap</span><span class="p">:</span>
-            <span class="n">is_new_null</span> <span class="o">&amp;=</span> <span class="o">~</span><span class="n">is_null</span>
-        <span class="n">new_nulls</span><span class="p">[:,</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">is_new_null</span>
-    <span class="k">return</span> <span class="n">new_nulls</span></div>
 
 </pre></div>
 
