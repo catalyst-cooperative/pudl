@@ -106,22 +106,21 @@ def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame
     # These "nan" strings get converted to true pd.NA values when the column
     # datatypes are applied, which violates the primary key constraints.
     # See https://github.com/catalyst-cooperative/pudl/issues/1207
+    report_year = pd.to_datetime(own_df.report_date).dt.year
+    # "nan" may still be a literal string here or may already have been coerced to a
+    # true NA value depending on the reader; catch both.
+    bogus_generator_id = own_df.generator_id.isna() | (
+        own_df.generator_id == "nan"
+    ).fillna(False)
     mask = (
-        (
-            own_df.report_date.isin(
-                [
-                    f"{year}-01-01"
-                    for year in range(2018, max(Eia860DataConfig().years) + 1)
-                ]
-            )
-        )
+        report_year.between(2018, max(Eia860DataConfig().years))
         & (own_df.plant_id_eia == 62844)
         & (own_df.owner_utility_id_eia == 62745)
-        & (own_df.generator_id == "nan")
+        & bogus_generator_id
     )
     own_df = own_df[~mask]
 
-    if not (nulls := own_df[own_df.generator_id == ""]).empty:
+    if not (nulls := own_df[(own_df.generator_id == "").fillna(False)]).empty:
         logger.warning(
             f"Found records with null IDs in _core_eia860__ownership: {nulls}"
         )
