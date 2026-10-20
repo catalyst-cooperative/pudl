@@ -5,9 +5,19 @@ pudl_dbt:
       threads: 1
       type: duckdb
       path: "{{ env_var('PUDL_OUTPUT') }}/pudl_dbt_tests.duckdb"
+      extensions:
+        - spatial
+      settings:
+        # Treat all geometries as (longitude, latitude), as the spatial tests assume.
+        geometry_always_xy: true
     etl-fast:
       threads: 1
       type: duckdb
       path: "{{ env_var('PUDL_OUTPUT') }}/pudl_dbt_tests.duckdb"
+      extensions:
+        - spatial
+      settings:
+        # Treat all geometries as (longitude, latitude), as the spatial tests assume.
+        geometry_always_xy: true
 
   target: etl-full

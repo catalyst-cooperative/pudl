@@ -65,7 +65,7 @@ HARVEST: dict[str, Any] = {**STANDARD, "harvest": {"harvest": True}}
 
 def test_resource_ignores_input_with_different_name() -> None:
     """Standard resources ignore input dataframes not named the same as themselves."""
-    dfs = {0: pd.DataFrame([{"i": 1, "j": 1, "x": 1, "y": 1}])}
+    dfs = {"0": pd.DataFrame([{"i": 1, "j": 1, "x": 1, "y": 1}])}
     result, _ = Resource(**STANDARD).harvest_dfs(dfs)
     assert result.empty
 
@@ -79,14 +79,14 @@ def test_resource_ignores_input_with_different_name() -> None:
 )
 def test_resource_ignores_input_with_missing_key_fields(df: pd.DataFrame) -> None:
     """Harvest resources ignore inputs with missing primary key fields."""
-    dfs = {0: df}
+    dfs = {"0": df}
     result, _ = Resource(**HARVEST).harvest_dfs(dfs)
     assert result.empty
 
 
 def test_resource_harvests_input_with_only_key_fields() -> None:
     """Harvest resources harvests inputs with only primary key fields."""
-    dfs = {0: pd.DataFrame([{"i": 1, "j": 2}])}
+    dfs = {"0": pd.DataFrame([{"i": 1, "j": 2}])}
     result, _ = Resource(**HARVEST).harvest_dfs(dfs)
     assert not result.empty
     assert result.index.tolist() == [(1, 2)]
@@ -127,7 +127,7 @@ def test_resource_with_only_key_fields_harvests() -> None:
         .astype(resource.to_pandas_dtypes())
         .set_index(["i", "j"])
     )
-    dfs = {0: pd.DataFrame([{"i": 1, "j": 2, "x": 10, "y": 100}])}
+    dfs = {"0": pd.DataFrame([{"i": 1, "j": 2, "x": 10, "y": 100}])}
     result, _ = resource.harvest_dfs(dfs)
     _assert_frame_equal(result, expected)
 
@@ -279,7 +279,7 @@ FIELD_DTYPES: dict[str, str] = {
     "net_generation_mwh": "number",
 }
 
-RESOURCES: list[dict[str, Any]] = [
+RESOURCE_SPECS: list[dict[str, Any]] = [
     {
         "name": "test_eia860__entity_plants",
         "harvest": {"harvest": True},
@@ -364,14 +364,23 @@ RESOURCES: list[dict[str, Any]] = [
     },
 ]
 
-# Build resource models
-for i, d in enumerate(RESOURCES):
-    d["schema"]["fields"] = [
+
+def _build_resource(spec: dict[str, Any]) -> Resource:
+    """Build a Resource from a raw spec, expanding field names into full fields."""
+    fields = [
         {"name": name, "type": FIELD_DTYPES[name], "description": name}
-        for name in d["schema"]["fields"]
+        for name in spec["schema"]["fields"]
     ]
-    d["description"] = "Test table."
-    RESOURCES[i] = Resource(**d)
+    return Resource.model_validate(
+        {
+            **spec,
+            "schema": {**spec["schema"], "fields": fields},
+            "description": "Test table.",
+        }
+    )
+
+
+RESOURCES: list[Resource] = [_build_resource(spec) for spec in RESOURCE_SPECS]
 
 EXPECTED_DFS: dict[str, pd.DataFrame] = {
     "test_eia860__entity_plants": pd.DataFrame(

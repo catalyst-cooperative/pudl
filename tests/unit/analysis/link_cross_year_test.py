@@ -5,7 +5,11 @@ import pandas as pd
 from pandas.testing import assert_frame_equal
 
 from pudl.analysis.record_linkage.embed_dataframe import FeatureMatrix
-from pudl.analysis.record_linkage.link_cross_year import sort_records_for_clustering
+from pudl.analysis.record_linkage.link_cross_year import (
+    DistanceMatrix,
+    PenalizeReportYearDistanceConfig,
+    sort_records_for_clustering,
+)
 
 
 def _df_and_matrix() -> tuple[pd.DataFrame, FeatureMatrix]:
@@ -56,3 +60,35 @@ def testsort_records_for_clustering_is_independent_of_input_order():
     np.testing.assert_array_equal(
         sorted_feature_matrix.matrix, shuffled_sorted_matrix.matrix
     )
+
+
+def test_distance_matrix_is_float64_with_rounding_noise_removed():
+    """Float noise below the rounding precision must not survive into distances.
+
+    Records 0 and 1 differ by 1e-9, which BLAS rounding error can produce between
+    records that are really identical. Record 2 is exactly 0.5 away from record 0.
+    """
+    original_df = pd.DataFrame({"report_year": [2000, 2001, 2002]})
+    features = np.array([[0.0], [1e-9], [0.5000000001]])
+    config = PenalizeReportYearDistanceConfig(distance_penalty=10000.0)
+
+    distances = DistanceMatrix(features, original_df, config).distance_matrix
+
+    assert distances.dtype == np.float64
+    assert distances[0, 1] == 0.0
+    assert distances[0, 2] == 0.5
+    assert distances[1, 2] == 0.5
+    np.testing.assert_array_equal(distances, distances.T)
+
+
+def test_distance_matrix_penalizes_same_year_records():
+    """Records from the same report year are pushed apart; the diagonal stays zero."""
+    original_df = pd.DataFrame({"report_year": [2000, 2000, 2001]})
+    features = np.array([[0.0], [0.0], [1.0]])
+    config = PenalizeReportYearDistanceConfig(distance_penalty=10000.0)
+
+    distances = DistanceMatrix(features, original_df, config).distance_matrix
+
+    assert distances[0, 1] == 10000.0
+    assert distances[0, 0] == 0.0
+    assert distances[0, 2] == 1.0

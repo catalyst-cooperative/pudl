@@ -23,5 +23,9 @@ sources:
           - name: utility_name_eia
           - name: report_date
           - name: state_id_fips
+            data_tests:
+              - not_null
           - name: county_id_fips
+            data_tests:
+              - not_null
           - name: data_maturity

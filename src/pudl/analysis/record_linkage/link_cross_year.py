@@ -19,6 +19,19 @@ from pudl.analysis.record_linkage.embed_dataframe import FeatureMatrix
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
+_DISTANCE_DECIMALS = 6
+"""Number of decimal places to which distances are rounded.
+
+Distances are compared against hard thresholds and exact ties are broken by row order,
+so floating point noise can decide which records get clustered together. The error in
+a Euclidean distance computed by scikit-learn grows as the true distance shrinks: it is
+about 1e-8 for records that are identical or nearly so, and under 1e-14 near the
+thresholds, and it differs between platforms and library builds. A distance between
+identical records can come out as 1e-8 instead of 0. Rounding snaps that noise away.
+The meaningful distances between near-duplicate records go down to about 5e-6, so we
+can't round much more coarsely than this without turning real differences into ties.
+"""
+
 
 class PenalizeReportYearDistanceConfig(Config):
     """Compute distance between records and add penalty to records from same year.
@@ -46,7 +59,7 @@ class DistanceMatrix:
         filename = Path(self.file_buffer.name) / "distance_matrix.dat"
         self.distance_matrix = np.memmap(
             filename,
-            dtype="float32",
+            dtype=np.float64,
             mode="w+",
             shape=(feature_matrix.shape[0], feature_matrix.shape[0]),
         )
@@ -54,7 +67,9 @@ class DistanceMatrix:
         # Compute distances in chunks and write to memmap
         row_start = 0
         for chunk in pairwise_distances_chunked(feature_matrix, metric=config.metric):
-            self.distance_matrix[row_start : row_start + len(chunk), :] = chunk[:, :]
+            self.distance_matrix[row_start : row_start + len(chunk), :] = np.round(
+                chunk, _DISTANCE_DECIMALS
+            )
             self.distance_matrix.flush()
             row_start += len(chunk)
 
@@ -72,7 +87,7 @@ class DistanceMatrix:
         # Convert distance matrix to read only memory map
         self.distance_matrix = np.memmap(
             filename,
-            dtype="float32",
+            dtype=np.float64,
             mode="r",
             shape=(feature_matrix.shape[0], feature_matrix.shape[0]),
         )

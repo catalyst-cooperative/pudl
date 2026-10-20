@@ -385,7 +385,7 @@ def encode_run_length(x: Sequence | np.ndarray) -> tuple[np.ndarray, np.ndarray]
 def insert_run_length(  # noqa: C901
     x: Sequence | np.ndarray,
     values: Sequence | np.ndarray,
-    lengths: Sequence[int],
+    lengths: Sequence[int] | np.ndarray,
     mask: Sequence[bool] | np.ndarray | None = None,
     padding: int = 0,
     intersect: bool = False,

@@ -751,10 +751,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "plant_id_eia",
                 "plant_name_eia",
                 "city",
+                "state",
+                "state_id_fips",
                 "county",
+                "county_id_fips",
                 "latitude",
                 "longitude",
-                "state",
                 "street_address",
                 "zip_code",
                 "timezone",
@@ -837,7 +839,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": ["utility_id_eia", "utility_name_eia"],
             "primary_key": ["utility_id_eia"],
             "foreign_key_rules": {
-                "fields": [["utility_id_eia"], ["owner_utility_id_eia"]],
+                "fields": [
+                    ["utility_id_eia"],
+                    ["owner_utility_id_eia"],
+                    ["operator_utility_id_eia"],
+                ],
                 # Excluding utilities_eia b/c it's static and manually compiled
                 # so it has utilities from *all* years of data, even when only a
                 # restricted set of data is processed, leading to constraint
@@ -1509,6 +1515,8 @@ estimates.
                 "winter_capacity_mw",
                 "winter_estimated_capability_mw",
                 "zip_code",
+                "state_id_fips",
+                "county_id_fips",
             ],
             "primary_key": [
                 "report_date",

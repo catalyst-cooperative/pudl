@@ -17,7 +17,9 @@ found in :func:`pudl.transform.eia._boiler_generator_assn`.
 """
 
 from collections import namedtuple
-from enum import StrEnum, auto
+from collections.abc import Mapping
+from functools import partial
+from typing import Any, Protocol, cast
 
 import networkx as nx
 import numpy as np
@@ -35,11 +37,16 @@ from dagster import (
 
 import pudl.logging_helpers
 from pudl import PUDL_PACKAGE_DATA_PATH
-from pudl.helpers import convert_cols_dtypes, make_changelog
+from pudl.helpers import (
+    add_fips_ids,
+    clean_eia_counties,
+    convert_cols_dtypes,
+    make_changelog,
+)
 from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.metadata.dtypes import apply_pudl_dtypes, get_pudl_dtypes
 from pudl.metadata.enums import APPROXIMATE_TIMEZONES
-from pudl.metadata.resources import ENTITIES
+from pudl.metadata.resources import ENTITIES, EiaEntity, HarvestableEntity
 from pudl.settings import EiaDataConfig
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -68,16 +75,272 @@ HARVESTABLE_ASSETS = (
 )
 
 
-class EiaEntity(StrEnum):
-    """Enum for the different types of EIA entities."""
+EIA_FIPS_COUNTY_FIXES: pd.DataFrame = pd.DataFrame(
+    [
+        ("AK", "Akiachak", "Bethel Census Area"),
+        ("AK", "Aleutian Islands", "Aleutians East"),
+        ("AK", "Aleutians Ea", "Aleutians East"),
+        ("AK", "Aleutians East Boro", "Aleutians East Borough"),
+        ("AK", "Aleutians We", "Aleutians West Census Area"),
+        ("AK", "Aleutians West (unorganized)", "Aleutians West Census Area"),
+        ("AK", "Angoon", "Hoonah-Angoon"),
+        ("AK", "Borough, Kodiak Island", "Kodiak Island Borough"),
+        ("AK", "Chilkat Vall", "Hoonah-Angoon Census Area"),
+        ("AK", "Chilkat Valley", "Hoonah-Angoon Census Area"),
+        ("AK", "Chuathbaluk", "Bethel Census Area"),
+        ("AK", "Copper Basin", "Valdez-Cordova Census Area"),
+        ("AK", "Cordova", "Valdez-Cordova"),
+        ("AK", "Crooked Creek", "Bethel Census Area"),
+        ("AK", "Delta - No County", "Southeast Fairbanks Census Area"),
+        ("AK", "Elfin Cove", "Hoonah-Angoon Census Area"),
+        ("AK", "FRBS North Star", "Fairbanks North Star Borough"),
+        ("AK", "Galena", "Yukon-Koyukuk Census Area"),
+        ("AK", "Hoonah", "Hoonah-Angoon"),
+        ("AK", "Kake", "Prince of Wales-Hyder Census Area"),
+        ("AK", "Kasaan", "Prince of Wales-Hyder Census Area"),
+        ("AK", "Kenai Penins", "Kenai Peninsula"),
+        ("AK", "Ketchikan Ga", "Ketchikan Gateway Borough"),
+        ("AK", "Ketchikan Gateway Bo", "Ketchikan Gateway Borough"),
+        ("AK", "Klukwan", "Hoonah-Angoon Census Area"),
+        ("AK", "Kodiak Isla", "Kodiak Island Borough"),
+        ("AK", "Kodiak Islan", "Kodiak Island"),
+        ("AK", "Kodiak Island Boroug", "Kodiak Island Borough"),
+        ("AK", "Kuskokwim Bay", "Bethel Census Area"),
+        ("AK", "Kwigillingok", "Bethel Census Area"),
+        ("AK", "LARSEN BAY", "Kodiak Island Borough"),
+        ("AK", "Lake & Peninsula Bor", "Lake and Peninsula Borough"),
+        ("AK", "Lake & Peninsula Borough", "Lake and Peninsula"),
+        ("AK", "Lake and Pen", "Lake and Peninsula"),
+        ("AK", "Larsen Bay", "Kodiak Island Borough"),
+        ("AK", "Matanuska Su", "Matanuska-Susitna Borough"),
+        ("AK", "Matanuska Susitna", "Matanuska-Susitna"),
+        ("AK", "Matanuska Susitna Borough", "Matanuska-Susitna"),
+        ("AK", "NW Arctic Borough", "Northwest Arctic"),
+        ("AK", "Nenana", "Yukon-Koyukuk Census Area"),
+        ("AK", "Nenana - No County", "Yukon-Koyukuk Census Area"),
+        ("AK", "Nenena - No County", "Yukon-Koyukuk Census Area"),
+        ("AK", "Northwest Ar", "Northwest Arctic Borough"),
+        ("AK", "Northwest Arctic Bor", "Northwest Arctic Borough"),
+        ("AK", "Notin", "Hoonah-Angoon Census Area"),
+        ("AK", "Prince Wales", "Prince of Wales-Hyder"),
+        ("AK", "Prince of Wa", "Prince of Wales-Hyder Census Area"),
+        ("AK", "Prince of Wale", "Prince of Wales-Hyder"),
+        ("AK", "Prince of Wales", "Prince of Wales-Hyder Census Area"),
+        ("AK", "Prince Of Wales", "Prince of Wales-Hyder Census Area"),
+        ("AK", "Prince of Wales Ketchikan", "Prince of Wales-Hyder"),
+        ("AK", "Prince of Wales-Outer Ketchika", "Prince of Wales-Hyder Census Area"),
+        ("AK", "Red Devil", "Bethel Census Area"),
+        ("AK", "Skagway Hoonah Angoon", "Hoonah-Angoon"),
+        ("AK", "Skagway Yaku", "Skagway"),
+        ("AK", "Skagway-Hoonah-Angoon", "Hoonah-Angoon Census Area"),
+        ("AK", "Skagway-Yakutat", "Skagway"),
+        ("AK", "Sleetmute", "Bethel Census Area"),
+        ("AK", "Southeast Fa", "Southeast Fairbanks Census Area"),
+        ("AK", "Stony River", "Bethel Census Area"),
+        ("AK", "Tanana", "Yukon-Koyukuk Census Area"),
+        ("AK", "Tenakee Springs", "Hoonah-Angoon Census Area"),
+        ("AK", "Valdez Cordo", "Valdez-Cordova"),
+        ("AK", "Valdez Cordova", "Valdez-Cordova"),
+        ("AK", "Wrangell Pet", "Wrangell"),
+        ("AK", "Wrangell Petersburg", "Wrangell"),
+        ("AK", "Wrangell-Petersburg", "Petersburg Census Area"),
+        ("AK", "Yukon Koyuku", "Yukon-Koyukuk"),
+        ("AK", "Yukon Koyukuk", "Yukon-Koyukuk"),
+        ("AK", "Yukon-Koyuku", "Yukon-Koyukuk"),
+        ("AL", "De Kalb", "DeKalb"),
+        ("AR", "Hot Springs", "Hot Spring County"),
+        ("AR", "Saint Franci", "St. Francis"),
+        ("AZ", "Maricopa (see footnote)", "Maricopa"),
+        ("AZ", "Nogales", "Santa Cruz"),
+        ("CA", "San Bernadino", "San Bernardino"),
+        ("CA", "San Bernardi", "San Bernardino"),
+        ("CA", "San Francisc", "San Francisco County"),
+        ("CA", "San Luis Obi", "San Luis Obispo County"),
+        ("CA", "Santa Barbar", "Santa Barbara County"),
+        ("CT", "Shelton", "Fairfield"),
+        ("DC", "District of", "District of Columbia"),
+        ("FL", "Dade", "Miami-Dade"),
+        ("FL", "De Soto", "DeSoto"),
+        ("FL", "Miami Dade", "Miami-Dade"),
+        ("FL", "St. Loucie", "St. Lucie"),
+        ("FL", "St. Lucic", "St. Lucie"),
+        ("GA", "Chattahooche", "Chattahoochee"),
+        ("GA", "De Kalb", "DeKalb"),
+        ("GA", "Glasscock", "Glascock County"),
+        ("IA", "Hardin -remove", "Hardin County"),
+        ("IA", "Harris", "Harrison"),
+        ("IA", "Humbolt", "Humboldt"),
+        ("IA", "Kossuh", "Kossuth"),
+        ("IA", "Louisa-remove", "Louisa County"),
+        ("IA", "Lousia", "Louisa"),
+        ("IA", "O Brien", "O'Brien"),
+        ("IA", "Pottawattami", "Pottawattamie"),
+        ("IA", "Poweshick", "Poweshiek"),
+        ("IA", "Union-remove", "Union County"),
+        ("ID", "Marshall", "Custer County"),
+        ("IL", "Burke", "Christian"),
+        ("IL", "Carol", "DuPage County"),
+        ("IL", "De Kalb", "DeKalb County"),
+        ("IL", "DeWitt", "De Witt"),
+        ("IL", "Dewitt", "De Witt"),
+        ("IL", "Du Page", "DuPage"),
+        ("IL", "Green", "Greene"),
+        ("IL", "JoDavies", "Jo Daviess"),
+        ("IL", "La Salle", "LaSalle"),
+        ("IL", "McCoupin", "Macoupin"),
+        ("IL", "Kankakii", "Kankakee"),  # 860 only
+        ("IN", "De Kalb", "DeKalb County"),
+        ("IN", "De Kalb County", "DeKalb County"),
+        ("IN", "La Porte", "LaPorte"),
+        ("IN", "Putman", "Putnam"),
+        ("IN", "Pyke", "Pike"),
+        ("IN", "Sulliva", "Sullivan"),
+        ("KS", "Leaveworth", "Leavenworth"),
+        ("KY", "Hawkins", "Hopkins County"),
+        ("KY", "LAURE", "Larue County"),
+        ("KY", "Spenser", "Spencer"),
+        ("KY", "Sullivan", "Union County"),
+        ("KY", "West Mccraken", "Mccracken"),  # 860 only
+        ("KY", "WOLE", "Wolfe County"),
+        ("LA", "Burke", "Iberia"),
+        ("LA", "Bolivar", "Tangipahoa"),
+        ("LA", "DeSoto", "De Soto"),
+        ("LA", "East Baton R", "East Baton Rouge Parish"),
+        ("LA", "East Felicia", "East Feliciana Parish"),
+        ("LA", "Jefferson Da", "Jefferson Davis"),
+        ("LA", "Morehouse Pa", "Morehouse Parish"),
+        ("LA", "Pointe Coupe", "Pointe Coupee"),
+        ("LA", "Saint Helina", "St. Helena Parish"),
+        ("LA", "Saint Tamman", "St. Tammany Parish"),
+        ("LA", "West Baton R", "West Baton Rouge"),
+        ("LA", "West Feleciana", "West Feliciana"),
+        ("LA", "West Felicia", "West Feliciana Parish"),
+        ("MA", "North Essex", "Essex"),
+        ("MD", "Baltimore Ci", "Baltimore City"),
+        ("MD", "Balto. City", "Baltimore City"),
+        ("MD", "Prince Georg", "Prince George's County"),
+        ("MD", "Prince Geroges", "Prince George's County"),  # 860 only
+        ("MD", "Worchester", "Worcester"),
+        ("MI", "Antim", "Antrim"),
+        ("MI", "Graitiot", "Gratiot County"),
+        ("MI", "Grand Traver", "Grand Traverse"),
+        ("MI", "Missauke", "Missaukee County"),
+        ("MN", "Fairbault", "Faribault"),
+        ("MN", "La Qui Parle", "Lac qui Parle County"),
+        ("MN", "Lac Qui Parl", "Lac Qui Parle"),
+        ("MN", "Lake of The", "Lake of the Woods"),
+        ("MN", "Olmstead", "Olmsted County"),
+        ("MN", "Ottertail", "Otter Tail"),
+        ("MN", "Yellow Medic", "Yellow Medicine"),
+        ("MO", "Cape Girarde", "Cape Girardeau"),
+        ("MO", "De Kalb", "DeKalb"),
+        ("MO", "Paris", "Monroe County"),
+        ("MO", "Saint Charle", "St. Charles County"),
+        ("MO", "Saint Franco", "St. Francois County"),
+        ("MO", "Sainte Genev", "Ste. Genevieve County"),
+        ("MS", "Clark", "Clarke"),
+        ("MS", "De Soto", "DeSoto"),
+        ("MS", "Henderson", "Harrison"),
+        ("MS", "Homoshitto", "Amite"),
+        ("MS", "Jefferson Da", "Jefferson Davis"),
+        ("MT", "Anaconda-Dee", "Deer Lodge"),
+        ("MT", "Butte-Silver", "Silver Bow"),
+        ("MT", "Golden Valle", "Golden Valley"),
+        ("MT", "Lewis and Cl", "Lewis and Clark"),
+        ("NC", "Cherokee (NP&L)", "Cherokee County"),
+        ("NC", "Clay (NP&L)", "Clay County"),
+        ("NC", "Gilford", "Guilford"),
+        ("NC", "Graham (NP&L)", "Graham County"),
+        ("NC", "Hartford", "Hertford"),
+        ("NC", "Jackson (NP&L)", "Jackson County"),
+        ("NC", "Macon (NP&L)", "Macon County"),
+        ("NC", "North Hampton", "Northampton"),
+        ("NC", "Stanley", "Stanly County"),
+        ("NC", "Swain (NP&L)", "Swain County"),
+        ("ND", "Golden Valle", "Golden Valley County"),
+        ("ND", "La Moure", "LaMoure"),
+        ("ND", "Remsey", "Ramsey County"),
+        ("NH", "Hillsboro", "Hillsborough County"),
+        ("NH", "New Hampshire", "Coos"),
+        ("NH", "Plaquemines", "Coos"),
+        ("NV", "Carson City city", "Carson City"),
+        ("NY", "Saint Lawren", "St. Lawrence County"),
+        ("NY", "Westcherster", "Westchester"),
+        ("NY", "West Chester", "Westchester"),
+        ("OH", "Cochocton", "Coshocton County"),
+        ("OH", "Columbian", "Columbiana County"),
+        ("OH", "Tuscarawa", "Tuscarawas County"),
+        ("OK", "Cimmaron", "Cimarron"),
+        ("OK", "MuCurtain", "McCurtain County"),
+        ("OR", "Unioin", "Union"),
+        ("PA", "Northumberla", "Northumberland"),
+        ("PR", "Aquadilla", "Aguadilla"),
+        ("PR", "Cupey", "San Juan"),
+        ("PR", "Sabana Grand", "Sabana Grande"),
+        ("PR", "San Sebastia", "San Sebastian"),
+        ("PR", "Trujillo Alt", "Trujillo Alto"),
+        ("RI", "Portsmouth", "Newport"),
+        ("SD", "Pierce", "Hughes County"),
+        ("SD", "Valley Springs", "Minnehaha County"),
+        ("TN", "Davison", "Davidson"),
+        ("TX", "Collingswort", "Collingsworth"),
+        ("TX", "De Witt", "DeWitt"),
+        ("TX", "Hayes", "Hays"),
+        ("TX", "San Augustin", "San Augustine"),
+        ("TX", "LaSalle", "La Salle"),
+        ("VA", "Albermarle", "Albemarle County"),
+        ("VA", "Alexandria C", "Alexandria City"),
+        ("VA", "Charlottesvi", "Charlottesville City"),
+        ("VA", "Chesapeake C", "Chesapeake City"),
+        ("VA", "City of Manassas", "Manassas City"),
+        ("VA", "City of Suff", "Suffolk City"),
+        ("VA", "City of Suffolk", "Suffolk city"),
+        ("VA", "Clifton Forg", "Alleghany"),
+        ("VA", "Clifton Forge", "Alleghany"),
+        ("VA", "Colonial Hei", "Colonial Heights City"),
+        ("VA", "Covington Ci", "Covington City"),
+        ("VA", "Fredericksbu", "Fredericksburg City"),
+        ("VA", "Hopewell Cit", "Hopewell City"),
+        ("VA", "Isle of Wigh", "Isle of Wight"),
+        ("VA", "King and Que", "King and Queen"),
+        ("VA", "Lexington Ci", "Lexington City"),
+        ("VA", "Manasas Park", "Manassas Park city"),
+        ("VA", "Manassas Cit", "Manassas City"),
+        ("VA", "Manassas Par", "Manassas Park City"),
+        ("VA", "Northumberla", "Northumberland"),
+        ("VA", "Petersburg C", "Petersburg City"),
+        ("VA", "Poquoson Cit", "Poquoson City"),
+        ("VA", "Portsmouth C", "Portsmouth City"),
+        ("VA", "Prince Edwar", "Prince Edward"),
+        ("VA", "Prince Georg", "Prince George"),
+        ("VA", "Prince Willi", "Prince William"),
+        ("VA", "Richmond Cit", "Richmond City"),
+        ("VA", "Staunton Cit", "Staunton City"),
+        ("VA", "Virginia", "Virginia Beach city"),
+        ("VA", "Virginia Bea", "Virginia Beach City"),
+        ("VA", "Waynesboro C", "Waynesboro City"),
+        ("VA", "Winchester C", "Winchester City"),
+        ("WA", "Wahkiakurn", "Wahkiakum"),
+        ("WV", "Greenbriar", "Greenbrier County"),
+    ],
+    columns=["state", "eia_county", "fips_county"],
+)
+"""Table of fixes to county names to make them more aligned with census names.
 
-    PLANTS = auto()
-    UTILITIES = auto()
-    BOILERS = auto()
-    GENERATORS = auto()
+This set of fixes was developed for EIA-861 for
+:ref:`core_eia861__yearly_service_territory` and was expanded (slightly) to cover
+the remaining non-conforming EIA-860 and EIA-923 county names.
+"""
 
 
-def find_timezone(*, lng=None, lat=None, state=None, strict=True, tz_finder=None):
+def find_timezone(
+    *,
+    lng: float,
+    lat: float,
+    state: str | None = None,
+    strict: bool = True,
+    tz_finder: timezonefinder.TimezoneFinder,
+) -> str | None:
     """Find the timezone associated with the a specified input location.
 
     Note that this function requires named arguments. The names are lng, lat,
@@ -95,6 +358,8 @@ def find_timezone(*, lng=None, lat=None, state=None, strict=True, tz_finder=None
         lat (int or float in [-90, 90]): Latitude, in decimal degrees
         state (str): Abbreviation for US state or Canadian province
         strict (bool): Raise an error if no timezone is found?
+        tz_finder: A ``timezonefinder.TimezoneFinder`` instance. Required, since
+            constructing one is expensive and callers should reuse a single instance.
 
     Returns:
         str: The timezone (as an IANA string) for that location.
@@ -104,12 +369,9 @@ def find_timezone(*, lng=None, lat=None, state=None, strict=True, tz_finder=None
     """
     try:
         tz = tz_finder.timezone_at(lng=lng, lat=lat)
-        if tz is None:  # Try harder
-            # Could change the search radius as well
-            tz = tz_finder.closest_timezone_at(lng=lng, lat=lat)
-    # For some reason w/ Python 3.6 we get a ValueError here, but with
-    # Python 3.7 we get an OverflowError...
-    except (OverflowError, ValueError) as err:
+    # Invalid coordinates (NaN, out of range) raise ValueError or OverflowError, and
+    # missing values (None, pd.NA) raise TypeError.
+    except (OverflowError, ValueError, TypeError) as err:
         # If we're being strict, only use lng/lat, not state
         if strict:
             raise ValueError(
@@ -211,7 +473,6 @@ def _lat_long(
     col: str,
     cols_to_consit: list[str],
     round_to: int = 2,
-    **kwargs,
 ) -> pd.DataFrame:
     """Harvests more complete lat/long in special cases.
 
@@ -262,7 +523,6 @@ def _last_operating_date(
     entity_idx: list[str],
     col: str,
     cols_to_consit: list[str],
-    **kwargs,
 ) -> pd.DataFrame:
     """When there's no consistent generator operating date, take the last reported one.
 
@@ -398,7 +658,7 @@ def _add_additional_epacems_plants(plants_entity: pd.DataFrame) -> pd.DataFrame:
 
 
 def _compile_all_entity_records(
-    entity: EiaEntity, clean_dfs: dict[str, pd.DataFrame]
+    entity: HarvestableEntity, clean_dfs: dict[str, pd.DataFrame]
 ) -> pd.DataFrame:
     """Compile all of the entity records from each table they appear in.
 
@@ -406,12 +666,12 @@ def _compile_all_entity_records(
     entity id.
     """
     # we know these columns must be in the dfs
-    id_cols = ENTITIES[entity.value]["id_cols"]
-    static_cols = ENTITIES[entity.value]["static_cols"]
-    annual_cols = ENTITIES[entity.value]["annual_cols"]
+    id_cols = ENTITIES[entity]["id_cols"]
+    static_cols = ENTITIES[entity]["static_cols"]
+    annual_cols = ENTITIES[entity]["annual_cols"]
     # A dictionary of columns representing additional data to be harvested,
     # whose names should map to an ID, static, or annual column name.
-    mapped_schemas = ENTITIES[entity.value].get("mapped_schemas")
+    mapped_schemas = ENTITIES[entity].get("mapped_schemas")
     base_cols = id_cols + ["report_date"]
 
     # empty list for dfs to be added to for each table below
@@ -457,7 +717,8 @@ def _compile_all_entity_records(
     # add those records to the compilation
     compiled_df = pd.concat(dfs, axis=0, ignore_index=True, sort=True)
     # strip the month and day from the date so we can have annual records
-    compiled_df["report_date"] = compiled_df["report_date"].dt.year
+    # pandas-stubs types the .dt accessor result as Properties, which lacks .year
+    compiled_df["report_date"] = compiled_df["report_date"].dt.year  # type: ignore[missing-attribute]
     # convert the year back into a date_time object
     year = compiled_df["report_date"]
     compiled_df["report_date"] = pd.to_datetime({"year": year, "month": 1, "day": 1})
@@ -468,7 +729,7 @@ def _compile_all_entity_records(
     return compiled_df
 
 
-def _manage_strictness(col: str, special_case_strictness: dict[str, float]) -> float:
+def _manage_strictness(col: str, special_case_strictness: Mapping[str, float]) -> float:
     """Manage the strictness level for each column.
 
     Args:
@@ -482,10 +743,38 @@ def _manage_strictness(col: str, special_case_strictness: dict[str, float]) -> f
     return special_case_strictness.get(col, strictness_default)
 
 
+class SpecialCaseHarvester(Protocol):
+    """The call signature of a function that harvests an entity column specially.
+
+    Any extra, per-column harvester-specific arguments should be bound in the
+    :data:`SPECIAL_CASE_HARVESTERS` dispatch mapping using :func:`functools.partial`.
+    """
+
+    def __call__(
+        self,
+        dirty_df: pd.DataFrame,
+        clean_df: pd.DataFrame,
+        entity_id_df: pd.DataFrame,
+        entity_idx: list[str],
+        col: str,
+        cols_to_consit: list[str],
+    ) -> pd.DataFrame:
+        """Return ``entity_id_df`` with harvested values for ``col``."""
+        ...
+
+
+SPECIAL_CASE_HARVESTERS: dict[str, SpecialCaseHarvester] = {
+    "latitude": partial(_lat_long, round_to=1),
+    "longitude": partial(_lat_long, round_to=1),
+    "generator_operating_date": _last_operating_date,
+}
+"""Columns that get special harvesting treatment, and the function that does it."""
+
+
 def harvest_entity_tables(  # noqa: C901
-    entity: EiaEntity,
+    entity: HarvestableEntity,
     clean_dfs: dict[str, pd.DataFrame],
-    special_case_strictness: dict[str, float] = {},
+    special_case_strictness: Mapping[str, float] = {},
     debug: bool = False,
 ) -> tuple:
     """Compile consistent records for various entities.
@@ -515,7 +804,8 @@ def harvest_entity_tables(  # noqa: C901
     the real world.
 
     Args:
-        entity: One of: plants, generators, boilers, or utilities
+        entity: An :class:`~pudl.metadata.resources.EiaEntity` (plants, generators,
+            boilers, or utilities) or :class:`~pudl.metadata.resources.RusEntity`.
         clean_dfs: A dictionary of table names (keys) and clean dfs (values).
         special_case_strictness: dictionary of column names (keys) and strictness
             values. The default strictness for harvesting consistent records is
@@ -538,9 +828,9 @@ def harvest_entity_tables(  # noqa: C901
         * Determine how to treat mostly static records
     """
     # we know these columns must be in the dfs
-    id_cols = ENTITIES[entity.value]["id_cols"]
-    static_cols = ENTITIES[entity.value]["static_cols"]
-    annual_cols = ENTITIES[entity.value]["annual_cols"]
+    id_cols = ENTITIES[entity]["id_cols"]
+    static_cols = ENTITIES[entity]["static_cols"]
+    annual_cols = ENTITIES[entity]["annual_cols"]
 
     logger.debug("    compiling plants for entity tables from:")
 
@@ -557,21 +847,18 @@ def harvest_entity_tables(  # noqa: C901
 
     entity_df = entity_id_df.copy()
     annual_df = annual_id_df.copy()
-    special_case_cols = {
-        "latitude": {"method": _lat_long, "round_to": 1},
-        "longitude": {"method": _lat_long, "round_to": 1},
-        "generator_operating_date": {"method": _last_operating_date},
-    }
     consistency = pd.DataFrame(
         columns=["column", "consistent_ratio", "wrongos", "total"]
     )
     col_dfs = {}
     # determine how many times each of the columns occur
     for col in static_cols + annual_cols:
-        if col in annual_cols:
-            cols_to_consit = id_cols + ["report_date"]
         if col in static_cols:
             cols_to_consit = id_cols
+        elif col in annual_cols:
+            cols_to_consit = id_cols + ["report_date"]
+        else:
+            raise AssertionError(f"{col} is neither a static nor an annual column.")
 
         strictness = _manage_strictness(col, special_case_strictness)
         col_df = occurrence_consistency(
@@ -591,8 +878,7 @@ def harvest_entity_tables(  # noqa: C901
             clean_df = entity_id_df.merge(col_correct_df, on=id_cols, how="left")
             clean_df = clean_df[id_cols + [col]]
             entity_df = entity_df.merge(clean_df, on=id_cols)
-
-        if col in annual_cols:
+        else:
             clean_df = annual_id_df.merge(
                 col_correct_df, on=(id_cols + ["report_date"]), how="left"
             )
@@ -604,15 +890,14 @@ def harvest_entity_tables(  # noqa: C901
         # we can't just use the col_df records when the consistency is not True
         dirty_df = col_df.merge(clean_df[clean_df[col].isnull()][id_cols])
 
-        if col in special_case_cols:
-            clean_df = special_case_cols[col]["method"](
+        if harvester := SPECIAL_CASE_HARVESTERS.get(col):
+            clean_df = harvester(
                 dirty_df,
                 clean_df,
                 entity_id_df,
                 id_cols,
                 col,
                 cols_to_consit,
-                **special_case_cols[col],
             )
             if col in static_cols:
                 clean_df = clean_df[id_cols + [col]]
@@ -636,7 +921,7 @@ def harvest_entity_tables(  # noqa: C901
             ratio = np.nan
             wrongos = np.nan
             logger.debug(f"       Zero records found for {col}")
-        if total > 0:
+        else:
             ratio = (
                 len(
                     col_df[(col_df["is_candidate"])].drop_duplicates(
@@ -1007,12 +1292,14 @@ def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:
         .groupby(["plant_id_eia", "unit_id_pudl"])["unit_id_eia"]
         .unique()
     )
-    for row in too_many_codes.items():
+    for group_key, unit_id_eia in too_many_codes.items():
+        # The groupby keys are (plant_id_eia, unit_id_pudl) tuples.
+        plant_id_eia, unit_id_pudl = cast("tuple[Any, Any]", group_key)
         logger.warning(
             f"Multiple EIA unit codes:"
-            f"plant_id_eia={row[0][0]}, "
-            f"unit_id_pudl={row[0][1]}, "
-            f"unit_id_eia={row[1]}"
+            f"plant_id_eia={plant_id_eia}, "
+            f"unit_id_pudl={unit_id_pudl}, "
+            f"unit_id_eia={unit_id_eia}"
         )
     bga_w_units = bga_w_units.drop("unit_id_eia", axis=1)
 
@@ -1072,12 +1359,22 @@ def _restrict_years(
     df: pd.DataFrame,
     eia_data_config: EiaDataConfig | None = None,
 ) -> pd.DataFrame:
-    """Restricts eia years for boiler generator association."""
+    """Restricts eia years for boiler generator association.
+
+    Raises:
+        ValueError: If the EIA data config doesn't include both EIA-860 and EIA-923.
+    """
     if eia_data_config is None:
         eia_data_config = EiaDataConfig()
 
+    if eia_data_config.eia860 is None or eia_data_config.eia923 is None:
+        raise ValueError(
+            "Restricting boiler generator association years requires both EIA-860 "
+            "and EIA-923 to be included in the EIA data configuration."
+        )
     bga_years = set(eia_data_config.eia860.years) & set(eia_data_config.eia923.years)
-    df = df[df.report_date.dt.year.isin(bga_years)]
+    # pandas-stubs types the .dt accessor result as Properties, which lacks .year
+    df = df[df.report_date.dt.year.isin(bga_years)]  # type: ignore[missing-attribute]
     return df
 
 
@@ -1238,7 +1535,8 @@ def harvested_entity_asset_factory(
     """Create an asset definition for the harvested entity tables."""
 
     @multi_asset(
-        ins={table_name: AssetIn() for table_name in HARVESTABLE_ASSETS},
+        ins={table_name: AssetIn() for table_name in HARVESTABLE_ASSETS}
+        | {"_core_censuspep__yearly_geocodes": AssetIn()},
         outs={
             f"core_eia__entity_{entity.value}": AssetOut(io_manager_key=io_manager_key),
             f"core_eia860__scd_{entity.value}": AssetOut(io_manager_key=io_manager_key),
@@ -1252,12 +1550,12 @@ def harvested_entity_asset_factory(
     def harvested_entity(context, **clean_dfs):
         """Harvesting IDs & consistent static attributes for EIA entity."""
         logger.info(f"Harvesting IDs & consistent static attributes for EIA {entity}")
-
+        _core_censuspep__yearly_geocodes = clean_dfs["_core_censuspep__yearly_geocodes"]
         clean_dfs = {
             df_name: PUDL_PACKAGE.encode(clean_dfs[df_name]).pipe(
                 convert_cols_dtypes, "eia"
             )
-            for df_name in clean_dfs
+            for df_name in HARVESTABLE_ASSETS
         }
         if entity == EiaEntity.UTILITIES:
             # Remove location columns that are associated with plants, not utilities:
@@ -1277,11 +1575,19 @@ def harvested_entity_asset_factory(
         # to have an additional decimal point) bc it shows up in the generator
         # table but it is a plant level data point, it mucks up the consistency
         eia_data_config: EiaDataConfig = context.resources.global_data_config.pudl.eia
+        if eia_data_config.eia860 is None:
+            raise ValueError(
+                "Harvesting EIA entities requires EIA-860 to be included in the EIA "
+                "data configuration."
+            )
         special_case_strictness = {
             "plant_name_eia": 0,
             "utility_name_eia": 0,
             "longitude": 0 if eia_data_config.eia860.eia860m else 0.7,
             "prime_mover_code": 0,
+            # ensure we always get a county name.
+            # after harvesting we clean the county names and add fips
+            "county": 0,
         }
 
         entity_df, annual_df, _col_dfs = harvest_entity_tables(
@@ -1293,7 +1599,20 @@ def harvested_entity_asset_factory(
 
         if entity == EiaEntity.PLANTS:
             # Post-processing specific to the plants entity tables
-            entity_df = _add_additional_epacems_plants(entity_df).pipe(_add_timezone)
+            entity_df = (
+                _add_additional_epacems_plants(entity_df)
+                .pipe(_add_timezone)
+                # Ensure that we have the canonical US Census county names:
+                .pipe(
+                    clean_eia_counties,
+                    fixes=EIA_FIPS_COUNTY_FIXES,
+                    explode_lists_of_counties=False,
+                )
+                # Add FIPS IDs based on county & state names:
+                .pipe(
+                    add_fips_ids, _core_censuspep__yearly_geocodes, county_col="county"
+                )
+            )
             annual_df = fillna_balancing_authority_codes_via_names(annual_df).pipe(
                 fix_balancing_authority_codes_with_state, plants_entity=entity_df
             )
@@ -1305,7 +1624,7 @@ def harvested_entity_asset_factory(
             [df for harvested_col_name, df in _col_dfs.items()], axis="index"
         ).reset_index(drop=True)
         logger.debug("Making changelog out of all forensics inputs for {entity.value}")
-        forensics = make_changelog(out_all, ENTITIES[entity.value]["id_cols"])
+        forensics = make_changelog(out_all, ENTITIES[entity]["id_cols"])
 
         return (
             Output(output_name=f"core_eia__entity_{entity.value}", value=entity_df),
