@@ -93,7 +93,7 @@ class FercSqliteProvenanceRecord(BaseModel):
                 f"{asset_key.to_user_string()}. Refresh the FERC SQLite assets."
             )
 
-        return cls(**payload)
+        return cls.model_validate(payload)
 
     def to_datapackage(self, datapackage_path: Path):
         """Write Provenance data to datapackage JSON file."""
