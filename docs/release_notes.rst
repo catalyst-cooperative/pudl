@@ -1,13 +1,56 @@
 =======================================================================================
 PUDL Release Notes
 =======================================================================================
+
+.. _release-v2026.11.0:
+
+---------------------------------------------------------------------------------------
+v2026.11.0 (2026-11-XX)
+---------------------------------------------------------------------------------------
+
+Enhancements
+^^^^^^^^^^^^
+
+New Data
+^^^^^^^^
+
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+Documentation
+^^^^^^^^^^^^^
+
+New Data Tests & Validations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Bug Fixes & Data Cleaning
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Performance Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Developer Experience
+^^^^^^^^^^^^^^^^^^^^
+
 .. _release-v2026.10.0:
 
 ---------------------------------------------------------------------------------------
-v2026.10.0 (2026-10-XX)
+v2026.10.0 (2026-10-14)
 ---------------------------------------------------------------------------------------
 
-This is the upcoming PUDL data release, scheduled for early October, 2026.
+This is a regular monthly PUDL data release, primarily motivated by updating the
+EIA-860M monthly data through August 2026. It also brings in final release 2025 data
+for the EIA-860, EIA-861, and EIA-923, plus straggler FERC Form 1 filings from 2025.
+
+We made several important improvements for reproducibility in this release. These
+changes make all outputs fully deterministic, which will make it possible to detect
+specific changes between builds. We've also added the new table
+:ref:`core_epamats__hourly_emissions` brings hourly mercury and hydrogen chloride
+emissions into PUDL. Thanks to :user:`bsousa22` for this contribution! Finally, we
+fixed a longstanding bug in the net generation and fuel allocation that silently
+dropped legitimate data for generators transitioning between
+``proposed``/``existing``/``retired`` status across a multi-year
+ETL run.
 
 Enhancements
 ^^^^^^^^^^^^
@@ -15,6 +58,10 @@ Enhancements
 * Added ``county_id_fips`` and ``state_id_fips`` to the :ref:`core_eia__entity_plants`,
   :ref:`out_eia__monthly_generators` and :ref:`out_eia__yearly_generators` tables. See
   PR :pr:`5688`.
+* :ref:`out_eia__yearly_generators_by_ownership` now identifies each generator's
+  operator as well as its owners, via new ``operator_utility_id_eia``,
+  ``operator_utility_id_pudl`` and ``operator_utility_name_eia`` columns, with foreign
+  key checks on the IDs. See issue :issue:`5550` and PR :pr:`5585`.
 
 New Data
 ^^^^^^^^
@@ -38,6 +85,11 @@ EIA-860M
 ~~~~~~~~
 * Added :doc:`EIA-860m <data_sources/eia860>` data through August 2026. See issue
   :issue:`5677` and PR :pr:`5680`.
+
+EIA-861
+~~~~~~~
+* Added :doc:`EIA-861 <data_sources/eia861>` final release 2025 data. See issue
+  :issue:`5701` and PR :pr:`5702`.
 
 EIA-923
 ~~~~~~~
@@ -70,6 +122,16 @@ New Data Tests & Validations
   the `Open Grid Emissions
   <https://github.com/singularity-energy/open-grid-emissions>`__ initiative and PUDL.
   See epic :issue:`5439` which is tracking that effort.
+* Added minimum and maximum constraints for plant and Census latitudes and longitudes,
+  to catch impossible locations. EIA-860M coordinates are not cleaned up (about
+  0.04% of its records are obviously wrong), so
+  :ref:`core_eia860m__changelog_generators` is exempt, and new dbt tests cap the number
+  of known bad records in it instead. See PR :pr:`5697`.
+* Added dbt tests that check whether plant coordinates fall in the state and county
+  they report, using the DuckDB spatial extension and Census boundaries. Applied to
+  :ref:`core_eia__entity_plants`, they currently flag 32 plants more than 5 km outside
+  their reported state (including offshore wind farms) and 204 outside their reported
+  county. These are not fixed yet. See PR :pr:`5700`.
 
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -129,9 +191,24 @@ Bug Fixes & Data Cleaning
   :ref:`out_pudl__yearly_assn_eia_ferc1_plant_parts` changed on every run even with
   identical inputs. The sampling is now seeded and ties are broken by EIA record ID. See
   :issue:`5610` and :pr:`5643`.
+* Made shared helpers in ``pudl.helpers`` behave identically under pandas 2 and 3.
+  ``standardize_percentages_ratio()`` now accepts numeric strings (as some Excel-sourced
+  columns arrive) and always returns ``float64``; genuinely non-numeric values still
+  raise. ``scale_by_ownership()`` now always returns ``float64`` for the scaled columns,
+  where the dtype previously depended on the data (``Int64`` if every value happened to
+  be integral). String-cleaning, boolean and phone-number helpers were also hardened
+  against pandas 3 dtype behavior changes. See :issue:`5613`, :issue:`5614`,
+  :issue:`5615` and :pr:`5662`.
 * Fixed the integer NERC region code ``25470`` reported by utility 55959 in 2013 and
   2014 in the EIA-861 tables, which was becoming ``UNK`` instead of ``MRO``. See PR
   :pr:`5685`.
+* Fixed a bug introduced in PR :pr:`5506` which improperly aggregated generators with
+  multiple owners after an ineffective drop duplicates, resulting in double counting in
+  a small number of :ref:`out_eia__yearly_plant_parts` records. See issue :issue:`5651`
+  and PR :pr:`5703`.
+* Fixed a bug that gave plants with no reported state the state FIPS code ``74`` (U.S.
+  Minor Outlying Islands). Those plants in :ref:`core_eia__entity_plants`, and the
+  generators built from them, now have a null ``state_id_fips``. See PR :pr:`5697`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -176,6 +253,10 @@ Developer Experience
   tests to the terminal. Fast ETL in pipeline tests will still log. Made ``pixi.lock``
   drift checking in pre-commit hooks more robust. Fixed open SQLite database warnings
   coming from FERC SQLite IO Manager. See PR :pr:`5573`.
+* Upgraded to Splink 5.0 and ported the FERC 1 to EIA plant-parts record linkage to its
+  new API (registering inputs with ``DuckDBAPI.register()``, and using ``CustomRule``
+  and ``CustomComparison``). The model's behavior is not intentionally changed. See PR
+  :pr:`5698`.
 
 .. _release-v2026.9.0:
 

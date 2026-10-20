@@ -1,8 +1,22 @@
 """Unit tests for the pudl.transform.eia module."""
 
+import numpy as np
 import pandas as pd
+import pytest
+import timezonefinder
 
-from pudl.transform.eia import occurrence_consistency
+from pudl.settings import (
+    Eia860DataConfig,
+    Eia861DataConfig,
+    Eia923DataConfig,
+    EiaDataConfig,
+)
+from pudl.transform.eia import (
+    SPECIAL_CASE_HARVESTERS,
+    _restrict_years,
+    find_timezone,
+    occurrence_consistency,
+)
 
 
 def _tied_rows(codes: tuple[str, ...]) -> list[dict]:
@@ -96,3 +110,79 @@ def test_occurrence_consistency_tiebreak_is_alphabetical():
         "Expected the winner to track the alphabetically first value even "
         f"after relabeling, got:\n{relabeled_winners}"
     )
+
+
+@pytest.mark.parametrize(
+    "lng,lat,state,expected",
+    [
+        (-122.3, 47.6, "WA", "America/Los_Angeles"),
+        (np.nan, np.nan, "WA", "America/Los_Angeles"),
+        (None, None, "WA", "America/Los_Angeles"),
+        (pd.NA, pd.NA, "WA", "America/Los_Angeles"),
+        (200.0, 47.6, "WA", "America/Los_Angeles"),
+        (np.nan, np.nan, None, None),
+    ],
+)
+def test_find_timezone_falls_back_to_state(lng, lat, state, expected):
+    """Missing or invalid coordinates fall back to the state's approximate zone."""
+    tz = find_timezone(
+        lng=lng,
+        lat=lat,
+        state=state,
+        strict=False,
+        tz_finder=timezonefinder.TimezoneFinder(),
+    )
+    assert tz == expected
+
+
+def test_find_timezone_strict_raises_on_missing_coordinates():
+    """With strict=True, missing coordinates raise instead of using the state."""
+    with pytest.raises(ValueError, match="Can't find timezone"):
+        find_timezone(
+            lng=np.nan,
+            lat=np.nan,
+            state="WA",
+            strict=True,
+            tz_finder=timezonefinder.TimezoneFinder(),
+        )
+
+
+def test_restrict_years_keeps_years_in_both_860_and_923():
+    """Only report years configured for both EIA-860 and EIA-923 are retained."""
+    eia_data_config = EiaDataConfig(
+        eia860=Eia860DataConfig(years=[2018, 2019, 2020], eia860m=False),
+        eia923=Eia923DataConfig(years=[2019, 2020, 2021]),
+    )
+    df = pd.DataFrame(
+        {"report_date": pd.to_datetime([f"{year}-01-01" for year in range(2017, 2023)])}
+    )
+    out = _restrict_years(df, eia_data_config)
+    assert pd.DatetimeIndex(out["report_date"]).year.tolist() == [2019, 2020]
+
+
+def test_restrict_years_requires_eia860_and_eia923():
+    """A config selecting neither EIA-860 nor EIA-923 raises a clear error."""
+    eia_data_config = EiaDataConfig(eia861=Eia861DataConfig())
+    assert eia_data_config.eia860 is None
+    with pytest.raises(ValueError, match="requires both EIA-860 and EIA-923"):
+        _restrict_years(pd.DataFrame({"report_date": []}), eia_data_config)
+
+
+@pytest.mark.parametrize("col", ["latitude", "longitude"])
+def test_special_case_lat_long_harvesters_round_to_one_decimal(col):
+    """Lat/long harvesters bind round_to=1, recovering a value that is only
+    consistent once rounded."""
+    dirty_df = pd.DataFrame(
+        {
+            "plant_id_eia": [1] * 4,
+            "report_date": pd.to_datetime(["2020-01-01"] * 4),
+            "table": ["a", "b", "c", "d"],
+            col: [40.11, 40.12, 40.13, 40.17],
+        }
+    )
+    entity_id_df = pd.DataFrame({"plant_id_eia": [1]})
+    clean_df = entity_id_df.assign(**{col: np.nan})
+    out = SPECIAL_CASE_HARVESTERS[col](
+        dirty_df, clean_df, entity_id_df, ["plant_id_eia"], col, ["plant_id_eia"]
+    )
+    assert out[col].tolist() == [40.1]

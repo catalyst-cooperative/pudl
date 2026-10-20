@@ -17,7 +17,9 @@ found in :func:`pudl.transform.eia._boiler_generator_assn`.
 """
 
 from collections import namedtuple
-from enum import StrEnum, auto
+from collections.abc import Mapping
+from functools import partial
+from typing import Any, Protocol, cast
 
 import networkx as nx
 import numpy as np
@@ -44,7 +46,7 @@ from pudl.helpers import (
 from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.metadata.dtypes import apply_pudl_dtypes, get_pudl_dtypes
 from pudl.metadata.enums import APPROXIMATE_TIMEZONES
-from pudl.metadata.resources import ENTITIES
+from pudl.metadata.resources import ENTITIES, EiaEntity, HarvestableEntity
 from pudl.settings import EiaDataConfig
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -71,15 +73,6 @@ HARVESTABLE_ASSETS = (
     "_core_eia860__plants",
     "_core_eia860__utilities",
 )
-
-
-class EiaEntity(StrEnum):
-    """Enum for the different types of EIA entities."""
-
-    PLANTS = auto()
-    UTILITIES = auto()
-    BOILERS = auto()
-    GENERATORS = auto()
 
 
 EIA_FIPS_COUNTY_FIXES: pd.DataFrame = pd.DataFrame(
@@ -340,7 +333,14 @@ the remaining non-conforming EIA-860 and EIA-923 county names.
 """
 
 
-def find_timezone(*, lng=None, lat=None, state=None, strict=True, tz_finder=None):
+def find_timezone(
+    *,
+    lng: float,
+    lat: float,
+    state: str | None = None,
+    strict: bool = True,
+    tz_finder: timezonefinder.TimezoneFinder,
+) -> str | None:
     """Find the timezone associated with the a specified input location.
 
     Note that this function requires named arguments. The names are lng, lat,
@@ -358,6 +358,8 @@ def find_timezone(*, lng=None, lat=None, state=None, strict=True, tz_finder=None
         lat (int or float in [-90, 90]): Latitude, in decimal degrees
         state (str): Abbreviation for US state or Canadian province
         strict (bool): Raise an error if no timezone is found?
+        tz_finder: A ``timezonefinder.TimezoneFinder`` instance. Required, since
+            constructing one is expensive and callers should reuse a single instance.
 
     Returns:
         str: The timezone (as an IANA string) for that location.
@@ -367,12 +369,9 @@ def find_timezone(*, lng=None, lat=None, state=None, strict=True, tz_finder=None
     """
     try:
         tz = tz_finder.timezone_at(lng=lng, lat=lat)
-        if tz is None:  # Try harder
-            # Could change the search radius as well
-            tz = tz_finder.closest_timezone_at(lng=lng, lat=lat)
-    # For some reason w/ Python 3.6 we get a ValueError here, but with
-    # Python 3.7 we get an OverflowError...
-    except (OverflowError, ValueError) as err:
+    # Invalid coordinates (NaN, out of range) raise ValueError or OverflowError, and
+    # missing values (None, pd.NA) raise TypeError.
+    except (OverflowError, ValueError, TypeError) as err:
         # If we're being strict, only use lng/lat, not state
         if strict:
             raise ValueError(
@@ -474,7 +473,6 @@ def _lat_long(
     col: str,
     cols_to_consit: list[str],
     round_to: int = 2,
-    **kwargs,
 ) -> pd.DataFrame:
     """Harvests more complete lat/long in special cases.
 
@@ -525,7 +523,6 @@ def _last_operating_date(
     entity_idx: list[str],
     col: str,
     cols_to_consit: list[str],
-    **kwargs,
 ) -> pd.DataFrame:
     """When there's no consistent generator operating date, take the last reported one.
 
@@ -661,7 +658,7 @@ def _add_additional_epacems_plants(plants_entity: pd.DataFrame) -> pd.DataFrame:
 
 
 def _compile_all_entity_records(
-    entity: EiaEntity, clean_dfs: dict[str, pd.DataFrame]
+    entity: HarvestableEntity, clean_dfs: dict[str, pd.DataFrame]
 ) -> pd.DataFrame:
     """Compile all of the entity records from each table they appear in.
 
@@ -669,12 +666,12 @@ def _compile_all_entity_records(
     entity id.
     """
     # we know these columns must be in the dfs
-    id_cols = ENTITIES[entity.value]["id_cols"]
-    static_cols = ENTITIES[entity.value]["static_cols"]
-    annual_cols = ENTITIES[entity.value]["annual_cols"]
+    id_cols = ENTITIES[entity]["id_cols"]
+    static_cols = ENTITIES[entity]["static_cols"]
+    annual_cols = ENTITIES[entity]["annual_cols"]
     # A dictionary of columns representing additional data to be harvested,
     # whose names should map to an ID, static, or annual column name.
-    mapped_schemas = ENTITIES[entity.value].get("mapped_schemas")
+    mapped_schemas = ENTITIES[entity].get("mapped_schemas")
     base_cols = id_cols + ["report_date"]
 
     # empty list for dfs to be added to for each table below
@@ -720,7 +717,8 @@ def _compile_all_entity_records(
     # add those records to the compilation
     compiled_df = pd.concat(dfs, axis=0, ignore_index=True, sort=True)
     # strip the month and day from the date so we can have annual records
-    compiled_df["report_date"] = compiled_df["report_date"].dt.year
+    # pandas-stubs types the .dt accessor result as Properties, which lacks .year
+    compiled_df["report_date"] = compiled_df["report_date"].dt.year  # type: ignore[missing-attribute]
     # convert the year back into a date_time object
     year = compiled_df["report_date"]
     compiled_df["report_date"] = pd.to_datetime({"year": year, "month": 1, "day": 1})
@@ -731,7 +729,7 @@ def _compile_all_entity_records(
     return compiled_df
 
 
-def _manage_strictness(col: str, special_case_strictness: dict[str, float]) -> float:
+def _manage_strictness(col: str, special_case_strictness: Mapping[str, float]) -> float:
     """Manage the strictness level for each column.
 
     Args:
@@ -745,10 +743,38 @@ def _manage_strictness(col: str, special_case_strictness: dict[str, float]) -> f
     return special_case_strictness.get(col, strictness_default)
 
 
+class SpecialCaseHarvester(Protocol):
+    """The call signature of a function that harvests an entity column specially.
+
+    Any extra, per-column harvester-specific arguments should be bound in the
+    :data:`SPECIAL_CASE_HARVESTERS` dispatch mapping using :func:`functools.partial`.
+    """
+
+    def __call__(
+        self,
+        dirty_df: pd.DataFrame,
+        clean_df: pd.DataFrame,
+        entity_id_df: pd.DataFrame,
+        entity_idx: list[str],
+        col: str,
+        cols_to_consit: list[str],
+    ) -> pd.DataFrame:
+        """Return ``entity_id_df`` with harvested values for ``col``."""
+        ...
+
+
+SPECIAL_CASE_HARVESTERS: dict[str, SpecialCaseHarvester] = {
+    "latitude": partial(_lat_long, round_to=1),
+    "longitude": partial(_lat_long, round_to=1),
+    "generator_operating_date": _last_operating_date,
+}
+"""Columns that get special harvesting treatment, and the function that does it."""
+
+
 def harvest_entity_tables(  # noqa: C901
-    entity: EiaEntity,
+    entity: HarvestableEntity,
     clean_dfs: dict[str, pd.DataFrame],
-    special_case_strictness: dict[str, float] = {},
+    special_case_strictness: Mapping[str, float] = {},
     debug: bool = False,
 ) -> tuple:
     """Compile consistent records for various entities.
@@ -778,7 +804,8 @@ def harvest_entity_tables(  # noqa: C901
     the real world.
 
     Args:
-        entity: One of: plants, generators, boilers, or utilities
+        entity: An :class:`~pudl.metadata.resources.EiaEntity` (plants, generators,
+            boilers, or utilities) or :class:`~pudl.metadata.resources.RusEntity`.
         clean_dfs: A dictionary of table names (keys) and clean dfs (values).
         special_case_strictness: dictionary of column names (keys) and strictness
             values. The default strictness for harvesting consistent records is
@@ -801,9 +828,9 @@ def harvest_entity_tables(  # noqa: C901
         * Determine how to treat mostly static records
     """
     # we know these columns must be in the dfs
-    id_cols = ENTITIES[entity.value]["id_cols"]
-    static_cols = ENTITIES[entity.value]["static_cols"]
-    annual_cols = ENTITIES[entity.value]["annual_cols"]
+    id_cols = ENTITIES[entity]["id_cols"]
+    static_cols = ENTITIES[entity]["static_cols"]
+    annual_cols = ENTITIES[entity]["annual_cols"]
 
     logger.debug("    compiling plants for entity tables from:")
 
@@ -820,21 +847,18 @@ def harvest_entity_tables(  # noqa: C901
 
     entity_df = entity_id_df.copy()
     annual_df = annual_id_df.copy()
-    special_case_cols = {
-        "latitude": {"method": _lat_long, "round_to": 1},
-        "longitude": {"method": _lat_long, "round_to": 1},
-        "generator_operating_date": {"method": _last_operating_date},
-    }
     consistency = pd.DataFrame(
         columns=["column", "consistent_ratio", "wrongos", "total"]
     )
     col_dfs = {}
     # determine how many times each of the columns occur
     for col in static_cols + annual_cols:
-        if col in annual_cols:
-            cols_to_consit = id_cols + ["report_date"]
         if col in static_cols:
             cols_to_consit = id_cols
+        elif col in annual_cols:
+            cols_to_consit = id_cols + ["report_date"]
+        else:
+            raise AssertionError(f"{col} is neither a static nor an annual column.")
 
         strictness = _manage_strictness(col, special_case_strictness)
         col_df = occurrence_consistency(
@@ -854,8 +878,7 @@ def harvest_entity_tables(  # noqa: C901
             clean_df = entity_id_df.merge(col_correct_df, on=id_cols, how="left")
             clean_df = clean_df[id_cols + [col]]
             entity_df = entity_df.merge(clean_df, on=id_cols)
-
-        if col in annual_cols:
+        else:
             clean_df = annual_id_df.merge(
                 col_correct_df, on=(id_cols + ["report_date"]), how="left"
             )
@@ -867,15 +890,14 @@ def harvest_entity_tables(  # noqa: C901
         # we can't just use the col_df records when the consistency is not True
         dirty_df = col_df.merge(clean_df[clean_df[col].isnull()][id_cols])
 
-        if col in special_case_cols:
-            clean_df = special_case_cols[col]["method"](
+        if harvester := SPECIAL_CASE_HARVESTERS.get(col):
+            clean_df = harvester(
                 dirty_df,
                 clean_df,
                 entity_id_df,
                 id_cols,
                 col,
                 cols_to_consit,
-                **special_case_cols[col],
             )
             if col in static_cols:
                 clean_df = clean_df[id_cols + [col]]
@@ -899,7 +921,7 @@ def harvest_entity_tables(  # noqa: C901
             ratio = np.nan
             wrongos = np.nan
             logger.debug(f"       Zero records found for {col}")
-        if total > 0:
+        else:
             ratio = (
                 len(
                     col_df[(col_df["is_candidate"])].drop_duplicates(
@@ -1270,12 +1292,14 @@ def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:
         .groupby(["plant_id_eia", "unit_id_pudl"])["unit_id_eia"]
         .unique()
     )
-    for row in too_many_codes.items():
+    for group_key, unit_id_eia in too_many_codes.items():
+        # The groupby keys are (plant_id_eia, unit_id_pudl) tuples.
+        plant_id_eia, unit_id_pudl = cast("tuple[Any, Any]", group_key)
         logger.warning(
             f"Multiple EIA unit codes:"
-            f"plant_id_eia={row[0][0]}, "
-            f"unit_id_pudl={row[0][1]}, "
-            f"unit_id_eia={row[1]}"
+            f"plant_id_eia={plant_id_eia}, "
+            f"unit_id_pudl={unit_id_pudl}, "
+            f"unit_id_eia={unit_id_eia}"
         )
     bga_w_units = bga_w_units.drop("unit_id_eia", axis=1)
 
@@ -1335,12 +1359,22 @@ def _restrict_years(
     df: pd.DataFrame,
     eia_data_config: EiaDataConfig | None = None,
 ) -> pd.DataFrame:
-    """Restricts eia years for boiler generator association."""
+    """Restricts eia years for boiler generator association.
+
+    Raises:
+        ValueError: If the EIA data config doesn't include both EIA-860 and EIA-923.
+    """
     if eia_data_config is None:
         eia_data_config = EiaDataConfig()
 
+    if eia_data_config.eia860 is None or eia_data_config.eia923 is None:
+        raise ValueError(
+            "Restricting boiler generator association years requires both EIA-860 "
+            "and EIA-923 to be included in the EIA data configuration."
+        )
     bga_years = set(eia_data_config.eia860.years) & set(eia_data_config.eia923.years)
-    df = df[df.report_date.dt.year.isin(bga_years)]
+    # pandas-stubs types the .dt accessor result as Properties, which lacks .year
+    df = df[df.report_date.dt.year.isin(bga_years)]  # type: ignore[missing-attribute]
     return df
 
 
@@ -1541,6 +1575,11 @@ def harvested_entity_asset_factory(
         # to have an additional decimal point) bc it shows up in the generator
         # table but it is a plant level data point, it mucks up the consistency
         eia_data_config: EiaDataConfig = context.resources.global_data_config.pudl.eia
+        if eia_data_config.eia860 is None:
+            raise ValueError(
+                "Harvesting EIA entities requires EIA-860 to be included in the EIA "
+                "data configuration."
+            )
         special_case_strictness = {
             "plant_name_eia": 0,
             "utility_name_eia": 0,
@@ -1585,7 +1624,7 @@ def harvested_entity_asset_factory(
             [df for harvested_col_name, df in _col_dfs.items()], axis="index"
         ).reset_index(drop=True)
         logger.debug("Making changelog out of all forensics inputs for {entity.value}")
-        forensics = make_changelog(out_all, ENTITIES[entity.value]["id_cols"])
+        forensics = make_changelog(out_all, ENTITIES[entity]["id_cols"])
 
         return (
             Output(output_name=f"core_eia__entity_{entity.value}", value=entity_df),

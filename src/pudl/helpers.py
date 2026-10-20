@@ -322,9 +322,18 @@ def add_fips_ids(
 def add_state_id_fips(
     df: pd.DataFrame, geocodes: pd.DataFrame, state_col: str
 ) -> pd.DataFrame:
-    """Add the State FIPS codes."""
+    """Add the State FIPS codes.
+
+    Records without a state are not assigned a state FIPS code.
+    """
     states = (
         geocodes.loc[geocodes["fips_level"] == "040", ["state", "state_id_fips"]]
+        # Any FIPS code that appears in the Census PEP data but doesn't have a state
+        # abbreviation defined in POLITICAL_SUBDIVISIONS ends up with a null state
+        # abbreviation here. Pandas matches missing merge keys with each other, so if
+        # the null states are kept, every record with a missing state would be assigned
+        # to a mystery FIPS code (namely 74: US Minor outlying islands).
+        .dropna(subset=["state"])
         .rename(columns={"state": state_col})
         .drop_duplicates()
     )
@@ -955,12 +964,14 @@ def cleanstrings_series(
             col = col.replace(str_map[k], k)
 
     if unmapped is not None:
-        badstrings = np.setdiff1d(col.unique(), list(str_map.keys()))
+        # Drop nulls before the setdiff: np.setdiff1d sorts its inputs, and a mix of
+        # NaN/NA and strings (which pandas 3 no longer coerces away) can't be compared.
+        badstrings = np.setdiff1d(col.dropna().unique(), list(str_map.keys()))
         # This call to replace can only work if there are actually some
         # leftover strings to fix -- otherwise it runs forever because we
         # are replacing nothing with nothing.
         if len(badstrings) > 0:
-            col = col.replace(badstrings, unmapped)
+            col = col.replace(badstrings.tolist(), unmapped)
 
     return col
 
@@ -1608,7 +1619,8 @@ def zero_pad_numeric_string(col: pd.Series, n_digits: int) -> pd.Series:
         .str.zfill(n_digits)
         # All-zero ZIP & FIPS codes are invalid.
         # Also catches empty strings that were zero padded.
-        .replace({n_digits * "0": pd.NA})
+        # pandas-stubs' Scalar type does not include pd.NA
+        .replace({n_digits * "0": pd.NA})  # type: ignore[bad-assignment]
     )
     if not out_col.str.match(f"^[\\d]{{{n_digits}}}$").all():
         raise ValueError(
@@ -1745,10 +1757,16 @@ def standardize_percentages_ratio(
     """
     logger.info(f"Standardizing ratios and percentages for {mixed_cols}")
     for col in mixed_cols:
-        if not pd.api.types.is_numeric_dtype(frac_df[col]):
+        # Coerce to float64. pandas 3's read_excel leaves some of these mixed
+        # columns as strings; pd.to_numeric still raises loudly on genuinely
+        # non-numeric junk, preserving the original guard's intent. Working in float
+        # also avoids a lossy in-place division on an integer column below.
+        try:
+            frac_df[col] = pd.to_numeric(frac_df[col]).astype("float64")
+        except (ValueError, TypeError) as err:
             raise AssertionError(
                 f"{col}: Standardization method requires numeric dtype."
-            )
+            ) from err
         if "report_year" in frac_df:
             dates = (frac_df.report_year >= min(years_to_standardize)) & (
                 frac_df.report_year <= max(years_to_standardize)
@@ -1757,7 +1775,7 @@ def standardize_percentages_ratio(
             dates = (frac_df.report_date.dt.year >= min(years_to_standardize)) & (
                 frac_df.report_date.dt.year <= max(years_to_standardize)
             )
-        frac_df.loc[dates, col] /= 100
+        frac_df.loc[dates, col] = frac_df.loc[dates, col] / 100
         if frac_df[col].max() > 1:
             raise AssertionError(
                 f"{col}: Values >100pct observed: {frac_df.loc[frac_df[col] > 1][col].unique()}"
@@ -2022,9 +2040,12 @@ def convert_col_to_bool(
     # This is easier than building an input dictionary for pandas map or replace
     # functions.
     df = df.copy()
-    df.loc[df[col_name].isin(true_values), col_name] = True
-    df.loc[df[col_name].isin(false_values), col_name] = False
-    df[col_name] = df[col_name].astype("boolean")
+    # Build the boolean column as a whole rather than assigning True/False into the
+    # existing (possibly string) column, which pandas 3.0 rejects as a lossy setitem.
+    bool_col = pd.Series(pd.NA, index=df.index, dtype="boolean")
+    bool_col[df[col_name].isin(true_values)] = True
+    bool_col[df[col_name].isin(false_values)] = False
+    df[col_name] = bool_col
 
     return df
 
@@ -2048,7 +2069,8 @@ def fix_boolean_columns(
     retaining a reference to the data will see the changes made here.
     """
     fillna_cols = dict.fromkeys(boolean_columns_to_fix, pd.NA)
-    boolean_replace_cols = {
+    # Annotated loosely because pandas-stubs' Scalar type does not include pd.NA
+    boolean_replace_cols: dict[str, Any] = {
         col: {"Y": True, "N": False, "X": False, "U": pd.NA, 1: True, 0: False}
         for col in boolean_columns_to_fix
     }
@@ -2108,12 +2130,10 @@ def scale_by_ownership(
         gens: table with records at the generator level and generator attributes
             to be scaled by ownership, must have columns ``plant_id_eia``,
             ``generator_id``, and ``report_date``
-        own_eia860: the ``core_eia860__scd_ownership`` table or the denormalized
-            :ref:`out_eia860__yearly_ownership` table. If the denormalized table
-            is given and ``gens`` contains ``utility_id_pudl`` or
-            ``utility_name_eia`` columns, the owner's PUDL utility ID and EIA
-            utility name are swapped in alongside the owner's
-            ``utility_id_eia``.
+        own_eia860: the denormalized :ref:`out_eia860__yearly_ownership` table. If
+            ``gens`` contains ``utility_id_pudl`` or ``utility_name_eia`` columns,
+            the owner's PUDL utility ID and EIA utility name are swapped in
+            alongside the owner's ``utility_id_eia``.
         scale_cols: a list of columns in the generator table to slice by ownership
             fraction
         validate: how to validate merging the ownership table onto the
@@ -2187,8 +2207,17 @@ def scale_by_ownership(
             gens.copy().assign(fraction_owned=1, ownership_record_type="total"),
         ]
     )
-    gens.loc[:, scale_cols] = gens.loc[:, scale_cols].multiply(
-        gens["fraction_owned"], axis="index"
+    # Scaling by a fractional ownership share is inherently fractional, so the scaled
+    # columns are always float64. We deliberately assign with ``gens[scale_cols] =``
+    # rather than ``gens.loc[:, scale_cols] =``: ``.loc`` writes into the existing
+    # columns in place and so keeps their dtype, and pandas 3.0 raises when that would
+    # put float results into an integer column. Plain ``[]`` assignment replaces the
+    # columns wholesale, letting their dtype change. The explicit cast before the
+    # multiply makes the output dtype independent of the input dtype.
+    gens[scale_cols] = (
+        gens[scale_cols]
+        .astype("float64")
+        .multiply(gens["fraction_owned"], axis="index")
     )
     return gens
 
@@ -2243,6 +2272,7 @@ def diff_wide_tables(
     So we melt the table based on some sort of primary key columns then diff
     the old and new values.
     """
+    primary_key = list(primary_key)
     old_melted = old.melt(id_vars=primary_key, var_name="field").set_index(
         primary_key + ["field"]
     )
@@ -2494,9 +2524,9 @@ def standardize_phone_column(df: pd.DataFrame, columns: list[str]) -> pd.DataFra
         df[column] = df[column].where(extension.isna(), df[column] + "x" + extension)
 
         # Replace invalid or empty phone numbers with NaN
-        invalid_mask = (
-            (phone_main.isna()) | (phone_main.str.fullmatch(r"0+")) | (phone_main == "")
-        )
+        # A single regex catches empty and all-zero strings; na=True catches nulls
+        # without mixing boolean dtypes, which pandas 3 can't combine when NA is present.
+        invalid_mask = phone_main.str.fullmatch(r"0*", na=True)
         df[column] = df[column].mask(invalid_mask, pd.NA)
 
     return df

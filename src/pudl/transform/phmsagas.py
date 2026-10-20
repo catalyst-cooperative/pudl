@@ -264,7 +264,8 @@ def backfill_zero_operator_id_phmsa(df: pd.DataFrame) -> pd.DataFrame:
             operator_id_phmsa_old=lambda x: x.operator_id_phmsa,  # just for debugging
             operator_name_phmsa=lambda y: y.operator_name_phmsa.str.title(),
         )
-        .replace({"operator_id_phmsa": {0: pd.NA}})
+        # pandas-stubs' Scalar type does not include pd.NA
+        .replace({"operator_id_phmsa": {0: pd.NA}})  # type: ignore[bad-assignment]
         .assign(
             operator_id_phmsa=lambda z: z.operator_id_phmsa.fillna(
                 z.groupby(["operator_name_phmsa"], dropna=True)[
@@ -301,7 +302,7 @@ def _core_phmsagas__yearly_distribution(
         )
         <= 20
     ), baddies
-    raw_phmsagas__yearly_distribution.operator_id_phmsa = (
+    raw_phmsagas__yearly_distribution["operator_id_phmsa"] = (
         raw_phmsagas__yearly_distribution.operator_id_phmsa.fillna(0)
     )
 
@@ -575,7 +576,7 @@ def _core_phmsagas__yearly_distribution_by_material_and_size(
         material_detail_wrong_place_mask, "services"
     ]
     df.loc[material_detail_wrong_place_mask, "services"] = np.nan
-    df.services = df.services.astype(pd.Float64Dtype())
+    df["services"] = df.services.astype(pd.Float64Dtype())
     return df
 
 

@@ -16,6 +16,7 @@ from pudl.metadata.enums import (
     UTILITY_PLANT_GROUP_RUS7,
     UTILITY_PLANT_ITEM_RUS7,
 )
+from pudl.metadata.resources import RusEntity
 from pudl.metadata.resources.rus12 import HARVESTED_CORE_TABLES_RUS7
 from pudl.transform.eia import harvest_entity_tables
 
@@ -34,7 +35,7 @@ def _core_rus7__yearly_meeting_and_board(raw_rus7__meeting_and_board):
     )
     rus.early_check_pk(df)
 
-    df.last_annual_meeting_date = pd.to_datetime(
+    df["last_annual_meeting_date"] = pd.to_datetime(
         df.last_annual_meeting_date, format="mixed"
     )
     return df
@@ -54,7 +55,7 @@ def _core_rus7__yearly_balance_sheet_assets(raw_rus7__balance_sheet):
         var_name="asset_type",
         value_name="ending_balance",
     )
-    df.asset_type = df.asset_type.str.removesuffix("_assets")
+    df["asset_type"] = df.asset_type.str.removesuffix("_assets")
     # POST-MELT
     df["is_total"] = df.asset_type.str.startswith("total_")
     return df
@@ -74,7 +75,7 @@ def _core_rus7__yearly_balance_sheet_liabilities(raw_rus7__balance_sheet):
         var_name="liability_type",
         value_name="ending_balance",
     )
-    df.liability_type = df.liability_type.str.removesuffix("_liabilities")
+    df["liability_type"] = df.liability_type.str.removesuffix("_liabilities")
     # POST-MELT
     df["is_total"] = df.liability_type.str.startswith("total_")
     return df
@@ -546,7 +547,7 @@ def _core_rus7__yearly_loans(
         df.loc[mask2, "loan_maturity_date"] = pd.NaT
 
     # Convert all loan_maturity_dates to datetime
-    df.loan_maturity_date = pd.to_datetime(df.loan_maturity_date)
+    df["loan_maturity_date"] = pd.to_datetime(df.loan_maturity_date)
 
     # TO-DO: could standardize loan_recipient    names
     # TO-DO: there are some validation cases where loan balance exceeds the original amount.
@@ -684,7 +685,7 @@ _CORE_RUS7_TABLES = [f"_{t}" for t in HARVESTED_CORE_TABLES_RUS7]
 )
 def core_rus7__entity_borrowers(context, **clean_dfs):
     """Harvesting IDs & consistent static attributes for RUS7 entity."""
-    entity = rus.RusEntity.BORROWERS
+    entity = RusEntity.BORROWERS
     logger.info("Harvesting IDs & consistent static attributes for RUS Borrowers")
     # We want **all** borrowers to have non-null names in this entity
     # table. They aren't always super consistent over time, but we have
