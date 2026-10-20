@@ -1,7 +1,6 @@
 """A module with functions to aid generating MCOE."""
 
 from dataclasses import dataclass
-from typing import Literal
 
 import pandas as pd
 from dagster import (
@@ -51,7 +50,7 @@ the final table.
 
 
 def mcoe_asset_factory(
-    freq: Literal["YS", "MS"],
+    freq: pudl.helpers.AggregationFreq,
     op_tags: dict | None = None,
 ) -> list[AssetsDefinition]:
     """Build MCOE related assets at yearly and monthly frequencies."""
@@ -236,7 +235,7 @@ def mcoe_asset_factory(
     ]
 
 
-_MCOE_FREQS: list[tuple[Literal["YS", "MS"], dict]] = [
+_MCOE_FREQS: list[tuple[pudl.helpers.AggregationFreq, dict]] = [
     ("YS", {}),
     ("MS", {"dagster/priority": 10}),
 ]
@@ -617,7 +616,7 @@ def fuel_cost(
 def capacity_factor(
     gens: pd.DataFrame,
     gen: pd.DataFrame,
-    freq: Literal["YS", "MS"],
+    freq: pudl.helpers.AggregationFreq,
     min_cap_fact: float | None = None,
     max_cap_fact: float | None = None,
 ) -> pd.DataFrame:
@@ -742,7 +741,7 @@ def mcoe(
 def mcoe_generators(
     mcoe: pd.DataFrame,
     gens: pd.DataFrame,
-    freq: Literal["YS", "MS"],
+    freq: pudl.helpers.AggregationFreq,
     all_gens: bool = True,
     timeseries_fillin: bool = False,
 ) -> pd.DataFrame:

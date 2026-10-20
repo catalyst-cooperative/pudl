@@ -22,7 +22,7 @@ from contextlib import contextmanager
 from functools import partial
 from io import BytesIO
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, NamedTuple
+from typing import TYPE_CHECKING, Any, Literal, NamedTuple, get_args
 
 import duckdb
 import geopandas as gpd  # noqa: ICN002
@@ -54,6 +54,12 @@ if there are some months where fuel consumption is reported as NA, but electrici
 generation is reported normally, then the fuel consumption for the year needs to be NA,
 otherwise we'll get unrealistic heat rates.
 """
+
+type AggregationFreq = Literal["YS", "MS"]
+"""Pandas frequency aliases for annual (year start) and monthly (month start) data."""
+
+AGGREGATION_FREQS: tuple[AggregationFreq, ...] = get_args(AggregationFreq.__value__)
+"""All of the :data:`AggregationFreq` values, for iterating over."""
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -1785,7 +1791,7 @@ def standardize_percentages_ratio(
 
 def calc_capacity_factor(
     df: pd.DataFrame,
-    freq: Literal["YS", "MS"],
+    freq: AggregationFreq,
     min_cap_fact: float | None = None,
     max_cap_fact: float | None = None,
 ) -> pd.DataFrame:

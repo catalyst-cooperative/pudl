@@ -368,7 +368,7 @@ def out_eia923__fuel_receipts_costs(
 # Time Aggregated Assets
 #####################################################################################
 def time_aggregated_eia923_asset_factory(
-    freq: Literal["YS", "MS"],
+    freq: pudl.helpers.AggregationFreq,
     io_manager_key: str | None = None,
 ) -> list[AssetsDefinition]:
     """Build EIA-923 asset definitions, aggregated by year or month."""
@@ -665,7 +665,7 @@ def time_aggregated_eia923_asset_factory(
 
 generation_fuel_agg_eia923_assets = [
     ass
-    for freq in ["YS", "MS"]
+    for freq in pudl.helpers.AGGREGATION_FREQS
     for ass in time_aggregated_eia923_asset_factory(
         freq=freq, io_manager_key="parquet_io_manager"
     )
