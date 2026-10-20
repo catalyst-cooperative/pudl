@@ -95,14 +95,14 @@ class GenericDataConfig(FrozenBaseModel):
         return self
 
     @property
-    def partitions(cls) -> list[None | dict[str, str]]:  # noqa: N805
+    def partitions(cls) -> list[dict[str, str]]:  # noqa: N805
         """Return list of dictionaries representing individual partitions.
 
         Convert a list of partitions into a list of dictionaries of partitions. This is
         intended to be used to store partitions in a format that is easy to use with
         :meth:`pandas.json_normalize`.
         """
-        partitions = []
+        partitions: list[dict[str, str]] = []
         for part_name in ["year_quarters", "years", "year_months"]:
             if hasattr(cls, part_name):
                 partitions = [

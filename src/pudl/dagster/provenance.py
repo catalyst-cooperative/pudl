@@ -106,7 +106,7 @@ class FercSqliteProvenanceRecord(BaseModel):
         cls,
         datapackage_path: UPath,
         source: Literal["nightly", "local_cache", "local_new"],
-    ) -> FercSqliteProvenanceRecord:
+    ) -> FercSqliteProvenanceRecord | None:
         """Read SQLite provenance metadata from datapackage JSON file.
 
         Note that this method accepts ``datapackage_path`` as a ``UPath`` as we read

@@ -1526,7 +1526,7 @@ def fillna_w_rolling_avg(
     return df_new.drop(columns=f"{data_col}_rollfilled")
 
 
-def groupby_agg_label_unique_source_or_mixed(x: pd.Series) -> str | None:
+def groupby_agg_label_unique_source_or_mixed(x: pd.Series) -> str | NAType:
     """Get either the unique source in a group or return mixed.
 
     Custom function for groupby.agg. Written specifically for
@@ -3063,7 +3063,7 @@ def parse_address(addr: str):
             return (addr, None, None, None)
         tagged, addr_type = usaddress.tag(addr)
 
-        parsed = defaultdict(str)
+        parsed: defaultdict[str, str | None] = defaultdict(str)
         for key, val in tagged.items():
             parsed[key] = val.strip() if val else None
 
