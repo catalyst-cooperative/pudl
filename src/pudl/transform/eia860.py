@@ -711,13 +711,13 @@ def _core_eia860__plants(raw_eia860__plant: pd.DataFrame) -> pd.DataFrame:
     # have "N" values. Replacing these values with "N" will make for uniform
     # values that can be converted to Boolean True and False pairs.
 
-    p_df.ash_impoundment_lined = p_df.ash_impoundment_lined.replace(
+    p_df["ash_impoundment_lined"] = p_df.ash_impoundment_lined.replace(
         to_replace="X", value="N"
     )
-    p_df.natural_gas_storage = p_df.natural_gas_storage.replace(
+    p_df["natural_gas_storage"] = p_df.natural_gas_storage.replace(
         to_replace="X", value="N"
     )
-    p_df.liquefied_natural_gas_storage = p_df.liquefied_natural_gas_storage.replace(
+    p_df["liquefied_natural_gas_storage"] = p_df.liquefied_natural_gas_storage.replace(
         to_replace="X", value="N"
     )
 

@@ -924,7 +924,7 @@ def _out_ferc1__detailed_tags(_core_ferc1__table_dimensions) -> pd.DataFrame:
     # special case: condense the two hydro plant_functions from _core_ferc1__table_dimensions.
     # we didn't add yet the ability to change aggregatable_plant_function by
     # plant_function. we could but this seems simpler.
-    tags.aggregatable_plant_function = tags.aggregatable_plant_function.replace(
+    tags["aggregatable_plant_function"] = tags.aggregatable_plant_function.replace(
         to_replace={
             "hydraulic_production_conventional": "hydraulic_production",
             "hydraulic_production_pumped_storage": "hydraulic_production",
