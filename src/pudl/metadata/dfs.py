@@ -409,6 +409,7 @@ SK,Saskatchewan,CAN,Canada,province,America/Regina,,,,,0
 TN,Tennessee,USA,United States of America,state,America/Chicago,"47",East South Central,ESC,South,1
 TX,Texas,USA,United States of America,state,America/Chicago,"48",West South Central,WSC,South,1
 UT,Utah,USA,United States of America,state,America/Denver,"49",Mountain,MTN,West,1
+UM,United States Minor Outlying Islands,USA,United States of America,outlying_area,Pacific/Pago_Pago,"74",,,,0
 VA,Virginia,USA,United States of America,state,America/New_York,"51",South Atlantic,SAT,South,1
 VI,Virgin Islands,USA,United States of America,outlying_area,America/Port_of_Spain,"78",,,,0
 VT,Vermont,USA,United States of America,state,America/New_York,"50",New England,NEW,Northeast,1
