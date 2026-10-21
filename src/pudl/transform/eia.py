@@ -17,7 +17,7 @@ found in :func:`pudl.transform.eia._boiler_generator_assn`.
 """
 
 from collections import namedtuple
-from enum import StrEnum, auto
+from collections.abc import Mapping
 from functools import partial
 from typing import Any, Protocol, cast
 
@@ -46,7 +46,7 @@ from pudl.helpers import (
 from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.metadata.dtypes import apply_pudl_dtypes, get_pudl_dtypes
 from pudl.metadata.enums import APPROXIMATE_TIMEZONES
-from pudl.metadata.resources import ENTITIES
+from pudl.metadata.resources import ENTITIES, EiaEntity, HarvestableEntity
 from pudl.settings import EiaDataConfig
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -73,15 +73,6 @@ HARVESTABLE_ASSETS = (
     "_core_eia860__plants",
     "_core_eia860__utilities",
 )
-
-
-class EiaEntity(StrEnum):
-    """Enum for the different types of EIA entities."""
-
-    PLANTS = auto()
-    UTILITIES = auto()
-    BOILERS = auto()
-    GENERATORS = auto()
 
 
 EIA_FIPS_COUNTY_FIXES: pd.DataFrame = pd.DataFrame(
@@ -667,7 +658,7 @@ def _add_additional_epacems_plants(plants_entity: pd.DataFrame) -> pd.DataFrame:
 
 
 def _compile_all_entity_records(
-    entity: EiaEntity, clean_dfs: dict[str, pd.DataFrame]
+    entity: HarvestableEntity, clean_dfs: dict[str, pd.DataFrame]
 ) -> pd.DataFrame:
     """Compile all of the entity records from each table they appear in.
 
@@ -675,12 +666,12 @@ def _compile_all_entity_records(
     entity id.
     """
     # we know these columns must be in the dfs
-    id_cols = ENTITIES[entity.value]["id_cols"]
-    static_cols = ENTITIES[entity.value]["static_cols"]
-    annual_cols = ENTITIES[entity.value]["annual_cols"]
+    id_cols = ENTITIES[entity]["id_cols"]
+    static_cols = ENTITIES[entity]["static_cols"]
+    annual_cols = ENTITIES[entity]["annual_cols"]
     # A dictionary of columns representing additional data to be harvested,
     # whose names should map to an ID, static, or annual column name.
-    mapped_schemas = ENTITIES[entity.value].get("mapped_schemas")
+    mapped_schemas = ENTITIES[entity].get("mapped_schemas")
     base_cols = id_cols + ["report_date"]
 
     # empty list for dfs to be added to for each table below
@@ -738,7 +729,7 @@ def _compile_all_entity_records(
     return compiled_df
 
 
-def _manage_strictness(col: str, special_case_strictness: dict[str, float]) -> float:
+def _manage_strictness(col: str, special_case_strictness: Mapping[str, float]) -> float:
     """Manage the strictness level for each column.
 
     Args:
@@ -781,9 +772,9 @@ SPECIAL_CASE_HARVESTERS: dict[str, SpecialCaseHarvester] = {
 
 
 def harvest_entity_tables(  # noqa: C901
-    entity: EiaEntity,
+    entity: HarvestableEntity,
     clean_dfs: dict[str, pd.DataFrame],
-    special_case_strictness: dict[str, float] = {},
+    special_case_strictness: Mapping[str, float] = {},
     debug: bool = False,
 ) -> tuple:
     """Compile consistent records for various entities.
@@ -813,7 +804,8 @@ def harvest_entity_tables(  # noqa: C901
     the real world.
 
     Args:
-        entity: One of: plants, generators, boilers, or utilities
+        entity: An :class:`~pudl.metadata.resources.EiaEntity` (plants, generators,
+            boilers, or utilities) or :class:`~pudl.metadata.resources.RusEntity`.
         clean_dfs: A dictionary of table names (keys) and clean dfs (values).
         special_case_strictness: dictionary of column names (keys) and strictness
             values. The default strictness for harvesting consistent records is
@@ -836,9 +828,9 @@ def harvest_entity_tables(  # noqa: C901
         * Determine how to treat mostly static records
     """
     # we know these columns must be in the dfs
-    id_cols = ENTITIES[entity.value]["id_cols"]
-    static_cols = ENTITIES[entity.value]["static_cols"]
-    annual_cols = ENTITIES[entity.value]["annual_cols"]
+    id_cols = ENTITIES[entity]["id_cols"]
+    static_cols = ENTITIES[entity]["static_cols"]
+    annual_cols = ENTITIES[entity]["annual_cols"]
 
     logger.debug("    compiling plants for entity tables from:")
 
@@ -1632,7 +1624,7 @@ def harvested_entity_asset_factory(
             [df for harvested_col_name, df in _col_dfs.items()], axis="index"
         ).reset_index(drop=True)
         logger.debug("Making changelog out of all forensics inputs for {entity.value}")
-        forensics = make_changelog(out_all, ENTITIES[entity.value]["id_cols"])
+        forensics = make_changelog(out_all, ENTITIES[entity]["id_cols"])
 
         return (
             Output(output_name=f"core_eia__entity_{entity.value}", value=entity_df),

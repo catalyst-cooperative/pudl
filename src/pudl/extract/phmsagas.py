@@ -67,7 +67,7 @@ class Extractor(excel.ExcelExtractor):
         (ex: 87 for 1987). We convert these into four digit years.
         """
         if (int(partition["year"]) <= 1998) and (page == "yearly_distribution"):
-            df.report_year = df.report_year.astype(pd.Int64Dtype())
+            df["report_year"] = df.report_year.astype(pd.Int64Dtype())
             double_digit_year_mask = (
                 df["report_year"].astype("str").str.contains(r"^[0-9]{2}$")
             )

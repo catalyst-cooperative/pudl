@@ -1,7 +1,5 @@
 """Code for transforming RUS data that pertains to more than one RUS Form."""
 
-from enum import StrEnum, auto
-
 import pandas as pd
 from dagster import AssetIn, AssetsDefinition, asset
 
@@ -85,12 +83,6 @@ def convert_units(
         }
     )
     return df
-
-
-class RusEntity(StrEnum):
-    """Enum for the different types of RUS entities."""
-
-    BORROWERS = auto()
 
 
 def finished_rus_asset_factory(
