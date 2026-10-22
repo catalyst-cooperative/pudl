@@ -213,7 +213,7 @@ Bug Fixes & Data Cleaning
   instead of ``<NA>`` (or ``<na>``), consistent with the rest of the ID. This changes
   ``record_id_eia`` and ``plant_part_id_eia`` in ``out_eia__yearly_plant_parts`` and the
   related plant-part association tables for a few hundred records. See :issue:`5598` and
-  :pr:`5640`.
+  :pr:`5721`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
