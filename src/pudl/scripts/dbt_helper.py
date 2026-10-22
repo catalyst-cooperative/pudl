@@ -15,7 +15,7 @@ from pudl import FERCEQR_BUILDS_BASE_PATH, PUDL_DBT_PATH, PUDL_NIGHTLY_BUILDS_BA
 from pudl.dagster.build import build_defs
 from pudl.dbt_schema import DbtSchema, DbtTable, merge_schema
 from pudl.logging_helpers import configure_root_logger, get_logger
-from pudl.metadata.classes import PUDL_PACKAGE
+from pudl.metadata.classes import PUDL_PACKAGE, Resource
 from pudl.validate.dbt import build_with_context, dagster_to_dbt_selection
 from pudl.workspace.setup import PudlPaths
 
@@ -35,7 +35,8 @@ def insert_data_source(parent_dir: Path, table_name: str) -> Path:
     if not match:
         raise ValueError(f"{table_name} has no data source segment.")
     data_source = match.group(2)
-    return parent_dir / data_source / table_name
+    dbt_source = Resource.from_id(table_name).dbt_source
+    return parent_dir / dbt_source / data_source / table_name
 
 
 UpdateResult = namedtuple("UpdateResult", ["success", "message"])
