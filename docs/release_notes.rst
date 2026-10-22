@@ -213,7 +213,7 @@ Bug Fixes & Data Cleaning
   variable peak columns is now treated as ``True`` (a checked box) instead of being
   turned into a null, which changes four 2018 rows of
   ``core_eia861__yearly_dynamic_pricing``. Unexpected codes other than Y, N and X raise
-  an error. See :issue:`5617`, :issue:`5601` and :pr:`5631`.
+  an error. See :issue:`5617`, :issue:`5601` and :pr:`5718`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
