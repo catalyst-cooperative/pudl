@@ -20,6 +20,8 @@ Expanded Data Coverage
 Documentation
 ^^^^^^^^^^^^^
 
+- Added data source page for :doc:`EPA MATS <data_sources/epamats>`.
+
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
