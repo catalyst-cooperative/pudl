@@ -882,17 +882,14 @@ def drop_invalid_rows(df: pd.DataFrame, params: InvalidRows) -> pd.DataFrame:
     # care about are invalid (i.e. where ANY of the columns we care about contain a
     # valid value):
 
-    # For some reason, a simple cols_to_check.isin(params.invalid_values) fails
-    # on some dfs with NA values. this cols_to_check.transform() is intended as
-    # a drop-in replacement for cols_to_check.isin(params.invalid_values)
-    invalids = cols_to_check.transform(
-        lambda x: (
-            x.map(dict.fromkeys(params.invalid_values, True))
-            .fillna(False)
-            .astype("boolean")
-        )
-    )
-    mask = ~(invalids.all(axis="columns"))
+    # All NA-like values (pd.NA, np.nan, None) are treated as one category: they are
+    # invalid if any of them appears in invalid_values. Other values are matched with
+    # .isin(), since .isin() does not reliably match NA values across dtypes.
+    non_na_invalid_values = [v for v in params.invalid_values if not pd.isna(v)]
+    invalids = cols_to_check.isin(non_na_invalid_values)
+    if len(non_na_invalid_values) < len(params.invalid_values):
+        invalids |= cols_to_check.isna()
+    mask = ~invalids.all(axis="columns")
     # Mask the input dataframe and make a copy to avoid returning a slice.
     df_out = df[mask].copy()
     logger.info(
