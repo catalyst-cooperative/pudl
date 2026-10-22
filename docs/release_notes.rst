@@ -38,7 +38,7 @@ Bug Fixes & Data Cleaning
   longer misread leader dots (``"...99"`` was 0.0099, now 0.99) and dots-only entries
   are null; and ``drop_invalid_rows()`` treats ``pd.NA``, ``np.nan`` and ``None``
   alike. A new dbt test expects 90% of SEC 10-K ``fraction_owned`` values to be <= 1.
-  See :issue:`5616`, :issue:`5623` and :pr:`5665`. Part of the Pandas 3.0 migration
+  See :issue:`5616`, :issue:`5623` and :pr:`5720`. Part of the Pandas 3.0 migration
   epic :pr:`3737`.
 
 Performance Improvements
