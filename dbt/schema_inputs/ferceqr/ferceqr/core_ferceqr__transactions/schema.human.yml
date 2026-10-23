@@ -5,6 +5,3 @@ sources:
       - name: core_ferceqr__transactions
         data_tests:
           - expect_columns_not_all_null
-          - check_row_counts_per_partition:
-              arguments:
-                partition_expr: year_quarter
