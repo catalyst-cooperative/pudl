@@ -3,10 +3,11 @@
 # 2026-05 TODO: once we have schema regeneration as a commit hook, we can probably
 # get rid of this whole file.
 
+import itertools
 from collections import defaultdict
 from pathlib import Path
 
-from pudl.metadata.classes import PUDL_PACKAGE
+from pudl.metadata.classes import FERCEQR_PACKAGE, PUDL_PACKAGE, Resource
 from pudl.scripts.dbt_helper import DbtSchema, insert_data_source
 from pudl.validate.dbt import PUDL_DBT_PATH
 
@@ -47,7 +48,10 @@ def test_dbt_schema_drift():
 
     If differences are found, detail which index is missing which items.
     """
-    all_pudl_tables = [r.name for r in PUDL_PACKAGE.resources]
+    all_pudl_tables = [
+        r.name
+        for r in itertools.chain(PUDL_PACKAGE.resources, FERCEQR_PACKAGE.resources)
+    ]
 
     pudl_tables_not_in_dbt = set()
     pudl_fields_not_in_dbt = defaultdict(set)
@@ -78,9 +82,7 @@ def test_dbt_schema_drift():
             for table in source.tables or []
             for column in table.columns or []
         }
-        for field_name in [
-            f.name for f in PUDL_PACKAGE.get_resource(table_name).schema.fields
-        ]:
+        for field_name in [f.name for f in Resource.from_id(table_name).schema.fields]:
             try:
                 schema_fields.remove(field_name)
             except KeyError:  # pragma: no cover
