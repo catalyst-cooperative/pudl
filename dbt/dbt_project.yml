@@ -1,11 +1,11 @@
 # Name your project! Project names should contain only lowercase characters
 # and underscores. A good package name should reflect your organization's
 # name or the intended use of these models
-name: "pudl_dbt"
+name: "pudl_validation_tests"
 version: "1.0.0"
 
 # This setting configures which "profile" dbt uses for this project.
-profile: "pudl_dbt"
+profile: "pudl_duckdb"
 
 # Opt out of telemetry
 flags:
@@ -22,7 +22,7 @@ test-paths: ["tests/unit_tests"]
 
 # Apply `external_location` to tell dbt where parquet files are located so it can use duckdb to query them
 sources:
-  pudl_dbt:
+  pudl_validation_tests:
     # This will apply `external_location` based on the path of a table's `schema.yml` file
     # Schema files in the `dbt/models/pudl` directory will get this path pointing to a single parquet file
     pudl:
