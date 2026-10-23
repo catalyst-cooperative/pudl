@@ -82,6 +82,21 @@ def with_name(mock, name):
     return mock
 
 
+@pytest.fixture
+def fake_dbt_source(mocker):
+    """Pretend every table belongs to the ``pudl`` dbt source.
+
+    ``insert_data_source`` looks the table up in the real PUDL metadata to find
+    which dbt source it belongs to, but many of these tests use made-up table
+    names that aren't in ``RESOURCE_METADATA``.
+    """
+    resource = mocker.Mock()
+    resource.dbt_source = "pudl"
+    return mocker.patch(
+        "pudl.scripts.dbt_helper.Resource.from_id", return_value=resource
+    )
+
+
 # dbt helper helpers
 
 
@@ -89,10 +104,15 @@ def with_name(mock, name):
     ("table_name", "expected_data_source"),
     [("_core_eia__foo", "eia"), ("out_ferc__bar", "ferc")],
 )
-def test_insert_data_source(table_name: str, expected_data_source: str, tmp_path: Path):
+def test_insert_data_source(
+    table_name: str,
+    expected_data_source: str,
+    tmp_path: Path,
+    fake_dbt_source,
+):
     """Test that our regex can correctly extract source names from normal-looking table names."""
     observed = insert_data_source(tmp_path, table_name)
-    expected = tmp_path / expected_data_source / table_name
+    expected = tmp_path / "pudl" / expected_data_source / table_name
     assert observed == expected
 
 
@@ -299,7 +319,7 @@ ROW_COUNT_TEST_CASES = [
 
 
 @pytest.mark.parametrize("case", ROW_COUNT_TEST_CASES)
-def test_update_row_counts(case, schema_factory, mocker, tmp_path):
+def test_update_row_counts(case, schema_factory, mocker, tmp_path, fake_dbt_source):
     given = case.given
     expect = case.expect
 
@@ -720,6 +740,7 @@ def test_update_table_row_counts_clobber(
     tmp_path,
     mocker,
     pudl_test_paths,
+    fake_dbt_source,
 ):
     # make test data
     test_schema = f"""
@@ -741,7 +762,7 @@ sources:
     # don't need to make temporary PUDL_OUT because we do that already in conftest.py
     dbt_dir = tmp_path / "dbt"
     schema_path = (
-        dbt_dir / "models" / "source" / "test_source__table_name" / "schema.yml"
+        insert_data_source(dbt_dir / "models", "test_source__table_name") / "schema.yml"
     )
     row_count_csv_path = dbt_dir / "seeds" / "etl_full_row_counts.csv"
     parquet_path = pudl_test_paths.parquet_path("test_source__table_name")
@@ -794,9 +815,9 @@ PUDL_TABLE = "core_pudl__codes_datasources"
 
 def test_update_schema_no_human(tmp_path):
     """Make sure we handle schema updates properly when there is no human-coded file."""
-    schema_inputs_path = tmp_path / "schema_inputs" / "pudl" / PUDL_TABLE
+    schema_inputs_path = insert_data_source(tmp_path / "schema_inputs", PUDL_TABLE)
     schema_inputs_path.mkdir(parents=True)
-    output_path = tmp_path / "models" / "pudl" / PUDL_TABLE
+    output_path = insert_data_source(tmp_path / "models", PUDL_TABLE)
     output_path.mkdir(parents=True)
 
     update_table_schema(PUDL_TABLE, tmp_path)
@@ -809,11 +830,11 @@ def test_update_schema_no_human(tmp_path):
 
 def test_update_schema_empty_human(tmp_path):
     """Make sure we handle schema updates properly when the human-coded file is empty."""
-    schema_inputs_path = tmp_path / "schema_inputs" / "pudl" / PUDL_TABLE
+    schema_inputs_path = insert_data_source(tmp_path / "schema_inputs", PUDL_TABLE)
     schema_inputs_path.mkdir(parents=True)
     (schema_inputs_path / "schema.human.yml").touch()
 
-    output_path = tmp_path / "models" / "pudl" / PUDL_TABLE
+    output_path = insert_data_source(tmp_path / "models", PUDL_TABLE)
     output_path.mkdir(parents=True)
 
     update_table_schema(PUDL_TABLE, tmp_path)
@@ -826,7 +847,7 @@ def test_update_schema_empty_human(tmp_path):
 
 def test_update_schema(tmp_path):
     """Make sure we handle schema updates properly when the human-coded file has something normal in it."""
-    schema_inputs_path = tmp_path / "schema_inputs" / "pudl" / PUDL_TABLE
+    schema_inputs_path = insert_data_source(tmp_path / "schema_inputs", PUDL_TABLE)
     schema_inputs_path.mkdir(parents=True)
 
     human_yaml = f"""
@@ -849,7 +870,7 @@ sources:
     with (schema_inputs_path / "schema.human.yml").open("w") as f:
         f.write(human_yaml)
 
-    output_path = tmp_path / "models" / "pudl" / PUDL_TABLE
+    output_path = insert_data_source(tmp_path / "models", PUDL_TABLE)
     output_path.mkdir(parents=True)
 
     update_table_schema(PUDL_TABLE, tmp_path)

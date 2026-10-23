@@ -3,6 +3,7 @@
 import io
 import json
 import logging
+import os
 from contextlib import chdir, contextmanager, redirect_stdout
 from pathlib import Path
 from typing import NamedTuple, cast
@@ -146,6 +147,7 @@ def build_with_context(
     node_selection: str,
     dbt_target: str,
     node_exclusion: str | None = None,
+    parquet_base_path: str | None = None,
 ) -> BuildResult:
     """Run the DBT build and get failure information back.
 
@@ -159,6 +161,10 @@ def build_with_context(
     cli_args = ["--target", dbt_target, "--select", node_selection]
     if node_exclusion is not None:
         cli_args += ["--exclude", node_exclusion]
+    if parquet_base_path:
+        # These will live on for the full python process, but won't persist beyond that
+        os.environ["PARQUET_BASE_PATH"] = str(parquet_base_path)
+
     dbt = install_dbt_deps()
 
     with _preserve_logging_propagation(), chdir(PUDL_DBT_PATH):

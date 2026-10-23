@@ -47,7 +47,15 @@ See ``dbt_helper validate --help`` for usage details.
 
    You may want to run the validation tests against multiple sets of Parquet files.
 
-   To do this:
+   To run validation tests on nightly builds, simply add the ``--use-nightly-builds`` option on
+   ``dbt_helper validate``. For example:
+
+   .. code-block:: bash
+
+      dbt_helper validate --asset-select "+key:out_eia__yearly_generators" --use-nightly-builds
+
+   If you want to use outputs from a non-nightly path (like outputs from a branch build), you can
+   do the following:
 
    1. Download the Parquet files to ``<any_directory_you_want>/parquet/``.
    2. Set the ``PUDL_OUTPUT`` environment variable to ``<any_directory_you_want>``.
@@ -78,10 +86,17 @@ YAML file that you need to keep up to date.
 
 We generate that file automatically by combining the existing metadata in
 ``pudl.metadata.resources.RESOURCE_METADATA`` with human-generated data tests
-defined in ``pudl/dbt/schema_inputs/<data_source>/<table_name>/schemahuman.yml``.
+defined in
+``pudl/dbt/schema_inputs/<dbt_source>/<data_source>/<table_name>/schema.human.yml``.
 
 The final generated file lives in
-``pudl/dbt/models/<data_source>/<table_name>/schema.yml``.
+``pudl/dbt/models/<dbt_source>/<data_source>/<table_name>/schema.yml``.
+
+``dbt_source`` can be either ``pudl`` or ``ferceqr``. This distinction exists
+because ``ferceqr`` data is processed in a separate dagster job and the outputs
+are partitioned, meaning that each table contains a directory of parquet files
+rather than just one parquet file. ``dbt`` needs to know about this distinction
+so ``duckdb`` can be configured to query the parquet file(s).
 
 When you change a table's schema or update the data tests, you need to
 regenerate the dbt schema:

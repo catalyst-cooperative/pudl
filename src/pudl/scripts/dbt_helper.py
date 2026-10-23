@@ -15,7 +15,7 @@ from pudl import PUDL_DBT_PATH
 from pudl.dagster.build import build_defs
 from pudl.dbt_schema import DbtSchema, DbtTable, merge_schema
 from pudl.logging_helpers import configure_root_logger, get_logger
-from pudl.metadata.classes import PUDL_PACKAGE
+from pudl.metadata.classes import PUDL_PACKAGE, Resource
 from pudl.validate.dbt import build_with_context, dagster_to_dbt_selection
 from pudl.workspace.setup import PudlPaths
 
@@ -35,7 +35,8 @@ def insert_data_source(parent_dir: Path, table_name: str) -> Path:
     if not match:
         raise ValueError(f"{table_name} has no data source segment.")
     data_source = match.group(2)
-    return parent_dir / data_source / table_name
+    dbt_source = Resource.from_id(table_name).dbt_source
+    return parent_dir / dbt_source / data_source / table_name
 
 
 UpdateResult = namedtuple("UpdateResult", ["success", "message"])
@@ -56,7 +57,7 @@ def _calculate_row_counts(
     table_name: str,
     partition_expr: str | None = None,
 ) -> pd.DataFrame:
-    table_path = str(PudlPaths().parquet_path(table_name))
+    parquet_path = str(PudlPaths().parquet_path(table_name))
 
     if partition_expr is None:
         partition_expr_sql = "''"
@@ -69,18 +70,16 @@ def _calculate_row_counts(
 SELECT
     CAST(COALESCE(CAST({partition_expr_sql} AS VARCHAR), '') AS VARCHAR) AS partition,
     COUNT(*) AS row_count
-FROM '{table_path}' {group_by_clause}
+FROM read_parquet('{parquet_path}', union_by_name=true) {group_by_clause}
     """  # noqa: S608
 
-    new_row_counts = (
+    return (
         duckdb.sql(row_count_query)
         .df()
         .assign(table_name=table_name)
         .astype({"partition": "string", "table_name": "string"})
         .loc[:, ["table_name", "partition", "row_count"]]
     )
-
-    return new_row_counts
 
 
 def _combine_row_counts(existing: pd.DataFrame, new: pd.DataFrame) -> pd.DataFrame:
@@ -364,12 +363,22 @@ def update_tables(
         "for local debugging of remote CI failures."
     ),
 )
+@click.option(
+    "--parquet-base-path",
+    help=(
+        "Base path containing the Parquet files to validate, overriding the "
+        "default of $PUDL_OUTPUT/parquet. Useful for validating outputs that "
+        "live outside the local PUDL output directory, e.g. a remote nightly "
+        "build or another worktree's outputs."
+    ),
+)
 def validate(
     select: str | None = None,
     asset_select: str | None = None,
     exclude: str | None = None,
     dry_run: bool = False,
     override_target: str | None = None,
+    parquet_base_path: str | None = None,
 ) -> None:
     """Validate a selection of dbt nodes.
 
@@ -400,6 +409,10 @@ def validate(
 
         $ dbt_helper validate --asset-select "+key:out_eia__yearly_generators" --exclude "*check_row_counts*"
 
+    Validate Parquet files that live somewhere other than $PUDL_OUTPUT/parquet:
+
+        $ dbt_helper validate --asset-select "key:out_eia__yearly_generators" --parquet-base-path /path/to/parquet
+
 
 
     """
@@ -419,6 +432,7 @@ def validate(
         "node_selection": node_selection,
         "node_exclusion": exclude,
         "dbt_target": override_target if override_target else "etl-full",
+        "parquet_base_path": parquet_base_path,
     }
 
     if dry_run:

@@ -18,7 +18,7 @@ from pudl.validate.dbt import build_with_context
 
 @pytest.mark.order(5)
 @pytest.mark.usefixtures("prebuilt_outputs", "test_dir")
-def test_dbt_row_counts(dbt_target: str):
+def test_dbt_row_counts(dbt_target: str, dbt_source: str):
     """Run only the dbt ``check_row_counts_per_partition`` checks.
 
     This test is intentionally kept separate from :func:`test_dbt` in
@@ -35,7 +35,9 @@ def test_dbt_row_counts(dbt_target: str):
         )
 
     test_result = build_with_context(
-        node_selection="test_name:check_row_counts_per_partition",
+        # Comma denotes an intersection in dbt's selection syntax: only the row
+        # count tests that are also downstream of the requested source.
+        node_selection=f"test_name:check_row_counts_per_partition,source:{dbt_source}+",
         dbt_target=dbt_target,
     )
 
