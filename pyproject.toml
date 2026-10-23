@@ -289,6 +289,7 @@ bash -c 'shopt -s nullglob; rm -rf \
     docs/data_sources/vcerare*.rst \
     docs/citations_media/catalyst_publications.rst \
     docs/citations_media/citing_pudl.rst \
+    docs/citations_media/mentioning_pudl.rst \
     docs/citations_media/citing_cooperative.rst \
     docs/citations_media/further_reading.rst'
 """

@@ -382,7 +382,7 @@ CITATIONS_MEDIA_PAGES = [
     },
     {
         "name": "mentioning_pudl",
-        "title": "Work Mentioning PUDL or Catalyst",
+        "title": "Media Mentions of PUDL or Catalyst",
         "bibfile": "catalyst_mentions.bib",
         "description": (
             "Media such as news or magazine articles, blogs, interviews, podcasts,"
@@ -402,7 +402,7 @@ CITATIONS_MEDIA_PAGES = [
     },
     {
         "name": "citing_cooperative",
-        "title": "Work Citing Catalyst Cooperative",
+        "title": "References to Catalyst as a Worker Cooperative",
         "bibfile": "cooperative_cites.bib",
         "description": (
             "Academic, policy, and industry publications referencing Catalyst's "
