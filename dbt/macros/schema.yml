@@ -61,3 +61,24 @@ macros:
       - name: labels
         type: list[any]
         description: Labels to match, each in the format accepted by subcomponent_one_label_condition.
+  - name: facility_outside_reported_region
+    description: Logic behind the expect_facility_in_reported_state and expect_facility_in_reported_county data tests, which check that the latitude and longitude of each row fall in the region (e.g. state or county) the row reports. Returns one row for each model row whose point is outside its reported region by more than tolerance_meters, using the DuckDB spatial extension. Rows with a null latitude, longitude, or region ID pass. A point within no region at all (e.g. offshore) is checked like any other. Failures have a failure_reason (reported_region_not_found, point_in_no_region, or point_in_other_region), distance_to_reported_meters (NULL if the reported region doesn't exist), and located_<region_id_column> and located_<label_column> for the region that contains the point (NULL if there is none). Distances are measured in EPSG:5070.
+    arguments:
+      - name: model
+        type: relation
+        description: The table or model to check. Must have latitude and longitude columns, and a column named region_id_column.
+      - name: region_id_column
+        type: string
+        description: Name of the column holding the reported region ID (e.g. state_id_fips). The regions relation must have a column with the same name.
+      - name: regions
+        type: relation
+        description: Relation of region boundaries, with the region ID, a label column, and a geometry column with a CRS (as in GeoParquet), e.g. source('pudl', 'out_censusdp1tract__states'). The points are assumed to be in the same CRS.
+      - name: label_column
+        type: string
+        description: Name of the column in regions with a human-readable name for each region (e.g. state), reported for the region that contains the point.
+      - name: tolerance_meters
+        type: float
+        description: A point within this distance of its reported region passes, even if it is outside it, which accounts for imprecise coordinates and boundaries.
+      - name: crs
+        type: string
+        description: Optional CRS of the regions' geometries, e.g. "EPSG:4269". If omitted, it is read from the regions relation with a query, which requires regions to be a real table or view rather than a CTE (e.g. in a unit test).

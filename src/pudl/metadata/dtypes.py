@@ -23,7 +23,7 @@ functions that need it, so the metadata class graph does not introduce a module 
 cycle.
 """
 
-import datetime
+import datetime as dt
 from collections.abc import Callable
 from copy import deepcopy
 from typing import Any, Literal
@@ -63,14 +63,21 @@ FIELD_DTYPES_DUCKDB: dict[str, duckdb.sqltypes.DuckDBPyType] = {
 }
 """DuckDB data type by simplified PUDL field type."""
 
-FIELD_DTYPES_PANDAS: dict[str, str] = {
-    "boolean": "boolean",
+PandasDtype = str | pd.api.extensions.ExtensionDtype
+"""A pandas dtype as given to :meth:`pandas.Series.astype`: a dtype name or object.
+
+PUDL uses dtype names (e.g. ``"Int64"``) for most fields and
+:class:`pandas.CategoricalDtype` instances (an ``ExtensionDtype``) for enum fields.
+"""
+
+FIELD_DTYPES_PANDAS: dict[str, PandasDtype] = {
+    "boolean": pd.BooleanDtype(),
     "date": "datetime64[us]",
     "datetime": "datetime64[us]",
     "geometry": "geometry",
-    "integer": "Int64",
+    "integer": pd.Int64Dtype(),
     "number": "float64",
-    "string": "string",
+    "string": pd.StringDtype(),
     "year": "datetime64[us]",
 }
 """Pandas data type by simplified PUDL field type."""
@@ -125,8 +132,8 @@ type that already stores microseconds, so ``FIELD_DTYPES_SQLALCHEMY``'s plain
 
 CONSTRAINT_DTYPES: dict[str, type] = {
     "boolean": bool,
-    "date": datetime.date,
-    "datetime": datetime.datetime,
+    "date": dt.date,
+    "datetime": dt.datetime,
     "geometry": geopandas.array.GeometryDtype,
     "integer": int,
     "number": float,

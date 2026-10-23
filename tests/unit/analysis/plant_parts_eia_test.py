@@ -1,6 +1,7 @@
 """Tests for timeseries anomalies detection and imputation."""
 
 import pandas as pd
+import pytest
 
 import pudl.analysis.plant_parts_eia
 import pudl.helpers
@@ -53,6 +54,51 @@ def test_plant_ag():
         .convert_dtypes()
     )
     pd.testing.assert_frame_equal(plant_ag_out, plant_ag_expected)
+
+
+def test_plant_ag_does_not_double_count_jointly_owned_generators():
+    """The "total" records count each generator once, however many owners it has.
+
+    The owner-describing columns (``utility_id_eia``, ``utility_id_pudl`` and
+    ``utility_name_eia``) differ between the ownership records of a jointly owned
+    generator, so they can't be relied on to collapse a generator's "total" records
+    into one before aggregating.
+    See https://github.com/catalyst-cooperative/pudl/issues/5651
+    """
+    # Generator "a" (100 MW, $10/MWh) is jointly owned by utilities 3 and 4, while
+    # generator "b" (300 MW, $20/MWh) is owned by utility 3 alone.
+    gens_mega = pd.DataFrame(
+        {
+            "plant_id_eia": 1,
+            "report_date": "2020-01-01",
+            "operational_status_pudl": "operating",
+            "generator_id": ["a", "a", "b", "a", "a", "b"],
+            "utility_id_eia": [3, 4, 3, 3, 4, 3],
+            "utility_id_pudl": [30, 40, 30, 30, 40, 30],
+            "utility_name_eia": ["Three", "Four", "Three", "Three", "Four", "Three"],
+            "ownership_record_type": ["owned"] * 3 + ["total"] * 3,
+            "capacity_mw": [60.0, 40.0, 300.0, 100.0, 100.0, 300.0],
+            "fuel_cost_per_mwh": [10.0, 10.0, 20.0, 10.0, 10.0, 20.0],
+        }
+    ).astype({"report_date": "datetime64[us]"})
+
+    out = (
+        pudl.analysis.plant_parts_eia.PlantPart(part_name="plant")
+        .ag_part_by_own_slice(
+            gens_mega,
+            sum_cols=["capacity_mw"],
+            wtavg_dict={"fuel_cost_per_mwh": "capacity_mw"},
+        )
+        .sort_values(["ownership_record_type", "utility_id_eia"], ignore_index=True)
+    )
+
+    # The plant is 400 MW, with a capacity-weighted cost of (100*10 + 300*20) / 400.
+    # Both owners get a "total" record describing the whole plant, and their "owned"
+    # records describe their own shares of it.
+    assert out["ownership_record_type"].tolist() == ["owned", "owned", "total", "total"]
+    assert out["utility_id_eia"].tolist() == [3, 4, 3, 4]
+    assert out["capacity_mw"].tolist() == pytest.approx([360.0, 40.0, 400.0, 400.0])
+    assert out["fuel_cost_per_mwh"].tolist()[2:] == pytest.approx([17.5, 17.5])
 
 
 def test_prime_fuel_ag():
@@ -165,6 +211,8 @@ def test_make_mega_gen_tbl():
                 "report_date": "2020-01-01",
                 "generator_id": ["a", "b", "c"],
                 "utility_id_eia": [111, 111, 111],
+                "utility_id_pudl": [11, 11, 11],
+                "utility_name_eia": "Operator Co",
                 "unit_id_pudl": 1,
                 "prime_mover_code": ["CT", "CT", "CA"],
                 "technology_description": "Natural Gas Fired Combined Cycle",
@@ -193,6 +241,13 @@ def test_make_mega_gen_tbl():
                 "report_date": "2020-01-01",
                 "generator_id": ["a", "b", "c", "c"],
                 "owner_utility_id_eia": [111, 111, 111, 888],
+                "utility_id_pudl": [11, 11, 11, 88],
+                "owner_utility_name_eia": [
+                    "Operator Co",
+                    "Operator Co",
+                    "Operator Co",
+                    "Other Owner Co",
+                ],
                 "fraction_owned": [1, 1, 0.75, 0.25],
             }
         )
@@ -227,8 +282,24 @@ def test_make_mega_gen_tbl():
                 "generator_operating_year": 2001,
                 "operational_status_pudl": "operating",
                 "capacity_eoy_mw": [50, 50, 100, 100, 50, 50, 100, 100],
+                # The operator is the same for every ownership slice, while the
+                # utility_id_* columns describe each generator's owner.
+                "operator_utility_id_eia": 111,
+                "operator_utility_id_pudl": 11,
+                "operator_utility_name_eia": "Operator Co",
                 "fraction_owned": [1.00, 1.00, 0.75, 0.25, 1.00, 1.00, 1.00, 1.00],
                 "utility_id_eia": [111, 111, 111, 888, 111, 111, 111, 888],
+                "utility_id_pudl": [11, 11, 11, 88, 11, 11, 11, 88],
+                "utility_name_eia": [
+                    "Operator Co",
+                    "Operator Co",
+                    "Operator Co",
+                    "Other Owner Co",
+                    "Operator Co",
+                    "Operator Co",
+                    "Operator Co",
+                    "Other Owner Co",
+                ],
                 "ownership_record_type": [
                     "owned",
                     "owned",
@@ -248,6 +319,10 @@ def test_make_mega_gen_tbl():
                 "generator_operating_date": "datetime64[us]",
                 "generator_operating_year": "Int64",
                 "utility_id_eia": "Int64",  # convert to pandas Int64 instead of numpy int64
+                "capacity_mw": "float64",  # scaled by ownership fraction -> float64
+                "utility_id_pudl": "Int64",
+                "operator_utility_id_eia": "Int64",
+                "operator_utility_id_pudl": "Int64",
             }
         )
         .set_index([[0, 1, 2, 3, 0, 1, 2, 3]])
@@ -268,7 +343,12 @@ def test_scale_by_ownership():
         },
     ).astype({"report_date": "datetime64[us]", "owner_utility_id_eia": pd.Int64Dtype()})
 
-    dtypes = {"report_date": "datetime64[us]", "utility_id_eia": pd.Int64Dtype()}
+    dtypes = {
+        "plant_id_eia": pd.Int64Dtype(),
+        "report_date": "datetime64[us]",
+        "generator_id": pd.StringDtype(),
+        "utility_id_eia": pd.Int64Dtype(),
+    }
     gens_mega_ex1 = pd.DataFrame(
         {
             "plant_id_eia": [1, 1],
@@ -292,106 +372,102 @@ def test_scale_by_ownership():
         },
     ).astype(dtypes)
 
-    out_ex1 = (
-        pd.DataFrame(
-            {
-                "plant_id_eia": [
-                    1,
-                    1,
-                    1,
-                    1,
-                    1,
-                    1,
-                    1,
-                    1,
-                ],
-                "report_date": [
-                    "2019-01-01",
-                    "2019-01-01",
-                    "2019-01-01",
-                    "2019-01-01",
-                    "2019-01-01",
-                    "2019-01-01",
-                    "2019-01-01",
-                    "2019-01-01",
-                ],
-                "generator_id": [
-                    "a",
-                    "a",
-                    "b",
-                    "b",
-                    "a",
-                    "a",
-                    "b",
-                    "b",
-                ],
-                "total_fuel_cost": [
-                    4500 * 0.7,
-                    4500 * 0.3,
-                    1250 * 0.1,
-                    1250 * 0.9,
-                    4500,
-                    4500,
-                    1250,
-                    1250,
-                ],
-                "net_generation_mwh": [
-                    10000 * 0.7,
-                    10000 * 0.3,
-                    5000 * 0.1,
-                    5000 * 0.9,
-                    10000,
-                    10000,
-                    5000,
-                    5000,
-                ],
-                "capacity_mw": [
-                    100 * 0.7,
-                    100 * 0.3,
-                    50 * 0.1,
-                    50 * 0.9,
-                    100,
-                    100,
-                    50,
-                    50,
-                ],
-                "capacity_eoy_mw": [
-                    100 * 0.7,
-                    100 * 0.3,
-                    50 * 0.1,
-                    50 * 0.9,
-                    100,
-                    100,
-                    50,
-                    50,
-                ],
-                "total_mmbtu": [
-                    9000 * 0.7,
-                    9000 * 0.3,
-                    7800 * 0.1,
-                    7800 * 0.9,
-                    9000,
-                    9000,
-                    7800,
-                    7800,
-                ],
-                "fraction_owned": [0.7, 0.3, 0.1, 0.9, 1, 1, 1, 1],
-                "utility_id_eia": [3, 4, 3, 4, 3, 4, 3, 4],
-                "ownership_record_type": [
-                    "owned",
-                    "owned",
-                    "owned",
-                    "owned",
-                    "total",
-                    "total",
-                    "total",
-                    "total",
-                ],
-            },
-        )
-        .convert_dtypes()
-        .astype(dtypes)
-    )
+    out_ex1 = pd.DataFrame(
+        {
+            "plant_id_eia": [
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+            ],
+            "report_date": [
+                "2019-01-01",
+                "2019-01-01",
+                "2019-01-01",
+                "2019-01-01",
+                "2019-01-01",
+                "2019-01-01",
+                "2019-01-01",
+                "2019-01-01",
+            ],
+            "generator_id": [
+                "a",
+                "a",
+                "b",
+                "b",
+                "a",
+                "a",
+                "b",
+                "b",
+            ],
+            "total_fuel_cost": [
+                4500 * 0.7,
+                4500 * 0.3,
+                1250 * 0.1,
+                1250 * 0.9,
+                4500,
+                4500,
+                1250,
+                1250,
+            ],
+            "net_generation_mwh": [
+                10000 * 0.7,
+                10000 * 0.3,
+                5000 * 0.1,
+                5000 * 0.9,
+                10000,
+                10000,
+                5000,
+                5000,
+            ],
+            "capacity_mw": [
+                100 * 0.7,
+                100 * 0.3,
+                50 * 0.1,
+                50 * 0.9,
+                100,
+                100,
+                50,
+                50,
+            ],
+            "capacity_eoy_mw": [
+                100 * 0.7,
+                100 * 0.3,
+                50 * 0.1,
+                50 * 0.9,
+                100,
+                100,
+                50,
+                50,
+            ],
+            "total_mmbtu": [
+                9000 * 0.7,
+                9000 * 0.3,
+                7800 * 0.1,
+                7800 * 0.9,
+                9000,
+                9000,
+                7800,
+                7800,
+            ],
+            "fraction_owned": [0.7, 0.3, 0.1, 0.9, 1, 1, 1, 1],
+            "utility_id_eia": [3, 4, 3, 4, 3, 4, 3, 4],
+            "ownership_record_type": [
+                "owned",
+                "owned",
+                "owned",
+                "owned",
+                "total",
+                "total",
+                "total",
+                "total",
+            ],
+        },
+    ).astype(dtypes)
     scale_cols = [
         "total_fuel_cost",
         "net_generation_mwh",
@@ -399,15 +475,14 @@ def test_scale_by_ownership():
         "capacity_eoy_mw",
         "total_mmbtu",
     ]
-    out = (
-        pudl.helpers.scale_by_ownership(
-            gens=gens_mega_ex1, own_eia860=own_ex1, scale_cols=scale_cols
-        )
-        .reset_index(drop=True)
-        .convert_dtypes()
-    )
+    scaled = pudl.helpers.scale_by_ownership(
+        gens=gens_mega_ex1, own_eia860=own_ex1, scale_cols=scale_cols
+    ).reset_index(drop=True)
+    # Scaled columns are float64 regardless of input dtype or whether the results
+    # happen to be integral.
+    assert (scaled[scale_cols].dtypes == "float64").all()
 
-    pd.testing.assert_frame_equal(out_ex1, out)
+    pd.testing.assert_frame_equal(out_ex1, scaled)
 
 
 def test_scale_by_ownership_swaps_owner_utility_columns():
@@ -493,6 +568,111 @@ def test_scale_by_ownership_swaps_owner_utility_columns():
                     "Other Owner Co",
                     "Operator Co",
                 ],
+                "ownership_record_type": ["owned"] * 3 + ["total"] * 3,
+            },
+        )
+        .astype({"report_date": "datetime64[us]"})
+        .convert_dtypes()
+    )
+
+    pd.testing.assert_frame_equal(
+        out, expected[out.columns], check_like=True, check_dtype=False
+    )
+
+
+def test_label_operator_utility_survives_ownership_scaling():
+    """The operator's IDs and name are preserved when ownership swaps in the owner's IDs.
+
+    ``label_operator_utility`` stashes the operator's ``utility_id_eia``,
+    ``utility_id_pudl`` and ``utility_name_eia`` before :func:`pudl.helpers.scale_by_ownership` overwrites
+    those columns with the owner's IDs, so every record ends up describing both
+    the owner and the operator of the generator.
+    See https://github.com/catalyst-cooperative/pudl/issues/5550
+    """
+    # Generator "a" is jointly owned by its operator (utility 3) and utility 4.
+    # Generator "b" doesn't show up in the ownership table, so its operator is
+    # assumed to be its sole owner.
+    own = pd.DataFrame(
+        {
+            "plant_id_eia": [1, 1],
+            "report_date": ["2019-01-01", "2019-01-01"],
+            "generator_id": ["a", "a"],
+            "owner_utility_id_eia": [3, 4],
+            "utility_id_pudl": [30, 40],
+            "owner_utility_name_eia": ["Operator Co", "Other Owner Co"],
+            "fraction_owned": [0.7, 0.3],
+        },
+    ).astype(
+        {
+            "report_date": "datetime64[us]",
+            "owner_utility_id_eia": pd.Int64Dtype(),
+            "utility_id_pudl": pd.Int64Dtype(),
+        }
+    )
+
+    gens = pd.DataFrame(
+        {
+            "plant_id_eia": [1, 1],
+            "report_date": ["2019-01-01", "2019-01-01"],
+            "generator_id": ["a", "b"],
+            "utility_id_eia": [3, 3],
+            "utility_id_pudl": [30, 30],
+            "utility_name_eia": ["Operator Co", "Operator Co"],
+            "capacity_mw": [100.0, 50.0],
+        },
+    ).astype(
+        {
+            "report_date": "datetime64[us]",
+            "utility_id_eia": pd.Int64Dtype(),
+            "utility_id_pudl": pd.Int64Dtype(),
+        }
+    )
+
+    out = (
+        pudl.helpers.scale_by_ownership(
+            gens=pudl.analysis.plant_parts_eia.MakeMegaGenTbl().label_operator_utility(
+                gens
+            ),
+            own_eia860=own,
+            scale_cols=["capacity_mw"],
+        )
+        .sort_values(
+            ["ownership_record_type", "generator_id", "utility_id_eia"],
+            ignore_index=True,
+        )
+        .convert_dtypes()
+    )
+
+    expected = (
+        pd.DataFrame(
+            {
+                "plant_id_eia": [1, 1, 1, 1, 1, 1],
+                "report_date": ["2019-01-01"] * 6,
+                "generator_id": ["a", "a", "b", "a", "a", "b"],
+                "capacity_mw": [
+                    100 * 0.7,
+                    100 * 0.3,
+                    50.0,
+                    100.0,
+                    100.0,
+                    50.0,
+                ],
+                "fraction_owned": [0.7, 0.3, 1.0, 1.0, 1.0, 1.0],
+                "utility_id_eia": [3, 4, 3, 3, 4, 3],
+                "utility_id_pudl": [30, 40, 30, 30, 40, 30],
+                "utility_name_eia": [
+                    "Operator Co",
+                    "Other Owner Co",
+                    "Operator Co",
+                    "Operator Co",
+                    "Other Owner Co",
+                    "Operator Co",
+                ],
+                # The operator is the same utility for every slice of a given
+                # generator, whether or not it happens to own that slice.
+                "operator_utility_id_eia": [3, 3, 3, 3, 3, 3],
+                "operator_utility_id_pudl": [30, 30, 30, 30, 30, 30],
+                "operator_utility_name_eia": ["Operator Co"] * 6,
                 "ownership_record_type": ["owned"] * 3 + ["total"] * 3,
             },
         )

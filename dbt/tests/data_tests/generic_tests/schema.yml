@@ -402,3 +402,49 @@ macros:
         type: string
         description: >
           Optional SQL condition restricting the population of comparison.
+
+  - name: test_expect_facility_in_reported_state
+    description: >
+      Check that each row's latitude and longitude lie within the state given by its
+      state_id_fips, using the DuckDB spatial extension and the geometries in
+      out_censusdp1tract__states. Fails for rows whose point lies outside the reported
+      state (including points within no state, e.g. offshore), and reports the distance in
+      meters to the reported state as distance_to_reported_meters. The failure_reason
+      column says whether the reported state is unknown, the point is in no state, or the
+      point is in a different state. Rows with a null latitude, longitude, or
+      state_id_fips pass.
+    arguments:
+      - name: model
+        type: relation
+        description: >
+          The model (table) the test is applied to. Must have latitude, longitude, and
+          state_id_fips columns.
+      - name: tolerance_meters
+        type: float
+        description: >
+          Optional distance in meters. A point within this distance of its reported state
+          passes, even if it is outside it, which accounts for imprecise
+          coordinates and boundaries. Defaults to 0 (no tolerance).
+
+  - name: test_expect_facility_in_reported_county
+    description: >
+      Check that each row's latitude and longitude lie within the county given by its
+      county_id_fips, using the DuckDB spatial extension and the geometries in
+      out_censusdp1tract__counties. Fails for rows whose point lies outside the reported
+      county (including points within no county, e.g. offshore), and reports the distance in
+      meters to the reported county as distance_to_reported_meters. The failure_reason
+      column says whether the reported county is unknown, the point is in no county, or the
+      point is in a different county. Rows with a null latitude, longitude, or
+      county_id_fips pass.
+    arguments:
+      - name: model
+        type: relation
+        description: >
+          The model (table) the test is applied to. Must have latitude, longitude, and
+          county_id_fips columns.
+      - name: tolerance_meters
+        type: float
+        description: >
+          Optional distance in meters. A point within this distance of its reported county
+          passes, even if it is outside it, which accounts for imprecise
+          coordinates and boundaries. Defaults to 0 (no tolerance).

@@ -2,6 +2,8 @@
 
 import importlib
 import pkgutil
+from enum import StrEnum, auto
+from typing import NotRequired, TypedDict
 
 from pudl.metadata.helpers import build_foreign_keys
 
@@ -17,8 +19,37 @@ FOREIGN_KEYS: dict[str, list[dict]] = build_foreign_keys(RESOURCE_METADATA)
 See :func:`pudl.metadata.helpers.build_foreign_keys`.
 """
 
-ENTITIES: dict[str, dict[str, list[str] | dict[str, str]]] = {
-    "plants": {
+
+class EiaEntity(StrEnum):
+    """Enum for the different types of EIA entities."""
+
+    PLANTS = auto()
+    UTILITIES = auto()
+    BOILERS = auto()
+    GENERATORS = auto()
+
+
+class RusEntity(StrEnum):
+    """Enum for the different types of RUS entities."""
+
+    BORROWERS = auto()
+
+
+type HarvestableEntity = EiaEntity | RusEntity
+"""An entity that can be harvested, which is a key of :data:`ENTITIES`."""
+
+
+class EntitySpec(TypedDict):
+    """Column groupings used to harvest a single EIA entity."""
+
+    id_cols: list[str]
+    static_cols: list[str]
+    annual_cols: list[str]
+    mapped_schemas: NotRequired[list[dict[str, str]]]
+
+
+ENTITIES: dict[HarvestableEntity, EntitySpec] = {
+    EiaEntity.PLANTS: {
         "id_cols": ["plant_id_eia"],
         "static_cols": [
             "city",
@@ -78,7 +109,7 @@ ENTITIES: dict[str, dict[str, list[str] | dict[str, str]]] = {
             {"plant_id_eia_direct_support_3": "plant_id_eia"},
         ],
     },
-    "generators": {
+    EiaEntity.GENERATORS: {
         "id_cols": ["plant_id_eia", "generator_id"],
         "static_cols": [
             "duct_burners",
@@ -184,7 +215,7 @@ ENTITIES: dict[str, dict[str, list[str] | dict[str, str]]] = {
             },
         ],
     },
-    "boilers": {
+    EiaEntity.BOILERS: {
         "id_cols": ["plant_id_eia", "boiler_id"],
         "static_cols": [
             "boiler_manufacturer",
@@ -281,7 +312,7 @@ ENTITIES: dict[str, dict[str, list[str] | dict[str, str]]] = {
             "data_maturity",
         ],
     },
-    "utilities": {
+    EiaEntity.UTILITIES: {
         "id_cols": ["utility_id_eia"],
         "static_cols": ["utility_name_eia"],
         "annual_cols": [
@@ -327,7 +358,7 @@ ENTITIES: dict[str, dict[str, list[str] | dict[str, str]]] = {
         ],
     },
     # THIS IS A RUS ENTITY (everything above is from EIA)
-    "borrowers": {
+    RusEntity.BORROWERS: {
         "id_cols": ["borrower_id_rus"],
         "static_cols": ["borrower_name_rus", "state"],
         "annual_cols": [],

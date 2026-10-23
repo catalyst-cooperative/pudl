@@ -947,7 +947,9 @@ def test_frictionless_data_package_resources_populated(tmp_path):
                 if k in expected_resource["description"]:
                     strings_to_find.append(expected_resource["description"][k])
         assert any(
-            resource.description.find(candidate) >= 0 for candidate in strings_to_find
+            resource.description is not None
+            and resource.description.find(candidate) >= 0
+            for candidate in strings_to_find
         )
         assert expected_resource["schema"]["fields"] == [
             f.name for f in resource.schema.fields

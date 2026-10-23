@@ -48,17 +48,12 @@
     {
       "path": "src/pudl/metadata/classes.py",
       "name": "bad-argument-type",
-      "concise_description": "Argument `Categorical | DataType | GeometryDtype | str | type[DataType]` is not assignable to parameter `dtype` with type `DataType | DataTypeClass | str | type[Any] | None` in function `pandera.api.polars.components.Column.__init__`"
+      "concise_description": "Argument `Categorical | DataType | ExtensionDtype | GeometryDtype | str | type[DataType]` is not assignable to parameter `dtype` with type `DataType | DataTypeClass | str | type[Any] | None` in function `pandera.api.polars.components.Column.__init__`"
     },
     {
       "path": "src/pudl/metadata/classes.py",
       "name": "bad-argument-type",
-      "concise_description": "Argument `Categorical | polars.datatypes.classes.DataType | GeometryDtype | str | type[polars.datatypes.classes.DataType]` is not assignable to parameter `dtype` with type `pandera.dtypes.DataType | ExtensionDtype | dtype | str | type[Any] | None` in function `pandera.api.pandas.components.Column.__init__`"
-    },
-    {
-      "path": "src/pudl/metadata/classes.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `CategoricalDtype | str` is not assignable to parameter `dtype` with type `type[Any] | None` in function `Encoder.encode`"
+      "concise_description": "Argument `Categorical | polars.datatypes.classes.DataType | ExtensionDtype | GeometryDtype | str | type[polars.datatypes.classes.DataType]` is not assignable to parameter `dtype` with type `pandera.dtypes.DataType | ExtensionDtype | dtype | str | type[Any] | None` in function `pandera.api.pandas.components.Column.__init__`"
     },
     {
       "path": "src/pudl/analysis/spatial.py",
@@ -79,16 +74,6 @@
       "path": "src/pudl/analysis/record_linkage/name_cleaner.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `DataFrame | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` is not assignable to parameter `col` with type `Series` in function `CompanyNameCleaner.get_clean_data`"
-    },
-    {
-      "path": "src/pudl/transform/eiaaeo.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `DataFrame | Series` is not assignable to parameter `df` with type `DataFrame` in function `_decumulate`"
-    },
-    {
-      "path": "src/pudl/transform/eia176.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `DataFrame | Series` is not assignable to parameter `df` with type `DataFrame` in function `pudl.helpers.simplify_columns`"
     },
     {
       "path": "tests/unit/transform/eiaaeo_test.py",
@@ -121,16 +106,6 @@
       "concise_description": "Argument `GeometrySequence[GeometryCollection[Polygon]]` is not assignable to parameter `data` with type `Buffer | Geometry | IndexOpsMixin | Mapping[int, Geometry] | Mapping[str, Geometry] | Sequence[Geometry] | _NestedSequence[bytes | complex | str] | _NestedSequence[_SupportsArray[dtype]] | _SupportsArray[dtype] | bytes | complex | str | None` in function `geopandas.geoseries.GeoSeries.__new__`"
     },
     {
-      "path": "src/pudl/helpers.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `Iterable[str]` is not assignable to parameter `id_vars` with type `Sequence[Unknown] | ndarray | tuple[Unknown, ...] | None` in function `pandas.core.frame.DataFrame.melt`"
-    },
-    {
-      "path": "src/pudl/metadata/classes.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `Iterable[str]` is not assignable to parameter `obj` with type `Sized` in function `len`"
-    },
-    {
       "path": "docs/conf.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `Literal['data_dictionaries/code_csvs']` is not assignable to parameter `csv_subdir` with type `Path` in function `pudl.metadata.classes.CodeMetadata.to_rst`"
@@ -144,16 +119,6 @@
       "path": "src/pudl/analysis/fuel_by_plant.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `Literal[1]` is not assignable to parameter `axis` with type `Literal['index', 0] | None` in function `pandas.core.series.Series.sum`"
-    },
-    {
-      "path": "src/pudl/transform/rus12.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `Literal[RusEntity.BORROWERS]` is not assignable to parameter `entity` with type `EiaEntity` in function `pudl.transform.eia.harvest_entity_tables`"
-    },
-    {
-      "path": "src/pudl/transform/rus7.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `Literal[RusEntity.BORROWERS]` is not assignable to parameter `entity` with type `EiaEntity` in function `pudl.transform.eia.harvest_entity_tables`"
     },
     {
       "path": "src/pudl/analysis/spatial.py",
@@ -246,31 +211,6 @@
       "concise_description": "Argument `Series` is not assignable to parameter `util_ids` with type `list[int]` in function `categorize_eia_code`"
     },
     {
-      "path": "src/pudl/metadata/descriptions.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `Unknown | None` is not assignable to parameter `description` with type `bytearray | bytes | str` in function `ResourceTrait.__init__`"
-    },
-    {
-      "path": "src/pudl/metadata/descriptions.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `Unknown | None` is not assignable to parameter `iterable` with type `Iterable[Unknown]` in function `list.__init__`"
-    },
-    {
-      "path": "src/pudl/metadata/descriptions.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `Unknown | None` is not assignable to parameter `key` with type `str` in function `dict.get`"
-    },
-    {
-      "path": "src/pudl/metadata/descriptions.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `Unknown | None` is not assignable to parameter `type` with type `bytearray | bytes | str` in function `ResourceTrait.__init__`"
-    },
-    {
-      "path": "src/pudl/extract/eiaaeo.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `_Node` is not assignable to parameter with type `int | str`"
-    },
-    {
       "path": "src/pudl/workspace/datastore.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `bytes | Any` is not assignable to parameter `content` with type `str` in function `DatapackageDescriptor.validate_checksum`"
@@ -279,11 +219,6 @@
       "path": "src/pudl/workspace/datastore.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `bytes` is not assignable to parameter `content` with type `str` in function `DatapackageDescriptor.validate_checksum`"
-    },
-    {
-      "path": "src/pudl/extract/eiaaeo.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `chain[Hashable]` is not assignable to parameter `data` with type `Iterable[Mapping[@_, Any]] | Iterable[SequenceNotStr[Any]] | Mapping[@_, SequenceNotStr[Any]] | Mapping[@_, Any] | ndarray[tuple[int, int]]` in function `pandas.core.frame.DataFrame.from_records`"
     },
     {
       "path": "src/pudl/analysis/record_linkage/link_cross_year.py",
@@ -299,11 +234,6 @@
       "path": "tests/unit/transform/classes_test.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `dict[Unknown, Unknown]` is not assignable to parameter `params` with type `MultiColumnTransformParams` in function `pudl.transform.classes.MultiColumnTransformFunc.__call__`"
-    },
-    {
-      "path": "tests/unit/metadata/harvest_test.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `dict[int, DataFrame]` is not assignable to parameter `dfs` with type `dict[str, DataFrame]` in function `pudl.metadata.classes.Resource.harvest_dfs`"
     },
     {
       "path": "src/pudl/analysis/plant_parts_eia.py",
@@ -346,56 +276,6 @@
       "concise_description": "Argument `dict[str, bool] | None` is not assignable to parameter `params` with type `MultiColumnTransformParams` in function `MultiColumnTransformFunc.__call__`"
     },
     {
-      "path": "src/pudl/transform/rus12.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `dict[str, int]` is not assignable to parameter `special_case_strictness` with type `dict[str, float]` in function `pudl.transform.eia.harvest_entity_tables`"
-    },
-    {
-      "path": "src/pudl/transform/rus7.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `dict[str, int]` is not assignable to parameter `special_case_strictness` with type `dict[str, float]` in function `pudl.transform.eia.harvest_entity_tables`"
-    },
-    {
-      "path": "src/pudl/transform/eia.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `dict[str, str] | list[str] | Unknown` is not assignable to parameter `cols_to_consit` with type `list[str]` in function `_last_operating_date`"
-    },
-    {
-      "path": "src/pudl/transform/eia.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `dict[str, str] | list[str] | Unknown` is not assignable to parameter `cols_to_consit` with type `list[str]` in function `_lat_long`"
-    },
-    {
-      "path": "src/pudl/transform/eia.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `dict[str, str] | list[str] | Unknown` is not assignable to parameter `cols_to_consit` with type `list[str]` in function `occurrence_consistency`"
-    },
-    {
-      "path": "src/pudl/transform/eia.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `dict[str, str] | list[str]` is not assignable to parameter `entity_idx` with type `list[str]` in function `_last_operating_date`"
-    },
-    {
-      "path": "src/pudl/transform/eia.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `dict[str, str] | list[str]` is not assignable to parameter `entity_idx` with type `list[str]` in function `_lat_long`"
-    },
-    {
-      "path": "src/pudl/transform/eia.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `dict[str, str] | list[str]` is not assignable to parameter `entity_idx` with type `list[str]` in function `occurrence_consistency`"
-    },
-    {
-      "path": "src/pudl/transform/eia.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `dict[str, str] | list[str]` is not assignable to parameter `idx` with type `list[str]` in function `pudl.helpers.make_changelog`"
-    },
-    {
-      "path": "src/pudl/transform/eia.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `dict[str, str] | list[str]` is not assignable to parameter `on` with type `ExtensionArray | Hashable | Index | Sequence[Hashable] | Series | ndarray | None` in function `pandas.core.frame.DataFrame.merge`"
-    },
-    {
       "path": "src/pudl/transform/classes.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `dict[str, str] | object` is not assignable to parameter `iterable` with type `Iterable[str]` in function `set.__init__`"
@@ -404,11 +284,6 @@
       "path": "tests/unit/dagster/io_managers_test.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `dict[str, str]` is not assignable to parameter `obj` with type `DataFrame | GeoDataFrame | LazyFrame` in function `pudl.dagster.io_managers.PudlParquetIOManager.handle_output`"
-    },
-    {
-      "path": "src/pudl/metadata/classes.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `dict_keys[str, CategoricalDtype | str]` is not assignable to parameter `columns` with type `ExtensionArray | Index | SequenceNotStr[Any] | Series | ndarray | range | None` in function `pandas.core.frame.DataFrame.reindex`"
     },
     {
       "path": "src/pudl/analysis/state_demand.py",
@@ -421,24 +296,9 @@
       "concise_description": "Argument `int` is not assignable to parameter `i` with type `SupportsNext[@_]` in function `next`"
     },
     {
-      "path": "src/pudl/analysis/record_linkage/eia_ferc1_record_linkage.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `list[BlockingRuleCreator | str]` is not assignable to parameter `blocking_rules_to_generate_predictions` with type `list[BlockingRuleCreator | dict[str, Any]]` in function `splink.internals.settings_creator.SettingsCreator.__init__`"
-    },
-    {
-      "path": "src/pudl/analysis/record_linkage/eia_ferc1_record_linkage.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `list[DateOfBirthComparison | ExactMatch | NameComparison | dict[str, list[ElseLevel | NullLevel | PercentageDifferenceLevel] | str]]` is not assignable to parameter `comparisons` with type `list[ComparisonCreator | dict[str, Any]]` in function `splink.internals.settings_creator.SettingsCreator.__init__`"
-    },
-    {
       "path": "tests/unit/analysis/plant_parts_eia_test.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `list[list[int]]` is not assignable to parameter `keys` with type `Hashable | Index | Iterator[Hashable] | Sequence[Hashable] | Series | ndarray | None` in function `pandas.core.frame.DataFrame.set_index`"
-    },
-    {
-      "path": "src/pudl/metadata/classes.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `list[str] | None` is not assignable to parameter `extrapaths` with type `list[str]` in function `frictionless.resource.resource.Resource.__init__`"
     },
     {
       "path": "tests/pipeline/notebooks_test.py",
@@ -466,34 +326,14 @@
       "concise_description": "Argument `ndarray[tuple[int]]` is not assignable to parameter `eia_codes` with type `list[int]` in function `categorize_eia_code`"
     },
     {
-      "path": "src/pudl/helpers.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `ndarray[tuple[int]]` is not assignable to parameter `to_replace` with type `Mapping[Unknown, Unknown] | NAType | Pattern[Unknown] | Sequence[Pattern[Unknown] | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64 | None` in function `pandas.core.series.Series.replace`"
-    },
-    {
       "path": "tests/unit/transform/eia923_test.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `object` is not assignable to parameter `obj` with type `Sized` in function `len`"
     },
     {
-      "path": "src/pudl/analysis/timeseries_evaluation.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `set[Unknown]` is not assignable to parameter `categories` with type `Index | Series | list[Any] | None` in function `pandas.core.dtypes.dtypes.CategoricalDtype.__init__`"
-    },
-    {
-      "path": "src/pudl/metadata/classes.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `str | None` is not assignable to parameter `name` with type `str` in function `Package.get_resource`"
-    },
-    {
       "path": "src/pudl/validate/dbt.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `str | None` is not assignable to parameter `query` with type `Statement | str` in function `_duckdb.DuckDBPyConnection.execute`"
-    },
-    {
-      "path": "src/pudl/analysis/timeseries_evaluation.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `str | tuple[Any]` is not assignable to parameter `idx_vals` with type `tuple[Any]` in function `_filter_df`"
     },
     {
       "path": "tests/unit/dagster/provenance_test.py",
@@ -591,36 +431,6 @@
       "concise_description": "Argument `tuple[Literal['Energy Use : Commercial'], Literal['Energy Use : Electric Power'], Literal['Energy Use : Industrial'], Literal['Energy Use : Residential'], Literal['Energy Use : Total'], Literal['Energy Use : Transportation'], Literal['Energy Use : Unspecified']]` is not assignable to parameter `relevant_series_names` with type `tuple[str]` in function `filter_enrich_sanitize`"
     },
     {
-      "path": "tests/pipeline/analysis/timeseries_plot_test.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `tuple[Literal['SWPP'], Literal['OPPD']]` is not assignable to parameter `idx_vals` with type `tuple[Any]` in function `pudl.analysis.timeseries_evaluation.plot_imputation`"
-    },
-    {
-      "path": "src/pudl/extract/eiaaeo.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `tuple[Literal['no_table_name'], Literal['leaf_category'], list[_Node]]` is not assignable to parameter `object` with type `tuple[str, str, _Node]` in function `list.append`"
-    },
-    {
-      "path": "src/pudl/extract/eiaaeo.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `tuple[Literal['wrong_length'], Literal['root'], list[_Node]]` is not assignable to parameter `object` with type `tuple[str, str, _Node]` in function `list.append`"
-    },
-    {
-      "path": "tests/pipeline/analysis/timeseries_plot_test.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `tuple[float, float]` is not assignable to parameter `xylim` with type `tuple[float] | None` in function `pudl.analysis.timeseries_evaluation.plot_correlation`"
-    },
-    {
-      "path": "src/pudl/analysis/timeseries_evaluation.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `tuple[float]` is not assignable to parameter `bottom` with type `float | tuple[float, float] | None` in function `matplotlib.pyplot.ylim`"
-    },
-    {
-      "path": "src/pudl/analysis/timeseries_evaluation.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `tuple[float]` is not assignable to parameter `left` with type `float | tuple[float, float] | None` in function `matplotlib.pyplot.xlim`"
-    },
-    {
       "path": "src/pudl/workspace/datastore.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `type[BadZipFile]` is not assignable to parameter `retry_on` with type `tuple[type[BaseException], ...]` in function `pudl.helpers.retry`"
@@ -651,19 +461,9 @@
       "concise_description": "Augmented assignment result `dict[str, UPath]` is not assignable to `PudlPaths`"
     },
     {
-      "path": "src/pudl/transform/eia.py",
-      "name": "bad-index",
-      "concise_description": "Cannot index into `Hashable`"
-    },
-    {
       "path": "src/pudl/transform/classes.py",
       "name": "bad-index",
       "concise_description": "Cannot index into `MultiColumnTransformParams`"
-    },
-    {
-      "path": "src/pudl/analysis/timeseries_evaluation.py",
-      "name": "bad-index",
-      "concise_description": "Cannot index into `_LocIndexerFrame[DataFrame]`"
     },
     {
       "path": "tests/pipeline/glue/glue_test.py",
@@ -671,19 +471,9 @@
       "concise_description": "Cannot index into `dict[str, DataFrame]`"
     },
     {
-      "path": "src/pudl/metadata/classes.py",
-      "name": "bad-index",
-      "concise_description": "Cannot index into `dict[str, dict[str, Any]]`"
-    },
-    {
       "path": "tests/unit/transform/eia923_test.py",
       "name": "bad-index",
       "concise_description": "Cannot index into `object`"
-    },
-    {
-      "path": "src/pudl/analysis/record_linkage/link_cross_year.py",
-      "name": "bad-index",
-      "concise_description": "Cannot index into `tuple[ndarray, ndarray]`"
     },
     {
       "path": "tests/unit/settings_test.py",
@@ -706,11 +496,6 @@
       "concise_description": "Cannot set item in `dict[Any, str]`"
     },
     {
-      "path": "src/pudl/metadata/classes.py",
-      "name": "unsupported-operation",
-      "concise_description": "Cannot set item in `dict[str, Encoder]`"
-    },
-    {
       "path": "src/pudl/workspace/resource_cache.py",
       "name": "unsupported-operation",
       "concise_description": "Cannot set item in `dict[str, bool]`"
@@ -719,11 +504,6 @@
       "path": "src/pudl/metadata/classes.py",
       "name": "unsupported-operation",
       "concise_description": "Cannot set item in `dict[str, set[str]]`"
-    },
-    {
-      "path": "tests/unit/metadata/harvest_test.py",
-      "name": "unsupported-operation",
-      "concise_description": "Cannot set item in `list[dict[str, Any]]`"
     },
     {
       "path": "src/pudl/extract/excel.py",
@@ -774,16 +554,6 @@
       "path": "src/pudl/output/eia.py",
       "name": "not-callable",
       "concise_description": "Expected a callable, got `Series`"
-    },
-    {
-      "path": "src/pudl/transform/eia.py",
-      "name": "not-callable",
-      "concise_description": "Expected a callable, got `int`"
-    },
-    {
-      "path": "src/pudl/metadata/helpers.py",
-      "name": "not-callable",
-      "concise_description": "Expected a callable, got `str`"
     },
     {
       "path": "src/pudl/dagster/assets/raw/ferc_to_sqlite.py",
@@ -841,31 +611,6 @@
       "concise_description": "Keyword argument `year_in_date_range` with type `(x: DataFrame) -> DataFrame` is not assignable to parameter `**kwargs` with type `((DataFrame) -> ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None) | ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None` in function `pandas.core.frame.DataFrame.assign`"
     },
     {
-      "path": "src/pudl/extract/extractor.py",
-      "name": "missing-argument",
-      "concise_description": "Missing argument `code_version` in function `dagster._core.definitions.output.DynamicOut.__new__`"
-    },
-    {
-      "path": "src/pudl/extract/extractor.py",
-      "name": "missing-argument",
-      "concise_description": "Missing argument `dagster_type` in function `dagster._core.definitions.output.DynamicOut.__new__`"
-    },
-    {
-      "path": "src/pudl/extract/extractor.py",
-      "name": "missing-argument",
-      "concise_description": "Missing argument `description` in function `dagster._core.definitions.output.DynamicOut.__new__`"
-    },
-    {
-      "path": "src/pudl/extract/extractor.py",
-      "name": "missing-argument",
-      "concise_description": "Missing argument `io_manager_key` in function `dagster._core.definitions.output.DynamicOut.__new__`"
-    },
-    {
-      "path": "src/pudl/extract/extractor.py",
-      "name": "missing-argument",
-      "concise_description": "Missing argument `is_required` in function `dagster._core.definitions.output.DynamicOut.__new__`"
-    },
-    {
       "path": "src/pudl/dagster/assets/raw/ferc_to_sqlite.py",
       "name": "missing-argument",
       "concise_description": "Missing argument `local_datapackage_path` in function `FercPaths.__init__`"
@@ -874,11 +619,6 @@
       "path": "src/pudl/dagster/assets/raw/ferc_to_sqlite.py",
       "name": "missing-argument",
       "concise_description": "Missing argument `local_sqlite_path` in function `FercPaths.__init__`"
-    },
-    {
-      "path": "src/pudl/extract/extractor.py",
-      "name": "missing-argument",
-      "concise_description": "Missing argument `metadata` in function `dagster._core.definitions.output.DynamicOut.__new__`"
     },
     {
       "path": "src/pudl/dagster/assets/raw/ferc_to_sqlite.py",
@@ -904,16 +644,6 @@
       "path": "src/pudl/helpers.py",
       "name": "missing-attribute",
       "concise_description": "No attribute `RepeatedLabelError` in module `usaddress`"
-    },
-    {
-      "path": "src/pudl/metadata/classes.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `dict.get` called with arguments: (Any | None, dict[@_, @_])"
-    },
-    {
-      "path": "src/pudl/metadata/descriptions.py",
-      "name": "no-matching-overload",
-      "concise_description": "No matching overload found for function `dict.get` called with arguments: (Unknown | None, TableTypeFragments)"
     },
     {
       "path": "tests/unit/transform/ferc1_test.py",
@@ -964,16 +694,6 @@
       "path": "src/pudl/transform/classes.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `ColumnTransformFunc` has no attribute `__name__`"
-    },
-    {
-      "path": "src/pudl/metadata/descriptions.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `FunctionType` has no attribute `__is_component`"
-    },
-    {
-      "path": "src/pudl/metadata/helpers.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `FunctionType` has no attribute `format`"
     },
     {
       "path": "tests/unit/dagster/io_managers_test.py",
@@ -1051,16 +771,6 @@
       "concise_description": "Object of class `NoneType` has no attribute `area`"
     },
     {
-      "path": "src/pudl/transform/eia.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `closest_timezone_at`"
-    },
-    {
-      "path": "src/pudl/metadata/classes.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `code_fixes`"
-    },
-    {
       "path": "src/pudl/analysis/spatial.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `NoneType` has no attribute `columns`"
@@ -1076,19 +786,9 @@
       "concise_description": "Object of class `NoneType` has no attribute `columns`"
     },
     {
-      "path": "src/pudl/metadata/classes.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `df`"
-    },
-    {
       "path": "src/pudl/analysis/spatial.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `NoneType` has no attribute `drop`"
-    },
-    {
-      "path": "src/pudl/transform/eia.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `eia860m`"
     },
     {
       "path": "tests/unit/dagster/io_managers_test.py",
@@ -1099,11 +799,6 @@
       "path": "tests/unit/settings_test.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `NoneType` has no attribute `ferc1`"
-    },
-    {
-      "path": "tests/unit/metadata/metadata_test.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `find`"
     },
     {
       "path": "src/pudl/analysis/spatial.py",
@@ -1126,16 +821,6 @@
       "concise_description": "Object of class `NoneType` has no attribute `get_datasets`"
     },
     {
-      "path": "src/pudl/extract/eiaaeo.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `get`"
-    },
-    {
-      "path": "src/pudl/metadata/classes.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `ignored_codes`"
-    },
-    {
       "path": "src/pudl/transform/classes.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `NoneType` has no attribute `keys`"
@@ -1149,16 +834,6 @@
       "path": "tests/unit/extract/xbrl_test.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `NoneType` has no attribute `read_bytes`"
-    },
-    {
-      "path": "src/pudl/analysis/timeseries_evaluation.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `set_alpha`"
-    },
-    {
-      "path": "src/pudl/transform/eia.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `timezone_at`"
     },
     {
       "path": "tests/unit/scripts/auto_match_utilities_test.py",
@@ -1176,11 +851,6 @@
       "concise_description": "Object of class `NoneType` has no attribute `years`"
     },
     {
-      "path": "src/pudl/transform/eia.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `years`"
-    },
-    {
       "path": "src/pudl/analysis/record_linkage/eia_ferc1_train.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `Path` has no attribute `endswith`"
@@ -1191,124 +861,9 @@
       "concise_description": "Object of class `Path` has no attribute `pudl_output`"
     },
     {
-      "path": "src/pudl/transform/sec10k.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Properties` has no attribute `days`"
-    },
-    {
-      "path": "src/pudl/helpers.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Properties` has no attribute `month`"
-    },
-    {
-      "path": "src/pudl/transform/ferc714.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Properties` has no attribute `second`"
-    },
-    {
-      "path": "src/pudl/settings.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Properties` has no attribute `strftime`"
-    },
-    {
-      "path": "src/pudl/analysis/allocate_gen_fuel.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Properties` has no attribute `year`"
-    },
-    {
-      "path": "src/pudl/analysis/plant_parts_eia.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Properties` has no attribute `year`"
-    },
-    {
-      "path": "src/pudl/analysis/record_linkage/eia_ferc1_train.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Properties` has no attribute `year`"
-    },
-    {
-      "path": "src/pudl/analysis/service_territory.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Properties` has no attribute `year`"
-    },
-    {
-      "path": "src/pudl/helpers.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Properties` has no attribute `year`"
-    },
-    {
-      "path": "src/pudl/output/ferc714.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Properties` has no attribute `year`"
-    },
-    {
-      "path": "src/pudl/scripts/pudl_null_cols.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Properties` has no attribute `year`"
-    },
-    {
-      "path": "src/pudl/transform/eia.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Properties` has no attribute `year`"
-    },
-    {
-      "path": "src/pudl/transform/eia860.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Properties` has no attribute `year`"
-    },
-    {
-      "path": "src/pudl/transform/eia923.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Properties` has no attribute `year`"
-    },
-    {
-      "path": "src/pudl/transform/ferc714.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Properties` has no attribute `year`"
-    },
-    {
-      "path": "src/pudl/transform/rus12.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Properties` has no attribute `year`"
-    },
-    {
-      "path": "src/pudl/transform/rus7.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Properties` has no attribute `year`"
-    },
-    {
-      "path": "tests/unit/metadata/harvest_test.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `dict` has no attribute `harvest`"
-    },
-    {
-      "path": "tests/unit/metadata/harvest_test.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `dict` has no attribute `name`"
-    },
-    {
-      "path": "tests/unit/metadata/harvest_test.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `dict` has no attribute `schema`"
-    },
-    {
-      "path": "tests/unit/metadata/harvest_test.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `dict` has no attribute `to_pandas_dtypes`"
-    },
-    {
       "path": "src/pudl/analysis/state_demand.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `int` has no attribute `lower`"
-    },
-    {
-      "path": "src/pudl/metadata/descriptions.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `int` has no attribute `month`"
-    },
-    {
-      "path": "src/pudl/metadata/descriptions.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `int` has no attribute `year`"
     },
     {
       "path": "src/pudl/analysis/record_linkage/embed_dataframe.py",
@@ -1351,16 +906,6 @@
       "concise_description": "Object of class `spmatrix` has no attribute `columns`"
     },
     {
-      "path": "src/pudl/transform/eia.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `str` has no attribute `keys`"
-    },
-    {
-      "path": "src/pudl/transform/eia.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `str` has no attribute `values`"
-    },
-    {
       "path": "tests/unit/dagster/ferceqr_deployment_test.py",
       "name": "missing-attribute",
       "concise_description": "Object of type `DagsterRunReaction | Iterator[DagsterRunReaction | RunRequest | SensorResult | SkipReason] | RunRequest | SensorResult | Sequence[RunRequest] | SkipReason | None` has no attribute `asset_selection`"
@@ -1396,11 +941,6 @@
       "concise_description": "Returned type `AssetsDefinition` is not assignable to declared return type `list[AssetsDefinition]`"
     },
     {
-      "path": "src/pudl/extract/eiaaeo.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `DataFrameBase[AEOTable]` is not assignable to declared return type `DataFrame`"
-    },
-    {
       "path": "src/pudl/transform/ferc714.py",
       "name": "bad-return",
       "concise_description": "Returned type `DataFrame` is not assignable to declared return type `Series`"
@@ -1416,11 +956,6 @@
       "concise_description": "Returned type `DatetimeIndex` is not assignable to declared return type `Series`"
     },
     {
-      "path": "src/pudl/metadata/classes.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `Enum` is not assignable to declared return type `type[Any]`"
-    },
-    {
       "path": "src/pudl/extract/dbf.py",
       "name": "bad-return",
       "concise_description": "Returned type `FercDbfReader` is not assignable to declared return type `AbstractFercDbfReader`"
@@ -1429,11 +964,6 @@
       "path": "src/pudl/extract/dbf.py",
       "name": "bad-return",
       "concise_description": "Returned type `FercDbfToSqliteDataConfig | FercGenericXbrlToSqliteDataConfig | None` is not assignable to declared return type `FercDbfToSqliteDataConfig`"
-    },
-    {
-      "path": "src/pudl/extract/eiaaeo.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `Generator[dict[str, int | Any | Unknown]]` is not assignable to declared return type `DataFrame`"
     },
     {
       "path": "src/pudl/helpers.py",
@@ -1476,11 +1006,6 @@
       "concise_description": "Returned type `Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` is not assignable to declared return type `str`"
     },
     {
-      "path": "src/pudl/metadata/classes.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `TypeEngine[Unknown] | type[TypeEngine[Unknown]]` is not assignable to declared return type `type[Any]`"
-    },
-    {
       "path": "src/pudl/extract/extractor.py",
       "name": "bad-return",
       "concise_description": "Returned type `defaultdict[str, list[Unknown]]` is not assignable to declared return type `dict[str, DataFrame]`"
@@ -1506,19 +1031,9 @@
       "concise_description": "Returned type `tuple[dict[Unknown, Unknown], ...]` is not assignable to declared return type `tuple[dict[int, ParquetData], dict[int, ParquetData], dict[int, ParquetData]]`"
     },
     {
-      "path": "src/pudl/metadata/classes.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `tuple[str, ...]` is not assignable to declared return type `tuple[str]`"
-    },
-    {
       "path": "tests/unit/transform/eia176_test.py",
       "name": "not-iterable",
       "concise_description": "Type `object` is not iterable"
-    },
-    {
-      "path": "src/pudl/transform/eia.py",
-      "name": "bad-argument-type",
-      "concise_description": "Unpacked keyword argument `((dirty_df: DataFrame, clean_df: DataFrame, entity_id_df: DataFrame, entity_idx: list[str], col: str, cols_to_consit: list[str], round_to: int = 2, **kwargs: Unknown) -> DataFrame) | ((dirty_df: DataFrame, clean_df: DataFrame, entity_id_df: DataFrame, entity_idx: list[str], col: str, cols_to_consit: list[str], **kwargs: Unknown) -> DataFrame) | int` is not assignable to parameter `round_to` with type `int` in function `_lat_long`"
     },
     {
       "path": "src/pudl/dagster/provenance.py",
@@ -1581,19 +1096,9 @@
       "concise_description": "`+` is not supported between `Hashable` and `Literal['_filled']`"
     },
     {
-      "path": "src/pudl/helpers.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `Iterable[str]` and `list[str]`"
-    },
-    {
       "path": "tests/unit/transform/classes_test.py",
       "name": "unsupported-operation",
       "concise_description": "`+` is not supported between `None` and `Literal['_filled']`"
-    },
-    {
-      "path": "src/pudl/helpers.py",
-      "name": "unsupported-operation",
-      "concise_description": "`+` is not supported between `Series` and `Literal['x']`"
     },
     {
       "path": "tests/unit/extract/xbrl_test.py",
@@ -1641,34 +1146,14 @@
       "concise_description": "`Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` is not assignable to dict value type `str`"
     },
     {
-      "path": "src/pudl/metadata/descriptions.py",
-      "name": "bad-assignment",
-      "concise_description": "`Timestamp` is not assignable to variable `offset` with type `int`"
-    },
-    {
       "path": "src/pudl/analysis/record_linkage/eia_ferc1_train.py",
       "name": "unbound-name",
       "concise_description": "`all_multi_matches_list` may be uninitialized"
     },
     {
-      "path": "src/pudl/transform/eia.py",
-      "name": "unbound-name",
-      "concise_description": "`clean_df` may be uninitialized"
-    },
-    {
-      "path": "src/pudl/transform/eia.py",
-      "name": "unbound-name",
-      "concise_description": "`cols_to_consit` may be uninitialized"
-    },
-    {
       "path": "src/pudl/helpers.py",
       "name": "unbound-name",
       "concise_description": "`dates` may be uninitialized"
-    },
-    {
-      "path": "src/pudl/metadata/enums.py",
-      "name": "bad-assignment",
-      "concise_description": "`dict[Scalar, Scalar]` is not assignable to `dict[str, str]`"
     },
     {
       "path": "src/pudl/dagster/assets/raw/ferc_to_sqlite.py",
@@ -1721,16 +1206,6 @@
       "concise_description": "`list[GeoDataFrame]` is not assignable to variable `gdfs` with type `tuple[GeoDataFrame, ...]`"
     },
     {
-      "path": "src/pudl/metadata/resources/__init__.py",
-      "name": "bad-assignment",
-      "concise_description": "`list[dict[str, str]]` is not assignable to dict value type `dict[str, str] | list[str]`"
-    },
-    {
-      "path": "src/pudl/analysis/timeseries_evaluation.py",
-      "name": "bad-assignment",
-      "concise_description": "`ndarray` is not assignable to variable `lengths` with type `Sequence[int]`"
-    },
-    {
       "path": "src/pudl/transform/eia860.py",
       "name": "not-iterable",
       "concise_description": "`not in` is not supported between `Literal['control_id_eia']` and `Hashable`"
@@ -1739,16 +1214,6 @@
       "path": "src/pudl/analysis/record_linkage/eia_ferc1_train.py",
       "name": "unbound-name",
       "concise_description": "`path_to_one_to_many` may be uninitialized"
-    },
-    {
-      "path": "src/pudl/transform/eia.py",
-      "name": "unbound-name",
-      "concise_description": "`ratio` may be uninitialized"
-    },
-    {
-      "path": "src/pudl/transform/eia.py",
-      "name": "unbound-name",
-      "concise_description": "`wrongos` may be uninitialized"
     },
     {
       "path": "src/pudl/dagster/assets/raw/ferc_to_sqlite.py",
