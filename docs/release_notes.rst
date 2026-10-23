@@ -29,6 +29,9 @@ Bug Fixes & Data Cleaning
 * Added a missing territory entry to the :ref:`core_pudl__codes_subdivisions` table. See
   :issue:`5696` and :pr:`5716`.
 
+* Added ``plant_function`` values to a few factoids in
+  :ref:`out_ferc1__yearly_rate_base`. See :pr:`5690`.
+
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
