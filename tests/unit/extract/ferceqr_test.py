@@ -7,7 +7,6 @@ from pathlib import Path
 import dagster as dg
 import duckdb
 import pytest
-from upath import UPath
 
 from pudl.dagster.resources import FercEqrArchiveResource
 from pudl.extract.ferceqr import (
@@ -15,11 +14,31 @@ from pudl.extract.ferceqr import (
     _clear_raw_table_partition,
     _csvs_to_parquet,
     _extract_other_table,
-    _get_csv,
     _get_rejected_record_counts,
     extract_ferceqr,
 )
 from pudl.helpers import ParquetData
+from pudl.workspace.datastore import Datastore
+
+
+def _archive_resource(archive_dir: Path, mocker) -> FercEqrArchiveResource:
+    """Build an archive resource pointed at a locally built test archive.
+
+    These archives are built on the fly by the tests and have no counterpart in the
+    published Zenodo metadata, so the descriptor lookup is stubbed out; checksum
+    verification itself is covered in ``tests/unit/dagster/resources_test.py``. The
+    datastore is real but inert -- it does no I/O at construction time and is never
+    consulted once ``get_datapackage_descriptor`` is patched.
+    """
+    mocker.patch.object(
+        Datastore, "get_datapackage_descriptor", return_value=mocker.MagicMock()
+    )
+    return FercEqrArchiveResource(
+        datastore=Datastore(
+            local_cache_path=archive_dir.parent / "input", cloud_cache_path=None
+        ),
+        path=str(archive_dir),
+    )
 
 
 def _touch(path: Path) -> Path:
@@ -416,35 +435,6 @@ def test_csvs_to_parquet_does_not_warn_when_all_other_tables_missing(tmp_path, m
     assert found_table_types == {"ident"}
 
 
-def test_get_csv_streams_archive_to_disk_without_reading_it_into_memory(
-    tmp_path, mocker
-):
-    """_get_csv downloads with the filesystem's streaming get_file, not read_bytes.
-
-    Quarterly archives are 3-4 GB and many partition runs download at once, so
-    holding a whole archive in memory before writing it out risks exhausting RAM.
-    """
-    archive_dir = UPath(tmp_path / "archive")
-    archive_dir.mkdir()
-    with zipfile.ZipFile(tmp_path / "archive" / "ferceqr-2024q1.zip", "w") as outer:
-        outer.writestr("filing1.zip", b"payload")
-    read_bytes = mocker.patch.object(
-        type(archive_dir), "read_bytes", side_effect=AssertionError("read into memory")
-    )
-    get_file = mocker.spy(archive_dir.fs, "get_file")
-
-    with _get_csv(archive_dir, "2024q1") as archive:
-        assert archive.namelist() == ["filing1.zip"]
-        assert archive.read("filing1.zip") == b"payload"
-        assert archive.filename is not None
-        local_zip = Path(archive.filename)
-
-    get_file.assert_called_once()
-    read_bytes.assert_not_called()
-    # The local copy lives in a temporary directory that is removed on exit.
-    assert not local_zip.exists()
-
-
 def test_get_rejected_record_counts(tmp_path):
     """Rejected records are counted by DuckDB's error_type, using a real connection.
 
@@ -473,7 +463,7 @@ def _make_filing_zip(files: dict[str, str]) -> bytes:
     return buf.getvalue()
 
 
-def test_extract_ferceqr_collects_and_attaches_summary_stats(tmp_path):
+def test_extract_ferceqr_collects_and_attaches_summary_stats(tmp_path, mocker):
     """extract_ferceqr tallies filings, table presence, corrupt zips, and rejects.
 
     Uses a real archive directory, a real DuckDB connection, and a real Dagster
@@ -511,7 +501,7 @@ def test_extract_ferceqr_collects_and_attaches_summary_stats(tmp_path):
     with dg.build_asset_context(partition_key=year_quarter) as context:
         extract_ferceqr(
             context=context,
-            ferceqr_archive=FercEqrArchiveResource(path=str(archive_dir)),
+            ferceqr_archive=_archive_resource(archive_dir, mocker),
         )
         output_metadata = context.get_output_metadata("raw_ferceqr__extract_errors")
         stats = output_metadata["extraction_stats"].data
@@ -560,7 +550,7 @@ def test_clear_raw_table_partition_is_a_noop_when_nothing_exists():
     _clear_raw_table_partition("contracts", "2099q1")
 
 
-def test_extract_ferceqr_removes_stale_output_from_a_previous_run(tmp_path):
+def test_extract_ferceqr_removes_stale_output_from_a_previous_run(tmp_path, mocker):
     """A leftover file from a filing ID no longer in the archive doesn't survive.
 
     Regression test for the raw-output accumulation bug: without clearing each
@@ -589,7 +579,7 @@ def test_extract_ferceqr_removes_stale_output_from_a_previous_run(tmp_path):
     with dg.build_asset_context(partition_key=year_quarter) as context:
         extract_ferceqr(
             context=context,
-            ferceqr_archive=FercEqrArchiveResource(path=str(archive_dir)),
+            ferceqr_archive=_archive_resource(archive_dir, mocker),
         )
 
     assert not stale_file.exists()

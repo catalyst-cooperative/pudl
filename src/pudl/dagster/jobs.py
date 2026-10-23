@@ -69,7 +69,8 @@ ferceqr_deployment_job = dg.define_asset_job(
     selection=dg.AssetSelection.assets(
         "deploy_ferceqr",
         "handle_ferceqr_failure",
-    ),
+    )
+    | dg.AssetSelection.keys("ferceqr_datapackage"),
 )
 
 default_jobs = [

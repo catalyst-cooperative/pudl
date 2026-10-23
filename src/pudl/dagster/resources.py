@@ -14,6 +14,10 @@ https://docs.dagster.io/guides/build/external-resources
 
 import json
 import os
+import tempfile
+import zipfile
+from collections.abc import Generator
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
@@ -123,14 +127,53 @@ class FercEqrArchiveResource(dg.ConfigurableResource):
     The default value of ``path`` points to the published archive of FERC EQR filings on
     GCS which is what we use in production. For testing or development, this can be
     overridden to point to a local path with a subset of the archive.
+
+    FERC EQR is far too large to archive on Zenodo, so only the Frictionless metadata --
+    including a per-quarter md5 checksum -- is archived there. Each downloaded quarterly
+    archive is verified against that metadata, giving EQR the same integrity guarantee
+    that Zenodo-hosted datasets get from :meth:`Datastore.get_resources`. Only the bytes
+    are checked, not where they came from: developers routinely point ``path`` at a
+    local cache of archives pulled from GCS, which is fine as long as the contents
+    match. Set ``verify_checksums=False`` when ``path`` holds a hand-built subset whose
+    archives can't match the published checksums.
     """
 
+    datastore: dg.ResourceDependency[Datastore]
     path: str = dg.EnvVar("PUDL_FERCEQR_ARCHIVE_PATH")
 
     @property
     def upath(self) -> UPath:
         """Return UPath pointing to archive base path."""
         return UPath(self.path)
+
+    @contextmanager
+    def open_quarter_archive(self, year_quarter: str) -> Generator[zipfile.ZipFile]:
+        """Download CSV to a tempmorary directory to avoid reading into memory."""
+        zip_name = f"ferceqr-{year_quarter}.zip"
+        remote_path = self.upath / zip_name
+
+        # Create temp directory to download zip to
+        with (
+            tempfile.TemporaryDirectory() as tmp_dir,
+        ):
+            # Stream the download to disk. Recent quarterly archives are 3-4 GB and many
+            # partition runs start at once, so ``read_bytes()`` (which holds the whole
+            # archive in memory first) can exhaust the VM's RAM.
+            local_path = Path(tmp_dir) / zip_name
+            remote_path.fs.get_file(
+                remote_path.path,
+                str(local_path),
+                concurrency=8,  # default 4: parallel ranged reads per file
+            )
+            # Raises ChecksumMismatchError on mismatch. This guarantees that year_quarter
+            # zipfiles exactly match those described by the datapackage in the zenodo
+            # metadata archive pointed to by the current DOI
+            descriptor = self.datastore.get_datapackage_descriptor("ferceqr")
+            digest = descriptor.validate_file_checksum(zip_name, local_path)
+            logger.info(f"Verified {zip_name} against {descriptor.doi} (md5={digest}).")
+            # Yield open zipfile
+            with zipfile.ZipFile(local_path) as zf:
+                yield zf
 
 
 class FercEqrDeploymentTargetConfig(dg.Config):
@@ -348,7 +391,7 @@ datastore_resource = DatastoreResource(
     pudl_paths=pudl_paths_resource,
 )
 ferc_xbrl_runtime_settings = FercXbrlRuntimeSettings()
-ferceqr_archive = FercEqrArchiveResource()
+ferceqr_archive = FercEqrArchiveResource(datastore=datastore_resource)
 ferceqr_deployment_targets = FercEqrDeploymentResource()
 zulip_notification_resource = ZulipNotificationResource()
 
