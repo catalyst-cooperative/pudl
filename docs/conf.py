@@ -77,9 +77,10 @@ googleanalytics_enabled = True
 
 todo_include_todos = True
 bibtex_bibfiles = [
-    "cooperative_cites.bib",
-    "catalyst_pubs.bib",
     "catalyst_cites.bib",
+    "catalyst_mentions.bib",
+    "catalyst_pubs.bib",
+    "cooperative_cites.bib",
     "further_reading.bib",
 ]
 
@@ -371,6 +372,24 @@ def data_sources_metadata_to_rst(app):
 # task in pyproject.toml so the generated file gets removed.
 CITATIONS_MEDIA_PAGES = [
     {
+        "name": "citing_pudl",
+        "title": "Work Citing PUDL and other Catalyst Analyses",
+        "bibfile": "catalyst_cites.bib",
+        "description": (
+            "Academic, policy, and industry publications that cite PUDL and/or "
+            "analyses done by Catalyst Cooperative."
+        ),
+    },
+    {
+        "name": "mentioning_pudl",
+        "title": "Work Mentioning PUDL or Catalyst",
+        "bibfile": "catalyst_mentions.bib",
+        "description": (
+            "Media such as news or magazine articles, blogs, interviews, podcasts,"
+            " or videos that mention PUDL or Catalyst."
+        ),
+    },
+    {
         "name": "catalyst_publications",
         "title": "Catalyst Publications",
         "bibfile": "catalyst_pubs.bib",
@@ -379,15 +398,6 @@ CITATIONS_MEDIA_PAGES = [
             "We self-archive all of our publications and the input data for PUDL "
             "in the `Catalyst Cooperative Zenodo Community "
             "<https://zenodo.org/communities/catalyst-cooperative/>`__."
-        ),
-    },
-    {
-        "name": "citing_pudl",
-        "title": "Work Citing PUDL and other Catalyst Analyses",
-        "bibfile": "catalyst_cites.bib",
-        "description": (
-            "Academic, policy, and industry publications that reference PUDL and "
-            "analyses done by Catalyst Cooperative."
         ),
     },
     {
