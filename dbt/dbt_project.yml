@@ -20,10 +20,6 @@ macro-paths: ["macros", "tests/data_tests/generic_tests"]
 seed-paths: ["seeds"]
 test-paths: ["tests/unit_tests"]
 
-vars:
-  pudl_parquet_base_path: "{{ env_var('PUDL_OUTPUT') ~ '/parquet' }}"
-  ferceqr_parquet_base_path: "{{ env_var('PUDL_OUTPUT') ~ '/parquet' }}"
-
 # Apply `external_location` to tell dbt where parquet files are located so it can use duckdb to query them
 sources:
   pudl_dbt:
