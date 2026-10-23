@@ -27,8 +27,8 @@ sources:
     # Schema files in the `dbt/models/pudl` directory will get this path pointing to a single parquet file
     pudl:
       +meta:
-        external_location: "{{ env_var('PUDL_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/{name}.parquet"
+        external_location: "{{ env_var('PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/{name}.parquet"
     # Schema files in the `dbt/models/ferceqr` directory will get this path pointing to a directory of parquet files
     ferceqr:
       +meta:
-        external_location: "{{ env_var('FERCEQR_PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/{name}/**/*.parquet"
+        external_location: "{{ env_var('PARQUET_BASE_PATH', env_var('PUDL_OUTPUT') ~ '/parquet') }}/{name}/**/*.parquet"
