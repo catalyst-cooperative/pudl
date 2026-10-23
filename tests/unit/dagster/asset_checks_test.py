@@ -6,8 +6,8 @@ parameter, ``asset_value``, whose type annotation Dagster inspects **at runtime*
 decide which IO manager to use when loading the asset. The annotation must be the exact
 type object appropriate for that specific asset:
 
-* ``pl.LazyFrame`` for normal Parquet-backed assets
-* ``gpd.GeoDataFrame`` for assets containing geometry columns
+* ``pl.LazyFrame`` for normal Parquet-backed assets, including those with geometry
+  columns (as WKB ``Binary``)
 * ``ParquetData`` for DuckDB-produced assets
 
 The factory stores this in a local variable (``asset_type``) and uses it directly as
@@ -17,7 +17,7 @@ static type checker.
 The tempting "cleanup" is to replace that computed annotation with a tidy static union::
 
     def pandera_schema_check(
-        asset_value: pl.LazyFrame | gpd.GeoDataFrame | ParquetData,  # looks fine!
+        asset_value: pl.LazyFrame | ParquetData,  # looks fine!
     ) -> dg.AssetCheckResult:
 
 This satisfies the type checker and removes the ``type: ignore``, but it silently breaks
@@ -29,11 +29,12 @@ on each generated check is the *exact* expected type object (using ``is``, not `
 """
 
 import io
+import json
 from types import SimpleNamespace
 
 import dagster as dg
-import geopandas as gpd  # noqa: ICN002
 import pandas as pd
+import pandera.polars as pr_polars
 import pint
 import polars as pl
 import pytest
@@ -45,6 +46,8 @@ from shapely.geometry import Point
 
 from pudl.dagster.asset_checks import (
     _build_registry_from_descriptor,
+    _failure_cases_sample,
+    _summarize_binary,
     _validate_datapackage_unit_strings,
     asset_check_from_schema,
     group_mean_continuity_check,
@@ -60,7 +63,7 @@ from pudl.metadata.units import PUDL_UNIT_DEFINITIONS
     [
         ("core_pudl__codes_subdivisions", False, pl.LazyFrame),
         ("core_ferceqr__contracts", True, ParquetData),
-        ("out_censusdp1tract__counties", False, gpd.GeoDataFrame),
+        ("out_censusdp1tract__counties", False, pl.LazyFrame),
     ],
 )
 def test_asset_checks_preserve_runtime_input_types(
@@ -258,8 +261,23 @@ def _build_check_fn(name: str, fields: list[dict], primary_key: list[str]):
     return node_def.compute_fn.decorated_fn  # type: ignore[missing-attribute]
 
 
+@pytest.fixture(params=[False, True], ids=["no_geometry", "with_geometry"])
+def with_geometry(request: pytest.FixtureRequest) -> bool:
+    """Run the content and uniqueness checks with and without a geometry column."""
+    return request.param
+
+
+def _add_geometry(lf: pl.LazyFrame, with_geometry: bool) -> pl.LazyFrame:
+    """Add a valid WKB ``geometry`` column, if the resource has one."""
+    if not with_geometry:
+        return lf
+    n_rows = lf.select(pl.len()).collect().item()
+    wkb = [Point(i, i).wkb for i in range(n_rows)]
+    return lf.with_columns(pl.Series("geometry", wkb, dtype=pl.Binary))
+
+
 def _content_check_fields(*, with_geometry: bool) -> list[dict]:
-    """Shared field set for the polars and geopandas content-check fixtures."""
+    """Shared field set for the content-check tests."""
     fields = [
         {"name": "id", "type": "integer", "description": "Primary key."},
         {
@@ -282,15 +300,17 @@ def _content_check_fields(*, with_geometry: bool) -> list[dict]:
     return fields
 
 
-def test_polars_lazyframe_content_checks_valid() -> None:
+def test_polars_lazyframe_content_checks_valid(with_geometry: bool) -> None:
     """Content-valid data should pass the generated asset check."""
     fn = _build_check_fn(
         "_test__polars_content_checks",
-        _content_check_fields(with_geometry=False),
+        _content_check_fields(with_geometry=with_geometry),
         ["id"],
     )
     lf = pl.LazyFrame({"id": [1, 2, 3], "value": [10, 20, 30], "code": ["a", "b", "a"]})
-    lf = lf.with_columns(pl.col("code").cast(pl.Categorical))
+    lf = _add_geometry(
+        lf.with_columns(pl.col("code").cast(pl.Categorical)), with_geometry
+    )
     result = fn(lf)
     assert result.passed is True
     assert "unexpected_error" not in result.metadata
@@ -305,7 +325,7 @@ def test_polars_lazyframe_content_checks_valid() -> None:
     ids=["value_out_of_range", "code_not_in_enum"],
 )
 def test_polars_lazyframe_content_checks_errors(
-    value, code, expected_metadata_error
+    value, code, expected_metadata_error, with_geometry: bool
 ) -> None:
     """Content (not just schema) violations should fail with informative detail.
 
@@ -320,13 +340,15 @@ def test_polars_lazyframe_content_checks_errors(
     """
     fn = _build_check_fn(
         "_test__polars_content_checks",
-        _content_check_fields(with_geometry=False),
+        _content_check_fields(with_geometry=with_geometry),
         ["id"],
     )
     lf = pl.LazyFrame(
         {"id": [1, 2, 3], "value": [10, 20, value], "code": ["a", "b", code]}
     )
-    lf = lf.with_columns(pl.col("code").cast(pl.Categorical))
+    lf = _add_geometry(
+        lf.with_columns(pl.col("code").cast(pl.Categorical)), with_geometry
+    )
     result = fn(lf)
 
     assert result.passed is False
@@ -335,38 +357,6 @@ def test_polars_lazyframe_content_checks_errors(
     assert any(expected_metadata_error in m for m in messages), (
         f"Expected {expected_metadata_error!r} in one of: {messages}"
     )
-
-
-@pytest.mark.parametrize(
-    ("value", "code", "expected_pass"),
-    [
-        (30, "a", True),
-        (150, "a", False),  # violates maximum=100
-        (30, "z", False),  # violates enum=["a", "b", "c"]
-    ],
-    ids=["valid", "value_out_of_range", "code_not_in_enum"],
-)
-def test_geopandas_content_checks(value, code, expected_pass) -> None:
-    """Content violations are already correctly caught on the geopandas/pandas path.
-
-    All errors must produce SchemaErrors, not generic exceptions.
-    """
-    fn = _build_check_fn(
-        "_test__geopandas_content_checks",
-        _content_check_fields(with_geometry=True),
-        ["id"],
-    )
-    gdf = gpd.GeoDataFrame(
-        {
-            "id": pd.array([1, 2, 3], dtype="Int64"),
-            "value": pd.array([10, 20, value], dtype="Int64"),
-            "code": pd.Categorical(["a", "b", code]),
-            "geometry": [Point(0, 0), Point(1, 1), Point(2, 2)],
-        }
-    )
-    result = fn(gdf)
-    assert result.passed == expected_pass
-    assert "unexpected_error" not in result.metadata
 
 
 # ---------------------------------------------------------------------------
@@ -383,7 +373,7 @@ def test_geopandas_content_checks(value, code, expected_pass) -> None:
 
 
 def _uniqueness_check_fields(*, with_geometry: bool) -> list[dict]:
-    """Shared field set for the polars and geopandas uniqueness-check fixtures."""
+    """Shared field set for the uniqueness-check tests."""
     fields = [
         {"name": "id", "type": "integer", "description": "Primary key, part 1."},
         {"name": "id2", "type": "integer", "description": "Primary key, part 2."},
@@ -425,14 +415,14 @@ def _uniqueness_data(**overrides: list) -> dict[str, list]:
     return {**_UNIQUENESS_BASE_DATA, **overrides}
 
 
-def test_polars_lazyframe_uniqueness_checks_valid() -> None:
+def test_polars_lazyframe_uniqueness_checks_valid(with_geometry: bool) -> None:
     """Nullable- and uniqueness-valid data should pass the generated asset check."""
     fn = _build_check_fn(
         "_test__polars_uniqueness_checks",
-        _uniqueness_check_fields(with_geometry=False),
+        _uniqueness_check_fields(with_geometry=with_geometry),
         ["id", "id2"],
     )
-    result = fn(pl.LazyFrame(_UNIQUENESS_BASE_DATA))
+    result = fn(_add_geometry(pl.LazyFrame(_UNIQUENESS_BASE_DATA), with_geometry))
     assert result.passed is True
     assert "unexpected_error" not in result.metadata
 
@@ -461,7 +451,7 @@ _UNIQUENESS_ERROR_IDS = [
     ids=_UNIQUENESS_ERROR_IDS,
 )
 def test_polars_lazyframe_uniqueness_checks_errors(
-    data, expected_metadata_error
+    data, expected_metadata_error, with_geometry: bool
 ) -> None:
     """Nullable and uniqueness violations should fail with informative detail.
 
@@ -480,79 +470,10 @@ def test_polars_lazyframe_uniqueness_checks_errors(
     """
     fn = _build_check_fn(
         "_test__polars_uniqueness_checks",
-        _uniqueness_check_fields(with_geometry=False),
+        _uniqueness_check_fields(with_geometry=with_geometry),
         ["id", "id2"],
     )
-    result = fn(pl.LazyFrame(data))
-
-    assert result.passed is False
-    assert "unexpected_error" not in result.metadata
-    messages = [e["error_message"] for e in result.metadata["detailed_errors"].data]
-    assert any(expected_metadata_error in m for m in messages), (
-        f"Expected {expected_metadata_error!r} in one of: {messages}"
-    )
-
-
-def _uniqueness_geodataframe(data: dict[str, list]) -> gpd.GeoDataFrame:
-    """Build the GeoDataFrame counterpart of a :func:`_uniqueness_data` case."""
-    return gpd.GeoDataFrame(
-        {
-            "id": pd.array(data["id"], dtype="Int64"),
-            "id2": pd.array(data["id2"], dtype="Int64"),
-            "required_field": pd.array(data["required_field"], dtype="Int64"),
-            "unique_field": pd.array(data["unique_field"], dtype="Int64"),
-            "geometry": [Point(0, 0), Point(1, 1), Point(2, 2)],
-        }
-    )
-
-
-def test_geopandas_uniqueness_checks_valid() -> None:
-    """Nullable- and uniqueness-valid data should pass the generated asset check."""
-    fn = _build_check_fn(
-        "_test__geopandas_uniqueness_checks",
-        _uniqueness_check_fields(with_geometry=True),
-        ["id", "id2"],
-    )
-    result = fn(_uniqueness_geodataframe(_UNIQUENESS_BASE_DATA))
-    assert result.passed is True
-    assert "unexpected_error" not in result.metadata
-
-
-_GEOPANDAS_UNIQUENESS_ERROR_CASES = [
-    (
-        _uniqueness_data(required_field=[1, None, 3]),
-        "'required_field' contains null values",
-    ),
-    (_uniqueness_data(unique_field=[1, 1, 3]), "'unique_field' contains duplicate"),
-    (
-        _uniqueness_data(id=[1, 1, 3], id2=[1, 1, 3]),
-        "('id', 'id2')' not unique",
-    ),
-]
-
-
-@pytest.mark.parametrize(
-    ("data", "expected_metadata_error"),
-    _GEOPANDAS_UNIQUENESS_ERROR_CASES,
-    ids=_UNIQUENESS_ERROR_IDS,
-)
-def test_geopandas_uniqueness_checks_errors(data, expected_metadata_error) -> None:
-    """Nullable and uniqueness violations are already correctly caught on the
-    geopandas/pandas path, with informative detail.
-
-    Checks the actual failure content in ``detailed_errors``, not just
-    ``passed=False`` -- see the equivalent polars test for why. The pandas
-    backend's error phrasing ("series ... contains duplicate values") differs
-    from the polars backend's ("column ... not unique"), so these expected
-    substrings are backend-specific even though the underlying cases are the
-    same as :func:`test_polars_lazyframe_uniqueness_checks_errors`.
-    """
-    fn = _build_check_fn(
-        "_test__geopandas_uniqueness_checks",
-        _uniqueness_check_fields(with_geometry=True),
-        ["id", "id2"],
-    )
-    result = fn(_uniqueness_geodataframe(data))
+    result = fn(_add_geometry(pl.LazyFrame(data), with_geometry))
 
     assert result.passed is False
     assert "unexpected_error" not in result.metadata
@@ -636,3 +557,138 @@ def test_summarize_check_failures(passed, metadata, expected):
     # supply the two attributes summarize_check_failures actually reads.
     evaluation = SimpleNamespace(passed=passed, metadata=metadata)
     assert summarize_check_failures(evaluation) == expected  # type: ignore[bad-argument-type]
+
+
+# ---------------------------------------------------------------------------
+# Geometry columns are validated as WKB Binary by the Polars backend
+# ---------------------------------------------------------------------------
+
+
+def _geometry_lazyframe(geometry: list) -> pl.LazyFrame:
+    """A content-valid frame whose ``geometry`` column is the given WKB values."""
+    n = len(geometry)
+    return pl.LazyFrame(
+        {
+            "id": list(range(n)),
+            "value": [10] * n,
+            "code": ["a"] * n,
+            "geometry": pl.Series("geometry", geometry, dtype=pl.Binary),
+        }
+    ).with_columns(pl.col("code").cast(pl.Categorical))
+
+
+def test_resource_with_geometry_uses_polars_pandera_backend() -> None:
+    """Geometry no longer forces the pandas backend; it is WKB ``Binary`` to Polars."""
+    resource = Resource(
+        name="_test__geometry_backend",
+        description="Synthetic resource with a geometry field.",
+        schema={
+            "fields": _content_check_fields(with_geometry=True),
+            "primary_key": ["id"],
+        },
+    )
+
+    schema = resource.schema.to_pandera()
+
+    assert isinstance(schema, pr_polars.DataFrameSchema)
+    assert schema.columns["geometry"].dtype.type == pl.Binary
+
+
+def test_geometry_lazyframe_passes_check() -> None:
+    """Valid WKB (and null geometries) in a Binary column pass the generated check."""
+    fn = _build_check_fn(
+        "_test__geometry_valid",
+        _content_check_fields(with_geometry=True),
+        ["id"],
+    )
+    lf = _geometry_lazyframe([Point(0, 0).wkb, Point(1, 1).wkb, None])
+
+    result = fn(lf)
+
+    assert result.passed is True
+    assert "unexpected_error" not in result.metadata
+
+
+def test_geometry_lazyframe_with_wrong_dtype_fails_check() -> None:
+    """A geometry column that isn't Binary (e.g. WKT strings) is a dtype failure."""
+    fn = _build_check_fn(
+        "_test__geometry_wrong_dtype",
+        _content_check_fields(with_geometry=True),
+        ["id"],
+    )
+    lf = _geometry_lazyframe([Point(0, 0).wkb]).with_columns(
+        geometry=pl.lit("POINT (0 0)")
+    )
+
+    result = fn(lf)
+
+    assert result.passed is False
+    assert "unexpected_error" not in result.metadata
+    assert result.metadata["type_mismatches"].data["geometry"] == {
+        "expected": "Binary",
+        "actual": "String",
+    }
+
+
+def test_geometry_lazyframe_with_invalid_wkb_fails_check() -> None:
+    """Bytes that don't decode as WKB are caught; the old backend checked geometry."""
+    fn = _build_check_fn(
+        "_test__geometry_invalid_wkb",
+        _content_check_fields(with_geometry=True),
+        ["id"],
+    )
+    lf = _geometry_lazyframe([Point(0, 0).wkb, b"not wkb"])
+
+    result = fn(lf)
+
+    assert result.passed is False
+    assert "unexpected_error" not in result.metadata
+    messages = [e["error_message"] for e in result.metadata["detailed_errors"].data]
+    assert any("geometry" in m and "WKB" in m for m in messages), messages
+
+
+def test_failure_cases_sample_summarizes_binary_values() -> None:
+    """Binary failure cases (e.g. WKB geometries) are summarized, not dumped.
+
+    Raw bytes aren't JSON-serializable, so Dagster would crash the check rather than
+    report the failure. A single geometry can also be megabytes, so a full hex dump
+    could balloon the check's metadata.
+    """
+    failure_cases = pl.DataFrame(
+        {"index": [3], "failure_case": pl.Series([b"\x01" * 1_000], dtype=pl.Binary)}
+    )
+
+    count, sample = _failure_cases_sample(failure_cases)
+
+    assert count == 1
+    assert len(json.dumps(sample)) < 200
+    assert "1000 bytes" in sample[0]["failure_case"]
+    assert sample[0]["index"] == 3
+
+
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        # Text that ended up in a geometry column is readable, not hex-encoded.
+        (b"POINT (1 2)", "<11 bytes, starting 'POINT (1 2)'>"),
+        (
+            b'{"type": "Point", "coordinates": [1, 2]}',
+            '<40 bytes, starting \'{"type": "Point"\'>',
+        ),
+        # Real WKB (byte order, then geometry type) is shown as hex.
+        (Point(0, 0).wkb, "<21 bytes, starting 0x01010000000000000000000000000000>"),
+        (b"", "<0 bytes, starting ''>"),
+        (b"\x00\xff" * 20, "<40 bytes, starting 0x00ff00ff00ff00ff00ff00ff00ff00ff>"),
+    ],
+    ids=["wkt_text", "geojson_text", "wkb", "empty", "binary_junk"],
+)
+def test_summarize_binary(value: bytes, expected: str) -> None:
+    """Printable text is shown as text, and anything else as hex, after the size."""
+    assert _summarize_binary(value) == expected
+
+
+def test_summarize_binary_leaves_other_values_alone() -> None:
+    """Only ``bytes`` are summarized."""
+    assert _summarize_binary("text") == "text"
+    assert _summarize_binary(3) == 3
+    assert _summarize_binary(None) is None
