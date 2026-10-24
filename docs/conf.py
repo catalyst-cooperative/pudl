@@ -94,6 +94,9 @@ autoapi_add_toctree_entry = False
 # dynamic file generation and cleanup, this results in a race condition and
 # conflicts between the two builds, so we disable the parallel build.
 llms_txt_build_parallel = False
+# Publish a single markdown twin per page, named <page>.md next to <page>.html. The
+# default ("auto") writes both <page>.md and <page>.html.md for every page.
+llms_txt_suffix_mode = "replace"
 # Not every Sphinx node type (especially those added via extensions) can be rendered by
 # the markdown builder. This is expected. Suppress warnings about those nodes.
 llms_txt_suppress_unknown_node_warnings = True
@@ -106,7 +109,7 @@ issues_github_path = "catalyst-cooperative/pudl"
 intersphinx_mapping = {
     "arrow": ("https://arrow.apache.org/docs/", None),
     "dagster": ("https://docs.dagster.io/", None),
-    "duckdb": ("https://duckdb.org/docs/lts/clients/python/reference/", None),
+    # "duckdb": ("https://duckdb.org/docs/lts/clients/python/reference/", None),
     "geopandas": ("https://geopandas.org/en/stable/", None),
     "hypothesis": ("https://hypothesis.readthedocs.io/en/latest/", None),
     "networkx": ("https://networkx.org/documentation/stable/", None),
@@ -241,34 +244,6 @@ def cleanup_docs_img_hack_dir(app, exception):
         shutil.rmtree(docs_img_hack_dir)
 
 
-def add_markdown_alternate_link(app, pagename, templatename, context, doctree):
-    """Advertise the sphinx_llm.txt markdown twin of each page via <link rel="alternate">.
-
-    sphinx_llm.txt generates a ``<page>.html.md`` file alongside every HTML
-    page (see llms_txt_suffix_mode="auto" default), but doesn't add any
-    in-page signal pointing to it. This makes that markdown version
-    discoverable to crawlers/agents that check for standard alternate-format
-    links, without requiring them to already know the llms.txt convention.
-    """
-    if pagename not in app.env.found_docs:
-        # Skip generated non-document pages (search, genindex, 404, etc.)
-        # that don't have a markdown counterpart.
-        return
-    # sphinx_llm.txt writes the markdown twin next to its HTML page (e.g.
-    # dev/pudl_id_mapping.html -> dev/pudl_id_mapping.html.md), so a
-    # same-directory-relative filename is all that's needed. We avoid
-    # context["pathto"](pagename) here because it collapses same-page
-    # self-references down to a bare "#", which would produce a broken
-    # "#.md" href.
-    markdown_filename = f"{pagename.rsplit('/', 1)[-1]}.html.md"
-    link_tag = (
-        '\n<link rel="alternate" type="text/markdown" '
-        'title="Markdown version of this page" '
-        f'href="{markdown_filename}" />'
-    )
-    context["metatags"] = context.get("metatags", "") + link_tag
-
-
 def _create_readme_image_symlink(app):
     """Create docs/docs/images symlink so README.rst image paths resolve.
 
@@ -288,12 +263,6 @@ def setup(app):
     app.add_css_file("custom.css")
     app.connect("builder-inited", _create_readme_image_symlink)
     app.connect("builder-inited", generate_docs_content)
-    # Only advertise markdown alternates if sphinx_llm.txt is actually
-    # installed, loaded, and not explicitly disabled via llms_txt_enabled.
-    if "sphinx_llm.txt" in app.extensions and getattr(
-        app.config, "llms_txt_enabled", True
-    ):
-        app.connect("html-page-context", add_markdown_alternate_link)
     if not keep_generated_files:
         app.connect("build-finished", cleanup_generated_files)
         app.connect("build-finished", cleanup_docs_img_hack_dir)
