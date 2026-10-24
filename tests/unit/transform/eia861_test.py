@@ -123,13 +123,21 @@ def test_clean_nerc_numeric_code():
 
 @pytest.mark.parametrize("dtype", ["object", "string"])
 def test__make_yn_bool__series(dtype):
-    """Y/X/N codes become nullable booleans; nulls and other codes become NA."""
-    raw = pd.Series(["Y", "y", "N", "n", "X", "x", "Z", None, pd.NA], dtype=dtype)
+    """Y/X/N codes become nullable booleans regardless of case; nulls stay null."""
+    raw = pd.Series(["Y", "y", "N", "n", "X", "x", None, pd.NA], dtype=dtype)
     actual = eia861._make_yn_bool(raw)
     expected = pd.Series(
-        [True, True, False, False, True, True, pd.NA, pd.NA, pd.NA], dtype="boolean"
+        [True, True, False, False, True, True, pd.NA, pd.NA], dtype="boolean"
     )
     pd.testing.assert_series_equal(actual, expected)
+
+
+@pytest.mark.parametrize("dtype", ["object", "string"])
+def test__make_yn_bool__unknown_codes_raise(dtype):
+    """Values other than Y/X/N (in either case) or booleans raise."""
+    raw = pd.Series(["Y", "Z", "c", None], dtype=dtype, name="flag")
+    with pytest.raises(AssertionError, match=r"flag.*\['C', 'Z'\]"):
+        eia861._make_yn_bool(raw)
 
 
 def test__make_yn_bool__keeps_existing_booleans():
@@ -139,8 +147,8 @@ def test__make_yn_bool__keeps_existing_booleans():
     pd.testing.assert_series_equal(eia861._make_yn_bool(raw), expected)
 
 
-def test__make_yn_bool__dataframe():
-    """DataFrames are converted column by column, preserving the index."""
+def test__make_yn_bool__dataframe_apply():
+    """DataFrame.apply converts column by column, preserving the index."""
     raw = pd.DataFrame(
         {"a": ["Y", None], "b": pd.array(["n", pd.NA], dtype="string")},
         index=pd.Index([5, 6], name="k"),
@@ -152,18 +160,4 @@ def test__make_yn_bool__dataframe():
         },
         index=pd.Index([5, 6], name="k"),
     )
-    pd.testing.assert_frame_equal(eia861._make_yn_bool(raw), expected)
-
-
-def test__dynamic_pricing_flags_to_bool():
-    """Y and X are True, N is False, nulls stay null, and other codes raise."""
-    df = pd.DataFrame({"a": ["Y", "N", "X", None], "b": ["N", "X", "Y", "N"]})
-    out = eia861._dynamic_pricing_flags_to_bool(df, ["a", "b"])
-    pd.testing.assert_series_equal(
-        out["a"], pd.Series([True, False, True, pd.NA], dtype="boolean", name="a")
-    )
-    pd.testing.assert_series_equal(
-        out["b"], pd.Series([False, True, True, False], dtype="boolean", name="b")
-    )
-    with pytest.raises(AssertionError, match="not categorized"):
-        eia861._dynamic_pricing_flags_to_bool(pd.DataFrame({"a": ["Y", "Z"]}), ["a"])
+    pd.testing.assert_frame_equal(raw.apply(eia861._make_yn_bool), expected)
