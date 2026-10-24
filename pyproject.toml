@@ -68,6 +68,7 @@ botocore = ">=1.35"
 bottleneck = ">=1.5.0"
 "catalystcoop.dbfread" = ">=3.0,<3.1"
 "catalystcoop.ferc_xbrl_extractor" = ">=1.11,<1.12"
+"catalystcoop.pudl_diff" = ">=0.1.1"
 click = ">=8.5"
 coloredlogs = ">=14.0"
 coverage = ">=7.15"
@@ -120,6 +121,8 @@ prek = ">=0.5"
 # potentially unresolveable breaking changes in prettier 4.x
 prettier = ">=3.8,<4"
 proj = ">=9.8.1"
+# Also needed by catalystcoop.pudl_diff, which the conda environment satisfies.
+psutil = ">=7"
 pyarrow = ">=24"
 pydantic = ">=2.14"
 pydantic-settings = ">=2.16"
@@ -171,6 +174,7 @@ xlsxwriter = ">=3.2"
 # above in [tools.pixi.dependenccies] (for conda packages) or in this section, if they
 # happen to only be available via PyPI.
 "catalystcoop.pudl" = { path = ".", editable = true }
+# Developed in https://github.com/catalyst-cooperative/pudl-diff
 detect-secrets = ">=1.5"
 # conda-forge's duckdb-engine recipe pins duckdb<=1.0.0; PyPI's own metadata has no
 # such upper bound, and works fine with the newer python-duckdb pinned above.
@@ -634,7 +638,6 @@ filterwarnings = [
     "ignore:Exception ignored in:pytest.PytestUnraisableExceptionWarning",
     "ignore:Specifying a partitions_def on an AssetCheckSpec is currently in preview",
     "ignore:No path_separator found in configuration:DeprecationWarning:alembic",
-    "ignore:Extension type 'geoarrow.wkb' is not registered:UserWarning",
     "ignore:.*invalid escape sequence:SyntaxWarning:stringcase",
     "ignore:.*invalid escape sequence:SyntaxWarning:parsedatetime",
     "ignore:grpcio < 1.83.0 does not support Post-Quantum Cryptography:FutureWarning",
