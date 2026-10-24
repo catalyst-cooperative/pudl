@@ -250,6 +250,19 @@ Bug Fixes & Data Cleaning
   string comparisons, which would otherwise have left spurious null energy sources,
   null primary keys, or unremoved bogus ownership records. See :issue:`5621`,
   :issue:`5622`, :issue:`5624` and :pr:`5721`.
+* ``X`` in the EIA-861 dynamic pricing time-of-use, critical peak, real time and
+  variable peak columns is now treated as ``True`` (a checked box) instead of being
+  turned into a null, which changes four 2018 rows of
+  ``core_eia861__yearly_dynamic_pricing``. All EIA-861 Y/N flag columns now share one
+  case-insensitive conversion to booleans, so a lowercase ``y`` or ``n`` is no longer
+  turned into a null in a few ``core_eia861__yearly_reliability`` rows, and unexpected
+  codes other than Y, N and X raise an error. See :issue:`5617`, :issue:`5601` and
+  :pr:`5718`.
+* Fixed the 2007-2011 EIA-861 advanced metering infrastructure column map, which was
+  loading the utility ownership codes (e.g. ``C`` for cooperative) into ``short_form``
+  and leaving ``entity_type`` null. Those years of
+  ``core_eia861__yearly_advanced_metering_infrastructure`` now have ``entity_type``
+  populated and ``short_form`` null. See :pr:`5718`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^

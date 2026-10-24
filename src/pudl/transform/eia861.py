@@ -5,7 +5,6 @@ All transformations include:
 """
 
 from collections.abc import Callable, Hashable
-from typing import overload
 
 import pandas as pd
 from dagster import AssetIn, AssetOut, Output, asset, multi_asset
@@ -792,34 +791,30 @@ def _pct_to_mw(df, pct_col):
 
 _YN_TO_BOOL = {
     "Y": True,
-    "y": True,
     "X": True,  # Marked with an X, like a checked box on a form.
-    "x": True,
     "N": False,
-    "n": False,
     True: True,
     False: False,
 }
 
 
-@overload
-def _make_yn_bool(df_object: pd.Series) -> pd.Series: ...
+def _make_yn_bool(col: pd.Series) -> pd.Series:
+    """Turn Y/N reporting in a series into nullable booleans.
 
+    Codes are matched case-insensitively. ``Y`` and ``X`` (a checked box) are ``True``
+    and ``N`` is ``False``. Existing booleans are kept and nulls stay null. To convert
+    a dataframe, use ``df.apply(_make_yn_bool)``.
 
-@overload
-def _make_yn_bool(df_object: pd.DataFrame) -> pd.DataFrame: ...
-
-
-def _make_yn_bool(df_object):
-    """Turn Y/N reporting into nullable booleans for a series or dataframe.
-
-    ``Y`` and ``X`` (a checked box) are ``True`` and ``N`` is ``False``. Existing
-    booleans are kept. Nulls and any other values (e.g. stray single-letter codes)
-    become ``pd.NA``.
+    Raises:
+        AssertionError: if there are non-null values that are not Y, X, N or a boolean.
     """
-    if isinstance(df_object, pd.DataFrame):
-        return df_object.apply(_make_yn_bool)
-    return df_object.map(_YN_TO_BOOL).astype("boolean")
+    codes = col.map(lambda x: x.upper() if isinstance(x, str) else x)
+    out = codes.map(_YN_TO_BOOL).astype("boolean")
+    if unknown := sorted(codes[out.isna() & codes.notna()].unique(), key=str):
+        raise AssertionError(
+            f"Found values in {col.name} that are not Y, N, X or boolean: {unknown}"
+        )
+    return out
 
 
 def _thousand_to_one(df_object):
@@ -1463,7 +1458,7 @@ def core_demand_side_management_eia861(
 
     # Calculate transformations for each chunk
     transformed_dsm2_bool = (
-        _make_yn_bool(tidy_dsm_bool)
+        tidy_dsm_bool.apply(_make_yn_bool)
         .reset_index()
         .assign(short_form=lambda x: x.short_form.fillna(False))
     )
@@ -1743,19 +1738,6 @@ def core_eia861__yearly_distribution_systems(
     return df
 
 
-def _dynamic_pricing_flags_to_bool(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
-    """Convert the Y/N/X dynamic pricing flags in ``cols`` into nullable booleans.
-
-    ``X`` is treated as ``True``, as if the respondent had marked a checkbox with an X.
-    Any other unexpected code raises an ``AssertionError``.
-    """
-    for col in cols:
-        df = pudl.helpers.convert_col_to_bool(
-            df, col_name=col, true_values=["Y", "X"], false_values=["N"]
-        )
-    return df
-
-
 @asset(io_manager_key="parquet_io_manager")
 def core_eia861__yearly_dynamic_pricing(
     raw_eia861__dynamic_pricing: pd.DataFrame,
@@ -1812,7 +1794,7 @@ def core_eia861__yearly_dynamic_pricing(
     ###########################################################################
 
     logger.info("Performing value transformations on EIA 861 Dynamic Pricing table.")
-    tidy_dp = _dynamic_pricing_flags_to_bool(tidy_dp, class_attributes)
+    tidy_dp[class_attributes] = tidy_dp[class_attributes].apply(_make_yn_bool)
 
     return _post_process(tidy_dp, name="core_eia861__yearly_dynamic_pricing")
 
