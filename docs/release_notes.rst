@@ -26,15 +26,6 @@ New Data Tests & Validations
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* Made transforms in FERC 1, FERC 714, SEC 10-K, PHMSA, RUS and the EIA API extractor
-  behave identically under pandas 2 and 3 by replacing in-place, chained and
-  dtype-changing assignments. Along the way: the PHMSA operators cleanup no longer
-  nulls non-string values like numeric zip codes; SEC 10-K ownership percentages no
-  longer misread leader dots (``"...99"`` was 0.0099, now 0.99) and dots-only entries
-  are null; and ``drop_invalid_rows()`` treats ``pd.NA``, ``np.nan`` and ``None``
-  alike. A new dbt test expects 90% of SEC 10-K ``fraction_owned`` values to be <= 1.
-  See :issue:`5616`, :issue:`5623` and :pr:`5665`. Part of the Pandas 3.0 migration
-  epic :pr:`3737`.
 * Added a missing territory entry to the :ref:`core_pudl__codes_subdivisions` table. See
   :issue:`5696` and :pr:`5716`.
 
@@ -237,12 +228,6 @@ Bug Fixes & Data Cleaning
   instead of ``<NA>`` (or ``<na>``), consistent with the rest of the ID. This changes
   ``record_id_eia`` and ``plant_part_id_eia`` in ``out_eia__yearly_plant_parts`` and the
   related plant-part association tables for a few hundred records. See :issue:`5598` and
-  :pr:`5640`.
-* ``X`` in the EIA-861 dynamic pricing time-of-use, critical peak, real time and
-  variable peak columns is now treated as ``True`` (a checked box) instead of being
-  turned into a null, which changes four 2018 rows of
-  ``core_eia861__yearly_dynamic_pricing``. Unexpected codes other than Y, N and X raise
-  an error. See :issue:`5617`, :issue:`5601` and :pr:`5631`.
   :pr:`5721`.
 * Made null handling in ``stack_generators()``, the EIA-176 "other" gas disposition
   categorization and the EIA-860 ownership spot-fix behave identically under pandas 2
