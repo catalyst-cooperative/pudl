@@ -218,8 +218,11 @@ Bug Fixes & Data Cleaning
 * ``X`` in the EIA-861 dynamic pricing time-of-use, critical peak, real time and
   variable peak columns is now treated as ``True`` (a checked box) instead of being
   turned into a null, which changes four 2018 rows of
-  ``core_eia861__yearly_dynamic_pricing``. Unexpected codes other than Y, N and X raise
-  an error. See :issue:`5617`, :issue:`5601` and :pr:`5718`.
+  ``core_eia861__yearly_dynamic_pricing``. All EIA-861 Y/N flag columns now share one
+  case-insensitive conversion to booleans, so a lowercase ``y`` or ``n`` is no longer
+  turned into a null in a few ``core_eia861__yearly_reliability`` rows, and unexpected
+  codes other than Y, N and X raise an error. See :issue:`5617`, :issue:`5601` and
+  :pr:`5718`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
