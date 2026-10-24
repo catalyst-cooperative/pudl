@@ -541,7 +541,7 @@ class ResourceDescriptionBuilder:
         if "ferc" in self.resource_id:
             usage_warnings.append("ferc_is_hard")
         return [
-            ResourceTrait(type=uw, description=USAGE_WARNINGS[uw])
+            ResourceTrait(type=uw, description=USAGE_WARNINGS[uw].description)
             if isinstance(uw, str)
             else ResourceTrait(**uw)
             for uw in usage_warnings
