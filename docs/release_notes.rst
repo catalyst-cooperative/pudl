@@ -223,6 +223,11 @@ Bug Fixes & Data Cleaning
   turned into a null in a few ``core_eia861__yearly_reliability`` rows, and unexpected
   codes other than Y, N and X raise an error. See :issue:`5617`, :issue:`5601` and
   :pr:`5718`.
+* Fixed the 2007-2011 EIA-861 advanced metering infrastructure column map, which was
+  loading the utility ownership codes (e.g. ``C`` for cooperative) into ``short_form``
+  and leaving ``entity_type`` null. Those years of
+  ``core_eia861__yearly_advanced_metering_infrastructure`` now have ``entity_type``
+  populated and ``short_form`` null. See :pr:`5718`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
