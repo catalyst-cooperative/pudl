@@ -313,17 +313,15 @@ def _aggregate_generation_fuel_duplicates(
     if nuclear:
         natural_key_fields += ["nuclear_unit_id"]
 
-    is_duplicate = gen_fuel.duplicated(subset=natural_key_fields, keep=False)
-
-    duplicates = gen_fuel[is_duplicate].copy()
-
     # These columns can come out of upstream extraction/transform steps as object
-    # dtype rather than a proper numeric dtype under pandas 3. Cast them explicitly
-    # so the select_dtypes(include="number") check below (and the aggregation and
-    # division further down) treat them as numeric instead of silently excluding
-    # or mishandling them. We use NumPy float64 (not nullable Float64) so that nulls
-    # are np.nan, which keeps the all-zero check below and the later concatenation
-    # with the object-dtype non-duplicate rows free of pd.NA.
+    # dtype rather than a proper numeric dtype under pandas 3. Cast them explicitly,
+    # for duplicate and non-duplicate rows alike, so the select_dtypes(include="number")
+    # check below (and the aggregation and division further down) treat them as
+    # numeric, and so the concatenated output has clean numeric columns. We use NumPy
+    # float64 (not nullable Float64) so that nulls are np.nan, which keeps the all-zero
+    # check below free of pd.NA. pd.to_numeric converts any pd.NA / None in object
+    # columns to np.nan, which astype("float64") alone can't do, and raises on
+    # non-numeric values.
     numeric_value_cols = [
         "fuel_consumed_units",
         "fuel_consumed_for_electricity_units",
@@ -332,7 +330,14 @@ def _aggregate_generation_fuel_duplicates(
         "net_generation_mwh",
         "fuel_mmbtu_per_unit",
     ]
-    duplicates[numeric_value_cols] = duplicates[numeric_value_cols].astype("float64")
+    gen_fuel = gen_fuel.copy()
+    gen_fuel[numeric_value_cols] = (
+        gen_fuel[numeric_value_cols].apply(pd.to_numeric).astype("float64")
+    )
+
+    is_duplicate = gen_fuel.duplicated(subset=natural_key_fields, keep=False)
+
+    duplicates = gen_fuel[is_duplicate].copy()
 
     # Remove duplicates where all numeric fields are 0 (only if there are other,
     # non-zero duplicates)
