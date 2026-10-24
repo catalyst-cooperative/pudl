@@ -35,6 +35,11 @@ Bug Fixes & Data Cleaning
   alike. A new dbt test expects 90% of SEC 10-K ``fraction_owned`` values to be <= 1.
   See :issue:`5616`, :issue:`5623` and :pr:`5665`. Part of the Pandas 3.0 migration
   epic :pr:`3737`.
+* Added a missing territory entry to the :ref:`core_pudl__codes_subdivisions` table. See
+  :issue:`5696` and :pr:`5716`.
+
+* Added ``plant_function`` values to a few factoids in
+  :ref:`out_ferc1__yearly_rate_base`. See :pr:`5690`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
