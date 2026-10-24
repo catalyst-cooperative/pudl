@@ -243,6 +243,13 @@ Bug Fixes & Data Cleaning
   turned into a null, which changes four 2018 rows of
   ``core_eia861__yearly_dynamic_pricing``. Unexpected codes other than Y, N and X raise
   an error. See :issue:`5617`, :issue:`5601` and :pr:`5631`.
+  :pr:`5721`.
+* Made null handling in ``stack_generators()``, the EIA-176 "other" gas disposition
+  categorization and the EIA-860 ownership spot-fix behave identically under pandas 2
+  and 3. Pandas 3 changed how nulls are treated by ``stack()``, ``astype(str)`` and
+  string comparisons, which would otherwise have left spurious null energy sources,
+  null primary keys, or unremoved bogus ownership records. See :issue:`5621`,
+  :issue:`5622`, :issue:`5624` and :pr:`5721`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
