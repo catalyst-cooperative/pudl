@@ -1022,7 +1022,7 @@ class TableTransformParams(TransformParams):
     spot_fix_values: list[SpotFixes] = []
 
     @classmethod
-    def from_dict(cls, params: dict[str, Any]) -> TableTransformParams:
+    def from_dict(cls, params: dict[str, Any]) -> Self:
         """Construct ``TableTransformParams`` from a dictionary of keyword arguments.
 
         Typically these will be the table-level dictionaries defined in the dataset-
@@ -1032,7 +1032,7 @@ class TableTransformParams(TransformParams):
         return cls(**params)
 
     @classmethod
-    def from_id(cls, table_id: enum.Enum) -> TableTransformParams:
+    def from_id(cls, table_id: enum.Enum) -> Self:
         """A factory method that looks up transform parameters based on table_id.
 
         This is a shortcut, which allows us to constitute the parameter models based on
@@ -1108,8 +1108,12 @@ def cache_df(
     return _decorator
 
 
-class AbstractTableTransformer(ABC):
+class AbstractTableTransformer[TableIdT: enum.Enum, ParamsT: TableTransformParams](ABC):
     """An abstract base table transformer class.
+
+    Table transformers are generic over the enum of the table IDs of the dataset that
+    they transform and the :class:`TableTransformParams` model of its parameters, so
+    that these have the right types in the transformers for each dataset.
 
     This class provides methods for applying the general purpose transform functions to
     dataframes. These methods should each log that they are running, and the
@@ -1147,7 +1151,7 @@ class AbstractTableTransformer(ABC):
     :class:`pudl.transform.ferc1.SteamPlantsTableTransformer` class for an example.
     """
 
-    table_id: enum.Enum
+    table_id: TableIdT
     """Name of the PUDL database table that this table transformer produces.
 
     Must be defined in the database schema / metadata. This ID is used to instantiate
@@ -1170,25 +1174,25 @@ class AbstractTableTransformer(ABC):
     The dictionary keys are the strings passed to the :func:`cache_df` method decorator.
     """
 
-    parameter_model = TableTransformParams
+    parameter_model: type[ParamsT]
     """The :mod:`pydantic` model that is used to contain & instantiate parameters.
 
-    In child classes this should be replaced with the data source-specific
-    :class:`TableTransformParams` class, if it has been defined.
+    Child classes must set this to the data source-specific :class:`TableTransformParams`
+    class that they are generic over.
     """
 
-    params: parameter_model
+    params: ParamsT
     """The parameters that will be used to control the transformation functions.
 
-    This attribute is of type ``parameter_model`` which is defined above. This type
-    varies across datasets and is used to construct and validate the parameters based,
-    so it needs to be set separately in child classes. See
+    This attribute is of type ``ParamsT``, the same type as ``parameter_model``. This
+    type varies across datasets and is used to construct and validate the parameters,
+    so it is given as a type argument of the child classes. See
     :class:`pudl.transform.ferc1.Ferc1AbstractTableTransformer` for an example.
     """
 
     def __init__(
         self,
-        params: TableTransformParams | None = None,
+        params: ParamsT | None = None,
         cache_dfs: bool = False,
         clear_cached_dfs: bool = True,
         **kwargs,

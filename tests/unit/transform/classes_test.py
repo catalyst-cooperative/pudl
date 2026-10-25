@@ -1014,10 +1014,11 @@ class TableId(enum.Enum):
     TEST_TABLE = "test_table"
 
 
-class TableTransformer(AbstractTableTransformer):
+class TableTransformer(AbstractTableTransformer[TableId, TableTransformParams]):
     """A concrete TableTransformer for testing purposes."""
 
-    table_id: enum.Enum = TableId.TEST_TABLE
+    table_id = TableId.TEST_TABLE
+    parameter_model = TableTransformParams
 
     @cache_df(key="start")
     def transform_start(self, df: pd.DataFrame) -> pd.DataFrame:
