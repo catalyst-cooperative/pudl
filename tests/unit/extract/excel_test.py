@@ -49,7 +49,7 @@ class FakeExtractor(excel.ExcelExtractor):
         """
         self.METADATA = excel.ExcelMetadata("test")
         self.BLACKLISTED_PAGES = ["shoes"]
-        super().__init__(ds=None)
+        super().__init__(ds=None)  # type: ignore[bad-argument-type]
 
     def load_source(self, page, **partition):
         """Returns fake file contents for given page and partition."""
