@@ -43,6 +43,17 @@ class TestMetadata:
         assert self._metadata.get_skiprows("boxes", year=2011) == 10
         assert self._metadata.get_sheet_name("boxes", year=2011) == 1
 
+    def test_page_partitions_without_page_part_map(self):
+        """Datasets without a page to part map have no secondary partitions."""
+        assert self._metadata.get_page_partitions("books") == {}
+
+    def test_page_partitions_from_page_part_map(self):
+        """Pages are mapped to the secondary partitions in page_part_map.csv."""
+        metadata = excel.ExcelMetadata("phmsagas")
+        assert metadata.get_page_partitions("yearly_distribution") == {
+            "form": "gas_distribution"
+        }
+
 
 class FakeExtractor(excel.ExcelExtractor):
     """Test friendly fake extractor returns strings instead of files."""

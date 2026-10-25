@@ -2,7 +2,6 @@
 
 import pathlib
 from io import BytesIO
-from typing import cast
 
 import dbfread
 import pandas as pd
@@ -96,6 +95,19 @@ class ExcelMetadata(GenericMetadata):
     def get_form(self, page) -> str:
         """Returns the form name for a given page."""
         return self._page_part_map.loc[page, "form"]
+
+    def get_page_partitions(self, page: str) -> dict[str, str]:
+        """Return the secondary partitions needed to locate the file for a page.
+
+        These come from ``page_part_map.csv``, which most datasets do not have, so
+        they have no secondary partitions.
+        """
+        if self._page_part_map.empty:
+            return {}
+        return {
+            str(name): str(value)
+            for name, value in self._page_part_map.loc[page].items()
+        }
 
 
 class ExcelExtractor(GenericExtractor[ExcelMetadata]):
@@ -202,15 +214,12 @@ class ExcelExtractor(GenericExtractor[ExcelMetadata]):
         """Specify the partitions used for returning a zipfile from the datastore.
 
         By default, this method appends any page to partition mapping in
-        :attr:`_metadata._page_part_map`. Most datasets do not have page to part
-        maps and just return the same partition that is passed in. If you have
+        :meth:`ExcelMetadata.get_page_partitions`. Most datasets do not have page to
+        part maps and just return the same partition that is passed in. If you have
         dataset-specific partition mappings that are needed to return a zipfile from the
         datastore, override this method to return the desired partitions.
         """
-        if not self._metadata._page_part_map.empty:
-            # Each page has one row, so this selects a Series of partition values.
-            page_parts = cast(pd.Series, self._metadata._page_part_map.loc[page])
-            partition.update({str(name): value for name, value in page_parts.items()})
+        partition.update(self._metadata.get_page_partitions(page))
         return partition
 
     def load_source(self, page: str, **partition: PartitionSelection) -> pd.DataFrame:
