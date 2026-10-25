@@ -65,7 +65,7 @@ class ExcelMetadata(GenericMetadata):
         self._skiprows = self._load_csv(self._path, "skiprows.csv")
         self._skipfooter = self._load_csv(self._path, "skipfooter.csv")
         self._sheet_name = self._load_csv(self._path, "page_map.csv")
-        self._file_name = self._load_csv(self._path, "file_map.csv")
+        self._file_name = self._load_file_map()
         # Most excel extracted datasets do not have a page to part map. If they
         # don't, assign null.
         try:
@@ -85,9 +85,12 @@ class ExcelMetadata(GenericMetadata):
         """Return number of footer rows to skip when loading a partition and page."""
         return self._skipfooter.loc[str(self._get_partition_selection(partition)), page]
 
-    def get_file_name(self, page, **partition):
+    def get_file_name(self, page, **partition) -> str:
         """Returns file name of given partition and page."""
-        return self._file_name.loc[str(self._get_partition_selection(partition)), page]
+        # The file map is loaded with every cell as a string.
+        return str(
+            self._file_name.loc[str(self._get_partition_selection(partition)), page]
+        )
 
     def get_form(self, page) -> str:
         """Returns the form name for a given page."""

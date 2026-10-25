@@ -27,10 +27,11 @@ class Extractor(CsvExtractor):
 
         In this instance we are using the same methodology from the excel metadata extractor.
         """
-        _file_name = self.METADATA._load_csv(self.METADATA._path, "file_map.csv")
-        return _file_name.loc[
-            str(self.METADATA._get_partition_selection(partition)), page
-        ]
+        _file_name = self.METADATA._load_file_map()
+        # The file map is loaded with every cell as a string.
+        return str(
+            _file_name.loc[self.METADATA._get_partition_selection(partition), page]
+        )
 
     def process_raw(self, df, page, **partition):
         """Adds source column and report_year column if missing."""

@@ -61,15 +61,34 @@ class GenericMetadata:
         """Returns the name of the dataset described by this metadata."""
         return self._dataset_name
 
-    def _load_csv(self, package_path: Path, filename: str) -> pd.DataFrame:
+    def _load_csv(
+        self, package_path: Path, filename: str, dtype: type | None = None
+    ) -> pd.DataFrame:
         """Load metadata from a filename that is found in a package directory."""
-        df = pd.read_csv(package_path / filename, index_col=0, comment="#")
+        df = pd.read_csv(package_path / filename, index_col=0, comment="#", dtype=dtype)
         # we are assigning the index which contains the partitions as a sting dtype.
         # many of the partitions are years which are reasonably interpreted as ints,
         # but some are dates or other actual strings. We force the partitions to be
         # strings here and via _get_partition_selection.
         df.index = df.index.astype(pd.StringDtype())
         return df
+
+    def _load_file_map(self) -> pd.DataFrame:
+        """Load the map from partitions (rows) and pages (columns) to source file names.
+
+        Every cell must be a string: either the name of the source file, or ``-1`` if
+        there is no file for that page and partition.
+
+        Raises:
+            AssertionError: If any cell is empty.
+        """
+        file_map = self._load_csv(self._path, "file_map.csv", dtype=str)
+        if file_map.isna().any().any():
+            raise AssertionError(
+                f"The {self._dataset_name} file_map.csv has empty cells. Every page "
+                "and partition needs a file name, or -1 if it has no file."
+            )
+        return file_map
 
     def _load_column_maps(self, column_map_path: Path) -> dict:
         """Create a dictionary of all column mapping CSVs to use in get_column_map()."""
