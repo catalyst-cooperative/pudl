@@ -190,7 +190,7 @@ def test_for_fk_validation_and_unmapped_ids(
     ids_left: str,
     ids_right: str,
     id_cols: list[str],
-    label_df: pd.DataFrame | None,
+    label_df: str | None,
     glue_test_dfs: dict[str, pd.DataFrame],
     save_unmapped_ids: bool,
     test_dir,
@@ -204,8 +204,8 @@ def test_for_fk_validation_and_unmapped_ids(
         ids_right: name of key to access corresponding to a dataframe which contains
             ID's in ``glue_test_dfs``
         id_cols: list of ID column(s)
-        label_df: If a labeling table is provided, label the missing ID's with flags
-            and columns needed for manual mapping
+        label_df: Name of a labeling table in ``glue_test_dfs``, if any. If provided,
+            label the missing ID's with flags and columns needed for manual mapping
         glue_test_dfs: a dictionary of dataframes
         save_unmapped_ids: If ``True``, export any missing ID's.
         test_dir: path to the ``test`` directory. Will be used to construct path to the
