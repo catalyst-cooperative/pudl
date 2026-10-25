@@ -881,68 +881,57 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
     """
     if 88888 not in df.utility_id_eia.unique():
         return df
-    non_num_cols = (
-        df.set_index(idx_cols).select_dtypes(exclude="number").columns.tolist()
-    )
-
-    def sum_numeric_values_when_strings_match(group):
-        if len(group) <= 1:
-            return group
-        # If there are no non-numeric columns, or all non-numeric columns have the same value,
-        # Sum the numeric columns and return the result.
-        if (
-            len(non_num_cols) == 0
-            or (group[non_num_cols] == group[non_num_cols].iloc[0]).all().all()
-        ):
-            # Special case: if there are NA values in the index columns we can't
-            # combine two dfs with the same index without creating two rows.
-            # This messes up the results, so we drop the NA values from the index
-            # when combining the newly aggregated groups. This does not affect the
-            # actual primary key, it's just a slightly hacky way to combine the rows correctly.
-            idx_has_na = group[idx_cols].isna().any()
-            na_cols = idx_has_na[idx_has_na].index.tolist()
-            mod_idx_cols = [x for x in idx_cols if x not in na_cols]
-            # Now we can safely sum the numeric columns, recombine with the non-numeric
-            # columns, and return the result.
-            group = group.set_index(mod_idx_cols)
-            non_num_group = group[non_num_cols + na_cols].iloc[[0]]
-            num_group = (
-                group.drop(columns=non_num_cols + na_cols)
-                .groupby(mod_idx_cols, dropna=False)
-                .sum()
-            )
-            return pd.concat([non_num_group, num_group], axis="columns").reset_index()
-        # When there are rows that can't be combined due to discrepancies in the non-numeric
-        # columns, we drop the duplicates and return the first row.
-        # This is a bit of a hack, but it ensures that we don't end up with multiple rows
-        # with the same primary key, which would cause problems later on.
-        # There are very few instances of this anyways. On the order of 1-2 per idx group.
-        # As of August 2025 there are the following dupes. Note that most of
-        # the dupes are the same utility in different years.
-        # - BA table: 1
-        # - OD table: 16
-        # - Sales table: 32
-        # - UD table: 15
-        # - DP table: 8
-        no_dupes = group.drop_duplicates(subset=idx_cols)
-        return no_dupes
-
-    utils_88888 = df[df["utility_id_eia"] == 88888]
-    # NOTE: as of pandas 3.0 groupby(...).apply() no longer passes the grouping
-    # columns into the applied function, but sum_numeric_values_when_strings_match
-    # needs them. Iterate over the groups explicitly so each group frame still
-    # carries idx_cols.
-    combined_groups = [
-        sum_numeric_values_when_strings_match(group)
-        for _, group in utils_88888.groupby(idx_cols, dropna=False)
+    # Split the non-key columns into those that can be summed and those that can't.
+    non_num_cols = [
+        c
+        for c in df.columns.difference(idx_cols)
+        if not pd.api.types.is_numeric_dtype(df[c])
     ]
-    agg_utils_88888 = (
-        pd.concat(combined_groups, ignore_index=True)
-        if combined_groups
-        else utils_88888
-    )
+    num_cols = df.columns.difference(idx_cols + non_num_cols, sort=False).tolist()
+
+    # dropna=False keeps groups whose primary key contains nulls (e.g. no BA code).
+    utils_88888 = df[df["utility_id_eia"] == 88888].reset_index(drop=True)
+    grouped = utils_88888.groupby(idx_cols, dropna=False)
+
+    # Flag the rows of groups that can be combined: more than one row, and every
+    # non-numeric column holds the same non-null value in all of them. A null counts
+    # as a mismatch because it can't be shown to agree with the other rows.
+    group_size = grouped[idx_cols[0]].transform("size")
+    combinable = group_size > 1
+    if non_num_cols:
+        # Each transform gives every row its group's value for each non-numeric column.
+        non_num_grouped = grouped[non_num_cols]
+        distinct_values = non_num_grouped.transform("nunique")  # ignores nulls
+        non_null_values = non_num_grouped.transform("count")
+
+        # A column agrees if the group has exactly one distinct value and no nulls.
+        has_one_value = distinct_values.eq(1)
+        has_no_nulls = non_null_values.eq(group_size, axis="index")
+        column_agrees = has_one_value & has_no_nulls
+
+        # Only combine groups where every non-numeric column agrees.
+        all_columns_agree = column_agrees.all(axis="columns")
+        combinable = combinable & all_columns_agree
+
+    # Keep the first row of every group. Groups that can't be combined are left as
+    # just this row, which drops the rest. There are very few instances of this,
+    # on the order of 1-2 per idx group. As of August 2025 there are the following
+    # dupes. Note that most of the dupes are the same utility in different years.
+    # - BA table: 1
+    # - OD table: 16
+    # - Sales table: 32
+    # - UD table: 15
+    # - DP table: 8
+    first_rows = grouped.head(1).copy()
+    if num_cols:
+        # For combinable groups, replace the numeric values in the first row with the
+        # sums over the whole group. The sums are indexed like utils_88888, so
+        # assigning them to a subset of first_rows lines each one up with its own row.
+        group_sums = grouped[num_cols].transform("sum")
+        first_row_is_combinable = combinable[first_rows.index]
+        first_rows.loc[first_row_is_combinable, num_cols] = group_sums
     recombined_df = pd.concat(
-        [df[df["utility_id_eia"] != 88888], agg_utils_88888], ignore_index=True
+        [df[df["utility_id_eia"] != 88888], first_rows], ignore_index=True
     )
     # Guard against unexpectedly large data loss. The known drop counts per table
     # across all years (as of Aug 2025) are: BA: 1, OD: 16, Sales: 32, UD: 15, DP: 8.
