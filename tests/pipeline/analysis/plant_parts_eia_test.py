@@ -12,6 +12,7 @@ from pudl.analysis.plant_parts_eia import (
     PLANT_PARTS,
     SUM_COLS,
     MakeMegaGenTbl,
+    PlantPartName,
 )
 from pudl.helpers import get_parquet_table
 
@@ -19,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 def prep_test_merge(
-    part_name: str,
+    part_name: PlantPartName,
     plant_parts_eia: pd.DataFrame,
     gens_mega: pd.DataFrame,
 ) -> pd.DataFrame:

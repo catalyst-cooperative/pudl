@@ -325,7 +325,7 @@ def test_make_mega_gen_tbl():
                 "operator_utility_id_pudl": "Int64",
             }
         )
-        .set_index([[0, 1, 2, 3, 0, 1, 2, 3]])
+        .set_index(pd.Index([0, 1, 2, 3, 0, 1, 2, 3]))
         .convert_dtypes()
     )
     pd.testing.assert_frame_equal(out, out_expected)
