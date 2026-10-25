@@ -16,7 +16,7 @@ class Extractor(CsvExtractor):
         Args:
             ds (:class:datastore.Datastore): Initialized datastore.
         """
-        self.METADATA = GenericMetadata("eia176")
+        self._metadata = GenericMetadata("eia176")
         super().__init__(*args, **kwargs)
 
     def source_filename(self, page: str, **partition: PartitionSelection) -> str:

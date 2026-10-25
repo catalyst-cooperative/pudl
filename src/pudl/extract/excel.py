@@ -2,6 +2,7 @@
 
 import pathlib
 from io import BytesIO
+from typing import cast
 
 import dbfread
 import pandas as pd
@@ -97,7 +98,7 @@ class ExcelMetadata(GenericMetadata):
         return self._page_part_map.loc[page, "form"]
 
 
-class ExcelExtractor(GenericExtractor):
+class ExcelExtractor(GenericExtractor[ExcelMetadata]):
     """Logic for extracting :class:`pd.DataFrame` from Excel spreadsheets.
 
     This class implements the generic dataset agnostic logic to load data
@@ -132,8 +133,6 @@ class ExcelExtractor(GenericExtractor):
     this method should be overwritten in the dataset-specific extractor.
     """
 
-    METADATA: ExcelMetadata = None
-
     def __init__(self, ds: Datastore):
         """Create new extractor object and load metadata.
 
@@ -141,7 +140,6 @@ class ExcelExtractor(GenericExtractor):
             ds: An initialized PUDL datastore, or subclass thereof.
         """
         super().__init__(ds)
-        self._metadata = self.METADATA
         self._file_cache = {}
 
     def process_raw(
@@ -204,13 +202,15 @@ class ExcelExtractor(GenericExtractor):
         """Specify the partitions used for returning a zipfile from the datastore.
 
         By default, this method appends any page to partition mapping in
-        :attr:`METADATA._page_part_map`. Most datasets do not have page to part
+        :attr:`_metadata._page_part_map`. Most datasets do not have page to part
         maps and just return the same partition that is passed in. If you have
         dataset-specific partition mappings that are needed to return a zipfile from the
         datastore, override this method to return the desired partitions.
         """
         if not self._metadata._page_part_map.empty:
-            partition.update(self._metadata._page_part_map.loc[page])
+            # Each page has one row, so this selects a Series of partition values.
+            page_parts = cast(pd.Series, self._metadata._page_part_map.loc[page])
+            partition.update({str(name): value for name, value in page_parts.items()})
         return partition
 
     def load_source(self, page: str, **partition: PartitionSelection) -> pd.DataFrame:

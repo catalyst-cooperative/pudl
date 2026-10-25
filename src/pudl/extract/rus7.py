@@ -16,7 +16,7 @@ class Extractor(CsvExtractor):
         Args:
             ds (:class:datastore.Datastore): Initialized datastore.
         """
-        self.METADATA = GenericMetadata("rus7")
+        self._metadata = GenericMetadata("rus7")
         # add this index_col arg bc if not read_csv assumes the first col
         # is the index and weirdly shifts the header names over its insufferable
         self.READ_CSV_KWARGS = {"index_col": False}
@@ -27,10 +27,10 @@ class Extractor(CsvExtractor):
 
         In this instance we are using the same methodology from the excel metadata extractor.
         """
-        _file_name = self.METADATA._load_file_map()
+        _file_name = self._metadata._load_file_map()
         # The file map is loaded with every cell as a string.
         return str(
-            _file_name.loc[self.METADATA._get_partition_selection(partition), page]
+            _file_name.loc[self._metadata._get_partition_selection(partition), page]
         )
 
     def process_raw(self, df, page, **partition):

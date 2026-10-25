@@ -52,7 +52,7 @@ class FakeExtractor(excel.ExcelExtractor):
 
         Good thing flake demanded this.
         """
-        self.METADATA = excel.ExcelMetadata("test", path=FAKE_DATASET_PATH)
+        self._metadata = excel.ExcelMetadata("test", path=FAKE_DATASET_PATH)
         self.BLACKLISTED_PAGES = ["shoes"]
         super().__init__(ds=None)  # type: ignore[bad-argument-type]
 

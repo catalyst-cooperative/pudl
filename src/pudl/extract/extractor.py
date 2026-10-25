@@ -147,11 +147,19 @@ class GenericMetadata:
         }
 
 
-class GenericExtractor(ABC):
-    """Generic extractor base class."""
+class GenericExtractor[MetadataT: GenericMetadata](ABC):
+    """Generic extractor base class.
 
-    METADATA: GenericMetadata = None
-    """Instance of metadata object to use with this extractor."""
+    Extractors are generic over the type of the metadata that they use, so that
+    extractors for datasets with more specialized metadata, such as Excel files, can
+    use its methods with type checking.
+    """
+
+    _metadata: MetadataT
+    """Instance of metadata object to use with this extractor.
+
+    Subclasses must set this before calling ``super().__init__()``.
+    """
 
     BLACKLISTED_PAGES = []
     """List of supported pages that should not be extracted."""
@@ -162,9 +170,10 @@ class GenericExtractor(ABC):
         Args:
             ds: An initialized datastore, or subclass
         """
-        if not self.METADATA:
-            raise NotImplementedError("self.METADATA must be set.")
-        self._metadata = self.METADATA
+        if not hasattr(self, "_metadata"):
+            raise NotImplementedError(
+                "self._metadata must be set before calling super().__init__()."
+            )
         self._dataset_name = self._metadata.get_dataset_name()
         self.ds = ds
         self.cols_added: list[str] = []
