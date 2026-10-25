@@ -97,7 +97,12 @@ running the full ETL:
 
 .. code-block:: console
 
-    $ pixi run dg launch --assets "group:core_unmapped_ids"
+    $ pixi run unmapped-ids
+
+The ``unmapped_ids`` job (see :mod:`pudl.dagster.jobs`) selects the
+``core_unmapped_ids`` asset group and everything upstream of it. That includes the FERC
+1 DBF and XBRL SQLite assets, which are only rebuilt if the existing DBs are stale (e.g.
+after switching to a new FERC 1 archive in ``zenodo_dois.yml``).
 
 Each asset is written out as a CSV under ``$PUDL_OUTPUT`` (e.g.
 ``$PUDL_OUTPUT/missing_plants_in_plants_ferc1.csv``), so the results of every nightly

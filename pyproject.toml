@@ -256,6 +256,7 @@ dev = { features = ["dev"], solve-group = "default" }
 # Reusable variables for pixi tasks
 DG_FULL_CONFIG = "src/pudl/package_data/settings/dg_full.yml"
 DG_NIGHTLY_CONFIG = "src/pudl/package_data/settings/dg_nightly.yml"
+DG_UNMAPPED_IDS_CONFIG = "src/pudl/package_data/settings/dg_unmapped_ids.yml"
 # grpcio >= 1.83.0 is required by the Google Cloud Python libraries as of
 # October 2026 (post-quantum crypto migration). Until our resolved grpcio
 # crosses that version, silence the pre-migration FutureWarning.
@@ -397,6 +398,10 @@ cmd = "pytest --live-pudl-output tests/pipeline/notebooks_test.py"
 description = "Test Jupyter notebooks"
 
 # Dagster tasks
+[tool.pixi.tasks.unmapped-ids]
+cmd = "dg launch --job unmapped_ids --config $DG_UNMAPPED_IDS_CONFIG"
+description = "Identify FERC1/EIA plant and utility IDs missing from the manual ID mapping"
+
 [tool.pixi.tasks.ferc-to-sqlite-clean]
 cmd = """
 bash -c 'shopt -s nullglob; rm -f \

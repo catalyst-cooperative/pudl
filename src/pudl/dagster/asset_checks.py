@@ -645,9 +645,12 @@ def unmapped_ids_check(
 
     @dg.asset_check(asset=asset_key, blocking=blocking)
     def _unmapped_ids_check(asset_value: pd.DataFrame) -> dg.AssetCheckResult:
+        # Don't use DataFrame.empty: it is True for a frame with rows but no columns
+        # (e.g. one built from an index alone), which would mask unmapped IDs.
+        n_unmapped_ids = len(asset_value)
         return dg.AssetCheckResult(
-            passed=asset_value.empty,
-            metadata={"n_unmapped_ids": len(asset_value)},
+            passed=n_unmapped_ids == 0,
+            metadata={"n_unmapped_ids": n_unmapped_ids},
         )
 
     return _unmapped_ids_check
