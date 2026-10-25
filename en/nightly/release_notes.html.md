@@ -16,6 +16,11 @@
 
 ### Bug Fixes & Data Cleaning
 
+* Added a missing territory entry to the [core_pudl_\_codes_subdivisions](data_dictionaries/pudl_db.html.md#core-pudl-codes-subdivisions) table. See
+  [#5696](https://github.com/catalyst-cooperative/pudl/issues/5696) and [#5716](https://github.com/catalyst-cooperative/pudl/pull/5716).
+* Added `plant_function` values to a few factoids in
+  [out_ferc1_\_yearly_rate_base](data_dictionaries/pudl_db.html.md#out-ferc1-yearly-rate-base). See [#5690](https://github.com/catalyst-cooperative/pudl/pull/5690).
+
 ### Performance Improvements
 
 ### Developer Experience
