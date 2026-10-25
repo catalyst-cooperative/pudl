@@ -18,6 +18,8 @@ them from public distribution by matching the ``missing_*.csv`` filename pattern
 every output asset name defined here must keep that ``missing_`` prefix.
 """
 
+from collections.abc import Iterator
+
 import dagster as dg
 import pandas as pd
 
@@ -136,8 +138,9 @@ def unmapped_plants(
     _plants_ferc1_raw: pd.DataFrame,
     out_eia__yearly_plants: pd.DataFrame,
     out_eia__yearly_generators: pd.DataFrame,
-) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+) -> Iterator[dg.Output[pd.DataFrame]]:
     """Identify FERC1 & EIA plants that appear in the data but aren't PUDL-mapped."""
+    # Inputs: lower-case everything so case differences don't cause false mismatches.
     entity_plants_pudl = _lower_strings(core_pudl__entity_plants_pudl)
     assn_ferc1_pudl_plants = _lower_strings(core_pudl__assn_ferc1_pudl_plants)
     assn_eia_pudl_plants = _lower_strings(core_pudl__assn_eia_pudl_plants)
@@ -148,6 +151,9 @@ def unmapped_plants(
         )
     )
 
+    # --- missing_plant_id_pudl_in_plants_ferc1 ---
+    # plant_id_pudl values in the FERC1 plant mapping that aren't in the PUDL plant
+    # entity table.
     # Should only ever find rows here if a plant is in the mapping sheet without a
     # plant_id_pudl -- there's no other table to pull mapping-relevant columns from.
     missing_plant_id_pudl = glue_ferc1_eia.get_missing_ids(
@@ -155,6 +161,9 @@ def unmapped_plants(
     )
     missing_plant_id_pudl_in_plants_ferc1 = pd.DataFrame(index=missing_plant_id_pudl)
 
+    # --- missing_plants_in_plants_ferc1 ---
+    # Plants (utility_id_ferc1 + plant_name_ferc1) in the raw FERC1 data that aren't in
+    # the FERC1 plant mapping.
     missing_plants_ferc1 = glue_ferc1_eia.get_missing_ids(
         assn_ferc1_pudl_plants,
         _plants_ferc1_raw,
@@ -166,6 +175,8 @@ def unmapped_plants(
         )
     )
 
+    # --- missing_plants_in_plants_eia ---
+    # plant_id_eia values in the EIA plants table that aren't in the EIA plant mapping.
     missing_plants_eia = glue_ferc1_eia.get_missing_ids(
         assn_eia_pudl_plants, plants_eia_pudl_db, ["plant_id_eia"]
     )
@@ -173,6 +184,7 @@ def unmapped_plants(
         missing_plants_eia, plants_eia_labeled
     )
 
+    # Write each output out as a CSV and emit it by name.
     outputs = {
         "missing_plant_id_pudl_in_plants_ferc1": missing_plant_id_pudl_in_plants_ferc1,
         "missing_plants_in_plants_ferc1": missing_plants_in_plants_ferc1,
@@ -180,11 +192,7 @@ def unmapped_plants(
     }
     for name, df in outputs.items():
         _write_unmapped_ids_csv(context, name, df)
-    return (
-        missing_plant_id_pudl_in_plants_ferc1,
-        missing_plants_in_plants_ferc1,
-        missing_plants_in_plants_eia,
-    )
+        yield dg.Output(df, output_name=name)
 
 
 @dg.multi_asset(
@@ -213,16 +221,9 @@ def unmapped_utilities(
     out_eia__yearly_generators: pd.DataFrame,
     _eia923_plant_ids: set,
     core_eia860__scd_generators: pd.DataFrame,
-) -> tuple[
-    pd.DataFrame,
-    pd.DataFrame,
-    pd.DataFrame,
-    pd.DataFrame,
-    pd.DataFrame,
-    pd.DataFrame,
-    pd.DataFrame,
-]:
+) -> Iterator[dg.Output[pd.DataFrame]]:
     """Identify FERC1 & EIA utilities that appear in the data but aren't PUDL-mapped."""
+    # Inputs: lower-case everything so case differences don't cause false mismatches.
     entity_utilities_pudl = _lower_strings(core_pudl__entity_utilities_pudl)
     assn_ferc1_pudl_utilities = _lower_strings(core_pudl__assn_ferc1_pudl_utilities)
     assn_ferc1_dbf_pudl_utilities = _lower_strings(
@@ -234,6 +235,8 @@ def unmapped_utilities(
     assn_ferc1_pudl_plants = _lower_strings(core_pudl__assn_ferc1_pudl_plants)
     assn_eia_pudl_utilities = _lower_strings(core_pudl__assn_eia_pudl_utilities)
 
+    # Raw DBF & XBRL utility IDs, with extra columns that provide context for manual
+    # mapping. These are used to label the missing IDs
     utilities_ferc1_dbf_labeled = glue_ferc1_eia.label_utilities_ferc1_dbf(
         assn_ferc1_dbf_pudl_utilities, _util_ids_ferc1_raw_dbf
     )
@@ -310,6 +313,7 @@ def unmapped_utilities(
         util_recent_cap=util_recent_cap,
     )
 
+    # Write each output out as a CSV and emit it by name.
     outputs = {
         "missing_utility_id_pudl_in_utilities_ferc1": missing_utility_id_pudl_in_utilities_ferc1,
         "missing_utility_id_ferc1_in_utilities_ferc1_dbf": missing_utility_id_ferc1_in_utilities_ferc1_dbf,
@@ -321,15 +325,7 @@ def unmapped_utilities(
     }
     for name, df in outputs.items():
         _write_unmapped_ids_csv(context, name, df)
-    return (
-        missing_utility_id_pudl_in_utilities_ferc1,
-        missing_utility_id_ferc1_in_utilities_ferc1_dbf,
-        missing_utility_id_ferc1_in_utilities_ferc1_xbrl,
-        missing_utility_id_ferc1_in_plants_ferc1,
-        missing_utility_id_ferc1_xbrl_in_raw_xbrl,
-        missing_utility_id_ferc1_dbf_in_raw_dbf,
-        missing_utility_id_eia_in_utilities_eia,
-    )
+        yield dg.Output(df, output_name=name)
 
 
 UNMAPPED_ID_ASSET_NAMES: tuple[str, ...] = (
