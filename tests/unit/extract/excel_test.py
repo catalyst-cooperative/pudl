@@ -1,26 +1,23 @@
 """Unit tests for pudl.extract.excel module."""
 
+from pathlib import Path
+
 import pandas as pd
 import pytest
 
 from pudl.extract import excel
 
-
-@pytest.fixture(autouse=True)
-def fake_dataset_root(mocker, test_dir):
-    """Look for the datasets of the metadata in the test data, not in the package."""
-    mocker.patch(
-        "pudl.extract.extractor.PUDL_PACKAGE_DATA_PATH", test_dir / "data/extract"
-    )
+FAKE_DATASET_PATH = Path(__file__).parents[2] / "data/extract/test"
+"""Directory of the fake dataset that the tests of the Excel extractors use."""
 
 
 class TestMetadata:
     """Tests basic operation of the excel.Metadata object."""
 
     @pytest.fixture(autouse=True)
-    def setUp(self, fake_dataset_root):
+    def setUp(self):
         """Constructs test metadata instance for testing."""
-        self._metadata = excel.ExcelMetadata("test")
+        self._metadata = excel.ExcelMetadata("test", path=FAKE_DATASET_PATH)
 
     def test_basics(self):
         """Test that basic API method return expected results."""
@@ -55,7 +52,7 @@ class FakeExtractor(excel.ExcelExtractor):
 
         Good thing flake demanded this.
         """
-        self.METADATA = excel.ExcelMetadata("test")
+        self.METADATA = excel.ExcelMetadata("test", path=FAKE_DATASET_PATH)
         self.BLACKLISTED_PAGES = ["shoes"]
         super().__init__(ds=None)  # type: ignore[bad-argument-type]
 

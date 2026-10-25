@@ -51,14 +51,17 @@ class ExcelMetadata(GenericMetadata):
     # existing records for each (year, page) -> sheet_name, (year, page) -> skiprows
     # and for all (year, page) -> column map
 
-    def __init__(self, dataset_name: str):
+    def __init__(self, dataset_name: str, path: pathlib.Path | None = None):
         """Create Metadata object and load metadata from files on disk.
 
         Args:
-            dataset_name: Name of the dataset to load the metadata from. Files will be
-                loaded from src/pudl/package_data/${dataset_name}
+            dataset_name: Name of the dataset to load the metadata from. Unless a path
+                is given, files will be loaded from
+                src/pudl/package_data/${dataset_name}
+            path: Directory to load the metadata files from, instead of the directory
+                of the dataset in the package data. Useful for test datasets.
         """
-        super().__init__(dataset_name)
+        super().__init__(dataset_name, path=path)
         self._skiprows = self._load_csv(self._path, "skiprows.csv")
         self._skipfooter = self._load_csv(self._path, "skipfooter.csv")
         self._sheet_name = self._load_csv(self._path, "page_map.csv")

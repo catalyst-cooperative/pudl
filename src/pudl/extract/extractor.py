@@ -42,15 +42,18 @@ class GenericMetadata:
       page is encoded in the filename.
     """
 
-    def __init__(self, dataset_name: str):
+    def __init__(self, dataset_name: str, path: Path | None = None):
         """Create Metadata object and load metadata from files on disk.
 
         Args:
-            dataset_name: Name of the dataset to load the metadata from. Files will be
-                loaded from src/pudl/package_data/${dataset_name}
+            dataset_name: Name of the dataset to load the metadata from. Unless a path
+                is given, files will be loaded from
+                src/pudl/package_data/${dataset_name}
+            path: Directory to load the metadata files from, instead of the directory
+                of the dataset in the package data. Useful for test datasets.
         """
         self._dataset_name = dataset_name
-        self._path = PUDL_PACKAGE_DATA_PATH / dataset_name
+        self._path = path if path is not None else PUDL_PACKAGE_DATA_PATH / dataset_name
         column_map_path = self._path / "column_maps"
         self._column_map = self._load_column_maps(column_map_path)
 
