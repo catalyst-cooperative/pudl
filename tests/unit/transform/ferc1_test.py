@@ -5,7 +5,6 @@ import itertools
 from io import StringIO
 
 import hypothesis
-import numpy as np
 import pandas as pd
 import pandera.pandas as pa
 import pytest
@@ -632,10 +631,8 @@ def _sample_mutli_subdimension_reconciled_data(
         xbrl_factoid=fact_name,
         utility_id_ferc1=144,
         report_year=2021,
-        row_type_xbrl=lambda x: np.where(
-            (x[dimension_cols] == "total").any(axis="columns"),
-            "calculated_value",
-            pd.NA,
+        row_type_xbrl=lambda x: pd.Series(pd.NA, index=x.index, dtype=object).mask(
+            (x[dimension_cols] == "total").any(axis="columns"), "calculated_value"
         ),
     )
 

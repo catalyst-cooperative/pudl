@@ -152,7 +152,7 @@ VALID_CAPACITY_MW = {
     "upper_bound": 4000.0,
 }
 
-ANIMAL_CATS: dict[str, set[str]] = {
+ANIMAL_CATS: dict[str, dict[str, set[str]]] = {
     "categories": {
         "cat": {
             "cat",
@@ -186,7 +186,7 @@ ANIMAL_CATS: dict[str, set[str]] = {
 
 
 @pytest.fixture
-def inline_animal_cats() -> dict[str, set[str]]:
+def inline_animal_cats() -> dict[str, dict[str, set[str]]]:
     """Fixture for a version of ANIMAL_CATS where the categories dict is defined inline."""
     return ANIMAL_CATS
 
@@ -427,7 +427,7 @@ def fill_values(col: pd.Series, params: FillValue):
     Fills NA values with a number.
     """
     col = col.copy().fillna(params.fill_value).infer_objects(copy=False)
-    col.name = col.name + "_filled"
+    col.name = f"{col.name}_filled"
     return col
 
 
@@ -640,7 +640,7 @@ def test_categorize_strings(
 ) -> None:
     """Test string categorization function in isolation."""
     categorized = categorize_strings(
-        series, params=StringCategories(**request.getfixturevalue(params))
+        series, params=StringCategories.model_validate(request.getfixturevalue(params))
     )
     assert_series_equal(categorized, expected, check_names=False)
 
@@ -648,10 +648,10 @@ def test_categorize_strings(
 def test_string_categories_params(serialized_animal_cats) -> None:
     """Make sure StringCategories params class correctly loads from disk when "categories" is a Path."""
     # reference case: parse params when "categories" is a dict
-    inline_params = StringCategories(**ANIMAL_CATS)
+    inline_params = StringCategories.model_validate(ANIMAL_CATS)
 
     # test case: parse params when "categories" is a Path
-    serialized_params = StringCategories(**serialized_animal_cats)
+    serialized_params = StringCategories.model_validate(serialized_animal_cats)
 
     # must match
     assert inline_params == serialized_params
@@ -1014,10 +1014,11 @@ class TableId(enum.Enum):
     TEST_TABLE = "test_table"
 
 
-class TableTransformer(AbstractTableTransformer):
+class TableTransformer(AbstractTableTransformer[TableId, TableTransformParams]):
     """A concrete TableTransformer for testing purposes."""
 
-    table_id: enum.Enum = TableId.TEST_TABLE
+    table_id = TableId.TEST_TABLE
+    parameter_model = TableTransformParams
 
     @cache_df(key="start")
     def transform_start(self, df: pd.DataFrame) -> pd.DataFrame:

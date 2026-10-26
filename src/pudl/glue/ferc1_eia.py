@@ -28,6 +28,8 @@ desire and the potential implications of using a co-located set of plant infrast
 as an id.
 """
 
+from functools import partial
+
 import pandas as pd
 import sqlalchemy as sa
 from dagster import AssetIn, Definitions, JobDefinition, asset, define_asset_job
@@ -321,10 +323,11 @@ def get_plants_ferc1_raw_job() -> JobDefinition:
     transform_assets = [
         ferc1_transform_asset_factory(
             table_name,
-            GenericPlantFerc1TableTransformer,
+            partial(
+                GenericPlantFerc1TableTransformer, table_id=TableIdFerc1(table_name)
+            ),
             io_manager_key=None,
             convert_dtypes=False,
-            generic=True,
         )
         for table_name in plant_tables
     ]

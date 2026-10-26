@@ -39,14 +39,17 @@ from pudl.workspace.datastore import ZenodoDoiSettings
 
 def test_ferc_dbf_io_manager_uses_injected_pudl_data_config(mocker):
     """The migrated FERC DBF IO manager should read years from injected data config."""
-    pudl_data_config = PudlDataConfig(ferc1=Ferc1DataConfig(years=[2020, 2021]))
+    ferc1_config = Ferc1DataConfig(years=[2020, 2021])
+    pudl_data_config = PudlDataConfig(ferc1=ferc1_config)
+    ferc_to_sqlite_config = FercToSqliteDataConfig()
     global_data_config: GlobalDataConfig = GlobalDataConfig(
         pudl=pudl_data_config,
-        ferc_to_sqlite=FercToSqliteDataConfig(),
+        ferc_to_sqlite=ferc_to_sqlite_config,
     )
     zenodo_dois = ZenodoDoiSettings()
     manager: FercDbfSqliteIOManager = FercDbfSqliteIOManager(
         global_data_config=global_data_config,
+        pudl_paths=mocker.MagicMock(),
         zenodo_dois=zenodo_dois,
         dataset="ferc1",
     )
@@ -58,7 +61,7 @@ def test_ferc_dbf_io_manager_uses_injected_pudl_data_config(mocker):
         "_query",
         return_value=pd.DataFrame({"sched_table_name": ["f1_respondent_id"]}),
     )
-    instance: DagsterInstance = mocker.MagicMock()
+    instance = mocker.MagicMock(spec=DagsterInstance)
     instance.is_ephemeral = False
 
     instance.get_latest_materialization_event.return_value = mocker.MagicMock(
@@ -68,9 +71,7 @@ def test_ferc_dbf_io_manager_uses_injected_pudl_data_config(mocker):
                     dataset="ferc1",
                     data_format="dbf",
                     status="complete",
-                    years=global_data_config.ferc_to_sqlite.get_dataset_years(
-                        "ferc1", "dbf"
-                    ),
+                    years=ferc_to_sqlite_config.get_dataset_years("ferc1", "dbf"),
                     zenodo_doi=zenodo_dois.get_doi("ferc1"),
                     sqlite_path=Path("test-data/ferc1_dbf.sqlite"),
                     ferc_xbrl_extractor_version=version(
@@ -91,7 +92,7 @@ def test_ferc_dbf_io_manager_uses_injected_pudl_data_config(mocker):
     assert observed["sched_table_name"].eq("f1_respondent_id").all()
     query.assert_called_once_with(
         "f1_respondent_id",
-        global_data_config.pudl.ferc1.dbf_years,
+        ferc1_config.dbf_years,
     )
 
 
@@ -105,6 +106,7 @@ def test_ferc_sqlite_io_manager_teardown_disposes_engine(mocker):
         global_data_config=GlobalDataConfig(
             pudl=PudlDataConfig(), ferc_to_sqlite=FercToSqliteDataConfig()
         ),
+        pudl_paths=mocker.MagicMock(),
         zenodo_dois=ZenodoDoiSettings(),
         dataset="ferc1",
     )
@@ -127,14 +129,17 @@ def test_ferc_sqlite_io_manager_teardown_disposes_engine(mocker):
 
 def test_ferc_xbrl_io_manager_uses_injected_pudl_data_config(mocker):
     """The migrated FERC XBRL IO manager should pass years from injected data config."""
-    pudl_data_config = PudlDataConfig(ferc1=Ferc1DataConfig(years=[2021]))
+    ferc1_config = Ferc1DataConfig(years=[2021])
+    pudl_data_config = PudlDataConfig(ferc1=ferc1_config)
+    ferc_to_sqlite_config = FercToSqliteDataConfig()
     global_data_config: GlobalDataConfig = GlobalDataConfig(
         pudl=pudl_data_config,
-        ferc_to_sqlite=FercToSqliteDataConfig(),
+        ferc_to_sqlite=ferc_to_sqlite_config,
     )
     zenodo_dois = ZenodoDoiSettings()
     manager: FercXbrlSqliteIOManager = FercXbrlSqliteIOManager(
         global_data_config=global_data_config,
+        pudl_paths=mocker.MagicMock(),
         zenodo_dois=zenodo_dois,
         dataset="ferc1",
     )
@@ -148,7 +153,7 @@ def test_ferc_xbrl_io_manager_uses_injected_pudl_data_config(mocker):
             {"report_year": [2021], "sched_table_name": ["plant_in_service"]}
         ),
     )
-    instance: DagsterInstance = mocker.MagicMock()
+    instance = mocker.MagicMock(spec=DagsterInstance)
     instance.is_ephemeral = False
     instance.get_latest_materialization_event.return_value = mocker.MagicMock(
         asset_materialization=mocker.MagicMock(
@@ -157,9 +162,7 @@ def test_ferc_xbrl_io_manager_uses_injected_pudl_data_config(mocker):
                     dataset="ferc1",
                     data_format="dbf",
                     status="complete",
-                    years=global_data_config.ferc_to_sqlite.get_dataset_years(
-                        "ferc1", "xbrl"
-                    ),
+                    years=ferc_to_sqlite_config.get_dataset_years("ferc1", "xbrl"),
                     zenodo_doi=zenodo_dois.get_doi("ferc1"),
                     sqlite_path=Path("test-data/ferc1_dbf.sqlite"),
                     ferc_xbrl_extractor_version=version(
@@ -181,21 +184,23 @@ def test_ferc_xbrl_io_manager_uses_injected_pudl_data_config(mocker):
     assert observed["sched_table_name"].eq("plant_in_service").all()
     query.assert_called_once_with(
         "plant_in_service_duration",
-        global_data_config.pudl.ferc1.xbrl_years,
+        ferc1_config.xbrl_years,
     )
 
 
 def test_ferc_dbf_io_manager_rejects_stale_provenance(mocker, caplog):
     """The migrated FERC DBF IO manager should fail fast on stale prerequisites."""
     pudl_data_config = PudlDataConfig(ferc1=Ferc1DataConfig(years=[2020, 2021]))
+    ferc_to_sqlite_config = FercToSqliteDataConfig()
     global_data_config: GlobalDataConfig = GlobalDataConfig(
         pudl=pudl_data_config,
-        ferc_to_sqlite=FercToSqliteDataConfig(),
+        ferc_to_sqlite=ferc_to_sqlite_config,
     )
     zenodo_dois = ZenodoDoiSettings()
 
     manager: FercDbfSqliteIOManager = FercDbfSqliteIOManager(
         global_data_config=global_data_config,
+        pudl_paths=mocker.MagicMock(),
         zenodo_dois=zenodo_dois,
         dataset="ferc1",
     )
@@ -208,13 +213,13 @@ def test_ferc_dbf_io_manager_rejects_stale_provenance(mocker, caplog):
             dataset="ferc1",
             data_format="dbf",
             status="complete",
-            years=global_data_config.ferc_to_sqlite.get_dataset_years("ferc1", "dbf"),
+            years=ferc_to_sqlite_config.get_dataset_years("ferc1", "dbf"),
             zenodo_doi="stale DOI",
             sqlite_path=Path("test-data/ferc1_dbf.sqlite"),
             source="local_new",
         ).model_dump(mode="json")
     }
-    instance: DagsterInstance = mocker.MagicMock()
+    instance = mocker.MagicMock(spec=DagsterInstance)
     instance.is_ephemeral = False
     instance.get_latest_materialization_event.return_value = mocker.MagicMock(
         asset_materialization=mocker.MagicMock(metadata=stale_metadata)
@@ -237,14 +242,16 @@ def test_ferc_dbf_io_manager_rejects_stale_provenance(mocker, caplog):
 def test_ferc_dbf_io_manager_requires_provenance_metadata(mocker):
     """The migrated FERC DBF IO manager should fail fast when no provenance exists."""
     pudl_data_config = PudlDataConfig.model_validate({"ferc1": {"years": [2020, 2021]}})
+    ferc_to_sqlite_config = FercToSqliteDataConfig()
     global_data_config: GlobalDataConfig = GlobalDataConfig(
         pudl=pudl_data_config,
-        ferc_to_sqlite=FercToSqliteDataConfig(),
+        ferc_to_sqlite=ferc_to_sqlite_config,
     )
     zenodo_dois = ZenodoDoiSettings()
 
     manager: FercDbfSqliteIOManager = FercDbfSqliteIOManager(
         global_data_config=global_data_config,
+        pudl_paths=mocker.MagicMock(),
         zenodo_dois=zenodo_dois,
         dataset="ferc1",
     )
@@ -252,7 +259,7 @@ def test_ferc_dbf_io_manager_requires_provenance_metadata(mocker):
         FercDbfSqliteIOManager, "metadata", new_callable=mocker.PropertyMock
     )
     query = mocker.patch.object(FercDbfSqliteIOManager, "_query")
-    instance: DagsterInstance = mocker.MagicMock()
+    instance = mocker.MagicMock(spec=DagsterInstance)
     instance.is_ephemeral = False
     instance.get_latest_materialization_event.return_value = None
     context: InputContext = build_input_context(
@@ -515,7 +522,8 @@ def test_parquet_io_manager_rejects_unsupported_output_type(
     manager = PudlParquetIOManager(pudl_paths=mock_paths)
     context: OutputContext = build_output_context(asset_key=AssetKey("test_geo"))
     with pytest.raises(TypeError, match="PudlParquetIOManager only supports"):
-        manager.handle_output(context, {"not": "a dataframe"})
+        # Deliberately passing an unsupported type to check the runtime TypeError.
+        manager.handle_output(context, {"not": "a dataframe"})  # type: ignore[bad-argument-type]
 
 
 def test_geoparquet_output_is_zstd_compressed(geo_parquet_output_path: Path) -> None:

@@ -1,4 +1,7 @@
+from typing import cast
+
 import pandas as pd
+from dagster import Output
 from pytest import fixture, raises
 
 from pudl.transform.eia176 import (
@@ -142,8 +145,12 @@ def test_core_eia176__numeric_data(df):
             ("new mexico", "total of all companies"),
         ]
     ].reset_index()
+    # The @asset/@multi_asset decorator wraps the function in an AssetsDefinition, whose
+    # call signature Dagster types as returning ``object``. At runtime a direct call
+    # just runs the original function, which returns a tuple of two Outputs.
     wide_company, wide_aggregate = (
-        o.value for o in _core_eia176__numeric_data(eav_model)
+        o.value
+        for o in cast(tuple[Output, Output], _core_eia176__numeric_data(eav_model))
     )
 
     assert wide_company.shape == (1, 5)
