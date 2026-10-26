@@ -418,14 +418,6 @@ class Known(NamedTuple):
 
 KNOWN_VIOLATIONS: dict[tuple[str, str], Known] = {
     # --- Errors: the metadata is wrong ---------------------------------------
-    ("K4", "phmsagas"): Known(
-        1,
-        "error",
-        "yearly_transmission_gathering_pipe_miles_by_class_location has "
-        "onshore_type_a_gathering_pipe_class_total_miles twice. The first, at column "
-        "39, is -1 in every row and can be deleted. Pandas renames the second to "
-        "...total_miles.1.",
-    ),
     ("V4", "eia861"): Known(
         3,
         "error",
