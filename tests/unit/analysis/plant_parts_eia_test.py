@@ -5,7 +5,6 @@ import pytest
 
 import pudl.analysis.plant_parts_eia
 import pudl.helpers
-from pudl import PUDL_PACKAGE_DATA_PATH
 
 GENS_MEGA = pd.DataFrame(
     {
@@ -325,7 +324,7 @@ def test_make_mega_gen_tbl():
                 "operator_utility_id_pudl": "Int64",
             }
         )
-        .set_index([[0, 1, 2, 3, 0, 1, 2, 3]])
+        .set_index(pd.Index([0, 1, 2, 3, 0, 1, 2, 3]))
         .convert_dtypes()
     )
     pd.testing.assert_frame_equal(out, out_expected)
@@ -764,7 +763,7 @@ def test_label_true_grans():
     pd.testing.assert_frame_equal(expected_out, out)
 
 
-def test_one_to_many():
+def test_one_to_many(test_dir):
     plant_part_list_input = pd.DataFrame(
         {
             "report_date": ["2020-01-01"] * 8,
@@ -824,7 +823,9 @@ def test_one_to_many():
         }
     )
 
-    path_to_one_to_many = PUDL_PACKAGE_DATA_PATH / "test" / "test_one_to_many.csv"
+    path_to_one_to_many = (
+        test_dir / "data/analysis/plant_parts_eia/test_one_to_many.csv"
+    )
 
     parts_compiler = pudl.analysis.plant_parts_eia.MakePlantParts()
 

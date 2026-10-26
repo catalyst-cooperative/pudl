@@ -2,6 +2,7 @@
 
 import json
 from pathlib import Path
+from typing import cast
 from zipfile import ZipFile
 
 import dagster as dg
@@ -33,6 +34,7 @@ from pudl.settings import (
     GlobalDataConfig,
 )
 from pudl.workspace.datastore import ZenodoDoiSettings
+from pudl.workspace.setup import PudlPaths
 
 
 def test_ferc_xbrl_datastore_get_taxonomy(mocker):
@@ -173,7 +175,7 @@ def test_xbrl2sqlite(data_config, forms, mocker, pudl_test_paths):
         )
 
 
-def test_convert_form(mocker, pudl_test_paths: Path):
+def test_convert_form(mocker, pudl_test_paths: PudlPaths):
     """Test convert_form method is properly calling extractor."""
     extractor_mock = mocker.MagicMock()
     mocker.patch("pudl.extract.xbrl.run_main", new=extractor_mock)
@@ -201,7 +203,7 @@ def test_convert_form(mocker, pudl_test_paths: Path):
         convert_form(
             settings,
             form,
-            FakeDatastore(),
+            cast(FercXbrlDatastore, FakeDatastore()),
             pudl_test_paths,
             batch_size=10,
             workers=5,
@@ -267,7 +269,12 @@ def _run_ferc_to_sqlite_asset(
     materialization_events = result.get_asset_materialization_events()
 
     assert len(materialization_events) == 1
-    metadata = materialization_events[0].materialization.metadata["ferc_to_sqlite"].data
+    metadata_value = materialization_events[0].materialization.metadata[
+        "ferc_to_sqlite"
+    ]
+    assert isinstance(metadata_value, dg.JsonMetadataValue)
+    metadata = metadata_value.data
+    assert isinstance(metadata, dict)
     return FercSqliteProvenanceRecord(**metadata)
 
 
@@ -294,7 +301,7 @@ def test_ferc_to_sqlite_asset_factory(mocker, pudl_test_paths):
         side_effect=lambda _: local_datapackage_path.write_text("{}")
     )
     test_asset = ferc_to_sqlite.ferc_to_sqlite_asset_factory(
-        dataset=dataset,
+        dataset=FercForm.FORM1,
         data_format=data_format,
         extract_function=mock_extract_function,
     )
@@ -407,15 +414,18 @@ def test_download_nightly_outputs(
 
     # Create zip file for sqlite file
     with (
-        ZipFile(ferc_paths.nightly_sqlite_path, mode="w") as archive,
+        ZipFile(str(ferc_paths.nightly_sqlite_path), mode="w") as archive,
         archive.open(ferc_paths.local_sqlite_path.name, mode="w") as sqlite_file,
     ):
         sqlite_file.write(b"test sqlite")
 
     if data_format == "xbrl":
+        assert ferc_paths.nightly_taxonomy_json_path is not None
+        assert ferc_paths.nightly_duckdb_path is not None
+        assert ferc_paths.nightly_parquet_path is not None
         ferc_paths.nightly_taxonomy_json_path.write_text("test taxonomy json")
         ferc_paths.nightly_duckdb_path.write_text("test duckdb")
-        with ZipFile(ferc_paths.nightly_parquet_path, mode="w") as archive:
+        with ZipFile(str(ferc_paths.nightly_parquet_path), mode="w") as archive:
             with archive.open(
                 f"{dataset}_{data_format}/test1.parquet", mode="w"
             ) as pq_file_1:
@@ -434,6 +444,11 @@ def test_download_nightly_outputs(
     assert ferc_paths.local_sqlite_path.read_text() == "test sqlite"
 
     if data_format == "xbrl":
+        assert ferc_paths.nightly_duckdb_path is not None
+        assert ferc_paths.local_duckdb_path is not None
+        assert ferc_paths.nightly_taxonomy_json_path is not None
+        assert ferc_paths.local_taxonomy_json_path is not None
+        assert ferc_paths.local_parquet_path is not None
         assert (
             ferc_paths.nightly_duckdb_path.read_bytes()
             == ferc_paths.local_duckdb_path.read_bytes()
