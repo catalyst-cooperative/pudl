@@ -418,20 +418,6 @@ class Known(NamedTuple):
 
 KNOWN_VIOLATIONS: dict[tuple[str, str], Known] = {
     # --- Errors: the metadata is wrong ---------------------------------------
-    ("V4", "eia861"): Known(
-        3,
-        "error",
-        "distribution_systems_eia861 has no file in 2013 to 2015 in the file map, but "
-        "the archives have Distribution_Systems_2013 to 2015 with the same columns as "
-        "2016, and the page has a column map. core_eia861__yearly_distribution_systems "
-        "starts in 2016.",
-    ),
-    ("V5", "eia861"): Known(
-        6,
-        "error",
-        "The same as V4: the page map and skiprows have values for 2013 to 2015, but "
-        "the file map has no file and skipfooter is -1.",
-    ),
     # --- Unfinished: correct, but not yet completely mapped ------------------
     ("P1", "eia861"): Known(
         19,
