@@ -3,18 +3,22 @@
 The files in ``src/pudl/package_data/${dataset}`` describe the structure of the raw
 inputs of a dataset: which file holds each page in each partition (``file_map.csv``),
 which sheet, how many rows to skip (``page_map.csv``, ``skiprows.csv`` and
-``skipfooter.csv``) and how the columns are named (``column_maps/${page}.csv``). They are
-compiled by hand, so it is easy for them to disagree about, for example, which pages or
-partitions exist. The checks here do not look at the raw data, only at whether the
-files are consistent with each other. Mistakes in the structure of the raw data are
-found when it is extracted, and the extracted columns are compared with the column maps.
+``skipfooter.csv``) and how the columns are named (``column_maps/${page}.csv``). They
+are compiled by hand, so it is easy for them to disagree about, for example, which
+pages or partitions exist. The checks here do not look at the raw data, only at
+whether the files are consistent with each other. Mistakes in the structure of the
+raw data are found when it is extracted, and the extracted columns are compared with
+the column maps.
 
 ``file_map.csv`` is the source of truth for whether a page exists in a partition: a
 file name of ``-1`` means that it does not. Every other file uses ``-1`` in the same
 cases, and for columns of a column map that do not exist.
 
 Known violations are listed in :data:`KNOWN_VIOLATIONS` with how many there are, so
-that new ones are noticed, as are old ones that have been fixed.
+that new ones are noticed, as are old ones that have been fixed. Each is either an
+``error``, which is wrong and should be fixed, or ``unfinished``, which is correct but
+not yet completely mapped. Mapping all of the data in the spreadsheets and CSV files
+is a goal, so the ``unfinished`` ones are a list of the mapping work that is left.
 """
 
 import csv
@@ -24,6 +28,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from functools import cache, cached_property
 from pathlib import Path
+from typing import Literal, NamedTuple
 
 import pandas as pd
 import pytest
@@ -197,7 +202,7 @@ def _page_files_with_different_pages(view: MetadataView) -> list:
 
 
 def _pages_not_those_of_the_file_map(view: MetadataView) -> list:
-    """Find the pages of the page files that are not pages of the file map, or reverse."""
+    """Find the pages that are in the page files or the file map, but not both."""
     page_files = set.union(*(set(df.columns) for df in view.page_files.values()))
     return sorted(set(view.file_map.columns) ^ page_files)
 
@@ -401,66 +406,106 @@ CHECKS = [
 ]
 CHECKS_BY_ID = {check.id: check for check in CHECKS}
 
-KNOWN_VIOLATIONS: dict[tuple[str, str], tuple[int, str]] = {
-    ("K4", "phmsagas"): (
+
+class Known(NamedTuple):
+    """Violations of a check in a dataset that are known."""
+
+    count: int
+    kind: Literal["error", "unfinished"]
+    """Whether the metadata is wrong, or correct but not yet completely mapped."""
+    note: str
+
+
+KNOWN_VIOLATIONS: dict[tuple[str, str], Known] = {
+    # --- Errors: the metadata is wrong ---------------------------------------
+    ("K4", "phmsagas"): Known(
         1,
+        "error",
         "yearly_transmission_gathering_pipe_miles_by_class_location has "
-        "onshore_type_a_gathering_pipe_class_total_miles twice. The first is probably "
-        "meant to be the class 1 miles. Pandas renames the second to ...total_miles.1.",
+        "onshore_type_a_gathering_pipe_class_total_miles twice. The first, at column "
+        "39, is -1 in every row and can be deleted. Pandas renames the second to "
+        "...total_miles.1.",
     ),
-    ("P1", "eia861"): (
-        19,
-        "The pages of the territories and sales_customer_sited tables are in some of "
-        "the page files but not others. See P2 and P3.",
-    ),
-    ("P2", "eia861"): (
-        20,
-        "The *_territories pages are in the page files but not in the file map, and "
-        "sales_customer_sited_eia861 is in the file map but not the page map.",
-    ),
-    ("P3", "eia861"): (1, "sales_customer_sited_eia861 has no column map."),
-    ("P3", "eia923"): (
+    ("V4", "eia861"): Known(
         3,
-        "coal_stocks, oil_stocks and petcoke_stocks are in the file map, but the "
-        "extractor reads them as the one stocks page.",
+        "error",
+        "distribution_systems_eia861 has no file in 2013 to 2015 in the file map, but "
+        "the archives have Distribution_Systems_2013 to 2015 with the same columns as "
+        "2016, and the page has a column map. core_eia861__yearly_distribution_systems "
+        "starts in 2016.",
     ),
-    ("P5", "censuspep"): (
-        1,
-        "2025 is a working partition, but there is no file for it in the file map.",
-    ),
-    ("P5", "phmsagas"): (
-        16,
-        "The years in which PHMSA published no gas data are working partitions, "
-        "but they have no row in the file map.",
-    ),
-    ("V1", "eia861"): (
-        28,
-        "sales_customer_sited_eia861 has a file from 2012, but is not in the "
-        "skiprows or skipfooter files.",
-    ),
-    ("V2", "eia861"): (
-        14,
-        "sales_customer_sited_eia861 has a file from 2012, but is not in the page map.",
-    ),
-    ("V3", "eia861"): (
-        1,
-        "demand_side_management_eia861 has a file for 1999 and no column map row.",
-    ),
-    ("V4", "eia861"): (
-        3,
-        "distribution_systems_eia861 has no file from 2013 to 2015 in the file map, "
-        "but the archive of 2013 has one, and the page has a column map.",
-    ),
-    ("V5", "eia861"): (
+    ("V5", "eia861"): Known(
         6,
-        "distribution_systems_eia861 has no file from 2013 to 2015 in the file map, "
-        "but has a page map and skiprows. See V4.",
+        "error",
+        "The same as V4: the page map and skiprows have values for 2013 to 2015, but "
+        "the file map has no file and skipfooter is -1.",
+    ),
+    # --- Unfinished: correct, but not yet completely mapped ------------------
+    ("P1", "eia861"): Known(
+        19,
+        "unfinished",
+        "Sheets that the page map locates, but that are not otherwise mapped: the "
+        "territories sheets (index 1), the TPO and Decoupled sheets (index 2), and the "
+        "sheets of the older dispersed_generation workbooks. They need a file map "
+        "entry, skiprows, skipfooter and a column map to be extracted.",
+    ),
+    ("P2", "eia861"): Known(
+        20,
+        "unfinished",
+        "The 19 sheets that are only in the page map (see P1), and "
+        "sales_customer_sited_eia861, which is only in the file map.",
+    ),
+    ("P3", "eia861"): Known(
+        1,
+        "unfinished",
+        "sales_customer_sited_eia861 has files in the file map for 2012 to 2025 "
+        "(Sales_Ult_Cust_CS_*), but no sheet, skiprows, skipfooter or column map.",
+    ),
+    ("P3", "eia923"): Known(
+        3,
+        "unfinished",
+        "coal_stocks, oil_stocks and petcoke_stocks have files and sheets, but the "
+        "extractor lists them as pages that the metadata does not support.",
+    ),
+    ("P5", "censuspep"): Known(
+        1,
+        "unfinished",
+        "The 2025 vintage, all-geocodes-v2025.xlsx, is in the archive and has the same "
+        "layout as 2024, but has no row in the file map. Only 2009, 2015 and 2024 are "
+        "used by the ETL.",
+    ),
+    ("P5", "phmsagas"): Known(
+        16,
+        "unfinished",
+        "The working years 1971 to 1979, 1981, 1983 and 1985 to 1989 have no row in "
+        "the file map. The file annual_gas_distribution_1970_1989.xls has all of "
+        "them, and the file map lists it for only 1970, 1980, 1982 and 1984. It is "
+        "not clear whether the rest are meant to be listed.",
+    ),
+    ("V1", "eia861"): Known(
+        28,
+        "unfinished",
+        "sales_customer_sited_eia861 has files from 2012, but no skiprows or "
+        "skipfooter. See P3.",
+    ),
+    ("V2", "eia861"): Known(
+        14,
+        "unfinished",
+        "sales_customer_sited_eia861 has files from 2012, but no sheet in the page "
+        "map. See P3.",
+    ),
+    ("V3", "eia861"): Known(
+        1,
+        "unfinished",
+        "demand_side_management_eia861 has a file for 1999, but its layout, with 62 "
+        "columns instead of the 50 of 2000, has not been mapped. 1999 is not a working "
+        "partition of the data source.",
     ),
 }
-"""Violations that are known: how many there are, and what they are.
+"""Violations that are known: how many, whether they are wrong, and what they are.
 
 When one is fixed, remove it. When there are more, or fewer, the test says so.
-"""
+Once the errors are fixed, what is left is the list of what has yet to be mapped."""
 
 
 @cache
@@ -493,11 +538,12 @@ def test_packaged_metadata_is_consistent(check_id: str, dataset: str):
     violations = check.find(_packaged_view(dataset))
     assert violations is not None
     if (check_id, dataset) in KNOWN_VIOLATIONS:
-        expected, reason = KNOWN_VIOLATIONS[(check_id, dataset)]
-        assert len(violations) == expected, (
+        known = KNOWN_VIOLATIONS[(check_id, dataset)]
+        assert len(violations) == known.count, (
             f"{check_id} ({check.description}) has {len(violations)} violations in "
-            f"{dataset} when {expected} are known ({reason}). If they have been "
-            f"fixed, update or remove the known violations. They are: {violations}"
+            f"{dataset} when {known.count} are known ({known.kind}: {known.note}). If "
+            f"they have been fixed, update or remove the known violations. They are: "
+            f"{violations}"
         )
     else:
         assert not violations, (
