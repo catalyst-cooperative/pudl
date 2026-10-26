@@ -2,6 +2,7 @@
 
 import json
 import re
+from collections.abc import Callable
 from datetime import date
 from typing import Any, Literal
 
@@ -180,7 +181,9 @@ def test_field_to_sql_duckdb_pattern_uses_regexp_full_match() -> None:
     sa.Table("t", metadata, field.to_sql(dialect="duckdb"))
     engine = sa.create_engine("duckdb:///:memory:")
     try:
-        metadata.create_all(engine)  # would raise a Parser Error for bare REGEXP
+        metadata.create_all(
+            engine, checkfirst=False
+        )  # would raise a Parser Error for bare REGEXP
         with engine.begin() as conn:
             conn.execute(sa.text("INSERT INTO t (code) VALUES ('AB')"))
             with pytest.raises(sa.exc.DBAPIError, match="CHECK constraint failed"):
@@ -210,7 +213,9 @@ def test_field_to_sql_duckdb_integer_primary_key_has_no_autoincrement() -> None:
     resource.to_sql(metadata, dialect="duckdb")
     engine = sa.create_engine("duckdb:///:memory:")
     try:
-        metadata.create_all(engine)  # would raise if SERIAL were emitted
+        metadata.create_all(
+            engine, checkfirst=False
+        )  # would raise if SERIAL were emitted
     finally:
         engine.dispose()
 
@@ -285,7 +290,7 @@ def test_field_to_sql_duckdb_same_name_different_enum_values_get_distinct_types(
 
     engine = sa.create_engine("duckdb:///:memory:")
     try:
-        metadata.create_all(engine)
+        metadata.create_all(engine, checkfirst=False)
         with engine.begin() as conn:
             conn.execute(sa.text("INSERT INTO hydro_plants VALUES ('hydro')"))
             conn.execute(sa.text("INSERT INTO fossil_plants VALUES ('combined_cycle')"))
@@ -1307,19 +1312,21 @@ def test_get_pudl_dtypes_global_type() -> None:
 @pytest.mark.parametrize(
     ("dtype_backend", "expected_dtype"),
     [
-        ("pandas", "Int64"),
-        ("polars", pl.Int64),
-        ("sqlite", sa.BigInteger),
-        ("duckdb", duckdb.sqltypes.BIGINT),
-        ("pyarrow", pa.int64()),
+        ("pandas", lambda: "Int64"),
+        ("polars", lambda: pl.Int64),
+        ("sqlite", lambda: sa.BigInteger),
+        # Built lazily: a DuckDBPyType held in the collected test items would outlive
+        # the test session and be reported by nanobind as leaked at interpreter exit.
+        ("duckdb", lambda: duckdb.sqltypes.BIGINT),
+        ("pyarrow", lambda: pa.int64()),
     ],
 )
 def test_get_pudl_dtypes_named_backend(
-    dtype_backend: PudlDtypeBackend, expected_dtype: Any
+    dtype_backend: PudlDtypeBackend, expected_dtype: Callable[[], Any]
 ) -> None:
     """Named dtype backends should select the expected canonical mapping."""
     dtypes = get_pudl_dtypes(dtype_backend=dtype_backend)
-    assert dtypes[_OVERRIDE_FIELD] == expected_dtype
+    assert dtypes[_OVERRIDE_FIELD] == expected_dtype()
 
 
 def test_get_pudl_dtypes_polars_skips_unsupported_types() -> None:
