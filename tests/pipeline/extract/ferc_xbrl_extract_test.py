@@ -38,6 +38,7 @@ def test_sqlite_duckdb_equivalence(
     pudl_test_paths,
 ):
     """Ensure that the XBRL-derived FERC SQLite and DuckDB databases are equivalent."""
+    assert global_data_config.ferc_to_sqlite is not None
     for form in FercForm:
         if not global_data_config.ferc_to_sqlite.get_dataset_years(
             dataset=form, data_format="xbrl"

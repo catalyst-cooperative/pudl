@@ -164,9 +164,10 @@ from this module directly in a notebook or script like this:
 """
 
 from collections import OrderedDict
+from collections.abc import Callable
 from copy import deepcopy
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Literal, TypedDict
 
 import numpy as np
 import pandas as pd
@@ -188,7 +189,20 @@ logger = pudl.logging_helpers.get_logger(__name__)
 pd.options.display.width = 1000
 pd.options.display.max_columns = 1000
 
-PLANT_PARTS: OrderedDict[str, dict[str, list]] = OrderedDict(
+type PlantPartName = Literal[
+    "plant",
+    "plant_match_ferc1",
+    "plant_unit",
+    "plant_prime_mover",
+    "plant_technology",
+    "plant_prime_fuel",
+    "plant_ferc_acct",
+    "plant_operating_year",
+    "plant_gen",
+]
+"""Type: the names of the plant parts, which are the keys of :py:const:`PLANT_PARTS`."""
+
+PLANT_PARTS: OrderedDict[PlantPartName, dict[str, list]] = OrderedDict(
     {
         "plant": {
             "id_cols": ["plant_id_eia"],
@@ -227,21 +241,9 @@ contains keys:
   plant_id_eia column must come first.
 """
 
-PLANT_PARTS_LITERAL = Literal[
-    "plant",
-    "plant_unit",
-    "plant_prime_mover",
-    "plant_technology",
-    "plant_prime_fuel",
-    "plant_ferc_acct",
-    "plant_operating_year",
-    "plant_gen",
-]
-
-
 IDX_TO_ADD: list[str] = ["report_date", "operational_status_pudl"]
 """
-list: list of additional columns to add to the id_cols in :py:const:`PLANT_PARTS`.
+List of additional columns to add to the id_cols in :py:const:`PLANT_PARTS`.
 The id_cols are the base columns that we need to aggregate on, but we also need
 to add the report date to keep the records time sensitive and the
 operational_status_pudl to separate the operating plant-parts from the
@@ -250,7 +252,7 @@ non-operating plant-parts.
 
 IDX_OWN_TO_ADD: list[str] = ["utility_id_eia", "ownership_record_type"]
 """
-list: list of additional columns beyond the :py:const:`IDX_TO_ADD` to add to the
+List of additional columns beyond the :py:const:`IDX_TO_ADD` to add to the
 id_cols in :py:const:`PLANT_PARTS` when we are dealing with plant-part records
 that have been broken out into "owned" and "total" records for each of their
 owners.
@@ -263,17 +265,16 @@ SUM_COLS: list[str] = [
     "capacity_eoy_mw",
     "total_mmbtu",
 ]
-"""List: list of columns to sum when aggregating a table."""
+"""List of columns to sum when aggregating a table."""
 
-WTAVG_DICT = {
+WTAVG_DICT: dict[str, str] = {
     "fuel_cost_per_mwh": "capacity_mw",
     "unit_heat_rate_mmbtu_per_mwh": "capacity_mw",
     "fuel_cost_per_mmbtu": "capacity_mw",
 }
-"""Dict: a dictionary of columns (keys) to perform weighted averages on and the weight
-column (values)"""
+"""Dict of columns (keys) to perform weighted averages on and weight column (values)"""
 
-CONSISTENT_ATTRIBUTE_COLS = [
+CONSISTENT_ATTRIBUTE_COLS: list[str] = [
     "fuel_type_code_pudl",
     "planned_generator_retirement_date",
     "generator_retirement_date",
@@ -285,17 +286,29 @@ CONSISTENT_ATTRIBUTE_COLS = [
     "ferc_acct_name",
     "generator_operating_year",
 ]
-"""List: a list of column names to add as attributes when they are consistent into the
+"""A list of column names to add as attributes when they are consistent into the
 aggregated plant-part records.
 
 All the plant part ID columns must be in consistent attributes.
 """
 
-PRIORITY_ATTRIBUTES_DICT = {
+PRIORITY_ATTRIBUTES_DICT: dict[str, list[str]] = {
     "operational_status": ["existing", "proposed", "retired"],
 }
 
-MAX_MIN_ATTRIBUTES_DICT = {
+type AssignCol = Callable[[pd.DataFrame], pd.Series]
+"""Type: a function that computes a new column from a dataframe, for ``assign()``."""
+
+
+class MaxMinAttribute(TypedDict):
+    """Recipe for an attribute taken from the max or min of a sorted column."""
+
+    assign_col: dict[str, AssignCol]
+    dtype: str
+    keep: Literal["first", "last"]
+
+
+MAX_MIN_ATTRIBUTES_DICT: dict[str, MaxMinAttribute] = {
     "installation_year": {
         "assign_col": {"installation_year": lambda x: x.generator_operating_year},
         "dtype": "Int64",
@@ -342,7 +355,7 @@ def out_eia__yearly_generators_by_ownership(
     )
 
 
-def plant_part_asset_factory(part_name: str) -> AssetsDefinition:
+def plant_part_asset_factory(part_name: PlantPartName) -> AssetsDefinition:
     """Asset factory to create assets for each individual plant part."""
     asset_name = f"_out_eia__plant_part_{part_name}"
 
@@ -655,7 +668,7 @@ class MakePlantParts:
         # for all of the plant parts
         self.id_cols_list = make_id_cols_list()
 
-    def create_one_plant_part(self, part_name: str, gens_mega: pd.DataFrame):
+    def create_one_plant_part(self, part_name: PlantPartName, gens_mega: pd.DataFrame):
         """Create a table of attributes for one plant part."""
         if part_name == "plant_match_ferc1":
             raise ValueError("plant_match_ferc1 handled separately")
@@ -742,7 +755,10 @@ class MakePlantParts:
             plant_parts_eia.record_id_eia.isin(one_to_many.record_id_eia)
         ]
         if plant_parts_eia_filt.empty:  # If 1:m matches not in plant_part subset
-            return plant_parts_eia.assign(ferc1_generator_agg_id=pd.NA)
+            # pandas-stubs doesn't accept a scalar pd.NA as an assign() value.
+            return plant_parts_eia.assign(
+                ferc1_generator_agg_id=pd.NA  # type: ignore[bad-argument-type]
+            )
         # Get the 'm' generator IDs 1:m
         one_to_many_single = match_to_single_plant_part(
             multi_gran_df=plant_parts_eia_filt,
@@ -920,12 +936,13 @@ class PlantPart:
     ``plant_prime_mover``, or ``plant_gen``.
     """
 
-    def __init__(self, part_name: Literal[PLANT_PARTS_LITERAL, "plant_match_ferc1"]):
+    def __init__(self, part_name: PlantPartName):
         """Initialize an object which makes a tbl for a specific plant-part.
 
         Args:
-            part_name (str): the name of the part to aggregate to. Names can be
-                only those in :py:const:`PLANT_PARTS`
+            part_name: the name of the part to aggregate to. Names can be only those in
+                :py:const:`PLANT_PARTS`
+
         """
         self.part_name = part_name
         self.id_cols = PLANT_PARTS[part_name]["id_cols"]
@@ -1174,7 +1191,7 @@ class TrueGranLabeler:
 
         # categorical columns allow sorting by PLANT_PARTS key order
         parts_to_gens["plant_part"] = pd.Categorical(
-            parts_to_gens["plant_part"], list(PLANT_PARTS.keys())
+            parts_to_gens["plant_part"], list(PLANT_PARTS)
         )
         # Sort by record_id_eia as a tiebreaker: records tied on plant_part
         # and gens_combo (e.g. ownership total/owned duplicates) would
@@ -1221,8 +1238,8 @@ class AddAttribute:
     def __init__(
         self,
         attribute_col: str,
-        part_name: str,
-        assign_col_dict: dict[str, str] | None = None,
+        part_name: PlantPartName,
+        assign_col_dict: dict[str, AssignCol] | None = None,
     ):
         """Initialize a attribute adder.
 
@@ -1445,7 +1462,7 @@ def make_id_cols_list() -> list[Any]:
     )
 
 
-def make_parts_to_ids_dict() -> dict[str, Any]:
+def make_parts_to_ids_dict() -> dict[PlantPartName, str]:
     """Make dict w/ plant-part names (keys) to the main id column (values).
 
     All plant-parts have 1 or 2 ID columns in :py:const:`PLANT_PARTS` plant_id_eia and
@@ -1522,7 +1539,7 @@ def add_record_id(
 def match_to_single_plant_part(
     multi_gran_df: pd.DataFrame,
     ppe: pd.DataFrame,
-    part_name: PLANT_PARTS_LITERAL = "plant_gen",
+    part_name: PlantPartName = "plant_gen",
     cols_to_keep: list[str] = [],
     one_to_many: bool = False,
 ) -> pd.DataFrame:

@@ -379,11 +379,11 @@ class TestGlobalConfig:
         """Test immutability config is working correctly."""
         with pytest.raises(ValidationError):
             data_config = PudlDataConfig()
-            data_config.eia = EiaDataConfig()
+            data_config.eia = EiaDataConfig()  # type: ignore[read-only]
 
         with pytest.raises(ValidationError):
             data_config = EiaDataConfig()
-            data_config.eia860 = Eia860DataConfig()
+            data_config.eia860 = Eia860DataConfig()  # type: ignore[read-only]
 
 
 class TestGlobalDataConfigResource:
@@ -409,6 +409,7 @@ class TestGlobalDataConfigResource:
         )
 
         assert isinstance(loaded_data_config, GlobalDataConfig)
+        assert loaded_data_config.pudl is not None
         assert loaded_data_config.pudl.ferc1 is not None
 
 
@@ -578,6 +579,7 @@ def test_all_data_config_model_dump_round_trip(instance: BaseModel) -> None:
 
 def test_partitions_with_json_normalize(global_data_config: GlobalDataConfig):
     """Ensure the FERC1 and CEMS partitions normalize."""
+    assert global_data_config.pudl is not None
     datasets = global_data_config.pudl.get_datasets()
     ferc_parts: pd.DataFrame = json_normalize(datasets["ferc1"].partitions)
     if list(ferc_parts.columns) != ["year"]:
@@ -598,6 +600,7 @@ def test_partitions_for_datasource_table(
     pudl_test_paths: PudlPaths,
 ):
     """Test whether or not we can make the datasource table."""
+    assert global_data_config.pudl is not None
     ds = Datastore(local_cache_path=pudl_test_paths.pudl_input)
     datasource = global_data_config.pudl.make_datasources_table(ds)
     datasets = global_data_config.pudl.get_datasets().keys()
