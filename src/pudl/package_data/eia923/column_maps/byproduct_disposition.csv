@@ -2,3 +2,4 @@ year_index,report_year,plant_id_eia,byproduct_description,disposal_landfill_unit
 2008,year,plant_id,by_product_description,disposal_landfill,disposal_ponds,disposal_offsite,sold,used_onsite,used_offsite,stored_onsite,stored_offsite,total,no_byproducts,-1
 2013,year,plant_id,by_product_description,disposal_landfill_thousand_tons,disposal_ponds_thousand_tons,disposal_offsite_thousand_tons,sold_thousand_tons_or_for_steam_mmbtu,used_onsite_thousand_tons,used_offsite_thousand_tons,stored_onsite_thousand_tons,stored_offsite_thousand_tons,total_thousand_tons_or_for_steam_mmbtu,no_byproducts,-1
 2015,year,plant_id,by_product_description,disposal_landfill,disposal_ponds,disposal_offsite,sold,used_onsite,used_offsite,stored_onsite,stored_offsite,total,no_byproducts,-1
+2026,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1

@@ -1,2 +1,10 @@
 year_index,generation_fuel,puerto_rico_generation_fuel,stocks,oil_stocks,coal_stocks,petcoke_stocks,energy_storage,boiler_fuel,generator,fuel_receipts_costs,plant_frame,puerto_rico_plant_frame,emissions_control,byproduct_expenses_and_revenues,byproduct_disposition,fgd_operation_maintenance,cooling_system_information,boiler_nox_operation,fgp_operation,source_and_disposition
-2001,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+2001,0,-1,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1
+2002,0,-1,0,0,0,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1
+2008,0,-1,0,0,0,0,-1,0,0,0,-1,-1,-1,0,0,0,0,0,0,-1
+2011,0,-1,0,0,0,0,-1,0,0,0,0,-1,-1,0,0,0,0,0,0,0
+2012,0,-1,0,0,0,0,-1,0,0,0,0,-1,0,0,0,0,0,-1,-1,0
+2014,0,-1,0,0,0,0,0,0,0,0,0,-1,0,0,0,0,0,-1,-1,0
+2017,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,-1,0
+2021,0,0,0,0,-1,-1,0,0,0,0,0,0,0,0,0,0,0,-1,-1,0
+2026,0,0,0,0,-1,-1,0,0,0,0,0,0,-1,-1,-1,-1,-1,-1,-1,-1

@@ -1,8 +1,8 @@
 year_index,yearly_distribution,yearly_transmission_gathering_summary_by_commodity,yearly_transmission_pipe_miles_by_nps,yearly_gathering_pipe_miles_by_nps,yearly_transmission_gathering_inspections_assessments,yearly_transmission_gathering_pipe_miles_by_class_location,yearly_transmission_material_verification,yearly_transmission_hca_miles_by_determination_method_and_risk_model,yearly_transmission_miles_by_pressure_test_range_and_internal_inspection,yearly_transmission_gathering_preparer_certification,yearly_transmission_pipe_miles_by_smys,yearly_transmission_gathering_failures_leaks_repairs,yearly_transmission_miles_by_maop,yearly_transmission_gathering_pipe_miles_by_decade_installed,yearly_transmission_gathering_pipe_miles_by_material
 1970,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1
-1984,0,0,0,0,-1,-1,-1,-1,-1,0,-1,0,-1,-1,-1
-2000,0,0,0,0,-1,0,-1,-1,-1,0,-1,0,-1,0,-1
-2009,0,0,0,0,0,0,-1,-1,-1,0,0,0,-1,0,0
-2011,0,0,0,0,0,0,-1,-1,0,0,0,0,0,0,0
-2020,0,0,0,0,0,0,0,-1,0,0,0,0,0,0,0
-2021,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+1985,0,0,0,0,-1,-1,-1,-1,-1,0,-1,0,-1,-1,-1
+2001,0,0,0,0,-1,0,-1,-1,-1,0,-1,0,-1,0,-1
+2010,0,0,0,0,0,0,-1,-1,-1,0,0,0,-1,0,0
+2012,0,0,0,0,0,0,-1,-1,0,0,0,0,0,0,0
+2021,0,0,0,0,0,0,0,-1,0,0,0,0,0,0,0
+2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
