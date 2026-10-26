@@ -385,12 +385,14 @@ def try_aggfunc(
     # Conditional statements outside function for execution speed.
     wrapped = func
     if raised and error is not None:
+        assert isinstance(error, str), "Raised errors need a format string."
+        error_template = error
 
         def wrapped(x):
             try:
                 return func(x)
             except AggregationError as e:
-                e.args = (error.format(x=x, e=e),)
+                e.args = (error_template.format(x=x, e=e),)
                 raise e
 
     elif not raised and error is None:
@@ -402,12 +404,14 @@ def try_aggfunc(
                 return e
 
     elif not raised and error is not None:
+        assert callable(error), "Captured errors need an error-building function."
+        error_func = error
 
         def wrapped(x):
             try:
                 return func(x)
             except AggregationError as e:
-                e.args = (error(x, e),)
+                e.args = (error_func(x, e),)
                 return e
 
     return wrapped

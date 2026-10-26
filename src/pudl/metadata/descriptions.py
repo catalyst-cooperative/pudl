@@ -4,7 +4,7 @@ import re
 from collections import namedtuple
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Self
+from typing import Any, Self
 
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, model_validator
@@ -107,10 +107,10 @@ TIMESERIES_RESOLUTION_FRAGMENTS: dict = {
 def half_year_offset(partition: str, offset: int) -> str:
     """Offset a half_year partition by the specified number of half_years."""
     yr, _, half = partition.partition("half")
-    offset = pd.Timestamp(
+    shifted = pd.Timestamp(
         year=int(yr), month=(int(half) - 1) * 6 + 1, day=1
     ) + pd.DateOffset(months=offset * 6)
-    return f"{offset.year}half{offset.month / 6 + 1:.0f}"
+    return f"{shifted.year}half{shifted.month / 6 + 1:.0f}"
 
 
 PARTITION_OFFSETS: dict[str, Callable] = {
@@ -163,7 +163,7 @@ class ResourceTrait(DescriptionMeta):
 
 
 # [jul 2025 kmm] it feels like this should already exist somewhere but all I found were terrible Python Golf one-liners
-def first_non_none(*args):
+def first_non_none(*args: Any) -> Any:
     """Return the first argument which is not None.
 
     Useful when you have multiple candidates for a value, some of which are preferred but rarely available.
@@ -239,7 +239,7 @@ def component(
     fn: Callable[..., ResourceTrait | list[ResourceTrait]],
 ) -> Callable[..., ResourceTrait | list[ResourceTrait]]:
     """Decorator for functions which resolve a description component."""
-    fn.__is_component = True
+    fn.__is_component = True  # type: ignore[missing-attribute]
     return fn
 
 

@@ -1,4 +1,4 @@
-pudl_dbt:
+pudl_duckdb:
   outputs:
     # Define targets for local full/fast ETL outputs
     etl-full:

@@ -199,6 +199,7 @@ def unstack(df: pd.DataFrame, eventual_pk: list[str]):
         .unstack(level="variable_name")
         .sort_index()
     )
+    assert isinstance(unstacked, pd.DataFrame)
     unstacked.columns = unstacked.columns.droplevel()
     unstacked.columns.name = None
     return unstacked
@@ -648,7 +649,7 @@ def core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type(
         "nom_mmbtu",
     }
     # turn variable_name into `nominal_fuel_prices` and `real_fuel_prices` based on unit
-    sanitized.variable_name = sanitized.units + "_" + sanitized.variable_name
+    sanitized["variable_name"] = sanitized.units + "_" + sanitized.variable_name
 
     trimmed = sanitized.drop(
         columns=[

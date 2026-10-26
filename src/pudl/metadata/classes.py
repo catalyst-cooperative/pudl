@@ -63,6 +63,7 @@ from pudl.metadata.dtypes import (
     FIELD_DTYPES_SQLALCHEMY,
     FIELD_DTYPES_SQLITE,
     PERIODS,
+    PandasDtype,
 )
 from pudl.metadata.fields import (
     FIELD_METADATA,
@@ -562,7 +563,7 @@ class Encoder(PudlMeta):
     def encode(
         self,
         col: pd.Series,
-        dtype: type | None = None,
+        dtype: PandasDtype | None = None,
     ) -> pd.Series:
         """Apply the stored code mapping to an input Series."""
         # Every value in the Series should appear in the map. If that's not the
@@ -578,7 +579,8 @@ class Encoder(PudlMeta):
             )
         col = col.map(self.code_map)
         if dtype:
-            col = col.astype(dtype)
+            # pandas' astype() overloads only cover Literal dtype strings.
+            col = col.astype(dtype)  # type: ignore[no-matching-overload]
 
         return col
 
@@ -608,6 +610,7 @@ class Encoder(PudlMeta):
         template = _get_jinja_environment(top_dir).get_template(
             "codemetadata.rst.jinja"
         )
+        assert self.name is not None, "Cannot render an Encoder without a name."
         rendered = template.render(
             Encoder=self,
             # just get the resolved resource summary & drop all the other sections of the description
@@ -742,13 +745,13 @@ class Field(PudlMeta):
             return pl.Categorical()
         return FIELD_DTYPES_POLARS[self.type]
 
-    def to_pandas_dtype(self) -> str | pd.CategoricalDtype:
+    def to_pandas_dtype(self) -> PandasDtype:
         """Return Pandas data type."""
         if self.constraints.enum:
             return pd.CategoricalDtype(self.constraints.enum)
         return FIELD_DTYPES_PANDAS[self.type]
 
-    def to_sqlite_dtype(self) -> type:  # noqa: A003
+    def to_sqlite_dtype(self) -> sa.types.TypeEngine | type[sa.types.TypeEngine]:  # noqa: A003
         """Return SQLAlchemy data type."""
         if self.constraints.enum:
             return sa.Enum(*self.constraints.enum)
@@ -938,7 +941,9 @@ class Field(PudlMeta):
             autoincrement=False,
         )
 
-    def encode(self, col: pd.Series, dtype: type | None = None) -> pd.Series:  # noqa: A003
+    def encode(  # noqa: A003
+        self, col: pd.Series, dtype: PandasDtype | None = None
+    ) -> pd.Series:
         """Recode the Field if it has an associated encoder."""
         return self.encoder.encode(col, dtype=dtype) if self.encoder else col
 
@@ -1876,8 +1881,11 @@ class Resource(PudlMeta):
                 value = Field.dict_from_id(name)
                 # Update with any custom group-level metadata
                 namespace = obj.get("field_namespace")
-                if name in FIELD_METADATA_BY_NAMESPACE.get(namespace, {}):
-                    value = {**value, **FIELD_METADATA_BY_NAMESPACE[namespace][name]}
+                namespace_metadata = (
+                    FIELD_METADATA_BY_NAMESPACE.get(namespace, {}) if namespace else {}
+                )
+                if name in namespace_metadata:
+                    value = {**value, **namespace_metadata[name]}
                 # Update with any custom resource-level metadata
                 if name in FIELD_METADATA_BY_RESOURCE.get(resource_id, {}):
                     value = {**value, **FIELD_METADATA_BY_RESOURCE[resource_id][name]}
@@ -2057,7 +2065,7 @@ class Resource(PudlMeta):
             ],
             schema=schema,
             path=self.path,
-            extrapaths=self.extrapaths,
+            extrapaths=self.extrapaths or [],
         )
         if self.keywords:
             resource.custom["keywords"] = list(self.keywords)
@@ -2085,7 +2093,7 @@ class Resource(PudlMeta):
         """Return Polars data type of each field by field name."""
         return {f.name: f.to_polars_dtype() for f in self.schema.fields}
 
-    def to_pandas_dtypes(self) -> dict[str, str | pd.CategoricalDtype]:
+    def to_pandas_dtypes(self) -> dict[str, PandasDtype]:
         """Return Pandas data type of each field by field name."""
         return {f.name: f.to_pandas_dtype() for f in self.schema.fields}
 
@@ -2134,6 +2142,7 @@ class Resource(PudlMeta):
             Traceback (most recent call last):
             ValueError: ... {'x_month', 'x_date'} match primary key field 'x_year'
         """
+        names = list(names)
         if len(names) != len(set(names)):
             raise ValueError("Field names are not unique")
         keys = self.schema.primary_key or []
@@ -2214,7 +2223,7 @@ class Resource(PudlMeta):
                     )
         df = (
             # Reorder columns and insert missing columns
-            df.reindex(columns=dtypes.keys(), copy=False)
+            df.reindex(columns=list(dtypes), copy=False)
             # Coerce columns to correct data type
             .astype(dtypes, copy=False)
         )
@@ -2970,14 +2979,16 @@ class Package(PudlMeta):
         ]
         encoders: dict[SnakeCase, Encoder] = {}
         for field in encoded_fields:
+            encoder = field.encoder
+            assert encoder is not None  # Guaranteed by the filter above
             if field.name not in encoders:
-                encoders[field.name] = field.encoder
+                encoders[field.name] = encoder
             else:
                 # We have a field which shows up in multiple tables, and we want to
                 # verify that the encoders are the same across all of them.
-                pd.testing.assert_frame_equal(encoders[field.name].df, field.encoder.df)
-                assert encoders[field.name].code_fixes == field.encoder.code_fixes
-                assert encoders[field.name].ignored_codes == field.encoder.ignored_codes
+                pd.testing.assert_frame_equal(encoders[field.name].df, encoder.df)
+                assert encoders[field.name].code_fixes == encoder.code_fixes
+                assert encoders[field.name].ignored_codes == encoder.ignored_codes
         return encoders
 
     def encode(self, df: pd.DataFrame, copy: bool = True) -> pd.DataFrame:

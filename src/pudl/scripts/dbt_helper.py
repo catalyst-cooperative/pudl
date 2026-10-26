@@ -11,11 +11,11 @@ import click
 import duckdb
 import pandas as pd
 
-from pudl import FERCEQR_BUILDS_BASE_PATH, PUDL_DBT_PATH, PUDL_NIGHTLY_BUILDS_BASE_PATH
+from pudl import PUDL_DBT_PATH
 from pudl.dagster.build import build_defs
 from pudl.dbt_schema import DbtSchema, DbtTable, merge_schema
 from pudl.logging_helpers import configure_root_logger, get_logger
-from pudl.metadata.classes import PUDL_PACKAGE
+from pudl.metadata.classes import PUDL_PACKAGE, Resource
 from pudl.validate.dbt import build_with_context, dagster_to_dbt_selection
 from pudl.workspace.setup import PudlPaths
 
@@ -35,7 +35,8 @@ def insert_data_source(parent_dir: Path, table_name: str) -> Path:
     if not match:
         raise ValueError(f"{table_name} has no data source segment.")
     data_source = match.group(2)
-    return parent_dir / data_source / table_name
+    dbt_source = Resource.from_id(table_name).dbt_source
+    return parent_dir / dbt_source / data_source / table_name
 
 
 UpdateResult = namedtuple("UpdateResult", ["success", "message"])
@@ -52,44 +53,11 @@ def _get_existing_row_counts() -> pd.DataFrame:
     ).fillna(value="")
 
 
-def _ensure_s3_secret() -> None:
-    duckdb.sql("LOAD httpfs")
-    duckdb.sql(
-        """
-        CREATE OR REPLACE SECRET pudl_s3_secret (
-            TYPE S3,
-            REGION 'us-west-2',
-            URL_STYLE 'path',
-            PROVIDER config
-        )
-        """
-    )
-
-
-def _parquet_path(table_name: str, use_nightly_builds: bool) -> str:
-    if not use_nightly_builds:
-        return str(
-            PudlPaths().parquet_path(
-                table_name, partitioned_output="ferceqr" in table_name
-            )
-        )
-
-    if "ferceqr" in table_name:
-        path = f"{FERCEQR_BUILDS_BASE_PATH}/{table_name}/**/*.parquet"
-    else:
-        path = f"{PUDL_NIGHTLY_BUILDS_BASE_PATH}/{table_name}.parquet"
-    return path
-
-
 def _calculate_row_counts(
     table_name: str,
     partition_expr: str | None = None,
-    use_nightly_builds: bool = False,
 ) -> pd.DataFrame:
-    parquet_path = _parquet_path(table_name, use_nightly_builds)
-
-    if use_nightly_builds:
-        _ensure_s3_secret()
+    parquet_path = str(PudlPaths().parquet_path(table_name))
 
     if partition_expr is None:
         partition_expr_sql = "''"
@@ -131,7 +99,6 @@ def update_row_counts(
     table_name: str,
     dbt_root: Path,
     clobber: bool = False,
-    use_nightly_builds: bool = False,
 ) -> UpdateResult:
     """Generate updated row counts per partition and write to csv file within dbt project."""
     schema_path = insert_data_source(dbt_root / "models", table_name) / "schema.yml"
@@ -185,9 +152,7 @@ def update_row_counts(
         )
 
     partition_expr = partition_expressions[0]  # TODO: support multiple partitions
-    new = _calculate_row_counts(
-        table_name, partition_expr, use_nightly_builds=use_nightly_builds
-    )
+    new = _calculate_row_counts(table_name, partition_expr)
 
     # Make old and new row counts comparable so we can detect changes
     row_count_idx = ["table_name", "partition"]
@@ -311,11 +276,6 @@ class TableUpdateArgs:
     help="Update source table row count expectations.",
 )
 @click.option(
-    "--use-nightly-builds/--no-use-nightly-builds",
-    default=False,
-    help="Use nightly build outputs to generate row counts.",
-)
-@click.option(
     "--clobber/--no-clobber",
     default=False,
     help="Overwrite existing table schema config and row counts. Otherwise, the script will fail if destructive changes are made.",
@@ -325,7 +285,6 @@ def update_tables(
     clobber: bool,
     schema: bool,
     row_counts: bool,
-    use_nightly_builds: bool,
 ):
     """Add or update dbt schema configs and row count expectations for PUDL tables.
 
@@ -364,7 +323,6 @@ def update_tables(
                     table_name=table_name,
                     dbt_root=PUDL_DBT_PATH,
                     clobber=args.clobber,
-                    use_nightly_builds=use_nightly_builds,
                 )
             )
 
@@ -406,9 +364,13 @@ def update_tables(
     ),
 )
 @click.option(
-    "--use-nightly-builds/--no-use-nightly-builds",
-    default=False,
-    help="Use nightly build outputs when running dbt validation.",
+    "--parquet-base-path",
+    help=(
+        "Base path containing the Parquet files to validate, overriding the "
+        "default of $PUDL_OUTPUT/parquet. Useful for validating outputs that "
+        "live outside the local PUDL output directory, e.g. a remote nightly "
+        "build or another worktree's outputs."
+    ),
 )
 def validate(
     select: str | None = None,
@@ -416,7 +378,7 @@ def validate(
     exclude: str | None = None,
     dry_run: bool = False,
     override_target: str | None = None,
-    use_nightly_builds: bool = False,
+    parquet_base_path: str | None = None,
 ) -> None:
     """Validate a selection of dbt nodes.
 
@@ -447,6 +409,10 @@ def validate(
 
         $ dbt_helper validate --asset-select "+key:out_eia__yearly_generators" --exclude "*check_row_counts*"
 
+    Validate Parquet files that live somewhere other than $PUDL_OUTPUT/parquet:
+
+        $ dbt_helper validate --asset-select "key:out_eia__yearly_generators" --parquet-base-path /path/to/parquet
+
 
 
     """
@@ -466,7 +432,7 @@ def validate(
         "node_selection": node_selection,
         "node_exclusion": exclude,
         "dbt_target": override_target if override_target else "etl-full",
-        "use_nightly_builds": use_nightly_builds,
+        "parquet_base_path": parquet_base_path,
     }
 
     if dry_run:

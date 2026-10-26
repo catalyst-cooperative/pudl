@@ -31,6 +31,9 @@ New Data Tests & Validations
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Added a missing territory entry to the :ref:`core_pudl__codes_subdivisions` table. See
+  :issue:`5696` and :pr:`5716`.
+
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
 

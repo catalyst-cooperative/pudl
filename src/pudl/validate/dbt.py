@@ -15,7 +15,7 @@ from dbt.artifacts.schemas.run import RunExecutionResult
 from dbt.cli.main import dbtRunner, dbtRunnerResult
 from dbt.contracts.graph.nodes import GenericTestNode
 
-from pudl import FERCEQR_BUILDS_BASE_PATH, PUDL_DBT_PATH, PUDL_NIGHTLY_BUILDS_BASE_PATH
+from pudl import PUDL_DBT_PATH
 from pudl.logging_helpers import get_logger
 from pudl.workspace.setup import PudlPaths
 
@@ -147,7 +147,7 @@ def build_with_context(
     node_selection: str,
     dbt_target: str,
     node_exclusion: str | None = None,
-    use_nightly_builds: bool = False,
+    parquet_base_path: str | None = None,
 ) -> BuildResult:
     """Run the DBT build and get failure information back.
 
@@ -161,10 +161,9 @@ def build_with_context(
     cli_args = ["--target", dbt_target, "--select", node_selection]
     if node_exclusion is not None:
         cli_args += ["--exclude", node_exclusion]
-    if use_nightly_builds:
+    if parquet_base_path:
         # These will live on for the full python process, but won't persist beyond that
-        os.environ["PUDL_PARQUET_BASE_PATH"] = str(PUDL_NIGHTLY_BUILDS_BASE_PATH)
-        os.environ["FERCEQR_PARQUET_BASE_PATH"] = str(FERCEQR_BUILDS_BASE_PATH)
+        os.environ["PARQUET_BASE_PATH"] = str(parquet_base_path)
 
     dbt = install_dbt_deps()
 
