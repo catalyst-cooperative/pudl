@@ -1,6 +1,7 @@
 """Load excel metadata CSV files form a python data package."""
 
 import pathlib
+from collections.abc import Sequence
 from io import BytesIO
 
 import dbfread
@@ -44,14 +45,18 @@ class ExcelMetadata(GenericMetadata):
       specified to correctly identify the file housing the desired page. This is only
       required when a file can only be uniquely located using a combination of
       partitions (e.g. form and year).
-
     """
 
     # TODO: we could validate whether metadata is valid for all year. We should have
     # existing records for each (year, page) -> sheet_name, (year, page) -> skiprows
     # and for all (year, page) -> column map
 
-    def __init__(self, dataset_name: str, path: pathlib.Path | None = None):
+    def __init__(
+        self,
+        dataset_name: str,
+        path: pathlib.Path | None = None,
+        partitions: Sequence[str] | None = None,
+    ):
         """Create Metadata object and load metadata from files on disk.
 
         Args:
@@ -60,11 +65,14 @@ class ExcelMetadata(GenericMetadata):
                 src/pudl/package_data/${dataset_name}
             path: Directory to load the metadata files from, instead of the directory
                 of the dataset in the package data. Useful for test datasets.
+            partitions: The partitions to describe with the metadata that is a change
+                log, in addition to those that it has rows for. By default these are
+                the time partitions that the data source is processed for.
         """
-        super().__init__(dataset_name, path=path)
-        self._skiprows = self._load_csv(self._path, "skiprows.csv")
-        self._skipfooter = self._load_csv(self._path, "skipfooter.csv")
-        self._sheet_name = self._load_csv(self._path, "page_map.csv")
+        super().__init__(dataset_name, path=path, partitions=partitions)
+        self._skiprows = self._load_change_log_csv(self._path, "skiprows.csv")
+        self._skipfooter = self._load_change_log_csv(self._path, "skipfooter.csv")
+        self._sheet_name = self._load_change_log_csv(self._path, "page_map.csv")
         self._file_name = self._load_file_map()
         # Most excel extracted datasets do not have a page to part map. If they
         # don't, assign null.
@@ -75,22 +83,20 @@ class ExcelMetadata(GenericMetadata):
 
     def get_sheet_name(self, page, **partition):
         """Return name of Excel sheet containing data for given partition and page."""
-        return self._sheet_name.loc[str(self._get_partition_selection(partition)), page]
+        return self._sheet_name.loc[self._get_partition_selection(partition), page]
 
     def get_skiprows(self, page, **partition):
         """Return number of header rows to skip when loading a partition and page."""
-        return self._skiprows.loc[str(self._get_partition_selection(partition)), page]
+        return self._skiprows.loc[self._get_partition_selection(partition), page]
 
     def get_skipfooter(self, page, **partition):
         """Return number of footer rows to skip when loading a partition and page."""
-        return self._skipfooter.loc[str(self._get_partition_selection(partition)), page]
+        return self._skipfooter.loc[self._get_partition_selection(partition), page]
 
     def get_file_name(self, page, **partition) -> str:
         """Returns file name of given partition and page."""
         # The file map is loaded with every cell as a string.
-        return str(
-            self._file_name.loc[str(self._get_partition_selection(partition)), page]
-        )
+        return str(self._file_name.loc[self._get_partition_selection(partition), page])
 
     def get_form(self, page) -> str:
         """Returns the form name for a given page."""
