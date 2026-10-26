@@ -129,9 +129,9 @@ def _copy_table(
         f"SELECT {columns_sql} FROM read_parquet(?)",
         [str(parquet_path)],
     )
-    row = conn.execute(f"SELECT count(*) FROM {table_ref}").fetchone()  # noqa: S608
-    assert row is not None  # SELECT count(*) always returns exactly one row
-    return row[0]
+    rows = conn.sql(f"SELECT count(*) FROM {table_ref}").fetchall()  # noqa: S608
+    assert rows  # SELECT count(*) always returns exactly one row
+    return rows[0][0]
 
 
 ################################################################################
