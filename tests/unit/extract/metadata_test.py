@@ -193,18 +193,16 @@ def test_file_map_is_not_a_change_log(tmp_path: Path):
     """The names of the source files differ by partition, so each needs a row."""
     (tmp_path / "column_maps").mkdir()
     (tmp_path / "file_map.csv").write_text("year_index,page\n2010,a.xlsx\n")
-    metadata = GenericMetadata("fake", path=tmp_path, partitions=["2010", "2011"])
+    (tmp_path / "page_map.csv").write_text("year_index,page\n2010,0\n")
+    (tmp_path / "skiprows.csv").write_text("year_index,page\n2010,1\n")
+    (tmp_path / "skipfooter.csv").write_text("year_index,page\n2010,0\n")
+    metadata = ExcelMetadata("fake", path=tmp_path, partitions=["2010", "2011"])
     assert list(metadata._load_file_map().index) == ["2010"]
-
-
-def test_metadata_of_a_fake_dataset_has_the_partitions_of_its_file_map():
-    """The fake datasets are not data sources, so only their file maps list partitions."""
-    metadata = ExcelMetadata(
-        "test", path=Path(__file__).parents[2] / "data/extract/test"
-    )
-    assert working_time_partitions("test") == []
-    assert metadata._partitions == ["2010", "2011", "2012", "2013", "2014"]
-    assert list(metadata._column_map["books"].index) == metadata._partitions
+    # The other files are carried forward to 2011, but a file name must not be: using
+    # the file of the year before would silently extract the wrong data.
+    assert metadata.get_skiprows("page", year=2011) == 1
+    with pytest.raises(KeyError):
+        metadata.get_file_name("page", year=2011)
 
 
 def _path_id(path: Path) -> str:

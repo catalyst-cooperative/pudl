@@ -54,11 +54,10 @@ def expand_partitions(df: pd.DataFrame, partitions: Iterable[str]) -> pd.DataFra
     The rows of ``df`` are indexed by partition, and only need to include the
     partitions in which the description of the data differs from the one in the
     partition before it. Each row is carried forward to the later partitions that are
-    not in the index, up until the next row that is. A row is carried forward as a
-    whole, so a blank cell in a row is blank in the partitions that it is carried to,
-    rather than being filled in from the rows before.
+    not in the index, up until the next row that is. Each row is carried forward as a
+    whole.
 
-    Nothing is carried backward, so partitions before the first row are not described.
+    Nothing is backfilled, so partitions before the first row are not described.
     A frame with a row for every partition is returned as it was.
 
     Args:

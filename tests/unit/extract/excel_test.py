@@ -1,13 +1,12 @@
 """Unit tests for pudl.extract.excel module."""
 
-from pathlib import Path
-
 import pandas as pd
 import pytest
 
+from pudl import PUDL_ROOT_PATH
 from pudl.extract import excel
 
-FAKE_DATASET_PATH = Path(__file__).parents[2] / "data/extract/test"
+FAKE_DATASET_PATH = PUDL_ROOT_PATH / "tests/data/extract/test"
 """Directory of the fake dataset that the tests of the Excel extractors use."""
 
 
