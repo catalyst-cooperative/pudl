@@ -445,13 +445,6 @@ KNOWN_VIOLATIONS: dict[tuple[str, str], Known] = {
         "coal_stocks, oil_stocks and petcoke_stocks have files and sheets, but the "
         "extractor lists them as pages that the metadata does not support.",
     ),
-    ("P5", "censuspep"): Known(
-        1,
-        "unfinished",
-        "The 2025 vintage, all-geocodes-v2025.xlsx, is in the archive and has the same "
-        "layout as 2024, but has no row in the file map. Only 2009, 2015 and 2024 are "
-        "used by the ETL.",
-    ),
     ("P5", "phmsagas"): Known(
         16,
         "unfinished",
