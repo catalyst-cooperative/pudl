@@ -300,7 +300,13 @@ def _write_pudl_duckdb(
     # 63-char limit; duckdb can support longer identifiers and we need them, so increase
     # this limit.
     engine.dialect.max_identifier_length = 255
-    PUDL_PACKAGE.to_sql(dialect="duckdb", include_foreign_keys=False).create_all(engine)
+    # The file was just deleted, so there is nothing to check for. Skipping the
+    # existence checks also keeps SQLAlchemy's PGDialect from caching this dialect in
+    # an ``lru_cache`` forever, which pins DuckDB type objects past interpreter exit
+    # and makes nanobind print "leaked instances" warnings.
+    PUDL_PACKAGE.to_sql(dialect="duckdb", include_foreign_keys=False).create_all(
+        engine, checkfirst=False
+    )
     engine.dispose()
 
     report = TableWriteReport(db_path=db_path)
