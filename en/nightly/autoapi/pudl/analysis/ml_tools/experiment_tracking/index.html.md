@@ -23,9 +23,9 @@ this is a configurable value, which can be found in the dagster UI.
 
 ## Functions
 
-| [`_flatten_model_config`](#pudl.analysis.ml_tools.experiment_tracking._flatten_model_config)(→ dict)                   | Take nested dictionary defining model config and flatten for logging purposes.   |
-|--------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
-| [`experiment_tracker_factory`](#pudl.analysis.ml_tools.experiment_tracking.experiment_tracker_factory)(→ ExperimentTracker) | Use config to create an experiment tracker.                                      |
+| [`_flatten_model_config`](#pudl.analysis.ml_tools.experiment_tracking._flatten_model_config)(→ dict)                      | Take nested dictionary defining model config and flatten for logging purposes.   |
+|-----------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
+| [`experiment_tracker_factory`](#pudl.analysis.ml_tools.experiment_tracking.experiment_tracker_factory)(→ dagster.OpDefinition) | Use config to create an experiment tracker op.                                   |
 
 ## Module Contents
 
@@ -130,6 +130,6 @@ with the provided name and returns its ID.
 * **Returns:**
   ID of the existing or newly created MLflow experiment.
 
-### pudl.analysis.ml_tools.experiment_tracking.experiment_tracker_factory(experiment_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), model_config: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)) → [ExperimentTracker](#pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker)
+### pudl.analysis.ml_tools.experiment_tracking.experiment_tracker_factory(experiment_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), model_config: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)) → [dagster.OpDefinition](https://dagster.io/docs/api/dagster/ops/#dagster.OpDefinition)
 
-Use config to create an experiment tracker.
+Use config to create an experiment tracker op.
