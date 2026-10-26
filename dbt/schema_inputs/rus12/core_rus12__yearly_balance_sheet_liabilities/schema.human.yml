@@ -112,3 +112,26 @@ sources:
                 tolerance: 10
                 minimum_total_coverage: 0.9
               description: Form 12 Part A Section B line 61, Total Liabilities and Other Credits (39 + 46 + 49 + 58 thru 60).
+        columns:
+          - name: ending_balance
+            data_tests:
+              # Liabilities proper should not be negative. The margins & equities
+              # block (form lines 33-39) is excluded because a co-op carrying an
+              # accumulated deficit reports negative equity legitimately; 425 of the
+              # 444 negative balances in the table sit there.
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0
+                    row_condition: >-
+                      liability_type NOT IN ('memberships', 'patronage_capital',
+                      'assigned_and_assignable_patronage_capital',
+                      'retired_this_year_patronage_capital',
+                      'retired_prior_years_patronage_capital',
+                      'operating_margins_prior_years',
+                      'operating_margins_current_year', 'non_operating_margins',
+                      'other_margins_and_equities', 'total_margins_and_equities')
+                  config:
+                    # Investigate 19 negative non-equity balances:
+                    # other_current_and_accrued (14), taxes_accrued (3),
+                    # deferred_credits (1), total_current_and_accrued (1).
+                    error_if: ">19"

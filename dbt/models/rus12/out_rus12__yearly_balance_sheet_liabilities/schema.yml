@@ -129,4 +129,11 @@ sources:
           - name: state
           - name: liability_type
           - name: ending_balance
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0
+                    row_condition: liability_type NOT IN ('memberships', 'patronage_capital', 'assigned_and_assignable_patronage_capital', 'retired_this_year_patronage_capital', 'retired_prior_years_patronage_capital', 'operating_margins_prior_years', 'operating_margins_current_year', 'non_operating_margins', 'other_margins_and_equities', 'total_margins_and_equities')
+                  config:
+                    error_if: ">19"
           - name: is_total
