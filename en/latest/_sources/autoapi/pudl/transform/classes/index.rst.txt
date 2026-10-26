@@ -78,6 +78,7 @@ Attributes
 .. autoapisummary::
 
    pudl.transform.classes.logger
+   pudl.transform.classes.MultiColumnTransformParams
    pudl.transform.classes.normalize_strings_multicol
    pudl.transform.classes.enforce_snake_case_multicol
    pudl.transform.classes.strip_non_numeric_values_multicol
@@ -93,7 +94,6 @@ Classes
 .. autoapisummary::
 
    pudl.transform.classes.TransformParams
-   pudl.transform.classes.MultiColumnTransformParams
    pudl.transform.classes.ColumnTransformFunc
    pudl.transform.classes.TableTransformFunc
    pudl.transform.classes.MultiColumnTransformFunc
@@ -153,36 +153,22 @@ Module Contents
       Configuration for the model, should be a dictionary conforming to [`ConfigDict`][pydantic.config.ConfigDict].
 
 
-.. py:class:: MultiColumnTransformParams(/, **data: Any)
-
-   Bases: :py:obj:`TransformParams`
+.. py:type:: MultiColumnTransformParams
+   :canonical: dict[str, ParamsT]
 
 
    A dictionary of :class:`TransformParams` to apply to several columns in a table.
 
    These parameter dictionaries are dynamically generated for each multi-column
-   transformation specified within a :class:`TableTransformParams` object, and passed
-   in to the :class:`MultiColumnTransformFunc` callables which are constructed by
+   transformation specified within a :class:`TableTransformParams` object, and passed in to
+   the :class:`MultiColumnTransformFunc` callables which are constructed by
    :func:`multicol_transform_factory`
 
-   The keys are column names, values must all be the same type of
-   :class:`TransformParams` object. For examples, see e.g. the ``categorize_strings``
-   or ``convert_units`` elements within
-   :py:const:`pudl.transform.ferc1.TRANSFORM_PARAMS`.
+   The keys are column names, values must all be the same type of :class:`TransformParams`
+   object. For examples, see e.g. the ``categorize_strings`` or ``convert_units`` elements
+   within :py:const:`pudl.transform.ferc1.TRANSFORM_PARAMS`.
 
-   The dictionary structure is not explicitly stated in this class, because it's messy
-   to use Pydantic for validation when the data to be validated isn't contained within
-   a Pydantic model. When Pydantic v2 is available, it will be easy, and we'll do it:
-   https://pydantic-docs.helpmanual.io/blog/pydantic-v2/#validation-without-a-model
-
-
-   .. py:method:: single_param_type(info: pydantic.ValidationInfo)
-
-      Check that all TransformParams in the dictionary are of the same type.
-
-
-
-.. py:class:: ColumnTransformFunc
+.. py:class:: ColumnTransformFunc[ParamsT: TransformParams]
 
    Bases: :py:obj:`Protocol`
 
@@ -190,7 +176,11 @@ Module Contents
    Callback protocol defining a per-column transformation function.
 
 
-   .. py:method:: __call__(col: pandas.Series, params: TransformParams) -> pandas.Series
+   .. py:attribute:: __name__
+      :type:  str
+
+
+   .. py:method:: __call__(col: pandas.Series, params: ParamsT) -> pandas.Series
 
       Create a callable.
 
@@ -210,7 +200,7 @@ Module Contents
 
 
 
-.. py:class:: MultiColumnTransformFunc
+.. py:class:: MultiColumnTransformFunc[ParamsT: TransformParams]
 
    Bases: :py:obj:`Protocol`
 
@@ -218,13 +208,17 @@ Module Contents
    Callback protocol defining a per-table transformation function.
 
 
-   .. py:method:: __call__(df: pandas.DataFrame, params: MultiColumnTransformParams) -> pandas.DataFrame
+   .. py:attribute:: __name__
+      :type:  str
+
+
+   .. py:method:: __call__(df: pandas.DataFrame, params: MultiColumnTransformParams[ParamsT]) -> pandas.DataFrame
 
       Create a callable.
 
 
 
-.. py:function:: multicol_transform_factory(col_func: ColumnTransformFunc, drop=True) -> MultiColumnTransformFunc
+.. py:function:: multicol_transform_factory[ParamsT: TransformParams](col_func: ColumnTransformFunc[ParamsT], drop=True) -> MultiColumnTransformFunc[ParamsT]
 
    Construct :class:`MultiColumnTransformFunc` from a :class:`ColumnTransformFunc`.
 
@@ -378,6 +372,7 @@ Module Contents
 
 
 .. py:data:: enforce_snake_case_multicol
+   :type:  MultiColumnTransformFunc[EnforceSnakeCase]
 
 .. py:class:: StripNonNumericValues(/, **data: Any)
 
@@ -415,6 +410,7 @@ Module Contents
 
 
 .. py:data:: strip_non_numeric_values_multicol
+   :type:  MultiColumnTransformFunc[StripNonNumericValues]
 
 .. py:class:: StringCategories(/, **data: Any)
 
@@ -926,7 +922,7 @@ Module Contents
 
 
 
-   .. py:method:: from_dict(params: dict[str, Any]) -> TableTransformParams
+   .. py:method:: from_dict(params: dict[str, Any]) -> Self
       :classmethod:
 
 
@@ -938,7 +934,7 @@ Module Contents
 
 
 
-   .. py:method:: from_id(table_id: enum.Enum) -> TableTransformParams
+   .. py:method:: from_id(table_id: enum.Enum) -> Self
       :classmethod:
 
 
@@ -982,12 +978,16 @@ Module Contents
    :returns: The decorated class method.
 
 
-.. py:class:: AbstractTableTransformer(params: TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, **kwargs)
+.. py:class:: AbstractTableTransformer[TableIdT: enum.Enum, ParamsT: TableTransformParams](params: ParamsT | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, **kwargs)
 
    Bases: :py:obj:`abc.ABC`
 
 
    An abstract base table transformer class.
+
+   Table transformers are generic over the enum of the table IDs of the dataset that
+   they transform and the :class:`TableTransformParams` model of its parameters, so
+   that these have the right types in the transformers for each dataset.
 
    This class provides methods for applying the general purpose transform functions to
    dataframes. These methods should each log that they are running, and the
@@ -1026,7 +1026,7 @@ Module Contents
 
 
    .. py:attribute:: table_id
-      :type:  enum.Enum
+      :type:  TableIdT
 
       Name of the PUDL database table that this table transformer produces.
 
@@ -1062,21 +1062,22 @@ Module Contents
 
 
    .. py:attribute:: parameter_model
+      :type:  type[ParamsT]
 
       The :mod:`pydantic` model that is used to contain & instantiate parameters.
 
-      In child classes this should be replaced with the data source-specific
-      :class:`TableTransformParams` class, if it has been defined.
+      Child classes must set this to the data source-specific :class:`TableTransformParams`
+      class that they are generic over.
 
 
    .. py:attribute:: params
-      :type:  AbstractTableTransformer.parameter_model
+      :type:  ParamsT
 
       The parameters that will be used to control the transformation functions.
 
-      This attribute is of type ``parameter_model`` which is defined above. This type
-      varies across datasets and is used to construct and validate the parameters based,
-      so it needs to be set separately in child classes. See
+      This attribute is of type ``ParamsT``, the same type as ``parameter_model``. This
+      type varies across datasets and is used to construct and validate the parameters,
+      so it is given as a type argument of the child classes. See
       :class:`pudl.transform.ferc1.Ferc1AbstractTableTransformer` for an example.
 
 
@@ -1144,13 +1145,13 @@ Module Contents
 
 
 
-   .. py:method:: normalize_strings(df: pandas.DataFrame, params: dict[str, bool] | None = None) -> pandas.DataFrame
+   .. py:method:: normalize_strings(df: pandas.DataFrame, params: dict[str, StringNormalization] | None = None) -> pandas.DataFrame
 
       Method wrapper for string normalization.
 
 
 
-   .. py:method:: strip_non_numeric_values(df: pandas.DataFrame, params: dict[str, bool] | None = None) -> pandas.DataFrame
+   .. py:method:: strip_non_numeric_values(df: pandas.DataFrame, params: dict[str, StripNonNumericValues] | None = None) -> pandas.DataFrame
 
       Method wrapper for stripping non-numeric values.
 

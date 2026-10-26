@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.analysis.plant_parts_eia &#8212; PUDL 2026.10.1.dev6 documentation</title>
+    <title>pudl.analysis.plant_parts_eia &#8212; PUDL 2026.10.1.dev11 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=dde392b2"></script>
+    <script src="../../../_static/documentation_options.js?v=8788672e"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev6 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev6 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev11 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev11 documentation - Home"/>
   
   
 </a></div>
@@ -1036,9 +1036,10 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">TypedDict</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
@@ -1063,9 +1064,25 @@ window.runMermaid = runMermaid;</script>
 <span class="n">pd</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="mi">1000</span>
 <span class="n">pd</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">max_columns</span> <span class="o">=</span> <span class="mi">1000</span>
 
+<div class="viewcode-block" id="PlantPartName">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/plant_parts_eia/index.html#pudl.analysis.plant_parts_eia.PlantPartName">[docs]</a>
+<span class="nb">type</span> <span class="n">PlantPartName</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span>
+    <span class="s2">"plant"</span><span class="p">,</span>
+    <span class="s2">"plant_match_ferc1"</span><span class="p">,</span>
+    <span class="s2">"plant_unit"</span><span class="p">,</span>
+    <span class="s2">"plant_prime_mover"</span><span class="p">,</span>
+    <span class="s2">"plant_technology"</span><span class="p">,</span>
+    <span class="s2">"plant_prime_fuel"</span><span class="p">,</span>
+    <span class="s2">"plant_ferc_acct"</span><span class="p">,</span>
+    <span class="s2">"plant_operating_year"</span><span class="p">,</span>
+    <span class="s2">"plant_gen"</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+<span class="sd">"""Type: the names of the plant parts, which are the keys of :py:const:`PLANT_PARTS`."""</span>
+
 <div class="viewcode-block" id="PLANT_PARTS">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/plant_parts_eia/index.html#pudl.analysis.plant_parts_eia.PLANT_PARTS">[docs]</a>
-<span class="n">PLANT_PARTS</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">]]</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span>
+<span class="n">PLANT_PARTS</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">[</span><span class="n">PlantPartName</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">]]</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span>
     <span class="p">{</span>
         <span class="s2">"plant"</span><span class="p">:</span> <span class="p">{</span>
             <span class="s2">"id_cols"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">],</span>
@@ -1105,27 +1122,12 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">  plant_id_eia column must come first.</span>
 <span class="sd">"""</span>
 
-<div class="viewcode-block" id="PLANT_PARTS_LITERAL">
-<a class="viewcode-back" href="../../../autoapi/pudl/analysis/plant_parts_eia/index.html#pudl.analysis.plant_parts_eia.PLANT_PARTS_LITERAL">[docs]</a>
-<span class="n">PLANT_PARTS_LITERAL</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span>
-    <span class="s2">"plant"</span><span class="p">,</span>
-    <span class="s2">"plant_unit"</span><span class="p">,</span>
-    <span class="s2">"plant_prime_mover"</span><span class="p">,</span>
-    <span class="s2">"plant_technology"</span><span class="p">,</span>
-    <span class="s2">"plant_prime_fuel"</span><span class="p">,</span>
-    <span class="s2">"plant_ferc_acct"</span><span class="p">,</span>
-    <span class="s2">"plant_operating_year"</span><span class="p">,</span>
-    <span class="s2">"plant_gen"</span><span class="p">,</span>
-<span class="p">]</span></div>
-
-
-
 <div class="viewcode-block" id="IDX_TO_ADD">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/plant_parts_eia/index.html#pudl.analysis.plant_parts_eia.IDX_TO_ADD">[docs]</a>
 <span class="n">IDX_TO_ADD</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"operational_status_pudl"</span><span class="p">]</span></div>
 
 <span class="sd">"""</span>
-<span class="sd">list: list of additional columns to add to the id_cols in :py:const:`PLANT_PARTS`.</span>
+<span class="sd">List of additional columns to add to the id_cols in :py:const:`PLANT_PARTS`.</span>
 <span class="sd">The id_cols are the base columns that we need to aggregate on, but we also need</span>
 <span class="sd">to add the report date to keep the records time sensitive and the</span>
 <span class="sd">operational_status_pudl to separate the operating plant-parts from the</span>
@@ -1137,7 +1139,7 @@ window.runMermaid = runMermaid;</script>
 <span class="n">IDX_OWN_TO_ADD</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"utility_id_eia"</span><span class="p">,</span> <span class="s2">"ownership_record_type"</span><span class="p">]</span></div>
 
 <span class="sd">"""</span>
-<span class="sd">list: list of additional columns beyond the :py:const:`IDX_TO_ADD` to add to the</span>
+<span class="sd">List of additional columns beyond the :py:const:`IDX_TO_ADD` to add to the</span>
 <span class="sd">id_cols in :py:const:`PLANT_PARTS` when we are dealing with plant-part records</span>
 <span class="sd">that have been broken out into "owned" and "total" records for each of their</span>
 <span class="sd">owners.</span>
@@ -1153,22 +1155,21 @@ window.runMermaid = runMermaid;</script>
     <span class="s2">"total_mmbtu"</span><span class="p">,</span>
 <span class="p">]</span></div>
 
-<span class="sd">"""List: list of columns to sum when aggregating a table."""</span>
+<span class="sd">"""List of columns to sum when aggregating a table."""</span>
 
 <div class="viewcode-block" id="WTAVG_DICT">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/plant_parts_eia/index.html#pudl.analysis.plant_parts_eia.WTAVG_DICT">[docs]</a>
-<span class="n">WTAVG_DICT</span> <span class="o">=</span> <span class="p">{</span>
+<span class="n">WTAVG_DICT</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">"fuel_cost_per_mwh"</span><span class="p">:</span> <span class="s2">"capacity_mw"</span><span class="p">,</span>
     <span class="s2">"unit_heat_rate_mmbtu_per_mwh"</span><span class="p">:</span> <span class="s2">"capacity_mw"</span><span class="p">,</span>
     <span class="s2">"fuel_cost_per_mmbtu"</span><span class="p">:</span> <span class="s2">"capacity_mw"</span><span class="p">,</span>
 <span class="p">}</span></div>
 
-<span class="sd">"""Dict: a dictionary of columns (keys) to perform weighted averages on and the weight</span>
-<span class="sd">column (values)"""</span>
+<span class="sd">"""Dict of columns (keys) to perform weighted averages on and weight column (values)"""</span>
 
 <div class="viewcode-block" id="CONSISTENT_ATTRIBUTE_COLS">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/plant_parts_eia/index.html#pudl.analysis.plant_parts_eia.CONSISTENT_ATTRIBUTE_COLS">[docs]</a>
-<span class="n">CONSISTENT_ATTRIBUTE_COLS</span> <span class="o">=</span> <span class="p">[</span>
+<span class="n">CONSISTENT_ATTRIBUTE_COLS</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">"fuel_type_code_pudl"</span><span class="p">,</span>
     <span class="s2">"planned_generator_retirement_date"</span><span class="p">,</span>
     <span class="s2">"generator_retirement_date"</span><span class="p">,</span>
@@ -1181,7 +1182,7 @@ window.runMermaid = runMermaid;</script>
     <span class="s2">"generator_operating_year"</span><span class="p">,</span>
 <span class="p">]</span></div>
 
-<span class="sd">"""List: a list of column names to add as attributes when they are consistent into the</span>
+<span class="sd">"""A list of column names to add as attributes when they are consistent into the</span>
 <span class="sd">aggregated plant-part records.</span>
 
 <span class="sd">All the plant part ID columns must be in consistent attributes.</span>
@@ -1189,14 +1190,41 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="PRIORITY_ATTRIBUTES_DICT">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/plant_parts_eia/index.html#pudl.analysis.plant_parts_eia.PRIORITY_ATTRIBUTES_DICT">[docs]</a>
-<span class="n">PRIORITY_ATTRIBUTES_DICT</span> <span class="o">=</span> <span class="p">{</span>
+<span class="n">PRIORITY_ATTRIBUTES_DICT</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">"operational_status"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"existing"</span><span class="p">,</span> <span class="s2">"proposed"</span><span class="p">,</span> <span class="s2">"retired"</span><span class="p">],</span>
 <span class="p">}</span></div>
 
 
+<div class="viewcode-block" id="AssignCol">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/plant_parts_eia/index.html#pudl.analysis.plant_parts_eia.AssignCol">[docs]</a>
+<span class="nb">type</span> <span class="n">AssignCol</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">]</span></div>
+
+<span class="sd">"""Type: a function that computes a new column from a dataframe, for ``assign()``."""</span>
+
+
+<div class="viewcode-block" id="MaxMinAttribute">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/plant_parts_eia/index.html#pudl.analysis.plant_parts_eia.MaxMinAttribute">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MaxMinAttribute</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Recipe for an attribute taken from the max or min of a sorted column."""</span>
+
+<div class="viewcode-block" id="MaxMinAttribute.assign_col">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/plant_parts_eia/index.html#pudl.analysis.plant_parts_eia.MaxMinAttribute.assign_col">[docs]</a>
+    <span class="n">assign_col</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">AssignCol</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="MaxMinAttribute.dtype">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/plant_parts_eia/index.html#pudl.analysis.plant_parts_eia.MaxMinAttribute.dtype">[docs]</a>
+    <span class="n">dtype</span><span class="p">:</span> <span class="nb">str</span></div>
+
+<div class="viewcode-block" id="MaxMinAttribute.keep">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/plant_parts_eia/index.html#pudl.analysis.plant_parts_eia.MaxMinAttribute.keep">[docs]</a>
+    <span class="n">keep</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"first"</span><span class="p">,</span> <span class="s2">"last"</span><span class="p">]</span></div>
+</div>
+
+
+
 <div class="viewcode-block" id="MAX_MIN_ATTRIBUTES_DICT">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/plant_parts_eia/index.html#pudl.analysis.plant_parts_eia.MAX_MIN_ATTRIBUTES_DICT">[docs]</a>
-<span class="n">MAX_MIN_ATTRIBUTES_DICT</span> <span class="o">=</span> <span class="p">{</span>
+<span class="n">MAX_MIN_ATTRIBUTES_DICT</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MaxMinAttribute</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">"installation_year"</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">"assign_col"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"installation_year"</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">generator_operating_year</span><span class="p">},</span>
         <span class="s2">"dtype"</span><span class="p">:</span> <span class="s2">"Int64"</span><span class="p">,</span>
@@ -1252,7 +1280,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="plant_part_asset_factory">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/plant_parts_eia/index.html#pudl.analysis.plant_parts_eia.plant_part_asset_factory">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">plant_part_asset_factory</span><span class="p">(</span><span class="n">part_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AssetsDefinition</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">plant_part_asset_factory</span><span class="p">(</span><span class="n">part_name</span><span class="p">:</span> <span class="n">PlantPartName</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AssetsDefinition</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Asset factory to create assets for each individual plant part."""</span>
     <span class="n">asset_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"_out_eia__plant_part_</span><span class="si">{</span><span class="n">part_name</span><span class="si">}</span><span class="s2">"</span>
 
@@ -1600,7 +1628,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="MakePlantParts.create_one_plant_part">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/plant_parts_eia/index.html#pudl.analysis.plant_parts_eia.MakePlantParts.create_one_plant_part">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">create_one_plant_part</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">part_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">gens_mega</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_one_plant_part</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">part_name</span><span class="p">:</span> <span class="n">PlantPartName</span><span class="p">,</span> <span class="n">gens_mega</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Create a table of attributes for one plant part."""</span>
         <span class="k">if</span> <span class="n">part_name</span> <span class="o">==</span> <span class="s2">"plant_match_ferc1"</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"plant_match_ferc1 handled separately"</span><span class="p">)</span>
@@ -1693,7 +1721,10 @@ window.runMermaid = runMermaid;</script>
             <span class="n">plant_parts_eia</span><span class="o">.</span><span class="n">record_id_eia</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">one_to_many</span><span class="o">.</span><span class="n">record_id_eia</span><span class="p">)</span>
         <span class="p">]</span>
         <span class="k">if</span> <span class="n">plant_parts_eia_filt</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>  <span class="c1"># If 1:m matches not in plant_part subset</span>
-            <span class="k">return</span> <span class="n">plant_parts_eia</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">ferc1_generator_agg_id</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">)</span>
+            <span class="c1"># pandas-stubs doesn't accept a scalar pd.NA as an assign() value.</span>
+            <span class="k">return</span> <span class="n">plant_parts_eia</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">ferc1_generator_agg_id</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">NA</span>  <span class="c1"># type: ignore[bad-argument-type]</span>
+            <span class="p">)</span>
         <span class="c1"># Get the 'm' generator IDs 1:m</span>
         <span class="n">one_to_many_single</span> <span class="o">=</span> <span class="n">match_to_single_plant_part</span><span class="p">(</span>
             <span class="n">multi_gran_df</span><span class="o">=</span><span class="n">plant_parts_eia_filt</span><span class="p">,</span>
@@ -1884,12 +1915,13 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    ``plant_prime_mover``, or ``plant_gen``.</span>
 <span class="sd">    """</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">part_name</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="n">PLANT_PARTS_LITERAL</span><span class="p">,</span> <span class="s2">"plant_match_ferc1"</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">part_name</span><span class="p">:</span> <span class="n">PlantPartName</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Initialize an object which makes a tbl for a specific plant-part.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            part_name (str): the name of the part to aggregate to. Names can be</span>
-<span class="sd">                only those in :py:const:`PLANT_PARTS`</span>
+<span class="sd">            part_name: the name of the part to aggregate to. Names can be only those in</span>
+<span class="sd">                :py:const:`PLANT_PARTS`</span>
+
 <span class="sd">        """</span>
 <div class="viewcode-block" id="PlantPart.part_name">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/plant_parts_eia/index.html#pudl.analysis.plant_parts_eia.PlantPart.part_name">[docs]</a>
@@ -2164,7 +2196,7 @@ window.runMermaid = runMermaid;</script>
 
         <span class="c1"># categorical columns allow sorting by PLANT_PARTS key order</span>
         <span class="n">parts_to_gens</span><span class="p">[</span><span class="s2">"plant_part"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Categorical</span><span class="p">(</span>
-            <span class="n">parts_to_gens</span><span class="p">[</span><span class="s2">"plant_part"</span><span class="p">],</span> <span class="nb">list</span><span class="p">(</span><span class="n">PLANT_PARTS</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="n">parts_to_gens</span><span class="p">[</span><span class="s2">"plant_part"</span><span class="p">],</span> <span class="nb">list</span><span class="p">(</span><span class="n">PLANT_PARTS</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="c1"># Sort by record_id_eia as a tiebreaker: records tied on plant_part</span>
         <span class="c1"># and gens_combo (e.g. ownership total/owned duplicates) would</span>
@@ -2215,8 +2247,8 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">attribute_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">part_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">assign_col_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">part_name</span><span class="p">:</span> <span class="n">PlantPartName</span><span class="p">,</span>
+        <span class="n">assign_col_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">AssignCol</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Initialize a attribute adder.</span>
 
@@ -2484,7 +2516,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="make_parts_to_ids_dict">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/plant_parts_eia/index.html#pudl.analysis.plant_parts_eia.make_parts_to_ids_dict">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">make_parts_to_ids_dict</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_parts_to_ids_dict</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="n">PlantPartName</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Make dict w/ plant-part names (keys) to the main id column (values).</span>
 
 <span class="sd">    All plant-parts have 1 or 2 ID columns in :py:const:`PLANT_PARTS` plant_id_eia and</span>
@@ -2567,7 +2599,7 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">match_to_single_plant_part</span><span class="p">(</span>
     <span class="n">multi_gran_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">ppe</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
-    <span class="n">part_name</span><span class="p">:</span> <span class="n">PLANT_PARTS_LITERAL</span> <span class="o">=</span> <span class="s2">"plant_gen"</span><span class="p">,</span>
+    <span class="n">part_name</span><span class="p">:</span> <span class="n">PlantPartName</span> <span class="o">=</span> <span class="s2">"plant_gen"</span><span class="p">,</span>
     <span class="n">cols_to_keep</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[],</span>
     <span class="n">one_to_many</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
@@ -2815,7 +2847,7 @@ window.runMermaid = runMermaid;</script>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.2.0.
   </p>
 </div>
       

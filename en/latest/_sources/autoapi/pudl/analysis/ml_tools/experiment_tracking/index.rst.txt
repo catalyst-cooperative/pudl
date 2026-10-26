@@ -180,8 +180,8 @@ Module Contents
 
 
 
-.. py:function:: experiment_tracker_factory(experiment_name: str, model_config: dict) -> ExperimentTracker
+.. py:function:: experiment_tracker_factory(experiment_name: str, model_config: dict) -> dagster.OpDefinition
 
-   Use config to create an experiment tracker.
+   Use config to create an experiment tracker op.
 
 

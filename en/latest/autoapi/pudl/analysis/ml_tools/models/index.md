@@ -50,10 +50,10 @@ Configuration precedence (lowest → highest):
 
 ## Functions
 
-| [`get_yml_config`](#pudl.analysis.ml_tools.models.get_yml_config)(→ dict)                 | Load model configuration from yaml file.                                       |
-|-----------------------------------------------------------------------------------------|--------------------------------------------------------------------------------|
-| [`get_default_config`](#pudl.analysis.ml_tools.models.get_default_config)(→ dict)             | Get default config values for model.                                           |
-| [`pudl_model`](#pudl.analysis.ml_tools.models.pudl_model)(→ dagster.AssetsDefinition) | Decorator for an ML model that will handle providing configuration to dagster. |
+| [`get_yml_config`](#pudl.analysis.ml_tools.models.get_yml_config)(→ dict)     | Load model configuration from yaml file.                                       |
+|-----------------------------------------------------------------------------|--------------------------------------------------------------------------------|
+| [`get_default_config`](#pudl.analysis.ml_tools.models.get_default_config)(→ dict) | Get default config values for model.                                           |
+| [`pudl_model`](#pudl.analysis.ml_tools.models.pudl_model)(...)            | Decorator for an ML model that will handle providing configuration to dagster. |
 
 ## Module Contents
 
@@ -69,6 +69,6 @@ Load model configuration from yaml file.
 
 Get default config values for model.
 
-### pudl.analysis.ml_tools.models.pudl_model(asset_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), config_from_yaml: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)
+### pudl.analysis.ml_tools.models.pudl_model(asset_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), config_from_yaml: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[dagster.GraphDefinition](https://dagster.io/docs/api/dagster/graphs/#dagster.GraphDefinition)], [dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)]
 
 Decorator for an ML model that will handle providing configuration to dagster.
