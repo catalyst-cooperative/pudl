@@ -18,18 +18,15 @@ from pudl.extract.extractor import (
     working_time_partitions,
 )
 
-CHANGING_DATASETS = sorted(
-    {
-        path.parts[-3] if path.parent.name == "column_maps" else path.parts[-2]
-        for path in [
-            *PUDL_PACKAGE_DATA_PATH.glob("*/column_maps/*.csv"),
-            *PUDL_PACKAGE_DATA_PATH.glob("*/page_map.csv"),
-            *PUDL_PACKAGE_DATA_PATH.glob("*/skiprows.csv"),
-            *PUDL_PACKAGE_DATA_PATH.glob("*/skipfooter.csv"),
-        ]
-    }
+CHANGE_LOG_PATHS = sorted(
+    [
+        *PUDL_PACKAGE_DATA_PATH.glob("*/column_maps/*.csv"),
+        *PUDL_PACKAGE_DATA_PATH.glob("*/page_map.csv"),
+        *PUDL_PACKAGE_DATA_PATH.glob("*/skiprows.csv"),
+        *PUDL_PACKAGE_DATA_PATH.glob("*/skipfooter.csv"),
+    ]
 )
-"""Datasets that have column maps or other files that describe their structure."""
+"""Packaged files that only have rows for the partitions that change."""
 
 
 def _partitioned(rows: dict[str, list]) -> pd.DataFrame:
@@ -210,29 +207,29 @@ def test_metadata_of_a_fake_dataset_has_the_partitions_of_its_file_map():
     assert list(metadata._column_map["books"].index) == metadata._partitions
 
 
-@pytest.mark.parametrize("dataset", CHANGING_DATASETS)
-def test_packaged_files_convert_to_change_logs_without_loss(dataset: str):
-    """Dropping the rows that repeat the row before loses nothing from any file.
+def _path_id(path: Path) -> str:
+    """Name a packaged file by its dataset and file name."""
+    return f"{path.relative_to(PUDL_PACKAGE_DATA_PATH)}"
 
-    This is what converting the packaged files would do, so this is also a check that
-    they all can be converted without changing what the extractors see.
-    """
-    metadata = GenericMetadata(dataset)
-    dataset_path = PUDL_PACKAGE_DATA_PATH / dataset
-    files = [
-        *sorted((dataset_path / "column_maps").glob("*.csv")),
-        *[
-            dataset_path / name
-            for name in ("page_map.csv", "skiprows.csv", "skipfooter.csv")
-            if (dataset_path / name).exists()
-        ],
+
+@pytest.mark.parametrize("path", CHANGE_LOG_PATHS, ids=_path_id)
+def test_packaged_change_log_files_have_no_repeated_rows(path: Path):
+    """A row that is the same as the row before it should not be in the file."""
+    df = pd.read_csv(path, index_col=0, dtype=str, keep_default_na=False)
+    repeated = list(df.index.difference(_drop_unchanged_rows(df).index))
+    assert not repeated, (
+        f"{_path_id(path)} has rows for the partitions {repeated} that are the same "
+        "as the row before. Only the partitions that change need a row."
+    )
+
+
+@pytest.mark.parametrize("path", CHANGE_LOG_PATHS, ids=_path_id)
+def test_packaged_change_log_files_use_minus_one_for_absent_data(path: Path):
+    """Data that does not exist in a partition is -1, never an empty cell."""
+    df = pd.read_csv(path, index_col=0, dtype=str, keep_default_na=False)
+    empty = [
+        (partition, column)
+        for column in df.columns
+        for partition in df.index[df[column] == ""]
     ]
-    assert files
-    for path in files:
-        every_row = metadata._load_csv(path.parent, path.name)
-        change_log = _drop_unchanged_rows(every_row)
-        pdt.assert_frame_equal(
-            expand_partitions(change_log, list(every_row.index)),
-            every_row,
-            obj=f"{dataset}/{path.name}",
-        )
+    assert not empty, f"{_path_id(path)} has empty cells at {empty}. Use -1."
