@@ -47,10 +47,6 @@ class ExcelMetadata(GenericMetadata):
       partitions (e.g. form and year).
     """
 
-    # TODO: we could validate whether metadata is valid for all year. We should have
-    # existing records for each (year, page) -> sheet_name, (year, page) -> skiprows
-    # and for all (year, page) -> column map
-
     def __init__(
         self,
         dataset_name: str,
