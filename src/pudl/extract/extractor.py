@@ -105,8 +105,8 @@ class GenericMetadata:
     need a row for the partitions in which that structure is different from the
     partition before it, like a change log. When they are loaded, each row is carried
     forward to the later partitions without a row, up to the last working partition of
-    the data source. See :func:`expand_partitions`. A file with a row for every
-    partition is still valid, so files can be converted when they are next updated.
+    the data source or the last partition in ``file_map.csv``. See
+    :func:`expand_partitions`. A file with a row for every partition is still valid.
     Files that name the source files of the partitions, such as ``file_map.csv``, need
     a row for every partition, as the names are different in each.
     """
@@ -126,15 +126,21 @@ class GenericMetadata:
             path: Directory to load the metadata files from, instead of the directory
                 of the dataset in the package data. Useful for test datasets.
             partitions: The partitions to describe with the metadata that is a change
-                log, in addition to those that it has rows for. By default these are
-                the time partitions that the data source is processed for.
+                log, in addition to those that it has rows for and those that are in
+                ``file_map.csv``, if there is one. By default these are the time
+                partitions that the data source is processed for.
         """
         self._dataset_name = dataset_name
         self._path = path if path is not None else PUDL_PACKAGE_DATA_PATH / dataset_name
-        self._partitions = (
-            list(partitions)
-            if partitions is not None
-            else working_time_partitions(dataset_name)
+        self._partitions = sorted(
+            {
+                *(
+                    partitions
+                    if partitions is not None
+                    else working_time_partitions(dataset_name)
+                ),
+                *self._file_map_partitions(),
+            }
         )
         column_map_path = self._path / "column_maps"
         self._column_map = self._load_column_maps(column_map_path)
@@ -154,6 +160,16 @@ class GenericMetadata:
         # strings here and via _get_partition_selection.
         df.index = df.index.astype(pd.StringDtype())
         return df
+
+    def _file_map_partitions(self) -> list[str]:
+        """List the partitions that the dataset has a file name for, if it has any.
+
+        The file map has a row for every partition that the dataset has source files
+        for, including some that are not working partitions of the data source.
+        """
+        if not (self._path / "file_map.csv").exists():
+            return []
+        return list(self._load_csv(self._path, "file_map.csv", dtype=str).index)
 
     def _load_change_log_csv(self, package_path: Path, filename: str) -> pd.DataFrame:
         """Load a metadata file that only has rows for the partitions that changed.

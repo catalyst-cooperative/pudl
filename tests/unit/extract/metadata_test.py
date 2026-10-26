@@ -180,6 +180,18 @@ def test_change_log_files_describe_every_working_partition(tmp_path: Path):
     assert metadata.get_sheet_name("page", year=2014) == 0
 
 
+def test_change_log_files_describe_the_partitions_of_the_file_map(tmp_path: Path):
+    """The file map lists partitions that are not working partitions of the source."""
+    (tmp_path / "column_maps").mkdir()
+    (tmp_path / "column_maps" / "page.csv").write_text("year_index,col\n2010,old\n")
+    (tmp_path / "file_map.csv").write_text(
+        "year_index,page\n2010,a.csv\n2011,b.csv\n2012,-1\n"
+    )
+    metadata = GenericMetadata("fake", path=tmp_path, partitions=[])
+    assert list(metadata._column_map["page"].index) == ["2010", "2011", "2012"]
+    assert metadata.get_column_map("page", year=2012) == {"old": "col"}
+
+
 def test_file_map_is_not_a_change_log(tmp_path: Path):
     """The names of the source files differ by partition, so each needs a row."""
     (tmp_path / "column_maps").mkdir()
@@ -188,13 +200,14 @@ def test_file_map_is_not_a_change_log(tmp_path: Path):
     assert list(metadata._load_file_map().index) == ["2010"]
 
 
-def test_metadata_without_partitions_is_only_what_the_files_have():
-    """The fake datasets are not data sources, so they have nothing to expand to."""
+def test_metadata_of_a_fake_dataset_has_the_partitions_of_its_file_map():
+    """The fake datasets are not data sources, so only their file maps list partitions."""
     metadata = ExcelMetadata(
         "test", path=Path(__file__).parents[2] / "data/extract/test"
     )
-    assert metadata._partitions == []
-    assert list(metadata._column_map["books"].index) == ["2010", "2011", "2012"]
+    assert working_time_partitions("test") == []
+    assert metadata._partitions == ["2010", "2011", "2012", "2013", "2014"]
+    assert list(metadata._column_map["books"].index) == metadata._partitions
 
 
 @pytest.mark.parametrize("dataset", CHANGING_DATASETS)

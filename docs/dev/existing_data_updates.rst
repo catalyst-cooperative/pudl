@@ -103,8 +103,9 @@ some pages result in more than one database table after normalization.
   only need a row for a year in which something differs from the year before: a
   year without a row is assumed to be the same as the closest year before it that
   has one, up to the last year in the working partitions of the data source in
-  ``pudl.metadata.sources``. A file that has a row for every year is also still
-  valid. If there are any changes to prior years, make sure to address those too.
+  ``pudl.metadata.sources`` or in ``file_map.csv``. A file that has a row for every
+  year is also still valid. If there are any changes to prior years, make sure to
+  address those too.
   If you are updating early release data with final release data, replace the
   values in the appropriate year row. **The easiest way
   to correct the values for these files is to test extraction in Dagster as

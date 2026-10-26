@@ -66,8 +66,9 @@ class ExcelMetadata(GenericMetadata):
             path: Directory to load the metadata files from, instead of the directory
                 of the dataset in the package data. Useful for test datasets.
             partitions: The partitions to describe with the metadata that is a change
-                log, in addition to those that it has rows for. By default these are
-                the time partitions that the data source is processed for.
+                log, in addition to those that it has rows for and those that are in
+                ``file_map.csv``, if there is one. By default these are the time
+                partitions that the data source is processed for.
         """
         super().__init__(dataset_name, path=path, partitions=partitions)
         self._skiprows = self._load_change_log_csv(self._path, "skiprows.csv")
