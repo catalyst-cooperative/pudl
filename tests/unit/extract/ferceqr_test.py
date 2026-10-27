@@ -457,7 +457,7 @@ def test_get_rejected_record_counts(tmp_path):
     conn = duckdb.connect()
     conn.read_csv(
         str(csv_path), all_varchar=True, store_rejects=True, ignore_errors=True
-    ).execute()
+    ).fetchall()
 
     counts = _get_rejected_record_counts(conn)
 

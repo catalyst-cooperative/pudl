@@ -14,7 +14,7 @@ import json
 import re
 from abc import abstractmethod
 from collections import namedtuple
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from functools import reduce
 from typing import Annotated, Any, Literal, Self
 
@@ -2030,7 +2030,9 @@ def read_xbrl_calculation_fixes() -> pd.DataFrame:
 ################################################################################
 # FERC 1 specific TableTransformer classes
 ################################################################################
-class Ferc1AbstractTableTransformer(AbstractTableTransformer):
+class Ferc1AbstractTableTransformer(
+    AbstractTableTransformer[TableIdFerc1, Ferc1TableTransformParams]
+):
     """An abstract class defining methods common to many FERC Form 1 tables.
 
     This subclass remains abstract because it does not define transform_main(), which
@@ -2040,9 +2042,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     * Methods that only apply to DBF data should end with _dbf
     """
 
-    table_id: TableIdFerc1
     parameter_model = Ferc1TableTransformParams
-    params: parameter_model
 
     has_unique_record_ids: bool = True
     """True if each record in the transformed table corresponds to one input record.
@@ -2068,7 +2068,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         self,
         xbrl_metadata_json: dict[Literal["instant", "duration"], list[dict[str, Any]]]
         | None = None,
-        params: TableTransformParams | None = None,
+        params: Ferc1TableTransformParams | None = None,
         cache_dfs: bool = False,
         clear_cached_dfs: bool = True,
         pudl_paths: PudlPaths | None = None,
@@ -2798,17 +2798,19 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     def rename_columns(
         self,
         df: pd.DataFrame,
+        params: RenameColumns | None = None,
+        *,
         rename_stage: Literal["dbf", "xbrl", "instant_xbrl", "duration_xbrl"]
         | None = None,
-        params: RenameColumns | None = None,
+        **kwargs,
     ) -> pd.DataFrame:
         """Grab the params based on the rename stage and run default rename_columns.
 
         Args:
             df: Table to be renamed.
+            params: Rename column parameters.
             rename_stage: Name of stage in the transform process. Used to get specific
                 stage's parameters if None have been passed.
-            params: Rename column parameters.
         """
         if not params:
             assert rename_stage is not None, (
@@ -6700,10 +6702,9 @@ _FERC1_PLANT_TABLES = frozenset(
 
 def ferc1_transform_asset_factory(
     table_name: str,
-    tfr_class: Ferc1AbstractTableTransformer,
-    io_manager_key: str = "parquet_io_manager",
+    tfr_class: Callable[..., Ferc1AbstractTableTransformer],
+    io_manager_key: str | None = "parquet_io_manager",
     convert_dtypes: bool = True,
-    generic: bool = False,
     op_tags: dict[str, Any] | None = None,
 ) -> AssetsDefinition:
     """Create an asset that pulls in raw ferc Form 1 assets and applies transformations.
@@ -6713,11 +6714,13 @@ def ferc1_transform_asset_factory(
 
     Args:
         table_name: The name of the table to create an asset for.
-        tfr_class: A transformer class corresponding to the table_name.
+        tfr_class: A transformer class corresponding to the table_name, or another
+            callable that makes the transformer, such as a :func:`functools.partial` of
+            a class with some of its arguments set. It is called with the XBRL metadata
+            of the table and the PUDL paths.
         io_manager_key: the dagster io_manager key to use. None defaults
             to the fs_io_manager.
         convert_dtypes: convert dtypes of transformed dataframes.
-        generic: If using GenericPlantFerc1TableTransformer pass table_id to constructor.
 
     Return:
         An asset for the clean table.
@@ -6738,8 +6741,6 @@ def ferc1_transform_asset_factory(
     }
     ins["_core_ferc1_xbrl__metadata_json"] = AssetIn("_core_ferc1_xbrl__metadata_json")
 
-    table_id = TableIdFerc1(table_name)
-
     @asset(
         name=table_name,
         ins=ins,
@@ -6747,39 +6748,31 @@ def ferc1_transform_asset_factory(
         io_manager_key=io_manager_key,
         op_tags=op_tags or {},
     )
-    def ferc1_transform_asset(
-        context, **kwargs: dict[str, pd.DataFrame]
-    ) -> pd.DataFrame:
+    def ferc1_transform_asset(context, **kwargs: Any) -> pd.DataFrame:
         """Transform a FERC Form 1 table.
 
         Args:
-            raw_dbf: raw dbf table.
-            raw_xbrl_instant: raw XBRL instant table.
-            raw_xbrl_duration: raw XBRL duration table.
-            _core_ferc1_xbrl__metadata_json: XBRL metadata json for all tables.
+            raw_dbf: raw dbf table, as a dataframe.
+            raw_xbrl_instant: raw XBRL instant table, as a dataframe.
+            raw_xbrl_duration: raw XBRL duration table, as a dataframe.
+            _core_ferc1_xbrl__metadata_json: XBRL metadata json for all tables, as a
+                dictionary.
 
         Returns:
             transformed FERC Form 1 table.
         """
         # TODO: split the key by __, then groupby, then concatenate
         _core_ferc1_xbrl__metadata_json = kwargs["_core_ferc1_xbrl__metadata_json"]
-        if generic:
-            transformer = tfr_class(
-                xbrl_metadata_json=_core_ferc1_xbrl__metadata_json[table_name],
-                table_id=table_id,
-                pudl_paths=context.resources.pudl_paths,
-            )
-        else:
-            transformer = tfr_class(
-                xbrl_metadata_json=_core_ferc1_xbrl__metadata_json[table_name],
-                pudl_paths=context.resources.pudl_paths,
-            )
+        transformer = tfr_class(
+            xbrl_metadata_json=_core_ferc1_xbrl__metadata_json[table_name],
+            pudl_paths=context.resources.pudl_paths,
+        )
 
         # Split the DBF and XBRL dfs into input dictionaries for transformation
-        raw_dbf_dfs = {
+        raw_dbf_dfs: dict[str, pd.DataFrame] = {
             key: df for key, df in kwargs.items() if key.startswith("raw_ferc1_dbf__")
         }
-        raw_xbrl_dfs = {
+        raw_xbrl_dfs: dict[str, pd.DataFrame] = {
             key: df for key, df in kwargs.items() if key.startswith("raw_ferc1_xbrl__")
         }
 

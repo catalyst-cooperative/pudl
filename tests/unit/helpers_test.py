@@ -2086,6 +2086,7 @@ def test_persist_table_as_parquet_compression(kind, writer, tmp_path, mocker):
         "polars": lambda: pl.LazyFrame({"a": [1, 2]}),
         "duckdb": lambda: duckdb.sql("SELECT 1 AS a UNION ALL SELECT 2"),
     }[kind]()
+    assert data is not None  # duckdb.sql() is typed Optional (None for non-SELECT)
     spy = mocker.spy(*writer)
 
     parquet_data = persist_table_as_parquet(data, table_name=f"_test__{kind}_zstd")

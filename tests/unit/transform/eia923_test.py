@@ -1,6 +1,7 @@
 """Unit tests for the pudl.transform.eia923 module."""
 
 from io import StringIO
+from typing import cast
 
 import pandas as pd
 import pytest
@@ -104,7 +105,10 @@ def test__core_eia923__yearly_fuel_stocks():
             "petcoke_june": [".", "W"],
         }
     )
-    out = eia923._core_eia923__yearly_fuel_stocks(raw)
+    # The @asset decorator wraps the function in an AssetsDefinition, whose call
+    # signature Dagster types as returning ``object``. At runtime a direct call just
+    # runs the original function, which returns a DataFrame.
+    out = cast(pd.DataFrame, eia923._core_eia923__yearly_fuel_stocks(raw))
 
     # The early_release flag is dropped.
     assert "early_release" not in out.columns
