@@ -73,9 +73,11 @@ SELECT
 FROM read_parquet('{parquet_path}', union_by_name=true) {group_by_clause}
     """  # noqa: S608
 
+    row_count_rel = duckdb.sql(row_count_query)
+    # duckdb.sql() is typed Optional because non-SELECT statements return None.
+    assert row_count_rel is not None
     return (
-        duckdb.sql(row_count_query)
-        .df()
+        row_count_rel.df()
         .assign(table_name=table_name)
         .astype({"partition": "string", "table_name": "string"})
         .loc[:, ["table_name", "partition", "row_count"]]
