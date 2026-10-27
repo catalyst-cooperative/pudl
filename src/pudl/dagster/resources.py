@@ -29,6 +29,7 @@ from pydantic import field_validator
 from upath import UPath
 
 from pudl import PUDL_SETTINGS_PATH, logging_helpers
+from pudl.helpers import env_var_is_true
 from pudl.settings import GlobalDataConfig
 from pudl.workspace.datastore import Datastore, ZenodoDoiSettings
 from pudl.workspace.setup import PudlPaths
@@ -36,6 +37,9 @@ from pudl.workspace.setup import PudlPaths
 DEFAULT_FERCEQR_DEPLOYMENT_CONFIG_PATH = (
     PUDL_SETTINGS_PATH / "ferceqr_deployment_targets.yml"
 )
+
+FERCEQR_ALLOW_DOWNLOADS_ENV_VAR = "PUDL_FERCEQR_ALLOW_DOWNLOADS"
+"""Environment variable opting a run in to downloading raw FERC EQR archives."""
 
 
 logger = logging_helpers.get_logger(__name__)
@@ -131,15 +135,28 @@ class FercEqrArchiveResource(dg.ConfigurableResource):
     FERC EQR is far too large to archive on Zenodo, so only the Frictionless metadata --
     including a per-quarter md5 checksum -- is archived there. Each downloaded quarterly
     archive is verified against that metadata, giving EQR the same integrity guarantee
-    that Zenodo-hosted datasets get from :meth:`Datastore.get_resources`. Only the bytes
-    are checked, not where they came from: developers routinely point ``path`` at a
+    that Zenodo-hosted datasets get from :meth:`Datastore.get_resources`. Only the hash
+    is checked, not where they came from: developers routinely point ``path`` at a
     local cache of archives pulled from GCS, which is fine as long as the contents
-    match. Set ``verify_checksums=False`` when ``path`` holds a hand-built subset whose
-    archives can't match the published checksums.
+    match.
+
+    Downloading from remote storage is gated behind the
+    :data:`FERCEQR_ALLOW_DOWNLOADS_ENV_VAR` environment variable. Extracting every
+    quarter transfers ~100GB and this resource caches nothing between runs, so opting
+    in has to be deliberate. The variable is read each time an archive is opened, so
+    the gate applies on every launch path. It must be set in the environment hosting
+    the Dagster code server, since run workers inherit their environment from it --
+    exporting it partway through a ``dg dev`` session has no effect until the code
+    server reloads.
     """
 
     datastore: dg.ResourceDependency[Datastore]
     path: str = dg.EnvVar("PUDL_FERCEQR_ARCHIVE_PATH")
+
+    @property
+    def allow_downloads(self) -> bool:
+        """Whether this run may download raw FERC EQR archives from remote storage."""
+        return env_var_is_true(FERCEQR_ALLOW_DOWNLOADS_ENV_VAR)
 
     @property
     def upath(self) -> UPath:
@@ -148,7 +165,20 @@ class FercEqrArchiveResource(dg.ConfigurableResource):
 
     @contextmanager
     def open_quarter_archive(self, year_quarter: str) -> Generator[zipfile.ZipFile]:
-        """Download CSV to a tempmorary directory to avoid reading into memory."""
+        """Download CSV to a temporary directory to avoid reading into memory."""
+        # Any non-local protocol means bytes cross the network: gs://, s3://, http://,
+        # etc. A bare path or file:// URI copies nothing, so the gate doesn't apply.
+        if self.upath.protocol not in ("", "file") and not self.allow_downloads:
+            raise RuntimeError(
+                f"Refusing to download FERC EQR archives from {self.path!r} because "
+                f"{FERCEQR_ALLOW_DOWNLOADS_ENV_VAR} is not set to a true value. "
+                "Extracting many quarters transfers ~100GB to ephemeral storage, and "
+                "this resource caches nothing between runs. Either set "
+                f"{FERCEQR_ALLOW_DOWNLOADS_ENV_VAR}=true in the environment hosting "
+                "the Dagster code server, or download the archives manually and point "
+                "PUDL_FERCEQR_ARCHIVE_PATH at that local directory."
+            )
+
         zip_name = f"ferceqr-{year_quarter}.zip"
         remote_path = self.upath / zip_name
 
@@ -407,6 +437,7 @@ default_resources: dict[str, Any] = {
 }
 
 __all__ = [
+    "FERCEQR_ALLOW_DOWNLOADS_ENV_VAR",
     "DatastoreResource",
     "FercEqrArchiveResource",
     "FercEqrDeploymentTargetConfig",
