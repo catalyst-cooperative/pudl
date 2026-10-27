@@ -401,7 +401,7 @@ def validate(
 
     Run the checks for one specific dbt node:
 
-        $ dbt_helper validate --select "source:pudl_dbt.pudl.out_eia__yearly_generators"
+        $ dbt_helper validate --select "source:pudl_validation_tests.pudl.out_eia__yearly_generators"
 
     Run checks for an asset and all its upstream dependencies:
 
