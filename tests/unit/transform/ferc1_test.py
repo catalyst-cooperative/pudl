@@ -885,6 +885,50 @@ table_a,fact_1,table_a,replace_me,1.0
     pd.testing.assert_frame_equal(calc_comps_fixed_expected, calc_comps_fixed_out)
 
 
+@pytest.mark.parametrize(
+    "calculations,expected_n_components",
+    [
+        pytest.param(["[]", "[]"], 0, id="no_calculations"),
+        pytest.param(
+            [
+                "[]",
+                '[{"name": "child", "weight": 1.0, "source_tables": ["table_a"]}]',
+            ],
+            1,
+            id="some_calculations",
+        ),
+    ],
+)
+def test_process_xbrl_metadata_calculations(calculations, expected_n_components):
+    """Calculation JSON strings parse into components, even if all are empty.
+
+    With pyarrow-backed strings (the pandas 3 default) parsing a column where every
+    calculation is an empty list used to produce an Arrow ``list<null>`` column that
+    ``explode`` couldn't handle.
+    """
+    xbrl_metadata_converted = pd.DataFrame(
+        {
+            "xbrl_factoid": pd.array(["parent", "child"], dtype=pd.StringDtype()),
+            "calculations": pd.array(calculations, dtype=pd.StringDtype()),
+            "balance": pd.array(["debit", "credit"], dtype=pd.StringDtype()),
+            "ferc_account": pd.array([pd.NA, pd.NA], dtype=pd.StringDtype()),
+            "xbrl_factoid_original": pd.array(
+                ["parent", "child"], dtype=pd.StringDtype()
+            ),
+            "is_within_table_calc": [True, True],
+            "row_type_xbrl": ["calculated_value", "reported_value"],
+        }
+    )
+
+    class FakeTransformer(Ferc1AbstractTableTransformer):
+        table_id = TableIdFerc1.STEAM_PLANTS_FUEL
+
+    calc_comps = FakeTransformer().process_xbrl_metadata_calculations(
+        xbrl_metadata_converted
+    )
+    assert calc_comps.xbrl_factoid.notnull().sum() == expected_n_components
+
+
 def test_make_xbrl_factoid_dimensions_explicit():
     """Test :func:`make_xbrl_factoid_dimensions_explicit`"""
     calc_comp_idx = [
