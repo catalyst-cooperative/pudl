@@ -331,8 +331,12 @@ def _aggregate_generation_fuel_duplicates(
         "fuel_mmbtu_per_unit",
     ]
     gen_fuel = gen_fuel.copy()
-    gen_fuel[numeric_value_cols] = pd.to_numeric(gen_fuel[numeric_value_cols]).astype(
-        "float64"
+    gen_fuel[numeric_value_cols] = (
+        # This use of df.apply() is actually fast -- it's iterating over each column in
+        # the dataframe (the numeric values) and applying pd.to_numeric to the whole
+        # Series in a vectorized way. This is the default when you call df.apply() with
+        # a function that accepts a Series.
+        gen_fuel[numeric_value_cols].apply(pd.to_numeric).astype("float64")
     )
 
     is_duplicate = gen_fuel.duplicated(subset=natural_key_fields, keep=False)
