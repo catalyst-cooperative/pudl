@@ -36,7 +36,7 @@ def _build_deploy_context(tmp_path, mocker, targets=None):
 
 
 def _passing_validation_stages(mocker):
-    """Two passing dbt validation stages, matching _run_ferceqr_validation's shape."""
+    """Passing dbt validation stages, matching _run_ferceqr_validation's shape."""
     return [
         deploy_ferceqr.ValidationStage(
             name=name,
@@ -45,7 +45,7 @@ def _passing_validation_stages(mocker):
                 format_failure_contexts=mocker.Mock(return_value=""),
             ),
         )
-        for name in ("Data validation", "Row counts")
+        for name in ("Data validation",)
     ]
 
 
@@ -644,12 +644,18 @@ def test_deploy_ferceqr_validation_failure_aborts_before_upload(mocker, tmp_path
     )
     mocker.patch.object(deploy_ferceqr, "logger", mocker.Mock())
 
-    stages = _passing_validation_stages(mocker)
-    stages[1].result.success = False
-    stages[1].result.format_failure_contexts.return_value = "row counts off"
+    stages = [
+        deploy_ferceqr.ValidationStage(
+            name="Data validation",
+            result=mocker.Mock(
+                success=False,
+                format_failure_contexts=mocker.Mock(return_value="nulls found"),
+            ),
+        )
+    ]
     mocker.patch.object(deploy_ferceqr, "_run_ferceqr_validation", return_value=stages)
 
-    with pytest.raises(RuntimeError, match="data validation failed: Row counts"):
+    with pytest.raises(RuntimeError, match="data validation failed: Data validation"):
         deploy_ferceqr.deploy_ferceqr(deploy_context)
 
     assert (tmp_path / "FERCEQR_FAILURE").exists()
