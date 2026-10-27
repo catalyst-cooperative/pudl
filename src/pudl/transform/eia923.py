@@ -332,6 +332,10 @@ def _aggregate_generation_fuel_duplicates(
     ]
     gen_fuel = gen_fuel.copy()
     gen_fuel[numeric_value_cols] = (
+        # This use of df.apply() is actually fast -- it's iterating over each column in
+        # the dataframe (the numeric values) and applying pd.to_numeric to the whole
+        # Series in a vectorized way. This is the default when you call df.apply() with
+        # a function that accepts a Series.
         gen_fuel[numeric_value_cols].apply(pd.to_numeric).astype("float64")
     )
 
@@ -1648,7 +1652,7 @@ def _clean_emissions_control_dates(
 
     is_spot_fix = raw.isin(spot_fixes)
     # Apply table-specific corrections first so malformed one-offs don't need to be
-    # encoded in general parsing logic. Guard on .any() because pandas 3.0 refuses to
+    # encoded in general parsing logic. Guard with .any() because pandas 3.0 refuses to
     # set an empty / non-datetime RHS into a datetime64[ns] column.
     if is_spot_fix.any():
         out.loc[is_spot_fix] = pd.to_datetime(raw.loc[is_spot_fix].map(spot_fixes))
