@@ -332,7 +332,7 @@ def _aggregate_generation_fuel_duplicates(
     ]
     gen_fuel = gen_fuel.copy()
     gen_fuel[numeric_value_cols] = (
-        gen_fuel[numeric_value_cols].apply(pd.to_numeric).astype("float64")
+        pd.to_numeric(gen_fuel[numeric_value_cols]).astype("float64")
     )
 
     is_duplicate = gen_fuel.duplicated(subset=natural_key_fields, keep=False)
@@ -1648,7 +1648,7 @@ def _clean_emissions_control_dates(
 
     is_spot_fix = raw.isin(spot_fixes)
     # Apply table-specific corrections first so malformed one-offs don't need to be
-    # encoded in general parsing logic. Guard on .any() because pandas 3.0 refuses to
+    # encoded in general parsing logic. Guard with .any() because pandas 3.0 refuses to
     # set an empty / non-datetime RHS into a datetime64[ns] column.
     if is_spot_fix.any():
         out.loc[is_spot_fix] = pd.to_datetime(raw.loc[is_spot_fix].map(spot_fixes))
