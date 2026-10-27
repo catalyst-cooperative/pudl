@@ -382,7 +382,7 @@ def test__clean_emissions_control_dates(raw_values, expected_dates, spot_fixes):
         min_valid_year=1950,
         max_valid_year=2025,
     )
-    expected = pd.to_datetime(pd.Series(expected_dates))
+    expected = pd.to_datetime(pd.Series(expected_dates)).astype("datetime64[ns]")
     pd.testing.assert_series_equal(result, expected, check_names=False)
 
 
@@ -423,3 +423,83 @@ def test__clean_emissions_control_dates__raises(raw_values, match):
             min_valid_year=1950,
             max_valid_year=2025,
         )
+
+
+GEN_FUEL_VALUE_COLS = [
+    "fuel_consumed_units",
+    "fuel_consumed_for_electricity_units",
+    "fuel_consumed_mmbtu",
+    "fuel_consumed_for_electricity_mmbtu",
+    "net_generation_mwh",
+    "fuel_mmbtu_per_unit",
+]
+
+
+def _object_gen_fuel(rows: list[tuple]) -> pd.DataFrame:
+    """Build a generation_fuel frame with object-dtype value columns.
+
+    Each row is ``(plant_id_eia, *values)``, with one value per entry in
+    ``GEN_FUEL_VALUE_COLS``. Under pandas 3 these columns can arrive as object dtype.
+    """
+    df = pd.DataFrame(rows, columns=["plant_id_eia", *GEN_FUEL_VALUE_COLS])
+    return df.astype(dict.fromkeys(GEN_FUEL_VALUE_COLS, "object")).assign(
+        report_date=pd.Timestamp("2024-01-01"),
+        energy_source_code="NG",
+        prime_mover_code="CT",
+        fuel_type_code_agg="NG",
+        fuel_type_code_pudl="gas",
+        data_maturity="final",
+        sector_id_eia=1,
+    )
+
+
+def test__aggregate_generation_fuel_duplicates__no_pd_na():
+    """Zero fuel units give an undefined heat content that must be np.nan, not pd.NA."""
+    gen_fuel = _object_gen_fuel(
+        [
+            (1, 2.0, 2.0, 4.0, 4.0, 4.0, 2.0),  # Non-duplicate.
+            # All-zero duplicate is dropped, leaving only the second row.
+            (2, 0, 0, 0, 0, 0, 0.0),
+            (2, 5.0, 5.0, 10.0, 10.0, 10.0, 2.0),
+            # mmbtu but no units: heat content is undefined.
+            (3, 0.0, 0.0, 3.0, 3.0, 3.0, 1.0),
+            (3, 0.0, 0.0, 4.0, 4.0, 4.0, 1.0),
+        ]
+    )
+
+    out = eia923._aggregate_generation_fuel_duplicates(gen_fuel).set_index(
+        "plant_id_eia"
+    )
+
+    assert sorted(out.index) == [1, 2, 3]
+    assert (out[GEN_FUEL_VALUE_COLS].dtypes == "float64").all()
+    assert out.loc[1, GEN_FUEL_VALUE_COLS].tolist() == [2.0, 2.0, 4.0, 4.0, 4.0, 2.0]
+    assert out.loc[2, GEN_FUEL_VALUE_COLS].tolist() == [5.0, 5.0, 10.0, 10.0, 10.0, 2.0]
+    assert out.loc[3, "fuel_consumed_mmbtu"] == 7.0
+    assert not any(v is pd.NA for v in out["fuel_mmbtu_per_unit"])
+    assert pd.isna(out.loc[3, "fuel_mmbtu_per_unit"])
+
+
+def test__aggregate_generation_fuel_duplicates__object_dtype_with_pd_na():
+    """Object-dtype value columns containing pd.NA are cast to clean float64."""
+    gen_fuel = _object_gen_fuel(
+        [
+            (1, 2.0, 2.0, 4.0, 4.0, 1.0, pd.NA),  # Non-duplicate with null heat.
+            # Duplicate group with nulls scattered across the value columns.
+            (2, 5.0, pd.NA, 10.0, 10.0, pd.NA, 2.0),
+            (2, 1.0, 1.0, 2.0, pd.NA, 3.0, pd.NA),
+        ]
+    )
+
+    out = eia923._aggregate_generation_fuel_duplicates(gen_fuel).set_index(
+        "plant_id_eia"
+    )
+
+    assert sorted(out.index) == [1, 2]
+    assert (out[GEN_FUEL_VALUE_COLS].dtypes == "float64").all()
+    assert not any(v is pd.NA for v in out["fuel_mmbtu_per_unit"])
+    # The non-duplicate row's values survive, and its pd.NA heat content is np.nan.
+    assert out.loc[1, GEN_FUEL_VALUE_COLS].tolist()[:5] == [2.0, 2.0, 4.0, 4.0, 1.0]
+    assert pd.isna(out.loc[1, "fuel_mmbtu_per_unit"])
+    # Sums skip the nulls; heat content is recomputed as 12 mmbtu / 6 units.
+    assert out.loc[2, GEN_FUEL_VALUE_COLS].tolist() == [6.0, 1.0, 12.0, 10.0, 3.0, 2.0]
