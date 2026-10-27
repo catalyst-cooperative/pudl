@@ -925,11 +925,12 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
     first_rows = grouped.head(1).copy()
     if num_cols:
         # For combinable groups, replace the numeric values in the first row with the
-        # sums over the whole group. The sums are indexed like utils_88888, so
-        # assigning them to a subset of first_rows lines each one up with its own row.
+        # sums over the whole group. The sums are indexed like utils_88888, so we
+        # select exactly the combinable first rows from both sides; assigning a
+        # differently-sized frame (e.g. when nothing is combinable) fails on pandas 3.
         group_sums = grouped[num_cols].transform("sum")
-        first_row_is_combinable = combinable[first_rows.index]
-        first_rows.loc[first_row_is_combinable, num_cols] = group_sums
+        combinable_rows = first_rows.index[combinable[first_rows.index]]
+        first_rows.loc[combinable_rows, num_cols] = group_sums.loc[combinable_rows]
     recombined_df = pd.concat(
         [df[df["utility_id_eia"] != 88888], first_rows], ignore_index=True
     )
