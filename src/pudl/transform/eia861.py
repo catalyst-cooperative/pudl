@@ -857,19 +857,20 @@ def _harvest_associations(dfs: list[pd.DataFrame], cols: list[str]) -> pd.DataFr
 
 
 def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame:
-    """Combine 88888 utility_id_values.
+    """Combine the data associated with 88888 utility_id_values.
 
-    This function sums rows with a utility_id_eia of 88888 into a single row by
-    primary key. It drops rows with a utility_id_eia of 88888 if there are non-numeric
-    columns with different values that are impossible to combine. E.g.: boolean
-    columns where one value is Y and the other is N. This results in a small loss of
-    data, but is necessary to ensure that the primary key remains unique.
+    This function sums the numeric columns of rows with a utility_id_eia of 88888 into a
+    single row per primary key. If the non-numeric columns (which includes booleans)
+    have different or null values within a primary key, the rows are impossible to
+    combine. E.g.: boolean columns where one value is Y and the other is N. In that case
+    only the first row is kept and its numeric values are not summed. This results in a
+    small loss of data, but is necessary to ensure that the primary key remains unique.
 
-    There's a similar de-duplication process happening in the ``_tidy_class_dfs`` function,
-    but the procedure for 88888 has been abstracted out here to avoid confusion and the
-    ability to treat these cases differently as we see fit. The 88888 utility_id_eia
-    values are known withholdings whereas the duplicate primary key rows are unknown data
-    quality issues.
+    There's a similar de-duplication process happening in the ``_tidy_class_dfs``
+    function, but the procedure for 88888 has been abstracted out here to avoid
+    confusion and the ability to treat these cases differently. The 88888 utility_id_eia
+    values are known withholdings whereas the duplicate primary key rows are unknown
+    data quality issues.
 
     Args:
         df: The dataframe to process.
@@ -881,16 +882,22 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
     """
     if 88888 not in df.utility_id_eia.unique():
         return df
-    # Split the non-key columns into those that can be summed and those that can't.
-    non_num_cols = [
-        c
-        for c in df.columns.difference(idx_cols)
-        if not pd.api.types.is_numeric_dtype(df[c])
-    ]
+    # Split the non-key columns into those that can be summed and those that can't. Note
+    # that select_dtypes(exclude="number") treats boolean columns (numpy and nullable)
+    # as non-numeric,
+    non_num_cols = (
+        df.drop(columns=idx_cols).select_dtypes(exclude="number").columns.tolist()
+    )
     num_cols = df.columns.difference(idx_cols + non_num_cols, sort=False).tolist()
 
     # dropna=False keeps groups whose primary key contains nulls (e.g. no BA code).
-    utils_88888 = df[df["utility_id_eia"] == 88888].reset_index(drop=True)
+    # Sort on every column so that which row is "first" in each group (and so which
+    # values survive when a group can't be combined) doesn't depend on input row order.
+    utils_88888 = (
+        df[df["utility_id_eia"] == 88888]
+        .sort_values(by=df.columns.tolist(), kind="stable")
+        .reset_index(drop=True)
+    )
     grouped = utils_88888.groupby(idx_cols, dropna=False)
 
     # Flag the rows of groups that can be combined: more than one row, and every
@@ -923,6 +930,8 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
     # - UD table: 15
     # - DP table: 8
     first_rows = grouped.head(1).copy()
+    # If there are no numeric columns there is nothing to sum, so keeping the first
+    # row is already the combined row for combinable groups.
     if num_cols:
         # For combinable groups, replace the numeric values in the first row with the
         # sums over the whole group. The sums are indexed like utils_88888, so we
