@@ -141,7 +141,9 @@ def test_group_mean_continuity_check(
         assert column in result.metadata
         # The metadata values are wrapped in JsonMetadataValue objects
         # Access the underlying data using the .data attribute
-        column_metadata = result.metadata[column].data
+        column_metadata_value = result.metadata[column]
+        assert isinstance(column_metadata_value, dg.JsonMetadataValue)
+        column_metadata = column_metadata_value.data
         assert isinstance(column_metadata, dict)
         assert "threshold" in column_metadata
         assert column_metadata["threshold"] == threshold

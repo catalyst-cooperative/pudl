@@ -13,6 +13,13 @@ from pudl.dagster import sensors
 from pudl.dagster.assets.deploy import ferceqr as deploy_ferceqr
 
 
+def _run_sensor(sensor, context) -> dg.RunRequest:
+    """Invoke a run-status sensor function and narrow its result to a RunRequest."""
+    run_request = sensor._run_status_sensor_fn(context)
+    assert isinstance(run_request, dg.RunRequest)
+    return run_request
+
+
 def _build_deploy_context(tmp_path, mocker, targets=None):
     """Build a Dagster asset context with a minimal pudl_paths resource."""
     deployment_resource = SimpleNamespace(
@@ -213,7 +220,7 @@ def test_ferceqr_failure_sensor_backfill_with_failures_aggregated(mocker):
         ),
     ]
 
-    run_request = sensors.ferceqr_failure_sensor._run_status_sensor_fn(context)
+    run_request = _run_sensor(sensors.ferceqr_failure_sensor, context)
 
     assert run_request.run_key == "ferceqr_deployment_failure_backfill:bf-456"
     assert run_request.asset_selection == [dg.AssetKey("handle_ferceqr_failure")]
@@ -243,7 +250,7 @@ def test_ferceqr_success_sensor_backfill_success_uses_backfill_run_key(mocker):
         ),
     ]
 
-    run_request = sensors.ferceqr_success_sensor._run_status_sensor_fn(context)
+    run_request = _run_sensor(sensors.ferceqr_success_sensor, context)
 
     assert run_request.run_key == "ferceqr_deployment_success_backfill:bf-123"
     assert run_request.asset_selection == [

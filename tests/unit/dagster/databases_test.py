@@ -63,7 +63,7 @@ def _destination(
     else:
         engine.dialect.max_identifier_length = 255
         metadata = package.to_sql(dialect="duckdb", include_foreign_keys=False)
-    metadata.create_all(engine)
+    metadata.create_all(engine, checkfirst=False)
     engine.dispose()
 
     if db_type == "sqlite":
@@ -461,7 +461,7 @@ def test_duckdb_schema_shares_enum_type_across_tables(test_pkg: Package):
     metadata = test_pkg.to_sql(dialect="duckdb", include_foreign_keys=False)
     engine = sa.create_engine("duckdb:///:memory:")
     engine.dialect.max_identifier_length = 255
-    metadata.create_all(engine)  # should not raise CatalogException
+    metadata.create_all(engine, checkfirst=False)  # should not raise CatalogException
     with engine.connect() as conn:
         conn.exec_driver_sql(
             'INSERT INTO "generator_status" VALUES (1, ?)', ("existing",)

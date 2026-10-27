@@ -64,14 +64,14 @@ def test_create_experiment_tracker(
     experiment_tracker_config: dict, tracking_enabled: bool, experiment_name: str
 ):
     """Test that ExperimentTracker properly configures mlflow and executes logging statements."""
-    experiment_tracker_config = experiment_tracking.ExperimentTrackerConfig(
+    tracker_config = experiment_tracking.ExperimentTrackerConfig(
         **experiment_tracker_config,
         tracking_enabled=tracking_enabled,
     )
     experiment_tracker = experiment_tracking.experiment_tracker_factory(
         experiment_name,
         {},
-    )(experiment_tracker_config)
+    )(tracker_config)
     experiment_tracker.execute_logging(
         lambda: mlflow.log_param("test_param", "param_value")
     )
