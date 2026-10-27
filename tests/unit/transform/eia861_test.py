@@ -89,6 +89,27 @@ expected_4 = pd.read_csv(
     ),
 ).pipe(apply_pudl_dtypes, field_namespace="eia")
 
+# Test that conflicting boolean values are not summed
+actual_5 = pd.DataFrame(
+    {
+        "report_date": pd.to_datetime(["2019-01-01"] * 3),
+        "utility_id_eia": [88888] * 3,
+        "state": ["TX"] * 3,
+        "short_form": pd.array([True, False, True], dtype="boolean"),
+        "value": [100, 300, 800],
+    }
+)
+
+expected_5 = pd.DataFrame(
+    {
+        "report_date": pd.to_datetime(["2019-01-01"]),
+        "utility_id_eia": [88888],
+        "state": ["TX"],
+        "short_form": pd.array([False], dtype="boolean"),
+        "value": [300],
+    }
+)
+
 
 @pytest.mark.parametrize(
     "actual,expected",
@@ -97,6 +118,7 @@ expected_4 = pd.read_csv(
         pytest.param(actual_2, expected_2, id="no_88888_does_not_combine"),
         pytest.param(actual_3, expected_3, id="non_numeric_does_not_combine"),
         pytest.param(actual_4, expected_4, id="na_index_col_does_not_duplicate"),
+        pytest.param(actual_5, expected_5, id="conflicting_booleans_do_not_sum"),
     ],
 )
 def test__combine_88888_values(actual, expected):
@@ -104,6 +126,16 @@ def test__combine_88888_values(actual, expected):
     idx_cols = ["report_date", "utility_id_eia", "state"]
     observed_outcome = eia861._combine_88888_values(actual, idx_cols)
     pd.testing.assert_frame_equal(expected, observed_outcome)
+
+
+@pytest.mark.parametrize("actual", [actual_3, actual_5])
+def test__combine_88888_values__independent_of_row_order(actual):
+    """Test that uncombinable groups keep the same row however the input is ordered."""
+    idx_cols = ["report_date", "utility_id_eia", "state"]
+    expected = eia861._combine_88888_values(actual, idx_cols)
+    reordered = actual.iloc[::-1].reset_index(drop=True)
+    observed = eia861._combine_88888_values(reordered, idx_cols)
+    pd.testing.assert_frame_equal(expected, observed)
 
 
 def test_clean_nerc_numeric_code():
