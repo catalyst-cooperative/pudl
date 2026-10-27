@@ -331,8 +331,8 @@ def _aggregate_generation_fuel_duplicates(
         "fuel_mmbtu_per_unit",
     ]
     gen_fuel = gen_fuel.copy()
-    gen_fuel[numeric_value_cols] = (
-        pd.to_numeric(gen_fuel[numeric_value_cols]).astype("float64")
+    gen_fuel[numeric_value_cols] = pd.to_numeric(gen_fuel[numeric_value_cols]).astype(
+        "float64"
     )
 
     is_duplicate = gen_fuel.duplicated(subset=natural_key_fields, keep=False)
