@@ -169,8 +169,8 @@ class FercEqrArchiveResource(dg.ConfigurableResource):
             # zipfiles exactly match those described by the datapackage in the zenodo
             # metadata archive pointed to by the current DOI
             descriptor = self.datastore.get_datapackage_descriptor("ferceqr")
-            digest = descriptor.validate_file_checksum(zip_name, local_path)
-            logger.info(f"Verified {zip_name} against {descriptor.doi} (md5={digest}).")
+            descriptor.validate_file_checksum(zip_name, local_path)
+            logger.info(f"Verified {zip_name} checksum against {descriptor.doi}.")
             # Yield open zipfile
             with zipfile.ZipFile(local_path) as zf:
                 yield zf
