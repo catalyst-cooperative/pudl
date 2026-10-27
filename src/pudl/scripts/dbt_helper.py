@@ -16,7 +16,13 @@ from pudl.dagster.build import build_defs
 from pudl.dbt_schema import DbtSchema, DbtTable, merge_schema
 from pudl.logging_helpers import configure_root_logger, get_logger
 from pudl.metadata.classes import PUDL_PACKAGE, Resource
-from pudl.validate.dbt import build_with_context, dagster_to_dbt_selection
+from pudl.validate.dbt import (
+    ALL_DBT_SOURCES,
+    DBT_SOURCES,
+    DEFAULT_DBT_SOURCE,
+    build_with_context,
+    dagster_to_dbt_selection,
+)
 from pudl.workspace.setup import PudlPaths
 
 logger = get_logger(__name__)
@@ -329,6 +335,16 @@ def update_tables(
             )
 
 
+def _source_selection(source: str | None) -> str:
+    """Translate a ``--source`` choice into a dbt node selection.
+
+    ``None`` means the default source, ``pudl``. ``"*"`` selects every node.
+    """
+    if source == ALL_DBT_SOURCES:
+        return "*"
+    return f"source:{source or DEFAULT_DBT_SOURCE}+"
+
+
 @click.command()
 @click.option(
     "--select",
@@ -344,6 +360,17 @@ def update_tables(
         "use '+key:\"out_eia__yearly_generators\"' to validate "
         "out_eia_yearly_generators and its upstream assets. Syntax "
         "documentation at https://docs.dagster.io/guides/build/assets/asset-selection-syntax/reference "
+    ),
+)
+@click.option(
+    "--source",
+    "-s",
+    type=click.Choice([*DBT_SOURCES, ALL_DBT_SOURCES]),
+    help=(
+        "dbt source to validate when neither --select nor --asset-select is given: "
+        "everything downstream of the source's tables. Defaults to 'pudl'. Pass "
+        "'ferceqr' to validate the (large) FERC EQR tables instead, or '*' to "
+        "validate every source."
     ),
 )
 @click.option(
@@ -377,6 +404,7 @@ def update_tables(
 def validate(
     select: str | None = None,
     asset_select: str | None = None,
+    source: str | None = None,
     exclude: str | None = None,
     dry_run: bool = False,
     override_target: str | None = None,
@@ -390,14 +418,23 @@ def validate(
     Understands how to translate Dagster asset selection syntax into dbt node
     selections via the --asset-select flag.
 
-    Default behavior if you do not pass `--asset-select` or `--select` is to
-    validate everything.
+    Default behavior if you do not pass `--asset-select`, `--select` or `--source` is
+    to validate the ``pudl`` source. The FERC EQR tables are only validated if you ask
+    for them with `--source ferceqr`, and everything is validated with `--source "*"`.
 
     Usage examples:
 
     Run all the checks for one asset:
 
         $ dbt_helper validate --asset-select "key:out_eia__yearly_generators"
+
+    Run the checks for the FERC EQR tables (not run by default, since they are large):
+
+        $ dbt_helper validate --source ferceqr
+
+    Run the checks for every source:
+
+        $ dbt_helper validate --source "*"
 
     Run the checks for one specific dbt node:
 
@@ -418,6 +455,10 @@ def validate(
 
 
     """
+    if source is not None and (select is not None or asset_select is not None):
+        raise click.UsageError(
+            "You can't pass --source together with --select or --asset-select."
+        )
     if select is not None:
         if asset_select is not None:
             raise click.UsageError(
@@ -428,7 +469,7 @@ def validate(
         if asset_select is not None:
             node_selection = dagster_to_dbt_selection(asset_select, build_defs())
         else:
-            node_selection = "*"
+            node_selection = _source_selection(source)
 
     build_params = {
         "node_selection": node_selection,

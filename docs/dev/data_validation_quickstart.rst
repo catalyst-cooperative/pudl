@@ -32,8 +32,12 @@ Example usage:
 
 .. code-block:: bash
 
-    # for *all* assets
+    # for all of the main PUDL tables (the default source)
     dbt_helper validate
+    # for the FERC EQR tables (large, so not validated by default)
+    dbt_helper validate --source ferceqr
+    # for every source
+    dbt_helper validate --source "*"
     # for just a single asset
     dbt_helper validate --asset-select "key:out_eia__yearly_generators"
     # for this asset as well as all upstream assets
