@@ -19,6 +19,7 @@ from pudl.metadata.classes import PUDL_PACKAGE, Resource
 from pudl.validate.dbt import (
     ALL_DBT_SOURCES,
     DBT_SOURCES,
+    DBT_UNIT_TESTS_PATH,
     DEFAULT_DBT_SOURCE,
     build_with_context,
     dagster_to_dbt_selection,
@@ -338,11 +339,18 @@ def update_tables(
 def _source_selection(source: str | None) -> str:
     """Translate a ``--source`` choice into a dbt node selection.
 
-    ``None`` means the default source, ``pudl``. ``"*"`` selects every node.
+    ``None`` means the default source, ``pudl``. ``"*"`` selects every node. The
+    ``pudl`` selection also includes the unit tests of our dbt macros, which don't
+    depend on any source and so would otherwise never be run.
     """
     if source == ALL_DBT_SOURCES:
         return "*"
-    return f"source:{source or DEFAULT_DBT_SOURCE}+"
+    source = source or DEFAULT_DBT_SOURCE
+    selection = f"source:{source}+"
+    if source == "pudl":
+        # A space is dbt's union operator.
+        selection += f" path:{DBT_UNIT_TESTS_PATH}"
+    return selection
 
 
 @click.command()
@@ -368,7 +376,8 @@ def _source_selection(source: str | None) -> str:
     type=click.Choice([*DBT_SOURCES, ALL_DBT_SOURCES]),
     help=(
         "dbt source to validate when neither --select nor --asset-select is given: "
-        "everything downstream of the source's tables. Defaults to 'pudl'. Pass "
+        "everything downstream of the source's tables (for 'pudl', plus the unit "
+        "tests of our dbt macros). Defaults to 'pudl'. Pass "
         "'ferceqr' to validate the (large) FERC EQR tables instead, or '*' to "
         "validate every source."
     ),

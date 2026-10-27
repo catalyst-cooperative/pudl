@@ -28,6 +28,9 @@ DEFAULT_DBT_SOURCE = "pudl"
 ALL_DBT_SOURCES = "*"
 """Selector value meaning every dbt source."""
 
+DBT_UNIT_TESTS_PATH = "tests/unit_tests"
+"""Path, relative to the dbt project, of the unit tests of our dbt macros."""
+
 logger = get_logger(__name__)
 
 

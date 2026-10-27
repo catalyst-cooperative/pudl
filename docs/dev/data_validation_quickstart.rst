@@ -32,7 +32,7 @@ Example usage:
 
 .. code-block:: bash
 
-    # for all of the main PUDL tables (the default source)
+    # for all of the main PUDL tables (the default source), plus the dbt macro unit tests
     dbt_helper validate
     # for the FERC EQR tables (large, so not validated by default)
     dbt_helper validate --source ferceqr

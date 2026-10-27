@@ -900,8 +900,8 @@ def _dry_run_params(args: list[str]) -> dict:
 @pytest.mark.parametrize(
     ("args", "expected_selection"),
     [
-        ([], "source:pudl+"),
-        (["--source", "pudl"], "source:pudl+"),
+        ([], "source:pudl+ path:tests/unit_tests"),
+        (["--source", "pudl"], "source:pudl+ path:tests/unit_tests"),
         (["-s", "ferceqr"], "source:ferceqr+"),
         (["-s", "*"], "*"),
         (["--select", "test_name:foo"], "test_name:foo"),
