@@ -26,6 +26,11 @@ New Data Tests & Validations
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Restored non-utility property (RUS Form 7 Part C, line 6) to
+  :ref:`core_rus7__yearly_balance_sheet_assets` and
+  :ref:`out_rus7__yearly_balance_sheet_assets`. A typo in the column map
+  (``non_utility_property_asset``) meant the transform never picked it up. See issue
+  :issue:`5566`.
 * Added a missing territory entry to the :ref:`core_pudl__codes_subdivisions` table. See
   :issue:`5696` and :pr:`5716`.
 * Added ``plant_function`` values to a few factoids in
