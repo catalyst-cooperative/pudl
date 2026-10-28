@@ -23,6 +23,11 @@ Documentation
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Validate that the net utility plant, total other property and investments, and total
+  assets in :ref:`core_rus7__yearly_balance_sheet_assets` and
+  :ref:`out_rus7__yearly_balance_sheet_assets` equal the sum of their subcomponents.
+  See issue :issue:`5566`.
+
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
