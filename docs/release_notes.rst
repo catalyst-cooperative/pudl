@@ -28,15 +28,31 @@ Bug Fixes & Data Cleaning
 
 * Added a missing territory entry to the :ref:`core_pudl__codes_subdivisions` table. See
   :issue:`5696` and :pr:`5716`.
-
 * Added ``plant_function`` values to a few factoids in
   :ref:`out_ferc1__yearly_rate_base`. See :pr:`5690`.
+* Made null handling in ``stack_generators()``, the EIA-176 "other" gas disposition
+  categorization and the EIA-860 ownership spot-fix behave identically under pandas 2
+  and 3. Pandas 3 changed how nulls are treated by ``stack()``, ``astype(str)`` and
+  string comparisons, which would otherwise have left spurious null energy sources,
+  null primary keys, or unremoved bogus ownership records. See :issue:`5621`,
+  :issue:`5622`, :issue:`5624` and :pr:`5721`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^
+
+* Plant part record IDs for records with a null ``utility_id_eia`` now end in ``null``
+  instead of ``<NA>`` (or ``<na>``), consistent with the rest of the ID. This changes
+  ``record_id_eia`` and ``plant_part_id_eia`` in ``out_eia__yearly_plant_parts`` and the
+  related plant-part association tables for a few hundred records. See :issue:`5598` and
+  :pr:`5721`.
+* Replaced the standalone ``pixi run unmapped-ids`` pytest task with analogous Dagster
+  assets (:mod:`pudl.dagster.assets.core.unmapped_ids`) that identify FERC1 and EIA
+  plant/utility IDs missing from the manual PUDL ID mapping spreadsheet. CSVs are saved
+  with other build outputs on ``builds.catalyst.coop`` and fail the ETL if they are
+  non-empty. See issue :issue:`4338` and PR :pr:`5539`.
 
 .. _release-v2026.10.0:
 

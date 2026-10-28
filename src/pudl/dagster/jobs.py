@@ -55,6 +55,24 @@ pudl_with_ferc_to_sqlite_job = dg.define_asset_job(
     ),
 )
 
+unmapped_ids_job = dg.define_asset_job(
+    name="unmapped_ids",
+    description=(
+        "This job materializes the unmapped FERC1/EIA ID assets and everything "
+        "upstream of them, for interactive use when updating the manual ID mapping. "
+        "The upstream FERC1 SQLite assets are refreshed only if their stored "
+        "provenance is stale (e.g. after switching to a new FERC1 archive). The "
+        "unmapped ID assets are also part of the main pudl job, so they are checked "
+        "in every full ETL."
+    ),
+    config=default_execution_config,
+    # Some upstream multi-assets (e.g. harvested_*_eia) can't be subset, so pull in
+    # all of their sibling outputs too.
+    selection=dg.AssetSelection.groups("core_unmapped_ids")
+    .upstream()
+    .required_multi_asset_neighbors(),
+)
+
 ferceqr_job = dg.define_asset_job(
     name="ferceqr",
     description="This job processes the FERC EQR data.",
@@ -77,6 +95,7 @@ default_jobs = [
     pudl_job,
     ferc_to_sqlite_job,
     pudl_with_ferc_to_sqlite_job,
+    unmapped_ids_job,
     ferceqr_job,
     ferceqr_deployment_job,
 ]
@@ -88,4 +107,5 @@ __all__ = [
     "ferceqr_job",
     "pudl_job",
     "pudl_with_ferc_to_sqlite_job",
+    "unmapped_ids_job",
 ]
