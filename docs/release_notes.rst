@@ -228,6 +228,17 @@ Bug Fixes & Data Cleaning
   and leaving ``entity_type`` null. Those years of
   ``core_eia861__yearly_advanced_metering_infrastructure`` now have ``entity_type``
   populated and ``short_form`` null. See :pr:`5718`.
+* Plant part record IDs for records with a null ``utility_id_eia`` now end in ``null``
+  instead of ``<NA>`` (or ``<na>``), consistent with the rest of the ID. This changes
+  ``record_id_eia`` and ``plant_part_id_eia`` in ``out_eia__yearly_plant_parts`` and the
+  related plant-part association tables for a few hundred records. See :issue:`5598` and
+  :pr:`5721`.
+* Made null handling in ``stack_generators()``, the EIA-176 "other" gas disposition
+  categorization and the EIA-860 ownership spot-fix behave identically under pandas 2
+  and 3. Pandas 3 changed how nulls are treated by ``stack()``, ``astype(str)`` and
+  string comparisons, which would otherwise have left spurious null energy sources,
+  null primary keys, or unremoved bogus ownership records. See :issue:`5621`,
+  :issue:`5622`, :issue:`5624` and :pr:`5721`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
