@@ -26,7 +26,7 @@ New Data Tests & Validations
 * Validate that the net utility plant, total other property and investments, and total
   assets in :ref:`core_rus7__yearly_balance_sheet_assets` and
   :ref:`out_rus7__yearly_balance_sheet_assets` equal the sum of their subcomponents.
-  See issue :issue:`5566`.
+  See :issue:`5566` and :pr:`5729`.
 
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -34,8 +34,8 @@ Bug Fixes & Data Cleaning
 * Restored non-utility property (RUS Form 7 Part C, line 6) to
   :ref:`core_rus7__yearly_balance_sheet_assets` and
   :ref:`out_rus7__yearly_balance_sheet_assets`. A typo in the column map
-  (``non_utility_property_asset``) meant the transform never picked it up. See issue
-  :issue:`5566`.
+  (``non_utility_property_asset``) meant the transform never picked it up. See
+  :issue:`5566` and :pr:`5729`.
 * Added a missing territory entry to the :ref:`core_pudl__codes_subdivisions` table. See
   :issue:`5696` and :pr:`5716`.
 * Added ``plant_function`` values to a few factoids in
