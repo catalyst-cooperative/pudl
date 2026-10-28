@@ -17,6 +17,7 @@ For the underlying Dagster concept, see [https://docs.dagster.io/guides/build/jo
 |-------------------------------------------------------------------------------|----|
 | [`ferc_to_sqlite_job`](#pudl.dagster.jobs.ferc_to_sqlite_job)           |    |
 | [`pudl_with_ferc_to_sqlite_job`](#pudl.dagster.jobs.pudl_with_ferc_to_sqlite_job) |    |
+| [`unmapped_ids_job`](#pudl.dagster.jobs.unmapped_ids_job)             |    |
 | [`ferceqr_job`](#pudl.dagster.jobs.ferceqr_job)                  |    |
 | [`ferceqr_deployment_job`](#pudl.dagster.jobs.ferceqr_deployment_job)       |    |
 | [`default_jobs`](#pudl.dagster.jobs.default_jobs)                 |    |
@@ -28,6 +29,8 @@ For the underlying Dagster concept, see [https://docs.dagster.io/guides/build/jo
 ### pudl.dagster.jobs.ferc_to_sqlite_job
 
 ### pudl.dagster.jobs.pudl_with_ferc_to_sqlite_job
+
+### pudl.dagster.jobs.unmapped_ids_job
 
 ### pudl.dagster.jobs.ferceqr_job
 

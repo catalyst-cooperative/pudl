@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.dagster.asset_checks &#8212; PUDL 2026.10.1.dev14 documentation</title>
+    <title>pudl.dagster.asset_checks &#8212; PUDL 2026.10.1.dev15 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=e65ac813"></script>
+    <script src="../../../_static/documentation_options.js?v=4f1abc75"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev14 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev14 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev15 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev15 documentation - Home"/>
   
   
 </a></div>
@@ -909,6 +909,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pandera.errors</span><span class="w"> </span><span class="kn">import</span> <span class="n">SchemaError</span><span class="p">,</span> <span class="n">SchemaErrors</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.dagster.assets</span><span class="w"> </span><span class="kn">import</span> <span class="n">all_asset_modules</span><span class="p">,</span> <span class="n">asset_keys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.dagster.assets.core.unmapped_ids</span><span class="w"> </span><span class="kn">import</span> <span class="n">UNMAPPED_ID_ASSET_NAMES</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.dagster.partitions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ferceqr_year_quarters</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParquetData</span><span class="p">,</span> <span class="n">get_parquet_table_polars</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.classes</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -1506,6 +1507,36 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">unmapped_ids_check</span><span class="p">(</span>
+    <span class="n">asset_key</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetKey</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">blocking</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetChecksDefinition</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return a check that fails if an unmapped FERC1/EIA ID asset has any rows.</span>
+
+<span class="sd">    Attach to assets from :mod:`pudl.dagster.assets.core.unmapped_ids`, which</span>
+<span class="sd">    identify FERC1 or EIA plant/utility IDs missing from the manual PUDL ID mapping</span>
+<span class="sd">    spreadsheet (see :mod:`pudl.glue.ferc1_eia`). We expect these assets to always be</span>
+<span class="sd">    empty; any rows indicate IDs that need to be added to the mapping spreadsheet.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        asset_key: Key of the unmapped-IDs asset to check.</span>
+<span class="sd">        blocking: Whether the check is blocking (default ``True``).</span>
+<span class="sd">    """</span>
+
+    <span class="nd">@dg</span><span class="o">.</span><span class="n">asset_check</span><span class="p">(</span><span class="n">asset</span><span class="o">=</span><span class="n">asset_key</span><span class="p">,</span> <span class="n">blocking</span><span class="o">=</span><span class="n">blocking</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_unmapped_ids_check</span><span class="p">(</span><span class="n">asset_value</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetCheckResult</span><span class="p">:</span>
+        <span class="c1"># Don't use DataFrame.empty: it is True for a frame with rows but no columns</span>
+        <span class="c1"># (e.g. one built from an index alone), which would mask unmapped IDs.</span>
+        <span class="n">n_unmapped_ids</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">asset_value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetCheckResult</span><span class="p">(</span>
+            <span class="n">passed</span><span class="o">=</span><span class="n">n_unmapped_ids</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s2">"n_unmapped_ids"</span><span class="p">:</span> <span class="n">n_unmapped_ids</span><span class="p">},</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_unmapped_ids_check</span>
+
+
 <div class="viewcode-block" id="default_asset_checks">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/asset_checks/index.html#pudl.dagster.asset_checks.default_asset_checks">[docs]</a>
 <span class="n">default_asset_checks</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
@@ -1515,6 +1546,10 @@ window.runMermaid = runMermaid;</script>
     <span class="p">)</span>
 <span class="p">)</span></div>
 
+
+<span class="n">default_asset_checks</span> <span class="o">+=</span> <span class="p">[</span>
+    <span class="n">unmapped_ids_check</span><span class="p">(</span><span class="n">asset_name</span><span class="p">)</span> <span class="k">for</span> <span class="n">asset_name</span> <span class="ow">in</span> <span class="n">UNMAPPED_ID_ASSET_NAMES</span>
+<span class="p">]</span>
 
 <div class="viewcode-block" id="duckdb_assets">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/asset_checks/index.html#pudl.dagster.asset_checks.duckdb_assets">[docs]</a>

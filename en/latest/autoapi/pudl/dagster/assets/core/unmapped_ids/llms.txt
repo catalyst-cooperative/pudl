@@ -1,0 +1,14 @@
+# PUDL
+
+> PUDL 2026.10.1.dev15 documentation
+
+
+2016-2026, Catalyst Cooperative, CC-BY-4.0
+
+## Pages in this subsection
+
+- [pudl.dagster.assets.core.unmapped_ids](index.html.md): Dagster assets identifying FERC1/EIA plant &amp; utility IDs missing manual mapping.
+
+## Optional
+
+- [Top-level llms.txt](../../../../../../llms.txt): Complete documentation index.

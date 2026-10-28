@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="pudl_id_mapping.html.md" />
 <link rel="alternate" type="text/markdown" href="pudl_id_mapping.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>PUDL ID Mapping &#8212; PUDL 2026.10.1.dev14 documentation</title>
+    <title>PUDL ID Mapping &#8212; PUDL 2026.10.1.dev15 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=e65ac813"></script>
+    <script src="../_static/documentation_options.js?v=4f1abc75"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev14 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev14 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev15 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev15 documentation - Home"/>
   
   
 </a></div>
@@ -876,47 +876,27 @@ described above.</p>
 </section>
 <section id="checking-for-unmapped-records">
 <h2>Checking for Unmapped Records<a class="headerlink" href="#checking-for-unmapped-records" title="Link to this heading">#</a></h2>
-<p>With every new year of data comes the possibility of new plants and utilities. Once
-you’ve integrated the new data into PUDL <a class="reference internal" href="existing_data_updates.html"><span class="doc">(see instructions)</span></a>, you’ll need to check for unmapped utility and plants.
-There are a few options for how to do this.</p>
-<p>The quickest way is to download and unzip the most recent nightly build version of
-<code class="docutils literal notranslate"><span class="pre">pudl.sqlite</span></code> from the s3 cloud bucket and materialize the assets you modified on
-top of that. Before running the local test for ID mapping, you’ll also need
-<code class="docutils literal notranslate"><span class="pre">ferc1_xbrl</span></code> and <code class="docutils literal notranslate"><span class="pre">ferc1_dbf</span></code> sqlite and json files downloaded locally.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>Pull<span class="w"> </span>fresh<span class="w"> </span>database<span class="w"> </span>from<span class="w"> </span>the<span class="w"> </span>nightly<span class="w"> </span>builds<span class="w"> </span>aws<span class="w"> </span>s3<span class="w"> </span>bucket
-<span class="gp">$ </span>aws<span class="w"> </span>s3<span class="w"> </span>cp<span class="w"> </span>--no-sign-request<span class="w"> </span>s3://pudl.catalyst.coop/nightly/pudl.sqlite.zip<span class="w"> </span>./
-<span class="gp">$ </span>aws<span class="w"> </span>s3<span class="w"> </span>cp<span class="w"> </span>--no-sign-request<span class="w"> </span>s3://pudl.catalyst.coop/nightly/ferc1_dbf_datapackage.json<span class="w"> </span>./
-<span class="gp">$ </span>aws<span class="w"> </span>s3<span class="w"> </span>cp<span class="w"> </span>--no-sign-request<span class="w"> </span>s3://pudl.catalyst.coop/nightly/ferc1_dbf.sqlite.zip<span class="w"> </span>./
-<span class="gp">$ </span>aws<span class="w"> </span>s3<span class="w"> </span>cp<span class="w"> </span>--no-sign-request<span class="w"> </span>s3://pudl.catalyst.coop/nightly/ferc1_xbrl_datapackage.json<span class="w"> </span>./
-<span class="gp">$ </span>aws<span class="w"> </span>s3<span class="w"> </span>cp<span class="w"> </span>--no-sign-request<span class="w"> </span>s3://pudl.catalyst.coop/nightly/ferc1_xbrl.sqlite.zip<span class="w"> </span>./
-
-<span class="gp"># </span>Unzip<span class="w"> </span>the<span class="w"> </span>databases
-<span class="gp">$ </span>unzip<span class="w"> </span><span class="s1">'*.zip'</span>
-
-<span class="gp"># </span>Materialize<span class="w"> </span>the<span class="w"> </span>assets<span class="w"> </span>you<span class="w"> </span>modified<span class="w"> </span>on<span class="w"> </span>top<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>fresh<span class="w"> </span>database
-<span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>dg<span class="w"> </span>launch<span class="w"> </span>--assets<span class="w"> </span><span class="s2">"group:'your_asset_group'+"</span>
-</pre></div>
-</div>
-<p>Once that’s all set, you can run the following test to save unmapped IDs. This invokes
-a script that identifies plants and utilities which exist in the updated FERC 1 and
-EIA datasets that do not yet appear in the stored ID maps.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>tests/pipeline/glue/glue_test.py<span class="w"> </span>--live-pudl-output<span class="w"> </span>--save-unmapped-ids
-</pre></div>
-</div>
-<p>The <code class="docutils literal notranslate"><span class="pre">--save-unmapped-ids</span></code> flag saves unmapped plants and utilities in the
-<code class="docutils literal notranslate"><span class="pre">devtools/ferc1-eia-glue</span></code> folder by default.</p>
-<p>If you don’t have access to the ETL outputs, you can also get unmapped IDs by running
-the full ETL locally. The following command runs the full ETL and saves unmapped-ids.
-Beware that the full ETL can take several hours to run and requires a computer with
-substantial processing power. If you can avoid running the full ETL, that’s probably
-best!</p>
+<p>With every new year of data comes the possibility of new plants and utilities.
+<a class="reference internal" href="../autoapi/pudl/dagster/assets/core/unmapped_ids/index.html#module-pudl.dagster.assets.core.unmapped_ids" title="pudl.dagster.assets.core.unmapped_ids"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.dagster.assets.core.unmapped_ids</span></code></a> defines a set of normal Dagster assets
+(<code class="docutils literal notranslate"><span class="pre">missing_plant_id_pudl_in_plants_ferc1</span></code>, <code class="docutils literal notranslate"><span class="pre">missing_plants_in_plants_eia</span></code>,
+<code class="docutils literal notranslate"><span class="pre">missing_utility_id_eia_in_utilities_eia</span></code>, etc.) that identify plants and utilities
+which exist in the FERC 1 and EIA data but do not yet appear in the stored ID maps.
+These assets run as part of every ETL, and a blocking asset check fails the run if any
+of them contain rows – so an ETL run failing one of these checks is usually your first
+signal that new plants or utilities need to be mapped.</p>
+<p>Materializing just these assets and their upstream dependencies is much faster than
+running the full ETL:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>unmapped-ids
 </pre></div>
 </div>
-<p>This will generate a complete database based on the settings files stored in
-<code class="docutils literal notranslate"><span class="pre">pudl/package_data/settings/etl_full.yml</span></code> without foreign-key constraints and save any
-unmapped IDs to the <code class="docutils literal notranslate"><span class="pre">devtools/ferc1-eia-glue</span></code> directory that correspond to unmapped
-plants and utilities from FERC 1 and EIA.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">unmapped_ids</span></code> job (see <a class="reference internal" href="../autoapi/pudl/dagster/jobs/index.html#module-pudl.dagster.jobs" title="pudl.dagster.jobs"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.dagster.jobs</span></code></a>) selects the
+<code class="docutils literal notranslate"><span class="pre">core_unmapped_ids</span></code> asset group and everything upstream of it. That includes the FERC
+1 DBF and XBRL SQLite assets, which are only rebuilt if the existing DBs are stale (e.g.
+after switching to a new FERC 1 archive in <code class="docutils literal notranslate"><span class="pre">zenodo_dois.yml</span></code>).</p>
+<p>Each asset is written out as a CSV under <code class="docutils literal notranslate"><span class="pre">$PUDL_OUTPUT</span></code> (e.g.
+<code class="docutils literal notranslate"><span class="pre">$PUDL_OUTPUT/missing_plants_in_plants_ferc1.csv</span></code>), so the results of every nightly
+build are also available for download from the gcloud builds.catalyst.coop bucket
+without having to run anything locally.</p>
 </section>
 <section id="assigning-pudl-ids-to-unmapped-records">
 <h2>Assigning PUDL IDs to Unmapped Records<a class="headerlink" href="#assigning-pudl-ids-to-unmapped-records" title="Link to this heading">#</a></h2>
@@ -1038,13 +1018,9 @@ are satisfied with the proposed changes, run:</p>
 </section>
 <section id="testing-newly-mapped-records">
 <h2>Testing Newly Mapped Records<a class="headerlink" href="#testing-newly-mapped-records" title="Link to this heading">#</a></h2>
-<p>Before you integrate these newly mapped records into the PUDL database, you’ll want to
-run some basic tests in the command line to make sure you’ve covered all of the unmapped
-entities. This command assumes that you have all of the new EIA data loaded into your
-live PUDL DB, and all of the new FERC 1 data loaded into your cloned FERC 1 DB:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>--live-pudl-output<span class="w"> </span>tests/pipeline/glue/glue_test.py
-</pre></div>
-</div>
+<p>Before you integrate these newly mapped records into the PUDL database, rematerialize
+the unmapped-IDs assets described above to make sure you’ve covered all of the unmapped
+entities – each asset check should now pass with zero unmapped IDs.</p>
 </section>
 <section id="integrating-newly-mapped-records-into-pudl">
 <h2>Integrating Newly Mapped Records into PUDL<a class="headerlink" href="#integrating-newly-mapped-records-into-pudl" title="Link to this heading">#</a></h2>
