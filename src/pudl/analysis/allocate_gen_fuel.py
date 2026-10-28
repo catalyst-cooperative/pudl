@@ -632,8 +632,10 @@ def stack_generators(
     # get a list of all energy_source_code, planned_energy_source_code, and startup_source_code columns
     esc = list(gens.filter(regex="source_code"))
 
+    # pandas 3's stack() keeps null entries (pandas 2 dropped them by default), so
+    # drop them explicitly to avoid a spurious null energy source per generator.
     gens_stack_prep = (
-        pd.DataFrame(gens.set_index(IDX_GENS)[esc].stack(level=0))
+        pd.DataFrame(gens.set_index(IDX_GENS)[esc].stack(level=0).dropna())
         .reset_index()
         .rename(columns={"level_3": cat_col, 0: stacked_col})
         .pipe(apply_pudl_dtypes, field_namespace="eia")
