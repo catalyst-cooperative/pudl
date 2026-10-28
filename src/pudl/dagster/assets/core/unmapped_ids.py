@@ -19,6 +19,7 @@ every output asset name defined here must keep that ``missing_`` prefix.
 """
 
 from collections.abc import Iterator
+from functools import partial
 
 import dagster as dg
 import pandas as pd
@@ -26,7 +27,7 @@ import pandas as pd
 import pudl.glue.ferc1_eia as glue_ferc1_eia
 import pudl.logging_helpers
 from pudl.extract.ferc1 import FERC1_DBF_SQLITE_ASSET_KEY, FERC1_XBRL_SQLITE_ASSET_KEY
-from pudl.transform.ferc1 import ferc1_transform_asset_factory
+from pudl.transform.ferc1 import TableIdFerc1, ferc1_transform_asset_factory
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -76,9 +77,11 @@ def _util_ids_ferc1_raw_xbrl(context) -> pd.DataFrame:
 _generic_ferc1_plant_transform_assets = [
     ferc1_transform_asset_factory(
         table_name,
-        glue_ferc1_eia.GenericPlantFerc1TableTransformer,  # type: ignore[bad-argument-type]
+        partial(
+            glue_ferc1_eia.GenericPlantFerc1TableTransformer,
+            table_id=TableIdFerc1(table_name),
+        ),
         convert_dtypes=False,
-        generic=True,
         name=f"_ferc1_generic__{table_name}",
         # These assets are renamed away from table_name to avoid colliding with the
         # real core_ferc1__* asset, so the default parquet_io_manager can't look up

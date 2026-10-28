@@ -37,7 +37,7 @@ repos:
   ####################################################################################
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.17.1
+    rev: v0.17.2
     hooks:
       - id: ruff-check
         args: [--fix]
@@ -105,7 +105,7 @@ repos:
 
   # Scan for secrets and credentials
   - repo: https://github.com/trufflesecurity/trufflehog
-    rev: v3.99.3
+    rev: v3.99.7
     hooks:
       - id: trufflehog
         name: TruffleHog

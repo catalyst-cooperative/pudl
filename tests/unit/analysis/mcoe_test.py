@@ -10,6 +10,7 @@ generated :class:`~dagster.AssetChecksDefinition` and calling it with a plain
 
 import pandas as pd
 import pytest
+from dagster import OpDefinition
 
 from pudl.analysis.mcoe import McoeCheckSpec, mcoe_asset_check_factory
 
@@ -23,7 +24,10 @@ def _call_check(spec: McoeCheckSpec, df: pd.DataFrame):
     a running Dagster instance.
     """
     check = mcoe_asset_check_factory(spec)
-    return check.node_def.compute_fn.decorated_fn(df)
+    assert isinstance(check.node_def, OpDefinition)
+    # Dagster's stubs type compute_fn as a plain function; at runtime it is a
+    # DecoratedOpFunction which keeps the user's original function as decorated_fn.
+    return check.node_def.compute_fn.decorated_fn(df)  # type: ignore[missing-attribute]
 
 
 @pytest.mark.parametrize(

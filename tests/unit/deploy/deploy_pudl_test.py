@@ -695,6 +695,7 @@ def test_get_build_from_tag(
     other_hash = hashlib.sha1(b"More fake data to hash").hexdigest()[0:9]  # noqa: S324
 
     # Create build directories in tmp_path
+    expected_path: Path | None = None
     if create_builds:
         for build_name, most_recent_build in [
             (f"{build_type}-2026-02-04-1230-{expected_hash}-{git_ref_name}", True),

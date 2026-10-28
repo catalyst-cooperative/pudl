@@ -3,21 +3,21 @@
   "skills": {
     "dagster-expert": {
       "source": "dagster-io/skills",
-      "ref": "v1.13.26",
+      "ref": "v1.13.27",
       "sourceType": "github",
       "skillPath": "plugins/dagster-expert/skills/dagster-expert/SKILL.md",
       "computedHash": "255afd28bf2978c70185a54da749084cf406287aa81b75641a91f2a04ffc67c8"
     },
     "datapackage": {
       "source": "catalyst-cooperative/agent-skills",
-      "ref": "v2026.9.0",
+      "ref": "v2026.10.0",
       "sourceType": "github",
       "skillPath": "skills/datapackage/SKILL.md",
       "computedHash": "228ee0cdc518a88e1f67500c0a97aab91b81a2f56ee85c9d9fbd087761b62d54"
     },
     "pudl": {
       "source": "catalyst-cooperative/agent-skills",
-      "ref": "v2026.9.0",
+      "ref": "v2026.10.0",
       "sourceType": "github",
       "skillPath": "skills/pudl/SKILL.md",
       "computedHash": "bf72dcce70d7670db0f70e8e8717016152189bc5e79b5f1701c59ea10ed76590"
