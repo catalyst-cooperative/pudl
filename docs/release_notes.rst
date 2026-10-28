@@ -28,9 +28,31 @@ Bug Fixes & Data Cleaning
 
 * Added a missing territory entry to the :ref:`core_pudl__codes_subdivisions` table. See
   :issue:`5696` and :pr:`5716`.
-
 * Added ``plant_function`` values to a few factoids in
   :ref:`out_ferc1__yearly_rate_base`. See :pr:`5690`.
+* ``X`` in the EIA-861 dynamic pricing time-of-use, critical peak, real time and
+  variable peak columns is now treated as ``True`` (a checked box) instead of being
+  turned into a null, which changes four 2018 rows of
+  ``core_eia861__yearly_dynamic_pricing``. All EIA-861 Y/N flag columns now share one
+  case-insensitive conversion to booleans, so a lowercase ``y`` or ``n`` is no longer
+  turned into a null in a few ``core_eia861__yearly_reliability`` rows, and unexpected
+  codes other than Y, N and X raise an error. See :issue:`5617`, :issue:`5601` and
+  :pr:`5718`.
+* Fixed the 2007-2011 EIA-861 advanced metering infrastructure column map, which was
+  loading the utility ownership codes (e.g. ``C`` for cooperative) into ``short_form``
+  and leaving ``entity_type`` null. Those years of
+  ``core_eia861__yearly_advanced_metering_infrastructure`` now have ``entity_type``
+  populated and ``short_form`` null. See :issue:`5617` :pr:`5718`.
+* When EIA-861 rows for the withheld utility 88888 are combined, boolean columns are
+  no longer summed, nulls are now compatible with non-null values, and the row kept
+  when values conflict no longer depends on input row order, which may change a few
+  rows in several EIA-861 tables. See :issue:`5612` and :pr:`5718`.
+* Made the EIA-923 transforms behave the same under pandas 3: date and month columns
+  are now assigned directly instead of through chained ``.loc`` assignment, and the
+  numeric columns summed when de-duplicating EIA-923 generation fuel rows are
+  explicitly cast to ``float64``. See :issue:`5619`, :issue:`5620` and
+  :pr:`5719`.
+*
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -215,19 +237,6 @@ Bug Fixes & Data Cleaning
 * Fixed a bug that gave plants with no reported state the state FIPS code ``74`` (U.S.
   Minor Outlying Islands). Those plants in :ref:`core_eia__entity_plants`, and the
   generators built from them, now have a null ``state_id_fips``. See PR :pr:`5697`.
-* ``X`` in the EIA-861 dynamic pricing time-of-use, critical peak, real time and
-  variable peak columns is now treated as ``True`` (a checked box) instead of being
-  turned into a null, which changes four 2018 rows of
-  ``core_eia861__yearly_dynamic_pricing``. All EIA-861 Y/N flag columns now share one
-  case-insensitive conversion to booleans, so a lowercase ``y`` or ``n`` is no longer
-  turned into a null in a few ``core_eia861__yearly_reliability`` rows, and unexpected
-  codes other than Y, N and X raise an error. See :issue:`5617`, :issue:`5601` and
-  :pr:`5718`.
-* Fixed the 2007-2011 EIA-861 advanced metering infrastructure column map, which was
-  loading the utility ownership codes (e.g. ``C`` for cooperative) into ``short_form``
-  and leaving ``entity_type`` null. Those years of
-  ``core_eia861__yearly_advanced_metering_infrastructure`` now have ``entity_type``
-  populated and ``short_form`` null. See :pr:`5718`.
 * Plant part record IDs for records with a null ``utility_id_eia`` now end in ``null``
   instead of ``<NA>`` (or ``<na>``), consistent with the rest of the ID. This changes
   ``record_id_eia`` and ``plant_part_id_eia`` in ``out_eia__yearly_plant_parts`` and the
