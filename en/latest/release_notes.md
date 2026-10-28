@@ -191,6 +191,17 @@ ETL run.
 * Fixed a bug that gave plants with no reported state the state FIPS code `74` (U.S.
   Minor Outlying Islands). Those plants in [core_eia_\_entity_plants](data_dictionaries/pudl_db.md#core-eia-entity-plants), and the
   generators built from them, now have a null `state_id_fips`. See PR [#5697](https://github.com/catalyst-cooperative/pudl/pull/5697).
+* Plant part record IDs for records with a null `utility_id_eia` now end in `null`
+  instead of `<NA>` (or `<na>`), consistent with the rest of the ID. This changes
+  `record_id_eia` and `plant_part_id_eia` in `out_eia__yearly_plant_parts` and the
+  related plant-part association tables for a few hundred records. See [#5598](https://github.com/catalyst-cooperative/pudl/issues/5598) and
+  [#5721](https://github.com/catalyst-cooperative/pudl/pull/5721).
+* Made null handling in `stack_generators()`, the EIA-176 “other” gas disposition
+  categorization and the EIA-860 ownership spot-fix behave identically under pandas 2
+  and 3. Pandas 3 changed how nulls are treated by `stack()`, `astype(str)` and
+  string comparisons, which would otherwise have left spurious null energy sources,
+  null primary keys, or unremoved bogus ownership records. See [#5621](https://github.com/catalyst-cooperative/pudl/issues/5621),
+  [#5622](https://github.com/catalyst-cooperative/pudl/issues/5622), [#5624](https://github.com/catalyst-cooperative/pudl/issues/5624) and [#5721](https://github.com/catalyst-cooperative/pudl/pull/5721).
 
 ### Performance Improvements
 
