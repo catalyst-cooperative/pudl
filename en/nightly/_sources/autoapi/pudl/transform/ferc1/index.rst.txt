@@ -4144,14 +4144,15 @@ Module Contents
 
 .. py:data:: _FERC1_PLANT_TABLES
 
-.. py:function:: ferc1_transform_asset_factory(table_name: str, tfr_class: collections.abc.Callable[..., Ferc1AbstractTableTransformer], io_manager_key: str | None = 'parquet_io_manager', convert_dtypes: bool = True, op_tags: dict[str, Any] | None = None) -> dagster.AssetsDefinition
+.. py:function:: ferc1_transform_asset_factory(table_name: str, tfr_class: collections.abc.Callable[..., Ferc1AbstractTableTransformer], io_manager_key: str | None = 'parquet_io_manager', convert_dtypes: bool = True, op_tags: dict[str, Any] | None = None, name: str | None = None) -> dagster.AssetsDefinition
 
    Create an asset that pulls in raw ferc Form 1 assets and applies transformations.
 
    This is a convenient way to create assets for tables that only depend on raw dbf,
    raw xbrl instant and duration tables and xbrl metadata.
 
-   :param table_name: The name of the table to create an asset for.
+   :param table_name: The name of the table to create an asset for. Also used to look
+                      up the raw DBF/XBRL tables this asset depends on.
    :param tfr_class: A transformer class corresponding to the table_name, or another
                      callable that makes the transformer, such as a :func:`functools.partial` of
                      a class with some of its arguments set. It is called with the XBRL metadata
@@ -4159,6 +4160,11 @@ Module Contents
    :param io_manager_key: the dagster io_manager key to use. None defaults
                           to the fs_io_manager.
    :param convert_dtypes: convert dtypes of transformed dataframes.
+   :param name: Override for the produced asset's name. Defaults to ``table_name``.
+                Needed when creating a second, non-canonical asset (e.g. a generic
+                transform used only to compile inputs for manual ID mapping) whose
+                upstream dependencies match ``table_name`` but whose asset key must not
+                collide with the real ``table_name`` asset.
 
    :returns: An asset for the clean table.
 

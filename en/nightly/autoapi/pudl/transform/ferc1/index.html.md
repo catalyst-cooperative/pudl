@@ -3231,7 +3231,7 @@ and will break the pk expectations.
 
 ### pudl.transform.ferc1.\_FERC1_PLANT_TABLES
 
-### pudl.transform.ferc1.ferc1_transform_asset_factory(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), tfr_class: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[..., [Ferc1AbstractTableTransformer](#pudl.transform.ferc1.Ferc1AbstractTableTransformer)], io_manager_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = 'parquet_io_manager', convert_dtypes: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True, op_tags: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any] | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)
+### pudl.transform.ferc1.ferc1_transform_asset_factory(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), tfr_class: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[..., [Ferc1AbstractTableTransformer](#pudl.transform.ferc1.Ferc1AbstractTableTransformer)], io_manager_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = 'parquet_io_manager', convert_dtypes: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True, op_tags: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any] | [None](https://docs.python.org/3/builtins/constants.html#None) = None, name: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)
 
 Create an asset that pulls in raw ferc Form 1 assets and applies transformations.
 
@@ -3239,7 +3239,8 @@ This is a convenient way to create assets for tables that only depend on raw dbf
 raw xbrl instant and duration tables and xbrl metadata.
 
 * **Parameters:**
-  * **table_name** – The name of the table to create an asset for.
+  * **table_name** – The name of the table to create an asset for. Also used to look
+    up the raw DBF/XBRL tables this asset depends on.
   * **tfr_class** – A transformer class corresponding to the table_name, or another
     callable that makes the transformer, such as a [`functools.partial()`](https://docs.python.org/3/library/functools.html#functools.partial) of
     a class with some of its arguments set. It is called with the XBRL metadata
@@ -3247,6 +3248,11 @@ raw xbrl instant and duration tables and xbrl metadata.
   * **io_manager_key** – the dagster io_manager key to use. None defaults
     to the fs_io_manager.
   * **convert_dtypes** – convert dtypes of transformed dataframes.
+  * **name** – Override for the produced asset’s name. Defaults to `table_name`.
+    Needed when creating a second, non-canonical asset (e.g. a generic
+    transform used only to compile inputs for manual ID mapping) whose
+    upstream dependencies match `table_name` but whose asset key must not
+    collide with the real `table_name` asset.
 * **Returns:**
   An asset for the clean table.
 

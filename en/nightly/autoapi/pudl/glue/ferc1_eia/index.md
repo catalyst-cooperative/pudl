@@ -31,14 +31,15 @@ as an id.
 
 ## Attributes
 
-| [`logger`](#pudl.glue.ferc1_eia.logger)                |                                                       |
-|------------------------------------------------------------------------|-------------------------------------------------------|
-| [`PUDL_ID_MAP_XLSX`](#pudl.glue.ferc1_eia.PUDL_ID_MAP_XLSX)      | Path to the PUDL ID mapping sheet with the plant map. |
-| [`UTIL_ID_PUDL_MAP_CSV`](#pudl.glue.ferc1_eia.UTIL_ID_PUDL_MAP_CSV)  | Path to the PUDL utility ID mapping CSV.              |
-| [`UTIL_ID_FERC_MAP_CSV`](#pudl.glue.ferc1_eia.UTIL_ID_FERC_MAP_CSV)  | Path to the PUDL-assign FERC1 utility ID mapping CSV. |
-| [`MIN_PLANT_CAPACITY_MW`](#pudl.glue.ferc1_eia.MIN_PLANT_CAPACITY_MW) |                                                       |
-| [`MAX_LOST_PLANTS_EIA`](#pudl.glue.ferc1_eia.MAX_LOST_PLANTS_EIA)   |                                                       |
-| [`MAX_LOST_UTILS_EIA`](#pudl.glue.ferc1_eia.MAX_LOST_UTILS_EIA)    |                                                       |
+| [`logger`](#pudl.glue.ferc1_eia.logger)                     |                                                                                |
+|-----------------------------------------------------------------------------|--------------------------------------------------------------------------------|
+| [`PUDL_ID_MAP_XLSX`](#pudl.glue.ferc1_eia.PUDL_ID_MAP_XLSX)           | Path to the PUDL ID mapping sheet with the plant map.                          |
+| [`UTIL_ID_PUDL_MAP_CSV`](#pudl.glue.ferc1_eia.UTIL_ID_PUDL_MAP_CSV)       | Path to the PUDL utility ID mapping CSV.                                       |
+| [`UTIL_ID_FERC_MAP_CSV`](#pudl.glue.ferc1_eia.UTIL_ID_FERC_MAP_CSV)       | Path to the PUDL-assign FERC1 utility ID mapping CSV.                          |
+| [`MIN_PLANT_CAPACITY_MW`](#pudl.glue.ferc1_eia.MIN_PLANT_CAPACITY_MW)      |                                                                                |
+| [`MAX_LOST_PLANTS_EIA`](#pudl.glue.ferc1_eia.MAX_LOST_PLANTS_EIA)        |                                                                                |
+| [`MAX_LOST_UTILS_EIA`](#pudl.glue.ferc1_eia.MAX_LOST_UTILS_EIA)         |                                                                                |
+| [`GENERIC_FERC1_PLANT_TABLES`](#pudl.glue.ferc1_eia.GENERIC_FERC1_PLANT_TABLES) | FERC1 tables used to compile the full raw list of FERC1 plants for ID mapping. |
 
 ## Classes
 
@@ -54,14 +55,15 @@ as an id.
 | [`get_mapped_plants_eia`](#pudl.glue.ferc1_eia.get_mapped_plants_eia)(→ pandas.DataFrame)                | Get a list of all EIA plants that have been assigned PUDL Plant IDs.         |
 | [`get_util_ids_ferc1_raw_xbrl`](#pudl.glue.ferc1_eia.get_util_ids_ferc1_raw_xbrl)(→ pandas.DataFrame)          | Grab the utility ids (reported as entity_id) in the FERC1 XBRL database.     |
 | [`get_util_ids_ferc1_raw_dbf`](#pudl.glue.ferc1_eia.get_util_ids_ferc1_raw_dbf)(→ pandas.DataFrame)           | Grab the utility ids (reported as respondent_id) in the FERC1 DBF database.  |
-| [`get_plants_ferc1_raw_job`](#pudl.glue.ferc1_eia.get_plants_ferc1_raw_job)(→ dagster.JobDefinition)        | Pull all plants in the FERC Form 1 DBF and XBRL DB for given years.          |
+| [`compile_plants_ferc1_raw`](#pudl.glue.ferc1_eia.compile_plants_ferc1_raw)(→ pandas.DataFrame)             | Compile a full list of raw FERC1 plants for manual ID mapping.               |
 | [`get_missing_ids`](#pudl.glue.ferc1_eia.get_missing_ids)(→ pandas.Index)                          | Identify IDs that are missing from the left df but show up in the right df.  |
 | [`label_missing_ids_for_manual_mapping`](#pudl.glue.ferc1_eia.label_missing_ids_for_manual_mapping)(→ pandas.DataFrame) | Label unmapped IDs for manual mapping.                                       |
 | [`label_plants_eia`](#pudl.glue.ferc1_eia.label_plants_eia)(→ pandas.DataFrame)                     | Label plants with columns helpful in manual mapping.                         |
 | [`label_utilities_ferc1_dbf`](#pudl.glue.ferc1_eia.label_utilities_ferc1_dbf)(→ pandas.DataFrame)            | Get the DBF FERC1 utilities with their names.                                |
 | [`label_utilities_ferc1_xbrl`](#pudl.glue.ferc1_eia.label_utilities_ferc1_xbrl)(→ pandas.DataFrame)           | Get the XBRL FERC1 utilities with their names.                               |
-| [`get_utility_most_recent_capacity`](#pudl.glue.ferc1_eia.get_utility_most_recent_capacity)(→ pandas.DataFrame)     | Calculate total generation capacity by utility in most recent reported year. |
-| [`get_core_eia923_plant_ids`](#pudl.glue.ferc1_eia.get_core_eia923_plant_ids)()                              | Compile Plant IDs for all plants that appear in core EIA-923 tables.         |
+| [`get_utility_most_recent_capacity`](#pudl.glue.ferc1_eia.get_utility_most_recent_capacity)(→ pandas.Series)        | Calculate total generation capacity by utility in most recent reported year. |
+| [`get_core_eia923_plant_id_tables`](#pudl.glue.ferc1_eia.get_core_eia923_plant_id_tables)(→ tuple[str, ...])       | Get the names of core_eia923 tables that contain plant_id_eia.               |
+| [`get_core_eia923_plant_ids`](#pudl.glue.ferc1_eia.get_core_eia923_plant_ids)(→ set)                         | Compile Plant IDs for all plants that appear in core EIA-923 tables.         |
 | [`get_util_ids_eia_unmapped`](#pudl.glue.ferc1_eia.get_util_ids_eia_unmapped)(→ pandas.DataFrame)            | Get a list of all the EIA Utilities in the PUDL DB without PUDL IDs.         |
 | [`glue`](#pudl.glue.ferc1_eia.glue)([ferc1, eia])                                       | Generates a dictionary of dataframes for glue tables between FERC1, EIA.     |
 
@@ -150,11 +152,21 @@ This parent classes’ method drops the whole df if all of the
 in empty required columns because we know that the real ETL adds columns during
 the full transform step.
 
-### pudl.glue.ferc1_eia.get_plants_ferc1_raw_job() → [dagster.JobDefinition](https://dagster.io/docs/api/dagster/jobs/#dagster.JobDefinition)
+### pudl.glue.ferc1_eia.GENERIC_FERC1_PLANT_TABLES *: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), ...]* *= ('core_ferc1_\_yearly_hydroelectric_plants_sched406', 'core_ferc1_\_yearly_small_plants_sched410',...*
 
-Pull all plants in the FERC Form 1 DBF and XBRL DB for given years.
+FERC1 tables used to compile the full raw list of FERC1 plants for ID mapping.
 
-This job expects ferc1_dbf.sqlite and ferc_xbrl.sqlite databases to be populated.
+Transformed using [`GenericPlantFerc1TableTransformer`](#pudl.glue.ferc1_eia.GenericPlantFerc1TableTransformer) rather than the real
+per-table transformers, since plants that haven’t been manually assigned a
+`plant_id_pudl` yet would otherwise fail the real transformers’ FK/validity checks.
+
+### pudl.glue.ferc1_eia.compile_plants_ferc1_raw(plant_dfs: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Compile a full list of raw FERC1 plants for manual ID mapping.
+
+* **Parameters:**
+  **plant_dfs** – one dataframe per table in [`GENERIC_FERC1_PLANT_TABLES`](#pudl.glue.ferc1_eia.GENERIC_FERC1_PLANT_TABLES),
+  each produced by [`GenericPlantFerc1TableTransformer`](#pudl.glue.ferc1_eia.GenericPlantFerc1TableTransformer).
 
 ### pudl.glue.ferc1_eia.get_missing_ids(ids_left: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), ids_right: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), id_cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [pandas.Index](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Index.html#pandas.Index)
 
@@ -184,15 +196,26 @@ Get the DBF FERC1 utilities with their names.
 
 Get the XBRL FERC1 utilities with their names.
 
-### pudl.glue.ferc1_eia.get_utility_most_recent_capacity() → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.glue.ferc1_eia.get_utility_most_recent_capacity(core_eia860_\_scd_generators: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
 
 Calculate total generation capacity by utility in most recent reported year.
 
-### pudl.glue.ferc1_eia.get_core_eia923_plant_ids()
+### pudl.glue.ferc1_eia.get_core_eia923_plant_id_tables() → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), ...]
+
+Get the names of core_eia923 tables that contain plant_id_eia.
+
+This is a purely metadata-based lookup (no data is read) so it can be used at
+Dagster asset-definition time to build a dynamic set of upstream dependencies.
+
+### pudl.glue.ferc1_eia.get_core_eia923_plant_ids(eia923_dfs: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]) → [set](https://docs.python.org/3/builtins/stdtypes.html#set)
 
 Compile Plant IDs for all plants that appear in core EIA-923 tables.
 
-### pudl.glue.ferc1_eia.get_util_ids_eia_unmapped(out_eia_\_yearly_utilities: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), out_eia_\_yearly_generators: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), utilities_eia_mapped: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+* **Parameters:**
+  **eia923_dfs** – mapping of table name to DataFrame for every table named by
+  [`get_core_eia923_plant_id_tables()`](#pudl.glue.ferc1_eia.get_core_eia923_plant_id_tables).
+
+### pudl.glue.ferc1_eia.get_util_ids_eia_unmapped(out_eia_\_yearly_utilities: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), out_eia_\_yearly_generators: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), utilities_eia_mapped: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), eia923_plant_ids: [set](https://docs.python.org/3/builtins/stdtypes.html#set), util_recent_cap: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Get a list of all the EIA Utilities in the PUDL DB without PUDL IDs.
 
@@ -203,6 +226,15 @@ plants which report data somewhere in the EIA-923 data tables. For those utiliti
 that do have plants reporting in EIA-923, sum up the total capacity of all of their
 plants and include that in the output dataframe so that we can effectively
 prioritize mapping them.
+
+* **Parameters:**
+  * **out_eia_\_yearly_utilities** – the output EIA utilities table.
+  * **out_eia_\_yearly_generators** – the output EIA generators table.
+  * **utilities_eia_mapped** – the core_pudl_\_assn_eia_pudl_utilities glue table.
+  * **eia923_plant_ids** – set of all plant_id_eia values that appear in the core
+    EIA-923 tables, from [`get_core_eia923_plant_ids()`](#pudl.glue.ferc1_eia.get_core_eia923_plant_ids).
+  * **util_recent_cap** – total generation capacity by utility in the most recent
+    reported year, from [`get_utility_most_recent_capacity()`](#pudl.glue.ferc1_eia.get_utility_most_recent_capacity).
 
 ### pudl.glue.ferc1_eia.glue(ferc1: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, eia: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False)
 

@@ -1,6 +1,6 @@
 # PUDL
 
-> PUDL 2026.10.1.dev12 documentation
+> PUDL 2026.10.1.dev15 documentation
 
 
 2016-2026, Catalyst Cooperative, CC-BY-4.0
@@ -12,6 +12,7 @@
 - [pudl.dagster.assets.core.eiaapi_electricity](eiaapi_electricity/index.html.md): Dagster assets for EIA API electricity aggregates.
 - [pudl.dagster.assets.core.glue](glue/index.html.md): Dagster assets for cross-dataset glue tables.
 - [pudl.dagster.assets.core.static](static/index.html.md): Dagster assets for static reference tables.
+- [pudl.dagster.assets.core.unmapped_ids](unmapped_ids/index.html.md): Dagster assets identifying FERC1/EIA plant &amp; utility IDs missing manual mapping.
 
 ## Optional
 

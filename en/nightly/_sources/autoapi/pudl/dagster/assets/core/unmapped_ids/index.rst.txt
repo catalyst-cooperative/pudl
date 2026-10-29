@@ -1,0 +1,110 @@
+pudl.dagster.assets.core.unmapped_ids
+=====================================
+
+.. py:module:: pudl.dagster.assets.core.unmapped_ids
+
+.. autoapi-nested-parse::
+
+   Dagster assets identifying FERC1/EIA plant & utility IDs missing manual mapping.
+
+   FERC Form 1 and EIA plants and utilities are linked together using a manually curated
+   ID mapping spreadsheet (see :mod:`pudl.glue.ferc1_eia`). As new years of data are
+   added, new plants and utilities show up that haven't been manually mapped yet. The
+   assets defined here identify those unmapped IDs so they can be reviewed and added to
+   the mapping spreadsheet -- see :doc:`/dev/pudl_id_mapping` for the overall process.
+
+   We expect these assets to always be empty in a healthy ETL run; the asset checks
+   registered against them in :mod:`pudl.dagster.asset_checks` fail the run if any of
+   them contain rows. Each is also written out as a CSV under ``$PUDL_OUTPUT`` so the
+   unmapped IDs are easy to find and use when updating the mapping spreadsheet.
+
+   These CSVs are development-only artifacts: they should show up in the raw build
+   outputs on ``builds.catalyst.coop``, but must never reach the public S3/GCS buckets
+   or Zenodo releases. ``pudl.deploy.pudl.prepare_outputs_for_distribution`` excludes
+   them from public distribution by matching the ``missing_*.csv`` filename pattern, so
+   every output asset name defined here must keep that ``missing_`` prefix.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.dagster.assets.core.unmapped_ids.logger
+   pudl.dagster.assets.core.unmapped_ids._generic_ferc1_plant_transform_assets
+   pudl.dagster.assets.core.unmapped_ids._eia923_plant_id_tables
+   pudl.dagster.assets.core.unmapped_ids.UNMAPPED_ID_ASSET_NAMES
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.dagster.assets.core.unmapped_ids._lower_strings
+   pudl.dagster.assets.core.unmapped_ids._write_unmapped_ids_csv
+   pudl.dagster.assets.core.unmapped_ids._util_ids_ferc1_raw_dbf
+   pudl.dagster.assets.core.unmapped_ids._util_ids_ferc1_raw_xbrl
+   pudl.dagster.assets.core.unmapped_ids._plants_ferc1_raw
+   pudl.dagster.assets.core.unmapped_ids._eia923_plant_ids
+   pudl.dagster.assets.core.unmapped_ids.unmapped_plants
+   pudl.dagster.assets.core.unmapped_ids.unmapped_utilities
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:function:: _lower_strings(df: pandas.DataFrame) -> pandas.DataFrame
+
+   Lower-case all string values so case differences don't break ID matching.
+
+
+.. py:function:: _write_unmapped_ids_csv(context: dagster.AssetExecutionContext, name: str, df: pandas.DataFrame) -> None
+
+   Write an unmapped-IDs dataframe to ``$PUDL_OUTPUT`` as a CSV for manual mapping.
+
+
+.. py:function:: _util_ids_ferc1_raw_dbf(context) -> pandas.DataFrame
+
+   Utility IDs reported in the raw FERC1 DBF database, for manual ID mapping.
+
+
+.. py:function:: _util_ids_ferc1_raw_xbrl(context) -> pandas.DataFrame
+
+   Utility IDs reported in the raw FERC1 XBRL database, for manual ID mapping.
+
+
+.. py:data:: _generic_ferc1_plant_transform_assets
+
+.. py:function:: _plants_ferc1_raw(**generic_plant_tables: pandas.DataFrame) -> pandas.DataFrame
+
+   All raw FERC1 plants across DBF & XBRL, compiled for manual ID mapping.
+
+
+.. py:data:: _eia923_plant_id_tables
+
+.. py:function:: _eia923_plant_ids(**eia923_dfs: pandas.DataFrame) -> set
+
+   All ``plant_id_eia`` values that appear in the core EIA-923 tables.
+
+
+.. py:function:: unmapped_plants(context: dagster.AssetExecutionContext, core_pudl__entity_plants_pudl: pandas.DataFrame, core_pudl__assn_ferc1_pudl_plants: pandas.DataFrame, core_pudl__assn_eia_pudl_plants: pandas.DataFrame, _plants_ferc1_raw: pandas.DataFrame, out_eia__yearly_plants: pandas.DataFrame, out_eia__yearly_generators: pandas.DataFrame) -> collections.abc.Iterator[dagster.Output[pandas.DataFrame]]
+
+   Identify FERC1 & EIA plants that appear in the data but aren't PUDL-mapped.
+
+
+.. py:function:: unmapped_utilities(context: dagster.AssetExecutionContext, core_pudl__entity_utilities_pudl: pandas.DataFrame, core_pudl__assn_ferc1_pudl_utilities: pandas.DataFrame, core_pudl__assn_ferc1_dbf_pudl_utilities: pandas.DataFrame, core_pudl__assn_ferc1_xbrl_pudl_utilities: pandas.DataFrame, core_pudl__assn_ferc1_pudl_plants: pandas.DataFrame, core_pudl__assn_eia_pudl_utilities: pandas.DataFrame, _util_ids_ferc1_raw_dbf: pandas.DataFrame, _util_ids_ferc1_raw_xbrl: pandas.DataFrame, out_eia__yearly_utilities: pandas.DataFrame, out_eia__yearly_generators: pandas.DataFrame, _eia923_plant_ids: set, core_eia860__scd_generators: pandas.DataFrame) -> collections.abc.Iterator[dagster.Output[pandas.DataFrame]]
+
+   Identify FERC1 & EIA utilities that appear in the data but aren't PUDL-mapped.
+
+
+.. py:data:: UNMAPPED_ID_ASSET_NAMES
+   :type:  tuple[str, ...]
+   :value: ('missing_plant_id_pudl_in_plants_ferc1', 'missing_plants_in_plants_ferc1',...
+
+
+   Names of every unmapped-ID output asset, for use in :mod:`pudl.dagster.asset_checks`.
+

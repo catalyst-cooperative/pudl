@@ -20,10 +20,27 @@
   [#5696](https://github.com/catalyst-cooperative/pudl/issues/5696) and [#5716](https://github.com/catalyst-cooperative/pudl/pull/5716).
 * Added `plant_function` values to a few factoids in
   [out_ferc1_\_yearly_rate_base](data_dictionaries/pudl_db.html.md#out-ferc1-yearly-rate-base). See [#5690](https://github.com/catalyst-cooperative/pudl/pull/5690).
+* Made null handling in `stack_generators()`, the EIA-176 “other” gas disposition
+  categorization and the EIA-860 ownership spot-fix behave identically under pandas 2
+  and 3. Pandas 3 changed how nulls are treated by `stack()`, `astype(str)` and
+  string comparisons, which would otherwise have left spurious null energy sources,
+  null primary keys, or unremoved bogus ownership records. See [#5621](https://github.com/catalyst-cooperative/pudl/issues/5621),
+  [#5622](https://github.com/catalyst-cooperative/pudl/issues/5622), [#5624](https://github.com/catalyst-cooperative/pudl/issues/5624) and [#5721](https://github.com/catalyst-cooperative/pudl/pull/5721).
 
 ### Performance Improvements
 
 ### Developer Experience
+
+* Plant part record IDs for records with a null `utility_id_eia` now end in `null`
+  instead of `<NA>` (or `<na>`), consistent with the rest of the ID. This changes
+  `record_id_eia` and `plant_part_id_eia` in `out_eia__yearly_plant_parts` and the
+  related plant-part association tables for a few hundred records. See [#5598](https://github.com/catalyst-cooperative/pudl/issues/5598) and
+  [#5721](https://github.com/catalyst-cooperative/pudl/pull/5721).
+* Replaced the standalone `pixi run unmapped-ids` pytest task with analogous Dagster
+  assets ([`pudl.dagster.assets.core.unmapped_ids`](autoapi/pudl/dagster/assets/core/unmapped_ids/index.html.md#module-pudl.dagster.assets.core.unmapped_ids)) that identify FERC1 and EIA
+  plant/utility IDs missing from the manual PUDL ID mapping spreadsheet. CSVs are saved
+  with other build outputs on `builds.catalyst.coop` and fail the ETL if they are
+  non-empty. See issue [#4338](https://github.com/catalyst-cooperative/pudl/issues/4338) and PR [#5539](https://github.com/catalyst-cooperative/pudl/pull/5539).
 
 <a id="release-v2026-10-0"></a>
 
