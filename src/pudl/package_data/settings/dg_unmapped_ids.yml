@@ -1,0 +1,28 @@
+# Run config for the ``unmapped_ids`` job. Same as dg_full.yml, but without the
+# ``ops`` section: Dagster rejects config for ops (here the EPA CEMS operational
+# characteristics asset) that aren't part of the job being launched.
+execution:
+  config:
+    multiprocess:
+      max_concurrent: 0
+      tag_concurrency_limits:
+        - key: memory-use
+          value: high
+          limit: 4
+loggers:
+  console:
+    config:
+      log_level: INFO
+resources:
+  datastore:
+    config:
+      cloud_cache_path: s3://pudl.catalyst.coop/zenodo
+      use_local_cache: true
+  global_data_config:
+    config:
+      global_data_config_path: src/pudl/package_data/settings/etl_full.yml
+  runtime_settings:
+    config:
+      xbrl_num_workers: 4
+      xbrl_batch_size: 50
+      xbrl_loglevel: INFO

@@ -581,11 +581,6 @@
       "concise_description": "Returned type `Series` is not assignable to declared return type `DataFrame`"
     },
     {
-      "path": "src/pudl/glue/ferc1_eia.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `Series` is not assignable to declared return type `DataFrame`"
-    },
-    {
       "path": "src/pudl/extract/rus12.py",
       "name": "bad-return",
       "concise_description": "Returned type `Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` is not assignable to declared return type `str`"
