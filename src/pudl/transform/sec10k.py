@@ -46,12 +46,26 @@ def _compute_fraction_owned(percent_ownership: pd.Series) -> pd.Series:
     """Clean percent ownership, convert to float, then convert percent to ratio.
 
     The percentages were extracted from text tables, so some carry runs of leader dots
-    (e.g. ``"....99"`` or ``"65......"``). These are removed, and entries containing
+    (e.g. ``"....99"`` or ``"65......"``). The dots are removed, and entries containing
     nothing but dots are treated as missing.
+
+    All the extracted numerical values are treated as percentages, including those below
+    1, since there is no reliable way to tell a reported fraction (``"0.95"``) from a
+    small percentage (``"0.01"`` alongside ``"99.99"``) on a per-row basis. Ratios
+    outside of 0-1 (e.g. several adjacent percentages that have been run together) are
+    set to null.
     """
     only_dots = percent_ownership.str.fullmatch(r"\.+", na=False)
+    # Remove rows that are only dots, then remove any runs of multiple dots from the
+    # remaining values. This will leave a string that can be unambiguously interpreted
+    # as a float (e.g. 0.95 or .99)
     cleaned = percent_ownership.mask(only_dots).str.replace(r"\.{2,}", "", regex=True)
-    return cleaned.astype("float") / 100.0
+    # Turn the percentage into a fraction. We treat all values as percentages because
+    # there are a significant number of cases where one company owns a de minimis stake
+    # in another (e.g. a 0.01% + 99.99% split) and there's no reliable way to identify
+    # which of those values is a percentage and which is a fraction.
+    fraction = cleaned.astype("float") / 100.0
+    return fraction.where(fraction.between(0.0, 1.0))
 
 
 def _standardize_taxpayer_id_irs(taxpayer_id_irs: pd.Series) -> pd.Series:

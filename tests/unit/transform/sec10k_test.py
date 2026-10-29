@@ -86,9 +86,17 @@ subsidiary_company_id_sec10k,subsidiary_company_name,subsidiary_company_location
             ["100.0", "100", "50.0", "99.9"], [1.0, 1.0, 0.5, 0.999], id="plain"
         ),
         pytest.param(
-            [".5", ".04", ".50", "1."],
-            [0.005, 0.0004, 0.005, 0.01],
-            id="single_leading_or_trailing_dot",
+            [".5", ".04", "0.99", "1.", "0"],
+            [0.005, 0.0004, 0.0099, 0.01, 0.0],
+            id="values_below_one_are_percentages",
+        ),
+        pytest.param(
+            ["100100.0", "101", "1.001e+17", "-5"],
+            [np.nan] * 4,
+            id="out_of_range_is_null",
+        ),
+        pytest.param(
+            ["2.69e-05", "1e-05"], [2.69e-07, 1e-07], id="scientific_notation"
         ),
         pytest.param(
             ["..99", "......100", "20..", "49.................."],
@@ -97,11 +105,6 @@ subsidiary_company_id_sec10k,subsidiary_company_name,subsidiary_company_location
         ),
         pytest.param(
             [".", "...", "......."], [np.nan, np.nan, np.nan], id="only_dots_is_na"
-        ),
-        pytest.param(
-            ["2.69e-05", "1e-05", "1.001e+17"],
-            [2.69e-07, 1e-07, 1.001e15],
-            id="scientific_notation",
         ),
         pytest.param(["50.0", None, "25"], [0.5, np.nan, 0.25], id="missing_values"),
     ],

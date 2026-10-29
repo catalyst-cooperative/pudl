@@ -5,15 +5,3 @@ sources:
         data_tests:
           - expect_columns_not_all_null
           - check_row_counts_per_partition
-        columns:
-          - name: fraction_owned
-            data_tests:
-              # The ownership percentages are extracted from text tables, and some of
-              # the extracted values are not percentages at all (e.g. line numbers), so
-              # fraction_owned is sometimes > 1. Observed 9.07% as of Oct. 2026; values
-              # that are > 1 or < 0.01 need further investigation.
-              - expect_column_fraction_outside_range:
-                  arguments:
-                    min_value: 0.0
-                    max_value: 1.0
-                    max_fraction_above: 0.10
