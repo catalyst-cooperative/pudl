@@ -1,5 +1,6 @@
 """Unit tests for Datastore module."""
 
+import hashlib
 import io
 import json
 import re
@@ -145,6 +146,69 @@ def test_json_string_representation():
             },
         ],
     }
+
+
+class TestValidateFileChecksum:
+    """Unit tests for DatapackageDescriptor.validate_file_checksum()."""
+
+    GOOD_BYTES = b"blah"
+    """Stand-in file contents matching the descriptor's recorded checksum."""
+
+    WRONG_BYTES = b"wrongContent"
+    """Stand-in file contents that should fail checksum validation."""
+
+    GOOD_MD5 = hashlib.md5(GOOD_BYTES).hexdigest()  # noqa: S324
+    """md5sum of :data:`GOOD_BYTES`, hashed the same way Zenodo does."""
+
+    @pytest.fixture
+    def desc(self) -> datastore.DatapackageDescriptor:
+        """A descriptor with one resource whose hash is the md5 of GOOD_BYTES."""
+        return datastore.DatapackageDescriptor(
+            {
+                "resources": [
+                    {
+                        "name": "blah.zip",
+                        "path": "http://localhost/blah.zip",
+                        "hash": self.GOOD_MD5,
+                    },
+                ]
+            },
+            dataset="data",
+            doi="doi-123",
+        )
+
+    def test_matching_file_passes(self, desc, tmp_path):
+        """A file whose contents hash to the expected checksum does not raise."""
+        local_file = tmp_path / "blah.zip"
+        local_file.write_bytes(self.GOOD_BYTES)
+        assert desc.validate_file_checksum("blah.zip", local_file) is None
+
+    def test_mismatched_file_raises(self, desc, tmp_path):
+        """A file with unexpected contents raises ChecksumMismatchError."""
+        local_file = tmp_path / "blah.zip"
+        local_file.write_bytes(self.WRONG_BYTES)
+        with pytest.raises(
+            datastore.ChecksumMismatchError, match="does not match"
+        ) as excinfo:
+            desc.validate_file_checksum("blah.zip", local_file)
+        # Both the expected and observed digests are reported, to make a mismatch
+        # in a multi-GB archive diagnosable from the log alone.
+        assert self.GOOD_MD5 in str(excinfo.value)
+        assert hashlib.md5(self.WRONG_BYTES).hexdigest() in str(excinfo.value)  # noqa: S324
+
+    def test_empty_file_raises(self, desc, tmp_path):
+        """A zero-byte file (e.g. a truncated download) is caught, not silently OK."""
+        local_file = tmp_path / "blah.zip"
+        local_file.write_bytes(b"")
+        with pytest.raises(datastore.ChecksumMismatchError):
+            desc.validate_file_checksum("blah.zip", local_file)
+
+    def test_unknown_resource_raises_key_error(self, desc, tmp_path):
+        """Validating a resource absent from the descriptor raises KeyError."""
+        local_file = tmp_path / "other.zip"
+        local_file.write_bytes(self.GOOD_BYTES)
+        with pytest.raises(KeyError):
+            desc.validate_file_checksum("other.zip", local_file)
 
 
 class MockableZenodoFetcher(datastore.ZenodoFetcher):

@@ -675,7 +675,8 @@ def deployment_status_asset(
     until it eventually times out.
 
     Args:
-        deps: Asset keys the generated asset depends on.
+        deps: Asset keys the generated asset depends on. Primarily to guarantee that the
+            success asset will only run after the datapackage asset has run.
     """
 
     def decorator(asset_fn: Callable) -> dg.AssetsDefinition:

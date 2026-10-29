@@ -3069,6 +3069,7 @@ class Package(PudlMeta):
 
 
 FERCEQR_PACKAGE = Package.from_resource_ids(
+    name="ferceqr",
     title="The Public Utility Data Liberation Project (PUDL) FERC EQR Data",
     version=_get_version("catalystcoop.pudl"),
     description=(

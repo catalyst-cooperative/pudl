@@ -4,6 +4,7 @@ import json
 import re
 from collections.abc import Callable
 from datetime import date
+from itertools import chain
 from typing import Any, Literal
 
 import duckdb.sqltypes
@@ -50,6 +51,7 @@ from pudl.metadata.sources import SOURCES
 from pudl.metadata.units import PUDL_UNIT_REGISTRY
 
 PUDL_RESOURCES = {r.name: r for r in PUDL_PACKAGE.resources}
+FERCEQR_RESOURCES = {r.name: r for r in FERCEQR_PACKAGE.resources}
 PUDL_ENCODERS = PUDL_PACKAGE.encoders
 
 
@@ -709,8 +711,7 @@ def test_field_unit_strings() -> None:
 def test_defined_fields_are_used():
     """Check that all fields which are defined are actually used."""
     used_fields = set()
-    all_resources = [*PUDL_PACKAGE.resources, *FERCEQR_PACKAGE.resources]
-    for resource in all_resources:
+    for resource in chain(PUDL_RESOURCES.values(), FERCEQR_RESOURCES.values()):
         used_fields |= {f.name for f in resource.schema.fields}
     defined_fields = set(FIELD_METADATA.keys())
     unused_fields = sorted(defined_fields - used_fields)
@@ -917,11 +918,10 @@ def test_resource_descriptor_schema_failures_w_geometry(
         dummy_pandera_schema_w_geometry.validate(data)
 
 
-def test_frictionless_data_package_non_empty(tmp_path):
+def test_frictionless_data_package_non_empty():
     pudl_datapackage = PUDL_PACKAGE.to_frictionless()
-    eqr_datapackage = FERCEQR_PACKAGE.to_frictionless()
-    assert len(eqr_datapackage.resources) > 0
-    assert len(pudl_datapackage.resources) + len(eqr_datapackage.resources) == len(
+    ferceqr_datapackage = FERCEQR_PACKAGE.to_frictionless()
+    assert len(pudl_datapackage.resources + ferceqr_datapackage.resources) == len(
         RESOURCE_METADATA
     )
 
@@ -1051,16 +1051,17 @@ def test_from_resource_ids_etl_groups_exact_match():
         Package.from_resource_ids(included_etl_groups="ferceqr")  # type: ignore[bad-argument-type]
 
 
-def test_frictionless_data_package_split_resources():
-    """Test that the PUDL and FERC EQR packages partition the resources by ETL group."""
+def test_frictionless_data_package_filter_resources():
+    """Test that filtering resources when converting Package to frictionless works as expected."""
     expected_num_eqr_resources = 4
-    pudl_resources = PUDL_PACKAGE.to_frictionless().resources
-    eqr_resources = FERCEQR_PACKAGE.to_frictionless().resources
+    no_eqr_resources = PUDL_PACKAGE.to_frictionless().resources
+    only_eqr_resources = FERCEQR_PACKAGE.to_frictionless().resources
+    all_resources = no_eqr_resources + only_eqr_resources
 
-    assert len(eqr_resources) == expected_num_eqr_resources
-    assert not any("eqr" in r.name for r in pudl_resources)
-    assert all("eqr" in r.name for r in eqr_resources)
-    assert {r.name for r in pudl_resources}.isdisjoint({r.name for r in eqr_resources})
+    assert len(no_eqr_resources) == (len(all_resources) - expected_num_eqr_resources)
+    assert len(only_eqr_resources) == expected_num_eqr_resources
+    assert not any("eqr" in r.name for r in no_eqr_resources)
+    assert all("eqr" in r.name for r in only_eqr_resources)
 
 
 @pytest.mark.parametrize(

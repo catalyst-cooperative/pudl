@@ -191,19 +191,21 @@ def _find_sql_asset_keys(assets) -> list[dg.AssetKey]:
 _sql_asset_keys = _find_sql_asset_keys(_base_assets)
 default_assets = _base_assets + [
     build_datapackage_asset(
-        PUDL_PACKAGE, _find_parquet_asset_keys(_base_assets), "pudl_datapackage"
+        package=PUDL_PACKAGE,
+        parquet_asset_keys=_find_parquet_asset_keys(_base_assets),
+        asset_name="pudl_datapackage",
     ),
     build_datapackage_asset(
-        FERCEQR_PACKAGE,
-        [
+        package=FERCEQR_PACKAGE,
+        parquet_asset_keys=[
             spec.key
             for asset_def in _base_assets
             if isinstance(asset_def, dg.AssetsDefinition)
             for spec in asset_def.specs
-            if spec.key.path[-1].startswith("core_ferceqr")
+            if spec.key.path[-1].startswith(("core_ferceqr", "out_ferceqr"))
         ],
-        "ferceqr_datapackage",
-        group_name="core_ferceqr",
+        asset_name="ferceqr_datapackage",
+        group_name="ferceqr_deployment",
         partitioned=True,
     ),
     build_pudl_sqlite_asset(_sql_asset_keys),

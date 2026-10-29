@@ -70,7 +70,7 @@ def test_asset_checks_preserve_runtime_input_types(
     """Generated checks should advertise the IO-manager input type they expect."""
     check: AssetChecksDefinition | None = asset_check_from_schema(
         dg.AssetKey([asset_name]),
-        FERCEQR_PACKAGE if asset_name.startswith("core_ferceqr") else PUDL_PACKAGE,
+        PUDL_PACKAGE if "ferceqr" not in asset_name else FERCEQR_PACKAGE,
         duckdb_asset=duckdb_asset,
     )
 
