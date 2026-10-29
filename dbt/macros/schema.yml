@@ -10,6 +10,9 @@ macros:
       - name: test
         type: string
         description: Name of the failing test. You can copy this from the failed test output, or trace it back to the entry in schema.yml and set a more legible name there to use while you debug.
+      - name: source
+        type: string
+        description: Name of dbt source corresponding to table. This should be either 'pudl' or 'ferceqr'
   - name: subcomponents_sum_to_total_check
     description: Logic behind the subcomponents_sum_to_total data test, which checks that subcomponent records sum to a reported total record within each group. Subcomponents and totals are identified by the values of one or more categorical columns.
     arguments:

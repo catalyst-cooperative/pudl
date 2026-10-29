@@ -13,6 +13,13 @@ from pudl.dagster import sensors
 from pudl.dagster.assets.deploy import ferceqr as deploy_ferceqr
 
 
+def _run_sensor(sensor, context) -> dg.RunRequest:
+    """Invoke a run-status sensor function and narrow its result to a RunRequest."""
+    run_request = sensor._run_status_sensor_fn(context)
+    assert isinstance(run_request, dg.RunRequest)
+    return run_request
+
+
 def _build_deploy_context(tmp_path, mocker, targets=None):
     """Build a Dagster asset context with a minimal pudl_paths resource."""
     deployment_resource = SimpleNamespace(
@@ -46,11 +53,27 @@ def _report_datapackage_materialization(deploy_context, tmp_path) -> Path:
     return datapackage_path
 
 
+def _passing_validation_stages(mocker):
+    """Passing dbt validation stages, matching _run_ferceqr_validation's shape."""
+    return [
+        deploy_ferceqr.ValidationStage(
+            name=name,
+            result=mocker.Mock(
+                success=True,
+                format_failure_contexts=mocker.Mock(return_value=""),
+            ),
+        )
+        for name in ("Data validation",)
+    ]
+
+
 def _mock_deploy_dependencies(mocker, deploy_context, source_root, source_partitions):
     """Set up shared mocks for deploy_ferceqr tests: datapackage, ParquetData, run tags.
 
     Creates source parquet files under *source_root* and mocks context.run tags
-    with *source_partitions*. Returns the mocked zulip resource for assertions.
+    with *source_partitions*. The dbt validation stages are stubbed out as passing
+    -- running dbt is far too slow for a unit test and needs real Parquet outputs.
+    Returns the mocked zulip resource for assertions.
     """
     _report_datapackage_materialization(
         deploy_context, Path(deploy_context.resources.pudl_paths.pudl_output)
@@ -79,6 +102,12 @@ def _mock_deploy_dependencies(mocker, deploy_context, source_root, source_partit
             self.parquet_directory = source_root / table_name
 
     mocker.patch.object(deploy_ferceqr, "ParquetData", FakeParquetData)
+
+    mocker.patch.object(
+        deploy_ferceqr,
+        "_run_ferceqr_validation",
+        return_value=_passing_validation_stages(mocker),
+    )
 
     for table_name in deploy_ferceqr.FERCEQR_TRANSFORM_ASSETS:
         table_dir = source_root / table_name
@@ -213,7 +242,7 @@ def test_ferceqr_failure_sensor_backfill_with_failures_aggregated(mocker):
         ),
     ]
 
-    run_request = sensors.ferceqr_failure_sensor._run_status_sensor_fn(context)
+    run_request = _run_sensor(sensors.ferceqr_failure_sensor, context)
 
     assert run_request.run_key == "ferceqr_deployment_failure_backfill:bf-456"
     assert run_request.asset_selection == [dg.AssetKey("handle_ferceqr_failure")]
@@ -243,7 +272,7 @@ def test_ferceqr_success_sensor_backfill_success_uses_backfill_run_key(mocker):
         ),
     ]
 
-    run_request = sensors.ferceqr_success_sensor._run_status_sensor_fn(context)
+    run_request = _run_sensor(sensors.ferceqr_success_sensor, context)
 
     assert run_request.run_key == "ferceqr_deployment_success_backfill:bf-123"
     assert run_request.asset_selection == [
@@ -372,7 +401,9 @@ def test_deploy_ferceqr_no_targets_skips_publish(mocker, tmp_path):
     assert not (tmp_path / "FERCEQR_FAILURE").exists()
     # No staging directories were created -- nothing was uploaded.
     assert not any(p.name.startswith("._staging_") for p in tmp_path.iterdir())
-    notification.assert_called_once_with(deploy_context, outcome="SKIPPED")
+    notification.assert_called_once_with(
+        deploy_context, outcome="SKIPPED", validation_stages=mocker.ANY
+    )
     deploy_context.resources.zulip_notification.send_stream_message.assert_called_once()
 
 
@@ -604,3 +635,35 @@ def test_verify_staged_reports_missing_unexpected_and_wrong_size(tmp_path):
     assert "data/t/absent.parquet" in message  # missing
     assert "data/t/extra.parquet" in message  # unexpected
     assert "short.parquet (expected 3 bytes, found 2)" in message  # wrong size
+
+
+def test_deploy_ferceqr_validation_failure_aborts_before_upload(mocker, tmp_path):
+    """Failing dbt validation reports failure and never touches the target."""
+    source_root = tmp_path / "source"
+    deploy_root = tmp_path / "deploy"
+    deploy_root.mkdir()
+    deploy_context = _build_deploy_context(
+        tmp_path, mocker, targets=[UPath(deploy_root)]
+    )
+    zulip_mock = _mock_deploy_dependencies(
+        mocker, deploy_context, source_root, ["2013q3"]
+    )
+    mocker.patch.object(deploy_ferceqr, "logger", mocker.Mock())
+
+    stages = [
+        deploy_ferceqr.ValidationStage(
+            name="Data validation",
+            result=mocker.Mock(
+                success=False,
+                format_failure_contexts=mocker.Mock(return_value="nulls found"),
+            ),
+        )
+    ]
+    mocker.patch.object(deploy_ferceqr, "_run_ferceqr_validation", return_value=stages)
+
+    with pytest.raises(RuntimeError, match="data validation failed: Data validation"):
+        deploy_ferceqr.deploy_ferceqr(deploy_context)
+
+    assert (tmp_path / "FERCEQR_FAILURE").exists()
+    assert list(deploy_root.iterdir()) == []
+    zulip_mock.send_stream_message.assert_called_once()

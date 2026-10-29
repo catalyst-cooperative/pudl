@@ -1,3 +1,4 @@
+import json
 from collections import namedtuple
 from io import StringIO
 from pathlib import Path
@@ -22,6 +23,7 @@ from pudl.scripts.dbt_helper import (
     update_row_counts,
     update_table_schema,
     update_tables,
+    validate,
 )
 
 # Test helper machinery
@@ -82,6 +84,21 @@ def with_name(mock, name):
     return mock
 
 
+@pytest.fixture
+def fake_dbt_source(mocker):
+    """Pretend every table belongs to the ``pudl`` dbt source.
+
+    ``insert_data_source`` looks the table up in the real PUDL metadata to find
+    which dbt source it belongs to, but many of these tests use made-up table
+    names that aren't in ``RESOURCE_METADATA``.
+    """
+    resource = mocker.Mock()
+    resource.dbt_source = "pudl"
+    return mocker.patch(
+        "pudl.scripts.dbt_helper.Resource.from_id", return_value=resource
+    )
+
+
 # dbt helper helpers
 
 
@@ -89,10 +106,15 @@ def with_name(mock, name):
     ("table_name", "expected_data_source"),
     [("_core_eia__foo", "eia"), ("out_ferc__bar", "ferc")],
 )
-def test_insert_data_source(table_name: str, expected_data_source: str, tmp_path: Path):
+def test_insert_data_source(
+    table_name: str,
+    expected_data_source: str,
+    tmp_path: Path,
+    fake_dbt_source,
+):
     """Test that our regex can correctly extract source names from normal-looking table names."""
     observed = insert_data_source(tmp_path, table_name)
-    expected = tmp_path / expected_data_source / table_name
+    expected = tmp_path / "pudl" / expected_data_source / table_name
     assert observed == expected
 
 
@@ -145,7 +167,7 @@ my_table,2023,100
     pd.testing.assert_frame_equal(result, expected)
 
     # Explicitly assert string type
-    assert result["partition"].apply(type).eq(str).all()
+    assert result["partition"].map(lambda v: isinstance(v, str)).all()
 
 
 @pytest.mark.parametrize(
@@ -299,7 +321,7 @@ ROW_COUNT_TEST_CASES = [
 
 
 @pytest.mark.parametrize("case", ROW_COUNT_TEST_CASES)
-def test_update_row_counts(case, schema_factory, mocker, tmp_path):
+def test_update_row_counts(case, schema_factory, mocker, tmp_path, fake_dbt_source):
     given = case.given
     expect = case.expect
 
@@ -720,6 +742,7 @@ def test_update_table_row_counts_clobber(
     tmp_path,
     mocker,
     pudl_test_paths,
+    fake_dbt_source,
 ):
     # make test data
     test_schema = f"""
@@ -741,7 +764,7 @@ sources:
     # don't need to make temporary PUDL_OUT because we do that already in conftest.py
     dbt_dir = tmp_path / "dbt"
     schema_path = (
-        dbt_dir / "models" / "source" / "test_source__table_name" / "schema.yml"
+        insert_data_source(dbt_dir / "models", "test_source__table_name") / "schema.yml"
     )
     row_count_csv_path = dbt_dir / "seeds" / "etl_full_row_counts.csv"
     parquet_path = pudl_test_paths.parquet_path("test_source__table_name")
@@ -794,9 +817,9 @@ PUDL_TABLE = "core_pudl__codes_datasources"
 
 def test_update_schema_no_human(tmp_path):
     """Make sure we handle schema updates properly when there is no human-coded file."""
-    schema_inputs_path = tmp_path / "schema_inputs" / "pudl" / PUDL_TABLE
+    schema_inputs_path = insert_data_source(tmp_path / "schema_inputs", PUDL_TABLE)
     schema_inputs_path.mkdir(parents=True)
-    output_path = tmp_path / "models" / "pudl" / PUDL_TABLE
+    output_path = insert_data_source(tmp_path / "models", PUDL_TABLE)
     output_path.mkdir(parents=True)
 
     update_table_schema(PUDL_TABLE, tmp_path)
@@ -809,11 +832,11 @@ def test_update_schema_no_human(tmp_path):
 
 def test_update_schema_empty_human(tmp_path):
     """Make sure we handle schema updates properly when the human-coded file is empty."""
-    schema_inputs_path = tmp_path / "schema_inputs" / "pudl" / PUDL_TABLE
+    schema_inputs_path = insert_data_source(tmp_path / "schema_inputs", PUDL_TABLE)
     schema_inputs_path.mkdir(parents=True)
     (schema_inputs_path / "schema.human.yml").touch()
 
-    output_path = tmp_path / "models" / "pudl" / PUDL_TABLE
+    output_path = insert_data_source(tmp_path / "models", PUDL_TABLE)
     output_path.mkdir(parents=True)
 
     update_table_schema(PUDL_TABLE, tmp_path)
@@ -826,7 +849,7 @@ def test_update_schema_empty_human(tmp_path):
 
 def test_update_schema(tmp_path):
     """Make sure we handle schema updates properly when the human-coded file has something normal in it."""
-    schema_inputs_path = tmp_path / "schema_inputs" / "pudl" / PUDL_TABLE
+    schema_inputs_path = insert_data_source(tmp_path / "schema_inputs", PUDL_TABLE)
     schema_inputs_path.mkdir(parents=True)
 
     human_yaml = f"""
@@ -849,7 +872,7 @@ sources:
     with (schema_inputs_path / "schema.human.yml").open("w") as f:
         f.write(human_yaml)
 
-    output_path = tmp_path / "models" / "pudl" / PUDL_TABLE
+    output_path = insert_data_source(tmp_path / "models", PUDL_TABLE)
     output_path.mkdir(parents=True)
 
     update_table_schema(PUDL_TABLE, tmp_path)
@@ -857,8 +880,51 @@ sources:
     observed_schema = DbtSchema.from_yaml(output_path / "schema.yml")
     expected_table = DbtTable.from_table_name(PUDL_TABLE)
     expected_table.data_tests = [{"fake_table_test": {"arguments": {"arg": True}}}]
+    assert expected_table.columns is not None
     expected_table.columns[0].data_tests = [
         {"fake_column_test": {"arguments": [{"arg": True}]}}
     ]
     expected_schema = DbtSchema(sources=[DbtSource(tables=[expected_table])])
     assert observed_schema == expected_schema
+
+
+# validate --source
+
+
+def _dry_run_params(args: list[str]) -> dict:
+    result = CliRunner().invoke(validate, [*args, "--dry-run"])
+    assert result.exit_code == 0, result.output
+    return json.loads(result.output.split("params: ", 1)[1])
+
+
+@pytest.mark.parametrize(
+    ("args", "expected_selection"),
+    [
+        ([], "source:pudl+ path:tests/unit_tests"),
+        (["--source", "pudl"], "source:pudl+ path:tests/unit_tests"),
+        (["-s", "ferceqr"], "source:ferceqr+"),
+        (["-s", "*"], "*"),
+        (["--select", "test_name:foo"], "test_name:foo"),
+    ],
+)
+def test_validate_node_selection(args, expected_selection):
+    """Default to the pudl source; ferceqr and everything must be asked for."""
+    assert _dry_run_params(args)["node_selection"] == expected_selection
+
+
+@pytest.mark.parametrize(
+    "other_args",
+    [["--select", "test_name:foo"], ["--asset-select", "key:foo"]],
+)
+def test_validate_source_conflicts_with_explicit_selection(other_args):
+    result = CliRunner().invoke(
+        validate, ["--source", "pudl", *other_args, "--dry-run"]
+    )
+    assert result.exit_code != 0
+    assert "can't pass --source together with" in result.output
+
+
+def test_validate_rejects_unknown_source():
+    result = CliRunner().invoke(validate, ["--source", "nope", "--dry-run"])
+    assert result.exit_code != 0
+    assert "Invalid value for '--source'" in result.output

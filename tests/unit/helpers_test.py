@@ -34,6 +34,7 @@ from pudl.helpers import (
     diff_wide_tables,
     duckdb_connect,
     duckdb_extract_zipped_csv,
+    duckdb_relation_from_parquet,
     env_var_is_true,
     expand_timeseries,
     flatten_list,
@@ -2064,6 +2065,36 @@ class TestDuckdbConnect:
 
 
 @pytest.mark.parametrize(
+    ("use_all_partitions", "expected_read_ahead_depth"),
+    [(True, 0), (False, -1)],
+)
+def test_duckdb_relation_from_parquet_read_ahead(
+    use_all_partitions, expected_read_ahead_depth, tmp_path, mocker
+):
+    """Directory-wide reads disable read-ahead so thousands of files don't stay open."""
+    mocker.patch.object(
+        ParquetData,
+        "parquet_directory",
+        new_callable=mocker.PropertyMock,
+        return_value=tmp_path,
+    )
+    mocker.patch.object(
+        ParquetData,
+        "parquet_path",
+        new_callable=mocker.PropertyMock,
+        return_value=tmp_path / "a.parquet",
+    )
+    pd.DataFrame({"x": [1]}).to_parquet(tmp_path / "a.parquet")
+    parquet_data = ParquetData(table_name="_test__read_ahead", partitions={})
+    with duckdb_relation_from_parquet(
+        parquet_data, use_all_partitions=use_all_partitions
+    ) as (_, conn):
+        depth = conn.execute("select current_setting('read_ahead_depth')").fetchone()
+        assert depth is not None
+        assert depth[0] == expected_read_ahead_depth
+
+
+@pytest.mark.parametrize(
     ("kind", "writer"),
     [
         ("pandas", (pd.DataFrame, "to_parquet")),
@@ -2086,6 +2117,7 @@ def test_persist_table_as_parquet_compression(kind, writer, tmp_path, mocker):
         "polars": lambda: pl.LazyFrame({"a": [1, 2]}),
         "duckdb": lambda: duckdb.sql("SELECT 1 AS a UNION ALL SELECT 2"),
     }[kind]()
+    assert data is not None  # duckdb.sql() is typed Optional (None for non-SELECT)
     spy = mocker.spy(*writer)
 
     parquet_data = persist_table_as_parquet(data, table_name=f"_test__{kind}_zstd")

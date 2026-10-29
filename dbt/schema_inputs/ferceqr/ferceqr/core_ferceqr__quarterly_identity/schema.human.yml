@@ -1,0 +1,7 @@
+version: 2
+sources:
+  - name: ferceqr
+    tables:
+      - name: core_ferceqr__quarterly_identity
+        data_tests:
+          - expect_columns_not_all_null

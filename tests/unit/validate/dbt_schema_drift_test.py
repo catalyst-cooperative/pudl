@@ -6,7 +6,7 @@
 from collections import defaultdict
 from pathlib import Path
 
-from pudl.metadata.classes import PUDL_PACKAGE
+from pudl.metadata.classes import FERCEQR_PACKAGE, PUDL_PACKAGE
 from pudl.scripts.dbt_helper import DbtSchema, insert_data_source
 from pudl.validate.dbt import PUDL_DBT_PATH
 
@@ -47,7 +47,10 @@ def test_dbt_schema_drift():
 
     If differences are found, detail which index is missing which items.
     """
-    all_pudl_tables = [r.name for r in PUDL_PACKAGE.resources]
+    all_pudl_resources = {
+        r.name: r for r in [*PUDL_PACKAGE.resources, *FERCEQR_PACKAGE.resources]
+    }
+    all_pudl_tables = list(all_pudl_resources)
 
     pudl_tables_not_in_dbt = set()
     pudl_fields_not_in_dbt = defaultdict(set)
@@ -79,7 +82,7 @@ def test_dbt_schema_drift():
             for column in table.columns or []
         }
         for field_name in [
-            f.name for f in PUDL_PACKAGE.get_resource(table_name).schema.fields
+            f.name for f in all_pudl_resources[table_name].schema.fields
         ]:
             try:
                 schema_fields.remove(field_name)

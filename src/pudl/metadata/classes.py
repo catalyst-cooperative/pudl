@@ -1664,6 +1664,7 @@ class PudlResourceDescriptor(PudlMeta):
     create_database_schema: bool = True
     path: str | None = None
     extrapaths: list[str] | None = None
+    dbt_source: str = "pudl"
 
 
 class Resource(PudlMeta):
@@ -1808,6 +1809,7 @@ class Resource(PudlMeta):
     extrapaths: list[str] | None = None
     field_namespace: FieldNamespace | None = None
     etl_group: EtlGroup | None = None
+    dbt_source: str = "pudl"
     create_database_schema: bool = True
 
     _check_unique = field_validator("contributors", "keywords", "licenses", "sources")(
@@ -2850,6 +2852,11 @@ class Package(PudlMeta):
                 if len(names) > i:
                     resources += [Resource.dict_from_id(x) for x in names[i:]]
 
+        if isinstance(excluded_etl_groups, str) or isinstance(included_etl_groups, str):
+            raise TypeError(
+                "ETL groups must be a collection of names, not a single string."
+            )
+
         if excluded_etl_groups:
             resources = [
                 resource
@@ -3074,7 +3081,7 @@ FERCEQR_PACKAGE = Package.from_resource_ids(
         "providers. FERC EQR data is included in PUDL, but handled and distributed"
         "separately due to its scale."
     ),
-    included_etl_groups="ferceqr",
+    included_etl_groups=("ferceqr",),
 )
 
 
@@ -3090,7 +3097,7 @@ PUDL_PACKAGE = Package.from_resource_ids(
         "bulk analysis, or the means to purchase it from existing commercial "
         "providers."
     ),
-    excluded_etl_groups="ferceqr",
+    excluded_etl_groups=("ferceqr",),
 )
 """Define a global PUDL package object for use across the entire codebase.
 

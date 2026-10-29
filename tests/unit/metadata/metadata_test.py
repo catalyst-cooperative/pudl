@@ -2,6 +2,7 @@
 
 import json
 import re
+from collections.abc import Callable
 from datetime import date
 from typing import Any, Literal
 
@@ -19,6 +20,7 @@ from pandera.errors import SchemaErrors
 from shapely import Point
 
 from pudl.metadata.classes import (
+    FERCEQR_PACKAGE,
     PUDL_PACKAGE,
     DataSource,
     Field,
@@ -180,7 +182,9 @@ def test_field_to_sql_duckdb_pattern_uses_regexp_full_match() -> None:
     sa.Table("t", metadata, field.to_sql(dialect="duckdb"))
     engine = sa.create_engine("duckdb:///:memory:")
     try:
-        metadata.create_all(engine)  # would raise a Parser Error for bare REGEXP
+        metadata.create_all(
+            engine, checkfirst=False
+        )  # would raise a Parser Error for bare REGEXP
         with engine.begin() as conn:
             conn.execute(sa.text("INSERT INTO t (code) VALUES ('AB')"))
             with pytest.raises(sa.exc.DBAPIError, match="CHECK constraint failed"):
@@ -210,7 +214,9 @@ def test_field_to_sql_duckdb_integer_primary_key_has_no_autoincrement() -> None:
     resource.to_sql(metadata, dialect="duckdb")
     engine = sa.create_engine("duckdb:///:memory:")
     try:
-        metadata.create_all(engine)  # would raise if SERIAL were emitted
+        metadata.create_all(
+            engine, checkfirst=False
+        )  # would raise if SERIAL were emitted
     finally:
         engine.dispose()
 
@@ -285,7 +291,7 @@ def test_field_to_sql_duckdb_same_name_different_enum_values_get_distinct_types(
 
     engine = sa.create_engine("duckdb:///:memory:")
     try:
-        metadata.create_all(engine)
+        metadata.create_all(engine, checkfirst=False)
         with engine.begin() as conn:
             conn.execute(sa.text("INSERT INTO hydro_plants VALUES ('hydro')"))
             conn.execute(sa.text("INSERT INTO fossil_plants VALUES ('combined_cycle')"))
@@ -703,7 +709,8 @@ def test_field_unit_strings() -> None:
 def test_defined_fields_are_used():
     """Check that all fields which are defined are actually used."""
     used_fields = set()
-    for resource in PUDL_RESOURCES.values():
+    all_resources = [*PUDL_PACKAGE.resources, *FERCEQR_PACKAGE.resources]
+    for resource in all_resources:
         used_fields |= {f.name for f in resource.schema.fields}
     defined_fields = set(FIELD_METADATA.keys())
     unused_fields = sorted(defined_fields - used_fields)
@@ -911,8 +918,12 @@ def test_resource_descriptor_schema_failures_w_geometry(
 
 
 def test_frictionless_data_package_non_empty(tmp_path):
-    datapackage = PUDL_PACKAGE.to_frictionless()
-    assert len(datapackage.resources) == len(RESOURCE_METADATA)
+    pudl_datapackage = PUDL_PACKAGE.to_frictionless()
+    eqr_datapackage = FERCEQR_PACKAGE.to_frictionless()
+    assert len(eqr_datapackage.resources) > 0
+    assert len(pudl_datapackage.resources) + len(eqr_datapackage.resources) == len(
+        RESOURCE_METADATA
+    )
 
 
 METADATA_OVERRIDE_KEYS = [
@@ -1023,22 +1034,33 @@ def test_multiple_path_resources(dummy_resource_dict):
     assert set(frictionless_resource.normpaths) == set(paths)
 
 
-def test_frictionless_data_package_filter_resources():
-    """Test that filtering resources when converting Package to frictionless works as expected."""
-    eqr_pattern = r"core_ferceqr.*"
-    expected_num_eqr_resources = 4
-    all_resources = PUDL_PACKAGE.to_frictionless().resources
-    no_eqr_resources = PUDL_PACKAGE.to_frictionless(
-        exclude_pattern=eqr_pattern
-    ).resources
-    only_eqr_resources = PUDL_PACKAGE.to_frictionless(
-        include_pattern=eqr_pattern
-    ).resources
+def test_from_resource_ids_etl_groups_exact_match():
+    """ETL group filters match whole group names, and reject bare strings."""
+    eqr_ids = tuple(r.name for r in FERCEQR_PACKAGE.resources)
+    # "eqr" is a substring of "ferceqr" but not a group name: nothing is excluded.
+    kept = Package.from_resource_ids(resource_ids=eqr_ids, excluded_etl_groups=("eqr",))
+    assert {r.name for r in kept.resources} == set(eqr_ids)
+    mixed_ids = (*eqr_ids, "core_pudl__codes_subdivisions")
+    excluded = Package.from_resource_ids(
+        resource_ids=mixed_ids, excluded_etl_groups=("ferceqr",)
+    )
+    assert {r.name for r in excluded.resources} == {"core_pudl__codes_subdivisions"}
+    with pytest.raises(TypeError, match="not a single string"):
+        Package.from_resource_ids(excluded_etl_groups="ferceqr")  # type: ignore[bad-argument-type]
+    with pytest.raises(TypeError, match="not a single string"):
+        Package.from_resource_ids(included_etl_groups="ferceqr")  # type: ignore[bad-argument-type]
 
-    assert len(no_eqr_resources) == (len(all_resources) - expected_num_eqr_resources)
-    assert len(only_eqr_resources) == expected_num_eqr_resources
-    assert not any("eqr" in r.name for r in no_eqr_resources)
-    assert all("eqr" in r.name for r in only_eqr_resources)
+
+def test_frictionless_data_package_split_resources():
+    """Test that the PUDL and FERC EQR packages partition the resources by ETL group."""
+    expected_num_eqr_resources = 4
+    pudl_resources = PUDL_PACKAGE.to_frictionless().resources
+    eqr_resources = FERCEQR_PACKAGE.to_frictionless().resources
+
+    assert len(eqr_resources) == expected_num_eqr_resources
+    assert not any("eqr" in r.name for r in pudl_resources)
+    assert all("eqr" in r.name for r in eqr_resources)
+    assert {r.name for r in pudl_resources}.isdisjoint({r.name for r in eqr_resources})
 
 
 @pytest.mark.parametrize(
@@ -1307,19 +1329,21 @@ def test_get_pudl_dtypes_global_type() -> None:
 @pytest.mark.parametrize(
     ("dtype_backend", "expected_dtype"),
     [
-        ("pandas", "Int64"),
-        ("polars", pl.Int64),
-        ("sqlite", sa.BigInteger),
-        ("duckdb", duckdb.sqltypes.BIGINT),
-        ("pyarrow", pa.int64()),
+        ("pandas", lambda: "Int64"),
+        ("polars", lambda: pl.Int64),
+        ("sqlite", lambda: sa.BigInteger),
+        # Built lazily: a DuckDBPyType held in the collected test items would outlive
+        # the test session and be reported by nanobind as leaked at interpreter exit.
+        ("duckdb", lambda: duckdb.sqltypes.BIGINT),
+        ("pyarrow", lambda: pa.int64()),
     ],
 )
 def test_get_pudl_dtypes_named_backend(
-    dtype_backend: PudlDtypeBackend, expected_dtype: Any
+    dtype_backend: PudlDtypeBackend, expected_dtype: Callable[[], Any]
 ) -> None:
     """Named dtype backends should select the expected canonical mapping."""
     dtypes = get_pudl_dtypes(dtype_backend=dtype_backend)
-    assert dtypes[_OVERRIDE_FIELD] == expected_dtype
+    assert dtypes[_OVERRIDE_FIELD] == expected_dtype()
 
 
 def test_get_pudl_dtypes_polars_skips_unsupported_types() -> None:
