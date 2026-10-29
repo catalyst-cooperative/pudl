@@ -2565,14 +2565,12 @@ class Ferc1AbstractTableTransformer(
                 Result of :meth:`convert_xbrl_metadata_json_to_df`.
         """
         metadata = xbrl_metadata_converted.copy()
-        # Build an object Series explicitly. On pandas 3, calculations is a pyarrow-backed
-        # string column, so .apply() infers an Arrow list dtype from the parsed JSON.
-        # When every calculation list is empty that dtype is list<null>, which
-        # explode() can't handle.
-        metadata["calculations"] = pd.Series(
-            [json.loads(calc) for calc in metadata.calculations],
-            index=metadata.index,
-            dtype=object,
+        # Convert the calculations JSON column to type object. On pandas 3, calculations
+        # is a pyarrow-backed string column and left that way apply would infer an Arrow
+        # list dtype from the parsed JSON. However, When every calculation list is empty
+        # that dtype is list<null>, which explode() can't handle.
+        metadata["calculations"] = (
+            metadata["calculations"].astype(object).apply(json.loads)
         )
         # reset the index post calc explosion so we can merge on index later
         metadata = metadata.explode("calculations").reset_index(drop=True)
