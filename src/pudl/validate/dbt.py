@@ -19,6 +19,18 @@ from pudl import PUDL_DBT_PATH
 from pudl.logging_helpers import get_logger
 from pudl.workspace.setup import PudlPaths
 
+DBT_SOURCES = ("pudl", "ferceqr")
+"""Names of the dbt sources, each validated against its own set of Parquet outputs."""
+
+DEFAULT_DBT_SOURCE = "pudl"
+"""The dbt source validated when none is specified."""
+
+ALL_DBT_SOURCES = "*"
+"""Selector value meaning every dbt source."""
+
+DBT_UNIT_TESTS_PATH = "tests/unit_tests"
+"""Path, relative to the dbt project, of the unit tests of our dbt macros."""
+
 logger = get_logger(__name__)
 
 

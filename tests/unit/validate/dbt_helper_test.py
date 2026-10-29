@@ -1,3 +1,4 @@
+import json
 from collections import namedtuple
 from io import StringIO
 from pathlib import Path
@@ -22,6 +23,7 @@ from pudl.scripts.dbt_helper import (
     update_row_counts,
     update_table_schema,
     update_tables,
+    validate,
 )
 
 # Test helper machinery
@@ -884,3 +886,45 @@ sources:
     ]
     expected_schema = DbtSchema(sources=[DbtSource(tables=[expected_table])])
     assert observed_schema == expected_schema
+
+
+# validate --source
+
+
+def _dry_run_params(args: list[str]) -> dict:
+    result = CliRunner().invoke(validate, [*args, "--dry-run"])
+    assert result.exit_code == 0, result.output
+    return json.loads(result.output.split("params: ", 1)[1])
+
+
+@pytest.mark.parametrize(
+    ("args", "expected_selection"),
+    [
+        ([], "source:pudl+ path:tests/unit_tests"),
+        (["--source", "pudl"], "source:pudl+ path:tests/unit_tests"),
+        (["-s", "ferceqr"], "source:ferceqr+"),
+        (["-s", "*"], "*"),
+        (["--select", "test_name:foo"], "test_name:foo"),
+    ],
+)
+def test_validate_node_selection(args, expected_selection):
+    """Default to the pudl source; ferceqr and everything must be asked for."""
+    assert _dry_run_params(args)["node_selection"] == expected_selection
+
+
+@pytest.mark.parametrize(
+    "other_args",
+    [["--select", "test_name:foo"], ["--asset-select", "key:foo"]],
+)
+def test_validate_source_conflicts_with_explicit_selection(other_args):
+    result = CliRunner().invoke(
+        validate, ["--source", "pudl", *other_args, "--dry-run"]
+    )
+    assert result.exit_code != 0
+    assert "can't pass --source together with" in result.output
+
+
+def test_validate_rejects_unknown_source():
+    result = CliRunner().invoke(validate, ["--source", "nope", "--dry-run"])
+    assert result.exit_code != 0
+    assert "Invalid value for '--source'" in result.output

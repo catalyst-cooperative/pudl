@@ -75,7 +75,6 @@ StepStatusTable = dict[str, dict[str, str]]
 
 # Constants used for dbt tests
 FERCEQR_DBT_SOURCE = "ferceqr"
-ROW_COUNT_TEST_SELECTOR = "test_name:check_row_counts_per_partition"
 
 
 class ValidationStage(NamedTuple):
@@ -88,26 +87,16 @@ class ValidationStage(NamedTuple):
 def _run_ferceqr_validation() -> list[ValidationStage]:
     """Run the dbt data validations for the FERC EQR tables.
 
-    Mirrors the two pytest validation stages (``tests/validate/data_test.py`` and
-    ``tests/validate/row_counts_test.py``): the general validation suite with the
-    row count checks excluded, then the row count checks on their own.
+    Selects every dbt node downstream of the FERC EQR source. Mirrors the pytest
+    validation in ``tests/validate/data_test.py``.
     """
     logger.info("Running dbt data validations for FERC EQR outputs.")
     data_validation = build_with_context(
         node_selection=f"source:{FERCEQR_DBT_SOURCE}+",
-        node_exclusion=ROW_COUNT_TEST_SELECTOR,
-        dbt_target="etl-full",
-    )
-    # Comma denotes an intersection in dbt's selection syntax: only the row count
-    # tests that are also downstream of the FERC EQR source.
-    logger.info("Running dbt row count checks for FERC EQR outputs.")
-    row_counts = build_with_context(
-        node_selection=f"{ROW_COUNT_TEST_SELECTOR},source:{FERCEQR_DBT_SOURCE}+",
         dbt_target="etl-full",
     )
     return [
         ValidationStage(name="Data validation", result=data_validation),
-        ValidationStage(name="Row counts", result=row_counts),
     ]
 
 

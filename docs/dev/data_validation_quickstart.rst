@@ -32,8 +32,12 @@ Example usage:
 
 .. code-block:: bash
 
-    # for *all* assets
+    # for all of the main PUDL tables (the default source), plus the dbt macro unit tests
     dbt_helper validate
+    # for the FERC EQR tables (large, so not validated by default)
+    dbt_helper validate --source ferceqr
+    # for every source
+    dbt_helper validate --source "*"
     # for just a single asset
     dbt_helper validate --asset-select "key:out_eia__yearly_generators"
     # for this asset as well as all upstream assets
@@ -47,22 +51,27 @@ See ``dbt_helper validate --help`` for usage details.
 
    You may want to run the validation tests against multiple sets of Parquet files.
 
-   To run validation tests on nightly builds, simply add the ``--use-nightly-builds`` option on
-   ``dbt_helper validate``. For example:
+   By default ``dbt_helper validate`` reads the Parquet files in ``$PUDL_OUTPUT/parquet``.
+   To validate Parquet files somewhere else, pass their location with the
+   ``--parquet-base-path`` option. For example, to run validation tests on the nightly
+   builds:
 
    .. code-block:: bash
 
-      dbt_helper validate --asset-select "+key:out_eia__yearly_generators" --use-nightly-builds
+      dbt_helper validate --asset-select "+key:out_eia__yearly_generators" \
+          --parquet-base-path s3://pudl.catalyst.coop/nightly
 
-   If you want to use outputs from a non-nightly path (like outputs from a branch build), you can
-   do the following:
+   The path can be a remote URL or a local directory containing the Parquet files, so
+   you can also use outputs you have downloaded, like those from a branch build:
 
-   1. Download the Parquet files to ``<any_directory_you_want>/parquet/``.
-   2. Set the ``PUDL_OUTPUT`` environment variable to ``<any_directory_you_want>``.
-      (*note* use an absolute path!)
-   3. Run any of the ``dbt_helper`` commands you need.
+   .. code-block:: bash
 
-   Some examples of useful Parquet outputs and where to find them:
+      dbt_helper validate --asset-select "+key:out_eia__yearly_generators" \
+          --parquet-base-path /absolute/path/to/parquet
+
+   Some examples of useful Parquet outputs and where to find them (point
+   ``--parquet-base-path`` at the directory that holds the Parquet files, usually the
+   ``parquet/`` directory inside a ``PUDL_OUTPUT``):
 
    * `the most recent nightly builds <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/pudl_parquet.zip>`__
    * the fast ETL outputs from your integration tests:
