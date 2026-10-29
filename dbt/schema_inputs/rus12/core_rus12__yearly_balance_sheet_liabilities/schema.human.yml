@@ -3,6 +3,135 @@ sources:
     tables:
       - name: core_rus12__yearly_balance_sheet_liabilities
         data_tests:
+          - expect_columns_not_all_null
           - check_row_counts_per_partition:
               arguments:
                 partition_expr: EXTRACT(YEAR FROM report_date)
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  - borrower_id_rus
+                  - report_date
+                categorical_column: liability_type
+                value_column: ending_balance
+                subcomponents_list:
+                  - assigned_and_assignable_patronage_capital
+                negative_subcomponents_list:
+                  - retired_this_year_patronage_capital
+                  - retired_prior_years_patronage_capital
+                total_label: patronage_capital
+                tolerance: 10
+                minimum_total_coverage: 0.9
+              description: Form 12 Part A Section B line 34d, Net Patronage Capital (34a - 34b - 34c).
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  - borrower_id_rus
+                  - report_date
+                categorical_column: liability_type
+                value_column: ending_balance
+                subcomponents_list:
+                  - memberships
+                  - patronage_capital
+                  - operating_margins_prior_years
+                  - operating_margins_current_year
+                  - non_operating_margins
+                  - other_margins_and_equities
+                total_label: total_margins_and_equities
+                tolerance: 10
+                minimum_total_coverage: 0.9
+              description: Form 12 Part A Section B line 39, Total Margins & Equities (33 + 34d thru 38).
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  - borrower_id_rus
+                  - report_date
+                categorical_column: liability_type
+                value_column: ending_balance
+                subcomponents_list:
+                  - long_term_debt_rus
+                  - long_term_debt_ffb_rus_guaranteed
+                  - long_term_debt_other_rus_guaranteed
+                  - long_term_debt_other
+                  - long_term_debt_rus_economic_development
+                negative_subcomponents_list:
+                  - payments_unapplied
+                total_label: total_long_term_debt
+                tolerance: 10
+                minimum_total_coverage: 0.9
+              description: Form 12 Part A Section B line 46, Total Long-Term Debt (40 thru 44 - 45).
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  - borrower_id_rus
+                  - report_date
+                categorical_column: liability_type
+                value_column: ending_balance
+                subcomponents_list:
+                  - noncurrent_obligations_under_capital_leases
+                  - accumulated_operating_provisions
+                total_label: total_other_noncurrent_liabilities
+                tolerance: 10
+                minimum_total_coverage: 0.9
+              description: Form 12 Part A Section B line 49, Total Other NonCurrent Liabilities (47 + 48).
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  - borrower_id_rus
+                  - report_date
+                categorical_column: liability_type
+                value_column: ending_balance
+                subcomponents_list:
+                  - notes_payable
+                  - accounts_payable
+                  - current_maturities_long_term_debt
+                  - rural_development
+                  - current_maturities_capital_leases
+                  - taxes_accrued
+                  - interest_accrued
+                  - other_current_and_accrued
+                total_label: total_current_and_accrued
+                tolerance: 10
+                minimum_total_coverage: 0.9
+              description: Form 12 Part A Section B line 58, Total Current & Accrued Liabilities (50 thru 57).
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  - borrower_id_rus
+                  - report_date
+                categorical_column: liability_type
+                value_column: ending_balance
+                subcomponents_list:
+                  - total_margins_and_equities
+                  - total_long_term_debt
+                  - total_other_noncurrent_liabilities
+                  - total_current_and_accrued
+                  - deferred_credits
+                  - accumulated_deferred_income_taxes_credits
+                total_label: total_liabilities_and_other_credits
+                tolerance: 10
+                minimum_total_coverage: 0.9
+              description: Form 12 Part A Section B line 61, Total Liabilities and Other Credits (39 + 46 + 49 + 58 thru 60).
+        columns:
+          - name: ending_balance
+            data_tests:
+              # Liabilities proper should not be negative. The margins & equities
+              # block (form lines 33-39) is excluded because a co-op carrying an
+              # accumulated deficit reports negative equity legitimately; 425 of the
+              # 444 negative balances in the table sit there.
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0
+                    row_condition: >-
+                      liability_type NOT IN ('memberships', 'patronage_capital',
+                      'assigned_and_assignable_patronage_capital',
+                      'retired_this_year_patronage_capital',
+                      'retired_prior_years_patronage_capital',
+                      'operating_margins_prior_years',
+                      'operating_margins_current_year', 'non_operating_margins',
+                      'other_margins_and_equities', 'total_margins_and_equities')
+                  config:
+                    # Investigate 19 negative non-equity balances:
+                    # other_current_and_accrued (14), taxes_accrued (3),
+                    # deferred_credits (1), total_current_and_accrued (1).
+                    error_if: ">19"

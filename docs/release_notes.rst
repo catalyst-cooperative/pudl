@@ -459,6 +459,18 @@ New Data Tests & Validations
   which silently match no records at all (e.g. a misspelled ``total_label`` or
   a category renamed in a future data update), enabled for all of the plant
   costs checks. See issues :issue:`5378,5154` and PR :pr:`5510`.
+* Validated every calculation printed on the RUS Form 12 balance sheet liabilities
+  side (Part A, Section B) for :ref:`core_rus12__yearly_balance_sheet_liabilities`
+  and :ref:`out_rus12__yearly_balance_sheet_liabilities`, adding
+  ``subcomponents_sum_to_total`` checks for net patronage capital (line 34d), total
+  margins & equities (39), total long-term debt (46), total other noncurrent
+  liabilities (49), total current & accrued liabilities (58) and total liabilities
+  and other credits (61). Lines 34d and 46 subtract some of their inputs, so they
+  use ``negative_subcomponents_list``. All six pass with no exceptions. Also added
+  a non-negativity check on ``ending_balance`` that excludes the margins & equities
+  block, where an accumulated deficit makes a negative balance legitimate, pinned at
+  the 19 negative balances currently reported outside that block. See issue
+  :issue:`5717`.
 * Calibrated per-year error thresholds for the heat-rate outlier checks on
   :ref:`out_epacems__yearly_operational_characteristics`, since the multi-year
   extension in PR :pr:`5474` introduced report years whose data quality, and thus
