@@ -1348,15 +1348,15 @@ def calculate_values_from_components(
     # calculated_value columns which did not work with the np.isclose(). Not sure
     # why these are cropping up.
     # These columns can arrive as object or nullable dtypes containing pd.NA, which
-    # can't be cast directly to numpy float64 (an object column holding pd.NA raises
-    # TypeError). Casting to nullable Float64 first converts the NAs to NaN.
+    # can't be cast directly from object to numpy float64. to_numeric first converts
+    # object columns to float64 (NA -> NaN) and nullable ones to a nullable numeric
+    # dtype, which astype then converts to float64 (NA -> NaN).
     # TODO: find out why these columns end up with object dtype after the merge above
     # and fix it there.
-    calculated_df = (
-        calculated_df.convert_dtypes(convert_floating=False)
-        .astype({value_col: "Float64", "calculated_value": "Float64"})
-        .astype({value_col: "float64", "calculated_value": "float64"})
-    )
+    # All other columns are converted to pandas nullable dtypes.
+    calculated_df = calculated_df.convert_dtypes(convert_floating=False)
+    for col in [value_col, "calculated_value"]:
+        calculated_df[col] = pd.to_numeric(calculated_df[col]).astype("float64")
     # For all of these below, only assign values when the record is a calculated record
     # Also, make sure we are filling nulls so we capture the differences when there are
     # null values in the calculated or reported values.
