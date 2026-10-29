@@ -33,12 +33,13 @@ Bug Fixes & Data Cleaning
 * Made transforms in FERC 1, FERC 714, SEC 10-K, PHMSA, RUS and the EIA API extractor
   behave identically under pandas 2 and 3 by replacing in-place, chained and
   dtype-changing assignments. Along the way: the PHMSA operators cleanup no longer
-  nulls non-string values like numeric zip codes; SEC 10-K ownership percentages no
-  longer misread leader dots (``"...99"`` was 0.0099, now 0.99) and dots-only entries
-  are null; and ``drop_invalid_rows()`` treats ``pd.NA``, ``np.nan`` and ``None``
-  alike. A new dbt test expects 90% of SEC 10-K ``fraction_owned`` values to be <= 1.
-  See :issue:`5616`, :issue:`5623` and :pr:`5720`. Part of the Pandas 3.0 migration
-  epic :pr:`3737`.
+  nulls non-string values like numeric zip codes. SEC 10-K ownership percentages no
+  longer misread leader dots (``"...99"`` was 0.0099, now 0.99), and
+  ``fraction_owned`` is now always within 0-1, with out-of-range values (about 9% of
+  non-null values, e.g. adjacent percentages run together) set to null and a field
+  constraint enforcing the range. ``drop_invalid_rows()`` has a new ``dropna`` argument
+  (default True) instead of requiring null values in ``invalid_values``; outputs are
+  unchanged. See :issue:`5616`, :issue:`5623` and :pr:`5720`.
 * Made null handling in ``stack_generators()``, the EIA-176 "other" gas disposition
   categorization and the EIA-860 ownership spot-fix behave identically under pandas 2
   and 3. Pandas 3 changed how nulls are treated by ``stack()``, ``astype(str)`` and
