@@ -783,7 +783,14 @@ class InvalidRows(TransformParams):
     """Pameters that identify invalid rows to drop."""
 
     invalid_values: Annotated[set[Any], Field(min_length=1)] | None = None
-    """A list of values that should be considered invalid in the selected columns."""
+    """A list of values that should be considered invalid in the selected columns.
+
+    Null values (``pd.NA``, ``np.nan``, ``None``) must not be listed here. Use
+    ``dropna`` to control whether nulls are treated as invalid.
+    """
+
+    dropna: bool = True
+    """Whether null values in the selected columns are also considered invalid."""
 
     required_valid_cols: list[str] | None = None
     """List of columns passed into :meth:`pd.filter` as the ``items`` argument."""
@@ -800,6 +807,17 @@ class InvalidRows(TransformParams):
 
     regex: str | None = None
     """A regular expression to use as the ``regex`` argument to :meth:`pd.filter`."""
+
+    @model_validator(mode="after")
+    def no_null_invalid_values(self: Self):
+        """Validate that null values are specified with ``dropna``, not as values."""
+        null_values = [v for v in self.invalid_values or [] if pd.isna(v)]
+        if null_values:
+            raise ValueError(
+                f"Null values {null_values} found in invalid_values. Use dropna "
+                "to specify whether null values should be considered invalid."
+            )
+        return self
 
     @model_validator(mode="after")
     def one_filter_argument(self: Self):
@@ -827,7 +845,8 @@ def drop_invalid_rows(df: pd.DataFrame, params: InvalidRows) -> pd.DataFrame:
 
     This method finds all rows in a dataframe that contain ONLY invalid data in ALL of
     the columns that we are checking, and drops those rows, logging the % of all rows
-    that were dropped.
+    that were dropped. Null values are considered invalid unless ``params.dropna`` is
+    False.
     """
     # The default InvalidRows() instance has no effect:
     if (
@@ -874,12 +893,8 @@ def drop_invalid_rows(df: pd.DataFrame, params: InvalidRows) -> pd.DataFrame:
     # care about are invalid (i.e. where ANY of the columns we care about contain a
     # valid value):
 
-    # All NA-like values (pd.NA, np.nan, None) are treated as one category: they are
-    # invalid if any of them appears in invalid_values. Other values are matched with
-    # .isin(), since .isin() does not reliably match NA values across dtypes.
-    non_na_invalid_values = [v for v in params.invalid_values if not pd.isna(v)]
-    invalids = cols_to_check.isin(non_na_invalid_values)
-    if len(non_na_invalid_values) < len(params.invalid_values):
+    invalids = cols_to_check.isin(params.invalid_values)
+    if params.dropna:
         invalids |= cols_to_check.isna()
     mask = ~invalids.all(axis="columns")
     # Mask the input dataframe and make a copy to avoid returning a slice.
