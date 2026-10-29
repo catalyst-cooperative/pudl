@@ -263,30 +263,6 @@ Bug Fixes & Data Cleaning
 * Fixed a bug that gave plants with no reported state the state FIPS code ``74`` (U.S.
   Minor Outlying Islands). Those plants in :ref:`core_eia__entity_plants`, and the
   generators built from them, now have a null ``state_id_fips``. See PR :pr:`5697`.
-* Plant part record IDs for records with a null ``utility_id_eia`` now end in ``null``
-  instead of ``<NA>`` (or ``<na>``), consistent with the rest of the ID. This changes
-  ``record_id_eia`` and ``plant_part_id_eia`` in ``out_eia__yearly_plant_parts`` and the
-  related plant-part association tables for a few hundred records. See :issue:`5598` and
-  :pr:`5721`.
-* Made null handling in ``stack_generators()``, the EIA-176 "other" gas disposition
-  categorization and the EIA-860 ownership spot-fix behave identically under pandas 2
-  and 3. Pandas 3 changed how nulls are treated by ``stack()``, ``astype(str)`` and
-  string comparisons, which would otherwise have left spurious null energy sources,
-  null primary keys, or unremoved bogus ownership records. See :issue:`5621`,
-  :issue:`5622`, :issue:`5624` and :pr:`5721`.
-* ``X`` in the EIA-861 dynamic pricing time-of-use, critical peak, real time and
-  variable peak columns is now treated as ``True`` (a checked box) instead of being
-  turned into a null, which changes four 2018 rows of
-  ``core_eia861__yearly_dynamic_pricing``. All EIA-861 Y/N flag columns now share one
-  case-insensitive conversion to booleans, so a lowercase ``y`` or ``n`` is no longer
-  turned into a null in a few ``core_eia861__yearly_reliability`` rows, and unexpected
-  codes other than Y, N and X raise an error. See :issue:`5617`, :issue:`5601` and
-  :pr:`5718`.
-* Fixed the 2007-2011 EIA-861 advanced metering infrastructure column map, which was
-  loading the utility ownership codes (e.g. ``C`` for cooperative) into ``short_form``
-  and leaving ``entity_type`` null. Those years of
-  ``core_eia861__yearly_advanced_metering_infrastructure`` now have ``entity_type``
-  populated and ``short_form`` null. See :pr:`5718`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
