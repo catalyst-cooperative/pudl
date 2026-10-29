@@ -90,8 +90,6 @@ FROM read_parquet('{parquet_path}', union_by_name=true) {group_by_clause}
         .loc[:, ["table_name", "partition", "row_count"]]
     )
 
-    return new_row_counts
-
 
 def _combine_row_counts(existing: pd.DataFrame, new: pd.DataFrame) -> pd.DataFrame:
     return (
