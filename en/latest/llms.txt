@@ -1,6 +1,6 @@
 # PUDL
 
-> PUDL 2026.10.1.dev15 documentation
+> PUDL 2026.10.1.dev16 documentation
 
 
 2016-2026, Catalyst Cooperative, CC-BY-4.0
@@ -284,4 +284,4 @@
 - [Managing External Contributions](dev/managing_external_contributions.html.md): Looking to contribute to PUDL? The guidelines for external contributors can be found at
 - [Contributing to PUDL](CONTRIBUTING.html.md): Welcome! We’re excited that you’re interested in contributing to the Public Utility
 - [Catalyst Cooperative Code of Conduct](code_of_conduct.html.md): In the interest of fostering an open and welcoming environment, we as
-- [PUDL Release Notes](release_notes.html.md): &#42; Added a missing territory entry to the core_pudl&#95;&#92;&#95;codes_subdivisions table. See
+- [PUDL Release Notes](release_notes.html.md): &#42; Updated &#96;dbt&#96; data validation now to support FERC EQR data. This requires &#96;dbt&#96;

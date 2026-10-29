@@ -30,6 +30,7 @@ A basic CLI to autogenerate dbt data test configurations.
 | [`_log_update_result`](#pudl.scripts.dbt_helper._log_update_result)(result)                          |                                                                                     |
 | [`_extract_row_count_partitions`](#pudl.scripts.dbt_helper._extract_row_count_partitions)(→ list[str | None])   | Extract partition columns from check_row_counts_per_partition tests in a DbtTable.  |
 | [`update_tables`](#pudl.scripts.dbt_helper.update_tables)(tables, clobber, schema, row_counts)  | Add or update dbt schema configs and row count expectations for PUDL tables.        |
+| [`_source_selection`](#pudl.scripts.dbt_helper._source_selection)(→ str)                            | Translate a `--source` choice into a dbt node selection.                            |
 | [`validate`](#pudl.scripts.dbt_helper.validate)(→ None)                                    | Validate a selection of dbt nodes.                                                  |
 | [`main`](#pudl.scripts.dbt_helper.main)(→ int)                                         | Script for auto-generating dbt configuration and migrating existing tests.          |
 
@@ -112,7 +113,15 @@ The `tables` argument can be a single table name, a list of table names, or
 If `--clobber` is set, existing configurations for tables will be overwritten.
 if this does not result in deletions.
 
-### pudl.scripts.dbt_helper.validate(select: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, asset_select: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, exclude: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, dry_run: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, override_target: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [None](https://docs.python.org/3/builtins/constants.html#None)
+### pudl.scripts.dbt_helper.\_source_selection(source: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
+
+Translate a `--source` choice into a dbt node selection.
+
+`None` means the default source, `pudl`. `"*"` selects every node. The
+`pudl` selection also includes the unit tests of our dbt macros, which don’t
+depend on any source and so would otherwise never be run.
+
+### pudl.scripts.dbt_helper.validate(select: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, asset_select: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, source: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, exclude: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, dry_run: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, override_target: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, parquet_base_path: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Validate a selection of dbt nodes.
 
@@ -122,8 +131,9 @@ actual data that was returned from the test query.
 Understands how to translate Dagster asset selection syntax into dbt node
 selections via the –asset-select flag.
 
-Default behavior if you do not pass –asset-select or –select is to
-validate everything.
+Default behavior if you do not pass –asset-select, –select or –source is
+to validate the `pudl` source. The FERC EQR tables are only validated if you ask
+for them with –source ferceqr, and everything is validated with –source “\*”.
 
 Usage examples:
 
@@ -131,9 +141,17 @@ Run all the checks for one asset:
 
 > $ dbt_helper validate –asset-select “key:out_eia_\_yearly_generators”
 
+Run the checks for the FERC EQR tables (not run by default, since they are large):
+
+> $ dbt_helper validate –source ferceqr
+
+Run the checks for every source:
+
+> $ dbt_helper validate –source “\*”
+
 Run the checks for one specific dbt node:
 
-> $ dbt_helper validate –select “source:pudl_dbt.pudl.out_eia_\_yearly_generators”
+> $ dbt_helper validate –select “source:pudl_validation_tests.pudl.out_eia_\_yearly_generators”
 
 Run checks for an asset and all its upstream dependencies:
 
@@ -142,6 +160,10 @@ Run checks for an asset and all its upstream dependencies:
 Exclude the row count tests:
 
 > $ dbt_helper validate –asset-select “+key:out_eia_\_yearly_generators” –exclude “*check_row_counts*”
+
+Validate Parquet files that live somewhere other than $PUDL_OUTPUT/parquet:
+
+> $ dbt_helper validate –asset-select “key:out_eia_\_yearly_generators” –parquet-base-path /path/to/parquet
 
 ### pudl.scripts.dbt_helper.main() → [int](https://docs.python.org/3/builtins/functions.html#int)
 

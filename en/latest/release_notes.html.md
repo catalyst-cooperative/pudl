@@ -14,6 +14,11 @@
 
 ### New Data Tests & Validations
 
+* Updated `dbt` data validation now to support FERC EQR data. This requires `dbt`
+  configuration changes to handle partitioned parquet outputs. See issue [#4864](https://github.com/catalyst-cooperative/pudl/pull/4864)
+  and PR [#5676](https://github.com/catalyst-cooperative/pudl/pull/5676). This PR also applies basic validation tests to FERC EQR tables,
+  including row count tests.
+
 ### Bug Fixes & Data Cleaning
 
 * Added a missing territory entry to the [core_pudl_\_codes_subdivisions](data_dictionaries/pudl_db.html.md#core-pudl-codes-subdivisions) table. See

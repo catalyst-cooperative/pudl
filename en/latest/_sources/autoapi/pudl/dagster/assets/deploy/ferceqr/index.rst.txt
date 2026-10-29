@@ -29,6 +29,7 @@ Attributes
    pudl.dagster.assets.deploy.ferceqr.STAGING_META_SUBDIR
    pudl.dagster.assets.deploy.ferceqr.PREVIOUS_DIRNAME
    pudl.dagster.assets.deploy.ferceqr.StepStatusTable
+   pudl.dagster.assets.deploy.ferceqr.FERCEQR_DBT_SOURCE
 
 
 Classes
@@ -36,6 +37,7 @@ Classes
 
 .. autoapisummary::
 
+   pudl.dagster.assets.deploy.ferceqr.ValidationStage
    pudl.dagster.assets.deploy.ferceqr._DeploymentTarget
 
 
@@ -44,6 +46,8 @@ Functions
 
 .. autoapisummary::
 
+   pudl.dagster.assets.deploy.ferceqr._run_ferceqr_validation
+   pudl.dagster.assets.deploy.ferceqr._markdown_validation_results
    pudl.dagster.assets.deploy.ferceqr._write_status_file
    pudl.dagster.assets.deploy.ferceqr._clear_status_files
    pudl.dagster.assets.deploy.ferceqr._deployment_targets
@@ -67,6 +71,7 @@ Functions
    pudl.dagster.assets.deploy.ferceqr.build_ferceqr_notification
    pudl.dagster.assets.deploy.ferceqr.deployment_status_asset
    pudl.dagster.assets.deploy.ferceqr._deploy_source_partitions
+   pudl.dagster.assets.deploy.ferceqr._notify_ferceqr_outcome
    pudl.dagster.assets.deploy.ferceqr.deploy_ferceqr
    pudl.dagster.assets.deploy.ferceqr.handle_ferceqr_failure
 
@@ -113,6 +118,42 @@ Module Contents
 
 
 .. py:data:: StepStatusTable
+
+.. py:data:: FERCEQR_DBT_SOURCE
+   :value: 'ferceqr'
+
+
+.. py:class:: ValidationStage
+
+   Bases: :py:obj:`NamedTuple`
+
+
+   The :class:`BuildResult` of one named dbt validation stage.
+
+
+   .. py:attribute:: name
+      :type:  str
+
+
+   .. py:attribute:: result
+      :type:  pudl.validate.dbt.BuildResult
+
+
+.. py:function:: _run_ferceqr_validation() -> list[ValidationStage]
+
+   Run the dbt data validations for the FERC EQR tables.
+
+   Selects every dbt node downstream of the FERC EQR source. Mirrors the pytest
+   validation in ``tests/validate/data_test.py``.
+
+
+.. py:function:: _markdown_validation_results(stages: list[ValidationStage]) -> str
+
+   Summarize dbt validation stage outcomes as a Markdown table.
+
+   Only the high-level pass/fail status of each stage is reported; failure
+   contexts are written to the build log, which the notification links to.
+
 
 .. py:function:: _write_status_file(status: Literal['FERCEQR_SUCCESS', 'FERCEQR_FAILURE'], pudl_paths: pudl.workspace.setup.PudlPaths)
 
@@ -306,7 +347,7 @@ Module Contents
    Return elapsed time since the current run started, or None on failure.
 
 
-.. py:function:: build_ferceqr_notification(context: dagster.AssetExecutionContext, outcome: Literal['SUCCESS', 'FAILURE', 'SKIPPED']) -> str
+.. py:function:: build_ferceqr_notification(context: dagster.AssetExecutionContext, outcome: Literal['SUCCESS', 'FAILURE', 'SKIPPED'], validation_stages: list[ValidationStage] | None = None) -> str
 
    Build a Markdown notification string for FERC EQR deployment outcomes.
 
@@ -331,6 +372,11 @@ Module Contents
 
    Deploying only the *specific* partitions this build produced avoids sweeping
    up unrelated data left lying around, especially on local runs.
+
+
+.. py:function:: _notify_ferceqr_outcome(context: dagster.AssetExecutionContext, zulip: pudl.dagster.resources.ZulipNotificationResource, outcome: Literal['SUCCESS', 'FAILURE', 'SKIPPED'], validation_stages: list[ValidationStage] | None = None) -> None
+
+   Send a deployment outcome notification, never raising on failure.
 
 
 .. py:function:: deploy_ferceqr(context: dagster.AssetExecutionContext)

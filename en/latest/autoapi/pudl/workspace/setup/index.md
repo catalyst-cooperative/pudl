@@ -45,6 +45,10 @@ Create PUDL input and output directories if they don’t already exist.
 
 Return path to parquet file for given database and table.
 
+#### partitioned_parquet_paths(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
+
+Return path to parquet file for given database and table.
+
 #### sqlite_path(name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)
 
 Return path to locally stored SQLite DB file.

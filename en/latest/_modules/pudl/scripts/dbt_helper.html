@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.scripts.dbt_helper &#8212; PUDL 2026.10.1.dev15 documentation</title>
+    <title>pudl.scripts.dbt_helper &#8212; PUDL 2026.10.1.dev16 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=4f1abc75"></script>
+    <script src="../../../_static/documentation_options.js?v=6fab269e"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev15 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev15 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev16 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev16 documentation - Home"/>
   
   
 </a></div>
@@ -887,8 +887,15 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.dagster.build</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_defs</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.dbt_schema</span><span class="w"> </span><span class="kn">import</span> <span class="n">DbtSchema</span><span class="p">,</span> <span class="n">DbtTable</span><span class="p">,</span> <span class="n">merge_schema</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.logging_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">configure_root_logger</span><span class="p">,</span> <span class="n">get_logger</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">PUDL_PACKAGE</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.validate.dbt</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_with_context</span><span class="p">,</span> <span class="n">dagster_to_dbt_selection</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">PUDL_PACKAGE</span><span class="p">,</span> <span class="n">Resource</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.validate.dbt</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ALL_DBT_SOURCES</span><span class="p">,</span>
+    <span class="n">DBT_SOURCES</span><span class="p">,</span>
+    <span class="n">DBT_UNIT_TESTS_PATH</span><span class="p">,</span>
+    <span class="n">DEFAULT_DBT_SOURCE</span><span class="p">,</span>
+    <span class="n">build_with_context</span><span class="p">,</span>
+    <span class="n">dagster_to_dbt_selection</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.workspace.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">PudlPaths</span>
 
 <div class="viewcode-block" id="logger">
@@ -915,7 +922,8 @@ window.runMermaid = runMermaid;</script>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> has no data source segment."</span><span class="p">)</span>
     <span class="n">data_source</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">parent_dir</span> <span class="o">/</span> <span class="n">data_source</span> <span class="o">/</span> <span class="n">table_name</span></div>
+    <span class="n">dbt_source</span> <span class="o">=</span> <span class="n">Resource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span><span class="o">.</span><span class="n">dbt_source</span>
+    <span class="k">return</span> <span class="n">parent_dir</span> <span class="o">/</span> <span class="n">dbt_source</span> <span class="o">/</span> <span class="n">data_source</span> <span class="o">/</span> <span class="n">table_name</span></div>
 
 
 
@@ -954,7 +962,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">partition_expr</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-    <span class="n">table_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">PudlPaths</span><span class="p">()</span><span class="o">.</span><span class="n">parquet_path</span><span class="p">(</span><span class="n">table_name</span><span class="p">))</span>
+    <span class="n">parquet_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">PudlPaths</span><span class="p">()</span><span class="o">.</span><span class="n">parquet_path</span><span class="p">(</span><span class="n">table_name</span><span class="p">))</span>
 
     <span class="k">if</span> <span class="n">partition_expr</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">partition_expr_sql</span> <span class="o">=</span> <span class="s2">"''"</span>
@@ -967,20 +975,18 @@ window.runMermaid = runMermaid;</script>
 <span class="s2">SELECT</span>
 <span class="s2">    CAST(COALESCE(CAST(</span><span class="si">{</span><span class="n">partition_expr_sql</span><span class="si">}</span><span class="s2"> AS VARCHAR), '') AS VARCHAR) AS partition,</span>
 <span class="s2">    COUNT(*) AS row_count</span>
-<span class="s2">FROM '</span><span class="si">{</span><span class="n">table_path</span><span class="si">}</span><span class="s2">' </span><span class="si">{</span><span class="n">group_by_clause</span><span class="si">}</span>
+<span class="s2">FROM read_parquet('</span><span class="si">{</span><span class="n">parquet_path</span><span class="si">}</span><span class="s2">', union_by_name=true) </span><span class="si">{</span><span class="n">group_by_clause</span><span class="si">}</span>
 <span class="s2">    """</span>  <span class="c1"># noqa: S608</span>
 
     <span class="n">row_count_rel</span> <span class="o">=</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="n">row_count_query</span><span class="p">)</span>
     <span class="c1"># duckdb.sql() is typed Optional because non-SELECT statements return None.</span>
     <span class="k">assert</span> <span class="n">row_count_rel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-    <span class="n">new_row_counts</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="k">return</span> <span class="p">(</span>
         <span class="n">row_count_rel</span><span class="o">.</span><span class="n">df</span><span class="p">()</span>
         <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="n">table_name</span><span class="p">)</span>
         <span class="o">.</span><span class="n">astype</span><span class="p">({</span><span class="s2">"partition"</span><span class="p">:</span> <span class="s2">"string"</span><span class="p">,</span> <span class="s2">"table_name"</span><span class="p">:</span> <span class="s2">"string"</span><span class="p">})</span>
         <span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">"table_name"</span><span class="p">,</span> <span class="s2">"partition"</span><span class="p">,</span> <span class="s2">"row_count"</span><span class="p">]]</span>
-    <span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">new_row_counts</span></div>
+    <span class="p">)</span></div>
 
 
 
@@ -1268,6 +1274,26 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<div class="viewcode-block" id="_source_selection">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper._source_selection">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_source_selection</span><span class="p">(</span><span class="n">source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Translate a ``--source`` choice into a dbt node selection.</span>
+
+<span class="sd">    ``None`` means the default source, ``pudl``. ``"*"`` selects every node. The</span>
+<span class="sd">    ``pudl`` selection also includes the unit tests of our dbt macros, which don't</span>
+<span class="sd">    depend on any source and so would otherwise never be run.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">source</span> <span class="o">==</span> <span class="n">ALL_DBT_SOURCES</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"*"</span>
+    <span class="n">source</span> <span class="o">=</span> <span class="n">source</span> <span class="ow">or</span> <span class="n">DEFAULT_DBT_SOURCE</span>
+    <span class="n">selection</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"source:</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">+"</span>
+    <span class="k">if</span> <span class="n">source</span> <span class="o">==</span> <span class="s2">"pudl"</span><span class="p">:</span>
+        <span class="c1"># A space is dbt's union operator.</span>
+        <span class="n">selection</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">" path:</span><span class="si">{</span><span class="n">DBT_UNIT_TESTS_PATH</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">return</span> <span class="n">selection</span></div>
+
+
+
 <span class="nd">@click</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
     <span class="s2">"--select"</span><span class="p">,</span>
@@ -1283,6 +1309,18 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">"use '+key:</span><span class="se">\"</span><span class="s2">out_eia__yearly_generators</span><span class="se">\"</span><span class="s2">' to validate "</span>
         <span class="s2">"out_eia_yearly_generators and its upstream assets. Syntax "</span>
         <span class="s2">"documentation at https://docs.dagster.io/guides/build/assets/asset-selection-syntax/reference "</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">"--source"</span><span class="p">,</span>
+    <span class="s2">"-s"</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Choice</span><span class="p">([</span><span class="o">*</span><span class="n">DBT_SOURCES</span><span class="p">,</span> <span class="n">ALL_DBT_SOURCES</span><span class="p">]),</span>
+    <span class="n">help</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">"dbt source to validate when neither --select nor --asset-select is given: "</span>
+        <span class="s2">"everything downstream of the source's tables (for 'pudl', plus the unit "</span>
+        <span class="s2">"tests of our dbt macros). Defaults to 'pudl'. Pass "</span>
+        <span class="s2">"'ferceqr' to validate the (large) FERC EQR tables instead, or '*' to "</span>
+        <span class="s2">"validate every source."</span>
     <span class="p">),</span>
 <span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
@@ -1304,14 +1342,25 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">"for local debugging of remote CI failures."</span>
     <span class="p">),</span>
 <span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">"--parquet-base-path"</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">"Base path containing the Parquet files to validate, overriding the "</span>
+        <span class="s2">"default of $PUDL_OUTPUT/parquet. Useful for validating outputs that "</span>
+        <span class="s2">"live outside the local PUDL output directory, e.g. a remote nightly "</span>
+        <span class="s2">"build or another worktree's outputs."</span>
+    <span class="p">),</span>
+<span class="p">)</span>
 <div class="viewcode-block" id="validate">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.validate">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span>
     <span class="n">select</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">asset_select</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">exclude</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">dry_run</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">override_target</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">parquet_base_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Validate a selection of dbt nodes.</span>
 
@@ -1321,8 +1370,9 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    Understands how to translate Dagster asset selection syntax into dbt node</span>
 <span class="sd">    selections via the --asset-select flag.</span>
 
-<span class="sd">    Default behavior if you do not pass `--asset-select` or `--select` is to</span>
-<span class="sd">    validate everything.</span>
+<span class="sd">    Default behavior if you do not pass `--asset-select`, `--select` or `--source` is</span>
+<span class="sd">    to validate the ``pudl`` source. The FERC EQR tables are only validated if you ask</span>
+<span class="sd">    for them with `--source ferceqr`, and everything is validated with `--source "*"`.</span>
 
 <span class="sd">    Usage examples:</span>
 
@@ -1330,9 +1380,17 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">        $ dbt_helper validate --asset-select "key:out_eia__yearly_generators"</span>
 
+<span class="sd">    Run the checks for the FERC EQR tables (not run by default, since they are large):</span>
+
+<span class="sd">        $ dbt_helper validate --source ferceqr</span>
+
+<span class="sd">    Run the checks for every source:</span>
+
+<span class="sd">        $ dbt_helper validate --source "*"</span>
+
 <span class="sd">    Run the checks for one specific dbt node:</span>
 
-<span class="sd">        $ dbt_helper validate --select "source:pudl_dbt.pudl.out_eia__yearly_generators"</span>
+<span class="sd">        $ dbt_helper validate --select "source:pudl_validation_tests.pudl.out_eia__yearly_generators"</span>
 
 <span class="sd">    Run checks for an asset and all its upstream dependencies:</span>
 
@@ -1342,9 +1400,17 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">        $ dbt_helper validate --asset-select "+key:out_eia__yearly_generators" --exclude "*check_row_counts*"</span>
 
+<span class="sd">    Validate Parquet files that live somewhere other than $PUDL_OUTPUT/parquet:</span>
+
+<span class="sd">        $ dbt_helper validate --asset-select "key:out_eia__yearly_generators" --parquet-base-path /path/to/parquet</span>
+
 
 
 <span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">source</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="n">select</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">asset_select</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">click</span><span class="o">.</span><span class="n">UsageError</span><span class="p">(</span>
+            <span class="s2">"You can't pass --source together with --select or --asset-select."</span>
+        <span class="p">)</span>
     <span class="k">if</span> <span class="n">select</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">asset_select</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">click</span><span class="o">.</span><span class="n">UsageError</span><span class="p">(</span>
@@ -1355,12 +1421,13 @@ window.runMermaid = runMermaid;</script>
         <span class="k">if</span> <span class="n">asset_select</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">node_selection</span> <span class="o">=</span> <span class="n">dagster_to_dbt_selection</span><span class="p">(</span><span class="n">asset_select</span><span class="p">,</span> <span class="n">build_defs</span><span class="p">())</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">node_selection</span> <span class="o">=</span> <span class="s2">"*"</span>
+            <span class="n">node_selection</span> <span class="o">=</span> <span class="n">_source_selection</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
 
     <span class="n">build_params</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">"node_selection"</span><span class="p">:</span> <span class="n">node_selection</span><span class="p">,</span>
         <span class="s2">"node_exclusion"</span><span class="p">:</span> <span class="n">exclude</span><span class="p">,</span>
         <span class="s2">"dbt_target"</span><span class="p">:</span> <span class="n">override_target</span> <span class="k">if</span> <span class="n">override_target</span> <span class="k">else</span> <span class="s2">"etl-full"</span><span class="p">,</span>
+        <span class="s2">"parquet_base_path"</span><span class="p">:</span> <span class="n">parquet_base_path</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="k">if</span> <span class="n">dry_run</span><span class="p">:</span>

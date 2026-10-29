@@ -25,8 +25,12 @@ and allows us to use the [Dagster asset selection syntax](https://docs.dagster.i
 Example usage:
 
 ```bash
-# for *all* assets
+# for all of the main PUDL tables (the default source), plus the dbt macro unit tests
 dbt_helper validate
+# for the FERC EQR tables (large, so not validated by default)
+dbt_helper validate --source ferceqr
+# for every source
+dbt_helper validate --source "*"
 # for just a single asset
 dbt_helper validate --asset-select "key:out_eia__yearly_generators"
 # for this asset as well as all upstream assets
@@ -40,14 +44,27 @@ See `dbt_helper validate --help` for usage details.
 #### TIP
 You may want to run the validation tests against multiple sets of Parquet files.
 
-To do this:
+By default `dbt_helper validate` reads the Parquet files in `$PUDL_OUTPUT/parquet`.
+To validate Parquet files somewhere else, pass their location with the
+`--parquet-base-path` option. For example, to run validation tests on the nightly
+builds:
 
-1. Download the Parquet files to `<any_directory_you_want>/parquet/`.
-2. Set the `PUDL_OUTPUT` environment variable to `<any_directory_you_want>`.
-   (*note* use an absolute path!)
-3. Run any of the `dbt_helper` commands you need.
+```bash
+dbt_helper validate --asset-select "+key:out_eia__yearly_generators" \
+    --parquet-base-path s3://pudl.catalyst.coop/nightly
+```
 
-Some examples of useful Parquet outputs and where to find them:
+The path can be a remote URL or a local directory containing the Parquet files, so
+you can also use outputs you have downloaded, like those from a branch build:
+
+```bash
+dbt_helper validate --asset-select "+key:out_eia__yearly_generators" \
+    --parquet-base-path /absolute/path/to/parquet
+```
+
+Some examples of useful Parquet outputs and where to find them (point
+`--parquet-base-path` at the directory that holds the Parquet files, usually the
+`parquet/` directory inside a `PUDL_OUTPUT`):
 
 * [the most recent nightly builds](https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/pudl_parquet.zip)
 * the fast ETL outputs from your integration tests:
@@ -69,10 +86,17 @@ YAML file that you need to keep up to date.
 
 We generate that file automatically by combining the existing metadata in
 `pudl.metadata.resources.RESOURCE_METADATA` with human-generated data tests
-defined in `pudl/dbt/schema_inputs/<data_source>/<table_name>/schemahuman.yml`.
+defined in
+`pudl/dbt/schema_inputs/<dbt_source>/<data_source>/<table_name>/schema.human.yml`.
 
 The final generated file lives in
-`pudl/dbt/models/<data_source>/<table_name>/schema.yml`.
+`pudl/dbt/models/<dbt_source>/<data_source>/<table_name>/schema.yml`.
+
+`dbt_source` can be either `pudl` or `ferceqr`. This distinction exists
+because `ferceqr` data is processed in a separate dagster job and the outputs
+are partitioned, meaning that each table contains a directory of parquet files
+rather than just one parquet file. `dbt` needs to know about this distinction
+so `duckdb` can be configured to query the parquet file(s).
 
 When you change a table’s schema or update the data tests, you need to
 regenerate the dbt schema:
