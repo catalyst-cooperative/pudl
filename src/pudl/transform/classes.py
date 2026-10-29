@@ -633,7 +633,7 @@ def nullify_outliers(col: pd.Series, params: ValidRange) -> pd.Series:
     The column is coerced to be numeric.
     """
     # pd.to_numeric() returns the same object, not a copy, when already numeric.
-    col = pd.to_numeric(col, errors="coerce").copy()
+    col = pd.to_numeric(col, errors="coerce").copy(deep=False)
     col[~col.between(params.lower_bound, params.upper_bound)] = np.nan
     return col
 
@@ -770,7 +770,7 @@ def correct_units(df: pd.DataFrame, params: UnitCorrections) -> pd.DataFrame:
         "of records could not be corrected and were set to NA."
     )
     # Combine our cleaned up values with the other values we didn't select.
-    df = df.copy()
+    df = df.copy(deep=False)
     df[params.data_col] = pd.concat([selected, not_selected])
     return df
 
@@ -1111,7 +1111,7 @@ def cache_df(
                 logger.debug(
                     f"{self.table_id.value}: Caching df to {key=} in {func.__name__}()"
                 )
-                self._cached_dfs[key] = df.copy()
+                self._cached_dfs[key] = df.copy(deep=False)
             return df
 
         return _wrapper

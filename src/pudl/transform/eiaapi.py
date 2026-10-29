@@ -42,7 +42,7 @@ def _extract_keys_from_series_id(raw_df: pd.DataFrame) -> pd.DataFrame:
 
 
 def _map_key_codes_to_readable_values(compound_keys: pd.DataFrame) -> pd.DataFrame:
-    keys = compound_keys.copy()
+    keys = compound_keys.copy(deep=False)
     mappings = {
         "fuel_agg": {
             # match values in pudl.metadata.dfs.py:EIA_FUEL_AGGREGATE_ASSN

@@ -916,7 +916,7 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
     # - Sales table: 32
     # - UD table: 15
     # - DP table: 8
-    combined_rows = grouped.head(1).copy()
+    combined_rows = grouped.head(1)
 
     # We treat null values as NOT in conflict with non-null non-numeric values, and
     # ignore them when summing numeric values. A group is combinable if every

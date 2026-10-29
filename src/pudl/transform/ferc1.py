@@ -2564,7 +2564,7 @@ class Ferc1AbstractTableTransformer(
             xbrl_metadata_converted: Dataframe of relatively unprocessed metadata.
                 Result of :meth:`convert_xbrl_metadata_json_to_df`.
         """
-        metadata = xbrl_metadata_converted.copy()
+        metadata = xbrl_metadata_converted.copy(deep=False)
         # Convert the calculations JSON column to type object. On pandas 3, calculations
         # is a pyarrow-backed string column and left that way apply would infer an Arrow
         # list dtype from the parsed JSON. However, When every calculation list is empty
@@ -3649,7 +3649,7 @@ class SteamPlantsFuelTableTransformer(Ferc1AbstractTableTransformer):
 
         https://world-nuclear.org/information-library/facts-and-figures/heat-values-of-various-fuels.aspx
         """
-        df = df.copy()
+        df = df.copy(deep=False)
 
         FuelFix = namedtuple("FuelFix", ["fuel", "from_unit", "to_unit", "mult"])
         fuel_fixes = [
@@ -7334,7 +7334,7 @@ def make_xbrl_factoid_dimensions_explicit(
             the parental dimensions or the child dimensions.
     """
     logger.info(f"Adding {dimensions=} into calculation component table.")
-    df_w_dims = df_w_xbrl_factoid.copy()
+    df_w_dims = df_w_xbrl_factoid
 
     on_cols = ["table_name", "xbrl_factoid"]
     if parent:
