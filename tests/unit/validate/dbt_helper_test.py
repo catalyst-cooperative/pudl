@@ -165,7 +165,7 @@ my_table,2023,100
     pd.testing.assert_frame_equal(result, expected)
 
     # Explicitly assert string type
-    assert result["partition"].apply(type).eq(str).all()
+    assert result["partition"].map(lambda v: isinstance(v, str)).all()
 
 
 @pytest.mark.parametrize(
@@ -878,6 +878,7 @@ sources:
     observed_schema = DbtSchema.from_yaml(output_path / "schema.yml")
     expected_table = DbtTable.from_table_name(PUDL_TABLE)
     expected_table.data_tests = [{"fake_table_test": {"arguments": {"arg": True}}}]
+    assert expected_table.columns is not None
     expected_table.columns[0].data_tests = [
         {"fake_column_test": {"arguments": [{"arg": True}]}}
     ]

@@ -23,9 +23,10 @@ EXPECTED_TABLES: list[str] = [
 def _scalar(
     conn: duckdb.DuckDBPyConnection, sql: str, params: list | None = None
 ) -> int:
-    result = (conn.execute(sql, params) if params else conn.execute(sql)).fetchone()
-    assert result is not None
-    return result[0]
+    # sql() + fetchall() leaves no unfinished result on the shared connection.
+    result = conn.sql(sql, params=params).fetchall()
+    assert result
+    return result[0][0]
 
 
 def _tables(conn: duckdb.DuckDBPyConnection) -> set[str]:

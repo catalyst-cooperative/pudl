@@ -13,7 +13,7 @@ from collections.abc import Callable
 from pathlib import Path
 
 import mlflow
-from dagster import Config, op
+from dagster import Config, OpDefinition, op
 from pydantic import BaseModel
 
 import pudl.logging_helpers
@@ -177,8 +177,8 @@ class ExperimentTracker(BaseModel):
 def experiment_tracker_factory(
     experiment_name: str,
     model_config: dict,
-) -> ExperimentTracker:
-    """Use config to create an experiment tracker."""
+) -> OpDefinition:
+    """Use config to create an experiment tracker op."""
 
     @op(name=f"{experiment_name}_tracker")
     def create_experiment_tracker(config: ExperimentTrackerConfig):

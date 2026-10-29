@@ -136,10 +136,10 @@ def _extract_ident(
     csv_rel = duckdb_connection.read_csv(
         ident_csv, all_varchar=True, store_rejects=True, ignore_errors=True
     )
-    row = csv_rel.select("company_identifier").limit(1).fetchone()
-    if row is None:
+    rows = csv_rel.select("company_identifier").limit(1).fetchall()
+    if not rows:
         return None
-    (cid,) = row
+    ((cid,),) = rows
     persist_table_as_parquet(
         csv_rel.select(f"*, '{year_quarter}' AS year_quarter"),
         table_name=_get_table_name("ident", year_quarter),

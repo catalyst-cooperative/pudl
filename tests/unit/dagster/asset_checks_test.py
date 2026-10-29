@@ -49,6 +49,7 @@ from pudl.dagster.asset_checks import (
     asset_check_from_schema,
     group_mean_continuity_check,
     summarize_check_failures,
+    unmapped_ids_check,
 )
 from pudl.helpers import ParquetData
 from pudl.metadata.classes import PUDL_PACKAGE, Package, Resource
@@ -141,7 +142,9 @@ def test_group_mean_continuity_check(
         assert column in result.metadata
         # The metadata values are wrapped in JsonMetadataValue objects
         # Access the underlying data using the .data attribute
-        column_metadata = result.metadata[column].data
+        column_metadata_value = result.metadata[column]
+        assert isinstance(column_metadata_value, dg.JsonMetadataValue)
+        column_metadata = column_metadata_value.data
         assert isinstance(column_metadata, dict)
         assert "threshold" in column_metadata
         assert column_metadata["threshold"] == threshold
@@ -636,3 +639,20 @@ def test_summarize_check_failures(passed, metadata, expected):
     # supply the two attributes summarize_check_failures actually reads.
     evaluation = SimpleNamespace(passed=passed, metadata=metadata)
     assert summarize_check_failures(evaluation) == expected  # type: ignore[bad-argument-type]
+
+
+@pytest.mark.parametrize(
+    "df,passed",
+    [
+        (pd.DataFrame({"a": []}), True),
+        (pd.DataFrame({"a": [1]}), False),
+        # Rows but no columns: DataFrame.empty is True here, but IDs are unmapped.
+        (pd.DataFrame(index=[1, 2]), False),
+    ],
+)
+def test_unmapped_ids_check(df: pd.DataFrame, passed: bool) -> None:
+    """The check passes only when there are no rows, even if there are no columns."""
+    check = unmapped_ids_check("missing_something")
+    result = check.node_def.compute_fn.decorated_fn(df)  # type: ignore[missing-attribute]
+    assert result.passed is passed
+    assert result.metadata["n_unmapped_ids"].value == len(df)
