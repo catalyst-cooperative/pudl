@@ -478,7 +478,7 @@ def clean_eia_counties(
         state_col: state column name - default is state.
         county_col: state column name - default is county.
     """
-    df = df.copy()
+    df = df.copy(deep=False)
     df[county_col] = (
         df[county_col]
         .str.strip()
@@ -533,7 +533,7 @@ def oob_to_nan(
     Returns:
         The altered DataFrame.
     """
-    out_df = df.copy()
+    out_df = df.copy(deep=False)
     for col in cols:
         # Force column to be numeric if possible, NaN otherwise:
         out_df.loc[:, col] = pd.to_numeric(out_df[col], errors="coerce")
@@ -767,7 +767,7 @@ def date_merge(
     """
 
     def separate_date_cols(df, date_col_name, date_on):
-        out_df = df.copy()
+        out_df = df.copy(deep=False)
         out_df.loc[:, date_col_name] = pd.to_datetime(out_df[date_col_name])
         if "year_temp_for_merge" in date_on:
             out_df.loc[:, "year_temp_for_merge"] = out_df[date_col_name].dt.year
@@ -931,7 +931,7 @@ def simplify_strings(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
     Returns:
         The whole DataFrame that was passed in, with the string columns cleaned up.
     """
-    out_df = df.copy()
+    out_df = df.copy(deep=False)
     for col in columns:
         if col in out_df.columns:
             mask = out_df[col].notnull()
@@ -1038,7 +1038,7 @@ def cleanstrings(
     Returns:
         The function returns a new DataFrame containing the cleaned strings.
     """
-    out_df = df.copy()
+    out_df = df.copy(deep=False)
     for col, str_map in zip(columns, stringmaps, strict=True):
         out_df[col] = cleanstrings_series(
             out_df[col], str_map, unmapped=unmapped, simplify=simplify
@@ -1116,7 +1116,7 @@ def month_year_to_date(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         A DataFrame in which the year/month fields have been converted into Date fields.
     """
-    df = df.copy()
+    df = df.copy(deep=False)
     month_regex = "_month$"
     year_regex = "_year$"
     # Columns that match our month or year patterns.
@@ -1195,7 +1195,7 @@ def convert_to_date(
         A DataFrame in which the year, month, day columns values have been converted
         into datetime objects.
     """
-    df = df.copy()
+    df = df.copy(deep=False)
     if date_col in df.columns:
         return df
 
@@ -2053,7 +2053,7 @@ def convert_col_to_bool(
     # Set values as true or value. Astype boolean should preserve NA values.
     # This is easier than building an input dictionary for pandas map or replace
     # functions.
-    df = df.copy()
+    df = df.copy(deep=False)
     # Build the boolean column as a whole rather than assigning True/False into the
     # existing (possibly string) column, which pandas 3.0 rejects as a lossy setitem.
     bool_col = pd.Series(pd.NA, index=df.index, dtype="boolean")

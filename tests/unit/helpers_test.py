@@ -721,6 +721,49 @@ def test_convert_col_to_bool():
     )
 
 
+@pytest.mark.parametrize(
+    "func,kwargs,df",
+    [
+        pytest.param(
+            convert_col_to_bool,
+            {"col_name": "x", "true_values": ["A"], "false_values": ["B"]},
+            pd.DataFrame({"x": ["A", "B"]}),
+            id="convert_col_to_bool",
+        ),
+        pytest.param(
+            pudl.helpers.oob_to_nan,
+            {"cols": ["x"], "lb": 0, "ub": 1},
+            pd.DataFrame({"x": [-1.0, 0.5, 2.0]}),
+            id="oob_to_nan",
+        ),
+        pytest.param(
+            simplify_strings,
+            {"columns": ["x"]},
+            pd.DataFrame({"x": ["  A  B ", "c"]}),
+            id="simplify_strings",
+        ),
+        pytest.param(
+            month_year_to_date,
+            {},
+            pd.DataFrame({"a_year": [2020, 2021], "a_month": [1, 2]}),
+            id="month_year_to_date",
+        ),
+        pytest.param(
+            convert_to_date,
+            {"year_col": "y"},
+            pd.DataFrame({"y": [2020, 2021]}),
+            id="convert_to_date",
+        ),
+    ],
+)
+def test_shallow_copy_helpers_dont_mutate_input(func, kwargs, df):
+    """Helpers that shallow-copy their input return a new object and leave it intact."""
+    original = df.copy()
+    out = func(df, **kwargs)
+    assert out is not df
+    assert_frame_equal(df, original)
+
+
 def test_convert_col_to_bool_unspecified_value_raises():
     """Values not in true_values or false_values should raise AssertionError."""
     df = pd.DataFrame({"col1": ["A", "B", "C"], "col2": [1, 2, 3]})

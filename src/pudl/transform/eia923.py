@@ -328,7 +328,7 @@ def _aggregate_generation_fuel_duplicates(
         "net_generation_mwh",
         "fuel_mmbtu_per_unit",
     ]
-    gen_fuel = gen_fuel.copy()
+    gen_fuel = gen_fuel.copy(deep=False)
     gen_fuel[numeric_value_cols] = (
         # This use of df.apply() is actually fast -- it's iterating over each column in
         # the dataframe (the numeric values) and applying pd.to_numeric to the whole
@@ -607,7 +607,7 @@ def plants_eia923(
         A dictionary of DataFrame objects in which pages from EIA923 form (keys)
         correspond to normalized DataFrames of values from that page (values).
     """
-    plant_info_df = eia923_dfs["plant_frame"].copy()
+    plant_info_df = eia923_dfs["plant_frame"]
 
     # There are other fields being compiled in the plant_info_df from all of
     # the various EIA923 spreadsheet pages. Do we want to add them to the

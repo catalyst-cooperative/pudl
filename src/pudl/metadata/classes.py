@@ -2997,7 +2997,7 @@ class Package(PudlMeta):
         Returns:
             A dataframe with clean code columns.
         """
-        encoded_df = df.copy()
+        encoded_df = df.copy(deep=False)
         for col in encoded_df.columns:
             if col in self.encoders:
                 encoded_df[col] = self.encoders[col].encode(

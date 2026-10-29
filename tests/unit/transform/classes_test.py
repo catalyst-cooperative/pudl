@@ -694,6 +694,16 @@ def test_nullify_outliers(series, expected, params):
     assert_series_equal(valid, expected, check_names=False)
 
 
+def test_nullify_outliers_does_not_mutate_numeric_input():
+    """``pd.to_numeric`` returns already-numeric input as-is; don't modify it."""
+    col = pd.Series([1.0, 5.0, 100.0])
+    original = col.copy()
+    out = nullify_outliers(col, params=ValidRange(lower_bound=0, upper_bound=10))
+    assert out is not col
+    assert out.isna().tolist() == [False, False, True]
+    assert_series_equal(col, original)
+
+
 @pytest.mark.parametrize(
     "series,expected,params",
     [
