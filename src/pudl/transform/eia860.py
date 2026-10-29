@@ -107,22 +107,24 @@ def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame
     # datatypes are applied, which violates the primary key constraints.
     # See https://github.com/catalyst-cooperative/pudl/issues/1207
     report_year = pd.to_datetime(own_df.report_date).dt.year
-    # "nan" may still be a literal string here or may already have been coerced to a
-    # true NA value depending on the reader; catch both.
-    bogus_generator_id = own_df.generator_id.isna() | (
-        own_df.generator_id == "nan"
-    ).fillna(False)
     mask = (
         report_year.between(2018, max(Eia860DataConfig().years))
         & (own_df.plant_id_eia == 62844)
         & (own_df.owner_utility_id_eia == 62745)
-        & bogus_generator_id
+        # "nan" may still be a literal string here or may already have been coerced to a
+        # true NA value depending on the reader; catch both.
+        & (own_df.generator_id.isna() | (own_df.generator_id == "nan").fillna(False))
     )
     own_df = own_df[~mask]
 
-    if not (nulls := own_df[(own_df.generator_id == "").fillna(False)]).empty:
-        logger.warning(
-            f"Found records with null IDs in _core_eia860__ownership: {nulls}"
+    # Known bogus generator_id records are dropped above. Any others that remain
+    # mean we need to add another spot fix, since generator_id is a primary key column.
+    null_gens = own_df.generator_id.isna() | (own_df.generator_id == "").fillna(False)
+    if (n_nulls := null_gens.sum()) > 0:
+        raise AssertionError(
+            f"Found {n_nulls} records with null generator_id in "
+            f"_core_eia860__ownership. Add a spot fix for them: "
+            f"{own_df[null_gens]}"
         )
     # In 2010 there are several hundred utilities that appear to be incorrectly
     # reporting the owner_utility_id_eia value *also* in the utility_id_eia
