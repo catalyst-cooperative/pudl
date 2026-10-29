@@ -12,7 +12,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "usage_warnings": ["incomplete_id_coverage"],
             "additional_details_text": """Not all plants that report to EIA are
 represented here; see `Notable Irregularities
-<https://docs.catalyst.coop/pudl/en/latest/data_sources/epamats.html#notable-irregularities>`_
+<https://docs.catalyst.coop/pudl/en/latest/data_sources/epamats.html#notable-irregularities>`__
 for details.
 
 MATS does not require reporting of hourly hydrogen fluoride (HF) emissions.
@@ -21,8 +21,9 @@ so they are dropped from this table.
 Only the mercury (Hg) and hydrogen chloride (HCl) columns contain data.
 
 Units in the MATS data are identified by their EPA emissions unit IDs, which may differ
-from EIA generator IDs. Use the ``core_epa__assn_eia_epacamd`` crosswalk to connect MATS
-emissions units to EIA plant IDs and generators.
+from EIA generator IDs. This table already contains an EIA plant ID, but you can use the
+``core_epa__assn_eia_epacamd`` crosswalk to connect MATS emissions units to EIA
+boilers and generators.
 """,
         },
         "schema": {
