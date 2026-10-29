@@ -860,11 +860,14 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
     """Combine the data associated with 88888 utility_id_values.
 
     This function sums the numeric columns of rows with a utility_id_eia of 88888 into a
-    single row per primary key. If the non-numeric columns (which includes booleans)
-    have different or null values within a primary key, the rows are impossible to
-    combine. E.g.: boolean columns where one value is Y and the other is N. In that case
-    only the first row is kept and its numeric values are not summed. This results in a
-    small loss of data, but is necessary to ensure that the primary key remains unique.
+    single row per primary key. Null values are treated as compatible with non-null
+    values: they count as zero when summing numeric columns, and they don't conflict
+    with the single non-null value of a non-numeric column (which includes booleans).
+    If a non-numeric column has more than one distinct non-null value within a primary
+    key, the rows are impossible to combine. E.g.: boolean columns where one value is
+    Y and the other is N. In that case only the first row (after sorting) is kept and
+    its numeric values are not summed. This results in a small loss of data, but is
+    necessary to ensure that the primary key remains unique.
 
     There's a similar de-duplication process happening in the ``_tidy_class_dfs``
     function, but the procedure for 88888 has been abstracted out here to avoid
@@ -880,11 +883,13 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
     Returns:
         A dataframe with the combined or dropped 88888 utility_id_eia values and unique pks.
     """
+    # If there are no 88888 utility_id_eia values, there's nothing to do.
     if 88888 not in df.utility_id_eia.unique():
         return df
+
     # Split the non-key columns into those that can be summed and those that can't. Note
     # that select_dtypes(exclude="number") treats boolean columns (numpy and nullable)
-    # as non-numeric,
+    # as non-numeric, so they are compared across a group rather than summed.
     non_num_cols = (
         df.drop(columns=idx_cols).select_dtypes(exclude="number").columns.tolist()
     )
@@ -893,6 +898,7 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
     # dropna=False keeps groups whose primary key contains nulls (e.g. no BA code).
     # Sort on every column so that which row is "first" in each group (and so which
     # values survive when a group can't be combined) doesn't depend on input row order.
+    # Nulls sort last, so this prefers records with non-null values over nulls.
     utils_88888 = (
         df[df["utility_id_eia"] == 88888]
         .sort_values(by=df.columns.tolist(), kind="stable")
@@ -900,57 +906,51 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
     )
     grouped = utils_88888.groupby(idx_cols, dropna=False)
 
-    # Flag the rows of groups that can be combined: more than one row, and every
-    # non-numeric column holds the same non-null value in all of them. A null counts
-    # as a mismatch because it can't be shown to agree with the other rows.
-    group_size = grouped[idx_cols[0]].transform("size")
-    combinable = group_size > 1
-    if non_num_cols:
-        # Each transform gives every row its group's value for each non-numeric column.
-        non_num_grouped = grouped[non_num_cols]
-        distinct_values = non_num_grouped.transform("nunique")  # ignores nulls
-        non_null_values = non_num_grouped.transform("count")
-
-        # A column agrees if the group has exactly one distinct value and no nulls.
-        has_one_value = distinct_values.eq(1)
-        has_no_nulls = non_null_values.eq(group_size, axis="index")
-        column_agrees = has_one_value & has_no_nulls
-
-        # Only combine groups where every non-numeric column agrees.
-        all_columns_agree = column_agrees.all(axis="columns")
-        combinable = combinable & all_columns_agree
-
-    # Keep the first row of every group. Groups that can't be combined are left as
-    # just this row, which drops the rest. There are very few instances of this,
-    # on the order of 1-2 per idx group. As of August 2025 there are the following
-    # dupes. Note that most of the dupes are the same utility in different years.
+    # The first row of every group accumulates the combined result. Groups that can't
+    # be combined are left as just this row, which drops the rest. There are very few
+    # instances of this, on the order of 1-2 per idx group. As of August 2025 there
+    # are the following dupes. Note that most of the dupes are the same utility in
+    # different years.
     # - BA table: 1
     # - OD table: 16
     # - Sales table: 32
     # - UD table: 15
     # - DP table: 8
-    first_rows = grouped.head(1).copy()
-    # If there are no numeric columns there is nothing to sum, so keeping the first
-    # row is already the combined row for combinable groups.
+    combined_rows = grouped.head(1).copy()
+
+    # We treat null values as NOT in conflict with non-null non-numeric values, and
+    # ignore them when summing numeric values. A group is combinable if every
+    # non-numeric column has at most one distinct non-null value across its rows
+    # (nunique ignores nulls). With no non-numeric columns every group is combinable.
+    if non_num_cols:
+        agrees = grouped[non_num_cols].transform("nunique").le(1).all(axis="columns")
+        combinable_labels = combined_rows.index[agrees.loc[combined_rows.index]]
+        # The first row may hold a null where another row in its group has the value,
+        # so take the first non-null value of each column across the group instead.
+        combined_rows.loc[combinable_labels, non_num_cols] = grouped[
+            non_num_cols
+        ].transform("first")
+    else:
+        combinable_labels = combined_rows.index
+
+    # Sum the numeric values of the combinable groups into their first row. Nulls count
+    # as zero. Non-combinable groups keep the numeric values of their first row.
     if num_cols:
-        # For combinable groups, replace the numeric values in the first row with the
-        # sums over the whole group. The sums are indexed like utils_88888, so we
-        # select exactly the combinable first rows from both sides; assigning a
-        # differently-sized frame (e.g. when nothing is combinable) fails on pandas 3.
-        group_sums = grouped[num_cols].transform("sum")
-        combinable_rows = first_rows.index[combinable[first_rows.index]]
-        first_rows.loc[combinable_rows, num_cols] = group_sums.loc[combinable_rows]
+        combined_rows.loc[combinable_labels, num_cols] = grouped[num_cols].transform(
+            "sum"
+        )
+
     recombined_df = pd.concat(
-        [df[df["utility_id_eia"] != 88888], first_rows], ignore_index=True
+        [df[df["utility_id_eia"] != 88888], combined_rows], ignore_index=True
     )
     # Guard against unexpectedly large data loss. The known drop counts per table
     # across all years (as of Aug 2025) are: BA: 1, OD: 16, Sales: 32, UD: 15, DP: 8.
     # A threshold of 100 (~3× the historical max) catches genuine runaway cases
     # without being sensitive to dataset size (full ETL vs. fast ETL subsets).
-    len_diff = len(recombined_df) - len(df)
-    if -len_diff > 100:
+    len_diff = len(df) - len(recombined_df)
+    if len_diff > 100:
         raise AssertionError(
-            f"Expected at most ~100 dropped 88888 rows but found: {-len_diff}! "
+            f"Expected at most ~100 dropped 88888 rows but found: {len_diff}! "
             f"Historical maximums by table (Aug 2025): BA: 1, OD: 16, Sales: 32, UD: 15, DP: 8."
         )
     return recombined_df
