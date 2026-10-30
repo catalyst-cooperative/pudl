@@ -1,8 +1,10 @@
 """Unit tests for FERCEQR deployment sensors and deployment asset handlers."""
 
 import json
+from collections.abc import Mapping
 from pathlib import Path
 from types import SimpleNamespace
+from typing import Any
 
 import dagster as dg
 import pytest
@@ -11,6 +13,7 @@ from upath import UPath
 
 from pudl.dagster import sensors
 from pudl.dagster.assets.deploy import ferceqr as deploy_ferceqr
+from pudl.validate.dbt import BuildResult
 
 
 def _run_sensor(sensor, context) -> dg.RunRequest:
@@ -53,14 +56,19 @@ def _report_datapackage_materialization(deploy_context, tmp_path) -> Path:
     return datapackage_path
 
 
+def _metadata_value(metadata: Mapping[str, Any], key: str):
+    """Return the raw value of a ``MaterializeResult`` metadata entry."""
+    entry = metadata[key]
+    return entry.value if isinstance(entry, dg.MetadataValue) else entry
+
+
 def _passing_validation_stages(mocker):
     """Passing dbt validation stages, matching _run_ferceqr_validation's shape."""
     return [
         deploy_ferceqr.ValidationStage(
             name=name,
-            result=mocker.Mock(
-                success=True,
-                format_failure_contexts=mocker.Mock(return_value=""),
+            result=BuildResult(
+                success=True, failure_contexts=[], status_counts={"pass": 4}
             ),
         )
         for name in ("Data validation",)
@@ -87,8 +95,19 @@ def _mock_deploy_dependencies(mocker, deploy_context, source_root, source_partit
             tags={
                 deploy_ferceqr.FERCEQR_SOURCE_PARTITIONS_TAG: json.dumps(
                     source_partitions
-                )
+                ),
+                deploy_ferceqr.FERCEQR_SOURCE_RUN_ID_TAG: "source-run",
             }
+        ),
+    )
+    # The backfill ID lives on the source run's tags, not the deployment run's.
+    mocker.patch.object(
+        deploy_context.instance,
+        "get_run_record_by_id",
+        return_value=SimpleNamespace(
+            dagster_run=SimpleNamespace(
+                tags={deploy_ferceqr.DAGSTER_BACKFILL_TAG: "bf123"}
+            )
         ),
     )
     mocker.patch.object(
@@ -308,10 +327,39 @@ def test_deploy_ferceqr_success_path_writes_success_and_notifies(mocker, tmp_pat
     old_file.parent.mkdir(parents=True)
     old_file.write_bytes(b"previous build")
 
-    deploy_ferceqr.deploy_ferceqr(deploy_context)
+    result = deploy_ferceqr.deploy_ferceqr(deploy_context)
 
     assert (tmp_path / "FERCEQR_SUCCESS").exists()
     assert not (tmp_path / "FERCEQR_FAILURE").exists()
+
+    # The materialization metadata records what was deployed, where, and how
+    # validation went.
+    assert isinstance(result, dg.MaterializeResult)
+    metadata = result.metadata
+    assert metadata is not None
+    assert metadata["outcome"] == "DEPLOYED"
+    assert metadata["source_run_id"] == "source-run"
+    assert metadata["source_backfill_id"] == "bf123"
+    assert _metadata_value(metadata, "partition_count") == 2
+    assert (metadata["first_partition"], metadata["last_partition"]) == (
+        "2013q3",
+        "2013q4",
+    )
+    assert _metadata_value(metadata, "targets") == [str(UPath(deploy_root))]
+    assert _metadata_value(metadata, "file_count") == 2 * len(
+        deploy_ferceqr.FERCEQR_TRANSFORM_ASSETS
+    )
+    assert set(_metadata_value(metadata, "table_bytes")) == set(
+        deploy_ferceqr.FERCEQR_TRANSFORM_ASSETS
+    )
+    assert _metadata_value(metadata, "validation") == [
+        {
+            "stage": "Data validation",
+            "success": True,
+            "dbt_status_counts": {"pass": 4},
+            "failure_count": 0,
+        }
+    ]
 
     # The built partitions land in the final layout. Promotion merges into the
     # existing prefix rather than replacing it, so 2012q4 is still there and the
@@ -395,10 +443,15 @@ def test_deploy_ferceqr_no_targets_skips_publish(mocker, tmp_path):
         return_value="build succeeded, deployment skipped",
     )
 
-    deploy_ferceqr.deploy_ferceqr(deploy_context)
+    result = deploy_ferceqr.deploy_ferceqr(deploy_context)
 
     assert (tmp_path / "FERCEQR_SUCCESS").exists()
     assert not (tmp_path / "FERCEQR_FAILURE").exists()
+    assert isinstance(result, dg.MaterializeResult)
+    assert result.metadata is not None
+    assert result.metadata["outcome"] == "SKIPPED"
+    assert _metadata_value(result.metadata, "targets") == []
+    assert "file_count" not in result.metadata
     # No staging directories were created -- nothing was uploaded.
     assert not any(p.name.startswith("._staging_") for p in tmp_path.iterdir())
     notification.assert_called_once_with(
