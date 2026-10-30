@@ -11,6 +11,7 @@ import dagster as dg
 import pytest
 from pytest_mock import MockerFixture
 
+from pudl.dagster.assets import default_assets
 from pudl.dagster.assets.core import datapackage
 from pudl.dagster.assets.core.datapackage import (
     _collect_dagster_file_metadata,
@@ -445,6 +446,20 @@ def test_enrich_resources_ignores_dagster_metadata_for_multi_file_resources(
     (resource,) = descriptor["resources"]
     assert resource["bytes"] == sum(len(p) for p in payloads.values())
     assert FAKE_BYTES not in {part["bytes"] for part in resource["parts"]}
+
+
+def test_ferceqr_datapackage_asset_depends_on_exactly_the_ferceqr_tables() -> None:
+    """The EQR descriptor's upstream assets are the tables of ``FERCEQR_PACKAGE``."""
+    (asset,) = [
+        a
+        for a in default_assets
+        if isinstance(a, dg.AssetsDefinition)
+        and dg.AssetKey("ferceqr_datapackage") in a.keys
+    ]
+    upstream = {
+        key.to_user_string() for key in asset.asset_deps[next(iter(asset.keys))]
+    }
+    assert upstream == {r.name for r in FERCEQR_PACKAGE.resources}
 
 
 @pytest.mark.parametrize("max_workers", [1, 8])

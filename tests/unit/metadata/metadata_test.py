@@ -1053,6 +1053,18 @@ def test_datapackages_registry_is_keyed_by_package_name_and_complete():
     assert {r.name for r in all_resources()} == set(RESOURCE_METADATA)
 
 
+def test_each_resources_dbt_source_is_a_package_containing_it():
+    """A resource's ``dbt_source`` must name a registered package that has the table.
+
+    ``dbt_source`` is set by hand in the resource metadata, and dbt looks for the
+    table's model and Parquet files under it, so it must not drift from the packages.
+    """
+    for resource in all_resources():
+        assert resource.dbt_source in DATAPACKAGES, resource.name
+        package = DATAPACKAGES[resource.dbt_source]
+        assert resource.name in {r.name for r in package.resources}, resource.name
+
+
 def test_find_resource_searches_every_registered_package():
     """Name-only lookups find PUDL and FERC EQR tables alike."""
     assert find_resource("core_pudl__codes_subdivisions").name == (
