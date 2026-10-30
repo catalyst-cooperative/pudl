@@ -124,6 +124,42 @@ def test_every_resource_with_a_schema_has_a_schema_check() -> None:
     assert not no_check, f"Assets with a schema but no schema check: {sorted(no_check)}"
 
 
+def test_every_datapackage_asset_has_the_descriptor_checks() -> None:
+    """Each registered datapackage's descriptor asset is validated before use.
+
+    The descriptors are published alongside the data, so a malformed one should fail
+    its blocking checks. A package without a ``<name>_datapackage`` asset, or without
+    both checks on it, is an error.
+    """
+    asset_names = {
+        spec.key.to_user_string()
+        for asset in default_assets
+        if isinstance(asset, dg.AssetsDefinition)
+        for spec in asset.specs
+    }
+    checks = {
+        (key.asset_key.to_user_string(), key.name)
+        for check in default_asset_checks
+        for key in check.check_keys
+    }
+    # Look up the check names from the factories rather than hardcoding them.
+    descriptor_check_names = {
+        key.name
+        for factory in (
+            asset_checks.valid_datapackage_check,
+            asset_checks.valid_datapackage_unit_strings_check,
+        )
+        for key in factory("any_asset", description="").check_keys
+    }
+    assert len(descriptor_check_names) == 2
+
+    for package_name in DATAPACKAGES:
+        asset_name = f"{package_name}_datapackage"
+        assert asset_name in asset_names, f"No {asset_name} asset for {package_name}"
+        missing = {n for n in descriptor_check_names if (asset_name, n) not in checks}
+        assert not missing, f"{asset_name} is missing descriptor checks: {missing}"
+
+
 def test_asset_check_from_packages_uses_first_package_defining_the_asset(
     mocker,
 ) -> None:
