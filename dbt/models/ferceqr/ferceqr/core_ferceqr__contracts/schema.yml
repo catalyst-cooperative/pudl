@@ -1,8 +1,10 @@
 version: 2
 sources:
-  - name: pudl
+  - name: ferceqr
     tables:
       - name: core_ferceqr__contracts
+        data_tests:
+          - expect_columns_not_all_null
         columns:
           - name: year_quarter
           - name: seller_company_id_ferc
