@@ -73,6 +73,10 @@ class PudlPaths(BaseSettings):
             return self.pudl_output / "parquet"
         return self.pudl_output / "parquet" / f"{table_name}.parquet"
 
+    def partitioned_parquet_paths(self, table_name: str) -> str:
+        """Return path to parquet file for given database and table."""
+        return str(self.pudl_output / "parquet" / table_name / "**" / "*.parquet")
+
     def sqlite_path(self, name: str) -> Path:
         """Return path to locally stored SQLite DB file."""
         return self.pudl_output / f"{name}.sqlite"

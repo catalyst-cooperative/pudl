@@ -3,6 +3,7 @@
 import io
 import json
 import logging
+import os
 from contextlib import chdir, contextmanager, redirect_stdout
 from pathlib import Path
 from typing import NamedTuple, cast
@@ -17,6 +18,18 @@ from dbt.contracts.graph.nodes import GenericTestNode
 from pudl import PUDL_DBT_PATH
 from pudl.logging_helpers import get_logger
 from pudl.workspace.setup import PudlPaths
+
+DBT_SOURCES = ("pudl", "ferceqr")
+"""Names of the dbt sources, each validated against its own set of Parquet outputs."""
+
+DEFAULT_DBT_SOURCE = "pudl"
+"""The dbt source validated when none is specified."""
+
+ALL_DBT_SOURCES = "*"
+"""Selector value meaning every dbt source."""
+
+DBT_UNIT_TESTS_PATH = "tests/unit_tests"
+"""Path, relative to the dbt project, of the unit tests of our dbt macros."""
 
 logger = get_logger(__name__)
 
@@ -146,6 +159,7 @@ def build_with_context(
     node_selection: str,
     dbt_target: str,
     node_exclusion: str | None = None,
+    parquet_base_path: str | None = None,
 ) -> BuildResult:
     """Run the DBT build and get failure information back.
 
@@ -159,6 +173,10 @@ def build_with_context(
     cli_args = ["--target", dbt_target, "--select", node_selection]
     if node_exclusion is not None:
         cli_args += ["--exclude", node_exclusion]
+    if parquet_base_path:
+        # These will live on for the full python process, but won't persist beyond that
+        os.environ["PARQUET_BASE_PATH"] = str(parquet_base_path)
+
     dbt = install_dbt_deps()
 
     with _preserve_logging_propagation(), chdir(PUDL_DBT_PATH):

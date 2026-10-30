@@ -278,6 +278,15 @@ def pytest_addoption(parser):
         default=False,
         help="If enabled, the local file cache for datastore will not be used.",
     )
+    parser.addoption(
+        "--dbt-source",
+        action="store",
+        default="pudl",
+        help=(
+            "DBT source to use for validation tests."
+            "Currently includes 'pudl' and 'ferceqr'."
+        ),
+    )
 
 
 def _pudl_etl(
@@ -865,3 +874,9 @@ def zenodo_datastore(
             },
         ) as datastore:
             yield datastore
+
+
+@pytest.fixture
+def dbt_source(request):
+    """Expose ``dbt-source`` command line option to validation tests."""
+    return request.config.getoption("--dbt-source")
