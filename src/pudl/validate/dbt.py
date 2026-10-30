@@ -4,6 +4,7 @@ import io
 import json
 import logging
 import os
+from collections import Counter
 from contextlib import chdir, contextmanager, redirect_stdout
 from pathlib import Path
 from typing import NamedTuple, cast
@@ -69,6 +70,8 @@ class BuildResult(NamedTuple):
 
     success: bool
     failure_contexts: list[NodeContext]
+    status_counts: dict[str, int]
+    """Number of dbt nodes (tests and seeds) with each result status, e.g. ``pass``."""
 
     def format_failure_contexts(self) -> str:
         """Nice legible output for logs."""
@@ -205,9 +208,14 @@ def build_with_context(
     )
     compiled_sql_contexts = __get_compiled_sql_contexts(compiled_sql_failures)
 
+    status_counts = Counter(
+        str(getattr(res.status, "value", res.status)) for res in build_results
+    )
+
     return BuildResult(
         success=build_output.success,
         failure_contexts=compiled_sql_contexts + weighted_quantile_contexts,
+        status_counts=dict(status_counts),
     )
 
 
