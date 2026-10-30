@@ -23,6 +23,11 @@ Documentation
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Updated ``dbt`` data validation now to support FERC EQR data. This requires ``dbt``
+  configuration changes to handle partitioned parquet outputs. See issue :pr:`4864`
+  and PR :pr:`5676`. This PR also applies basic validation tests to FERC EQR tables,
+  including row count tests.
+
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -69,6 +74,36 @@ Bug Fixes & Data Cleaning
   constraint enforcing the range. ``drop_invalid_rows()`` has a new ``dropna`` argument
   (default True) instead of requiring null values in ``invalid_values``; outputs are
   unchanged. See :issue:`5616`, :issue:`5623` and :pr:`5720`.
+  nulls non-string values like numeric zip codes. SEC 10-K ownership percentages no
+  longer misread leader dots (``"...99"`` was 0.0099, now 0.99), and
+  ``fraction_owned`` is now always within 0-1, with out-of-range values (about 9% of
+  non-null values, e.g. adjacent percentages run together) set to null and a field
+  constraint enforcing the range. ``drop_invalid_rows()`` has a new ``dropna`` argument
+  (default True) instead of requiring null values in ``invalid_values``; outputs are
+  unchanged. See :issue:`5616`, :issue:`5623` and :pr:`5720`.
+* ``X`` in the EIA-861 dynamic pricing time-of-use, critical peak, real time and
+  variable peak columns is now treated as ``True`` (a checked box) instead of being
+  turned into a null, which changes four 2018 rows of
+  ``core_eia861__yearly_dynamic_pricing``. All EIA-861 Y/N flag columns now share one
+  case-insensitive conversion to booleans, so a lowercase ``y`` or ``n`` is no longer
+  turned into a null in a few ``core_eia861__yearly_reliability`` rows, and unexpected
+  codes other than Y, N and X raise an error. See :issue:`5617`, :issue:`5601` and
+  :pr:`5718`.
+* Fixed the 2007-2011 EIA-861 advanced metering infrastructure column map, which was
+  loading the utility ownership codes (e.g. ``C`` for cooperative) into ``short_form``
+  and leaving ``entity_type`` null. Those years of
+  ``core_eia861__yearly_advanced_metering_infrastructure`` now have ``entity_type``
+  populated and ``short_form`` null. See :issue:`5617` :pr:`5718`.
+* When EIA-861 rows for the withheld utility 88888 are combined, boolean columns are
+  no longer summed, nulls are now compatible with non-null values, and the row kept
+  when values conflict no longer depends on input row order, which may change a few
+  rows in several EIA-861 tables. See :issue:`5612` and :pr:`5718`.
+* Made the EIA-923 transforms behave the same under pandas 3: date and month columns
+  are now assigned directly instead of through chained ``.loc`` assignment, and the
+  numeric columns summed when de-duplicating EIA-923 generation fuel rows are
+  explicitly cast to ``float64``. See :issue:`5619`, :issue:`5620` and
+  :pr:`5719`.
+*
 * Made null handling in ``stack_generators()``, the EIA-176 "other" gas disposition
   categorization and the EIA-860 ownership spot-fix behave identically under pandas 2
   and 3. Pandas 3 changed how nulls are treated by ``stack()``, ``astype(str)`` and

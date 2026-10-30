@@ -2773,7 +2773,13 @@ def duckdb_relation_from_parquet(
         use_all_partitions: If true read the entire directory of parquet files.
             Otherwise only read data from the partition specified in parquet_data.
     """
-    with duckdb_connect() as conn:
+    # Reading a whole directory can mean globbing thousands of small files (e.g. the
+    # per-filing FERC EQR raw tables). DuckDB 2.0's asynchronous read-ahead holds
+    # each prefetched file open, which needed ~1,000 simultaneous file handles and
+    # failed with "Too many open files". Read-ahead only helps with remote storage,
+    # so disable it for these local reads.
+    overrides = {"read_ahead_depth": "0"} if use_all_partitions else {}
+    with duckdb_connect(**overrides) as conn:
         if use_all_partitions:
             yield conn.read_parquet(f"{parquet_data.parquet_directory}/*.parquet"), conn
         else:
