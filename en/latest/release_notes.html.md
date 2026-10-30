@@ -10,6 +10,16 @@
 
 ### Expanded Data Coverage
 
+#### EIA-860M
+
+* Added [EIA-860m](data_sources/eia860.html.md) data through September 2026. See
+  PR [#5732](https://github.com/catalyst-cooperative/pudl/pull/5732).
+
+#### EIA-923
+
+* Added [EIA-923](data_sources/eia923.html.md) data through August 2026. See
+  PR [#5732](https://github.com/catalyst-cooperative/pudl/pull/5732).
+
 ### Documentation
 
 ### New Data Tests & Validations
