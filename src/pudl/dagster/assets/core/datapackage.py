@@ -211,34 +211,51 @@ class _PendingResource:
         return [file for _, file in self.found]
 
 
-def _plan_enrichment(
-    descriptor: dict,
-    dag_metadata: dict[str, dict],
-    parquet_path: Path,
-) -> tuple[int, list[_PendingResource]]:
-    """Fill in stats available from Dagster metadata and find files left to hash.
+def _apply_dagster_stats(descriptor: dict, dag_metadata: dict[str, dict]) -> set[str]:
+    """Copy file stats recorded by Dagster into single-file resource descriptors.
+
+    Args:
+        descriptor: Datapackage descriptor, modified in place.
+        dag_metadata: Per-resource ``bytes``/``hash`` recorded by Dagster.
 
     Returns:
-        The number of resources already enriched from *dag_metadata*, and the
-        resources that still need stats computed from the files on disk. Resources
-        with no files on disk are in neither.
+        The names of the resources that were enriched.
     """
-    enriched_count = 0
+    enriched: set[str] = set()
+    for resource_descriptor in descriptor.get("resources", []):
+        name = resource_descriptor.get("name")
+        if name in dag_metadata and len(_resource_paths(resource_descriptor)) == 1:
+            resource_descriptor["bytes"] = dag_metadata[name]["bytes"]
+            resource_descriptor["hash"] = dag_metadata[name]["hash"]
+            enriched.add(name)
+    return enriched
+
+
+def _find_pending_resources(
+    descriptor: dict, parquet_path: Path, skip: set[str]
+) -> list[_PendingResource]:
+    """Find the parquet files on disk that need stats computed for each resource.
+
+    Args:
+        descriptor: Datapackage descriptor.
+        parquet_path: Directory holding the parquet files.
+        skip: Names of resources that already have stats, which are left out.
+
+    Returns:
+        The resources with at least one file on disk. Resources with no files on disk
+        are not included.
+    """
     pending: list[_PendingResource] = []
     for resource_descriptor in descriptor.get("resources", []):
         name = resource_descriptor.get("name")
+        if name in skip:
+            continue
         paths = _resource_paths(resource_descriptor)
         if not paths:
             raise AssertionError(
                 f"Resource {name} has no path in the datapackage descriptor; "
                 "every parquet-backed resource must point at at least one file."
             )
-
-        if len(paths) == 1 and name in dag_metadata:
-            resource_descriptor["bytes"] = dag_metadata[name]["bytes"]
-            resource_descriptor["hash"] = dag_metadata[name]["hash"]
-            enriched_count += 1
-            continue
 
         # Check for parquet files on disk before getting stats. If a resource has not
         # been materialized, or not all partitions have been materialized, then there
@@ -255,7 +272,7 @@ def _plan_enrichment(
             )
         if found_paths:
             pending.append(_PendingResource(resource_descriptor, paths, found_paths))
-    return enriched_count, pending
+    return pending
 
 
 def _hash_files(files: Sequence[Path], max_workers: int) -> dict[Path, FileStats]:
@@ -317,13 +334,14 @@ def _enrich_resources(
         parquet_path: Directory holding the parquet files.
         max_workers: Maximum number of files hashed concurrently.
     """
-    enriched_count, pending = _plan_enrichment(descriptor, dag_metadata, parquet_path)
+    enriched = _apply_dagster_stats(descriptor, dag_metadata)
+    pending = _find_pending_resources(descriptor, parquet_path, skip=enriched)
     stats = _hash_files(
         [file for resource in pending for file in resource.files], max_workers
     )
     for resource in pending:
         _apply_stats(resource, stats)
-    return enriched_count + len(pending)
+    return len(enriched) + len(pending)
 
 
 def _summarize_resources(descriptor: dict) -> list[dict[str, Any]]:
