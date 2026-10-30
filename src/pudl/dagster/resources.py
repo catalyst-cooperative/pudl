@@ -182,6 +182,19 @@ class FercEqrArchiveResource(dg.ConfigurableResource):
         zip_name = f"ferceqr-{year_quarter}.zip"
         remote_path = self.upath / zip_name
 
+        # Look up the expected checksum before downloading anything, so a quarter
+        # missing from the published metadata fails at once instead of after a
+        # multi-gigabyte transfer.
+        descriptor = self.datastore.get_datapackage_descriptor("ferceqr")
+        try:
+            descriptor.get_checksum(zip_name)
+        except KeyError as err:
+            raise RuntimeError(
+                f"{zip_name} has no checksum in the Zenodo metadata for FERC EQR "
+                f"({descriptor.doi}). Update the metadata archive and the ferceqr DOI "
+                "in zenodo_dois.yml before extracting this quarter."
+            ) from err
+
         # Create temp directory to download zip to
         with (
             tempfile.TemporaryDirectory() as tmp_dir,
@@ -198,7 +211,6 @@ class FercEqrArchiveResource(dg.ConfigurableResource):
             # Raises ChecksumMismatchError on mismatch. This guarantees that year_quarter
             # zipfiles exactly match those described by the datapackage in the zenodo
             # metadata archive pointed to by the current DOI
-            descriptor = self.datastore.get_datapackage_descriptor("ferceqr")
             descriptor.validate_file_checksum(zip_name, local_path)
             logger.info(f"Verified {zip_name} checksum against {descriptor.doi}.")
             # Yield open zipfile
