@@ -44,8 +44,13 @@ _SOURCES_WITH_DOCS: frozenset[str] = (
 )
 
 
-HASH_MAX_WORKERS = min(32, os.cpu_count() or 1)
-"""Default number of threads used to hash parquet files concurrently."""
+HASH_MAX_WORKERS = min(32, os.process_cpu_count() or 1)
+"""Default number of threads used to hash parquet files concurrently.
+
+Based on the CPUs this process is allowed to use (:func:`os.process_cpu_count`), which
+respects CPU affinity, unlike the total number of CPUs on the machine. It does not
+account for CPU time quotas such as those set by ``docker run --cpus``.
+"""
 
 
 def _collect_dagster_file_metadata(
