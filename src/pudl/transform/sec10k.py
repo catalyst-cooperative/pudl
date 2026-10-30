@@ -58,7 +58,7 @@ def _compute_fraction_owned(percent_ownership: pd.Series) -> pd.Series:
     only_dots = percent_ownership.str.fullmatch(r"\.+", na=False)
     # Null rows that are only dots, then remove any runs of multiple dots from the
     # remaining values. This will leave a string that can be unambiguously interpreted
-    # as a float (e.g. 0.95 or .99)
+    # as a float after they get divided by 100 below (e.g. 0.95 or .99)
     cleaned = percent_ownership.mask(only_dots).str.replace(r"\.{2,}", "", regex=True)
     # Turn the percentage into a fraction. We treat all values as percentages because
     # there are a significant number of cases where one company owns a de minimis stake
