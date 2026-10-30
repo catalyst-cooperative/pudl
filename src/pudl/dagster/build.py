@@ -24,6 +24,7 @@ from pudl.dagster.io_managers import (
 from pudl.dagster.jobs import default_jobs
 from pudl.dagster.resources import (
     DatastoreResource,
+    FercEqrArchiveResource,
     GlobalDataConfigResource,
     PudlPathsResource,
     ZenodoDoiSettingsResource,
@@ -73,11 +74,14 @@ def _build_interactive_resources(
     zenodo_dois: ZenodoDoiSettingsResource,
 ) -> dict[str, Any]:
     """Build interactive-only resources wired to concrete local resource instances."""
+    datastore = DatastoreResource(
+        zenodo_dois=zenodo_dois,
+        pudl_paths=pudl_paths,
+    )
     return {
-        "datastore": DatastoreResource(
-            zenodo_dois=zenodo_dois,
-            pudl_paths=pudl_paths,
-        ),
+        "datastore": datastore,
+        # Nests the datastore, so it must be rebuilt around the concrete one.
+        "ferceqr_archive": FercEqrArchiveResource(datastore=datastore),
         "parquet_io_manager": PudlParquetIOManager(pudl_paths=pudl_paths),
         "ferc1_dbf_sqlite_io_manager": FercDbfSqliteIOManager(
             global_data_config=global_data_config,

@@ -24,14 +24,14 @@ import pudl.extract
 import pudl.output
 import pudl.transform
 from pudl.dagster.assets.core import eiaapi_electricity, glue, static, unmapped_ids
-from pudl.dagster.assets.core.datapackage import build_pudl_datapackage_asset
+from pudl.dagster.assets.core.datapackage import build_datapackage_asset
 from pudl.dagster.assets.deploy import ferceqr as deploy_ferceqr
 from pudl.dagster.assets.output.databases import (
     build_pudl_duckdb_asset,
     build_pudl_sqlite_asset,
 )
 from pudl.dagster.assets.raw import ferc_to_sqlite
-from pudl.metadata.classes import PUDL_PACKAGE
+from pudl.metadata.classes import FERCEQR_PACKAGE, PUDL_PACKAGE
 
 raw_module_groups = {
     "raw_ferc_to_sqlite": [ferc_to_sqlite],
@@ -190,7 +190,24 @@ def _find_sql_asset_keys(assets) -> list[dg.AssetKey]:
 
 _sql_asset_keys = _find_sql_asset_keys(_base_assets)
 default_assets = _base_assets + [
-    build_pudl_datapackage_asset(_find_parquet_asset_keys(_base_assets)),
+    build_datapackage_asset(
+        package=PUDL_PACKAGE,
+        parquet_asset_keys=_find_parquet_asset_keys(_base_assets),
+        asset_name="pudl_datapackage",
+    ),
+    build_datapackage_asset(
+        package=FERCEQR_PACKAGE,
+        parquet_asset_keys=[
+            spec.key
+            for asset_def in _base_assets
+            if isinstance(asset_def, dg.AssetsDefinition)
+            for spec in asset_def.specs
+            if spec.key.path[-1].startswith(("core_ferceqr", "out_ferceqr"))
+        ],
+        asset_name="ferceqr_datapackage",
+        group_name="ferceqr_deployment",
+        partitioned=True,
+    ),
     build_pudl_sqlite_asset(_sql_asset_keys),
     build_pudl_duckdb_asset(_sql_asset_keys),
 ]

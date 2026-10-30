@@ -15,7 +15,7 @@ from pudl import PUDL_DBT_PATH
 from pudl.dagster.build import build_defs
 from pudl.dbt_schema import DbtSchema, DbtTable, merge_schema
 from pudl.logging_helpers import configure_root_logger, get_logger
-from pudl.metadata.classes import PUDL_PACKAGE, Resource
+from pudl.metadata.classes import FERCEQR_PACKAGE, PUDL_PACKAGE, Resource
 from pudl.validate.dbt import (
     ALL_DBT_SOURCES,
     DBT_SOURCES,
@@ -29,7 +29,7 @@ from pudl.workspace.setup import PudlPaths
 logger = get_logger(__name__)
 
 
-ALL_TABLES = [r.name for r in PUDL_PACKAGE.resources]
+ALL_TABLES = [r.name for r in [*PUDL_PACKAGE.resources, *FERCEQR_PACKAGE.resources]]
 
 
 def insert_data_source(parent_dir: Path, table_name: str) -> Path:

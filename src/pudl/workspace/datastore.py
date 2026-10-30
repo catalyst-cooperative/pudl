@@ -84,7 +84,7 @@ class DatapackageDescriptor:
             total_bytes += res["bytes"]
         return int(total_bytes / 1_000_000)
 
-    def validate_checksum(self, name: str, content: str) -> bool:
+    def validate_checksum(self, name: str, content: str) -> None:
         """Returns True if content matches checksum for given named resource."""
         expected_checksum = self._get_resource_metadata(name)["hash"]
         m = hashlib.md5()  # noqa: S324 Unfortunately md5 is required by Zenodo
@@ -93,6 +93,33 @@ class DatapackageDescriptor:
             raise ChecksumMismatchError(
                 f"Checksum for resource {name} does not match."
                 f"Expected {expected_checksum}, got {m.hexdigest()}"
+            )
+
+    def validate_file_checksum(self, name: str, path: str | Path) -> None:
+        """Verify that a file on disk matches the checksum for a named resource.
+
+        Hashes the file incrementally instead of reading it into memory, so it can be
+        used on resources too large to buffer like the multi-gigabyte quarterly FERC
+        EQR archives, which are streamed to local disk before being opened.
+
+        Args:
+            name: name of the resource as it appears in this datapackage descriptor.
+            path: local path to the file whose contents should be checked.
+
+        Returns:
+            The hex md5 digest of the file's contents.
+
+        Raises:
+            ChecksumMismatchError: if the digest does not match the expected checksum.
+        """
+        expected_checksum = self._get_resource_metadata(name)["hash"]
+        with Path(path).open("rb") as f:
+            # Unfortunately md5 is required by Zenodo.
+            digest = hashlib.file_digest(f, "md5").hexdigest()
+        if digest != expected_checksum:
+            raise ChecksumMismatchError(
+                f"Checksum for resource {name} does not match. "
+                f"Expected {expected_checksum}, got {digest}"
             )
 
     def _matches(self, res: dict, **filters: Any):

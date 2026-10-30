@@ -336,11 +336,6 @@
       "concise_description": "Expected argument after ** to be a mapping, got: PudlPaths in function `FercPaths.__init__`"
     },
     {
-      "path": "src/pudl/workspace/datastore.py",
-      "name": "bad-return",
-      "concise_description": "Function declared to return `bool` but is missing an explicit `return`"
-    },
-    {
       "path": "src/pudl/analysis/record_linkage/link_cross_year.py",
       "name": "bad-return",
       "concise_description": "Generator function should return `Generator`"
