@@ -166,11 +166,6 @@
       "concise_description": "Argument `dict[str, DataType]` is not assignable to parameter `dtypes` with type `DataType | DataTypeClass | DataTypeExpr | Mapping[DataType | DataTypeClass | Selector | str, DataType | DataTypeClass | type[Decimal | bool | bytes | date | datetime | float | int | list[Any] | object | str | time | timedelta | tuple[Any, ...] | None]] | Schema` in function `polars.lazyframe.frame.LazyFrame.cast`"
     },
     {
-      "path": "src/pudl/extract/dbf.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `dict[str, TypeEngine[Any]]` is not assignable to parameter `dtype` with type `ExtensionDtype | Mapping[Hashable, ExtensionDtype | dtype[generic] | str | type[bool | complex | object | str]] | dtype[generic] | str | type[bool | complex | object | str] | None` in function `pandas.core.generic.NDFrame.to_sql`"
-    },
-    {
       "path": "src/pudl/analysis/state_demand.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `int | str` is not assignable to parameter `obj` with type `Sized` in function `len`"
@@ -281,11 +276,6 @@
       "concise_description": "Argument `type[BadZipFile]` is not assignable to parameter `retry_on` with type `tuple[type[BaseException], ...]` in function `pudl.helpers.retry`"
     },
     {
-      "path": "src/pudl/extract/dbf.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `type[Boolean] | type[Date] | type[DateTime] | type[Float] | type[Integer] | type[String] | type[Text] | String | str` is not assignable to parameter `col_type` with type `TypeEngine[Unknown] | type[TypeEngine[Unknown]]` in function `DbfTableSchema.add_column`"
-    },
-    {
       "path": "src/pudl/dagster/assets/raw/ferc_to_sqlite.py",
       "name": "bad-assignment",
       "concise_description": "Augmented assignment result `dict[str, UPath]` is not assignable to `PudlPaths`"
@@ -294,11 +284,6 @@
       "path": "src/pudl/helpers.py",
       "name": "unsupported-operation",
       "concise_description": "Cannot set item in `defaultdict[str, str]`"
-    },
-    {
-      "path": "src/pudl/extract/dbf.py",
-      "name": "unsupported-operation",
-      "concise_description": "Cannot set item in `dict[Any, str]`"
     },
     {
       "path": "src/pudl/workspace/resource_cache.py",

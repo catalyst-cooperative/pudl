@@ -104,6 +104,10 @@ Performance Improvements
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^
 
+* The FERC DBF field types we can't convert to SQL column types are now listed apart
+  from the ones we can, instead of being mixed in as placeholder strings. A field of an
+  unsupported type fails immediately with an error naming the type, field and table.
+  See :pr:`5734`.
 * Plant part record IDs for records with a null ``utility_id_eia`` now end in ``null``
   instead of ``<NA>`` (or ``<na>``), consistent with the rest of the ID. This changes
   ``record_id_eia`` and ``plant_part_id_eia`` in ``out_eia__yearly_plant_parts`` and the
