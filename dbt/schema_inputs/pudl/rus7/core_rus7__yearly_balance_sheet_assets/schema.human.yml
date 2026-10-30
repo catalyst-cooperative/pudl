@@ -19,8 +19,6 @@ sources:
                   - construction_work_in_progress
                 total_label: total_utility_plant
                 tolerance: 10
-              config:
-                error_if: ">545"
           - subcomponents_sum_to_total:
               arguments:
                 group_by_columns:
@@ -42,8 +40,6 @@ sources:
                   - other_current_and_accrued
                 total_label: total_current_and_accrued
                 tolerance: 10
-              config:
-                error_if: ">5"
           - subcomponents_sum_to_total:
               arguments:
                 group_by_columns:

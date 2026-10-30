@@ -31,7 +31,8 @@ New Data Tests & Validations
 * Validate that the net utility plant, total other property and investments, and total
   assets in :ref:`core_rus7__yearly_balance_sheet_assets` and
   :ref:`out_rus7__yearly_balance_sheet_assets` equal the sum of their subcomponents.
-  See :issue:`5566` and :pr:`5729`.
+  The existing ``total_utility_plant`` and ``total_current_and_accrued`` tests no longer
+  allow any failures. See :issue:`5566` and :pr:`5729`.
 
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
