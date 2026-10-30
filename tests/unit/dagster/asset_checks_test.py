@@ -45,6 +45,7 @@ from shapely.geometry import Point
 
 import pudl.dagster.asset_checks as asset_checks
 from pudl.dagster.asset_checks import (
+    SCHEMA_CHECK_NAME,
     _build_registry_from_descriptor,
     _validate_datapackage_unit_strings,
     asset_check_from_packages,
@@ -54,6 +55,7 @@ from pudl.dagster.asset_checks import (
     summarize_check_failures,
     unmapped_ids_check,
 )
+from pudl.dagster.assets import default_assets
 from pudl.helpers import ParquetData
 from pudl.metadata.classes import (
     DATAPACKAGES,
@@ -61,6 +63,7 @@ from pudl.metadata.classes import (
     PUDL_PACKAGE,
     Package,
     Resource,
+    all_resources,
 )
 from pudl.metadata.units import PUDL_UNIT_DEFINITIONS
 
@@ -79,6 +82,46 @@ def test_default_asset_checks_cover_every_registered_package() -> None:
     for package in DATAPACKAGES.values():
         assert {r.name for r in package.resources} & checked_assets, package.name
     assert {r.name for r in FERCEQR_PACKAGE.resources} <= checked_assets
+
+
+SCHEMA_CHECK_EXEMPTIONS: dict[str, str] = {}
+"""Resources allowed to lack a schema check, mapped to the reason they are exempt.
+
+This should stay empty unless there is a strong reason: the schema checks are how we
+catch tables whose outputs drift from their metadata.
+"""
+
+
+def test_every_resource_with_a_schema_has_a_schema_check() -> None:
+    """Every asset whose resource defines a schema must have a schema asset check.
+
+    Iterates over every resource in every registered datapackage, so a new package or
+    a resource that falls out of the check-generation code can't silently go
+    unchecked. A resource that has no asset at all is also an error, rather than being
+    skipped. Exemptions belong in ``SCHEMA_CHECK_EXEMPTIONS`` with a stated reason.
+    """
+    asset_names = {
+        spec.key.to_user_string()
+        for asset in default_assets
+        if isinstance(asset, dg.AssetsDefinition)
+        for spec in asset.specs
+    }
+    checked = {
+        (key.asset_key.to_user_string(), key.name)
+        for check in default_asset_checks
+        for key in check.check_keys
+    }
+    no_asset, no_check = [], []
+    for resource in all_resources():
+        if not resource.schema.fields or resource.name in SCHEMA_CHECK_EXEMPTIONS:
+            continue
+        if resource.name not in asset_names:
+            no_asset.append(resource.name)
+        elif (resource.name, SCHEMA_CHECK_NAME) not in checked:
+            no_check.append(resource.name)
+
+    assert not no_asset, f"Resources with a schema but no asset: {sorted(no_asset)}"
+    assert not no_check, f"Assets with a schema but no schema check: {sorted(no_check)}"
 
 
 def test_asset_check_from_packages_uses_first_package_defining_the_asset(
