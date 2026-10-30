@@ -50,7 +50,7 @@ dependencies = []
 
 [tool.pixi.workspace]
 name = "catalystcoop.pudl"
-platforms = ["linux-aarch64", "linux-64", "osx-64", "osx-arm64"]
+platforms = ["linux-aarch64", "linux-64", "osx-arm64"]
 channels = ["conda-forge"]
 channel-priority = "strict"
 preview = ["pixi-build"]
@@ -79,7 +79,6 @@ dbt-core = ">=1.12"
 dbt-duckdb = ">=1.9.4"
 doc8 = ">=2"
 email-validator = ">=1.0.3"
-filelock = ">=3.29"
 frictionless = ">=5,<6"
 fsspec = ">=2026"
 gcsfs = ">=2026"
@@ -115,7 +114,7 @@ numpy = ">=2.5"
 pandas = ">=2.3,<3"
 pandera-polars = ">=0.34"
 pint = ">=0.25.3"
-polars = ">=2"
+polars = ">=2.1"
 prek = ">=0.5"
 # potentially unresolveable breaking changes in prettier 4.x
 prettier = ">=3.8,<4"
@@ -133,7 +132,7 @@ pytest-order = ">=1.3"
 pytest-xdist = ">=3.8"
 python-calamine = ">=0.9"
 python-dateutil = ">=2.9.0"
-python-duckdb = ">=1.5,<1.6"
+python-duckdb = ">=2"
 pytz = ">=2026"
 pyyaml = ">=6"
 requests = ">=2.34"
@@ -177,7 +176,7 @@ detect-secrets = ">=1.5"
 duckdb-engine = ">=0.17"
 
 [tool.pixi.feature.dev.dependencies]
-duckdb-cli = ">=1.5,<1.6"
+duckdb-cli = ">=2"
 jq = ">=1.8" # Primarily for agent skills use
 matplotx = ">=0.3.10"
 memray = ">=1.18.0"
@@ -195,9 +194,6 @@ pandas-stubs = ">=2.3,<3"
 # On conda-forge, linux-aarch64 only has marimo <=0.13, which doesn't support our
 # minimum supported Python version, so to get a modern version in all the other
 # platforms, we hae to pull it in for them explicitly.
-[tool.pixi.feature.dev.target.osx-64.dependencies]
-marimo = ">=0.25"
-
 [tool.pixi.feature.dev.target.osx-arm64.dependencies]
 marimo = ">=0.25"
 
@@ -257,6 +253,7 @@ dev = { features = ["dev"], solve-group = "default" }
 # Reusable variables for pixi tasks
 DG_FULL_CONFIG = "src/pudl/package_data/settings/dg_full.yml"
 DG_NIGHTLY_CONFIG = "src/pudl/package_data/settings/dg_nightly.yml"
+DG_UNMAPPED_IDS_CONFIG = "src/pudl/package_data/settings/dg_unmapped_ids.yml"
 # grpcio >= 1.83.0 is required by the Google Cloud Python libraries as of
 # October 2026 (post-quantum crypto migration). Until our resolved grpcio
 # crosses that version, silence the pre-migration FutureWarning.
@@ -347,8 +344,8 @@ cmd = "pytest --cov-fail-under=0 --verbose --log-cli-level=INFO --capture=no --i
 description = "Run pipeline tests (including the fast ETL) and non-row-count data validation tests."
 env = { PUDL_INTEGRATION_TESTS = "true" }
 
-[tool.pixi.tasks.pytest-validate]
-cmd = "pytest -n auto --no-cov --live-pudl-output tests/validate/data_test.py"
+[tool.pixi.tasks.pytest-validate-pudl]
+cmd = "pytest --no-cov --live-pudl-output tests/validate/data_test.py --dbt-source=pudl"
 description = "Run data validation tests (FK checks and dbt, no row counts) against existing PUDL_OUTPUT"
 
 [tool.pixi.tasks.pytest-unit-nightly]
@@ -364,12 +361,20 @@ cmd = "pytest -n auto --no-cov --verbose --log-cli-level=INFO --live-pudl-output
 description = "Run nightly-build pipeline tests against live nightly-style outputs"
 
 [tool.pixi.tasks.pytest-validate-nightly]
-cmd = "pytest -n auto --no-cov --verbose --log-cli-level=INFO --live-pudl-output --capture=no --dg-config $DG_NIGHTLY_CONFIG tests/validate/data_test.py"
+cmd = "pytest --no-cov --verbose --log-cli-level=INFO --live-pudl-output --capture=no --dg-config $DG_NIGHTLY_CONFIG tests/validate/data_test.py --dbt-source=pudl"
 description = "Run nightly-build data validation tests (FK checks and dbt, excluding row counts) against live nightly-style outputs"
 
 [tool.pixi.tasks.pytest-validate-row-counts-nightly]
-cmd = "pytest --no-cov --verbose --log-cli-level=INFO --live-pudl-output --capture=no --dg-config $DG_NIGHTLY_CONFIG tests/validate/row_counts_test.py"
+cmd = "pytest --no-cov --verbose --log-cli-level=INFO --live-pudl-output --capture=no --dg-config $DG_NIGHTLY_CONFIG tests/validate/row_counts_test.py --dbt-source=pudl"
 description = "Run nightly-build dbt row count checks as a separate stage against live nightly-style outputs"
+
+[tool.pixi.tasks.pytest-validate-ferceqr]
+cmd = "pytest --no-cov --verbose --log-cli-level=INFO --live-pudl-output --capture=no tests/validate/data_test.py --dbt-source=ferceqr"
+description = "Run ferceqr-build data validation tests (FK checks and dbt, excluding row counts) against build outputs"
+
+[tool.pixi.tasks.pytest-validate-row-counts-ferceqr]
+cmd = "pytest --no-cov --verbose --log-cli-level=INFO --live-pudl-output --capture=no tests/validate/row_counts_test.py --dbt-source=ferceqr"
+description = "Run ferceqr-build dbt row count checks as a separate stage against build outputs"
 
 [tool.pixi.tasks.pytest-nightly]
 cmd = "true"
@@ -396,19 +401,12 @@ description = "Run all CI tests and report test coverage"
 [tool.pixi.tasks.pytest-jupyter]
 cmd = "pytest --live-pudl-output tests/pipeline/notebooks_test.py"
 description = "Test Jupyter notebooks"
-# Build the FERC 1 and PUDL DBs.
-# Identify any plant or utility IDs in the DBs that haven't yet been mapped
-# These outputs should be turned into normal dagster assets. See issue #4338
-[tool.pixi.tasks.unmapped-ids]
-cmd = """
-pytest \
-    --save-unmapped-ids
-    --dg-config $DG_FULL_CONFIG \
-    tests/pipeline/glue/glue_test.py
-"""
-description = "Identify unmapped plant and utility IDs"
 
 # Dagster tasks
+[tool.pixi.tasks.unmapped-ids]
+cmd = "dg launch --job unmapped_ids --config $DG_UNMAPPED_IDS_CONFIG"
+description = "Identify FERC1/EIA plant and utility IDs missing from the manual ID mapping"
+
 [tool.pixi.tasks.ferc-to-sqlite-clean]
 cmd = """
 bash -c 'shopt -s nullglob; rm -f \
