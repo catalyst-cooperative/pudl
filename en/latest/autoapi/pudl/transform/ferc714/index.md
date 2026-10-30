@@ -333,7 +333,8 @@ correspond with hour 00 (of the next day). We have not gotten complete
 confirmation from FERC staff that this is always the case, but it seems like a
 decent assumption.
 
-So, this step converts all of the hour 24 records to be hour 00 of the next day.
+So, this step converts all of the hour 24 records to be hour 00 of the next day,
+and converts the `report_date` strings to datetimes.
 
 #### *static* convert_dates_to_zero_seconds_xbrl(xbrl: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 

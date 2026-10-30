@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.ferc1 &#8212; PUDL 2026.10.1.dev17 documentation</title>
+    <title>pudl.transform.ferc1 &#8212; PUDL 2026.10.1.dev19 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=c6eb52f8"></script>
+    <script src="../../../_static/documentation_options.js?v=cddcd7d9"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev17 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev17 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev19 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev19 documentation - Home"/>
   
   
 </a></div>
@@ -2590,9 +2590,16 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># Data types were very messy here, including pandas Float64 for the</span>
     <span class="c1"># calculated_value columns which did not work with the np.isclose(). Not sure</span>
     <span class="c1"># why these are cropping up.</span>
-    <span class="n">calculated_df</span> <span class="o">=</span> <span class="n">calculated_df</span><span class="o">.</span><span class="n">convert_dtypes</span><span class="p">(</span><span class="n">convert_floating</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
-        <span class="p">{</span><span class="n">value_col</span><span class="p">:</span> <span class="s2">"float64"</span><span class="p">,</span> <span class="s2">"calculated_value"</span><span class="p">:</span> <span class="s2">"float64"</span><span class="p">}</span>
-    <span class="p">)</span>
+    <span class="c1"># These columns can arrive as object or nullable dtypes containing pd.NA, which</span>
+    <span class="c1"># can't be cast directly from object to numpy float64. to_numeric first converts</span>
+    <span class="c1"># object columns to float64 (NA -&gt; NaN) and nullable ones to a nullable numeric</span>
+    <span class="c1"># dtype, which astype then converts to float64 (NA -&gt; NaN).</span>
+    <span class="c1"># TODO: find out why these columns end up with object dtype after the merge above</span>
+    <span class="c1"># and fix it there.</span>
+    <span class="c1"># All other columns are converted to pandas nullable dtypes.</span>
+    <span class="n">calculated_df</span> <span class="o">=</span> <span class="n">calculated_df</span><span class="o">.</span><span class="n">convert_dtypes</span><span class="p">(</span><span class="n">convert_floating</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span><span class="n">value_col</span><span class="p">,</span> <span class="s2">"calculated_value"</span><span class="p">]:</span>
+        <span class="n">calculated_df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">calculated_df</span><span class="p">[</span><span class="n">col</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"float64"</span><span class="p">)</span>
     <span class="c1"># For all of these below, only assign values when the record is a calculated record</span>
     <span class="c1"># Also, make sure we are filling nulls so we capture the differences when there are</span>
     <span class="c1"># null values in the calculated or reported values.</span>
@@ -6297,8 +6304,13 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            strings ``header``, ``note``, ``total``, or NA to indicate what type of row</span>
 <span class="sd">            it is.</span>
 <span class="sd">        """</span>
-        <span class="c1"># Add a column to show final row type</span>
-        <span class="n">df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s2">"row_type"</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+        <span class="c1"># Add a column to show final row type. A scalar pd.NA makes an object column,</span>
+        <span class="c1"># which can hold the string labels assigned later (np.nan would make a float</span>
+        <span class="c1"># column that pandas 3 won't assign strings into). Keep it object, not string:</span>
+        <span class="c1"># on object, comparisons like ``row_type != "note"`` return plain bools (True</span>
+        <span class="c1"># for NA rows), which the .loc masks and cumsum() downstream rely on. On a</span>
+        <span class="c1"># string dtype they would return NA, and .loc would skip those rows.</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s2">"row_type"</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">)</span>
 
         <span class="c1"># Label the row types</span>
         <span class="n">df_labeled</span> <span class="o">=</span> <span class="p">(</span>
@@ -6644,7 +6656,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="c1"># We update the ferc lic col because some were already there from the</span>
                 <span class="c1"># plant name extraction. However, we want to override with the notes</span>
                 <span class="c1"># ferc licenses because they are more likely to be accurate.</span>
-                <span class="n">group</span><span class="o">.</span><span class="n">license_id_ferc1</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">updated_ferc_license_col</span><span class="p">)</span>
+                <span class="n">group</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">"license_id_ferc1"</span><span class="p">:</span> <span class="n">updated_ferc_license_col</span><span class="p">})</span>
                 <span class="n">group</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">regular_row</span><span class="p">,</span> <span class="s2">"notes"</span><span class="p">]</span> <span class="o">=</span> <span class="n">notes_col</span>
 
             <span class="k">return</span> <span class="n">group</span>

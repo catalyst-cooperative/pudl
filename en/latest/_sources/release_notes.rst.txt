@@ -35,6 +35,16 @@ Bug Fixes & Data Cleaning
   :issue:`5696` and :pr:`5716`.
 * Added ``plant_function`` values to a few factoids in
   :ref:`out_ferc1__yearly_rate_base`. See :pr:`5690`.
+* Made transforms in FERC 1, FERC 714, SEC 10-K, PHMSA, RUS and the EIA API extractor
+  behave identically under pandas 2 and 3 by replacing in-place, chained and
+  dtype-changing assignments. Along the way: the PHMSA operators cleanup no longer
+  nulls non-string values like numeric zip codes. SEC 10-K ownership percentages no
+  longer misread leader dots (``"...99"`` was 0.0099, now 0.99), and
+  ``fraction_owned`` is now always within 0-1, with out-of-range values (about 9% of
+  non-null values, e.g. adjacent percentages run together) set to null and a field
+  constraint enforcing the range. ``drop_invalid_rows()`` has a new ``dropna`` argument
+  (default True) instead of requiring null values in ``invalid_values``; outputs are
+  unchanged. See :issue:`5616`, :issue:`5623` and :pr:`5720`.
 * ``X`` in the EIA-861 dynamic pricing time-of-use, critical peak, real time and
   variable peak columns is now treated as ``True`` (a checked box) instead of being
   turned into a null, which changes four 2018 rows of

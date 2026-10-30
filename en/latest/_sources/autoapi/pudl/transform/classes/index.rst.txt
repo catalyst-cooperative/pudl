@@ -730,6 +730,17 @@ Module Contents
 
       A list of values that should be considered invalid in the selected columns.
 
+      Null values (``pd.NA``, ``np.nan``, ``None``) must not be listed here. Use
+      ``dropna`` to control whether nulls are treated as invalid.
+
+
+   .. py:attribute:: dropna
+      :type:  bool
+      :value: True
+
+
+      Whether null values in the selected columns are also considered invalid.
+
 
    .. py:attribute:: required_valid_cols
       :type:  list[str] | None
@@ -766,6 +777,12 @@ Module Contents
       A regular expression to use as the ``regex`` argument to :meth:`pd.filter`.
 
 
+   .. py:method:: no_null_invalid_values()
+
+      Validate that null values are specified with ``dropna``, not as values.
+
+
+
    .. py:method:: one_filter_argument()
 
       Validate that only one argument is specified for :meth:`pd.filter`.
@@ -778,7 +795,8 @@ Module Contents
 
    This method finds all rows in a dataframe that contain ONLY invalid data in ALL of
    the columns that we are checking, and drops those rows, logging the % of all rows
-   that were dropped.
+   that were dropped. Null values are considered invalid unless ``params.dropna`` is
+   False.
 
 
 .. py:class:: ReplaceWithNa(/, **data: Any)

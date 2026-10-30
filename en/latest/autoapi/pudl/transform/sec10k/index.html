@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.transform.sec10k &#8212; PUDL 2026.10.1.dev17 documentation</title>
+    <title>pudl.transform.sec10k &#8212; PUDL 2026.10.1.dev19 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=c6eb52f8"></script>
+    <script src="../../../../_static/documentation_options.js?v=cddcd7d9"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev17 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev17 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev19 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev19 documentation - Home"/>
   
   
 </a></div>
@@ -916,6 +916,14 @@ extension, as is done for the source_url column in the output tables.</p>
 <dt class="sig sig-object py" id="pudl.transform.sec10k._compute_fraction_owned">
 <span class="sig-prename descclassname"><span class="pre">pudl.transform.sec10k.</span></span><span class="sig-name descname"><span class="pre">_compute_fraction_owned</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">percent_ownership</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.1)"><span class="pre">pandas.Series</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.1)"><span class="pre">pandas.Series</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/transform/sec10k.html#_compute_fraction_owned"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.sec10k._compute_fraction_owned" title="Link to this definition">#</a></dt>
 <dd><p>Clean percent ownership, convert to float, then convert percent to ratio.</p>
+<p>The percentages were extracted from text tables, so some carry runs of leader dots
+(e.g. <code class="docutils literal notranslate"><span class="pre">&quot;....99&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;65......&quot;</span></code>). The dots are removed, and entries containing
+nothing but dots are treated as missing.</p>
+<p>All the extracted numerical values are treated as percentages, including those below
+1, since there is no reliable way to tell a reported fraction (<code class="docutils literal notranslate"><span class="pre">&quot;0.95&quot;</span></code>) from a
+small percentage (<code class="docutils literal notranslate"><span class="pre">&quot;0.01&quot;</span></code> alongside <code class="docutils literal notranslate"><span class="pre">&quot;99.99&quot;</span></code>) on a per-row basis. Ratios
+outside of 0-1 (e.g. several adjacent percentages that have been run together) are
+set to null.</p>
 </dd></dl>
 
 <dl class="py function">

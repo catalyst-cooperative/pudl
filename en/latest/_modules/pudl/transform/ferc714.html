@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.ferc714 &#8212; PUDL 2026.10.1.dev17 documentation</title>
+    <title>pudl.transform.ferc714 &#8212; PUDL 2026.10.1.dev19 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=c6eb52f8"></script>
+    <script src="../../../_static/documentation_options.js?v=cddcd7d9"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev17 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev17 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev19 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev19 documentation - Home"/>
   
   
 </a></div>
@@ -1923,14 +1923,17 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        confirmation from FERC staff that this is always the case, but it seems like a</span>
 <span class="sd">        decent assumption.</span>
 
-<span class="sd">        So, this step converts all of the hour 24 records to be hour 00 of the next day.</span>
+<span class="sd">        So, this step converts all of the hour 24 records to be hour 00 of the next day,</span>
+<span class="sd">        and converts the ``report_date`` strings to datetimes.</span>
 <span class="sd">        """</span>
-        <span class="n">bad_24_hour_mask</span> <span class="o">=</span> <span class="n">xbrl</span><span class="o">.</span><span class="n">report_date</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">"T24:"</span><span class="p">)</span>
-
-        <span class="n">xbrl</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">bad_24_hour_mask</span><span class="p">,</span> <span class="s2">"report_date"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
-            <span class="n">xbrl</span><span class="p">[</span><span class="n">bad_24_hour_mask</span><span class="p">]</span><span class="o">.</span><span class="n">report_date</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"T24:"</span><span class="p">,</span> <span class="s2">"T23:"</span><span class="p">),</span>
-            <span class="nb">format</span><span class="o">=</span><span class="s2">"%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%M:%S"</span><span class="p">,</span>
-        <span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"h"</span><span class="p">)</span>
+        <span class="c1"># Parse hour 24 as hour 00 of the same day, then move those records forward a day.</span>
+        <span class="n">is_hour_24</span> <span class="o">=</span> <span class="n">xbrl</span><span class="p">[</span><span class="s2">"report_date"</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">"T24:"</span><span class="p">)</span>
+        <span class="n">report_date</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
+            <span class="n">xbrl</span><span class="p">[</span><span class="s2">"report_date"</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"T24:"</span><span class="p">,</span> <span class="s2">"T00:"</span><span class="p">),</span> <span class="nb">format</span><span class="o">=</span><span class="s2">"ISO8601"</span>
+        <span class="p">)</span>
+        <span class="n">xbrl</span><span class="p">[</span><span class="s2">"report_date"</span><span class="p">]</span> <span class="o">=</span> <span class="n">report_date</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span>
+            <span class="n">is_hour_24</span><span class="p">,</span> <span class="n">report_date</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="n">xbrl</span></div>
 
 
