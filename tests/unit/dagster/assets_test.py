@@ -48,12 +48,15 @@ def asset_resources(mocker, parquet_dir):
 
 
 def _metadata_value(result: object, key: str) -> Any:
-    """Return the raw value of a ``MaterializeResult`` metadata entry."""
+    """Return the raw value of a ``MaterializeResult`` metadata entry.
+
+    Plain Python values are only wrapped in a ``MetadataValue`` when Dagster records
+    the materialization, so entries returned directly may be either.
+    """
     assert isinstance(result, dg.MaterializeResult)
     assert result.metadata is not None
     entry = result.metadata[key]
-    assert isinstance(entry, dg.MetadataValue)
-    return entry.value
+    return entry.value if isinstance(entry, dg.MetadataValue) else entry
 
 
 def fake_dagster_file_metadata(asset_keys) -> dict[str, dict]:
@@ -179,6 +182,18 @@ def test_partitioned_datapackage_asset_describes_every_partition(
     descriptor = json.loads((parquet_dir / "datapackage.json").read_text())
     resources = descriptor["resources"]
     assert _metadata_value(result, "enriched_resource_count") == len(resources)
+    assert _metadata_value(result, "package_name") == "ferceqr"
+    assert _metadata_value(result, "partitioned") is True
+    assert _metadata_value(result, "unenriched_resources") == []
+    assert _metadata_value(result, "parquet_file_count") == sum(
+        len(paths) for paths in paths_by_resource.values()
+    )
+    assert _metadata_value(result, "parquet_bytes") == sum(
+        len(payloads[p]) for paths in paths_by_resource.values() for p in paths
+    )
+    assert {r["name"] for r in _metadata_value(result, "resources")} == set(
+        paths_by_resource
+    )
 
     for resource in resources:
         paths = paths_by_resource[resource["name"]]
