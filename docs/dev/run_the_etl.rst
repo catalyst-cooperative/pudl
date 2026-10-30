@@ -260,6 +260,12 @@ the ETL can only be run by developers with credentials to access private cloud s
 containing the raw data. Any external contributors interested in working on this ETL
 should contact the Catalyst team to set up access to the raw data.
 
+Set ``PUDL_FERCEQR_ARCHIVE_PATH`` to the directory of ``ferceqr-<year>q<quarter>.zip``
+archives. Each archive is checked against its checksum in the FERC EQR metadata on
+Zenodo. A local path is used as is, but reading from remote storage (e.g. ``gs://``)
+also requires ``PUDL_FERCEQR_ALLOW_DOWNLOADS=true``, since extracting every quarter
+transfers ~100 GB.
+
 The FERC EQR ETL is contained in a Dagster job called ``ferceqr``. Executing this job
 from the Dagster UI is slightly different from the main PUDL ETL jobs because the EQR
 job uses Dagster partitions. After selecting "Materialize All" (or "Materialize

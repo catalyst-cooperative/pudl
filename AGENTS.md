@@ -433,6 +433,9 @@ references there block a refactor.
 Metadata describing tables, columns, and data sources lives in `pudl.metadata`.
 "Resources" are tables; "Fields" are columns. Metadata classes in
 `pudl.metadata.classes` use Pydantic and mirror the frictionless datapackage standard.
+PUDL distributes several datapackages (`PUDL_PACKAGE`, `FERCEQR_PACKAGE`), all listed in
+the `DATAPACKAGES` registry. Code that needs every table should use `all_resources()` or
+`find_resource()` rather than naming one package, since a resource may be in several.
 
 ## PUDL developer reference docs
 
@@ -470,7 +473,8 @@ Several pages are assembled at build time from Jinja templates rather than edite
 directly:
 
 - Data source pages are generated from metadata in `src/pudl/metadata/`.
-- The PUDL data dictionary is generated from the full `PUDL_PACKAGE` metadata object.
+- The PUDL data dictionary is generated from every resource in the registered
+  datapackages (`all_resources()`).
 - The Jinja templates for both live under `docs/templates/`.
 
 These generated files appear under `docs/` during the build and are cleaned up
