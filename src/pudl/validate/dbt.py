@@ -115,7 +115,9 @@ def __get_quantile_contexts(
             )
             continue
 
-        table_name = parents[0].rsplit(".")[-1]
+        # Parent IDs look like ``source.<project>.<source_name>.<table>``. The macro
+        # defaults to the ``pudl`` source, which doesn't contain e.g. FERC EQR tables.
+        *_, source_name, table_name = parents[0].split(".")
         cmd = [
             "run-operation",
             "debug_quantile_constraints",
@@ -123,7 +125,9 @@ def __get_quantile_contexts(
             "etl-full",
             "--no-use-colors",
             "--args",
-            json.dumps({"table": table_name, "test": node.name}),
+            json.dumps(
+                {"table": table_name, "test": node.name, "source_name": source_name}
+            ),
         ]
         buffer = io.StringIO()
         with chdir(dbt_dir), redirect_stdout(buffer):
