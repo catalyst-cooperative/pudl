@@ -2835,6 +2835,11 @@ class Package(PudlMeta):
             version: Version string for the package.
             name: Name of the datapackage.
         """
+        if isinstance(excluded_etl_groups, str) or isinstance(included_etl_groups, str):
+            raise TypeError(
+                "ETL groups must be a collection of names, not a single string."
+            )
+
         resources = [Resource.dict_from_id(x) for x in resource_ids]
         if resolve_foreign_keys:
             # Add missing resources based on foreign keys
@@ -2849,11 +2854,6 @@ class Package(PudlMeta):
                 i = len(resources)
                 if len(names) > i:
                     resources += [Resource.dict_from_id(x) for x in names[i:]]
-
-        if isinstance(excluded_etl_groups, str) or isinstance(included_etl_groups, str):
-            raise TypeError(
-                "ETL groups must be a collection of names, not a single string."
-            )
 
         if excluded_etl_groups:
             resources = [
@@ -3077,7 +3077,7 @@ FERCEQR_PACKAGE = Package.from_resource_ids(
         "journalists, and policy makers that might not have the technical expertise "
         "to access it in its raw form, the time to clean and prepare the data for "
         "bulk analysis, or the means to purchase it from existing commercial "
-        "providers. FERC EQR data is included in PUDL, but handled and distributed"
+        "providers. FERC EQR data is included in PUDL, but handled and distributed "
         "separately due to its scale."
     ),
     included_etl_groups=("ferceqr",),
