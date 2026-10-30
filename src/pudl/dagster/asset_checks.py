@@ -23,8 +23,10 @@ should go in dbt.
 import itertools
 import json
 import time
+from collections import defaultdict
 from collections.abc import Sequence
-from typing import Any
+from pathlib import Path
+from typing import Any, NamedTuple
 
 import dagster as dg
 import frictionless
@@ -34,10 +36,12 @@ import pandera.pandas as pr_pandas
 import pandera.polars as pr_polars
 import pint
 import polars as pl
+import pyarrow.parquet as pq
 from pandera.config import ValidationDepth, config_context
 from pandera.errors import SchemaError, SchemaErrors
 
 from pudl.dagster.assets import all_asset_modules, asset_keys
+from pudl.dagster.assets.core.datapackage import _resource_paths
 from pudl.dagster.assets.core.unmapped_ids import UNMAPPED_ID_ASSET_NAMES
 from pudl.dagster.partitions import ferceqr_year_quarters
 from pudl.helpers import ParquetData, get_parquet_table_polars
@@ -618,6 +622,65 @@ def _validate_datapackage_descriptor(descriptor: dict) -> list[str]:
         return [str(exc)]
 
 
+class _ColumnMismatch(NamedTuple):
+    """How a Parquet file's columns differ from the fields its resource declares."""
+
+    extra: tuple[str, ...]
+    """Columns in the file that the descriptor doesn't declare."""
+    missing: tuple[str, ...]
+    """Fields the descriptor declares that aren't columns in the file."""
+
+
+def _validate_datapackage_parquet_columns(
+    descriptor: dict, parquet_path: Path
+) -> tuple[list[str], dict[str, int]]:
+    """Compare each resource's declared fields to the columns of its Parquet files.
+
+    Only the Parquet footers are read, never any data, so this is cheap even for
+    partitioned tables with hundreds of files. Files that don't exist on disk (e.g.
+    resources not materialized in this run) are counted but not treated as errors.
+
+    Args:
+        descriptor: Datapackage descriptor, with a ``schema`` for each resource.
+        parquet_path: Directory that the resource paths are relative to.
+
+    Returns:
+        A list of error messages, one for each distinct mismatch in each resource, and
+        a dictionary with the number of Parquet files ``checked`` and ``missing`` from
+        disk.
+    """
+    errors: list[str] = []
+    counts = {"checked": 0, "missing": 0}
+    for resource in descriptor.get("resources", []):
+        declared = {field["name"] for field in resource["schema"]["fields"]}
+        # Files with the same mismatch are reported together, so a column that is
+        # wrong in all 50+ partitions of a table is one error rather than 50.
+        mismatched_files: defaultdict[_ColumnMismatch, list[str]] = defaultdict(list)
+        for rel_path in _resource_paths(resource):
+            if not rel_path.endswith(".parquet"):
+                continue
+            file = parquet_path / rel_path
+            if not file.is_file():
+                counts["missing"] += 1
+                continue
+            counts["checked"] += 1
+            actual = set(pq.read_schema(file).names)
+            if actual != declared:
+                mismatch = _ColumnMismatch(
+                    extra=tuple(sorted(actual - declared)),
+                    missing=tuple(sorted(declared - actual)),
+                )
+                mismatched_files[mismatch].append(rel_path)
+        for mismatch, files in mismatched_files.items():
+            errors.append(
+                f"{resource['name']}: columns of {len(files)} Parquet file(s) differ "
+                f"from the descriptor (e.g. {files[0]}). "
+                f"Extra in file: {list(mismatch.extra)}. "
+                f"Missing from file: {list(mismatch.missing)}."
+            )
+    return errors, counts
+
+
 def valid_datapackage_check(
     asset_key: dg.AssetKey | str,
     *,
@@ -629,7 +692,9 @@ def valid_datapackage_check(
     The check reads ``$PUDL_OUTPUT/parquet/datapackage.json`` from the injected
     ``pudl_paths`` Dagster resource at run time and validates it recursively through
     resources, schemas, and fields against the frictionless spec using
-    :func:`frictionless.Package.metadata_validate`.
+    :func:`frictionless.Package.metadata_validate`. It also checks that the columns of
+    every Parquet file on disk match the fields declared for its resource, using only
+    the Parquet footer metadata.
 
     Args:
         asset_key: Key of the asset that produces the datapackage descriptor.
@@ -652,9 +717,17 @@ def valid_datapackage_check(
         )
         descriptor = json.loads(descriptor_path.read_text())
         errors = _validate_datapackage_descriptor(descriptor)
+        column_errors, file_counts = _validate_datapackage_parquet_columns(
+            descriptor, descriptor_path.parent
+        )
+        errors += column_errors
         return dg.AssetCheckResult(
             passed=not errors,
-            metadata={"errors": dg.MetadataValue.json(errors)},
+            metadata={
+                "errors": dg.MetadataValue.json(errors),
+                "parquet_files_checked": dg.MetadataValue.int(file_counts["checked"]),
+                "parquet_files_missing": dg.MetadataValue.int(file_counts["missing"]),
+            },
         )
 
     return _datapackage_check
