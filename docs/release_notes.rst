@@ -11,6 +11,14 @@ v2026.11.0 (2026-11-XX)
 Enhancements
 ^^^^^^^^^^^^
 
+* Standardized how distributed ``datapackage.json`` descriptors are produced. FERC EQR
+  now has its own package, ``FERCEQR_PACKAGE``, and a dedicated ``ferceqr_datapackage``
+  asset built with the same factory as ``pudl_datapackage``. Descriptors list only the
+  sources their tables use and describe partitioned tables with per-partition ``bytes``
+  and ``hash`` entries. Each quarterly FERC EQR archive is now verified against the md5
+  checksum in its Zenodo metadata, and downloading archives from remote storage
+  requires setting ``PUDL_FERCEQR_ALLOW_DOWNLOADS``. See :issue:`5279` and :pr:`5693`.
+
 New Data
 ^^^^^^^^
 
@@ -35,11 +43,14 @@ Documentation
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* Updated ``dbt`` data validation now to support FERC EQR data. This requires ``dbt``
-  configuration changes to handle partitioned parquet outputs. See issue :pr:`4864`
-  and PR :pr:`5676`. This PR also applies basic validation tests to FERC EQR tables,
-  including row count tests.
-
+* Updated ``dbt`` data validation to support FERC EQR, whose partitioned parquet outputs
+  required several configuration changes. The ``external_location`` of each table is now
+  generated automatically, row count tests accept string partition keys such as
+  ``year_quarter``, and ``dbt_helper`` can generate row counts for partitioned tables.
+  Validation tests can also run against remote parquet datasets without downloading the
+  files, and the FERC EQR deployment asset now runs the EQR validations before
+  publishing. All FERC EQR tables get basic validation tests, including row counts. See
+  :issue:`4864` and :pr:`5676`.
 * Validate that the net utility plant, total other property and investments, and total
   assets in :ref:`core_rus7__yearly_balance_sheet_assets` and
   :ref:`out_rus7__yearly_balance_sheet_assets` equal the sum of their subcomponents.
@@ -49,13 +60,13 @@ New Data Tests & Validations
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Added a missing US minor outlying islands territory entry to the
+  :ref:`core_pudl__codes_subdivisions` table. See :issue:`5696` and :pr:`5716`.
 * Restored non-utility property (RUS Form 7 Part C, line 6) to
   :ref:`core_rus7__yearly_balance_sheet_assets` and
   :ref:`out_rus7__yearly_balance_sheet_assets`. A typo in the column map
   (``non_utility_property_asset``) meant the transform never picked it up. See
   :issue:`5566` and :pr:`5729`.
-* Added a missing territory entry to the :ref:`core_pudl__codes_subdivisions` table. See
-  :issue:`5696` and :pr:`5716`.
 * Added ``plant_function`` values to a few factoids in
   :ref:`out_ferc1__yearly_rate_base`. See :pr:`5690`.
 * Made transforms in FERC 1, FERC 714, SEC 10-K, PHMSA, RUS and the EIA API extractor
@@ -90,13 +101,16 @@ Bug Fixes & Data Cleaning
   numeric columns summed when de-duplicating EIA-923 generation fuel rows are
   explicitly cast to ``float64``. See :issue:`5619`, :issue:`5620` and
   :pr:`5719`.
-*
 * Made null handling in ``stack_generators()``, the EIA-176 "other" gas disposition
   categorization and the EIA-860 ownership spot-fix behave identically under pandas 2
   and 3. Pandas 3 changed how nulls are treated by ``stack()``, ``astype(str)`` and
   string comparisons, which would otherwise have left spurious null energy sources,
   null primary keys, or unremoved bogus ownership records. See :issue:`5621`,
   :issue:`5622`, :issue:`5624` and :pr:`5721`.
+* Dropped the redundant ``filing_quarter`` column from
+  :ref:`core_ferceqr__quarterly_identity`. It was reported in the raw filings as the
+  ``YYYYMM`` of the quarter's last month, always agreed with ``year_quarter``, and was
+  not in the table's schema. See :issue:`5279` and :pr:`5735`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -114,6 +128,15 @@ Developer Experience
   plant/utility IDs missing from the manual PUDL ID mapping spreadsheet. CSVs are saved
   with other build outputs on ``builds.catalyst.coop`` and fail the ETL if they are
   non-empty. See issue :issue:`4338` and PR :pr:`5539`.
+* Added a ``DATAPACKAGES`` registry of every datapackage PUDL distributes, currently
+  ``PUDL_PACKAGE`` and ``FERCEQR_PACKAGE``, with ``all_resources()`` and
+  ``find_resource()`` helpers, so asset checks, the docs, the data dictionary and the
+  dbt tooling cover FERC EQR as well as the main PUDL tables. Each package's
+  ``<name>_datapackage`` asset is now followed by blocking asset checks that validate
+  the descriptor against the Frictionless spec, check that its unit strings can be
+  parsed, and compare the fields declared for each resource with the columns in its
+  Parquet files, which will catch unexpected extra columns. Parquet files are hashed in
+  parallel. See :issue:`5279` and :pr:`5735`.
 
 .. _release-v2026.10.0:
 

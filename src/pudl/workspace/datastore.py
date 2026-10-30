@@ -77,6 +77,14 @@ class DatapackageDescriptor:
             )
         return resource_path
 
+    def get_checksum(self, name: str) -> str:
+        """Return the expected md5 checksum of the named resource.
+
+        Raises:
+            KeyError: if the datapackage has no resource with this name.
+        """
+        return self._get_resource_metadata(name)["hash"]
+
     def get_download_size(self) -> int:
         """Returns the total download size of all the resources in MB."""
         total_bytes = 0
@@ -85,13 +93,17 @@ class DatapackageDescriptor:
         return int(total_bytes / 1_000_000)
 
     def validate_checksum(self, name: str, content: str) -> None:
-        """Returns True if content matches checksum for given named resource."""
-        expected_checksum = self._get_resource_metadata(name)["hash"]
+        """Verify that in-memory content matches the checksum of a named resource.
+
+        Raises:
+            ChecksumMismatchError: if the content does not match the expected checksum.
+        """
+        expected_checksum = self.get_checksum(name)
         m = hashlib.md5()  # noqa: S324 Unfortunately md5 is required by Zenodo
         m.update(content)
         if m.hexdigest() != expected_checksum:
             raise ChecksumMismatchError(
-                f"Checksum for resource {name} does not match."
+                f"Checksum for resource {name} does not match. "
                 f"Expected {expected_checksum}, got {m.hexdigest()}"
             )
 
@@ -106,13 +118,10 @@ class DatapackageDescriptor:
             name: name of the resource as it appears in this datapackage descriptor.
             path: local path to the file whose contents should be checked.
 
-        Returns:
-            The hex md5 digest of the file's contents.
-
         Raises:
             ChecksumMismatchError: if the digest does not match the expected checksum.
         """
-        expected_checksum = self._get_resource_metadata(name)["hash"]
+        expected_checksum = self.get_checksum(name)
         with Path(path).open("rb") as f:
             # Unfortunately md5 is required by Zenodo.
             digest = hashlib.file_digest(f, "md5").hexdigest()

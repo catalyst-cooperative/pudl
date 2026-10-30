@@ -203,6 +203,12 @@ class TestValidateFileChecksum:
         with pytest.raises(datastore.ChecksumMismatchError):
             desc.validate_file_checksum("blah.zip", local_file)
 
+    def test_get_checksum(self, desc):
+        """The expected checksum can be looked up without any file."""
+        assert desc.get_checksum("blah.zip") == self.GOOD_MD5
+        with pytest.raises(KeyError):
+            desc.get_checksum("other.zip")
+
     def test_unknown_resource_raises_key_error(self, desc, tmp_path):
         """Validating a resource absent from the descriptor raises KeyError."""
         local_file = tmp_path / "other.zip"

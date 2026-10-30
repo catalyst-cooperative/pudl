@@ -11,6 +11,7 @@ import dagster as dg
 import pytest
 from pytest_mock import MockerFixture
 
+from pudl.dagster.assets import default_assets
 from pudl.dagster.assets.core import datapackage
 from pudl.dagster.assets.core.datapackage import (
     _collect_dagster_file_metadata,
@@ -47,12 +48,15 @@ def asset_resources(mocker, parquet_dir):
 
 
 def _metadata_value(result: object, key: str) -> Any:
-    """Return the raw value of a ``MaterializeResult`` metadata entry."""
+    """Return the raw value of a ``MaterializeResult`` metadata entry.
+
+    Plain Python values are only wrapped in a ``MetadataValue`` when Dagster records
+    the materialization, so entries returned directly may be either.
+    """
     assert isinstance(result, dg.MaterializeResult)
     assert result.metadata is not None
     entry = result.metadata[key]
-    assert isinstance(entry, dg.MetadataValue)
-    return entry.value
+    return entry.value if isinstance(entry, dg.MetadataValue) else entry
 
 
 def fake_dagster_file_metadata(asset_keys) -> dict[str, dict]:
@@ -178,6 +182,18 @@ def test_partitioned_datapackage_asset_describes_every_partition(
     descriptor = json.loads((parquet_dir / "datapackage.json").read_text())
     resources = descriptor["resources"]
     assert _metadata_value(result, "enriched_resource_count") == len(resources)
+    assert _metadata_value(result, "package_name") == "ferceqr"
+    assert _metadata_value(result, "partitioned") is True
+    assert _metadata_value(result, "unenriched_resources") == []
+    assert _metadata_value(result, "parquet_file_count") == sum(
+        len(paths) for paths in paths_by_resource.values()
+    )
+    assert _metadata_value(result, "parquet_bytes") == sum(
+        len(payloads[p]) for paths in paths_by_resource.values() for p in paths
+    )
+    assert {r["name"] for r in _metadata_value(result, "resources")} == set(
+        paths_by_resource
+    )
 
     for resource in resources:
         paths = paths_by_resource[resource["name"]]
@@ -445,6 +461,54 @@ def test_enrich_resources_ignores_dagster_metadata_for_multi_file_resources(
     (resource,) = descriptor["resources"]
     assert resource["bytes"] == sum(len(p) for p in payloads.values())
     assert FAKE_BYTES not in {part["bytes"] for part in resource["parts"]}
+
+
+def test_ferceqr_datapackage_asset_depends_on_exactly_the_ferceqr_tables() -> None:
+    """The EQR descriptor's upstream assets are the tables of ``FERCEQR_PACKAGE``."""
+    (asset,) = [
+        a
+        for a in default_assets
+        if isinstance(a, dg.AssetsDefinition)
+        and dg.AssetKey("ferceqr_datapackage") in a.keys
+    ]
+    upstream = {
+        key.to_user_string() for key in asset.asset_deps[next(iter(asset.keys))]
+    }
+    assert upstream == {r.name for r in FERCEQR_PACKAGE.resources}
+
+
+@pytest.mark.parametrize("max_workers", [1, 8])
+def test_enrich_resources_hashes_concurrently_in_order(
+    tmp_path: Path, max_workers: int
+) -> None:
+    """Concurrent hashing assigns each file's stats to the right resource and part."""
+    layout = {
+        "a": ["a/2013q1.parquet", "a/2013q2.parquet", "a/2013q3.parquet"],
+        "b": ["b/all.parquet"],
+        "c": ["c/2013q1.parquet", "c/2013q2.parquet"],
+    }
+    payloads = write_parquet_files(tmp_path, [p for ps in layout.values() for p in ps])
+    descriptor: dict[str, Any] = {
+        "resources": [
+            {"name": name, "path": paths[0], "extrapaths": paths[1:]}
+            for name, paths in layout.items()
+        ]
+    }
+
+    enriched = _enrich_resources(descriptor, {}, tmp_path, max_workers=max_workers)
+
+    assert enriched == len(layout)
+    for resource in descriptor["resources"]:
+        paths = layout[resource["name"]]
+        if len(paths) == 1:
+            assert resource["hash"] == sha256_of(payloads[paths[0]])
+            assert "parts" not in resource
+            continue
+        assert [part["path"] for part in resource["parts"]] == paths
+        assert [part["hash"] for part in resource["parts"]] == [
+            sha256_of(payloads[p]) for p in paths
+        ]
+        assert resource["bytes"] == sum(len(payloads[p]) for p in paths)
 
 
 def test_enrich_resources_describes_only_the_partitions_present(

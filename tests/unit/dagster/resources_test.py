@@ -135,6 +135,25 @@ def test_open_quarter_archive_raises_on_checksum_mismatch(
         pytest.fail("Archive should not be yielded when verification fails.")
 
 
+def test_open_quarter_archive_fails_before_downloading_if_checksum_is_unknown(
+    mocker, tmp_path, inert_datastore, stub_descriptor
+):
+    """A quarter missing from the Zenodo metadata is rejected before any download."""
+    archive_dir = _quarter_archive(tmp_path)
+    stub_descriptor.get_checksum.side_effect = KeyError("ferceqr-2024q1.zip")
+    resource = FercEqrArchiveResource(datastore=inert_datastore, path=str(archive_dir))
+    get_file = mocker.spy(type(resource.upath.fs), "get_file")
+
+    with (
+        pytest.raises(RuntimeError, match="has no checksum in the Zenodo metadata"),
+        resource.open_quarter_archive("2024q1"),
+    ):
+        pytest.fail("Archive should not be yielded for an unknown quarter.")
+
+    get_file.assert_not_called()
+    stub_descriptor.validate_file_checksum.assert_not_called()
+
+
 @pytest.fixture
 def downloads_disallowed(mocker):
     """Shut the download gate regardless of the developer's own environment.

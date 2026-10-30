@@ -4,6 +4,7 @@ import io
 import json
 import logging
 import os
+from collections import Counter
 from contextlib import chdir, contextmanager, redirect_stdout
 from pathlib import Path
 from typing import NamedTuple, cast
@@ -17,10 +18,12 @@ from dbt.contracts.graph.nodes import GenericTestNode
 
 from pudl import PUDL_DBT_PATH
 from pudl.logging_helpers import get_logger
+from pudl.metadata.classes import DATAPACKAGES
 from pudl.workspace.setup import PudlPaths
 
-DBT_SOURCES = ("pudl", "ferceqr")
-"""Names of the dbt sources, each validated against its own set of Parquet outputs."""
+DBT_SOURCES = tuple(DATAPACKAGES)
+"""Names of the dbt sources: one per datapackage, each validated against its own set
+of Parquet outputs."""
 
 DEFAULT_DBT_SOURCE = "pudl"
 """The dbt source validated when none is specified."""
@@ -67,6 +70,8 @@ class BuildResult(NamedTuple):
 
     success: bool
     failure_contexts: list[NodeContext]
+    status_counts: dict[str, int]
+    """Number of dbt nodes (tests and seeds) with each result status, e.g. ``pass``."""
 
     def format_failure_contexts(self) -> str:
         """Nice legible output for logs."""
@@ -113,7 +118,9 @@ def __get_quantile_contexts(
             )
             continue
 
-        table_name = parents[0].rsplit(".")[-1]
+        # Parent IDs look like ``source.<project>.<source_name>.<table>``. The macro
+        # defaults to the ``pudl`` source, which doesn't contain e.g. FERC EQR tables.
+        *_, source_name, table_name = parents[0].split(".")
         cmd = [
             "run-operation",
             "debug_quantile_constraints",
@@ -121,7 +128,9 @@ def __get_quantile_contexts(
             "etl-full",
             "--no-use-colors",
             "--args",
-            json.dumps({"table": table_name, "test": node.name}),
+            json.dumps(
+                {"table": table_name, "test": node.name, "source_name": source_name}
+            ),
         ]
         buffer = io.StringIO()
         with chdir(dbt_dir), redirect_stdout(buffer):
@@ -199,9 +208,14 @@ def build_with_context(
     )
     compiled_sql_contexts = __get_compiled_sql_contexts(compiled_sql_failures)
 
+    status_counts = Counter(
+        str(getattr(res.status, "value", res.status)) for res in build_results
+    )
+
     return BuildResult(
         success=build_output.success,
         failure_contexts=compiled_sql_contexts + weighted_quantile_contexts,
+        status_counts=dict(status_counts),
     )
 
 

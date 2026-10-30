@@ -17,7 +17,7 @@ from concurrent.futures import Future, ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import timedelta
 from pathlib import Path
-from typing import Literal, NamedTuple, cast
+from typing import Any, Literal, NamedTuple, cast
 
 import dagster as dg
 import pandas as pd
@@ -692,7 +692,7 @@ def deployment_status_asset(
         def _status_handler_asset(context: dg.AssetExecutionContext):
             try:
                 _clear_status_files(context.resources.pudl_paths)
-                asset_fn(context)
+                return asset_fn(context)
             except Exception:
                 logger.error("FERC EQR deployment handler failed!")
                 logger.error(traceback.format_exc())
@@ -771,6 +771,86 @@ def _notify_ferceqr_outcome(
         )
 
 
+def _source_backfill_id(
+    context: dg.AssetExecutionContext, source_run_id: str | None
+) -> str | None:
+    """Return the backfill ID of the run being deployed, if it can be determined.
+
+    The deployment run is launched by a sensor and doesn't carry the backfill tag
+    itself, so it's read from the source run that triggered the deployment.
+    """
+    if source_run_id is None:
+        return None
+    source_run_record = context.instance.get_run_record_by_id(source_run_id)
+    if source_run_record is None:
+        return None
+    return source_run_record.dagster_run.tags.get(DAGSTER_BACKFILL_TAG)
+
+
+def _deployment_metadata(
+    context: dg.AssetExecutionContext,
+    *,
+    outcome: Literal["DEPLOYED", "SKIPPED"],
+    source_partitions: list[str],
+    validation_stages: list[ValidationStage],
+    datapackage_path: Path,
+    targets: list[_DeploymentTarget],
+    table_files: dict[str, list[Path]] | None = None,
+    deploy_seconds: float | None = None,
+) -> dict[str, Any]:
+    """Collect Dagster metadata describing what a deployment run did.
+
+    Args:
+        context: Execution context, used to look up the run tags.
+        outcome: Whether data was published, or the build succeeded but no targets
+            were configured.
+        source_partitions: The quarters built by the backfill being deployed.
+        validation_stages: Results of the dbt validation run before deployment.
+        datapackage_path: Local path of the datapackage descriptor.
+        targets: The destinations data was published to. Empty when skipped.
+        table_files: Local Parquet files published for each table, if any.
+        deploy_seconds: Wall time of the staging and promotion, if it happened.
+    """
+    run_tags = (context.run.tags or {}) if context.run else {}
+    partitions = sorted(source_partitions)
+    source_run_id = run_tags.get(FERCEQR_SOURCE_RUN_ID_TAG)
+    metadata: dict[str, Any] = {
+        "outcome": outcome,
+        "source_run_id": source_run_id,
+        "source_backfill_id": _source_backfill_id(context, source_run_id),
+        "build_id": os.getenv("BUILD_ID"),
+        "partition_count": dg.MetadataValue.int(len(partitions)),
+        "first_partition": partitions[0],
+        "last_partition": partitions[-1],
+        "datapackage_path": dg.MetadataValue.path(datapackage_path),
+        "targets": dg.MetadataValue.json([str(target.final) for target in targets]),
+        "validation": dg.MetadataValue.json(
+            [
+                {
+                    "stage": stage.name,
+                    "success": stage.result.success,
+                    "dbt_status_counts": stage.result.status_counts,
+                    "failure_count": len(stage.result.failure_contexts),
+                }
+                for stage in validation_stages
+            ]
+        ),
+    }
+    if table_files is not None:
+        table_bytes = {
+            table: sum(file.stat().st_size for file in files)
+            for table, files in table_files.items()
+        }
+        metadata["file_count"] = dg.MetadataValue.int(
+            sum(len(files) for files in table_files.values())
+        )
+        metadata["parquet_bytes"] = dg.MetadataValue.int(sum(table_bytes.values()))
+        metadata["table_bytes"] = dg.MetadataValue.json(table_bytes)
+    if deploy_seconds is not None:
+        metadata["deploy_seconds"] = dg.MetadataValue.float(deploy_seconds)
+    return metadata
+
+
 @deployment_status_asset(deps=[FERCEQR_DATAPACKAGE_ASSET_KEY])
 def deploy_ferceqr(context: dg.AssetExecutionContext):
     """Publish EQR outputs to configured deployment targets.
@@ -842,11 +922,21 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
             context, zulip, outcome="SKIPPED", validation_stages=validation_stages
         )
         _write_status_file("FERCEQR_SUCCESS", pudl_paths)
-        return
+        return dg.MaterializeResult(
+            metadata=_deployment_metadata(
+                context,
+                outcome="SKIPPED",
+                source_partitions=source_partitions,
+                validation_stages=validation_stages,
+                datapackage_path=datapackage_path,
+                targets=[],
+            )
+        )
 
     table_files = _source_parquet_files(source_partitions)
 
     logger.info("FERC EQR build successful, deploying FERC EQR data.")
+    deploy_start = time.perf_counter()
     try:
         # The per-target tasks below submit their per-file work to this same pool and
         # block on it. That deadlocks if the number of targets reaches the pool's
@@ -885,11 +975,25 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
         _write_status_file("FERCEQR_FAILURE", pudl_paths)
         raise
 
+    deploy_seconds = time.perf_counter() - deploy_start
+
     logger.info("FERC EQR deployment succeeded. Notifying Zulip.")
     _notify_ferceqr_outcome(
         context, zulip, outcome="SUCCESS", validation_stages=validation_stages
     )
     _write_status_file("FERCEQR_SUCCESS", pudl_paths)
+    return dg.MaterializeResult(
+        metadata=_deployment_metadata(
+            context,
+            outcome="DEPLOYED",
+            source_partitions=source_partitions,
+            validation_stages=validation_stages,
+            datapackage_path=datapackage_path,
+            targets=targets,
+            table_files=table_files,
+            deploy_seconds=deploy_seconds,
+        )
+    )
 
 
 @deployment_status_asset()
