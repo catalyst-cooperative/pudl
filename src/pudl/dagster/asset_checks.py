@@ -438,6 +438,15 @@ def _validate_polars_content(
     return errors, timings
 
 
+SCHEMA_CHECK_NAME = "pandera_schema_check"
+"""Name of the schema check attached to every asset that has a defined schema.
+
+Other code reads these check results by name (see ``pudl.transform.ferceqr``), and
+:func:`asset_check_from_schema` sets it explicitly so it can't change by accident when
+the underlying function is renamed.
+"""
+
+
 def asset_check_from_packages(
     asset_key: dg.AssetKey,
     packages: Sequence[Package],
@@ -493,7 +502,12 @@ def asset_check_from_schema(  # noqa: C901
             f"Expected a pandera `DataFrameSchema`, but got: `{type(pandera_schema)}`"
         )
 
-    @dg.asset_check(asset=asset_key, blocking=True, partitions_def=partitions)
+    @dg.asset_check(
+        name=SCHEMA_CHECK_NAME,
+        asset=asset_key,
+        blocking=True,
+        partitions_def=partitions,
+    )
     # Dagster uses this runtime annotation to select the correct IO manager load type,
     # but static type checkers may reject the computed local variable in a type expression.
     def pandera_schema_check(
