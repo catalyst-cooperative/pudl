@@ -70,6 +70,14 @@ Developer Experience
   plant/utility IDs missing from the manual PUDL ID mapping spreadsheet. CSVs are saved
   with other build outputs on ``builds.catalyst.coop`` and fail the ETL if they are
   non-empty. See issue :issue:`4338` and PR :pr:`5539`.
+* Added a ``DATAPACKAGES`` registry of every datapackage PUDL distributes, with
+  ``all_resources()`` and ``find_resource()`` helpers, so asset checks, the docs, the
+  data dictionary and the dbt tooling cover FERC EQR as well as the main PUDL tables.
+  Both datapackage descriptors are now validated by blocking asset checks and hashed in
+  parallel, and FERC EQR archive checksums are looked up before a download starts.
+  ``generate_pudl_duckdb`` now writes one DuckDB database of views per datapackage,
+  ``pudl_views.duckdb`` and ``ferceqr_views.duckdb``. See :issue:`5279` and
+  :pr:`5735`.
 
 .. _release-v2026.10.0:
 
