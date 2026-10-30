@@ -41,6 +41,13 @@ Bug Fixes & Data Cleaning
   string comparisons, which would otherwise have left spurious null energy sources,
   null primary keys, or unremoved bogus ownership records. See :issue:`5621`,
   :issue:`5622`, :issue:`5624` and :pr:`5721`.
+* Fixed ``make_changelog()`` dropping a record whose values returned to an earlier
+  state (e.g. a generator reporting ``OP``, ``OA``, ``OP``), which left the intermediate
+  value looking like it was still in force. A record is now kept whenever it differs
+  from the previous report date. This adds 3-7% more rows to
+  :ref:`core_eia860m__changelog_generators` and the EIA forensics tables, and removes
+  empty ``valid_until_date`` intervals from conflicting same-date reports. See
+  :issue:`5730` and :pr:`5731`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
