@@ -115,7 +115,7 @@ def test_open_quarter_archive_checksums_the_local_copy(
         assert name == "ferceqr-2024q1.zip"
         # The temp copy, not the source archive, and it's still present to be hashed.
         assert Path(verified_path).exists()
-        assert Path(verified_path) != Path(archive_dir / "ferceqr-2024q1.zip")
+        assert Path(verified_path) != Path(str(archive_dir / "ferceqr-2024q1.zip"))
 
 
 def test_open_quarter_archive_raises_on_checksum_mismatch(

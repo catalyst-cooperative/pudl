@@ -15,6 +15,7 @@ import uuid
 from collections.abc import Sequence
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any, TypedDict
 
 import dagster as dg
 
@@ -167,7 +168,14 @@ def _resource_paths(resource_desc: dict) -> list[str]:
     return paths + list(resource_desc.get("extrapaths") or [])
 
 
-def _file_stats(parquet_file: Path) -> dict:
+class FileStats(TypedDict):
+    """Descriptor fields computed for one parquet file."""
+
+    bytes: int
+    hash: str
+
+
+def _file_stats(parquet_file: Path) -> FileStats:
     """Return the ``bytes`` and ``hash`` descriptor fields for one parquet file."""
     with parquet_file.open("rb") as fh:
         digest = hashlib.file_digest(fh, "sha256").hexdigest()
@@ -226,7 +234,7 @@ def _enrich_resources(
             continue
 
         if len(paths) > 1:
-            parts = [
+            parts: list[dict[str, Any]] = [
                 {"path": rel_path} | _file_stats(parquet_file)
                 for rel_path, parquet_file in found_paths
             ]

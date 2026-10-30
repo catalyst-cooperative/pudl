@@ -5,6 +5,7 @@ import json
 import uuid
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 import dagster as dg
 import pytest
@@ -43,6 +44,15 @@ def asset_resources(mocker, parquet_dir):
     pudl_paths = mocker.Mock()
     pudl_paths.parquet_path.return_value = parquet_dir
     return {"zenodo_dois": ZenodoDoiSettings(), "pudl_paths": pudl_paths}
+
+
+def _metadata_value(result: object, key: str) -> Any:
+    """Return the raw value of a ``MaterializeResult`` metadata entry."""
+    assert isinstance(result, dg.MaterializeResult)
+    assert result.metadata is not None
+    entry = result.metadata[key]
+    assert isinstance(entry, dg.MetadataValue)
+    return entry.value
 
 
 def fake_dagster_file_metadata(asset_keys) -> dict[str, dict]:
@@ -123,10 +133,9 @@ def test_datapackage_asset_writes_descriptor(mocker, asset_resources, parquet_di
     dois = [s["doi"] for s in descriptor.get("sources", []) if "doi" in s]
     assert all(doi.startswith("https://doi.org/") for doi in dois)
 
-    assert isinstance(result, dg.MaterializeResult)
-    assert result.metadata["resource_count"].value == len(resources)
-    assert result.metadata["enriched_resource_count"].value == len(resources)
-    assert result.metadata["bytes"].value == output_path.stat().st_size
+    assert _metadata_value(result, "resource_count") == len(resources)
+    assert _metadata_value(result, "enriched_resource_count") == len(resources)
+    assert _metadata_value(result, "bytes") == output_path.stat().st_size
 
 
 def test_partitioned_datapackage_asset_describes_every_partition(
@@ -168,7 +177,7 @@ def test_partitioned_datapackage_asset_describes_every_partition(
 
     descriptor = json.loads((parquet_dir / "datapackage.json").read_text())
     resources = descriptor["resources"]
-    assert result.metadata["enriched_resource_count"].value == len(resources)
+    assert _metadata_value(result, "enriched_resource_count") == len(resources)
 
     for resource in resources:
         paths = paths_by_resource[resource["name"]]
@@ -423,7 +432,7 @@ def test_enrich_resources_ignores_dagster_metadata_for_multi_file_resources(
     """
     paths = ["t/2013q1.parquet", "t/2013q2.parquet"]
     payloads = write_parquet_files(tmp_path, paths)
-    descriptor = {
+    descriptor: dict[str, Any] = {
         "resources": [{"name": "t", "path": paths[0], "extrapaths": paths[1:]}]
     }
 
@@ -444,7 +453,7 @@ def test_enrich_resources_describes_only_the_partitions_present(
     """A partially materialised resource is described by the files that exist."""
     paths = ["t/2013q1.parquet", "t/2013q2.parquet", "t/2013q3.parquet"]
     payloads = write_parquet_files(tmp_path, paths[:1])
-    descriptor = {
+    descriptor: dict[str, Any] = {
         "resources": [{"name": "t", "path": paths[0], "extrapaths": paths[1:]}]
     }
 
