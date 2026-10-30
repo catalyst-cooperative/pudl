@@ -1057,7 +1057,7 @@ def test_datapackages_registry_is_keyed_by_package_name_and_complete():
     packages, so the packages are not required to be disjoint.
     """
     assert all(name == package.name for name, package in DATAPACKAGES.items())
-    assert {"pudl", "ferceqr"} <= set(DATAPACKAGES)
+    assert {"pudl", "ferceqr"} == set(DATAPACKAGES)
     registered = {
         r.name for package in DATAPACKAGES.values() for r in package.resources
     }
