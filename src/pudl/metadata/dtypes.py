@@ -230,9 +230,7 @@ def get_pudl_dtypes(
         )
 
     if resource is not None:
-        dtypes = _get_pudl_resource_dtypes(
-            resource=resource, dtype_backend=dtype_backend
-        )
+        dtypes = _get_resource_dtypes(resource=resource, dtype_backend=dtype_backend)
     else:
         # This also covers the generic case in which field_namespace is None
         dtypes = _get_pudl_namespace_dtypes(
@@ -283,7 +281,7 @@ def _get_pudl_namespace_dtypes(
     return dtypes
 
 
-def _get_pudl_resource_dtypes(
+def _get_resource_dtypes(
     resource: str,
     dtype_backend: PudlDtypeBackend = "pandas",
 ) -> dict[str, Any]:

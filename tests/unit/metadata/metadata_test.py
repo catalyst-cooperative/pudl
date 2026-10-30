@@ -40,7 +40,7 @@ from pudl.metadata.descriptions import (
 )
 from pudl.metadata.dtypes import (
     PudlDtypeBackend,
-    _get_pudl_resource_dtypes,
+    _get_resource_dtypes,
     apply_pudl_dtypes,
     apply_pudl_dtypes_polars,
     get_pudl_dtypes,
@@ -1079,7 +1079,7 @@ def test_registry_tolerates_a_resource_in_several_packages(mocker):
 
 def test_resource_dtypes_are_available_for_ferceqr_tables():
     """Resource dtype lookups are not limited to the main PUDL package."""
-    dtypes = _get_pudl_resource_dtypes("core_ferceqr__contracts")
+    dtypes = _get_resource_dtypes("core_ferceqr__contracts")
     assert {f.name for f in find_resource("core_ferceqr__contracts").schema.fields} == (
         set(dtypes)
     )
