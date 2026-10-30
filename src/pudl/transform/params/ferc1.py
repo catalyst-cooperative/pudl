@@ -8,9 +8,6 @@ found in :mod:`pudl.transform.classes` and :mod:`pudl.transform.ferc1`
 from datetime import date
 from pathlib import Path
 
-import numpy as np
-import pandas as pd
-
 from pudl import PUDL_PACKAGE_DATA_PATH
 
 ##############################################################################
@@ -241,7 +238,7 @@ FERC1_STRING_NORM = {
 ##############################################################################
 # Common invalid plant names
 ##############################################################################
-INVALID_PLANT_NAMES = [pd.NA, np.nan, "not applicable", "0", "", "-"]
+INVALID_PLANT_NAMES = ["not applicable", "0", "", "-"]
 """Invalid plant names which appear in multiple plant tables."""
 
 ##############################################################################
@@ -555,7 +552,7 @@ TRANSFORM_PARAMS = {
         ],
         "drop_invalid_rows": [
             {
-                "invalid_values": [0, pd.NA, np.nan, ""],
+                "invalid_values": [0, ""],
                 "required_valid_cols": [
                     "fuel_consumed_units",
                     "fuel_cost_per_mmbtu",
@@ -720,7 +717,7 @@ TRANSFORM_PARAMS = {
         ],
         "drop_invalid_rows": [
             {
-                "invalid_values": [0, "0", pd.NA, np.nan, "", "none"],
+                "invalid_values": [0, "0", "", "none"],
                 "allowed_invalid_cols": [
                     "record_id",
                     "utility_id_ferc1",
@@ -856,7 +853,7 @@ TRANSFORM_PARAMS = {
         "strip_non_numeric_values": {"project_num": {"strip_non_numeric_values": True}},
         "drop_invalid_rows": [
             {
-                "invalid_values": [0, "0", pd.NA, np.nan, "", "none", "—"],
+                "invalid_values": [0, "0", "", "none", "—"],
                 "allowed_invalid_cols": [
                     "record_id",
                     "utility_id_ferc1",
@@ -949,9 +946,14 @@ TRANSFORM_PARAMS = {
             "plant_type_from_header": PLANT_TYPE_CATEGORIES,
         },
         "drop_invalid_rows": [
-            {"invalid_values": ["header", "note"], "required_valid_cols": ["row_type"]},
             {
-                "invalid_values": [0, "0", pd.NA, np.nan, "", "none"],
+                "invalid_values": ["header", "note"],
+                "required_valid_cols": ["row_type"],
+                # Most rows legitimately have a null row_type, so keep them.
+                "dropna": False,
+            },
+            {
+                "invalid_values": [0, "0", "", "none"],
                 "allowed_invalid_cols": [
                     "record_id",
                     "utility_id_ferc1",
@@ -1074,7 +1076,7 @@ TRANSFORM_PARAMS = {
         "align_row_numbers_dbf": {"dbf_table_names": ["f1_plant_in_srvce"]},
         "drop_invalid_rows": [
             {
-                "invalid_values": [pd.NA, np.nan, ""],
+                "invalid_values": [""],
                 "required_valid_cols": [
                     "starting_balance",
                     "additions",
@@ -1227,7 +1229,7 @@ TRANSFORM_PARAMS = {
         "strip_non_numeric_values": {"project_num": {"strip_non_numeric_values": True}},
         "drop_invalid_rows": [
             {
-                "invalid_values": [0, "0", pd.NA, np.nan, "", "none", "—"],
+                "invalid_values": [0, "0", "", "none", "—"],
                 "allowed_invalid_cols": [
                     "record_id",
                     "utility_id_ferc1",
@@ -1309,7 +1311,7 @@ TRANSFORM_PARAMS = {
         },
         "drop_invalid_rows": [
             {
-                "invalid_values": [0, "0", pd.NA, np.nan, "", "none", "—"],
+                "invalid_values": [0, "0", "", "none", "—"],
                 "required_valid_cols": [
                     "purchased_mwh",
                     "received_mwh",
@@ -1391,7 +1393,7 @@ TRANSFORM_PARAMS = {
         },
         "drop_invalid_rows": [
             {
-                "invalid_values": [pd.NA, np.nan, "", None, "None"],
+                "invalid_values": ["", "None"],
                 "required_valid_cols": [
                     "operating_voltage_kv",
                     "designed_voltage_kv",
@@ -1467,7 +1469,7 @@ TRANSFORM_PARAMS = {
         },
         "drop_invalid_rows": [
             {
-                "invalid_values": [pd.NA, np.nan, ""],
+                "invalid_values": [""],
                 "required_valid_cols": ["energy_mwh"],
             },
         ],
@@ -1532,7 +1534,7 @@ TRANSFORM_PARAMS = {
         },
         "drop_invalid_rows": [
             {
-                "invalid_values": [pd.NA, np.nan, ""],
+                "invalid_values": [""],
                 "required_valid_cols": ["energy_mwh"],
             },
         ],
@@ -1650,7 +1652,7 @@ TRANSFORM_PARAMS = {
         },
         "drop_invalid_rows": [
             {
-                "invalid_values": [pd.NA, np.nan, ""],
+                "invalid_values": [""],
                 "required_valid_cols": ["ending_balance"],
             },
         ],
@@ -2147,7 +2149,7 @@ TRANSFORM_PARAMS = {
         },
         "drop_invalid_rows": [
             {
-                "invalid_values": [pd.NA, np.nan, ""],
+                "invalid_values": [""],
                 "required_valid_cols": [
                     "dollar_value",
                     "sales_mwh",
@@ -2432,7 +2434,7 @@ TRANSFORM_PARAMS = {
         },
         "drop_invalid_rows": [
             {
-                "invalid_values": [pd.NA, np.nan, ""],
+                "invalid_values": [""],
                 "required_valid_cols": ["dollar_value"],
             },
         ],
@@ -2636,7 +2638,7 @@ TRANSFORM_PARAMS = {
         },
         "drop_invalid_rows": [
             {
-                "invalid_values": [pd.NA, np.nan, ""],
+                "invalid_values": [""],
                 "required_valid_cols": ["ending_balance"],
             },
         ],
@@ -3128,7 +3130,7 @@ TRANSFORM_PARAMS = {
         },
         "drop_invalid_rows": [
             {
-                "invalid_values": [pd.NA, np.nan, ""],
+                "invalid_values": [""],
                 "required_valid_cols": ["dollar_value"],
             },
         ],
@@ -3202,7 +3204,7 @@ TRANSFORM_PARAMS = {
         },
         "drop_invalid_rows": [
             {
-                "invalid_values": [0, pd.NA, np.nan, ""],
+                "invalid_values": [0, ""],
                 "required_valid_cols": [
                     "ending_balance",
                     "starting_balance",
@@ -3251,7 +3253,7 @@ TRANSFORM_PARAMS = {
         },
         "drop_invalid_rows": [
             {
-                "invalid_values": [0, pd.NA, np.nan, ""],
+                "invalid_values": [0, ""],
                 "required_valid_cols": [
                     "description",
                     "ending_balance",
@@ -3492,7 +3494,7 @@ TRANSFORM_PARAMS = {
         },
         "drop_invalid_rows": [
             {
-                "invalid_values": [np.nan, pd.NA, "", None],
+                "invalid_values": [""],
                 "required_valid_cols": [
                     "sales_mwh",
                     "dollar_value",

@@ -960,14 +960,17 @@ class HourlyPlanningAreaDemand:
         confirmation from FERC staff that this is always the case, but it seems like a
         decent assumption.
 
-        So, this step converts all of the hour 24 records to be hour 00 of the next day.
+        So, this step converts all of the hour 24 records to be hour 00 of the next day,
+        and converts the ``report_date`` strings to datetimes.
         """
-        bad_24_hour_mask = xbrl.report_date.str.contains("T24:")
-
-        xbrl.loc[bad_24_hour_mask, "report_date"] = pd.to_datetime(
-            xbrl[bad_24_hour_mask].report_date.str.replace("T24:", "T23:"),
-            format="%Y-%m-%dT%H:%M:%S",
-        ) + np.timedelta64(1, "h")
+        # Parse hour 24 as hour 00 of the same day, then move those records forward a day.
+        is_hour_24 = xbrl["report_date"].str.contains("T24:")
+        report_date = pd.to_datetime(
+            xbrl["report_date"].str.replace("T24:", "T00:"), format="ISO8601"
+        )
+        xbrl["report_date"] = report_date.mask(
+            is_hour_24, report_date + pd.Timedelta(days=1)
+        )
         return xbrl
 
     @staticmethod

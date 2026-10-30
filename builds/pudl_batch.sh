@@ -47,11 +47,27 @@ function run_dagster() {
     pixi run pudl-with-ferc-to-sqlite-nightly
 }
 
+function upload_logfile_snapshot() {
+    # The logfile is still being appended to by the `tee` in `exec` below --
+    # including by the output of the gcloud commands doing the uploading -- so
+    # uploading it directly makes gcloud fail with "Source file size changed
+    # post-initiation" whenever a write lands between gcloud stat-ing the file
+    # and finishing its upload. Upload a static copy instead.
+    local snapshot
+    local status
+    snapshot="$(mktemp)"
+    cp "$LOGFILE" "$snapshot" &&
+        gcloud storage --quiet cp "$snapshot" "${PUDL_GCS_OUTPUT}/${BUILD_ID}.log"
+    status=$?
+    rm -f "$snapshot"
+    return "$status"
+}
+
 function save_outputs_to_gcs() {
     echo "Copying outputs to GCP bucket $PUDL_GCS_OUTPUT" &&
         gcloud storage --quiet cp -r "$PUDL_OUTPUT" "$PUDL_GCS_OUTPUT" &&
         gcloud storage --quiet cp -r "dbt/seeds/etl_full_row_counts.csv" "$PUDL_GCS_OUTPUT" &&
-        gcloud storage --quiet cp "$LOGFILE" "$PUDL_GCS_OUTPUT" &&
+        upload_logfile_snapshot &&
         rm -f "$PUDL_OUTPUT/success"
 }
 
@@ -222,7 +238,7 @@ function cleanup_on_exit() {
     # a near-empty object path for this build_id that deploy-pudl can mistake for
     # the actual (older) successful build's outputs, breaking deployment. See #5579.
     if [[ "${BUILD_SKIPPED:-false}" != "true" && -n "${LOGFILE:-}" && -f "$LOGFILE" && -n "${PUDL_GCS_OUTPUT:-}" ]]; then
-        gcloud storage --quiet cp "$LOGFILE" "${PUDL_GCS_OUTPUT}/${BUILD_ID}.log" || true
+        upload_logfile_snapshot || true
     fi
 
     rm -f ~/.aws/credentials
@@ -246,7 +262,11 @@ function cleanup_on_exit() {
 ########################################################################################
 # MAIN SCRIPT
 ########################################################################################
-LOGFILE="${PUDL_OUTPUT}/${BUILD_ID}.log"
+# Keep the logfile *outside* of PUDL_OUTPUT: save_outputs_to_gcs recursively
+# copies that whole directory, and a file still being written to during the copy
+# makes gcloud abort the transfer. It's uploaded separately, as a static
+# snapshot, by upload_logfile_snapshot.
+LOGFILE="${PUDL_ROOT_PATH}/${BUILD_ID}.log"
 STAGE_SKIPPED="skipped"
 BUILD_START_EPOCH_SECONDS=$(date +%s)
 

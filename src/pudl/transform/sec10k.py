@@ -43,13 +43,29 @@ def _extract_filer_cik_from_filename(filename_col: pd.Series) -> pd.Series:
 
 
 def _compute_fraction_owned(percent_ownership: pd.Series) -> pd.Series:
-    """Clean percent ownership, convert to float, then convert percent to ratio."""
-    return (
-        percent_ownership.str.replace(r"(\.{2,})", r"\.", regex=True)
-        .replace("\\\\", "", regex=True)
-        .replace(".", "0.0", regex=False)
-        .astype("float")
-    ) / 100.0
+    """Clean percent ownership, convert to float, then convert percent to ratio.
+
+    The percentages were extracted from text tables, so some carry runs of leader dots
+    (e.g. ``"....99"`` or ``"65......"``). The dots are removed, and entries containing
+    nothing but dots are treated as missing.
+
+    All the extracted numerical values are treated as percentages, including those below
+    1, since there is no reliable way to tell a reported fraction (``"0.95"``) from a
+    small percentage (``"0.01"`` alongside ``"99.99"``) on a per-row basis. Ratios
+    outside of 0-1 (e.g. several adjacent percentages that have been run together) are
+    set to null.
+    """
+    only_dots = percent_ownership.str.fullmatch(r"\.+", na=False)
+    # Null rows that are only dots, then remove any runs of multiple dots from the
+    # remaining values. This will leave a string that can be unambiguously interpreted
+    # as a float after they get divided by 100 below (e.g. 0.95 or .99)
+    cleaned = percent_ownership.mask(only_dots).str.replace(r"\.{2,}", "", regex=True)
+    # Turn the percentage into a fraction. We treat all values as percentages because
+    # there are a significant number of cases where one company owns a de minimis stake
+    # in another (e.g. a 0.01% + 99.99% split) and there's no reliable way to identify
+    # which of those values is a percentage and which is a fraction.
+    fraction = cleaned.astype("float") / 100.0
+    return fraction.where(fraction.between(0.0, 1.0))
 
 
 def _standardize_taxpayer_id_irs(taxpayer_id_irs: pd.Series) -> pd.Series:
@@ -60,11 +76,11 @@ def _standardize_taxpayer_id_irs(taxpayer_id_irs: pd.Series) -> pd.Series:
     - Reformat to NN-NNNNNNN format.
     """
     tin = taxpayer_id_irs.astype("string").str.replace(r"[^\d]", "", regex=True)
-    not_nine_digits = ~tin.str.match(r"^\d{9}$")
+    not_nine_digits = ~tin.str.match(r"^\d{9}$").fillna(False)
     logger.info(f"Nulling {sum(not_nine_digits.dropna())} invalid TINs.")
-    nine_zeroes = tin == "000000000"
+    nine_zeroes = (tin == "000000000").fillna(False)
     logger.info(f"Nulling {sum(nine_zeroes.dropna())} all-zero TINs.")
-    tin.loc[(not_nine_digits | nine_zeroes)] = pd.NA
+    tin = tin.mask(not_nine_digits | nine_zeroes, pd.NA)
     tin = tin.str[:2] + "-" + tin.str[2:]
     return tin
 
