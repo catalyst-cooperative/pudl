@@ -11,6 +11,14 @@ v2026.11.0 (2026-11-XX)
 Enhancements
 ^^^^^^^^^^^^
 
+* Standardized how distributed ``datapackage.json`` descriptors are produced. FERC EQR
+  now has its own package, ``FERCEQR_PACKAGE``, and a dedicated ``ferceqr_datapackage``
+  asset built with the same factory as ``pudl_datapackage``. Descriptors list only the
+  sources their tables use and describe partitioned tables with per-partition ``bytes``
+  and ``hash`` entries. Each quarterly FERC EQR archive is now verified against the md5
+  checksum in its Zenodo metadata, and downloading archives from remote storage
+  requires setting ``PUDL_FERCEQR_ALLOW_DOWNLOADS``. See :issue:`5279` and :pr:`5693`.
+
 New Data
 ^^^^^^^^
 
@@ -23,16 +31,20 @@ Documentation
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* Updated ``dbt`` data validation now to support FERC EQR data. This requires ``dbt``
-  configuration changes to handle partitioned parquet outputs. See issue :pr:`4864`
-  and PR :pr:`5676`. This PR also applies basic validation tests to FERC EQR tables,
-  including row count tests.
+* Updated ``dbt`` data validation to support FERC EQR, whose partitioned parquet outputs
+  required several configuration changes. The ``external_location`` of each table is now
+  generated automatically, row count tests accept string partition keys such as
+  ``year_quarter``, and ``dbt_helper`` can generate row counts for partitioned tables.
+  Validation tests can also run against remote parquet datasets without downloading the
+  files, and the FERC EQR deployment asset now runs the EQR validations before
+  publishing. All FERC EQR tables get basic validation tests, including row counts. See
+  :issue:`4864` and :pr:`5676`.
 
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* Added a missing territory entry to the :ref:`core_pudl__codes_subdivisions` table. See
-  :issue:`5696` and :pr:`5716`.
+* Added a missing US minor outlying islands territory entry to the
+  :ref:`core_pudl__codes_subdivisions` table. See :issue:`5696` and :pr:`5716`.
 * Added ``plant_function`` values to a few factoids in
   :ref:`out_ferc1__yearly_rate_base`. See :pr:`5690`.
 * Made null handling in ``stack_generators()``, the EIA-176 "other" gas disposition
