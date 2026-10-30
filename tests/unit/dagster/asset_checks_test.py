@@ -47,6 +47,7 @@ import pudl.dagster.asset_checks as asset_checks
 from pudl.dagster.asset_checks import (
     SCHEMA_CHECK_NAME,
     _build_registry_from_descriptor,
+    _validate_datapackage_parquet_columns,
     _validate_datapackage_unit_strings,
     asset_check_from_packages,
     asset_check_from_schema,
@@ -786,3 +787,48 @@ def test_unmapped_ids_check(df: pd.DataFrame, passed: bool) -> None:
     result = check.node_def.compute_fn.decorated_fn(df)  # type: ignore[missing-attribute]
     assert result.passed is passed
     assert result.metadata["n_unmapped_ids"].value == len(df)
+
+
+def _descriptor_for(name: str, fields: list[str], paths: list[str]) -> dict:
+    """Build a minimal descriptor with one (possibly partitioned) resource."""
+    return {
+        "resources": [
+            {
+                "name": name,
+                "path": paths[0],
+                "extrapaths": paths[1:],
+                "schema": {"fields": [{"name": field} for field in fields]},
+            }
+        ]
+    }
+
+
+def test_validate_datapackage_parquet_columns_matching(tmp_path) -> None:
+    """No errors when each file's columns are exactly the declared fields."""
+    pl.DataFrame({"a": [1], "b": ["x"]}).write_parquet(tmp_path / "t.parquet")
+    descriptor = _descriptor_for("t", ["a", "b"], ["t.parquet"])
+    errors, counts = _validate_datapackage_parquet_columns(descriptor, tmp_path)
+    assert errors == []
+    assert counts == {"checked": 1, "missing": 0}
+
+
+def test_validate_datapackage_parquet_columns_groups_mismatched_partitions(
+    tmp_path,
+) -> None:
+    """Extra and missing columns are reported once per resource, not per file."""
+    for part in ("2020q1", "2020q2"):
+        pl.DataFrame({"a": [1], "extra": [2]}).write_parquet(
+            tmp_path / f"{part}.parquet"
+        )
+    pl.DataFrame({"a": [1], "b": [2]}).write_parquet(tmp_path / "2020q3.parquet")
+    paths = [f"{part}.parquet" for part in ("2020q1", "2020q2", "2020q3", "2020q4")]
+    descriptor = _descriptor_for("t", ["a", "b"], paths)
+
+    errors, counts = _validate_datapackage_parquet_columns(descriptor, tmp_path)
+
+    # 2020q4 is not on disk: counted, but not an error.
+    assert counts == {"checked": 3, "missing": 1}
+    assert len(errors) == 1
+    assert "2 Parquet file(s)" in errors[0]
+    assert "Extra in file: ['extra']" in errors[0]
+    assert "Missing from file: ['b']" in errors[0]
