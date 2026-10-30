@@ -9,10 +9,13 @@ the PUDL documentation page for each data source.
 
 import hashlib
 import json
+import os
 import shutil
 import subprocess
 import uuid
 from collections.abc import Sequence
+from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, TypedDict
@@ -39,6 +42,10 @@ _SOURCES_WITH_DOCS: frozenset[str] = (
     if _TEMPLATES_DIR.is_dir()
     else frozenset()
 )
+
+
+HASH_MAX_WORKERS = min(32, os.cpu_count() or 1)
+"""Default number of threads used to hash parquet files concurrently."""
 
 
 def _collect_dagster_file_metadata(
@@ -157,15 +164,15 @@ def _enrich_sources(
             )
 
 
-def _resource_paths(resource_desc: dict) -> list[str]:
+def _resource_paths(resource_descriptor: dict) -> list[str]:
     """Return every parquet path a resource descriptor points at, in order.
 
     A single-file resource carries a string ``path``. A partitioned resource keeps
     its first partition in ``path`` and the remainder in ``extrapaths``.
     """
-    path = resource_desc.get("path")
+    path = resource_descriptor.get("path")
     paths = [path] if isinstance(path, str) else list(path or [])
-    return paths + list(resource_desc.get("extrapaths") or [])
+    return paths + list(resource_descriptor.get("extrapaths") or [])
 
 
 class FileStats(TypedDict):
@@ -182,10 +189,101 @@ def _file_stats(parquet_file: Path) -> FileStats:
     return {"bytes": parquet_file.stat().st_size, "hash": f"sha256:{digest}"}
 
 
+@dataclass
+class _PendingResource:
+    """A resource whose file stats must be computed from parquet files on disk."""
+
+    descriptor: dict
+    paths: list[str]
+    """Every path the descriptor declares, present on disk or not."""
+    found: list[tuple[str, Path]]
+    """``(relative path, file)`` for each declared path that exists on disk."""
+
+    @property
+    def files(self) -> list[Path]:
+        """The files on disk that need to be hashed."""
+        return [file for _, file in self.found]
+
+
+def _plan_enrichment(
+    descriptor: dict,
+    dag_metadata: dict[str, dict],
+    parquet_path: Path,
+) -> tuple[int, list[_PendingResource]]:
+    """Fill in stats available from Dagster metadata and find files left to hash.
+
+    Returns:
+        The number of resources already enriched from *dag_metadata*, and the
+        resources that still need stats computed from the files on disk. Resources
+        with no files on disk are in neither.
+    """
+    enriched_count = 0
+    pending: list[_PendingResource] = []
+    for resource_descriptor in descriptor.get("resources", []):
+        name = resource_descriptor.get("name")
+        paths = _resource_paths(resource_descriptor)
+        if not paths:
+            raise AssertionError(
+                f"Resource {name} has no path in the datapackage descriptor; "
+                "every parquet-backed resource must point at at least one file."
+            )
+
+        if len(paths) == 1 and name in dag_metadata:
+            resource_descriptor["bytes"] = dag_metadata[name]["bytes"]
+            resource_descriptor["hash"] = dag_metadata[name]["hash"]
+            enriched_count += 1
+            continue
+
+        # Check for parquet files on disk before getting stats. If a resource has not
+        # been materialized, or not all partitions have been materialized, then there
+        # may be "missing" parquet files.
+        # TODO: provide a mechanism to merge datapackages so we can materialize only a
+        # subset of partitions during a build
+        expected_paths = [(rel_path, parquet_path / rel_path) for rel_path in paths]
+        found_paths = [(rel_path, f) for rel_path, f in expected_paths if f.is_file()]
+        if len(found_paths) < len(paths):
+            logger.warning(
+                f"Resource {name}: {len(paths) - len(found_paths)} of {len(paths)} "
+                "parquet file(s) not found on disk; file stats will describe only "
+                f"the {len(found_paths)} file(s) present."
+            )
+        if found_paths:
+            pending.append(_PendingResource(resource_descriptor, paths, found_paths))
+    return enriched_count, pending
+
+
+def _hash_files(files: Sequence[Path], max_workers: int) -> dict[Path, FileStats]:
+    """Return stats for every file, hashing up to *max_workers* files concurrently.
+
+    ``hashlib`` releases the GIL while digesting large buffers, so threads scale with
+    the available cores.
+    """
+    if not files:
+        return {}
+    logger.info(
+        f"Hashing {len(files)} parquet file(s) with up to {max_workers} threads."
+    )
+    with ThreadPoolExecutor(max_workers=max_workers) as pool:
+        return dict(zip(files, pool.map(_file_stats, files), strict=True))
+
+
+def _apply_stats(resource: _PendingResource, stats: dict[Path, FileStats]) -> None:
+    """Write file stats from *stats* into the resource descriptor in place."""
+    if len(resource.paths) == 1:
+        resource.descriptor.update(stats[resource.found[0][1]])
+        return
+    parts: list[dict[str, Any]] = [
+        {"path": rel_path} | stats[file] for rel_path, file in resource.found
+    ]
+    resource.descriptor["parts"] = parts
+    resource.descriptor["bytes"] = sum(part["bytes"] for part in parts)
+
+
 def _enrich_resources(
     descriptor: dict,
     dag_metadata: dict[str, dict],
     parquet_path: Path,
+    max_workers: int = HASH_MAX_WORKERS,
 ) -> int:
     """Add file stats to each resource descriptor; return enriched count.
 
@@ -199,51 +297,27 @@ def _enrich_resources(
     for these: the event log holds one materialisation per partition, and keying
     those by asset name would describe a single partition as the whole table.
 
-    A resource whose files are not all present on disk is left unenriched and
-    reported, rather than being annotated with a partial set of stats.
+    A partitioned resource with only some of its files on disk is enriched from the
+    files that are present, and a warning is logged: its ``parts`` and ``bytes`` total
+    describe only those files. A resource with none of its files on disk is left
+    unenriched.
+
+    Hashing dominates the runtime for large partitioned outputs, so every file that
+    needs stats, across all resources, is hashed concurrently.
+
+    Args:
+        descriptor: Datapackage descriptor, modified in place.
+        dag_metadata: Per-resource ``bytes``/``hash`` recorded by Dagster.
+        parquet_path: Directory holding the parquet files.
+        max_workers: Maximum number of files hashed concurrently.
     """
-    enriched_count = 0
-    for resource_desc in descriptor.get("resources", []):
-        name = resource_desc.get("name")
-        paths = _resource_paths(resource_desc)
-        if not paths:
-            raise AssertionError(
-                f"Resource {name} has no path in the datapackage descriptor; "
-                "every parquet-backed resource must point at at least one file."
-            )
-
-        if len(paths) == 1 and name in dag_metadata:
-            resource_desc["bytes"] = dag_metadata[name]["bytes"]
-            resource_desc["hash"] = dag_metadata[name]["hash"]
-            enriched_count += 1
-            continue
-
-        # Check for parquet files on disk before getting stats
-        # If a resource has not been materialized, or not all partitions have been materialized
-        # then there may be "missing" parquet files
-        # TODO: provide a mechanism to merge datapackages so we can materlize only a subset of partitions during a build
-        expected_paths = [(rel_path, parquet_path / rel_path) for rel_path in paths]
-        found_paths = [(rel_path, f) for rel_path, f in expected_paths if f.is_file()]
-        if len(found_paths) < len(paths):
-            logger.warning(
-                f"Resource {name}: {len(paths) - len(found_paths)} of {len(paths)} "
-                "parquet file(s) not found on disk; file stats will describe only "
-                f"the {len(found_paths)} file(s) present."
-            )
-        if not found_paths:
-            continue
-
-        if len(paths) > 1:
-            parts: list[dict[str, Any]] = [
-                {"path": rel_path} | _file_stats(parquet_file)
-                for rel_path, parquet_file in found_paths
-            ]
-            resource_desc["parts"] = parts
-            resource_desc["bytes"] = sum(part["bytes"] for part in parts)
-        else:
-            resource_desc.update(_file_stats(found_paths[0][1]))
-        enriched_count += 1
-    return enriched_count
+    enriched_count, pending = _plan_enrichment(descriptor, dag_metadata, parquet_path)
+    stats = _hash_files(
+        [file for resource in pending for file in resource.files], max_workers
+    )
+    for resource in pending:
+        _apply_stats(resource, stats)
+    return enriched_count + len(pending)
 
 
 def build_datapackage_asset(
