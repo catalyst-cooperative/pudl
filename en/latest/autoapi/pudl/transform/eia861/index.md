@@ -13,6 +13,7 @@ All transformations include:
 | [`BA_NAME_FIXES`](#pudl.transform.eia861.BA_NAME_FIXES)      |    |
 | [`NERC_SPELLCHECK`](#pudl.transform.eia861.NERC_SPELLCHECK)    |    |
 | [`NERC_NUMERIC_CODES`](#pudl.transform.eia861.NERC_NUMERIC_CODES) |    |
+| [`_YN_TO_BOOL`](#pudl.transform.eia861._YN_TO_BOOL)        |    |
 
 ## Functions
 
@@ -31,10 +32,10 @@ All transformations include:
 | [`clean_nerc`](#pudl.transform.eia861.clean_nerc)(→ pandas.DataFrame)                              | Clean NERC region entries.                                                       |
 | [`_compare_nerc_physical_w_nerc_operational`](#pudl.transform.eia861._compare_nerc_physical_w_nerc_operational)(...)              | Show df rows where physical NERC region does not match operational region.       |
 | [`_pct_to_mw`](#pudl.transform.eia861._pct_to_mw)(df, pct_col)                                     | Turn pct col into mw capacity using total capacity col.                          |
-| [`_make_yn_bool`](#pudl.transform.eia861._make_yn_bool)(df_object)                                    | Turn Y/N reporting into True or False boolean statements for df or series.       |
+| [`_make_yn_bool`](#pudl.transform.eia861._make_yn_bool)(→ pandas.Series)                              | Turn Y/N reporting in a series into nullable booleans.                           |
 | [`_thousand_to_one`](#pudl.transform.eia861._thousand_to_one)(df_object)                                 | Turn reporting in thousands of dollars to regular dollars for df or series.      |
 | [`_harvest_associations`](#pudl.transform.eia861._harvest_associations)(→ pandas.DataFrame)                   | Compile all unique, non-null combinations of values `cols` within `dfs`.         |
-| [`_combine_88888_values`](#pudl.transform.eia861._combine_88888_values)(→ pandas.DataFrame)                   | Combine 88888 utility_id_values.                                                 |
+| [`_combine_88888_values`](#pudl.transform.eia861._combine_88888_values)(→ pandas.DataFrame)                   | Combine the data associated with 88888 utility_id_values.                        |
 | [`core_eia861__yearly_service_territory`](#pudl.transform.eia861.core_eia861__yearly_service_territory)(→ pandas.DataFrame)   | Transform the EIA 861 utility service territory table.                           |
 | [`_core_eia861__balancing_authority`](#pudl.transform.eia861._core_eia861__balancing_authority)(→ pandas.DataFrame)       | Transform the EIA 861 Balancing Authority table.                                 |
 | [`core_eia861__yearly_sales`](#pudl.transform.eia861.core_eia861__yearly_sales)(→ pandas.DataFrame)               | Transform the EIA 861 Sales table.                                               |
@@ -159,7 +160,8 @@ consolidates them by summing the data values.
     either case the totals are checked using [`_compare_totals()`](#pudl.transform.eia861._compare_totals) and logging
     output is generated at the DEBUG level.
 * **Returns:**
-  A tidier long-form version of the input dataframe.
+  A tuple of a tidier long-form version of the input dataframe, and the primary
+  key columns of that dataframe (`idx_cols` plus `class_type`).
 
 ### pudl.transform.eia861.\_drop_dupes(df, df_name, subset)
 
@@ -220,9 +222,18 @@ year where there is a match between the cols.
 
 Turn pct col into mw capacity using total capacity col.
 
-### pudl.transform.eia861.\_make_yn_bool(df_object)
+### pudl.transform.eia861.\_YN_TO_BOOL
 
-Turn Y/N reporting into True or False boolean statements for df or series.
+### pudl.transform.eia861.\_make_yn_bool(col: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
+
+Turn Y/N reporting in a series into nullable booleans.
+
+Codes are matched case-insensitively. `Y` and `X` (a checked box) are `True`
+and `N` is `False`. Existing booleans are kept and nulls stay null. To convert
+a dataframe, use `df.apply(_make_yn_bool)`.
+
+* **Raises:**
+  [**AssertionError**](https://docs.python.org/3/builtins/exceptions.html#AssertionError) – if there are non-null values that are not Y, X, N or a boolean.
 
 ### pudl.transform.eia861.\_thousand_to_one(df_object)
 
@@ -247,19 +258,23 @@ present in each of the `dfs`.
 
 ### pudl.transform.eia861.\_combine_88888_values(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), idx_cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
-Combine 88888 utility_id_values.
+Combine the data associated with 88888 utility_id_values.
 
-This function sums rows with a utility_id_eia of 88888 into a single row by
-primary key. It drops rows with a utility_id_eia of 88888 if there are non-numeric
-columns with different values that are impossible to combine. E.g.: boolean
-columns where one value is Y and the other is N. This results in a small loss of
-data, but is necessary to ensure that the primary key remains unique.
+This function sums the numeric columns of rows with a utility_id_eia of 88888 into a
+single row per primary key. Null values are treated as compatible with non-null
+values: they count as zero when summing numeric columns, and they don’t conflict
+with the single non-null value of a non-numeric column (which includes booleans).
+If a non-numeric column has more than one distinct non-null value within a primary
+key, the rows are impossible to combine. E.g.: boolean columns where one value is
+Y and the other is N. In that case only the first row (after sorting) is kept and
+its numeric values are not summed. This results in a small loss of data, but is
+necessary to ensure that the primary key remains unique.
 
-There’s a similar de-duplication process happening in the `_tidy_class_dfs` function,
-but the procedure for 88888 has been abstracted out here to avoid confusion and the
-ability to treat these cases differently as we see fit. The 88888 utility_id_eia
-values are known withholdings whereas the duplicate primary key rows are unknown data
-quality issues.
+There’s a similar de-duplication process happening in the `_tidy_class_dfs`
+function, but the procedure for 88888 has been abstracted out here to avoid
+confusion and the ability to treat these cases differently. The 88888 utility_id_eia
+values are known withholdings whereas the duplicate primary key rows are unknown
+data quality issues.
 
 * **Parameters:**
   * **df** – The dataframe to process.

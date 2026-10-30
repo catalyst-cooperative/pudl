@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="release_notes.html.md" />
 <link rel="alternate" type="text/markdown" href="release_notes.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>PUDL Release Notes &#8212; PUDL 2026.10.1.dev16 documentation</title>
+    <title>PUDL Release Notes &#8212; PUDL 2026.10.1.dev17 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="_static/documentation_options.js?v=6fab269e"></script>
+    <script src="_static/documentation_options.js?v=c6eb52f8"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
@@ -143,8 +143,8 @@
       
     
     
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev16 documentation - Home"/>
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev16 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev17 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev17 documentation - Home"/>
   
   
 </a></div>
@@ -544,6 +544,29 @@ including row count tests.</p></li>
 <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/5696">#5696</a> and <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5716">#5716</a>.</p></li>
 <li><p>Added <code class="docutils literal notranslate"><span class="pre">plant_function</span></code> values to a few factoids in
 <a class="reference internal" href="data_dictionaries/pudl_db.html#out-ferc1-yearly-rate-base"><span class="std std-ref">out_ferc1__yearly_rate_base</span></a>. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5690">#5690</a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">X</span></code> in the EIA-861 dynamic pricing time-of-use, critical peak, real time and
+variable peak columns is now treated as <code class="docutils literal notranslate"><span class="pre">True</span></code> (a checked box) instead of being
+turned into a null, which changes four 2018 rows of
+<code class="docutils literal notranslate"><span class="pre">core_eia861__yearly_dynamic_pricing</span></code>. All EIA-861 Y/N flag columns now share one
+case-insensitive conversion to booleans, so a lowercase <code class="docutils literal notranslate"><span class="pre">y</span></code> or <code class="docutils literal notranslate"><span class="pre">n</span></code> is no longer
+turned into a null in a few <code class="docutils literal notranslate"><span class="pre">core_eia861__yearly_reliability</span></code> rows, and unexpected
+codes other than Y, N and X raise an error. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/5617">#5617</a>, <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/5601">#5601</a> and
+<a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5718">#5718</a>.</p></li>
+<li><p>Fixed the 2007-2011 EIA-861 advanced metering infrastructure column map, which was
+loading the utility ownership codes (e.g. <code class="docutils literal notranslate"><span class="pre">C</span></code> for cooperative) into <code class="docutils literal notranslate"><span class="pre">short_form</span></code>
+and leaving <code class="docutils literal notranslate"><span class="pre">entity_type</span></code> null. Those years of
+<code class="docutils literal notranslate"><span class="pre">core_eia861__yearly_advanced_metering_infrastructure</span></code> now have <code class="docutils literal notranslate"><span class="pre">entity_type</span></code>
+populated and <code class="docutils literal notranslate"><span class="pre">short_form</span></code> null. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/5617">#5617</a> <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5718">#5718</a>.</p></li>
+<li><p>When EIA-861 rows for the withheld utility 88888 are combined, boolean columns are
+no longer summed, nulls are now compatible with non-null values, and the row kept
+when values conflict no longer depends on input row order, which may change a few
+rows in several EIA-861 tables. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/5612">#5612</a> and <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5718">#5718</a>.</p></li>
+<li><p>Made the EIA-923 transforms behave the same under pandas 3: date and month columns
+are now assigned directly instead of through chained <code class="docutils literal notranslate"><span class="pre">.loc</span></code> assignment, and the
+numeric columns summed when de-duplicating EIA-923 generation fuel rows are
+explicitly cast to <code class="docutils literal notranslate"><span class="pre">float64</span></code>. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/5619">#5619</a>, <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/5620">#5620</a> and
+<a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5719">#5719</a>.</p></li>
+<li></li>
 <li><p>Made null handling in <code class="docutils literal notranslate"><span class="pre">stack_generators()</span></code>, the EIA-176 “other” gas disposition
 categorization and the EIA-860 ownership spot-fix behave identically under pandas 2
 and 3. Pandas 3 changed how nulls are treated by <code class="docutils literal notranslate"><span class="pre">stack()</span></code>, <code class="docutils literal notranslate"><span class="pre">astype(str)</span></code> and
