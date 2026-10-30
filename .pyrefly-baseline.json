@@ -654,6 +654,21 @@
       "path": "src/pudl/dagster/assets/raw/ferc_to_sqlite.py",
       "name": "unsupported-operation",
       "concise_description": "`|=` is not supported between `PudlPaths` and `dict[str, UPath]`"
+    },
+    {
+      "path": "src/pudl/extract/dbf.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `dict[str, TypeEngine[Any]]` is not assignable to parameter `dtype` with type `ExtensionDtype | Mapping[Hashable, ExtensionDtype | dtype[generic] | str | type[bool | complex | object | str]] | dtype[generic] | str | type[bool | complex | object | str] | None` in function `pandas.core.generic.NDFrame.to_sql`"
+    },
+    {
+      "path": "src/pudl/extract/dbf.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `type[Boolean] | type[Date] | type[DateTime] | type[Float] | type[Integer] | type[String] | type[Text] | String | str` is not assignable to parameter `col_type` with type `TypeEngine[Unknown] | type[TypeEngine[Unknown]]` in function `DbfTableSchema.add_column`"
+    },
+    {
+      "path": "src/pudl/extract/dbf.py",
+      "name": "unsupported-operation",
+      "concise_description": "Cannot set item in `dict[Any, str]`"
     }
   ]
 }
