@@ -15,6 +15,9 @@ ops:
     config:
       num_quarters: 12
       min_stable_consecutive_hours: 8
+  pudl_diff:
+    config:
+      run: true
 resources:
   datastore:
     config:

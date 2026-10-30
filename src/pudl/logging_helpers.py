@@ -62,6 +62,8 @@ def configure_root_logger(
     loggers_to_configure = [
         get_dagster_logger("catalystcoop"),
         logging.getLogger("catalystcoop"),
+        # pudl_diff is developed alongside PUDL but doesn't use PUDL's logging.
+        logging.getLogger("pudl_diff"),
     ]
     for logger in loggers_to_configure:
         coloredlogs.install(

@@ -511,7 +511,7 @@ file, first commit the verbatim move without changes, then make any necessary ed
 subsequent commit.
 
 Write informative commit messages that summarize the changes and their motivation. Use
-plaintext no more than 80 characters wide, with a short summary line (max 50 chars). For
+plaintext no more than 88 characters wide, with a short summary line. For
 significant changes, follow the first summary with a blank line and a more detailed
 description. Do not add spurious or generated files to source control.
 
