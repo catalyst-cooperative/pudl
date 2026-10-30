@@ -138,7 +138,6 @@ class FercDbfArchive:
                 obj_name = row.get("OBJECTNAME")
                 obj_type = row.get("OBJECTTYPE", None)
                 if obj_type == "Table":
-                    assert isinstance(obj_name, str), f"Table {obj_id} has no name."
                     table_names[obj_id] = obj_name
                 elif obj_type == "Field":
                     parent_id = row.get("PARENTID")
@@ -177,15 +176,7 @@ class FercDbfArchive:
                 raise ValueError(
                     f"DBF field name mismatch: {dbf_col.name} != {long_name}"
                 )
-            if dbf_col.type not in DBF_TYPES:
-                description = UNSUPPORTED_DBF_TYPES.get(dbf_col.type, "unknown type")
-                raise NotImplementedError(
-                    f"DBF field type {dbf_col.type} ({description}) of {dbf_col.name} "
-                    f"in {table_name} is not supported."
-                )
-            col_type: type[sa.types.TypeEngine] | sa.types.TypeEngine = DBF_TYPES[
-                dbf_col.type
-            ]
+            col_type = DBF_TYPES[dbf_col.type]
             if col_type == sa.String:
                 col_type = sa.String(length=dbf_col.length)
             schema.add_column(long_name, col_type, short_name=dbf_col.name)
@@ -260,7 +251,7 @@ class FercFieldParser(FieldParser):
         return super().parseN(field, data)
 
 
-DBF_TYPES: dict[str, type[sa.types.TypeEngine]] = {
+DBF_TYPES = {
     "C": sa.String,
     "D": sa.Date,
     "F": sa.Float,
@@ -270,6 +261,11 @@ DBF_TYPES: dict[str, type[sa.types.TypeEngine]] = {
     "N": sa.Float,
     "T": sa.DateTime,
     "0": sa.Integer,  # based on dbf2sqlite mapping
+    "B": "XXX",  # .DBT block number, binary string
+    "@": "XXX",  # Timestamp... Date = Julian Day, Time is in milliseconds?
+    "+": "XXX",  # Autoincrement (e.g. for IDs)
+    "O": "XXX",  # Double, 8 bytes
+    "G": "XXX",  # OLE 10 digit/byte number of a .DBT block, stored as string
 }
 """Dict: A mapping of DBF field types to SQLAlchemy Column types.
 
@@ -278,21 +274,8 @@ to the corresponding generic SQLAlchemy Column types: These definitions come fro
 combination of the dbfread example program dbf2sqlite and this DBF file format
 documentation page:
 http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm
-
-Field types that are not mapped are in :data:`UNSUPPORTED_DBF_TYPES`.
-"""
-
-UNSUPPORTED_DBF_TYPES: dict[str, str] = {
-    "B": ".DBT block number, binary string",
-    "@": "Timestamp... Date = Julian Day, Time is in milliseconds?",
-    "+": "Autoincrement (e.g. for IDs)",
-    "O": "Double, 8 bytes",
-    "G": "OLE 10 digit/byte number of a .DBT block, stored as string",
-}
-"""Dict: DBF field types that are not mapped to SQLAlchemy types, with descriptions.
-
-A :class:`NotImplementedError` is raised if a field of one of these types is
-encountered.
+: http: //www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm Unmapped types left as 'XXX'
+which should result in an error if encountered.
 """
 
 
@@ -677,8 +660,7 @@ class FercDbfExtractor:
                 self.sqlite_engine,
                 if_exists="append",
                 chunksize=100000,
-                # pandas-stubs only allows pandas dtypes, but SQLAlchemy types work.
-                dtype=coltypes,  # type: ignore[bad-argument-type]
+                dtype=coltypes,
                 index=False,
             )
 
