@@ -723,16 +723,6 @@ default_asset_checks += [
     if check is not None
 ]
 
-default_asset_checks.append(
-    valid_datapackage_check(
-        "pudl_datapackage",
-        description=(
-            "Validate the PUDL datapackage descriptor against the frictionless v2 spec. "
-            "Checks structure recursively through resources, schemas, and fields."
-        ),
-    )
-)
-
 
 def _build_registry_from_descriptor(descriptor: dict) -> pint.UnitRegistry:
     """Build a Pint registry from the ``unit_registry`` embedded in a datapackage descriptor.
@@ -818,15 +808,27 @@ def valid_datapackage_unit_strings_check(
     return _unit_strings_check
 
 
-default_asset_checks.append(
-    valid_datapackage_unit_strings_check(
-        "pudl_datapackage",
-        description=(
-            "Validate that all unit strings in the PUDL datapackage descriptor "
-            "are parseable using the unit definitions embedded in the descriptor."
+# Every registered datapackage has a "<name>_datapackage" asset that writes its
+# descriptor, and both checks run on each of them.
+for _package_name in DATAPACKAGES:
+    default_asset_checks += [
+        valid_datapackage_check(
+            f"{_package_name}_datapackage",
+            description=(
+                f"Validate the {_package_name} datapackage descriptor against the "
+                "frictionless v2 spec. Checks structure recursively through "
+                "resources, schemas, and fields."
+            ),
         ),
-    )
-)
+        valid_datapackage_unit_strings_check(
+            f"{_package_name}_datapackage",
+            description=(
+                f"Validate that all unit strings in the {_package_name} datapackage "
+                "descriptor are parseable using the unit definitions embedded in the "
+                "descriptor."
+            ),
+        ),
+    ]
 
 __all__ = [
     "valid_datapackage_check",
