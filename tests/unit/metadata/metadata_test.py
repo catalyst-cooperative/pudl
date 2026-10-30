@@ -874,6 +874,18 @@ def test_resource_descriptors_can_encode_schemas(
             ),
             id="duplicate PK",
         ),
+        pytest.param(
+            "column 'unexpected' not in DataFrameSchema",
+            pl.DataFrame(
+                {
+                    "plant_id_eia": [12345],
+                    "city": ["Bloomington"],
+                    "capacity_mw": [1.3],
+                    "unexpected": ["extra column"],
+                }
+            ),
+            id="extra column",
+        ),
     ],
 )
 def test_resource_descriptor_schema_failures(error_msg, data, dummy_pandera_schema):
