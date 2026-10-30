@@ -17,6 +17,18 @@ New Data
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+EIA-860M
+~~~~~~~~
+
+* Added :doc:`EIA-860m <data_sources/eia860>` data through September 2026. See
+  PR :pr:`5732`.
+
+EIA-923
+~~~~~~~
+
+* Added :doc:`EIA-923 <data_sources/eia923>` data through August 2026. See
+  PR :pr:`5732`.
+
 Documentation
 ^^^^^^^^^^^^^
 
