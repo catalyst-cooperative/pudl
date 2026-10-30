@@ -35,6 +35,11 @@ Documentation
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Updated ``dbt`` data validation now to support FERC EQR data. This requires ``dbt``
+  configuration changes to handle partitioned parquet outputs. See issue :pr:`4864`
+  and PR :pr:`5676`. This PR also applies basic validation tests to FERC EQR tables,
+  including row count tests.
+
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
