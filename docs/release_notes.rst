@@ -17,6 +17,18 @@ New Data
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+EIA-860M
+~~~~~~~~
+
+* Added :doc:`EIA-860m <data_sources/eia860>` data through September 2026. See
+  PR :pr:`5732`.
+
+EIA-923
+~~~~~~~
+
+* Added :doc:`EIA-923 <data_sources/eia923>` data through August 2026. See
+  PR :pr:`5732`.
+
 Documentation
 ^^^^^^^^^^^^^
 
@@ -28,9 +40,20 @@ New Data Tests & Validations
   and PR :pr:`5676`. This PR also applies basic validation tests to FERC EQR tables,
   including row count tests.
 
+* Validate that the net utility plant, total other property and investments, and total
+  assets in :ref:`core_rus7__yearly_balance_sheet_assets` and
+  :ref:`out_rus7__yearly_balance_sheet_assets` equal the sum of their subcomponents.
+  The existing ``total_utility_plant`` and ``total_current_and_accrued`` tests no longer
+  allow any failures. See :issue:`5566` and :pr:`5729`.
+
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Restored non-utility property (RUS Form 7 Part C, line 6) to
+  :ref:`core_rus7__yearly_balance_sheet_assets` and
+  :ref:`out_rus7__yearly_balance_sheet_assets`. A typo in the column map
+  (``non_utility_property_asset``) meant the transform never picked it up. See
+  :issue:`5566` and :pr:`5729`.
 * Added a missing territory entry to the :ref:`core_pudl__codes_subdivisions` table. See
   :issue:`5696` and :pr:`5716`.
 * Added ``plant_function`` values to a few factoids in
