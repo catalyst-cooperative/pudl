@@ -43,17 +43,68 @@ from dagster._core.definitions.asset_checks.asset_checks_definition import (
 from dagster._core.definitions.decorators.op_decorator import DecoratedOpFunction
 from shapely.geometry import Point
 
+import pudl.dagster.asset_checks as asset_checks
 from pudl.dagster.asset_checks import (
     _build_registry_from_descriptor,
     _validate_datapackage_unit_strings,
+    asset_check_from_packages,
     asset_check_from_schema,
+    default_asset_checks,
     group_mean_continuity_check,
     summarize_check_failures,
     unmapped_ids_check,
 )
 from pudl.helpers import ParquetData
-from pudl.metadata.classes import FERCEQR_PACKAGE, PUDL_PACKAGE, Package, Resource
+from pudl.metadata.classes import (
+    DATAPACKAGES,
+    FERCEQR_PACKAGE,
+    PUDL_PACKAGE,
+    Package,
+    Resource,
+)
 from pudl.metadata.units import PUDL_UNIT_DEFINITIONS
+
+
+def test_default_asset_checks_cover_every_registered_package() -> None:
+    """Every table in every registered package that has an asset gets a schema check.
+
+    Regression test: the checks used to be generated from ``PUDL_PACKAGE`` alone, so
+    the FERC EQR tables silently lost their checks when they moved to their own package.
+    """
+    checked_assets = {
+        key.asset_key.to_user_string()
+        for check in default_asset_checks
+        for key in check.check_keys
+    }
+    for package in DATAPACKAGES.values():
+        assert {r.name for r in package.resources} & checked_assets, package.name
+    assert {r.name for r in FERCEQR_PACKAGE.resources} <= checked_assets
+
+
+def test_asset_check_from_packages_uses_first_package_defining_the_asset(
+    mocker,
+) -> None:
+    """A resource in several packages gets one check; an unknown resource gets none."""
+    shared = "core_pudl__codes_subdivisions"
+    other = Package.from_resource_ids(resource_ids=(shared,), name="other")
+    key = dg.AssetKey([shared])
+    spy = mocker.spy(asset_checks, "asset_check_from_schema")
+
+    check = asset_check_from_packages(key, (PUDL_PACKAGE, other), duckdb_asset=False)
+
+    assert check is not None
+    # The first package defined the asset, so the second is never consulted.
+    assert spy.call_count == 1
+    assert spy.call_args.args[1] is PUDL_PACKAGE
+    assert asset_check_from_packages(key, (other,), duckdb_asset=False) is not None
+    assert (
+        asset_check_from_packages(
+            dg.AssetKey(["not_a_table"]),
+            (PUDL_PACKAGE, FERCEQR_PACKAGE),
+            duckdb_asset=False,
+        )
+        is None
+    )
 
 
 @pytest.mark.parametrize(
@@ -68,9 +119,9 @@ def test_asset_checks_preserve_runtime_input_types(
     asset_name: str, duckdb_asset: bool, expected_type: type
 ) -> None:
     """Generated checks should advertise the IO-manager input type they expect."""
-    check: AssetChecksDefinition | None = asset_check_from_schema(
+    check: AssetChecksDefinition | None = asset_check_from_packages(
         dg.AssetKey([asset_name]),
-        PUDL_PACKAGE if "ferceqr" not in asset_name else FERCEQR_PACKAGE,
+        tuple(DATAPACKAGES.values()),
         duckdb_asset=duckdb_asset,
     )
 

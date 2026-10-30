@@ -14,11 +14,11 @@ def main() -> int:
     import duckdb  # noqa: PLC0415
     from upath import UPath  # noqa: PLC0415
 
-    from pudl.metadata.classes import PUDL_PACKAGE  # noqa: PLC0415
+    from pudl.metadata.classes import DATAPACKAGES  # noqa: PLC0415
     from pudl.workspace.setup import PudlPaths  # noqa: PLC0415
 
-    normal_tables = [r.name for r in PUDL_PACKAGE.resources if "ferceqr" not in r.name]
-    partitioned_tables = [r.name for r in PUDL_PACKAGE.resources if "ferceqr" in r.name]
+    normal_tables = [r.name for r in DATAPACKAGES["pudl"].resources]
+    partitioned_tables = [r.name for r in DATAPACKAGES["ferceqr"].resources]
     schema_path_map = {
         "local": str(PudlPaths().parquet_path()),
         "nightly": "s3://pudl.catalyst.coop/nightly",

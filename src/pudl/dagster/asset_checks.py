@@ -23,6 +23,7 @@ should go in dbt.
 import itertools
 import json
 import time
+from collections.abc import Sequence
 from typing import Any
 
 import dagster as dg
@@ -41,7 +42,7 @@ from pudl.dagster.assets.core.unmapped_ids import UNMAPPED_ID_ASSET_NAMES
 from pudl.dagster.partitions import ferceqr_year_quarters
 from pudl.helpers import ParquetData, get_parquet_table_polars
 from pudl.metadata.classes import (
-    PUDL_PACKAGE,
+    DATAPACKAGES,
     Package,
     Resource,
 )
@@ -437,6 +438,24 @@ def _validate_polars_content(
     return errors, timings
 
 
+def asset_check_from_packages(
+    asset_key: dg.AssetKey,
+    packages: Sequence[Package],
+    duckdb_asset: bool,
+) -> dg.AssetChecksDefinition | None:
+    """Create a schema check for an asset from the first package that defines it.
+
+    A resource can appear in more than one package, but an asset can only have one
+    check with a given name, so the first package containing the resource wins.
+    Returns ``None`` if none of the *packages* contains the resource.
+    """
+    for package in packages:
+        check = asset_check_from_schema(asset_key, package, duckdb_asset=duckdb_asset)
+        if check is not None:
+            return check
+    return None
+
+
 def asset_check_from_schema(  # noqa: C901
     asset_key: dg.AssetKey,
     package: Package,
@@ -677,9 +696,9 @@ duckdb_assets = [
 default_asset_checks += [
     check
     for check in (
-        asset_check_from_schema(
+        asset_check_from_packages(
             asset_key,
-            PUDL_PACKAGE,
+            tuple(DATAPACKAGES.values()),
             duckdb_asset=asset_key.to_user_string() in duckdb_assets,
         )
         for asset_key in asset_keys
