@@ -28,9 +28,19 @@
   configuration changes to handle partitioned parquet outputs. See issue [#4864](https://github.com/catalyst-cooperative/pudl/pull/4864)
   and PR [#5676](https://github.com/catalyst-cooperative/pudl/pull/5676). This PR also applies basic validation tests to FERC EQR tables,
   including row count tests.
+* Validate that the net utility plant, total other property and investments, and total
+  assets in [core_rus7_\_yearly_balance_sheet_assets](data_dictionaries/pudl_db.html.md#core-rus7-yearly-balance-sheet-assets) and
+  [out_rus7_\_yearly_balance_sheet_assets](data_dictionaries/pudl_db.html.md#out-rus7-yearly-balance-sheet-assets) equal the sum of their subcomponents.
+  The existing `total_utility_plant` and `total_current_and_accrued` tests no longer
+  allow any failures. See [#5566](https://github.com/catalyst-cooperative/pudl/issues/5566) and [#5729](https://github.com/catalyst-cooperative/pudl/pull/5729).
 
 ### Bug Fixes & Data Cleaning
 
+* Restored non-utility property (RUS Form 7 Part C, line 6) to
+  [core_rus7_\_yearly_balance_sheet_assets](data_dictionaries/pudl_db.html.md#core-rus7-yearly-balance-sheet-assets) and
+  [out_rus7_\_yearly_balance_sheet_assets](data_dictionaries/pudl_db.html.md#out-rus7-yearly-balance-sheet-assets). A typo in the column map
+  (`non_utility_property_asset`) meant the transform never picked it up. See
+  [#5566](https://github.com/catalyst-cooperative/pudl/issues/5566) and [#5729](https://github.com/catalyst-cooperative/pudl/pull/5729).
 * Added a missing territory entry to the [core_pudl_\_codes_subdivisions](data_dictionaries/pudl_db.html.md#core-pudl-codes-subdivisions) table. See
   [#5696](https://github.com/catalyst-cooperative/pudl/issues/5696) and [#5716](https://github.com/catalyst-cooperative/pudl/pull/5716).
 * Added `plant_function` values to a few factoids in
