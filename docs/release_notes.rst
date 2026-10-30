@@ -23,6 +23,11 @@ Documentation
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Updated ``dbt`` data validation now to support FERC EQR data. This requires ``dbt``
+  configuration changes to handle partitioned parquet outputs. See issue :pr:`4864`
+  and PR :pr:`5676`. This PR also applies basic validation tests to FERC EQR tables,
+  including row count tests.
+
 * Validate that the net utility plant, total other property and investments, and total
   assets in :ref:`core_rus7__yearly_balance_sheet_assets` and
   :ref:`out_rus7__yearly_balance_sheet_assets` equal the sum of their subcomponents.
