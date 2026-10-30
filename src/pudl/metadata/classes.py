@@ -3032,11 +3032,10 @@ class Package(PudlMeta):
     ) -> frictionless.Package:
         """Convert to a Frictionless Datapackage.
 
-        Allows filtering out specific resources by passing regex patterns to include
-        or exclude resources by name. This is used to generate an independent
-        'datapackage.json' file for ``ferceqr`` assets, which are distributed separately
-        from the rest of PUDL. This method will only look for table names that exactly
-        match the supplied patterns, not substring matches.
+        The datapackage describes every resource in this package. Its sources,
+        contributors, licenses and keywords are compiled from just those resources, so
+        a package like ``ferceqr``, which is distributed separately from the rest of
+        PUDL, gets an independent descriptor that lists only what it uses.
         """
         pudl_resources = list(self.resources)
         compiled = self._compile_from_resources(pudl_resources)
