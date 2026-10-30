@@ -202,10 +202,12 @@ default_assets = _base_assets + [
             for asset_def in _base_assets
             if isinstance(asset_def, dg.AssetsDefinition)
             for spec in asset_def.specs
+            # TODO(#5733): select by package membership, not by name prefix.
             if spec.key.path[-1].startswith(("core_ferceqr", "out_ferceqr"))
         ],
         asset_name="ferceqr_datapackage",
         group_name="ferceqr_deployment",
+        # TODO(#5733): partitioning is per asset, not per package.
         partitioned=True,
     ),
     build_pudl_sqlite_asset(_sql_asset_keys),

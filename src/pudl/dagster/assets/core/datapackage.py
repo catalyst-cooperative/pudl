@@ -325,6 +325,7 @@ def build_datapackage_asset(
     parquet_asset_keys: Sequence[dg.AssetKey],
     asset_name: str,
     group_name: str = "core_pudl",
+    # TODO(#5733): decide per upstream asset; a package can mix both kinds of resource.
     partitioned: bool = False,
 ) -> dg.AssetsDefinition:
     """Return a Dagster asset that writes ``datapackage.json`` for PUDL parquet outputs.

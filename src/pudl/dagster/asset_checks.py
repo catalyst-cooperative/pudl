@@ -489,6 +489,7 @@ def asset_check_from_schema(  # noqa: C901
         return None
 
     pandera_schema = resource.schema.to_pandera()
+    # TODO(#5733): partitioning should come from the asset, not the resource name.
     partitions = ferceqr_year_quarters if "ferceqr" in resource_id else None
     if duckdb_asset:
         asset_type = ParquetData
@@ -700,6 +701,8 @@ default_asset_checks += [
     unmapped_ids_check(asset_name) for asset_name in UNMAPPED_ID_ASSET_NAMES
 ]
 
+# TODO(#5733): derive this from the assets instead of listing names. Not every EQR
+# table must use DuckDB, and DuckDB tables may be added to the PUDL datapackage.
 duckdb_assets = [
     "core_ferceqr__quarterly_identity",
     "core_ferceqr__contracts",
