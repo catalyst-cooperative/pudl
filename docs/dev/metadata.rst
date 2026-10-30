@@ -163,7 +163,11 @@ All the ``_text`` fields below take RST formatting -- use whitespace accordingly
   in ``additional_details_text``.
 
   * A list of pre-defined usage warnings can be found in
-    :py:const:`pudl.metadata.warnings.USAGE_WARNINGS`.
+    :py:const:`pudl.metadata.warnings.USAGE_WARNINGS`. The
+    :doc:`../data_dictionaries/usage_warnings` page is generated from the same
+    list, so to change a warning's text edit it there. Give a new warning a
+    ``title`` to have it listed on that page, with any longer explanation in
+    ``details``.
   * Custom-defined usage warnings should be formatted as a dictionary with two keys:
     ``type``: a short code for the warning, which will only be used for internal
     reference, and ``description``: a 1-2 sentence summary of the warning. E.g.,
