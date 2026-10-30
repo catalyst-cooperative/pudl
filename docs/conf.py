@@ -22,11 +22,11 @@ from pybtex.style.sorting import BaseSortingStyle
 
 from pudl import PUDL_DOCS_PATH
 from pudl.metadata.classes import (
-    PUDL_PACKAGE,
     CodeMetadata,
     DataSource,
     Package,
     Resource,
+    all_resources,
 )
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.resources import RESOURCE_METADATA
@@ -335,7 +335,7 @@ INCLUDED_SOURCES = [
 def data_sources_metadata_to_rst(app):
     """Export data source metadata to RST for inclusion in the documentation."""
     print("Exporting data source metadata to RST.")
-    package = PUDL_PACKAGE
+    resources = all_resources()
     extra_etl_groups = {
         "eia860": ["entity_eia"],
         "ferc1": ["glue"],
@@ -344,13 +344,13 @@ def data_sources_metadata_to_rst(app):
     datastore = Datastore(local_cache_path=PudlPaths().pudl_input)
     for name in INCLUDED_SOURCES:
         source = DataSource.from_id(name)
-        source_resources = [res for res in package.resources if res.etl_group == name]
+        source_resources = [res for res in resources if res.etl_group == name]
         extra_resources: list[Resource] = []
         if name in extra_etl_groups:
             # get resources for this source from extra etl groups
             extra_resources = [
                 res
-                for res in package.resources
+                for res in resources
                 if res.etl_group in extra_etl_groups[name]
                 and name in [src.name for src in res.sources]
             ]

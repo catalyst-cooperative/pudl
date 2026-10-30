@@ -11,15 +11,16 @@ This module serves two related purposes:
 
 When a concrete ``resource`` is provided to :func:`get_pudl_dtypes`, the resource
 schema is authoritative. That means resource-specific field typing and enum/category
-information already encoded in ``PUDL_PACKAGE`` will be used directly where possible.
+information already encoded in the registered datapackages will be used directly where
+possible.
 
 Not every backend supports every canonical PUDL field type. In particular, some
 backends do not yet support PUDL's ``geometry`` fields. In those cases the dtype
 helpers intentionally omit unsupported fields rather than returning an incompatible
 dtype mapping.
 
-This module intentionally keeps the import of ``PUDL_PACKAGE`` local to the helper
-functions that need it, so the metadata class graph does not introduce a module import
+This module intentionally keeps the import of the datapackage registry local to the
+helper functions that need it, so the metadata class graph does not introduce a module import
 cycle.
 """
 
@@ -298,10 +299,10 @@ def _get_pudl_resource_dtypes(
         A mapping of PUDL field names to their associated data types.
     """
     # This is here to avoid circular imports.
-    from pudl.metadata.classes import PUDL_PACKAGE
+    from pudl.metadata.classes import find_resource
 
     # We need to build up resource-specific dtypes
-    resource_metadata = PUDL_PACKAGE.get_resource(resource)
+    resource_metadata = find_resource(resource)
     if dtype_backend == "pandas":
         # Pandas is easy, because it defines all dtypes and we have a
         # resource-level helper method to get them all at once.
