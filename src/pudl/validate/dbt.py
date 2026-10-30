@@ -17,10 +17,12 @@ from dbt.contracts.graph.nodes import GenericTestNode
 
 from pudl import PUDL_DBT_PATH
 from pudl.logging_helpers import get_logger
+from pudl.metadata.classes import DATAPACKAGES
 from pudl.workspace.setup import PudlPaths
 
-DBT_SOURCES = ("pudl", "ferceqr")
-"""Names of the dbt sources, each validated against its own set of Parquet outputs."""
+DBT_SOURCES = tuple(DATAPACKAGES)
+"""Names of the dbt sources: one per datapackage, each validated against its own set
+of Parquet outputs."""
 
 DEFAULT_DBT_SOURCE = "pudl"
 """The dbt source validated when none is specified."""
