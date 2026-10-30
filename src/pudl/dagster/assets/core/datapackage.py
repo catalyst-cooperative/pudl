@@ -12,6 +12,7 @@ import json
 import os
 import shutil
 import subprocess
+import time
 import uuid
 from collections.abc import Sequence
 from concurrent.futures import ThreadPoolExecutor
@@ -325,6 +326,29 @@ def _enrich_resources(
     return enriched_count + len(pending)
 
 
+def _summarize_resources(descriptor: dict) -> list[dict[str, Any]]:
+    """Summarize each enriched resource's fields, files, and size for asset metadata.
+
+    Resources without file stats (not materialized in this run) are reported with
+    zero files and bytes, so they stand out in the Dagster UI.
+    """
+    summaries = []
+    for resource in descriptor.get("resources", []):
+        if "parts" in resource:
+            n_files = len(resource["parts"])
+        else:
+            n_files = 1 if "bytes" in resource else 0
+        summaries.append(
+            {
+                "name": resource["name"],
+                "n_fields": len(resource["schema"]["fields"]),
+                "n_files": n_files,
+                "bytes": resource.get("bytes", 0),
+            }
+        )
+    return summaries
+
+
 def build_datapackage_asset(
     package: Package,
     parquet_asset_keys: Sequence[dg.AssetKey],
@@ -388,7 +412,9 @@ def build_datapackage_asset(
         _enrich_sources(descriptor, zenodo_dois, _docs_version_slug(package.version))
 
         parquet_path = context.resources.pudl_paths.parquet_path()
+        enrich_start = time.perf_counter()
         enriched_count = _enrich_resources(descriptor, dag_metadata, parquet_path)
+        enrich_seconds = time.perf_counter() - enrich_start
 
         total_resources = len(descriptor.get("resources", []))
         if enriched_count < total_resources:
@@ -404,11 +430,29 @@ def build_datapackage_asset(
         output_path.write_text(json.dumps(descriptor, indent=2))
         logger.info(f"Wrote datapackage descriptor to {output_path}")
 
+        resource_summaries = _summarize_resources(descriptor)
+        unenriched = [r["name"] for r in resource_summaries if r["n_files"] == 0]
+
         return dg.MaterializeResult(
             metadata={
                 "path": dg.MetadataValue.path(output_path),
+                "package_name": package.name,
+                "package_version": descriptor.get("version"),
+                "descriptor_id": descriptor["id"],
+                "git_sha": descriptor.get("git_sha"),
+                "partitioned": partitioned,
                 "resource_count": dg.MetadataValue.int(total_resources),
                 "enriched_resource_count": dg.MetadataValue.int(enriched_count),
+                "unenriched_resources": dg.MetadataValue.json(unenriched),
+                "parquet_file_count": dg.MetadataValue.int(
+                    sum(r["n_files"] for r in resource_summaries)
+                ),
+                "parquet_bytes": dg.MetadataValue.int(
+                    sum(r["bytes"] for r in resource_summaries)
+                ),
+                "resources": dg.MetadataValue.json(resource_summaries),
+                "enrichment_seconds": dg.MetadataValue.float(enrich_seconds),
+                # Size of the descriptor itself.
                 "bytes": dg.MetadataValue.int(output_path.stat().st_size),
             }
         )
