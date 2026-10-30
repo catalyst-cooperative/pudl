@@ -85,13 +85,11 @@ def _parse_data_column(elec_df: pd.DataFrame) -> pd.DataFrame:
                 category=UserWarning,
             )
             if is_monthly:
-                data_df.loc[:, "date"] = pd.to_datetime(
-                    data_df.loc[:, "date"], format="%Y%m", errors="raise"
+                data_df["date"] = pd.to_datetime(
+                    data_df["date"], format="%Y%m", errors="raise"
                 )
             else:
-                data_df.loc[:, "date"] = pd.to_datetime(
-                    data_df.loc[:, "date"], errors="raise"
-                )
+                data_df["date"] = pd.to_datetime(data_df["date"], errors="raise")
         data_df["series_id"] = elec_df.loc[idx, "series_id"]
         out.append(data_df)
     # Drop empty entries before concatenation so pandas doesn't have to guess at
@@ -99,10 +97,8 @@ def _parse_data_column(elec_df: pd.DataFrame) -> pd.DataFrame:
     out = [df for df in out if not df.empty]
     out = pd.concat(out, ignore_index=True, axis=0)
     out = out.convert_dtypes()
-    out.loc[:, "series_id"] = (
-        out.loc[:, "series_id"]
-        .astype("string", copy=False)
-        .astype("category", copy=False)
+    out["series_id"] = (
+        out["series_id"].astype("string", copy=False).astype("category", copy=False)
     )
     return out.loc[:, ["series_id", "date", "value"]]  # reorder cols
 

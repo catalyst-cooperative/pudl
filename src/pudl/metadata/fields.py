@@ -10899,6 +10899,7 @@ FIELD_METADATA_BY_NAMESPACE: dict[str, dict[str, Any]] = {
         "fraction_owned": {
             "type": "number",
             "description": "Fraction of a subsidiary company owned by the parent.",
+            "constraints": {"minimum": 0.0, "maximum": 1.0},
         },
     },
     "vcerare": {
