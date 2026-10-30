@@ -1016,7 +1016,7 @@ def remove_duplicate_pks_boiler_fuel_eia923(bf: pd.DataFrame) -> pd.DataFrame:
     pk_dupe_mask = bf.duplicated(pk, keep=False)
 
     params_pk_dupes = InvalidRows(
-        invalid_values={pd.NA, np.nan, 0}, required_valid_cols=required_valid_cols
+        invalid_values={0}, required_valid_cols=required_valid_cols
     )
     bf_no_null_pks_dupes = drop_invalid_rows(
         df=bf[pk_dupe_mask], params=params_pk_dupes
