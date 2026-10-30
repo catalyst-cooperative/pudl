@@ -1166,6 +1166,8 @@ class Schema(PudlMeta):
                 for field in self.fields
             },
             unique=self.primary_key,
+            # Columns not declared in the schema are errors, not silently written.
+            strict=True,
         )
 
 

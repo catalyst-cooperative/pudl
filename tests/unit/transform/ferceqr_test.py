@@ -3,11 +3,13 @@
 from types import SimpleNamespace
 
 import dagster as dg
+import duckdb
 
 from pudl.transform.ferceqr import (
     _build_ferceqr_diagnostics_rows,
     _latest_check_evaluations_by_quarter,
     _latest_extraction_stats_by_quarter,
+    drop_duckdb_columns,
 )
 
 _YEAR_QUARTERS = dg.StaticPartitionsDefinition(["2024q1", "2024q2"])
@@ -196,3 +198,15 @@ def test_build_ferceqr_diagnostics_rows_combines_stats_and_checks():
     assert row["rows_contracts"] is None
     assert "index_pub" in row["check_failures"]
     assert "multiple_fields_uniqueness" in row["check_failures"]
+
+
+def test_drop_duckdb_columns_ignores_absent_columns():
+    """Only the named columns that exist are dropped; others are no error."""
+    conn = duckdb.connect()
+    relation = conn.sql("SELECT 1 AS a, 2 AS b, 3 AS filing_quarter")
+
+    dropped = drop_duckdb_columns(relation, ["filing_quarter", "not_a_column"])
+    assert dropped.columns == ["a", "b"]
+
+    unchanged = drop_duckdb_columns(relation, ["not_a_column"])
+    assert unchanged.columns == ["a", "b", "filing_quarter"]
