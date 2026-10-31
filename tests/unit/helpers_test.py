@@ -803,7 +803,7 @@ def test_diff_wide_tables():
     assert empty_diff.changed.empty
 
     def assert_diff_equal(observed, expected):
-        # Under pandas 3.0 the melted value columns infer as the default string dtype
+        # Under pandas 3 the melted value columns infer as the default string dtype
         # (missing values as nan) rather than object (missing values as None); normalize
         # both sides to nullable string so the comparison is about content, not sentinel.
         observed_reshaped = observed.droplevel(level=0, axis="columns").astype("string")

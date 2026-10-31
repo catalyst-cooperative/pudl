@@ -22,7 +22,7 @@ def __best_snapshot(
     duped_groups: pd.core.groupby.DataFrameGroupBy,
 ) -> pd.DataFrame:
     """Take the row that has most non-null values out of each group."""
-    # As of pandas 3.0 groupby(...).apply() excludes the grouping columns from both the
+    # As of pandas 3 groupby(...).apply() excludes the grouping columns from both the
     # frames it passes and its result, so rank the rows of the whole frame instead. A
     # stable sort means that ties go to the most recently published row, since the
     # input is already sorted by publication time.

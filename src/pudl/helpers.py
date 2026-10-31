@@ -2079,7 +2079,7 @@ def convert_col_to_bool(
     # functions.
     df = df.copy(deep=False)
     # Build the boolean column as a whole rather than assigning True/False into the
-    # existing (possibly string) column, which pandas 3.0 rejects as a lossy setitem.
+    # existing (possibly string) column, which pandas 3 rejects as a lossy setitem.
     bool_col = pd.Series(pd.NA, index=df.index, dtype="boolean")
     bool_col[df[col_name].isin(true_values)] = True
     bool_col[df[col_name].isin(false_values)] = False
@@ -2248,7 +2248,7 @@ def scale_by_ownership(
     # Scaling by a fractional ownership share is inherently fractional, so the scaled
     # columns are always float64. We deliberately assign with ``gens[scale_cols] =``
     # rather than ``gens.loc[:, scale_cols] =``: ``.loc`` writes into the existing
-    # columns in place and so keeps their dtype, and pandas 3.0 raises when that would
+    # columns in place and so keeps their dtype, and pandas 3 raises when that would
     # put float results into an integer column. Plain ``[]`` assignment replaces the
     # columns wholesale, letting their dtype change. The explicit cast before the
     # multiply makes the output dtype independent of the input dtype.

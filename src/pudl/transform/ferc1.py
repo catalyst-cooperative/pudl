@@ -4555,7 +4555,7 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
 
         util_groups = df.groupby(["utility_id_ferc1", "report_year"])
 
-        # As of pandas 3.0 groupby(...).apply() no longer includes the grouping
+        # As of pandas 3 groupby(...).apply() no longer includes the grouping
         # columns in the result, only as index levels. Restore them as columns so
         # downstream code can continue to group by utility_id_ferc1/report_year.
         return util_groups.apply(lambda x: self._label_note_rows_group(x)).reset_index(
@@ -5003,7 +5003,7 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
         )
         # Group by year and utility and run footnote association
         groups = df.groupby(["report_year", "utility_id_ferc1"])
-        # As of pandas 3.0 groupby(...).apply() no longer includes the grouping
+        # As of pandas 3 groupby(...).apply() no longer includes the grouping
         # columns in the result, only as index levels. Restore them as columns so
         # downstream code can continue to use report_year/utility_id_ferc1.
         sg_notes = groups.apply(
