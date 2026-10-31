@@ -516,7 +516,8 @@ def clean_eia_counties(
     for fix in fixes.itertuples():
         state_mask = df[state_col] == fix.state
         county_mask = df[county_col] == fix.eia_county
-        df.loc[state_mask & county_mask, county_col] = fix.fips_county
+        # itertuples() attributes are typed as the union of all scalar types.
+        df.loc[state_mask & county_mask, county_col] = fix.fips_county  # type: ignore[unsupported-operation]
     return df
 
 
@@ -1001,7 +1002,8 @@ def cleanstrings_series(
         # leftover strings to fix -- otherwise it runs forever because we
         # are replacing nothing with nothing.
         if len(badstrings) > 0:
-            col = col.replace(badstrings.tolist(), unmapped)
+            # pandas-stubs' Series.replace() does not accept pd.NA as the new value.
+            col = col.replace(badstrings.tolist(), unmapped)  # type: ignore[no-matching-overload]
 
     return col
 
@@ -1643,7 +1645,8 @@ def zero_pad_numeric_string(col: pd.Series, n_digits: int) -> pd.Series:
         # Remove any whitespace
         .replace(r"\s+", "", regex=True)
         # Replace anything that's not entirely digits with NA
-        .replace(r"[^\d]+", pd.NA, regex=True)
+        # pandas-stubs' Series.replace() does not accept pd.NA as the new value.
+        .replace(r"[^\d]+", pd.NA, regex=True)  # type: ignore[no-matching-overload]
         # Set any string longer than n_digits to NA
         .replace(f"[\\d]{{{n_digits + 1},}}", pd.NA, regex=True)
         # Pad the numeric string with leading zeroes to n_digits length
