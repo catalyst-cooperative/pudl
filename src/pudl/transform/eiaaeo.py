@@ -58,7 +58,7 @@ def get_category_info(category_name: pd.Series) -> pd.Series:
     Fortunately the only field we're pulling out of the category so far is the
     region, which is the last of two comma-separated fields.
     """
-    fields = category_name.str.rsplit(",", n=1).str.get(-1).rename("region_category")
+    fields = category_name.str.rsplit(",", n=1).str[-1].rename("region_category")
     return fields
 
 

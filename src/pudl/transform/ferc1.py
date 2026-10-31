@@ -371,7 +371,7 @@ def wide_to_tidy(df: pd.DataFrame, params: WideToTidy) -> pd.DataFrame:
     # filter out any columns that don't match the pattern
     df_out = df.set_index(params.idx_cols).filter(regex=pat)
     # check if there are unexpected columns being dropped
-    kept_cols = {*params.idx_cols, *df_out.columns}
+    kept_cols = {*(params.idx_cols or []), *df_out.columns}
     dropped_cols = [col for col in df if col not in kept_cols]
     logger.debug(f"dropping: {dropped_cols}")
     if params.expected_drop_cols != len(dropped_cols):
