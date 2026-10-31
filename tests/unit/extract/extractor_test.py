@@ -2,7 +2,12 @@ import pandas as pd
 import pytest
 from dagster import build_op_context
 
-from pudl.extract.extractor import concat_pages, partitions_from_data_config_factory
+from pudl.extract.csv import CsvExtractor
+from pudl.extract.extractor import (
+    GenericMetadata,
+    concat_pages,
+    partitions_from_data_config_factory,
+)
 from pudl.settings import GlobalDataConfig, PudlDataConfig
 
 
@@ -41,3 +46,25 @@ def test_concat_pages():
             merged_dfs[page],
             pd.DataFrame({"df": [1, 2], "page": [page, page]}, index=[0, 1]),
         )
+
+
+def test_extractor_requires_metadata_before_init(mocker):
+    """An extractor that does not set its metadata fails with a clear message."""
+
+    class ExtractorWithoutMetadata(CsvExtractor):
+        pass
+
+    with pytest.raises(NotImplementedError, match="_metadata must be set"):
+        ExtractorWithoutMetadata(ds=mocker.Mock())
+
+
+def test_extractor_uses_metadata_set_by_subclass(mocker):
+    """The metadata set by the subclass is the one that the extractor uses."""
+
+    class ExtractorWithMetadata(CsvExtractor):
+        def __init__(self, ds):
+            self._metadata = GenericMetadata("eia191")
+            super().__init__(ds)
+
+    extractor = ExtractorWithMetadata(ds=mocker.Mock())
+    assert extractor._metadata.get_dataset_name() == "eia191"

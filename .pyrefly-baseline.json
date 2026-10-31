@@ -166,11 +166,6 @@
       "concise_description": "Argument `dict[str, DataType]` is not assignable to parameter `dtypes` with type `DataType | DataTypeClass | DataTypeExpr | Mapping[DataType | DataTypeClass | Selector | str, DataType | DataTypeClass | type[Decimal | bool | bytes | date | datetime | float | int | list[Any] | object | str | time | timedelta | tuple[Any, ...] | None]] | Schema` in function `polars.lazyframe.frame.LazyFrame.cast`"
     },
     {
-      "path": "src/pudl/extract/dbf.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `dict[str, TypeEngine[Any]]` is not assignable to parameter `dtype` with type `ExtensionDtype | Mapping[Hashable, ExtensionDtype | dtype[generic] | str | type[bool | complex | object | str]] | dtype[generic] | str | type[bool | complex | object | str] | None` in function `pandas.core.generic.NDFrame.to_sql`"
-    },
-    {
       "path": "src/pudl/analysis/state_demand.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `int | str` is not assignable to parameter `obj` with type `Sized` in function `len`"
@@ -281,11 +276,6 @@
       "concise_description": "Argument `type[BadZipFile]` is not assignable to parameter `retry_on` with type `tuple[type[BaseException], ...]` in function `pudl.helpers.retry`"
     },
     {
-      "path": "src/pudl/extract/dbf.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `type[Boolean] | type[Date] | type[DateTime] | type[Float] | type[Integer] | type[String] | type[Text] | String | str` is not assignable to parameter `col_type` with type `TypeEngine[Unknown] | type[TypeEngine[Unknown]]` in function `DbfTableSchema.add_column`"
-    },
-    {
       "path": "src/pudl/dagster/assets/raw/ferc_to_sqlite.py",
       "name": "bad-assignment",
       "concise_description": "Augmented assignment result `dict[str, UPath]` is not assignable to `PudlPaths`"
@@ -296,11 +286,6 @@
       "concise_description": "Cannot set item in `defaultdict[str, str]`"
     },
     {
-      "path": "src/pudl/extract/dbf.py",
-      "name": "unsupported-operation",
-      "concise_description": "Cannot set item in `dict[Any, str]`"
-    },
-    {
       "path": "src/pudl/workspace/resource_cache.py",
       "name": "unsupported-operation",
       "concise_description": "Cannot set item in `dict[str, bool]`"
@@ -309,11 +294,6 @@
       "path": "src/pudl/metadata/classes.py",
       "name": "unsupported-operation",
       "concise_description": "Cannot set item in `dict[str, set[str]]`"
-    },
-    {
-      "path": "src/pudl/extract/excel.py",
-      "name": "bad-override-mutable-attribute",
-      "concise_description": "Class member `ExcelExtractor.METADATA` overrides parent class `GenericExtractor` in an inconsistent manner"
     },
     {
       "path": "src/pudl/metadata/classes.py",
@@ -419,46 +399,6 @@
       "path": "src/pudl/validate/dbt.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `BaseResult` has no attribute `node`"
-    },
-    {
-      "path": "src/pudl/extract/excel.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `GenericMetadata` has no attribute `_page_part_map`"
-    },
-    {
-      "path": "src/pudl/extract/excel.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `GenericMetadata` has no attribute `get_file_name`"
-    },
-    {
-      "path": "src/pudl/extract/phmsagas.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `GenericMetadata` has no attribute `get_form`"
-    },
-    {
-      "path": "src/pudl/extract/eia923.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `GenericMetadata` has no attribute `get_sheet_name`"
-    },
-    {
-      "path": "src/pudl/extract/excel.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `GenericMetadata` has no attribute `get_sheet_name`"
-    },
-    {
-      "path": "src/pudl/extract/excel.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `GenericMetadata` has no attribute `get_skipfooter`"
-    },
-    {
-      "path": "src/pudl/extract/eia923.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `GenericMetadata` has no attribute `get_skiprows`"
-    },
-    {
-      "path": "src/pudl/extract/excel.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `GenericMetadata` has no attribute `get_skiprows`"
     },
     {
       "path": "src/pudl/transform/eia176.py",
@@ -581,14 +521,9 @@
       "concise_description": "Returned type `Series` is not assignable to declared return type `DataFrame`"
     },
     {
-      "path": "src/pudl/extract/rus12.py",
+      "path": "src/pudl/glue/ferc1_eia.py",
       "name": "bad-return",
-      "concise_description": "Returned type `Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` is not assignable to declared return type `str`"
-    },
-    {
-      "path": "src/pudl/extract/rus7.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` is not assignable to declared return type `str`"
+      "concise_description": "Returned type `Series` is not assignable to declared return type `DataFrame`"
     },
     {
       "path": "src/pudl/extract/extractor.py",
@@ -661,16 +596,6 @@
       "concise_description": "`LiteralString` is not assignable to variable `layer` with type `Literal['county', 'state', 'tract']`"
     },
     {
-      "path": "src/pudl/extract/excel.py",
-      "name": "bad-assignment",
-      "concise_description": "`None` is not assignable to `ExcelMetadata`"
-    },
-    {
-      "path": "src/pudl/extract/extractor.py",
-      "name": "bad-assignment",
-      "concise_description": "`None` is not assignable to `GenericMetadata`"
-    },
-    {
       "path": "src/pudl/scripts/dbt_helper.py",
       "name": "unsupported-operation",
       "concise_description": "`None` is not subscriptable"
@@ -729,6 +654,21 @@
       "path": "src/pudl/dagster/assets/raw/ferc_to_sqlite.py",
       "name": "unsupported-operation",
       "concise_description": "`|=` is not supported between `PudlPaths` and `dict[str, UPath]`"
+    },
+    {
+      "path": "src/pudl/extract/dbf.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `dict[str, TypeEngine[Any]]` is not assignable to parameter `dtype` with type `ExtensionDtype | Mapping[Hashable, ExtensionDtype | dtype[generic] | str | type[bool | complex | object | str]] | dtype[generic] | str | type[bool | complex | object | str] | None` in function `pandas.core.generic.NDFrame.to_sql`"
+    },
+    {
+      "path": "src/pudl/extract/dbf.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `type[Boolean] | type[Date] | type[DateTime] | type[Float] | type[Integer] | type[String] | type[Text] | String | str` is not assignable to parameter `col_type` with type `TypeEngine[Unknown] | type[TypeEngine[Unknown]]` in function `DbfTableSchema.add_column`"
+    },
+    {
+      "path": "src/pudl/extract/dbf.py",
+      "name": "unsupported-operation",
+      "concise_description": "Cannot set item in `dict[Any, str]`"
     }
   ]
 }

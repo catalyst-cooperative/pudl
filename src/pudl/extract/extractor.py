@@ -2,6 +2,7 @@
 
 from abc import ABC, abstractmethod
 from collections import defaultdict
+from collections.abc import Iterable, Sequence
 from pathlib import Path
 from typing import Any
 
@@ -21,12 +22,70 @@ from dagster import (
 import pudl.helpers
 import pudl.logging_helpers
 from pudl import PUDL_PACKAGE_DATA_PATH
+from pudl.metadata.sources import SOURCES
 from pudl.workspace.datastore import Datastore
 
 StrInt = str | int
 PartitionSelection = list[StrInt] | tuple[StrInt] | StrInt
 
 logger = pudl.logging_helpers.get_logger(__name__)
+
+
+TIME_PARTITION_KEYS = ("years", "year_months", "half_years", "year_quarters")
+"""Keys of the working partitions of a data source that are points in time."""
+
+
+def working_time_partitions(dataset_name: str) -> list[str]:
+    """Return the sorted time partitions that a data source is processed for.
+
+    These are the values of the time-like keys (see :data:`TIME_PARTITION_KEYS`) of the
+    ``working_partitions`` of the data source in :data:`pudl.metadata.sources.SOURCES`.
+    Datasets that are not data sources, such as the test datasets, have none.
+    """
+    working_partitions = SOURCES.get(dataset_name, {}).get("working_partitions", {})
+    return sorted(
+        {str(p) for key in TIME_PARTITION_KEYS for p in working_partitions.get(key, [])}
+    )
+
+
+def expand_partitions(df: pd.DataFrame, partitions: Iterable[str]) -> pd.DataFrame:
+    """Expand a change log of partitions into a record of every partition.
+
+    The rows of ``df`` are indexed by partition, and only need to include the
+    partitions in which the description of the data differs from the one in the
+    partition before it. Each row is carried forward to the later partitions that are
+    not in the index, up until the next row that is. Each row is carried forward as a
+    whole.
+
+    Nothing is backfilled, so partitions before the first row are not described.
+    A frame with a row for every partition is returned as it was.
+
+    Args:
+        df: The rows of the partitions that have a different description than the
+            partition before them, in ascending order of partition.
+        partitions: Every partition to describe, including those without a row. The
+            partitions in the index of ``df`` are always described.
+
+    Raises:
+        AssertionError: If the partitions in the index are not unique and in ascending
+            order, as the partition that a row is carried forward from is the closest
+            one before.
+    """
+    if not (df.index.is_unique and df.index.is_monotonic_increasing):
+        raise AssertionError(
+            "The partitions of a metadata file must be unique and in ascending order. "
+            f"Found: {list(df.index)}"
+        )
+    if df.empty:
+        return df
+    first_partition = df.index[0]
+    every_partition = sorted(
+        set(df.index) | {p for p in partitions if p > first_partition}
+    )
+    return df.reindex(
+        pd.Index(every_partition, dtype=pd.StringDtype(), name=df.index.name),
+        method="ffill",
+    )
 
 
 class GenericMetadata:
@@ -40,17 +99,48 @@ class GenericMetadata:
     * column_map/${page}.csv currently informs us how to translate input column
       names to standardized pudl names for given (partition, input_col_name). Relevant
       page is encoded in the filename.
+
+    The files that describe the structure of a dataset, such as the column maps, only
+    need a row for the partitions in which that structure is different from the
+    partition before it, like a change log. When they are loaded, each row is carried
+    forward to the later partitions without a row, up to the last working partition of
+    the data source or the last partition in ``file_map.csv``. See
+    :func:`expand_partitions`. A file with a row for every partition is still valid.
+    Files that name the source files of the partitions, such as ``file_map.csv``, need
+    a row for every partition, as the names are different in each.
     """
 
-    def __init__(self, dataset_name: str):
+    def __init__(
+        self,
+        dataset_name: str,
+        path: Path | None = None,
+        partitions: Sequence[str] | None = None,
+    ):
         """Create Metadata object and load metadata from files on disk.
 
         Args:
-            dataset_name: Name of the dataset to load the metadata from. Files will be
-                loaded from src/pudl/package_data/${dataset_name}
+            dataset_name: Name of the dataset to load the metadata from. Unless a path
+                is given, files will be loaded from
+                src/pudl/package_data/${dataset_name}
+            path: Directory to load the metadata files from, instead of the directory
+                of the dataset in the package data. Useful for test datasets.
+            partitions: The partitions to describe with the metadata that is a change
+                log, in addition to those that it has rows for and those that are in
+                ``file_map.csv``, if there is one. By default these are the time
+                partitions that the data source is processed for.
         """
         self._dataset_name = dataset_name
-        self._path = PUDL_PACKAGE_DATA_PATH / dataset_name
+        self._path = path if path is not None else PUDL_PACKAGE_DATA_PATH / dataset_name
+        self._partitions = sorted(
+            {
+                *(
+                    partitions
+                    if partitions is not None
+                    else working_time_partitions(dataset_name)
+                ),
+                *self._file_map_partitions(),
+            }
+        )
         column_map_path = self._path / "column_maps"
         self._column_map = self._load_column_maps(column_map_path)
 
@@ -58,15 +148,54 @@ class GenericMetadata:
         """Returns the name of the dataset described by this metadata."""
         return self._dataset_name
 
-    def _load_csv(self, package_path: Path, filename: str) -> pd.DataFrame:
+    def _load_csv(
+        self, package_path: Path, filename: str, dtype: type | None = None
+    ) -> pd.DataFrame:
         """Load metadata from a filename that is found in a package directory."""
-        df = pd.read_csv(package_path / filename, index_col=0, comment="#")
+        df = pd.read_csv(package_path / filename, index_col=0, comment="#", dtype=dtype)
         # we are assigning the index which contains the partitions as a sting dtype.
         # many of the partitions are years which are reasonably interpreted as ints,
         # but some are dates or other actual strings. We force the partitions to be
         # strings here and via _get_partition_selection.
         df.index = df.index.astype(pd.StringDtype())
         return df
+
+    def _file_map_partitions(self) -> list[str]:
+        """List the partitions that the dataset has a file name for, if it has any.
+
+        The file map has a row for every partition that the dataset has source files
+        for, including some that are not working partitions of the data source.
+        """
+        if not (self._path / "file_map.csv").exists():
+            return []
+        return list(self._load_csv(self._path, "file_map.csv", dtype=str).index)
+
+    def _load_change_log_csv(self, package_path: Path, filename: str) -> pd.DataFrame:
+        """Load a metadata file that only has rows for the partitions that changed.
+
+        The rows are carried forward to the partitions of the dataset that do not have
+        one, so the result describes every partition that the dataset is processed for.
+        """
+        return expand_partitions(
+            self._load_csv(package_path, filename), self._partitions
+        )
+
+    def _load_file_map(self) -> pd.DataFrame:
+        """Load the map from partitions (rows) and pages (columns) to source file names.
+
+        Every cell must be a string: either the name of the source file, or ``-1`` if
+        there is no file for that page and partition.
+
+        Raises:
+            AssertionError: If any cell is empty.
+        """
+        file_map = self._load_csv(self._path, "file_map.csv", dtype=str)
+        if file_map.isna().any().any():
+            raise AssertionError(
+                f"The {self._dataset_name} file_map.csv has empty cells. Every page "
+                "and partition needs a file name, or -1 if it has no file."
+            )
+        return file_map
 
     def _load_column_maps(self, column_map_path: Path) -> dict:
         """Create a dictionary of all column mapping CSVs to use in get_column_map()."""
@@ -75,7 +204,9 @@ class GenericMetadata:
             # res_path is expected to end with ${page}.csv
             if res_path.suffix == ".csv":
                 try:
-                    column_map = self._load_csv(column_map_path, res_path.name)
+                    column_map = self._load_change_log_csv(
+                        column_map_path, res_path.name
+                    )
                 except pd.errors.ParserError as e:
                     raise AssertionError(
                         f"Expected well-formed column map file at {column_map_path} {res_path.name}"
@@ -125,11 +256,19 @@ class GenericMetadata:
         }
 
 
-class GenericExtractor(ABC):
-    """Generic extractor base class."""
+class GenericExtractor[MetadataT: GenericMetadata](ABC):
+    """Generic extractor base class.
 
-    METADATA: GenericMetadata = None
-    """Instance of metadata object to use with this extractor."""
+    Extractors are generic over the type of the metadata that they use, so that
+    extractors for datasets with more specialized metadata, such as Excel files, can
+    use its methods with type checking.
+    """
+
+    _metadata: MetadataT
+    """Instance of metadata object to use with this extractor.
+
+    Subclasses must set this before calling ``super().__init__()``.
+    """
 
     BLACKLISTED_PAGES = []
     """List of supported pages that should not be extracted."""
@@ -140,9 +279,10 @@ class GenericExtractor(ABC):
         Args:
             ds: An initialized datastore, or subclass
         """
-        if not self.METADATA:
-            raise NotImplementedError("self.METADATA must be set.")
-        self._metadata = self.METADATA
+        if not hasattr(self, "_metadata"):
+            raise NotImplementedError(
+                "self._metadata must be set before calling super().__init__()."
+            )
         self._dataset_name = self._metadata.get_dataset_name()
         self.ds = ds
         self.cols_added: list[str] = []

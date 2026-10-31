@@ -17,6 +17,10 @@ New Data
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+* :ref:`core_eia861__yearly_distribution_systems` now covers 2013-2015 as well as 2016
+  onward. The raw files were always in the archives, but our metadata marked them as
+  missing, so about 5,900 rows were never extracted. See :issue:`5289` and :pr:`5724`.
+
 EIA-860M
 ~~~~~~~~
 
@@ -39,7 +43,6 @@ New Data Tests & Validations
   configuration changes to handle partitioned parquet outputs. See issue :pr:`4864`
   and PR :pr:`5676`. This PR also applies basic validation tests to FERC EQR tables,
   including row count tests.
-
 * Validate that the net utility plant, total other property and investments, and total
   assets in :ref:`core_rus7__yearly_balance_sheet_assets` and
   :ref:`out_rus7__yearly_balance_sheet_assets` equal the sum of their subcomponents.
@@ -90,7 +93,6 @@ Bug Fixes & Data Cleaning
   numeric columns summed when de-duplicating EIA-923 generation fuel rows are
   explicitly cast to ``float64``. See :issue:`5619`, :issue:`5620` and
   :pr:`5719`.
-*
 * Made null handling in ``stack_generators()``, the EIA-176 "other" gas disposition
   categorization and the EIA-860 ownership spot-fix behave identically under pandas 2
   and 3. Pandas 3 changed how nulls are treated by ``stack()``, ``astype(str)`` and
@@ -104,6 +106,12 @@ Performance Improvements
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^
 
+* The hand-compiled files that describe the layout of our raw spreadsheets and CSVs are
+  now change logs: a year only needs a row when its layout differs from the year before,
+  and the gaps are filled in as the files load. That removed 83% of their rows, makes
+  annual updates less tedious, and standardizes ``-1`` as the marker for data that
+  doesn't exist. New tests check that the files agree with each other, and keep a list
+  of the mapping still left to do. See :issue:`5289` and :pr:`5724`.
 * Plant part record IDs for records with a null ``utility_id_eia`` now end in ``null``
   instead of ``<NA>`` (or ``<na>``), consistent with the rest of the ID. This changes
   ``record_id_eia`` and ``plant_part_id_eia`` in ``out_eia__yearly_plant_parts`` and the

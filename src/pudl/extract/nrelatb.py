@@ -11,7 +11,7 @@ from pudl.extract.extractor import (
 )
 
 
-class Extractor(GenericExtractor):
+class Extractor(GenericExtractor[GenericMetadata]):
     """Extractor for NREL ATB."""
 
     def __init__(self, *args, **kwargs):
@@ -20,7 +20,7 @@ class Extractor(GenericExtractor):
         Args:
             ds (:class:datastore.Datastore): Initialized datastore.
         """
-        self.METADATA = GenericMetadata("nrelatb")
+        self._metadata = GenericMetadata("nrelatb")
         super().__init__(*args, **kwargs)
 
     def source_filename(self, page: str, **partition: PartitionSelection) -> str:
@@ -28,9 +28,9 @@ class Extractor(GenericExtractor):
 
         In this instance we are using the same methodology from the excel metadata extractor.
         """
-        _file_name = self.METADATA._load_csv(self.METADATA._path, "file_map.csv")
+        _file_name = self._metadata._load_file_map()
         return str(
-            _file_name.loc[str(self.METADATA._get_partition_selection(partition)), page]
+            _file_name.loc[self._metadata._get_partition_selection(partition), page]
         )
 
     def load_source(self, page: str, **partition):
