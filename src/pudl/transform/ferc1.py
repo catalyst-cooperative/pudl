@@ -5046,10 +5046,14 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
             df["plant_name_ferc1"] == "intrepid wind farm (107 units @ 1.5 mw each)"
         )
 
-        # Replace row missing information with data from row containing information
-        df.loc[row_missing_info, cols_to_change] = df[row_with_info][
-            cols_to_change
-        ].to_numpy()
+        # Replace row missing information with data from row containing information.
+        # Only do this when both rows exist: when the 2004 data isn't being processed
+        # (e.g. the fast ETL) both masks are empty, and pandas 3 raises a TypeError
+        # when assigning an empty object array into an int64 column.
+        if row_with_info.any() and row_missing_info.any():
+            df.loc[row_missing_info, cols_to_change] = df[row_with_info][
+                cols_to_change
+            ].to_numpy()
 
         # Remove row_with_info so there is no duplicate information
         df = df[~row_with_info]
