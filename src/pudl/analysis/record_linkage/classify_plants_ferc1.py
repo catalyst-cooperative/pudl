@@ -15,6 +15,7 @@ from dagster import graph, op
 from pudl.analysis.ml_tools import experiment_tracking, models
 from pudl.analysis.record_linkage import embed_dataframe
 from pudl.analysis.record_linkage.link_cross_year import link_ids_cross_year
+from pudl.dagster.op_tags import HOT_PATH_OP_TAGS
 
 _FUEL_COLS = [
     "coal_fraction_mmbtu",
@@ -117,7 +118,7 @@ def _canonicalize_plant_ids(labeled_df: pd.DataFrame) -> pd.Series:
     return plant_ids.reindex(labeled_df.index).rename("plant_id_ferc1")
 
 
-@op(tags={"dagster/priority": 10})
+@op(tags=HOT_PATH_OP_TAGS)
 def assign_plant_ids(
     ferc1_steam_df: pd.DataFrame,
     labeled_df: pd.DataFrame,
@@ -139,7 +140,7 @@ def assign_plant_ids(
     )
 
 
-@op(tags={"dagster/priority": 10})
+@op(tags=HOT_PATH_OP_TAGS)
 def merge_steam_fuel_dfs(
     ferc1_steam_df: pd.DataFrame,
     fuel_fractions: pd.DataFrame,

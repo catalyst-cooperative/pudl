@@ -12,6 +12,7 @@ from dagster import (
 
 import pudl.helpers
 import pudl.logging_helpers
+from pudl.dagster.op_tags import HOT_PATH_OP_TAGS
 from pudl.helpers import convert_col_to_bool, normalize_year_fragments
 from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.metadata.codes import CODE_METADATA
@@ -686,6 +687,7 @@ def gen_fuel_nuclear(gen_fuel_nuke: pd.DataFrame) -> pd.DataFrame:
         "_core_eia923__generation_fuel": AssetOut(),
         "_core_eia923__generation_fuel_nuclear": AssetOut(),
     },
+    op_tags=HOT_PATH_OP_TAGS,
 )
 def _core_eia923__pre_generation_fuel(raw_eia923__generation_fuel: pd.DataFrame):
     """Transforms the raw_eia923__generation_fuel table.
@@ -912,7 +914,7 @@ def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.Da
     return modified_boiler_fuel_df
 
 
-@asset
+@asset(op_tags=HOT_PATH_OP_TAGS)
 def _core_eia923__boiler_fuel(raw_eia923__boiler_fuel: pd.DataFrame) -> pd.DataFrame:
     """Transforms the core_eia923__monthly_boiler_fuel table.
 
@@ -1034,7 +1036,7 @@ def remove_duplicate_pks_boiler_fuel_eia923(bf: pd.DataFrame) -> pd.DataFrame:
     return pd.concat([bf[~pk_dupe_mask], bf_no_null_pks_dupes])
 
 
-@asset
+@asset(op_tags=HOT_PATH_OP_TAGS)
 def _core_eia923__generation(raw_eia923__generator: pd.DataFrame) -> pd.DataFrame:
     """Transforms the EIA 923 generation table.
 
@@ -1160,7 +1162,7 @@ def _drop_duplicates__core_eia923__generation(
     return gen_df
 
 
-@asset
+@asset(op_tags=HOT_PATH_OP_TAGS)
 def _core_eia923__coalmine(
     raw_eia923__fuel_receipts_costs: pd.DataFrame,
     _core_censuspep__yearly_geocodes: pd.DataFrame,
@@ -1236,7 +1238,7 @@ def _core_eia923__coalmine(
     return cmi_df
 
 
-@asset
+@asset(op_tags=HOT_PATH_OP_TAGS)
 def _core_eia923__fuel_receipts_costs(
     raw_eia923__fuel_receipts_costs: pd.DataFrame,
     _core_eia923__coalmine: pd.DataFrame,
@@ -1374,7 +1376,7 @@ def _core_eia923__fuel_receipts_costs(
     return frc_df
 
 
-@asset(io_manager_key="parquet_io_manager")
+@asset(io_manager_key="parquet_io_manager", op_tags=HOT_PATH_OP_TAGS)
 def _core_eia923__monthly_cooling_system_information(
     raw_eia923__cooling_system_information: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -1721,7 +1723,7 @@ def _clean_emissions_control_dates(
     return pd.to_datetime(out)
 
 
-@asset(io_manager_key="parquet_io_manager")
+@asset(io_manager_key="parquet_io_manager", op_tags=HOT_PATH_OP_TAGS)
 def _core_eia923__yearly_fgd_operation_maintenance(
     raw_eia923__fgd_operation_maintenance: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -1823,7 +1825,7 @@ def fgd_continuity_check(fgd):
     )
 
 
-@asset
+@asset(op_tags=HOT_PATH_OP_TAGS)
 def _core_eia923__energy_storage(
     raw_eia923__energy_storage: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -1875,7 +1877,7 @@ def _core_eia923__energy_storage(
     return es_df
 
 
-@asset(io_manager_key="parquet_io_manager")
+@asset(io_manager_key="parquet_io_manager", op_tags=HOT_PATH_OP_TAGS)
 def _core_eia923__yearly_fuel_stocks(
     raw_eia923__stocks: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -1933,7 +1935,7 @@ def _core_eia923__yearly_fuel_stocks(
     return df.reset_index(drop=True)
 
 
-@asset(io_manager_key="parquet_io_manager")
+@asset(io_manager_key="parquet_io_manager", op_tags=HOT_PATH_OP_TAGS)
 def _core_eia923__yearly_byproduct_disposition(
     raw_eia923__byproduct_disposition: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -2021,7 +2023,7 @@ def disposition_continuity_check(bpd):
     )
 
 
-@asset(io_manager_key="parquet_io_manager")
+@asset(io_manager_key="parquet_io_manager", op_tags=HOT_PATH_OP_TAGS)
 def _core_eia923__yearly_byproduct_expenses_and_revenues(
     raw_eia923__byproduct_expenses_and_revenues: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -2062,7 +2064,7 @@ def _core_eia923__yearly_byproduct_expenses_and_revenues(
     return df
 
 
-@asset(io_manager_key="parquet_io_manager")
+@asset(io_manager_key="parquet_io_manager", op_tags=HOT_PATH_OP_TAGS)
 def _core_eia923__yearly_emissions_control(
     raw_eia923__emissions_control: pd.DataFrame,
 ) -> pd.DataFrame:

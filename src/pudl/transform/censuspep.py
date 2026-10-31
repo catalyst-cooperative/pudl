@@ -4,10 +4,11 @@ import pandas as pd
 from dagster import asset
 
 from pudl import PUDL_PACKAGE_DATA_PATH
+from pudl.dagster.op_tags import HOT_PATH_OP_TAGS
 from pudl.metadata import dfs
 
 
-@asset
+@asset(op_tags=HOT_PATH_OP_TAGS)
 def _core_censuspep__yearly_geocodes(raw_censuspep__geocodes):
     """Create a cleaned up table of FIPS codes.
 

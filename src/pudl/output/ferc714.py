@@ -19,6 +19,7 @@ from pudl.analysis.timeseries_cleaning import (
     ImputeTimeseriesSettings,
     impute_timeseries_asset_factory,
 )
+from pudl.dagster.op_tags import HOT_PATH_OP_TAGS
 from pudl.metadata.dtypes import apply_pudl_dtypes
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -1004,6 +1005,6 @@ imputed_hourly_planning_area_demand_assets = impute_timeseries_asset_factory(
     value_col="demand_mwh",
     imputed_value_col="demand_imputed_pudl_mwh",
     id_col="respondent_id_ferc714",
-    op_tags={"dagster/priority": 10},
+    op_tags=HOT_PATH_OP_TAGS,
     settings=ImputeTimeseriesSettings(min_data_fraction=0.7),
 )

@@ -3,6 +3,7 @@
 import pandas as pd
 from dagster import AssetIn, AssetsDefinition, asset
 
+from pudl.dagster.op_tags import COLD_PATH_OP_TAGS
 from pudl.metadata.resource_helpers import (
     HARVESTED_CORE_TABLES_RUS7,
     HARVESTED_CORE_TABLES_RUS12,
@@ -31,6 +32,9 @@ def out_rus_asset_factory(
         ins={core_table_name: AssetIn(), borrower_table_name: AssetIn()},
         name=out_table_name,
         io_manager_key=io_manager_key,
+        # RUS is not yet integrated downstream; deprioritize so the whole dataset
+        # (extract -> _core -> core -> out) acts as late-DAG filler.
+        op_tags=COLD_PATH_OP_TAGS,
     )
     def out_rus_asset(**ins) -> pd.DataFrame:
         """Convert RUS core table to out - merge in the borrower info."""
