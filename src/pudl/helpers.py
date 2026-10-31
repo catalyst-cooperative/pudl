@@ -1150,17 +1150,23 @@ def month_year_to_date(df: pd.DataFrame) -> pd.DataFrame:
         date_col = f"{base}_date"
         month_year_date.append((month_col, year_col, date_col))
 
+    # Compute all of the dates before touching the frame's columns.
+    new_dates = []
     for month_col, year_col, date_col in month_year_date:
         date_mask = df[[year_col, month_col]].notna().all(axis="columns")
         years = df.loc[date_mask, year_col]
         months = df.loc[date_mask, month_col]
-
-        df.loc[date_mask, date_col] = null_dates_outside_ns_bounds(
+        dates = null_dates_outside_ns_bounds(
             pd.to_datetime({"year": years, "month": months, "day": 1}, errors="coerce")
         )
+        new_dates.append((date_mask, date_col, dates))
 
-        # Now that we've replaced these fields with a date, we drop them.
-        df = df.drop([month_col, year_col], axis=1)
+    # Now that we've replaced these fields with dates, we drop them all at once. In
+    # pandas 3 drop() leaves one block per column, so we consolidate with a deep copy
+    # before inserting the date columns to avoid a PerformanceWarning on every insert.
+    df = df.drop(columns=[c for pair in month_year_date for c in pair[:2]]).copy()
+    for date_mask, date_col, dates in new_dates:
+        df.loc[date_mask, date_col] = dates
 
     return df
 
@@ -1209,10 +1215,15 @@ def convert_to_date(
 
     day = day_na_value if day_col not in df.columns else df[day_col]
 
-    df[date_col] = pd.to_datetime({"year": year, "month": month, "day": day})
+    dates = pd.to_datetime({"year": year, "month": month, "day": day})
     cols_to_drop = [x for x in [day_col, year_col, month_col] if x in df.columns]
 
-    return df.drop(cols_to_drop, axis="columns")
+    # In pandas 3 drop() leaves one block per column, so consolidate with a deep copy
+    # before inserting the date column to avoid a PerformanceWarning on the insert
+    # (and on later inserts into the returned frame).
+    df = df.drop(cols_to_drop, axis="columns").copy()
+    df[date_col] = dates
+    return df
 
 
 def remove_leading_zeros_from_numeric_strings(

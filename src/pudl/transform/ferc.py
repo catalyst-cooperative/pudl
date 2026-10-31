@@ -22,15 +22,17 @@ def __best_snapshot(
     duped_groups: pd.core.groupby.DataFrameGroupBy,
 ) -> pd.DataFrame:
     """Take the row that has most non-null values out of each group."""
-    # Ignore errors when dropping the "count" column since empty
-    # groupby won't have this column.
-    return duped_groups.apply(
-        lambda df: (
-            df.assign(count=df.count(axis="columns"))
-            .sort_values(by="count", ascending=True)
-            .tail(1)
-        )
-    ).drop(columns="count", errors="ignore")
+    # As of pandas 3.0 groupby(...).apply() excludes the grouping columns from both the
+    # frames it passes and its result, so rank the rows of the whole frame instead. A
+    # stable sort means that ties go to the most recently published row, since the
+    # input is already sorted by publication time.
+    return (
+        duped_groups.obj.assign(count=lambda df: df.count(axis="columns"))
+        .sort_values(by="count", ascending=True, kind="stable")
+        .groupby(duped_groups.keys, dropna=True)
+        .tail(1)
+        .drop(columns="count")
+    )
 
 
 def __compare_dedupe_methodologies(
