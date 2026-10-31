@@ -73,6 +73,7 @@ def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame
         .sort_index()
         .loc[(56032, "1")]
     )
+    assert isinstance(known_dupes, pd.DataFrame)
     # Index of own_df w/ duplicated records removed.
     without_known_dupes_idx = own_df.set_index(
         ["plant_id_eia", "generator_id"]

@@ -200,6 +200,7 @@ def unstack(df: pd.DataFrame, eventual_pk: list[str]):
         .sort_index()
     )
     assert isinstance(unstacked, pd.DataFrame)
+    assert isinstance(unstacked.columns, pd.MultiIndex)
     unstacked.columns = unstacked.columns.droplevel()
     unstacked.columns.name = None
     return unstacked

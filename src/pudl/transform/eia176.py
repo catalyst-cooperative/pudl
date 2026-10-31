@@ -238,6 +238,7 @@ def get_wide_table(long_table: pd.DataFrame, primary_key: list[str]) -> pd.DataF
         level="variable_name"
     )
     assert isinstance(unstacked, pd.DataFrame)
+    assert isinstance(unstacked.columns, pd.MultiIndex)
     unstacked.columns = unstacked.columns.droplevel(0)
     unstacked = simplify_columns(unstacked)  # Clean up column names
     unstacked.columns.name = None  # gets rid of "item" name of columns index
