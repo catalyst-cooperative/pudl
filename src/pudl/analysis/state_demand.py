@@ -17,7 +17,6 @@ Additional predictive spatial variables will be required to obtain more granular
 electricity demand estimates (e.g. at the county level).
 """
 
-import geopandas as gpd  # noqa: ICN002
 import pandas as pd
 import polars as pl
 from dagster import Field, asset
@@ -97,18 +96,21 @@ def county_assignments_ferc714(
 
 
 def census_counties(
-    out_censusdp1tract__counties: gpd.GeoDataFrame,
-) -> pd.DataFrame:
+    out_censusdp1tract__counties: pl.LazyFrame,
+) -> pl.LazyFrame:
     """Load county attributes.
+
+    Only these two columns are selected, so Polars never reads the (large) geometry
+    column.
 
     Args:
         out_censusdp1tract__counties: The county layer of the Census DP1 geodatabase.
 
     Returns:
-        Dataframe with columns `county_id_fips` and `population`.
+        LazyFrame with columns `county_id_fips` and `population`.
     """
-    return out_censusdp1tract__counties[["county_id_fips", "dp0010001"]].rename(
-        columns={"dp0010001": "population"}
+    return out_censusdp1tract__counties.select(
+        "county_id_fips", population=pl.col("dp0010001")
     )
 
 
@@ -159,7 +161,7 @@ def total_state_sales_eia861(
 def out_ferc714__hourly_estimated_state_demand(
     context,
     out_ferc714__hourly_planning_area_demand: pl.LazyFrame,
-    out_censusdp1tract__counties: gpd.GeoDataFrame,
+    out_censusdp1tract__counties: pl.LazyFrame,
     out_ferc714__respondents_with_fips: pd.DataFrame,
     core_eia861__yearly_sales: pd.DataFrame | None = None,
 ) -> pl.LazyFrame:
@@ -180,7 +182,7 @@ def out_ferc714__hourly_estimated_state_demand(
 
     def prepare_county_respondents_with_demand(
         county_assign_ferc714: pd.DataFrame,
-        out_censusdp1tract__counties: pd.DataFrame,
+        out_censusdp1tract__counties: pl.LazyFrame,
         hourly_demand: pl.LazyFrame,
     ) -> pl.LazyFrame:
         """Connect respondent- and state-county assignments to additional county data, keeping only respondent-years with nonzero demand."""
@@ -190,10 +192,8 @@ def out_ferc714__hourly_estimated_state_demand(
             .filter(pl.col("demand_imputed_pudl_mwh") > 0)
             .select(["respondent_id_ferc714", "year"])
         )
-        counties = (
-            pl.from_pandas(census_counties(out_censusdp1tract__counties))
-            .lazy()
-            .with_columns(state_id_fips=pl.col("county_id_fips").str.head(2))
+        counties = census_counties(out_censusdp1tract__counties).with_columns(
+            state_id_fips=pl.col("county_id_fips").str.head(2)
         )
         return (
             pl.from_pandas(county_assign_ferc714)
