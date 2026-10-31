@@ -4,8 +4,12 @@ Wrap DBT invocations so we can get custom behavior.
 
 ## Attributes
 
-| [`logger`](#pudl.validate.dbt.logger)   |    |
-|-----------------------------------------------------------|----|
+| [`DBT_SOURCES`](#pudl.validate.dbt.DBT_SOURCES)         | Names of the dbt sources, each validated against its own set of Parquet outputs.   |
+|----------------------------------------------------------------------|------------------------------------------------------------------------------------|
+| [`DEFAULT_DBT_SOURCE`](#pudl.validate.dbt.DEFAULT_DBT_SOURCE)  | The dbt source validated when none is specified.                                   |
+| [`ALL_DBT_SOURCES`](#pudl.validate.dbt.ALL_DBT_SOURCES)     | Selector value meaning every dbt source.                                           |
+| [`DBT_UNIT_TESTS_PATH`](#pudl.validate.dbt.DBT_UNIT_TESTS_PATH) | Path, relative to the dbt project, of the unit tests of our dbt macros.            |
+| [`logger`](#pudl.validate.dbt.logger)              |                                                                                    |
 
 ## Classes
 
@@ -25,6 +29,22 @@ Wrap DBT invocations so we can get custom behavior.
 | [`dagster_to_dbt_selection`](#pudl.validate.dbt.dagster_to_dbt_selection)(→ str)                  | Translate dagster asset selection to db node selection.                 |
 
 ## Module Contents
+
+### pudl.validate.dbt.DBT_SOURCES *= ('pudl', 'ferceqr')*
+
+Names of the dbt sources, each validated against its own set of Parquet outputs.
+
+### pudl.validate.dbt.DEFAULT_DBT_SOURCE *= 'pudl'*
+
+The dbt source validated when none is specified.
+
+### pudl.validate.dbt.ALL_DBT_SOURCES *= '\*'*
+
+Selector value meaning every dbt source.
+
+### pudl.validate.dbt.DBT_UNIT_TESTS_PATH *= 'tests/unit_tests'*
+
+Path, relative to the dbt project, of the unit tests of our dbt macros.
 
 ### pudl.validate.dbt.logger
 
@@ -91,7 +111,7 @@ Also, if a node has multiple parents, we don’t know which table to pass into
 
 Run the compiled SQL against duckdb to get failure contexts.
 
-### pudl.validate.dbt.build_with_context(node_selection: [str](https://docs.python.org/3/builtins/stdtypes.html#str), dbt_target: [str](https://docs.python.org/3/builtins/stdtypes.html#str), node_exclusion: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [BuildResult](#pudl.validate.dbt.BuildResult)
+### pudl.validate.dbt.build_with_context(node_selection: [str](https://docs.python.org/3/builtins/stdtypes.html#str), dbt_target: [str](https://docs.python.org/3/builtins/stdtypes.html#str), node_exclusion: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, parquet_base_path: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [BuildResult](#pudl.validate.dbt.BuildResult)
 
 Run the DBT build and get failure information back.
 

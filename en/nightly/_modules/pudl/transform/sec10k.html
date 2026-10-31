@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.sec10k &#8212; PUDL 2026.10.1.dev15 documentation</title>
+    <title>pudl.transform.sec10k &#8212; PUDL 2026.10.1.dev21 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=4f1abc75"></script>
+    <script src="../../../_static/documentation_options.js?v=b070ed44"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev15 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev15 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev21 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev21 documentation - Home"/>
   
   
 </a></div>
@@ -929,13 +929,29 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_compute_fraction_owned">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/sec10k/index.html#pudl.transform.sec10k._compute_fraction_owned">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_compute_fraction_owned</span><span class="p">(</span><span class="n">percent_ownership</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Clean percent ownership, convert to float, then convert percent to ratio."""</span>
-    <span class="k">return</span> <span class="p">(</span>
-        <span class="n">percent_ownership</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">r</span><span class="s2">"(\.{2,})"</span><span class="p">,</span> <span class="sa">r</span><span class="s2">"\."</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"</span><span class="se">\\\\</span><span class="s2">"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"."</span><span class="p">,</span> <span class="s2">"0.0"</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"float"</span><span class="p">)</span>
-    <span class="p">)</span> <span class="o">/</span> <span class="mf">100.0</span></div>
+<span class="w">    </span><span class="sd">"""Clean percent ownership, convert to float, then convert percent to ratio.</span>
+
+<span class="sd">    The percentages were extracted from text tables, so some carry runs of leader dots</span>
+<span class="sd">    (e.g. ``"....99"`` or ``"65......"``). The dots are removed, and entries containing</span>
+<span class="sd">    nothing but dots are treated as missing.</span>
+
+<span class="sd">    All the extracted numerical values are treated as percentages, including those below</span>
+<span class="sd">    1, since there is no reliable way to tell a reported fraction (``"0.95"``) from a</span>
+<span class="sd">    small percentage (``"0.01"`` alongside ``"99.99"``) on a per-row basis. Ratios</span>
+<span class="sd">    outside of 0-1 (e.g. several adjacent percentages that have been run together) are</span>
+<span class="sd">    set to null.</span>
+<span class="sd">    """</span>
+    <span class="n">only_dots</span> <span class="o">=</span> <span class="n">percent_ownership</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\.+"</span><span class="p">,</span> <span class="n">na</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="c1"># Null rows that are only dots, then remove any runs of multiple dots from the</span>
+    <span class="c1"># remaining values. This will leave a string that can be unambiguously interpreted</span>
+    <span class="c1"># as a float after they get divided by 100 below (e.g. 0.95 or .99)</span>
+    <span class="n">cleaned</span> <span class="o">=</span> <span class="n">percent_ownership</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">only_dots</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\.{2,}"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># Turn the percentage into a fraction. We treat all values as percentages because</span>
+    <span class="c1"># there are a significant number of cases where one company owns a de minimis stake</span>
+    <span class="c1"># in another (e.g. a 0.01% + 99.99% split) and there's no reliable way to identify</span>
+    <span class="c1"># which of those values is a percentage and which is a fraction.</span>
+    <span class="n">fraction</span> <span class="o">=</span> <span class="n">cleaned</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"float"</span><span class="p">)</span> <span class="o">/</span> <span class="mf">100.0</span>
+    <span class="k">return</span> <span class="n">fraction</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">fraction</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span></div>
 
 
 
@@ -949,11 +965,11 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    - Reformat to NN-NNNNNNN format.</span>
 <span class="sd">    """</span>
     <span class="n">tin</span> <span class="o">=</span> <span class="n">taxpayer_id_irs</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"string"</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[^\d]"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">not_nine_digits</span> <span class="o">=</span> <span class="o">~</span><span class="n">tin</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^\d</span><span class="si">{9}</span><span class="s2">$"</span><span class="p">)</span>
+    <span class="n">not_nine_digits</span> <span class="o">=</span> <span class="o">~</span><span class="n">tin</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^\d</span><span class="si">{9}</span><span class="s2">$"</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Nulling </span><span class="si">{</span><span class="nb">sum</span><span class="p">(</span><span class="n">not_nine_digits</span><span class="o">.</span><span class="n">dropna</span><span class="p">())</span><span class="si">}</span><span class="s2"> invalid TINs."</span><span class="p">)</span>
-    <span class="n">nine_zeroes</span> <span class="o">=</span> <span class="n">tin</span> <span class="o">==</span> <span class="s2">"000000000"</span>
+    <span class="n">nine_zeroes</span> <span class="o">=</span> <span class="p">(</span><span class="n">tin</span> <span class="o">==</span> <span class="s2">"000000000"</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Nulling </span><span class="si">{</span><span class="nb">sum</span><span class="p">(</span><span class="n">nine_zeroes</span><span class="o">.</span><span class="n">dropna</span><span class="p">())</span><span class="si">}</span><span class="s2"> all-zero TINs."</span><span class="p">)</span>
-    <span class="n">tin</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">not_nine_digits</span> <span class="o">|</span> <span class="n">nine_zeroes</span><span class="p">)]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span>
+    <span class="n">tin</span> <span class="o">=</span> <span class="n">tin</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">not_nine_digits</span> <span class="o">|</span> <span class="n">nine_zeroes</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">)</span>
     <span class="n">tin</span> <span class="o">=</span> <span class="n">tin</span><span class="o">.</span><span class="n">str</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="s2">"-"</span> <span class="o">+</span> <span class="n">tin</span><span class="o">.</span><span class="n">str</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
     <span class="k">return</span> <span class="n">tin</span></div>
 

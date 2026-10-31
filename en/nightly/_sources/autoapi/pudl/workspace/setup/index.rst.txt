@@ -74,6 +74,12 @@ Module Contents
 
 
 
+   .. py:method:: partitioned_parquet_paths(table_name: str) -> str
+
+      Return path to parquet file for given database and table.
+
+
+
    .. py:method:: sqlite_path(name: str) -> pathlib.Path
 
       Return path to locally stored SQLite DB file.

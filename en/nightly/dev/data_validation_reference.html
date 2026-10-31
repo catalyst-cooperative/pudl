@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="data_validation_reference.html.md" />
 <link rel="alternate" type="text/markdown" href="data_validation_reference.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>Data validation reference &#8212; PUDL 2026.10.1.dev15 documentation</title>
+    <title>Data validation reference &#8212; PUDL 2026.10.1.dev21 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=4f1abc75"></script>
+    <script src="../_static/documentation_options.js?v=b070ed44"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev15 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev15 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev21 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev21 documentation - Home"/>
   
   
 </a></div>
@@ -981,7 +981,7 @@ will print out additional context information to help with debugging failures.</
 <li><p>the test failed</p></li>
 <li><p>there was 1 failure row</p></li>
 <li><p>the compiled SQL query for the test is at
-<code class="docutils literal notranslate"><span class="pre">target/compiled/pudl_dbt/models/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql</span></code></p></li>
+<code class="docutils literal notranslate"><span class="pre">target/compiled/pudl_validation_tests/models/pudl/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql</span></code></p></li>
 </ul>
 <p>&amp; that’s it:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>dbt<span class="w"> </span>build<span class="w"> </span>--select<span class="w"> </span>source:pudl.out_eia__yearly_generators,test_name:expect_columns_not_all_null
@@ -1002,7 +1002,7 @@ will print out additional context information to help with debugging failures.</
 <span class="go">20:39:01  Failure in test source_expect_columns_not_all_null_pudl_out_eia__yearly_generators_False__EXTRACT_year_FROM_report_date_2008__[...]EXTRACT_year_FROM_report_date_2009 (models/eia/out_eia__yearly_generators/schema.yml)</span>
 <span class="go">20:39:01    Got 1 result, configured to fail if != 0</span>
 <span class="go">20:39:01</span>
-<span class="go">20:39:01    compiled code at target/compiled/pudl_dbt/models/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql</span>
+<span class="go">20:39:01    compiled code at target/compiled/pudl_validation_tests/models/pudl/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql</span>
 <span class="go">20:39:01</span>
 <span class="go">20:39:01  Done. PASS=0 WARN=0 ERROR=1 SKIP=0 NO-OP=0 TOTAL=1</span>
 </pre></div>
@@ -1021,7 +1021,7 @@ it <strong>also</strong> runs the compiled SQL query and gives you the results:<
 <span class="go">20:37:49  Failure in test source_expect_columns_not_all_null_pudl_out_eia__yearly_generators_False__EXTRACT_year_FROM_report_date_2008__[...]EXTRACT_year_FROM_report_date_2009 (models/eia/out_eia__yearly_generators/schema.yml)</span>
 <span class="go">20:37:49    Got 1 result, configured to fail if != 0</span>
 <span class="go">20:37:49</span>
-<span class="go">20:37:49    compiled code at target/compiled/pudl_dbt/models/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql</span>
+<span class="go">20:37:49    compiled code at target/compiled/pudl_validation_tests/models/pudl/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql</span>
 <span class="go">20:37:49</span>
 <span class="go">20:37:49  Done. PASS=0 WARN=0 ERROR=1 SKIP=0 NO-OP=0 TOTAL=1</span>
 <span class="go">Traceback (most recent call last):</span>
@@ -1050,7 +1050,7 @@ enough information to figure out what went wrong.</p>
 <p>Both of these cases require you to touch the compiled SQL query for the test directly.</p>
 <p>dbt gives you a path for the “compiled code” for the failing test, in a line
 that looks like this:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">20:37:49    compiled code at target/compiled/pudl_dbt/models/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">20:37:49    compiled code at target/compiled/pudl_validation_tests/models/pudl/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql</span>
 </pre></div>
 </div>
 <p>“Compiled” is important here because the source code for each test is merely
@@ -1067,7 +1067,7 @@ ways to run the query.</p>
 using <code class="docutils literal notranslate"><span class="pre">&lt;</span></code>.</p>
 <p>If you are in the <code class="docutils literal notranslate"><span class="pre">pudl</span></code> working directory, you may need to add <code class="docutils literal notranslate"><span class="pre">dbt/</span></code> to
 the front of the compiled code path. Like this:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>duckdb<span class="w"> </span><span class="nv">$PUDL_OUTPUT</span>/pudl_dbt_tests.duckdb<span class="w"> </span>&lt;dbt/target/compiled/pudl_dbt/models/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>duckdb<span class="w"> </span><span class="nv">$PUDL_OUTPUT</span>/pudl_dbt_tests.duckdb<span class="w"> </span>&lt;dbt/target/compiled/pudl_validation_tests/models/pudl/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql
 <span class="go">┌────────────────────────────┬────────────────┬─────────────────────────────────────────────────────────────────┬───────────────────────────────────────┬───────────────────────────────┬────────────────┐</span>
 <span class="go">│         table_name         │ failing_column │                         failure_reason                          │             row_condition             │ total_rows_matching_condition │ non_null_count │</span>
 <span class="go">│          varchar           │    varchar     │                             varchar                             │                varchar                │             int64             │     int64      │</span>
@@ -1082,7 +1082,7 @@ returns you to a shell.</p>
 <p>To transpose very wide output, consider setting <code class="docutils literal notranslate"><span class="pre">.mode</span></code>. Using the <code class="docutils literal notranslate"><span class="pre">-cmd</span></code>
 argument to duckdb will execute a command before processing input provided using
 <code class="docutils literal notranslate"><span class="pre">&lt;</span></code>. Like this:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>duckdb<span class="w"> </span>-cmd<span class="w"> </span><span class="s1">'.mode line'</span><span class="w"> </span><span class="nv">$PUDL_OUTPUT</span>/pudl_dbt_tests.duckdb<span class="w"> </span>&lt;dbt/target/compiled/pudl_dbt/models/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>duckdb<span class="w"> </span>-cmd<span class="w"> </span><span class="s1">'.mode line'</span><span class="w"> </span><span class="nv">$PUDL_OUTPUT</span>/pudl_dbt_tests.duckdb<span class="w"> </span>&lt;dbt/target/compiled/pudl_validation_tests/models/pudl/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql
 <span class="go">                   table_name = out_eia__yearly_generators</span>
 <span class="go">               failing_column = unit_id_pudl</span>
 <span class="go">               failure_reason = Conditional check failed: EXTRACT(year FROM report_date) &lt; 2008</span>
@@ -1100,7 +1100,7 @@ code path using the duckdb <code class="docutils literal notranslate"><span clas
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>duckdb<span class="w"> </span><span class="nv">$PUDL_OUTPUT</span>/pudl_dbt_tests.duckdb
 <span class="go">v1.2.0 5f5512b827</span>
 <span class="go">Enter ".help" for usage hints.</span>
-<span class="go">D .read dbt/target/compiled/pudl_dbt/models/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql</span>
+<span class="go">D .read dbt/target/compiled/pudl_validation_tests/models/pudl/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql</span>
 <span class="go">┌────────────────────────────┬────────────────┬─────────────────────────────────────────────────────────────────┬───────────────────────────────────────┬───────────────────────────────┬────────────────┐</span>
 <span class="go">│         table_name         │ failing_column │                         failure_reason                          │             row_condition             │ total_rows_matching_condition │ non_null_count │</span>
 <span class="go">│          varchar           │    varchar     │                             varchar                             │                varchar                │             int64             │     int64      │</span>
@@ -1122,7 +1122,7 @@ multiple programs accessing the database simultaneously.</p>
 no other identifying information, you’ll need to actually read the SQL query and
 adapt some portion of it to give you the context you need.</p>
 <p>Such as:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>duckdb<span class="w"> </span><span class="nv">$PUDL_OUTPUT</span>/pudl_dbt_tests.duckdb<span class="w"> </span>&lt;target/compiled/pudl_dbt/models/eia/out_eia__yearly_generators/schema.yml/dbt_expectations_source_expect_33dc33ad0a260e896f11f41b4422dda8.sql
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>duckdb<span class="w"> </span><span class="nv">$PUDL_OUTPUT</span>/pudl_dbt_tests.duckdb<span class="w"> </span>&lt;target/compiled/pudl_validation_tests/models/pudl/eia/out_eia__yearly_generators/schema.yml/dbt_expectations_source_expect_33dc33ad0a260e896f11f41b4422dda8.sql
 <span class="go">┌─────────────┐</span>
 <span class="go">│ expression  │</span>
 <span class="go">│   boolean   │</span>
@@ -1298,7 +1298,7 @@ not <code class="docutils literal notranslate"><span class="pre">--asset-select<
 </pre></div>
 </div>
 <p>In this example, we’re running quantile checks for <code class="docutils literal notranslate"><span class="pre">out_eia__yearly_generators</span></code>.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>dbt_helper<span class="w"> </span>validate<span class="w"> </span>--select<span class="w"> </span><span class="s2">"source:pudl_dbt.pudl.out_eia__yearly_generators"</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>dbt_helper<span class="w"> </span>validate<span class="w"> </span>--select<span class="w"> </span><span class="s2">"source:pudl_validation_tests.pudl.out_eia__yearly_generators"</span>
 <span class="go">[...]</span>
 <span class="go">18:39:46  Finished running 24 data tests in 0 hours 0 minutes and 1.01 seconds (1.01s).</span>
 <span class="go">18:39:46</span>
@@ -1307,7 +1307,7 @@ not <code class="docutils literal notranslate"><span class="pre">--asset-select<
 <span class="go">18:39:46  Failure in test source_expect_quantile_constraints_pudl_out_eia__yearly_generators_capacity_factor___quantile_0_65_min_value_0_5_max_value_0_6____quantile_0_15_min_value_0_005____quantile_0_95_max_value_0_95___fuel_type_code_pudl_gas_and_report_date_CAST_2015_01_01_AS_DATE_and_capacity_factor_0_0__capacity_mw (models/eia/out_eia__yearly_generators/schema.yml)</span>
 <span class="go">18:39:46    Got 1 result, configured to fail if != 0</span>
 <span class="go">18:39:46</span>
-<span class="go">18:39:46    compiled code at target/compiled/pudl_dbt/models/eia/out_eia__yearly_generators/schema.yml/source_expect_quantile_constra_392a2df5d1590fb6bc46821e0b879c86.sql</span>
+<span class="go">18:39:46    compiled code at target/compiled/pudl_validation_tests/models/pudl/eia/out_eia__yearly_generators/schema.yml/source_expect_quantile_constra_392a2df5d1590fb6bc46821e0b879c86.sql</span>
 <span class="go">18:39:46</span>
 <span class="go">18:39:46  Done. PASS=23 WARN=0 ERROR=1 SKIP=0 NO-OP=0 TOTAL=24</span>
 <span class="go">Traceback (most recent call last):</span>
@@ -1334,7 +1334,7 @@ not <code class="docutils literal notranslate"><span class="pre">--asset-select<
 <span class="go">AssertionError: failure contexts:</span>
 <span class="go">source_expect_quantile_constraints_pudl_out_eia__yearly_generators_capacity_factor___quantile_0_65_min_value_0_5_max_value_0_6____quantile_0_15_min_value_0_005____quantile_0_95_max_value_0_95___fuel_type_code_pudl_gas_and_report_date_CAST_2015_01_01_AS_DATE_and_capacity_factor_0_0__capacity_mw:</span>
 
-<span class="go"> table: source.pudl_dbt.pudl.out_eia__yearly_generators</span>
+<span class="go"> table: source.pudl_validation_tests.pudl.out_eia__yearly_generators</span>
 <span class="go"> test: expect_quantile_constraints</span>
 <span class="go"> column: capacity_factor</span>
 <span class="go"> row_condition: fuel_type_code_pudl='gas' and report_date&gt;=CAST('2015-01-01' AS DATE) and capacity_factor&lt;&gt;0.0</span>

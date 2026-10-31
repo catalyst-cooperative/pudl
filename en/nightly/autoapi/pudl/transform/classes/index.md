@@ -585,6 +585,13 @@ Pameters that identify invalid rows to drop.
 
 A list of values that should be considered invalid in the selected columns.
 
+Null values (`pd.NA`, `np.nan`, `None`) must not be listed here. Use
+`dropna` to control whether nulls are treated as invalid.
+
+#### dropna *: [bool](https://docs.python.org/3/builtins/functions.html#bool)* *= True*
+
+Whether null values in the selected columns are also considered invalid.
+
 #### required_valid_cols *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
 List of columns passed into `pd.filter()` as the `items` argument.
@@ -604,6 +611,10 @@ A string to use as the `like` argument to `pd.filter()`
 
 A regular expression to use as the `regex` argument to `pd.filter()`.
 
+#### no_null_invalid_values()
+
+Validate that null values are specified with `dropna`, not as values.
+
 #### one_filter_argument()
 
 Validate that only one argument is specified for `pd.filter()`.
@@ -614,7 +625,8 @@ Drop rows with only invalid values in all specified columns.
 
 This method finds all rows in a dataframe that contain ONLY invalid data in ALL of
 the columns that we are checking, and drops those rows, logging the % of all rows
-that were dropped.
+that were dropped. Null values are considered invalid unless `params.dropna` is
+False.
 
 ### *class* pudl.transform.classes.ReplaceWithNa(/, \*\*data: Any)
 

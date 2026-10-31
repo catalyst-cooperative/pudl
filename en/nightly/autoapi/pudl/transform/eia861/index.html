@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.transform.eia861 &#8212; PUDL 2026.10.1.dev15 documentation</title>
+    <title>pudl.transform.eia861 &#8212; PUDL 2026.10.1.dev21 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=4f1abc75"></script>
+    <script src="../../../../_static/documentation_options.js?v=b070ed44"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev15 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev15 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev21 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev21 documentation - Home"/>
   
   
 </a></div>
@@ -826,6 +826,9 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia861.NERC_NUMERIC_CODES" title="pudl.transform.eia861.NERC_NUMERIC_CODES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NERC_NUMERIC_CODES</span></code></a></p></td>
 <td><p></p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia861._YN_TO_BOOL" title="pudl.transform.eia861._YN_TO_BOOL"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_YN_TO_BOOL</span></code></a></p></td>
+<td><p></p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -876,8 +879,8 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia861._pct_to_mw" title="pudl.transform.eia861._pct_to_mw"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_pct_to_mw</span></code></a>(df, pct_col)</p></td>
 <td><p>Turn pct col into mw capacity using total capacity col.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia861._make_yn_bool" title="pudl.transform.eia861._make_yn_bool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_make_yn_bool</span></code></a>(df_object)</p></td>
-<td><p>Turn Y/N reporting into True or False boolean statements for df or series.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia861._make_yn_bool" title="pudl.transform.eia861._make_yn_bool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_make_yn_bool</span></code></a>(→ pandas.Series)</p></td>
+<td><p>Turn Y/N reporting in a series into nullable booleans.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia861._thousand_to_one" title="pudl.transform.eia861._thousand_to_one"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_thousand_to_one</span></code></a>(df_object)</p></td>
 <td><p>Turn reporting in thousands of dollars to regular dollars for df or series.</p></td>
@@ -886,7 +889,7 @@
 <td><p>Compile all unique, non-null combinations of values <code class="docutils literal notranslate"><span class="pre">cols</span></code> within <code class="docutils literal notranslate"><span class="pre">dfs</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia861._combine_88888_values" title="pudl.transform.eia861._combine_88888_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_combine_88888_values</span></code></a>(→ pandas.DataFrame)</p></td>
-<td><p>Combine 88888 utility_id_values.</p></td>
+<td><p>Combine the data associated with 88888 utility_id_values.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia861.core_eia861__yearly_service_territory" title="pudl.transform.eia861.core_eia861__yearly_service_territory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia861__yearly_service_territory</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Transform the EIA 861 utility service territory table.</p></td>
@@ -1100,7 +1103,8 @@ output is generated at the DEBUG level.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A tidier long-form version of the input dataframe.</p>
+<dd class="field-even"><p>A tuple of a tidier long-form version of the input dataframe, and the primary
+key columns of that dataframe (<code class="docutils literal notranslate"><span class="pre">idx_cols</span></code> plus <code class="docutils literal notranslate"><span class="pre">class_type</span></code>).</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1188,10 +1192,23 @@ matches the “physical location” nerc region column that’s a part of the in
 <dd><p>Turn pct col into mw capacity using total capacity col.</p>
 </dd></dl>
 
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.transform.eia861._YN_TO_BOOL">
+<span class="sig-prename descclassname"><span class="pre">pudl.transform.eia861.</span></span><span class="sig-name descname"><span class="pre">_YN_TO_BOOL</span></span><a class="reference internal" href="../../../../_modules/pudl/transform/eia861.html#_YN_TO_BOOL"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.eia861._YN_TO_BOOL" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="pudl.transform.eia861._make_yn_bool">
-<span class="sig-prename descclassname"><span class="pre">pudl.transform.eia861.</span></span><span class="sig-name descname"><span class="pre">_make_yn_bool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_object</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/transform/eia861.html#_make_yn_bool"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.eia861._make_yn_bool" title="Link to this definition">#</a></dt>
-<dd><p>Turn Y/N reporting into True or False boolean statements for df or series.</p>
+<span class="sig-prename descclassname"><span class="pre">pudl.transform.eia861.</span></span><span class="sig-name descname"><span class="pre">_make_yn_bool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.1)"><span class="pre">pandas.Series</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.1)"><span class="pre">pandas.Series</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/transform/eia861.html#_make_yn_bool"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.eia861._make_yn_bool" title="Link to this definition">#</a></dt>
+<dd><p>Turn Y/N reporting in a series into nullable booleans.</p>
+<p>Codes are matched case-insensitively. <code class="docutils literal notranslate"><span class="pre">Y</span></code> and <code class="docutils literal notranslate"><span class="pre">X</span></code> (a checked box) are <code class="docutils literal notranslate"><span class="pre">True</span></code>
+and <code class="docutils literal notranslate"><span class="pre">N</span></code> is <code class="docutils literal notranslate"><span class="pre">False</span></code>. Existing booleans are kept and nulls stay null. To convert
+a dataframe, use <code class="docutils literal notranslate"><span class="pre">df.apply(_make_yn_bool)</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#AssertionError" title="(in Python v3.15)"><strong>AssertionError</strong></a> – if there are non-null values that are not Y, X, N or a boolean.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -1227,17 +1244,21 @@ present in each of the <code class="docutils literal notranslate"><span class="p
 <dl class="py function">
 <dt class="sig sig-object py" id="pudl.transform.eia861._combine_88888_values">
 <span class="sig-prename descclassname"><span class="pre">pudl.transform.eia861.</span></span><span class="sig-name descname"><span class="pre">_combine_88888_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_cols</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/transform/eia861.html#_combine_88888_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.eia861._combine_88888_values" title="Link to this definition">#</a></dt>
-<dd><p>Combine 88888 utility_id_values.</p>
-<p>This function sums rows with a utility_id_eia of 88888 into a single row by
-primary key. It drops rows with a utility_id_eia of 88888 if there are non-numeric
-columns with different values that are impossible to combine. E.g.: boolean
-columns where one value is Y and the other is N. This results in a small loss of
-data, but is necessary to ensure that the primary key remains unique.</p>
-<p>There’s a similar de-duplication process happening in the <code class="docutils literal notranslate"><span class="pre">_tidy_class_dfs</span></code> function,
-but the procedure for 88888 has been abstracted out here to avoid confusion and the
-ability to treat these cases differently as we see fit. The 88888 utility_id_eia
-values are known withholdings whereas the duplicate primary key rows are unknown data
-quality issues.</p>
+<dd><p>Combine the data associated with 88888 utility_id_values.</p>
+<p>This function sums the numeric columns of rows with a utility_id_eia of 88888 into a
+single row per primary key. Null values are treated as compatible with non-null
+values: they count as zero when summing numeric columns, and they don’t conflict
+with the single non-null value of a non-numeric column (which includes booleans).
+If a non-numeric column has more than one distinct non-null value within a primary
+key, the rows are impossible to combine. E.g.: boolean columns where one value is
+Y and the other is N. In that case only the first row (after sorting) is kept and
+its numeric values are not summed. This results in a small loss of data, but is
+necessary to ensure that the primary key remains unique.</p>
+<p>There’s a similar de-duplication process happening in the <code class="docutils literal notranslate"><span class="pre">_tidy_class_dfs</span></code>
+function, but the procedure for 88888 has been abstracted out here to avoid
+confusion and the ability to treat these cases differently. The 88888 utility_id_eia
+values are known withholdings whereas the duplicate primary key rows are unknown
+data quality issues.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1636,6 +1657,7 @@ information about what states they were operating in (which is captured in
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.eia861.clean_nerc"><code class="docutils literal notranslate"><span class="pre">clean_nerc()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.eia861._compare_nerc_physical_w_nerc_operational"><code class="docutils literal notranslate"><span class="pre">_compare_nerc_physical_w_nerc_operational()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.eia861._pct_to_mw"><code class="docutils literal notranslate"><span class="pre">_pct_to_mw()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.eia861._YN_TO_BOOL"><code class="docutils literal notranslate"><span class="pre">_YN_TO_BOOL</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.eia861._make_yn_bool"><code class="docutils literal notranslate"><span class="pre">_make_yn_bool()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.eia861._thousand_to_one"><code class="docutils literal notranslate"><span class="pre">_thousand_to_one()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.eia861._harvest_associations"><code class="docutils literal notranslate"><span class="pre">_harvest_associations()</span></code></a></li>

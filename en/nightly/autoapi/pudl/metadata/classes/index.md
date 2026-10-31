@@ -956,6 +956,8 @@ May also include more-detailed explanations of listed usage warnings.
 
 #### extrapaths *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
+#### dbt_source *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 'pudl'*
+
 ### *class* pudl.metadata.classes.Resource(/, \*\*data: Any)
 
 Bases: [`PudlMeta`](#pudl.metadata.classes.PudlMeta)
@@ -1132,6 +1134,8 @@ except for `year` fields which can be integer.
 #### field_namespace *: [FieldNamespace](#pudl.metadata.classes.FieldNamespace) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
 #### etl_group *: [EtlGroup](#pudl.metadata.classes.EtlGroup) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
+
+#### dbt_source *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 'pudl'*
 
 #### create_database_schema *: [bool](https://docs.python.org/3/builtins/functions.html#bool)* *= True*
 

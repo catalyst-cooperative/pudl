@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.dagster.assets.deploy.ferceqr &#8212; PUDL 2026.10.1.dev15 documentation</title>
+    <title>pudl.dagster.assets.deploy.ferceqr &#8212; PUDL 2026.10.1.dev21 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../../_static/documentation_options.js?v=4f1abc75"></script>
+    <script src="../../../../../_static/documentation_options.js?v=b070ed44"></script>
     <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev15 documentation - Home"/>
-    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev15 documentation - Home"/>
+    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev21 documentation - Home"/>
+    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev21 documentation - Home"/>
   
   
 </a></div>
@@ -892,7 +892,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">cast</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">NamedTuple</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dg</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
@@ -908,6 +908,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.logging_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">PUDL_PACKAGE</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.sources</span><span class="w"> </span><span class="kn">import</span> <span class="n">SOURCES</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.validate.dbt</span><span class="w"> </span><span class="kn">import</span> <span class="n">BuildResult</span><span class="p">,</span> <span class="n">build_with_context</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.workspace.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">PudlPaths</span>
 
 <div class="viewcode-block" id="logger">
@@ -978,6 +979,78 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="StepStatusTable">
 <a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr.StepStatusTable">[docs]</a>
 <span class="n">StepStatusTable</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span></div>
+
+
+<span class="c1"># Constants used for dbt tests</span>
+<div class="viewcode-block" id="FERCEQR_DBT_SOURCE">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr.FERCEQR_DBT_SOURCE">[docs]</a>
+<span class="n">FERCEQR_DBT_SOURCE</span> <span class="o">=</span> <span class="s2">"ferceqr"</span></div>
+
+
+
+<div class="viewcode-block" id="ValidationStage">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr.ValidationStage">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ValidationStage</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The :class:`BuildResult` of one named dbt validation stage."""</span>
+
+<div class="viewcode-block" id="ValidationStage.name">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr.ValidationStage.name">[docs]</a>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span></div>
+
+<div class="viewcode-block" id="ValidationStage.result">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr.ValidationStage.result">[docs]</a>
+    <span class="n">result</span><span class="p">:</span> <span class="n">BuildResult</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="_run_ferceqr_validation">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr._run_ferceqr_validation">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_run_ferceqr_validation</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">ValidationStage</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Run the dbt data validations for the FERC EQR tables.</span>
+
+<span class="sd">    Selects every dbt node downstream of the FERC EQR source. Mirrors the pytest</span>
+<span class="sd">    validation in ``tests/validate/data_test.py``.</span>
+<span class="sd">    """</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Running dbt data validations for FERC EQR outputs."</span><span class="p">)</span>
+    <span class="n">data_validation</span> <span class="o">=</span> <span class="n">build_with_context</span><span class="p">(</span>
+        <span class="n">node_selection</span><span class="o">=</span><span class="sa">f</span><span class="s2">"source:</span><span class="si">{</span><span class="n">FERCEQR_DBT_SOURCE</span><span class="si">}</span><span class="s2">+"</span><span class="p">,</span>
+        <span class="n">dbt_target</span><span class="o">=</span><span class="s2">"etl-full"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">ValidationStage</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"Data validation"</span><span class="p">,</span> <span class="n">result</span><span class="o">=</span><span class="n">data_validation</span><span class="p">),</span>
+    <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="_markdown_validation_results">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr._markdown_validation_results">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_markdown_validation_results</span><span class="p">(</span><span class="n">stages</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ValidationStage</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Summarize dbt validation stage outcomes as a Markdown table.</span>
+
+<span class="sd">    Only the high-level pass/fail status of each stage is reported; failure</span>
+<span class="sd">    contexts are written to the build log, which the notification links to.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">stages</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">""</span>
+
+    <span class="n">table</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">"Validation Stage"</span><span class="p">:</span> <span class="n">stage</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="s2">"Status"</span><span class="p">:</span> <span class="s2">":check:"</span> <span class="k">if</span> <span class="n">stage</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">success</span> <span class="k">else</span> <span class="s2">":x:"</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="n">stages</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="s2">""</span><span class="p">,</span>
+            <span class="s2">"## Data Validation"</span><span class="p">,</span>
+            <span class="s2">""</span><span class="p">,</span>
+            <span class="n">table</span><span class="o">.</span><span class="n">to_markdown</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">colalign</span><span class="o">=</span><span class="p">(</span><span class="s2">"left"</span><span class="p">,</span> <span class="s2">"center"</span><span class="p">)),</span>
+        <span class="p">]</span>
+    <span class="p">)</span></div>
 
 
 
@@ -1517,6 +1590,7 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">build_ferceqr_notification</span><span class="p">(</span>
     <span class="n">context</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetExecutionContext</span><span class="p">,</span>
     <span class="n">outcome</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"SUCCESS"</span><span class="p">,</span> <span class="s2">"FAILURE"</span><span class="p">,</span> <span class="s2">"SKIPPED"</span><span class="p">],</span>
+    <span class="n">validation_stages</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ValidationStage</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Build a Markdown notification string for FERC EQR deployment outcomes.</span>
 
@@ -1592,6 +1666,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">asset_partition_statuses</span><span class="o">=</span><span class="n">asset_partition_statuses</span><span class="p">,</span>
                 <span class="n">partitions</span><span class="o">=</span><span class="n">source_partitions</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
             <span class="p">),</span>
+            <span class="n">_markdown_validation_results</span><span class="p">(</span><span class="n">validation_stages</span> <span class="ow">or</span> <span class="p">[]),</span>
             <span class="n">_markdown_logfile_list</span><span class="p">(</span><span class="n">build_id</span><span class="p">),</span>
         <span class="p">]</span>
     <span class="p">)</span>
@@ -1651,6 +1726,30 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<div class="viewcode-block" id="_notify_ferceqr_outcome">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr._notify_ferceqr_outcome">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_notify_ferceqr_outcome</span><span class="p">(</span>
+    <span class="n">context</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetExecutionContext</span><span class="p">,</span>
+    <span class="n">zulip</span><span class="p">:</span> <span class="n">ZulipNotificationResource</span><span class="p">,</span>
+    <span class="n">outcome</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"SUCCESS"</span><span class="p">,</span> <span class="s2">"FAILURE"</span><span class="p">,</span> <span class="s2">"SKIPPED"</span><span class="p">],</span>
+    <span class="n">validation_stages</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ValidationStage</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Send a deployment outcome notification, never raising on failure."""</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">zulip</span><span class="o">.</span><span class="n">send_stream_message</span><span class="p">(</span>
+            <span class="n">stream</span><span class="o">=</span><span class="s2">"pudl-deployments"</span><span class="p">,</span>
+            <span class="n">topic</span><span class="o">=</span><span class="s2">"build-deploy-ferceqr"</span><span class="p">,</span>
+            <span class="n">content</span><span class="o">=</span><span class="n">build_ferceqr_notification</span><span class="p">(</span>
+                <span class="n">context</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="n">outcome</span><span class="p">,</span> <span class="n">validation_stages</span><span class="o">=</span><span class="n">validation_stages</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"FERC EQR </span><span class="si">{</span><span class="n">outcome</span><span class="si">}</span><span class="s2"> notification failed:</span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">()</span>
+        <span class="p">)</span></div>
+
+
+
 <span class="nd">@deployment_status_asset</span>
 <div class="viewcode-block" id="deploy_ferceqr">
 <a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr.deploy_ferceqr">[docs]</a>
@@ -1684,6 +1783,27 @@ window.runMermaid = runMermaid;</script>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">source_partitions</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"FERC EQR deployment run has no deployable partitions."</span><span class="p">)</span>
 
+    <span class="c1"># Validate before publishing: bad data should never reach a deployment target.</span>
+    <span class="n">validation_stages</span> <span class="o">=</span> <span class="n">_run_ferceqr_validation</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="ow">not</span> <span class="n">stage</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">success</span> <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="n">validation_stages</span><span class="p">):</span>
+        <span class="n">failed</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">validation_stages</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">s</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">success</span><span class="p">]</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"FERC EQR data validation failed (</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">failed</span><span class="p">)</span><span class="si">}</span><span class="s2">); not deploying.</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">=====</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">stage</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">format_failure_contexts</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="n">validation_stages</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">stage</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">success</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">_notify_ferceqr_outcome</span><span class="p">(</span>
+            <span class="n">context</span><span class="p">,</span> <span class="n">zulip</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="s2">"FAILURE"</span><span class="p">,</span> <span class="n">validation_stages</span><span class="o">=</span><span class="n">validation_stages</span>
+        <span class="p">)</span>
+        <span class="n">_write_status_file</span><span class="p">(</span><span class="s2">"FERCEQR_FAILURE"</span><span class="p">,</span> <span class="n">pudl_paths</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"FERC EQR data validation failed: </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">failed</span><span class="p">)</span><span class="si">}</span><span class="s2">. "</span>
+            <span class="s2">"See build logs for failure contexts."</span>
+        <span class="p">)</span>
+
     <span class="c1"># Write the datapackage alongside the parquet data in pudl_output so it can</span>
     <span class="c1"># be deployed like any other file and remains as a record of the build. Built</span>
     <span class="c1"># even when there is nothing to publish, so it can be reviewed and tested as</span>
@@ -1703,10 +1823,8 @@ window.runMermaid = runMermaid;</script>
             <span class="sa">f</span><span class="s2">"No FERC EQR deployment targets configured; build succeeded, "</span>
             <span class="sa">f</span><span class="s2">"datapackage written to </span><span class="si">{</span><span class="n">datapackage_path</span><span class="si">}</span><span class="s2">, skipping publish."</span>
         <span class="p">)</span>
-        <span class="n">zulip</span><span class="o">.</span><span class="n">send_stream_message</span><span class="p">(</span>
-            <span class="n">stream</span><span class="o">=</span><span class="s2">"pudl-deployments"</span><span class="p">,</span>
-            <span class="n">topic</span><span class="o">=</span><span class="s2">"build-deploy-ferceqr"</span><span class="p">,</span>
-            <span class="n">content</span><span class="o">=</span><span class="n">build_ferceqr_notification</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="s2">"SKIPPED"</span><span class="p">),</span>
+        <span class="n">_notify_ferceqr_outcome</span><span class="p">(</span>
+            <span class="n">context</span><span class="p">,</span> <span class="n">zulip</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="s2">"SKIPPED"</span><span class="p">,</span> <span class="n">validation_stages</span><span class="o">=</span><span class="n">validation_stages</span>
         <span class="p">)</span>
         <span class="n">_write_status_file</span><span class="p">(</span><span class="s2">"FERCEQR_SUCCESS"</span><span class="p">,</span> <span class="n">pudl_paths</span><span class="p">)</span>
         <span class="k">return</span>
@@ -1743,16 +1861,9 @@ window.runMermaid = runMermaid;</script>
         <span class="c1"># Notify inline before the exception propagates: the sensor-triggered</span>
         <span class="c1"># failure asset never runs because the bash script kills the dagster</span>
         <span class="c1"># daemon as soon as FERCEQR_FAILURE appears.</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">zulip</span><span class="o">.</span><span class="n">send_stream_message</span><span class="p">(</span>
-                <span class="n">stream</span><span class="o">=</span><span class="s2">"pudl-deployments"</span><span class="p">,</span>
-                <span class="n">topic</span><span class="o">=</span><span class="s2">"build-deploy-ferceqr"</span><span class="p">,</span>
-                <span class="n">content</span><span class="o">=</span><span class="n">build_ferceqr_notification</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="s2">"FAILURE"</span><span class="p">),</span>
-            <span class="p">)</span>
-        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="s2">"FERC EQR failure notification also failed:</span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">()</span>
-            <span class="p">)</span>
+        <span class="n">_notify_ferceqr_outcome</span><span class="p">(</span>
+            <span class="n">context</span><span class="p">,</span> <span class="n">zulip</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="s2">"FAILURE"</span><span class="p">,</span> <span class="n">validation_stages</span><span class="o">=</span><span class="n">validation_stages</span>
+        <span class="p">)</span>
         <span class="n">_remove_all_staging</span><span class="p">(</span><span class="n">targets</span><span class="p">)</span>
         <span class="c1"># Write the failure sentinel HERE so the log messages above are flushed</span>
         <span class="c1"># before the sentinel triggers killall.</span>
@@ -1760,10 +1871,8 @@ window.runMermaid = runMermaid;</script>
         <span class="k">raise</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"FERC EQR deployment succeeded. Notifying Zulip."</span><span class="p">)</span>
-    <span class="n">zulip</span><span class="o">.</span><span class="n">send_stream_message</span><span class="p">(</span>
-        <span class="n">stream</span><span class="o">=</span><span class="s2">"pudl-deployments"</span><span class="p">,</span>
-        <span class="n">topic</span><span class="o">=</span><span class="s2">"build-deploy-ferceqr"</span><span class="p">,</span>
-        <span class="n">content</span><span class="o">=</span><span class="n">build_ferceqr_notification</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="s2">"SUCCESS"</span><span class="p">),</span>
+    <span class="n">_notify_ferceqr_outcome</span><span class="p">(</span>
+        <span class="n">context</span><span class="p">,</span> <span class="n">zulip</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="s2">"SUCCESS"</span><span class="p">,</span> <span class="n">validation_stages</span><span class="o">=</span><span class="n">validation_stages</span>
     <span class="p">)</span>
     <span class="n">_write_status_file</span><span class="p">(</span><span class="s2">"FERCEQR_SUCCESS"</span><span class="p">,</span> <span class="n">pudl_paths</span><span class="p">)</span></div>
 
@@ -1778,12 +1887,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">zulip</span><span class="p">:</span> <span class="n">ZulipNotificationResource</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">zulip_notification</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"FERC EQR build failed. Notifying Zulip."</span><span class="p">)</span>
-    <span class="n">notification_markdown</span> <span class="o">=</span> <span class="n">build_ferceqr_notification</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="s2">"FAILURE"</span><span class="p">)</span>
-    <span class="n">zulip</span><span class="o">.</span><span class="n">send_stream_message</span><span class="p">(</span>
-        <span class="n">stream</span><span class="o">=</span><span class="s2">"pudl-deployments"</span><span class="p">,</span>
-        <span class="n">topic</span><span class="o">=</span><span class="s2">"build-deploy-ferceqr"</span><span class="p">,</span>
-        <span class="n">content</span><span class="o">=</span><span class="n">notification_markdown</span><span class="p">,</span>
-    <span class="p">)</span>
+    <span class="n">_notify_ferceqr_outcome</span><span class="p">(</span><span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">,</span> <span class="n">zulip</span><span class="o">=</span><span class="n">zulip</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="s2">"FAILURE"</span><span class="p">)</span>
     <span class="n">_write_status_file</span><span class="p">(</span><span class="s2">"FERCEQR_FAILURE"</span><span class="p">,</span> <span class="n">pudl_paths</span><span class="p">)</span></div>
 
 </pre></div>

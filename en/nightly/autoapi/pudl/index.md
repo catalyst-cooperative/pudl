@@ -30,7 +30,8 @@ The Public Utility Data Liberation (PUDL) Project.
 | [`PUDL_SETTINGS_PATH`](#pudl.PUDL_SETTINGS_PATH)                 | Resolved absolute path to the package_data/settings directory.                                                            |
 | [`PUDL_DBT_PATH`](#pudl.PUDL_DBT_PATH)                      | Resolved absolute path to the dbt directory.                                                                              |
 | [`PUDL_DOCS_PATH`](#pudl.PUDL_DOCS_PATH)                     | Resolved absolute path to the docs directory.                                                                             |
-| [`PUDL_NIGHTLY_BUILDS_BASE_PATH`](#pudl.PUDL_NIGHTLY_BUILDS_BASE_PATH)      | Base path to PUDL nightly builds outputs.                                                                                 |
+| [`PUDL_NIGHTLY_BUILDS_BASE_PATH`](#pudl.PUDL_NIGHTLY_BUILDS_BASE_PATH)      |                                                                                                                           |
+| [`FERCEQR_BUILDS_BASE_PATH`](#pudl.FERCEQR_BUILDS_BASE_PATH)           | Base path to PUDL nightly builds outputs.                                                                                 |
 | [`PUDL_EEL_HOLE_BASE_PATH`](#pudl.PUDL_EEL_HOLE_BASE_PATH)            | Base path to eel-hole s3 outputs.                                                                                         |
 | [`PARQUET_COMPRESSION`](#pudl.PARQUET_COMPRESSION)                | The compression codec for all of PUDL's Parquet outputs.                                                                  |
 | [`PARQUET_COMPRESSION_LEVEL`](#pudl.PARQUET_COMPRESSION_LEVEL)          | The compression level for [`PARQUET_COMPRESSION`](#pudl.PARQUET_COMPRESSION), for most Parquet outputs. |
@@ -88,6 +89,8 @@ Resolved absolute path to the dbt directory.
 Resolved absolute path to the docs directory.
 
 ### pudl.PUDL_NIGHTLY_BUILDS_BASE_PATH *: upath.UPath*
+
+### pudl.FERCEQR_BUILDS_BASE_PATH *: upath.UPath*
 
 Base path to PUDL nightly builds outputs.
 

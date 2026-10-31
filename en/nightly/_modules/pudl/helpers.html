@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.helpers &#8212; PUDL 2026.10.1.dev15 documentation</title>
+    <title>pudl.helpers &#8212; PUDL 2026.10.1.dev21 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../_static/documentation_options.js?v=4f1abc75"></script>
+    <script src="../../_static/documentation_options.js?v=b070ed44"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev15 documentation - Home"/>
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev15 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev21 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev21 documentation - Home"/>
   
   
 </a></div>
@@ -3873,7 +3873,13 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        use_all_partitions: If true read the entire directory of parquet files.</span>
 <span class="sd">            Otherwise only read data from the partition specified in parquet_data.</span>
 <span class="sd">    """</span>
-    <span class="k">with</span> <span class="n">duckdb_connect</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+    <span class="c1"># Reading a whole directory can mean globbing thousands of small files (e.g. the</span>
+    <span class="c1"># per-filing FERC EQR raw tables). DuckDB 2.0's asynchronous read-ahead holds</span>
+    <span class="c1"># each prefetched file open, which needed ~1,000 simultaneous file handles and</span>
+    <span class="c1"># failed with "Too many open files". Read-ahead only helps with remote storage,</span>
+    <span class="c1"># so disable it for these local reads.</span>
+    <span class="n">overrides</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"read_ahead_depth"</span><span class="p">:</span> <span class="s2">"0"</span><span class="p">}</span> <span class="k">if</span> <span class="n">use_all_partitions</span> <span class="k">else</span> <span class="p">{}</span>
+    <span class="k">with</span> <span class="n">duckdb_connect</span><span class="p">(</span><span class="o">**</span><span class="n">overrides</span><span class="p">)</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">use_all_partitions</span><span class="p">:</span>
             <span class="k">yield</span> <span class="n">conn</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">parquet_data</span><span class="o">.</span><span class="n">parquet_directory</span><span class="si">}</span><span class="s2">/*.parquet"</span><span class="p">),</span> <span class="n">conn</span>
         <span class="k">else</span><span class="p">:</span>

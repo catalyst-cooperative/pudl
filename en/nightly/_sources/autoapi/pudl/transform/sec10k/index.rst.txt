@@ -75,6 +75,16 @@ Module Contents
 
    Clean percent ownership, convert to float, then convert percent to ratio.
 
+   The percentages were extracted from text tables, so some carry runs of leader dots
+   (e.g. ``"....99"`` or ``"65......"``). The dots are removed, and entries containing
+   nothing but dots are treated as missing.
+
+   All the extracted numerical values are treated as percentages, including those below
+   1, since there is no reliable way to tell a reported fraction (``"0.95"``) from a
+   small percentage (``"0.01"`` alongside ``"99.99"``) on a per-row basis. Ratios
+   outside of 0-1 (e.g. several adjacent percentages that have been run together) are
+   set to null.
+
 
 .. py:function:: _standardize_taxpayer_id_irs(taxpayer_id_irs: pandas.Series) -> pandas.Series
 

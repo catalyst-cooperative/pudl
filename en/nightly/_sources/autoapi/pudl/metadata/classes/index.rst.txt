@@ -1452,6 +1452,12 @@ Module Contents
 
 
 
+   .. py:attribute:: dbt_source
+      :type:  str
+      :value: 'pudl'
+
+
+
 .. py:class:: Resource(/, **data: Any)
 
    Bases: :py:obj:`PudlMeta`
@@ -1668,6 +1674,12 @@ Module Contents
    .. py:attribute:: etl_group
       :type:  EtlGroup | None
       :value: None
+
+
+
+   .. py:attribute:: dbt_source
+      :type:  str
+      :value: 'pudl'
 
 
 

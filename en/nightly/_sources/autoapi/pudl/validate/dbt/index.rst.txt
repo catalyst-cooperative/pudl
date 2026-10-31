@@ -14,6 +14,10 @@ Attributes
 
 .. autoapisummary::
 
+   pudl.validate.dbt.DBT_SOURCES
+   pudl.validate.dbt.DEFAULT_DBT_SOURCE
+   pudl.validate.dbt.ALL_DBT_SOURCES
+   pudl.validate.dbt.DBT_UNIT_TESTS_PATH
    pudl.validate.dbt.logger
 
 
@@ -42,6 +46,30 @@ Functions
 
 Module Contents
 ---------------
+
+.. py:data:: DBT_SOURCES
+   :value: ('pudl', 'ferceqr')
+
+
+   Names of the dbt sources, each validated against its own set of Parquet outputs.
+
+.. py:data:: DEFAULT_DBT_SOURCE
+   :value: 'pudl'
+
+
+   The dbt source validated when none is specified.
+
+.. py:data:: ALL_DBT_SOURCES
+   :value: '*'
+
+
+   Selector value meaning every dbt source.
+
+.. py:data:: DBT_UNIT_TESTS_PATH
+   :value: 'tests/unit_tests'
+
+
+   Path, relative to the dbt project, of the unit tests of our dbt macros.
 
 .. py:data:: logger
 
@@ -129,7 +157,7 @@ Module Contents
    Run the compiled SQL against duckdb to get failure contexts.
 
 
-.. py:function:: build_with_context(node_selection: str, dbt_target: str, node_exclusion: str | None = None) -> BuildResult
+.. py:function:: build_with_context(node_selection: str, dbt_target: str, node_exclusion: str | None = None, parquet_base_path: str | None = None) -> BuildResult
 
    Run the DBT build and get failure information back.
 

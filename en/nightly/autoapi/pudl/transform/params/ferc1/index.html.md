@@ -154,7 +154,7 @@ Historical petroleum price range from the EIA-923 Fuel Receipts and Costs table.
 
 ### pudl.transform.params.ferc1.FERC1_STRING_NORM
 
-### pudl.transform.params.ferc1.INVALID_PLANT_NAMES
+### pudl.transform.params.ferc1.INVALID_PLANT_NAMES *= ['not applicable', '0', '', '-']*
 
 Invalid plant names which appear in multiple plant tables.
 

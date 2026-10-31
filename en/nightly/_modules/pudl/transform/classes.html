@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.classes &#8212; PUDL 2026.10.1.dev15 documentation</title>
+    <title>pudl.transform.classes &#8212; PUDL 2026.10.1.dev21 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=4f1abc75"></script>
+    <script src="../../../_static/documentation_options.js?v=b070ed44"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev15 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev15 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev21 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev21 documentation - Home"/>
   
   
 </a></div>
@@ -1852,7 +1852,17 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/classes/index.html#pudl.transform.classes.InvalidRows.invalid_values">[docs]</a>
     <span class="n">invalid_values</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Field</span><span class="p">(</span><span class="n">min_length</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-<span class="w">    </span><span class="sd">"""A list of values that should be considered invalid in the selected columns."""</span>
+<span class="w">    </span><span class="sd">"""A list of values that should be considered invalid in the selected columns.</span>
+
+<span class="sd">    Null values (``pd.NA``, ``np.nan``, ``None``) must not be listed here. Use</span>
+<span class="sd">    ``dropna`` to control whether nulls are treated as invalid.</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="InvalidRows.dropna">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/classes/index.html#pudl.transform.classes.InvalidRows.dropna">[docs]</a>
+    <span class="n">dropna</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<span class="w">    </span><span class="sd">"""Whether null values in the selected columns are also considered invalid."""</span>
 
 <div class="viewcode-block" id="InvalidRows.required_valid_cols">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/classes/index.html#pudl.transform.classes.InvalidRows.required_valid_cols">[docs]</a>
@@ -1881,6 +1891,20 @@ window.runMermaid = runMermaid;</script>
     <span class="n">regex</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <span class="w">    </span><span class="sd">"""A regular expression to use as the ``regex`` argument to :meth:`pd.filter`."""</span>
+
+    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"after"</span><span class="p">)</span>
+<div class="viewcode-block" id="InvalidRows.no_null_invalid_values">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/classes/index.html#pudl.transform.classes.InvalidRows.no_null_invalid_values">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">no_null_invalid_values</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Validate that null values are specified with ``dropna``, not as values."""</span>
+        <span class="n">null_values</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">invalid_values</span> <span class="ow">or</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">v</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">null_values</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Null values </span><span class="si">{</span><span class="n">null_values</span><span class="si">}</span><span class="s2"> found in invalid_values. Use dropna "</span>
+                <span class="s2">"to specify whether null values should be considered invalid."</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
 
     <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"after"</span><span class="p">)</span>
 <div class="viewcode-block" id="InvalidRows.one_filter_argument">
@@ -1914,7 +1938,8 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    This method finds all rows in a dataframe that contain ONLY invalid data in ALL of</span>
 <span class="sd">    the columns that we are checking, and drops those rows, logging the % of all rows</span>
-<span class="sd">    that were dropped.</span>
+<span class="sd">    that were dropped. Null values are considered invalid unless ``params.dropna`` is</span>
+<span class="sd">    False.</span>
 <span class="sd">    """</span>
     <span class="c1"># The default InvalidRows() instance has no effect:</span>
     <span class="k">if</span> <span class="p">(</span>
@@ -1961,17 +1986,10 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># care about are invalid (i.e. where ANY of the columns we care about contain a</span>
     <span class="c1"># valid value):</span>
 
-    <span class="c1"># For some reason, a simple cols_to_check.isin(params.invalid_values) fails</span>
-    <span class="c1"># on some dfs with NA values. this cols_to_check.transform() is intended as</span>
-    <span class="c1"># a drop-in replacement for cols_to_check.isin(params.invalid_values)</span>
-    <span class="n">invalids</span> <span class="o">=</span> <span class="n">cols_to_check</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span>
-        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span>
-            <span class="n">x</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">invalid_values</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
-            <span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"boolean"</span><span class="p">)</span>
-        <span class="p">)</span>
-    <span class="p">)</span>
-    <span class="n">mask</span> <span class="o">=</span> <span class="o">~</span><span class="p">(</span><span class="n">invalids</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">"columns"</span><span class="p">))</span>
+    <span class="n">invalids</span> <span class="o">=</span> <span class="n">cols_to_check</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">invalid_values</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">dropna</span><span class="p">:</span>
+        <span class="n">invalids</span> <span class="o">|=</span> <span class="n">cols_to_check</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="o">~</span><span class="n">invalids</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">"columns"</span><span class="p">)</span>
     <span class="c1"># Mask the input dataframe and make a copy to avoid returning a slice.</span>
     <span class="n">df_out</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>

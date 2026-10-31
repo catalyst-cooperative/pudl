@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.phmsagas &#8212; PUDL 2026.10.1.dev15 documentation</title>
+    <title>pudl.transform.phmsagas &#8212; PUDL 2026.10.1.dev21 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=4f1abc75"></script>
+    <script src="../../../_static/documentation_options.js?v=b070ed44"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev15 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev15 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev21 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev21 documentation - Home"/>
   
   
 </a></div>
@@ -1297,9 +1297,11 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># CG checked and there is another seemingly fully different</span>
     <span class="c1"># report_id ended in 1064 so this one seems like the log is wrong</span>
     <span class="c1"># so its seems chill to delete this column</span>
+    <span class="n">is_suffix</span> <span class="o">=</span> <span class="n">test_log</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">report_id</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">log_number</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
     <span class="n">log_not_report_suffix</span> <span class="o">=</span> <span class="n">test_log</span><span class="p">[</span>
-        <span class="p">(</span><span class="o">~</span><span class="n">test_log</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">report_id</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">log_number</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
-        <span class="o">&amp;</span> <span class="p">(</span><span class="n">test_log</span><span class="o">.</span><span class="n">report_id</span> <span class="o">!=</span> <span class="s2">"19951063"</span><span class="p">)</span>
+        <span class="o">~</span><span class="n">is_suffix</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">test_log</span><span class="o">.</span><span class="n">report_id</span> <span class="o">!=</span> <span class="s2">"19951063"</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
     <span class="p">]</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">log_not_report_suffix</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
@@ -1377,8 +1379,11 @@ window.runMermaid = runMermaid;</script>
         <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">])</span>
 
     <span class="c1"># Initial string cleaning</span>
-    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="s2">"object"</span><span class="p">])</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="c1"># Some object-dtype columns (e.g. supplemental_report_id) hold non-string</span>
+    <span class="c1"># values (plain Python floats), which the .str accessor rejects outright as</span>
+    <span class="c1"># of pandas 3. Strip only actual strings and leave everything else as-is.</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="s2">"object"</span><span class="p">,</span> <span class="s2">"string"</span><span class="p">])</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">v</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">v</span><span class="p">)</span>
 
     <span class="c1"># Specify the columns to convert to integer type</span>
     <span class="n">cols_to_convert</span> <span class="o">=</span> <span class="n">YEARLY_DISTRIBUTION_OPERATORS_COLUMNS</span><span class="p">[</span>
@@ -1390,7 +1395,7 @@ window.runMermaid = runMermaid;</script>
 
     <span class="c1"># Standardize case for city, county, operator name, etc.</span>
     <span class="c1"># Capitalize the first letter of each word in a list of columns</span>
-    <span class="n">cap_cols</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="s2">"object"</span><span class="p">])</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span>
+    <span class="n">cap_cols</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="s2">"object"</span><span class="p">,</span> <span class="s2">"string"</span><span class="p">])</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span>
         <span class="n">YEARLY_DISTRIBUTION_OPERATORS_COLUMNS</span><span class="p">[</span><span class="s2">"capitalization_exclusion"</span><span class="p">]</span>
     <span class="p">)</span>
     <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cap_cols</span><span class="p">:</span>

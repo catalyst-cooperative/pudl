@@ -45,6 +45,7 @@ Attributes
    pudl.PUDL_DBT_PATH
    pudl.PUDL_DOCS_PATH
    pudl.PUDL_NIGHTLY_BUILDS_BASE_PATH
+   pudl.FERCEQR_BUILDS_BASE_PATH
    pudl.PUDL_EEL_HOLE_BASE_PATH
    pudl.PARQUET_COMPRESSION
    pudl.PARQUET_COMPRESSION_LEVEL
@@ -112,6 +113,9 @@ Package Contents
    Resolved absolute path to the docs directory.
 
 .. py:data:: PUDL_NIGHTLY_BUILDS_BASE_PATH
+   :type:  upath.UPath
+
+.. py:data:: FERCEQR_BUILDS_BASE_PATH
    :type:  upath.UPath
 
    Base path to PUDL nightly builds outputs.

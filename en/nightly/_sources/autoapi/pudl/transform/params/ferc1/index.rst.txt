@@ -166,6 +166,8 @@ Module Contents
 .. py:data:: FERC1_STRING_NORM
 
 .. py:data:: INVALID_PLANT_NAMES
+   :value: ['not applicable', '0', '', '-']
+
 
    Invalid plant names which appear in multiple plant tables.
 

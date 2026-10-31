@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.workspace.setup &#8212; PUDL 2026.10.1.dev15 documentation</title>
+    <title>pudl.workspace.setup &#8212; PUDL 2026.10.1.dev21 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=4f1abc75"></script>
+    <script src="../../../../_static/documentation_options.js?v=b070ed44"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev15 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev15 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev21 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev21 documentation - Home"/>
   
   
 </a></div>
@@ -876,6 +876,12 @@ variables. Other paths of relevance are derived from these.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="pudl.workspace.setup.PudlPaths.partitioned_parquet_paths">
+<span class="sig-name descname"><span class="pre">partitioned_parquet_paths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/setup.html#PudlPaths.partitioned_parquet_paths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.setup.PudlPaths.partitioned_parquet_paths" title="Link to this definition">#</a></dt>
+<dd><p>Return path to parquet file for given database and table.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="pudl.workspace.setup.PudlPaths.sqlite_path">
 <span class="sig-name descname"><span class="pre">sqlite_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.15)"><span class="pre">pathlib.Path</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/setup.html#PudlPaths.sqlite_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.setup.PudlPaths.sqlite_path" title="Link to this definition">#</a></dt>
 <dd><p>Return path to locally stored SQLite DB file.</p>
@@ -970,6 +976,7 @@ variables. Other paths of relevance are derived from these.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.setup.PudlPaths.normalize_paths"><code class="docutils literal notranslate"><span class="pre">PudlPaths.normalize_paths()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.setup.PudlPaths.create_directories"><code class="docutils literal notranslate"><span class="pre">PudlPaths.create_directories()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.setup.PudlPaths.parquet_path"><code class="docutils literal notranslate"><span class="pre">PudlPaths.parquet_path()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.setup.PudlPaths.partitioned_parquet_paths"><code class="docutils literal notranslate"><span class="pre">PudlPaths.partitioned_parquet_paths()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.setup.PudlPaths.sqlite_path"><code class="docutils literal notranslate"><span class="pre">PudlPaths.sqlite_path()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.setup.PudlPaths.duckdb_path"><code class="docutils literal notranslate"><span class="pre">PudlPaths.duckdb_path()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.setup.PudlPaths.output_file"><code class="docutils literal notranslate"><span class="pre">PudlPaths.output_file()</span></code></a></li>

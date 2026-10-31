@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.transform.classes &#8212; PUDL 2026.10.1.dev15 documentation</title>
+    <title>pudl.transform.classes &#8212; PUDL 2026.10.1.dev21 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=4f1abc75"></script>
+    <script src="../../../../_static/documentation_options.js?v=b070ed44"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev15 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev15 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev21 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev21 documentation - Home"/>
   
   
 </a></div>
@@ -1597,6 +1597,14 @@ function needs to have access to the whole dataframe.</p>
 <dt class="sig sig-object py" id="pudl.transform.classes.InvalidRows.invalid_values">
 <span class="sig-name descname"><span class="pre">invalid_values</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#set" title="(in Python v3.15)"><span class="pre">set</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../../metadata/classes/index.html#pudl.metadata.classes.Field" title="pudl.metadata.classes.Field"><span class="pre">Field</span></a><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">min_length</span></span><span class="o"><span class="pre">=</span></span><span class="m"><span class="pre">1</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="reference internal" href="../../../../_modules/pudl/transform/classes.html#InvalidRows.invalid_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.classes.InvalidRows.invalid_values" title="Link to this definition">#</a></dt>
 <dd><p>A list of values that should be considered invalid in the selected columns.</p>
+<p>Null values (<code class="docutils literal notranslate"><span class="pre">pd.NA</span></code>, <code class="docutils literal notranslate"><span class="pre">np.nan</span></code>, <code class="docutils literal notranslate"><span class="pre">None</span></code>) must not be listed here. Use
+<code class="docutils literal notranslate"><span class="pre">dropna</span></code> to control whether nulls are treated as invalid.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.transform.classes.InvalidRows.dropna">
+<span class="sig-name descname"><span class="pre">dropna</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><span class="pre">bool</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></span><a class="reference internal" href="../../../../_modules/pudl/transform/classes.html#InvalidRows.dropna"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.classes.InvalidRows.dropna" title="Link to this definition">#</a></dt>
+<dd><p>Whether null values in the selected columns are also considered invalid.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -1626,6 +1634,12 @@ when a table is wide, and specifying all <code class="docutils literal notransla
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="pudl.transform.classes.InvalidRows.no_null_invalid_values">
+<span class="sig-name descname"><span class="pre">no_null_invalid_values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/transform/classes.html#InvalidRows.no_null_invalid_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.classes.InvalidRows.no_null_invalid_values" title="Link to this definition">#</a></dt>
+<dd><p>Validate that null values are specified with <code class="docutils literal notranslate"><span class="pre">dropna</span></code>, not as values.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="pudl.transform.classes.InvalidRows.one_filter_argument">
 <span class="sig-name descname"><span class="pre">one_filter_argument</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/transform/classes.html#InvalidRows.one_filter_argument"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.classes.InvalidRows.one_filter_argument" title="Link to this definition">#</a></dt>
 <dd><p>Validate that only one argument is specified for <code class="xref py py-meth docutils literal notranslate"><span class="pre">pd.filter()</span></code>.</p>
@@ -1639,7 +1653,8 @@ when a table is wide, and specifying all <code class="docutils literal notransla
 <dd><p>Drop rows with only invalid values in all specified columns.</p>
 <p>This method finds all rows in a dataframe that contain ONLY invalid data in ALL of
 the columns that we are checking, and drops those rows, logging the % of all rows
-that were dropped.</p>
+that were dropped. Null values are considered invalid unless <code class="docutils literal notranslate"><span class="pre">params.dropna</span></code> is
+False.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -2180,10 +2195,12 @@ the columns that have been defined in the mapping for renaming.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.classes.correct_units"><code class="docutils literal notranslate"><span class="pre">correct_units()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.classes.InvalidRows"><code class="docutils literal notranslate"><span class="pre">InvalidRows</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.classes.InvalidRows.invalid_values"><code class="docutils literal notranslate"><span class="pre">InvalidRows.invalid_values</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.classes.InvalidRows.dropna"><code class="docutils literal notranslate"><span class="pre">InvalidRows.dropna</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.classes.InvalidRows.required_valid_cols"><code class="docutils literal notranslate"><span class="pre">InvalidRows.required_valid_cols</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.classes.InvalidRows.allowed_invalid_cols"><code class="docutils literal notranslate"><span class="pre">InvalidRows.allowed_invalid_cols</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.classes.InvalidRows.like"><code class="docutils literal notranslate"><span class="pre">InvalidRows.like</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.classes.InvalidRows.regex"><code class="docutils literal notranslate"><span class="pre">InvalidRows.regex</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.classes.InvalidRows.no_null_invalid_values"><code class="docutils literal notranslate"><span class="pre">InvalidRows.no_null_invalid_values()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.classes.InvalidRows.one_filter_argument"><code class="docutils literal notranslate"><span class="pre">InvalidRows.one_filter_argument()</span></code></a></li>
 </ul>
 </li>
