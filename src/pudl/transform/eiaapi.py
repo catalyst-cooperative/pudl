@@ -104,6 +104,7 @@ def _transform_timeseries(raw_ts: pd.DataFrame) -> pd.DataFrame:
         index=["fuel_agg", "geo_agg", "sector_agg", "temporal_agg", "date"],
         columns="series_code",
     )
+    assert isinstance(ts.columns, pd.MultiIndex)
     ts.columns = ts.columns.droplevel(level=None)
     ts.columns.name = None  # remove "series_code" as name - no longer appropriate
     ts = ts.reset_index(drop=False)
