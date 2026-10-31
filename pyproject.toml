@@ -604,46 +604,15 @@ ignore-path = ["docs/ferc/form1", "docs/_build", "docs/data_sources/phmsagas"]
 minversion = "9.0"
 testpaths = ["./"]
 filterwarnings = [
-    "ignore:Deprecated call to `pkg_resources.declare_namespace:DeprecationWarning",
-    "ignore:Deprecated call to.*declare_namespace:DeprecationWarning:pkg_resources",
-    "ignore:Deprecated call to:DeprecationWarning:google.rpc",
-    "ignore:Feature names only support names:FutureWarning:sklearn.utils.validation",
-    "ignore:In a future version, the Index constructor:FutureWarning:pandas.core.reshape.merge",
-    "ignore:Integration of FERC 714:UserWarning:pudl.extract.ferc714",
-    "ignore:Integration of EIA 861:UserWarning:pudl.extract.eia861",
-    "ignore:pkg_resources is deprecated as an API.:DeprecationWarning",
-    "ignore:Subclassing validator classes is not intended to be part of their public API.:DeprecationWarning",
-    "ignore:datetime.datetime.utcnow() is deprecated:DeprecationWarning",
-    "ignore:The Shapely GEOS version:UserWarning:geopandas[.*]",
-    "ignore:The `__fields__` attribute is deprecated:pydantic.PydanticDeprecatedSince20:unittest.mock",
-    "ignore:The `__fields_set__` attribute is deprecated:pydantic.PydanticDeprecatedSince20:unittest.mock",
-    "ignore:The `__fields__` attribute is deprecated:pydantic.PydanticDeprecatedSince20:pydantic.main",
-    "ignore:The `__fields_set__` attribute is deprecated:pydantic.PydanticDeprecatedSince20:pydantic.main",
-    "ignore:The `update_forward_refs` method is deprecated:pydantic.PydanticDeprecatedSince20:pydantic.main",
-    "ignore:Support for class-based `config` is deprecated:pydantic.PydanticDeprecatedSince20:pydantic._internal._config",
-    "ignore:Pydantic V1 style `@validator` validators are deprecated:pydantic.PydanticDeprecatedSince20:ferc_xbrl_extractor.instance",
-    "ignore:Pydantic V1 style `@validator` validators are deprecated:pydantic.PydanticDeprecatedSince20:mlflow.gateway.config",
-    "ignore:The `update_forward_refs` method is deprecated:pydantic.PydanticDeprecatedSince20:ferc_xbrl_extractor.taxonomy",
-    "once:Could not infer format, so each element will be parsed individually, falling back to `dateutil`.:UserWarning:pudl.extract.eia_bulk_elec",
-    "once:The behavior of DataFrame concatenation with empty or all-NA entries is deprecated.:FutureWarning",
-    "once:Valid config keys have changed in V2:UserWarning",
     "once:AssetExecutionContext.op_config is deprecated:DeprecationWarning",
+    "ignore:Deprecated call to:DeprecationWarning:google.rpc",
     "ignore:unclosed database:ResourceWarning",
     "ignore:Exception ignored in:pytest.PytestUnraisableExceptionWarning",
     "ignore:Specifying a partitions_def on an AssetCheckSpec is currently in preview",
     "ignore:No path_separator found in configuration:DeprecationWarning:alembic",
-    "ignore:Extension type 'geoarrow.wkb' is not registered:UserWarning",
     "ignore:.*invalid escape sequence:SyntaxWarning:stringcase",
     "ignore:.*invalid escape sequence:SyntaxWarning:parsedatetime",
     "ignore:grpcio < 1.83.0 does not support Post-Quantum Cryptography:FutureWarning",
-    # pandas itself ignores this in its own test suite (see test_reductions.py) when
-    # None and NaN are both legitimate representations of missing data in a test's
-    # expected output; not something to "fix" by rewriting fixtures.
-    "ignore:Mismatched null-like values:FutureWarning",
-    # `sum_numeric_values_when_strings_match` needs the grouping columns inside the
-    # applied function (to detect NA-valued keys under dropna=False), so it can't
-    # opt into `include_groups=False` without a nontrivial rewrite.
-    "once:DataFrameGroupBy.apply operated on the grouping columns:FutureWarning:pudl.transform.eia861",
 ]
 
 # must not end with `--cov` since that will treat the first argument you pass
