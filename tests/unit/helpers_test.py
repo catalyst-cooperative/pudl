@@ -1830,14 +1830,14 @@ def test_make_changelog_valid_until_is_per_column():
     }
     assert valid_until == {
         # Unchanged values collapse to one record. With no later change in its own
-        # column it is valid until the entity's last report date.
-        (1, "state", "AK", "2020-01-01"): "2022-01-01",
+        # column it is valid until one month past the entity's last report date.
+        (1, "state", "AK", "2020-01-01"): "2022-02-01",
         (1, "county", "Kenai", "2020-01-01"): "2021-01-01",
-        (1, "county", "Kodiak", "2021-01-01"): "2022-01-01",
+        (1, "county", "Kodiak", "2021-01-01"): "2022-02-01",
         (1, "zip_code", "99661", "2020-01-01"): "2021-01-01",
         (1, "zip_code", "99662", "2021-01-01"): "2022-01-01",
         (1, "zip_code", "99663", "2022-01-01"): "2022-02-01",
-        (2, "state", "WA", "2020-01-01"): "2021-01-01",
+        (2, "state", "WA", "2020-01-01"): "2021-02-01",
     }
     assert (out["valid_until_date"] > out["report_date"]).all()
 
@@ -1924,14 +1924,14 @@ def test_make_changelog_without_record_value_column():
     }
     assert valid_until == {
         # Plant 1's county changes, so the first record is valid until the change
-        # (2021-01-01), and the changed record -- itself the entity's last report --
-        # is valid one more month past its own report date.
+        # (2021-01-01), and the changed record is valid one month past the entity's
+        # last report.
         (1, "Kenai", "2020-01-01"): "2021-01-01",
         (1, "Kodiak", "2021-01-01"): "2021-02-01",
         # Plant 2's second report is an exact duplicate of the first and collapses
-        # away, so the surviving record is valid until the entity's last report date,
-        # without the extra month (it wasn't itself reported on that date).
-        (2, "X", "2020-01-01"): "2021-01-01",
+        # away, but the value was still reported on the entity's last report date, so
+        # the surviving record ends at the same date as plant 1's last record.
+        (2, "X", "2020-01-01"): "2021-02-01",
     }
 
     # Row order of the input doesn't matter.
@@ -1992,6 +1992,17 @@ def test_make_changelog_reverted_value_validity_periods():
     assert out["valid_until_date"].tolist() == list(
         pd.to_datetime(["2026-02-01", "2026-03-01", "2026-04-01"])
     )
+
+
+def test_make_changelog_last_records_all_end_on_the_same_date():
+    """Every series' last record ends one month past the entity's last report.
+
+    It doesn't matter whether the last value began earlier or on the last report date.
+    """
+    constant = _gen_status_changelog(["OP", "OP", "OP"])
+    changed_last = _gen_status_changelog(["OP", "OP", "OA"])
+    assert constant["valid_until_date"].tolist() == [pd.Timestamp("2026-04-01")]
+    assert changed_last["valid_until_date"].iloc[-1] == pd.Timestamp("2026-04-01")
 
 
 def test_make_changelog_reverted_value_in_tall_table():

@@ -3003,8 +3003,10 @@ def _valid_until(changes: pd.DataFrame, series_cols: list[str]) -> pd.Series:
 
     A record is valid until the next record in the same series begins, so the intervals
     ``[report_date, valid_until_date)`` are half-open. A series' last record has no
-    successor, so it is valid until the entity's last report date (``report_date_max``)
-    - or one (fixed) month past it, if the record was itself reported on that last date.
+    successor, and was still in force when the entity was last reported, so it is valid
+    for one month past the entity's last report date (``report_date_max``). Every
+    series' last record therefore ends on the same date. The month is fixed, and
+    assumes monthly reporting.
 
     Args:
         changes: One row per kept changelog record, with ``report_date`` and
@@ -3018,12 +3020,7 @@ def _valid_until(changes: pd.DataFrame, series_cols: list[str]) -> pd.Series:
     next_report_date = changes.groupby(series_cols, dropna=False)["report_date"].shift(
         -1
     )
-    valid_until = next_report_date.fillna(changes["report_date_max"])
-    is_last_report = changes["report_date"] == changes["report_date_max"]
-    valid_until[is_last_report] = changes.loc[
-        is_last_report, "report_date"
-    ] + pd.DateOffset(months=1)
-    return valid_until
+    return next_report_date.fillna(changes["report_date_max"] + pd.DateOffset(months=1))
 
 
 def make_changelog(df_all: pd.DataFrame, id_cols: list[str]) -> pd.DataFrame:
@@ -3052,10 +3049,10 @@ def make_changelog(df_all: pd.DataFrame, id_cols: list[str]) -> pd.DataFrame:
     Each kept record is valid over the half-open interval ``[report_date,
     valid_until_date)``: ``valid_until_date`` is the first date it is *no longer* in
     force, which is the ``report_date`` of the next kept record in the same series.
-    A series' last record has no successor, so its ``valid_until_date`` is the entity's
-    last ``report_date`` (``report_date_max``) - except that a record first reported on
-    that last date gets ``report_date_max`` plus one month. The month is fixed, whatever
-    the table's reporting frequency.
+    A series' last record has no successor, and was still in force when the entity was
+    last reported, so its ``valid_until_date`` is one month past the entity's
+    last ``report_date`` (``report_date_max``). The month is fixed, and assumes monthly
+    reporting.
 
     The output is fully sorted, so it doesn't depend on the order of the input rows.
 
