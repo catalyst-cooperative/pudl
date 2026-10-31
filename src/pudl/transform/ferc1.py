@@ -371,7 +371,8 @@ def wide_to_tidy(df: pd.DataFrame, params: WideToTidy) -> pd.DataFrame:
     # filter out any columns that don't match the pattern
     df_out = df.set_index(params.idx_cols).filter(regex=pat)
     # check if there are unexpected columns being dropped
-    dropped_cols = [col for col in df if col not in df_out.reset_index().columns]
+    kept_cols = {*params.idx_cols, *df_out.columns}
+    dropped_cols = [col for col in df if col not in kept_cols]
     logger.debug(f"dropping: {dropped_cols}")
     if params.expected_drop_cols != len(dropped_cols):
         raise AssertionError(
@@ -3041,6 +3042,8 @@ class Ferc1AbstractTableTransformer(
                     ],
                     axis="columns",
                 ).reset_index()
+                # Consolidate the per-column blocks left by concat(axis="columns").
+                out_df = out_df.copy()
 
         return out_df.loc[out_df.report_year.isin(Ferc1DataConfig().xbrl_years)]
 
