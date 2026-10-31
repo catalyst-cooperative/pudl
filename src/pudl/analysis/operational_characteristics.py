@@ -1294,21 +1294,13 @@ def _out_epacems__yearly_operational_characteristics_adjusted(
     """
     heat_rate_config = _get_heat_rate_analysis_config(context)
     year_quarters = context.resources.global_data_config.pudl.epacems.year_quarters
-    target_year_quarter = _select_target_year_quarter(year_quarters)
-    _assert_required_quarters_available(
-        year_quarters, target_year_quarter, heat_rate_config["num_quarters"]
+    target_year_quarters = _select_target_year_quarters(
+        year_quarters, heat_rate_config["num_quarters"]
     )
-    report_year = int(target_year_quarter[:4])
     # Deliberately not derived from report_year -- see the comment above
     # LATEST_EPACAMD_CROSSWALK_YEAR.
     eia_report_date = context.op_config["eia_report_date"]
     eia_epa_mapping_year = context.op_config["eia_epa_mapping_year"]
-
-    # start_year is only used to filter EIA-923's monthly (not quarterly) data, so a
-    # year-level bound derived from the quarter window's start is precise enough.
-    target_ordinal = _year_quarter_to_ordinal(target_year_quarter)
-    start_ordinal = target_ordinal - heat_rate_config["num_quarters"] + 1
-    start_year = _ordinal_to_quarter_start(start_ordinal).year
 
     # The EIA/EPA capacity and crosswalk data is a single national snapshot (not
     # split by state), so this is computed once and reused across every state's
@@ -1323,48 +1315,55 @@ def _out_epacems__yearly_operational_characteristics_adjusted(
     )
     eia_summaries = summarize_eia_generators(generators, eia_epa_mapping)
 
-    state_dfs = []
-    for state in sorted(EPACEMS_STATES):
-        logger.info(
-            f"Deriving adjusted unit-level operational characteristics from "
-            f"{state} EPA CEMS "
-        )
-        cems = filter_cems_for_heat_rate_analysis(
-            core_epacems__hourly_emissions=core_epacems__hourly_emissions,
-            final_year_quarter=target_year_quarter,
-            num_quarters=heat_rate_config["num_quarters"],
-            states=[state],
-        )
-        cems_monthly = summarize_cems_monthly_plant_operations(
-            cems=cems, eia_plant_summary=eia_summaries["plant"]
-        )
-        plant_ids_eia = cems.select("plant_id_eia").unique().collect().to_series()
-        eia923_monthly = summarize_eia923_monthly_plant_fuel(
-            core_eia923__monthly_generation_fuel=core_eia923__monthly_generation_fuel,
-            eia_plant_summary=eia_summaries["plant"],
-            plant_ids_eia=plant_ids_eia,
-            start_year=start_year,
-        )
-        conversion_factors = estimate_gross_to_net_conversion_factors(
-            cems_monthly_plant_summary=cems_monthly,
-            eia923_monthly_plant_summary=eia923_monthly,
-        )
-        adjusted_cems = add_adjusted_net_generation_to_cems(
-            cems=cems,
-            conversion_factors=conversion_factors,
-            eia_plant_unit_summary=eia_summaries["plant_unit"],
-        )
-        state_df = estimate_operational_characteristics_by_unit(
-            cems=adjusted_cems,
-            min_stable_consecutive_hours=heat_rate_config[
-                "min_stable_consecutive_hours"
-            ],
-            adjusted=True,
-        )
-        state_dfs.append(state_df)
+    all_dfs = []
+    for target_year_quarter in target_year_quarters:
+        report_year = int(target_year_quarter[:4])
+        logger.info(f"=== STARTING {report_year} ===")
+        # start_year is only used to filter EIA-923's monthly (not quarterly) data,
+        # so a year-level bound derived from the quarter window's start is precise
+        # enough.
+        target_ordinal = _year_quarter_to_ordinal(target_year_quarter)
+        start_ordinal = target_ordinal - heat_rate_config["num_quarters"] + 1
+        start_year = _ordinal_to_quarter_start(start_ordinal).year
+        for state in sorted(EPACEMS_STATES):
+            logger.info(
+                f"Deriving adjusted unit-level operational characteristics from "
+                f"{report_year}-{state} EPA CEMS."
+            )
+            cems = filter_cems_for_heat_rate_analysis(
+                core_epacems__hourly_emissions=core_epacems__hourly_emissions,
+                final_year_quarter=target_year_quarter,
+                num_quarters=heat_rate_config["num_quarters"],
+                states=[state],
+            )
+            cems_monthly = summarize_cems_monthly_plant_operations(
+                cems=cems, eia_plant_summary=eia_summaries["plant"]
+            )
+            plant_ids_eia = cems.select("plant_id_eia").unique().collect().to_series()
+            eia923_monthly = summarize_eia923_monthly_plant_fuel(
+                core_eia923__monthly_generation_fuel=core_eia923__monthly_generation_fuel,
+                eia_plant_summary=eia_summaries["plant"],
+                plant_ids_eia=plant_ids_eia,
+                start_year=start_year,
+            )
+            conversion_factors = estimate_gross_to_net_conversion_factors(
+                cems_monthly_plant_summary=cems_monthly,
+                eia923_monthly_plant_summary=eia923_monthly,
+            )
+            adjusted_cems = add_adjusted_net_generation_to_cems(
+                cems=cems,
+                conversion_factors=conversion_factors,
+                eia_plant_unit_summary=eia_summaries["plant_unit"],
+            )
+            state_df = estimate_operational_characteristics_by_unit(
+                cems=adjusted_cems,
+                min_stable_consecutive_hours=heat_rate_config[
+                    "min_stable_consecutive_hours"
+                ],
+                adjusted=True,
+            )
+            all_dfs.append(
+                state_df.with_columns(pl.lit(report_year).alias("report_year"))
+            )
 
-    return (
-        pl.concat(state_dfs)
-        .with_columns(pl.lit(report_year).alias("report_year"))
-        .to_pandas()
-    )
+    return pl.concat(all_dfs).to_pandas()
