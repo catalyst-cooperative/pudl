@@ -1,7 +1,6 @@
 """Spatial operations for demand allocation."""
 
 import itertools
-import warnings
 from collections.abc import Callable, Iterable
 from typing import Literal
 
@@ -33,7 +32,6 @@ def check_gdf(gdf: gpd.GeoDataFrame) -> None:
         raise AttributeError("GeoDataFrame has no geometry")
     if not isinstance(gdf.geometry, gpd.GeoSeries):
         raise TypeError("Geometry is not a GeoSeries")
-    warnings.filterwarnings("ignore", "GeoSeries.isna", UserWarning)
     if gdf.geometry.isna().any():
         raise ValueError("Geometry contains null geometries")
     if not gdf.geometry.geom_type.isin(["Polygon", "MultiPolygon"]).all():

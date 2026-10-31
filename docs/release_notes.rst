@@ -61,6 +61,42 @@ Bug Fixes & Data Cleaning
 * Made transforms in FERC 1, FERC 714, SEC 10-K, PHMSA, RUS and the EIA API extractor
   behave identically under pandas 2 and 3 by replacing in-place, chained and
   dtype-changing assignments. Along the way: the PHMSA operators cleanup no longer
+  nulls non-string values like numeric zip codes; SEC 10-K ownership percentages no
+  longer misread leader dots (``"...99"`` was 0.0099, now 0.99) and dots-only entries
+  are null; and ``drop_invalid_rows()`` treats ``pd.NA``, ``np.nan`` and ``None``
+  alike. A new dbt test expects 90% of SEC 10-K ``fraction_owned`` values to be <= 1.
+  See :issue:`5616`, :issue:`5623` and :pr:`5720`. Part of the Pandas 3.0 migration
+  epic :pr:`3737`.
+* ``X`` in the EIA-861 dynamic pricing time-of-use, critical peak, real time and
+  variable peak columns is now treated as ``True`` (a checked box) instead of being
+  turned into a null, which changes four 2018 rows of
+  ``core_eia861__yearly_dynamic_pricing``. All EIA-861 Y/N flag columns now share one
+  case-insensitive conversion to booleans, so a lowercase ``y`` or ``n`` is no longer
+  turned into a null in a few ``core_eia861__yearly_reliability`` rows, and unexpected
+  codes other than Y, N and X raise an error. See :issue:`5617`, :issue:`5601` and
+  :pr:`5718`.
+* Fixed the 2007-2011 EIA-861 advanced metering infrastructure column map, which was
+  loading the utility ownership codes (e.g. ``C`` for cooperative) into ``short_form``
+  and leaving ``entity_type`` null. Those years of
+  ``core_eia861__yearly_advanced_metering_infrastructure`` now have ``entity_type``
+  populated and ``short_form`` null. See :issue:`5617` :pr:`5718`.
+* When EIA-861 rows for the withheld utility 88888 are combined, boolean columns are
+  no longer summed, nulls are now compatible with non-null values, and the row kept
+  when values conflict no longer depends on input row order, which may change a few
+  rows in several EIA-861 tables. See :issue:`5612` and :pr:`5718`.
+* Made the EIA-923 transforms behave the same under pandas 3: date and month columns
+  are now assigned directly instead of through chained ``.loc`` assignment, and the
+  numeric columns summed when de-duplicating EIA-923 generation fuel rows are
+  explicitly cast to ``float64``. See :issue:`5619`, :issue:`5620` and
+  :pr:`5719`.
+*
+  nulls non-string values like numeric zip codes. SEC 10-K ownership percentages no
+  longer misread leader dots (``"...99"`` was 0.0099, now 0.99), and
+  ``fraction_owned`` is now always within 0-1, with out-of-range values (about 9% of
+  non-null values, e.g. adjacent percentages run together) set to null and a field
+  constraint enforcing the range. ``drop_invalid_rows()`` has a new ``dropna`` argument
+  (default True) instead of requiring null values in ``invalid_values``; outputs are
+  unchanged. See :issue:`5616`, :issue:`5623` and :pr:`5720`.
   nulls non-string values like numeric zip codes. SEC 10-K ownership percentages no
   longer misread leader dots (``"...99"`` was 0.0099, now 0.99), and
   ``fraction_owned`` is now always within 0-1, with out-of-range values (about 9% of
@@ -340,6 +376,35 @@ Developer Experience
   new API (registering inputs with ``DuckDBAPI.register()``, and using ``CustomRule``
   and ``CustomComparison``). The model's behavior is not intentionally changed. See PR
   :pr:`5698`.
+
+Major Dependency Updates
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Pandas 3.0
+~~~~~~~~~~
+
+* Upgraded to ``pandas`` 3.x. PUDL's transform code was updated for the pandas 3.0
+  behavior changes it relied on: the new default string dtype (PDEP-14), the removal
+  of silent dtype upcasting on ``setitem`` (PDEP-6), mandatory Copy-on-Write, the
+  exclusion of grouping columns from ``groupby(...).apply`` (and removal of
+  ``include_groups``), and ``DataFrame.to_sql`` now wrapping database errors in
+  ``pandas.errors.DatabaseError``. Notably, columns scaled by an ownership fraction in
+  :func:`pudl.helpers.scale_by_ownership` (feeding
+  :ref:`out_eia__yearly_generators_by_ownership` and the plant parts list) are now
+  consistently nullable ``Float64``. See PR :pr:`5130`.
+* Kept missing EIA-860M ``generator_id`` and ``boiler_id`` values as the string
+  ``"nan"``, as they were under pandas 2, so the upgrade doesn't drop the plants,
+  utilities and EIA-923 data that only appear in records with no generator ID. See
+  issue :issue:`5645` and PR :pr:`5130`.
+* Kept dates outside the range pandas can represent with nanosecond resolution (years
+  before 1677 or after 2262) as ``NaT``, as they were under pandas 2, rather than
+  letting pandas 3 keep typos like the year ``0006``. This affects FERC 1 certification
+  dates and EIA-860 ``boiler_operating_date``. See issue :issue:`5644` and PR
+  :pr:`5130`.
+* Made whitespace normalization treat Unicode whitespace like the non-breaking space
+  as whitespace on pandas 3's default string dtype, whose regex engine only matches
+  ASCII whitespace with ``\s``. This fixes a ``street_address`` in
+  :ref:`core_ferc__entity_companies`. See issue :issue:`5646` and PR :pr:`5130`.
 
 .. _release-v2026.9.0:
 

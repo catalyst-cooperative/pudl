@@ -22,6 +22,7 @@ from shapely.geometry import Point
 
 import pudl.helpers
 from pudl.helpers import (
+    UNICODE_WHITESPACE_REGEX,
     ParquetData,
     add_fips_ids,
     apply_pudl_dtypes,
@@ -41,10 +42,13 @@ from pudl.helpers import (
     get_parquet_table,
     get_parquet_table_polars,
     make_changelog,
+    month_year_to_date,
     normalize_year_fragments,
+    null_dates_outside_ns_bounds,
     persist_table_as_parquet,
     remove_leading_zeros_from_numeric_strings,
     retry,
+    simplify_strings,
     standardize_na_values,
     standardize_percentages_ratio,
     standardize_phone_column,
@@ -489,6 +493,50 @@ def test_convert_to_date():
     assert_frame_equal(out_df, expected_df)
 
 
+def test_null_dates_outside_ns_bounds():
+    """Dates that overflow nanosecond resolution are nulled, like they were in pandas 2."""
+    dates = pd.to_datetime(
+        pd.Series(["0006-03-29", "1677-09-21", "2001-04-11", None, "9650-06-01"]),
+        errors="coerce",
+    )
+    out = null_dates_outside_ns_bounds(dates)
+    assert out.dtype == dates.dtype
+    assert out.isna().tolist() == [True, True, False, True, True]
+    assert out[2] == pd.Timestamp("2001-04-11")
+
+
+def test_month_year_to_date_nulls_out_of_bounds_dates():
+    """Implausible operating years become NaT instead of a bogus timestamp."""
+    in_df = pd.DataFrame(
+        {
+            "boiler_operating_month": [6, 12, 3],
+            "boiler_operating_year": [9650, 1559, 2010],
+        }
+    )
+    out = month_year_to_date(in_df)
+    assert list(out.columns) == ["boiler_operating_date"]
+    assert out["boiler_operating_date"].isna().tolist() == [True, True, False]
+    assert out["boiler_operating_date"].iloc[2] == pd.Timestamp("2010-03-01")
+
+
+@pytest.mark.parametrize("dtype", [object, "string", str])
+def test_unicode_whitespace_regex(dtype):
+    """Unicode whitespace is collapsed for every string dtype, as it was in pandas 2."""
+    col = pd.Series(
+        ["4809\xa0Jefferson\xa0Highway", "a\u2009 b\u3000c", "d  e"], dtype=dtype
+    )
+    out = col.str.replace(UNICODE_WHITESPACE_REGEX, " ", regex=True)
+    assert out.tolist() == ["4809 Jefferson Highway", "a b c", "d e"]
+
+
+def test_simplify_strings_collapses_non_breaking_spaces():
+    """Non-breaking spaces are normalized like other whitespace."""
+    in_df = pd.DataFrame({"addr": ["  4809\xa0Jefferson\xa0\xa0Highway ", None]})
+    out_df = simplify_strings(in_df, columns=["addr"])
+    assert out_df["addr"].iloc[0] == "4809 jefferson highway"
+    assert pd.isna(out_df["addr"].iloc[1])
+
+
 def test_standardize_na_values():
     """Test cleanup of bad EIA spreadsheet NA values."""
     in_df = pd.DataFrame(
@@ -674,6 +722,49 @@ def test_convert_col_to_bool():
     )
 
 
+@pytest.mark.parametrize(
+    "func,kwargs,df",
+    [
+        pytest.param(
+            convert_col_to_bool,
+            {"col_name": "x", "true_values": ["A"], "false_values": ["B"]},
+            pd.DataFrame({"x": ["A", "B"]}),
+            id="convert_col_to_bool",
+        ),
+        pytest.param(
+            pudl.helpers.oob_to_nan,
+            {"cols": ["x"], "lb": 0, "ub": 1},
+            pd.DataFrame({"x": [-1.0, 0.5, 2.0]}),
+            id="oob_to_nan",
+        ),
+        pytest.param(
+            simplify_strings,
+            {"columns": ["x"]},
+            pd.DataFrame({"x": ["  A  B ", "c"]}),
+            id="simplify_strings",
+        ),
+        pytest.param(
+            month_year_to_date,
+            {},
+            pd.DataFrame({"a_year": [2020, 2021], "a_month": [1, 2]}),
+            id="month_year_to_date",
+        ),
+        pytest.param(
+            convert_to_date,
+            {"year_col": "y"},
+            pd.DataFrame({"y": [2020, 2021]}),
+            id="convert_to_date",
+        ),
+    ],
+)
+def test_shallow_copy_helpers_dont_mutate_input(func, kwargs, df):
+    """Helpers that shallow-copy their input return a new object and leave it intact."""
+    original = df.copy()
+    out = func(df, **kwargs)
+    assert out is not df
+    assert_frame_equal(df, original)
+
+
 def test_convert_col_to_bool_unspecified_value_raises():
     """Values not in true_values or false_values should raise AssertionError."""
     df = pd.DataFrame({"col1": ["A", "B", "C"], "col2": [1, 2, 3]})
@@ -712,11 +803,14 @@ def test_diff_wide_tables():
     assert empty_diff.changed.empty
 
     def assert_diff_equal(observed, expected):
-        observed_reshaped = observed.droplevel(level=0, axis="columns")
-        expected_reshaped = expected.set_index(observed_reshaped.index.names)
-        # pandas 3 infers a str dtype for these columns, pandas 2 leaves object.
-        # TODO: pandas3 set check_dtype=True after migration See #3737
-        assert_frame_equal(observed_reshaped, expected_reshaped, check_dtype=False)
+        # Under pandas 3.0 the melted value columns infer as the default string dtype
+        # (missing values as nan) rather than object (missing values as None); normalize
+        # both sides to nullable string so the comparison is about content, not sentinel.
+        observed_reshaped = observed.droplevel(level=0, axis="columns").astype("string")
+        expected_reshaped = expected.set_index(observed_reshaped.index.names).astype(
+            "string"
+        )
+        assert_frame_equal(observed_reshaped, expected_reshaped)
 
     diff_output = diff_wide_tables(primary_key=["u_id", "year"], old=old, new=new)
 
@@ -906,7 +1000,7 @@ plant_id_eia,energy_source_code,report_date,fuel_cost_per_mmbtu,fuel_cost_per_mm
         window=12,
         min_periods=6,
         win_type="triang",
-    ).round(2)
+    ).round({"fuel_cost_per_mmbtu_rolling": 2})
     pd.testing.assert_frame_equal(test_rolled, out, check_exact=False)
     # reorder the input df using sample to make sure this works
     # no matter how the input df is sorted
@@ -917,7 +1011,7 @@ plant_id_eia,energy_source_code,report_date,fuel_cost_per_mmbtu,fuel_cost_per_mm
         window=12,
         min_periods=6,
         win_type="triang",
-    ).round(2)
+    ).round({"fuel_cost_per_mmbtu_rolling": 2})
     pd.testing.assert_frame_equal(test_rolled, out_reordered, check_exact=False)
 
 

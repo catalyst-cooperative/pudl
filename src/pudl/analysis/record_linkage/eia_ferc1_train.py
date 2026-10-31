@@ -166,13 +166,13 @@ def _prep_eia_ferc1(
     """
     logger.debug("Prepping FERC-EIA table")
     # Only want to keep the plant_name_ppe field which replaces plant_name_eia
-    eia_ferc1_prep = eia_ferc1.copy().drop(columns="plant_name_eia")
+    eia_ferc1_prep = eia_ferc1.drop(columns="plant_name_eia")
     # Add utility_name_eia - this must happen before renaming the cols or else there
     # will be duplicate utility_name_eia columns.
     utils_eia860.loc[:, "report_year"] = utils_eia860.report_date.dt.year
     eia_ferc1_prep = pd.merge(
         eia_ferc1_prep,
-        utils_eia860[["utility_id_eia", "utility_name_eia", "report_year"]].copy(),
+        utils_eia860[["utility_id_eia", "utility_name_eia", "report_year"]],
         on=["utility_id_eia", "report_year"],
         how="left",
         validate="m:1",
@@ -194,7 +194,7 @@ def _prep_eia_ferc1(
     eia_ferc1_prep_nona = eia_ferc1_prep[
         eia_ferc1_prep.fuel_type_code_pudl_eia.notna()
         & eia_ferc1_prep.fuel_type_code_pudl_ferc1.notna()
-    ].copy()
+    ]
     eia_ferc1_prep_nona["fuel_type_code_pudl_diff"] = (
         eia_ferc1_prep_nona.fuel_type_code_pudl_eia
         == eia_ferc1_prep_nona.fuel_type_code_pudl_ferc1
@@ -256,7 +256,7 @@ def _get_util_year_subsets(inputs_dict, util_id_eia_list, years) -> dict:
     for df_name, df in inputs_dict.items():
         subset_df = df[
             df["report_year"].isin(years) & df["utility_id_eia"].isin(util_id_eia_list)
-        ].copy()
+        ]
         # Make sure dfs aren't too big...
         if len(subset_df) > 500000:
             raise AssertionError(
@@ -459,7 +459,6 @@ def validate_override_fixes(
         validated_connections[validated_connections["verified"]]
         .dropna(subset=["record_id_eia_override_1"])
         .reset_index()
-        .copy()
     )
 
     # Make sure that the override EIA ids actually match those in the original FERC-EIA
@@ -574,9 +573,7 @@ def validate_override_fixes(
             )
 
     # Only return the results that have been verified
-    verified_connections = validated_connections[
-        validated_connections["verified"]
-    ].copy()
+    verified_connections = validated_connections[validated_connections["verified"]]
 
     return verified_connections
 
@@ -618,13 +615,9 @@ def _add_to_training(new_overrides, path_to_current_training) -> None:
     """Add the new overrides to the old override sheet."""
     logger.info("Combining all new overrides with existing training data")
     current_training_df = pd.read_csv(path_to_current_training)
-    new_training = (
-        new_overrides[
-            ["record_id_eia", "record_id_ferc1", "signature_1", "signature_2", "notes"]
-        ]
-        .copy()
-        .drop_duplicates(subset=["record_id_eia", "record_id_ferc1"])
-    )
+    new_training = new_overrides[
+        ["record_id_eia", "record_id_ferc1", "signature_1", "signature_2", "notes"]
+    ].drop_duplicates(subset=["record_id_eia", "record_id_ferc1"])
     logger.info(f"Found {len(new_training)} new overrides")
     # Combine new and old training data; drop old data in favor or new overrides
     training_data_out = pd.concat([current_training_df, new_training]).drop_duplicates(
@@ -638,7 +631,7 @@ def _add_to_null_overrides(null_matches, current_null_overrides_path) -> None:
     """Take record_id_ferc1 values verified to have no EIA match and add them to csv."""
     logger.info("Adding record_id_ferc1 values with no EIA match to null_overrides csv")
     # Get new null matches
-    new_null_matches = null_matches[["record_id_ferc1"]].copy()
+    new_null_matches = null_matches[["record_id_ferc1"]]
     logger.info(f"Found {len(new_null_matches)} new null matches")
     # Get current null matches
     current_null_matches = pd.read_csv(current_null_overrides_path)
@@ -656,13 +649,9 @@ def _add_to_one_to_many_overrides(one_to_many, current_one_to_many_path) -> None
         "Adding record_id_ferc1 values with multiple EIA matches to one_to_many_overrides csv"
     )
     current_one_to_many = pd.read_csv(current_one_to_many_path)
-    new_one_to_many = (
-        one_to_many[
-            ["record_id_eia", "record_id_ferc1", "signature_1", "signature_2", "notes"]
-        ]
-        .copy()
-        .drop_duplicates(subset=["record_id_eia", "record_id_ferc1"])
-    )
+    new_one_to_many = one_to_many[
+        ["record_id_eia", "record_id_ferc1", "signature_1", "signature_2", "notes"]
+    ].drop_duplicates(subset=["record_id_eia", "record_id_ferc1"])
     logger.debug(
         f"Found {len(new_one_to_many.record_id_ferc1.unique())} new FERC1 records with multiple EIA matches."
     )
@@ -738,12 +727,10 @@ def validate_and_add_to_training(
             }
         )
         # Get just the overrides and combine them to full list of overrides
-        only_overrides = file_df[file_df["record_id_eia"].notna()][override_cols].copy()
+        only_overrides = file_df[file_df["record_id_eia"].notna()][override_cols]
         all_overrides_list.append(only_overrides)
         # Get just the null matches and combine them to full list of overrides
-        only_null_matches = file_df[file_df["record_id_eia"].isna()][
-            null_match_cols
-        ].copy()
+        only_null_matches = file_df[file_df["record_id_eia"].isna()][null_match_cols]
         all_null_matches_list.append(only_null_matches)
 
         if one_to_many:
@@ -764,7 +751,7 @@ def validate_and_add_to_training(
 
             only_multi = multi_file_df[multi_file_df["record_id_eia"].notna()][
                 override_cols
-            ].copy()
+            ]
             all_multi_matches_list.append(only_multi)
 
     # Combine all training data and null matches

@@ -74,7 +74,7 @@ def _fill_sics(df: pd.DataFrame) -> pd.DataFrame:
         "industry_id_sic"
     ].transform("bfill")
     # Initially set the filled values to the original values.
-    sorted_sics["industry_id_sic_filled"] = sorted_sics["industry_id_sic"].copy()
+    sorted_sics["industry_id_sic_filled"] = sorted_sics["industry_id_sic"]
 
     # Fill unambiguous cases, where ffill == bfill (consistent across time)
     missing_mask = sorted_sics["industry_id_sic"].isna()

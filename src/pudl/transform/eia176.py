@@ -275,7 +275,7 @@ def normalize_continuation_line_location_codes(
     allowed through unchanged so unexpected values still fail loudly. These allowed
     values are raw EIA ``REF_CODE`` values, not standardized ISO country codes.
     """
-    df = df.copy()
+    df = df.copy(deep=False)
     code_map = _subdivision_code_map(core_pudl__codes_subdivisions)
     allowed_codes = CONTINUATION_LINES_ALLOWED_NON_SUBDIVISION_CODES.get(column, set())
 
@@ -1400,7 +1400,7 @@ def _normalize_operating_states(
 
     This uses the latest year of Census PEP data as the reference. If a full state name is not included in this data, it is set to NA.
     """
-    df = df.copy()
+    df = df.copy(deep=False)
     codes = (
         core_pudl__codes_subdivisions.assign(
             key=lambda d: d["subdivision_name"].str.strip().str.casefold()
