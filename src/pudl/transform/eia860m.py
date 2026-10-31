@@ -61,7 +61,8 @@ def core_eia860m__changelog_generators(
         raw_eia860__generator_proposed=raw_eia860m__generator_proposed,
         raw_eia860__generator_existing=raw_eia860m__generator_existing,
         raw_eia860__generator_retired=raw_eia860m__generator_retired.assign(
-            operational_status_code=pd.NA
+            # pandas-stubs' DataFrame.assign() does not accept pd.NA.
+            operational_status_code=pd.NA  # type: ignore[bad-argument-type]
         ),
         # pass an empty generator df here. 860 old years had one big gens tab
         # but 860m doesn't. we do this just to enable us to run the 860 transform

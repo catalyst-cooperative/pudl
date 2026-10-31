@@ -652,7 +652,9 @@ class FercDbfExtractor:
                 self.sqlite_engine,
                 if_exists="append",
                 chunksize=100000,
-                dtype=coltypes,
+                # SQLAlchemy column types are valid to_sql() dtypes, but pandas-stubs
+                # doesn't include them.
+                dtype=coltypes,  # type: ignore[bad-argument-type]
                 index=False,
             )
 
