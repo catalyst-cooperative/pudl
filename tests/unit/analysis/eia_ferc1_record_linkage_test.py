@@ -288,9 +288,9 @@ def test_year_comparison_levels(year_l, year_r, level):
         if condition == "ELSE":
             return True
         query = "SELECT " + condition.replace('"', "") + " FROM pair"  # noqa: S608
-        row = con.sql(query).fetchone()
-        assert row is not None
-        return bool(row[0])
+        rows = con.sql(query).limit(1).fetchall()
+        assert rows
+        return bool(rows[0][0])
 
     # Levels are ordered from most to least specific; the first true one applies.
     assert next(i for i, cond in enumerate(conditions) if _applies(cond)) == level
