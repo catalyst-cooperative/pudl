@@ -1000,7 +1000,7 @@ plant_id_eia,energy_source_code,report_date,fuel_cost_per_mmbtu,fuel_cost_per_mm
         window=12,
         min_periods=6,
         win_type="triang",
-    ).round(2)
+    ).round({"fuel_cost_per_mmbtu_rolling": 2})
     pd.testing.assert_frame_equal(test_rolled, out, check_exact=False)
     # reorder the input df using sample to make sure this works
     # no matter how the input df is sorted
@@ -1011,7 +1011,7 @@ plant_id_eia,energy_source_code,report_date,fuel_cost_per_mmbtu,fuel_cost_per_mm
         window=12,
         min_periods=6,
         win_type="triang",
-    ).round(2)
+    ).round({"fuel_cost_per_mmbtu_rolling": 2})
     pd.testing.assert_frame_equal(test_rolled, out_reordered, check_exact=False)
 
 
