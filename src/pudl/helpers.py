@@ -2998,56 +2998,126 @@ def normalize_year_fragments(
     return year
 
 
-def make_changelog(df_all: pd.DataFrame, idx: list[str]) -> pd.DataFrame:
+def _valid_until(changes: pd.DataFrame, series_cols: list[str]) -> pd.Series:
+    """Find the date until which each changelog record is valid.
+
+    A record is valid until the next record in the same series begins, so the intervals
+    ``[report_date, valid_until_date)`` are half-open. A series' last record has no
+    successor, and was still in force when the entity was last reported, so it is valid
+    for one month past the entity's last report date (``report_date_max``). Every
+    series' last record therefore ends on the same date. The month is fixed, and
+    assumes monthly reporting.
+
+    Args:
+        changes: One row per kept changelog record, with ``report_date`` and
+            ``report_date_max`` columns, sorted by ``report_date`` within each series.
+        series_cols: Columns identifying a series (the groups within which records
+            succeed one another).
+
+    Returns:
+        The ``valid_until_date`` for each row of ``changes``.
+    """
+    next_report_date = changes.groupby(series_cols, dropna=False)["report_date"].shift(
+        -1
+    )
+    return next_report_date.fillna(changes["report_date_max"] + pd.DateOffset(months=1))
+
+
+def make_changelog(df_all: pd.DataFrame, id_cols: list[str]) -> pd.DataFrame:
     """Make a changelog table with unique instances of values over time.
 
-    Each record is valid from its ``report_date`` until the ``report_date`` of the next
-    distinct record in the same series. A series is a unique combination of the
-    non-date ``idx`` columns and, if present, ``column_name`` (as in the "tall" forensics
-    tables, where many different columns and values share one entity ID). Records
-    reported on the entity's last report date are valid for one more month.
+    Three nested groupings of the input are used, each identified by its own columns:
+
+    * An *entity* is the thing the data describes, identified by ``id_cols`` (e.g. a
+      plant, or a generator).
+    * A *series* is one tracked quantity of an entity: the ``id_cols`` plus
+      ``column_name``, if present (as in the "tall" forensics tables, where many
+      different columns and values share one entity ID). In a wide table with no
+      ``column_name``, every column is tracked together, so each entity has a single
+      series and a change to any column starts a new record.
+    * A *snapshot* is a series as reported on one ``report_date``: the set of distinct
+      records reported for it on that date. This is usually just one record, but
+      conflicting reports of the same thing can yield several.
+
+    A report date is kept in the changelog if it is the first for its series, or if its
+    snapshot differs from the snapshot on the series' *previous* report date. Comparing
+    only with the previous date (rather than with every earlier one) means a value that
+    changes and later reverts (``OP`` -> ``OA`` -> ``OP``) gets a new record for the
+    reversion, so the changelog never claims that an outdated value is still in force.
+    Missing values compare as equal to each other.
+
+    Each kept record is valid over the half-open interval ``[report_date,
+    valid_until_date)``: ``valid_until_date`` is the first date it is *no longer* in
+    force, which is the ``report_date`` of the next kept record in the same series.
+    A series' last record has no successor, and was still in force when the entity was
+    last reported, so its ``valid_until_date`` is one month past the entity's
+    last ``report_date`` (``report_date_max``). The month is fixed, and assumes monthly
+    reporting.
 
     The output is fully sorted, so it doesn't depend on the order of the input rows.
+
+    Args:
+        df_all: Records to summarize. Must contain ``report_date`` and the columns in
+            ``id_cols``. May contain ``column_name`` and ``record_value``.
+        id_cols: Columns identifying an entity, not including ``report_date``, e.g.
+            ``["plant_id_eia", "generator_id"]``.
+
+    Returns:
+        The records at which a series' snapshot changed, with the entity's last report
+        date in ``report_date_max`` and the end of the record's validity in
+        ``valid_until_date``.
     """
-    idx_no_date = [c for c in idx if c != "report_date"]
-    series_cols = idx_no_date + [c for c in ["column_name"] if c in df_all.columns]
-    # Tie-breakers, so that rows sharing an ID and report date sort deterministically.
-    tiebreak_cols = [c for c in ["record_value"] if c in df_all.columns]
-    sort_cols = series_cols + ["report_date"] + tiebreak_cols
+    series_cols = id_cols + (["column_name"] if "column_name" in df_all else [])
+    snapshot_cols = series_cols + ["report_date"]
 
-    def _sort_key(col: pd.Series) -> pd.Series:
-        # record_value holds values of many types (floats, timestamps, strings, ...)
-        # from different columns, which can't be ordered against each other, so order
-        # them by their string representation instead.
-        return col.astype("string") if col.name == "record_value" else col
+    # Identical rows within a snapshot carry no information.
+    records = df_all.drop_duplicates()
 
-    # assign a max report_date column for use in the valid_until_date column
-    df_all["report_date_max"] = df_all.groupby(idx_no_date)["report_date"].transform(
-        "max"
+    # Give each distinct combination of values an integer ID (missing values are
+    # equal to each other) so that a snapshot can be represented as a set of IDs.
+    value_cols = [c for c in records if c not in snapshot_cols]
+    records = records.assign(
+        _value_id=records.groupby(value_cols, dropna=False, sort=False).ngroup()
     )
 
-    df_changelog = df_all.sort_values(
-        sort_cols, kind="stable", key=_sort_key
-    ).drop_duplicates(
-        subset=[c for c in df_all if c != "report_date"],
-        keep="first",
+    # One row per series and report date, in date order within each series.
+    snapshots = (
+        records.groupby(snapshot_cols, dropna=False)["_value_id"]
+        .agg(frozenset)
+        .rename("snapshot")
+        .reset_index()
+        .assign(
+            report_date_max=lambda df: df.groupby(id_cols)["report_date"].transform(
+                "max"
+            )
+        )
     )
 
-    # Within each series, a record is valid until the next record begins.
-    next_report_date = df_changelog.groupby(series_cols)["report_date"].shift(-1)
-    df_changelog["valid_until_date"] = next_report_date.fillna(
-        df_changelog["report_date_max"]
-    )
+    # Keep the first date of each series, and any date whose snapshot differs from the
+    # previous date's snapshot in that series (the shift of a first date is NaN).
+    previous_snapshot = snapshots.groupby(series_cols, dropna=False)["snapshot"].shift()
+    changes = snapshots[snapshots["snapshot"] != previous_snapshot].copy()
+    changes["valid_until_date"] = _valid_until(changes, series_cols)
 
-    # for all of the last month records, use the next month as the valid until date
-    report_date_max_mask = (
-        df_changelog["report_date"] == df_changelog["report_date_max"]
-    )
-    df_changelog.loc[report_date_max_mask, "valid_until_date"] = df_changelog.loc[
-        report_date_max_mask, "report_date"
-    ] + pd.DateOffset(months=1)
+    # Rows sharing a snapshot are ordered by record_value, so output is deterministic.
+    sort_cols = snapshot_cols + (["record_value"] if "record_value" in df_all else [])
 
-    return df_changelog.sort_values(sort_cols, kind="stable", key=_sort_key)
+    return (
+        # Bring the full records back for the dates that were kept.
+        records.merge(
+            changes[snapshot_cols + ["report_date_max", "valid_until_date"]],
+            on=snapshot_cols,
+        )
+        .drop(columns="_value_id")
+        .sort_values(
+            sort_cols,
+            kind="stable",
+            # record_value holds values of many types (floats, timestamps, strings,
+            # ...) from different columns, which can't be ordered against each other,
+            # so sort on their string representation instead.
+            key=lambda col: col.astype("string") if col.name == "record_value" else col,
+        )
+    )
 
 
 def parse_address(addr: str):

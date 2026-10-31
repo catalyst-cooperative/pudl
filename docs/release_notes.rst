@@ -39,7 +39,6 @@ New Data Tests & Validations
   configuration changes to handle partitioned parquet outputs. See issue :pr:`4864`
   and PR :pr:`5676`. This PR also applies basic validation tests to FERC EQR tables,
   including row count tests.
-
 * Validate that the net utility plant, total other property and investments, and total
   assets in :ref:`core_rus7__yearly_balance_sheet_assets` and
   :ref:`out_rus7__yearly_balance_sheet_assets` equal the sum of their subcomponents.
@@ -90,13 +89,19 @@ Bug Fixes & Data Cleaning
   numeric columns summed when de-duplicating EIA-923 generation fuel rows are
   explicitly cast to ``float64``. See :issue:`5619`, :issue:`5620` and
   :pr:`5719`.
-*
 * Made null handling in ``stack_generators()``, the EIA-176 "other" gas disposition
   categorization and the EIA-860 ownership spot-fix behave identically under pandas 2
   and 3. Pandas 3 changed how nulls are treated by ``stack()``, ``astype(str)`` and
   string comparisons, which would otherwise have left spurious null energy sources,
   null primary keys, or unremoved bogus ownership records. See :issue:`5621`,
   :issue:`5622`, :issue:`5624` and :pr:`5721`.
+* Stop ``make_changelog()`` from dropping records whose values reverted to an earlier
+  state (e.g. ``OP`` -> ``OA`` -> ``OP``), leaving the intermediate value looking like a
+  permanent change. This adds 3-7% more rows to
+  :ref:`core_eia860m__changelog_generators` and the entity resolution forensics tables.
+  It also removes empty ``valid_until_date`` intervals, and ensures every series ends
+  on the same date -- one month past the entity's final report date. See :issue:`5730`
+  and :pr:`5731`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
