@@ -28,9 +28,9 @@ from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
 
 STATES: list[dict[str, str]] = [
     {
-        "name": x.subdivision_name,
-        "code": x.subdivision_code,
-        "fips": x.state_id_fips,
+        "name": str(x.subdivision_name),
+        "code": str(x.subdivision_code),
+        "fips": str(x.state_id_fips),
     }
     for x in POLITICAL_SUBDIVISIONS.itertuples()
     if x.state_id_fips is not pd.NA

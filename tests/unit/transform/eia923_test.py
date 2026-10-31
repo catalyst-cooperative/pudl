@@ -480,7 +480,7 @@ def test__aggregate_generation_fuel_duplicates__no_pd_na():
     assert value_rows[2] == [5.0, 5.0, 10.0, 10.0, 10.0, 2.0]
     assert out.loc[3, "fuel_consumed_mmbtu"] == 7.0
     assert not any(v is pd.NA for v in out["fuel_mmbtu_per_unit"])
-    assert pd.isna(out.loc[3, "fuel_mmbtu_per_unit"])
+    assert out["fuel_mmbtu_per_unit"].isna().loc[3]
 
 
 def test__aggregate_generation_fuel_duplicates__object_dtype_with_pd_na():
@@ -506,6 +506,6 @@ def test__aggregate_generation_fuel_duplicates__object_dtype_with_pd_na():
     assert not any(v is pd.NA for v in out["fuel_mmbtu_per_unit"])
     # The non-duplicate row's values survive, and its pd.NA heat content is np.nan.
     assert value_rows[1][:5] == [2.0, 2.0, 4.0, 4.0, 1.0]
-    assert pd.isna(out.loc[1, "fuel_mmbtu_per_unit"])
+    assert out["fuel_mmbtu_per_unit"].isna().loc[1]
     # Sums skip the nulls; heat content is recomputed as 12 mmbtu / 6 units.
     assert value_rows[2] == [6.0, 1.0, 12.0, 10.0, 3.0, 2.0]
