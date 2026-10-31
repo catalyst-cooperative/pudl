@@ -21,11 +21,6 @@
       "concise_description": "Argument `Categorical | polars.datatypes.classes.DataType | ExtensionDtype | GeometryDtype | str | type[polars.datatypes.classes.DataType]` is not assignable to parameter `dtype` with type `pandera.dtypes.DataType | ExtensionDtype | dtype | str | type[Any] | None` in function `pandera.api.pandas.components.Column.__init__`"
     },
     {
-      "path": "src/pudl/analysis/spatial.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `DataFrame | GeoDataFrame | Unknown` is not assignable to parameter `df1` with type `GeoDataFrame` in function `geopandas.tools.overlay.overlay`"
-    },
-    {
       "path": "src/pudl/extract/dbf.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `DataFrame | None` is not assignable to parameter `dfs` with type `list[PartitionedDataFrame]` in function `FercDbfExtractor.aggregate_table_frames`"
@@ -66,29 +61,9 @@
       "concise_description": "Argument `Literal['data_dictionaries/code_csvs']` is not assignable to parameter `csv_subdir` with type `Path` in function `pudl.metadata.classes.CodeMetadata.to_rst`"
     },
     {
-      "path": "src/pudl/analysis/fuel_by_plant.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `Literal[1]` is not assignable to parameter `axis` with type `Literal['index', 0] | None` in function `pandas.core.series.Series.sum`"
-    },
-    {
       "path": "src/pudl/analysis/spatial.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `MultiPolygon` is not assignable to parameter `iterable` with type `Iterable[Polygon]` in function `list.extend`"
-    },
-    {
-      "path": "src/pudl/transform/sec10k.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `NAType` is not assignable to parameter `other` with type `((...) -> Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64) | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` in function `pandas.core.series.Series.where`"
-    },
-    {
-      "path": "src/pudl/transform/phmsagas.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `NAType` is not assignable to parameter `other` with type `((...) -> Series[str] | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64) | Series[str] | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` in function `pandas.core.series.Series.where`"
-    },
-    {
-      "path": "src/pudl/transform/sec10k.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `NAType` is not assignable to parameter `other` with type `((...) -> Series[str] | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64) | Series[str] | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` in function `pandas.core.series.Series.where`"
     },
     {
       "path": "src/pudl/dagster/assets/raw/ferc_to_sqlite.py",
@@ -164,11 +139,6 @@
       "path": "src/pudl/dagster/io_managers.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `dict[str, DataType]` is not assignable to parameter `dtypes` with type `DataType | DataTypeClass | DataTypeExpr | Mapping[DataType | DataTypeClass | Selector | str, DataType | DataTypeClass | type[Decimal | bool | bytes | date | datetime | float | int | list[Any] | object | str | time | timedelta | tuple[Any, ...] | None]] | Schema` in function `polars.lazyframe.frame.LazyFrame.cast`"
-    },
-    {
-      "path": "src/pudl/extract/dbf.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `dict[str, TypeEngine[Any]]` is not assignable to parameter `dtype` with type `ExtensionDtype | Mapping[Hashable, ExtensionDtype | dtype[generic] | str | type[bool | complex | object | str]] | dtype[generic] | str | type[bool | complex | object | str] | None` in function `pandas.core.generic.NDFrame.to_sql`"
     },
     {
       "path": "src/pudl/analysis/state_demand.py",
@@ -351,31 +321,6 @@
       "concise_description": "Generator function should return `Generator`"
     },
     {
-      "path": "src/pudl/transform/eia860m.py",
-      "name": "bad-argument-type",
-      "concise_description": "Keyword argument `operational_status_code` with type `NAType` is not assignable to parameter `**kwargs` with type `((DataFrame) -> ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None) | ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None` in function `pandas.core.frame.DataFrame.assign`"
-    },
-    {
-      "path": "src/pudl/transform/vcerare.py",
-      "name": "bad-argument-type",
-      "concise_description": "Keyword argument `state_id_fips` with type `(x: DataFrame) -> DataFrame` is not assignable to parameter `**kwargs` with type `((DataFrame) -> ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None) | ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None` in function `pandas.core.frame.DataFrame.assign`"
-    },
-    {
-      "path": "src/pudl/transform/rus12.py",
-      "name": "bad-argument-type",
-      "concise_description": "Keyword argument `state` with type `(x: DataFrame) -> DataFrame` is not assignable to parameter `**kwargs` with type `((DataFrame) -> ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None) | ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None` in function `pandas.core.frame.DataFrame.assign`"
-    },
-    {
-      "path": "src/pudl/transform/rus7.py",
-      "name": "bad-argument-type",
-      "concise_description": "Keyword argument `state` with type `(x: DataFrame) -> DataFrame` is not assignable to parameter `**kwargs` with type `((DataFrame) -> ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None) | ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None` in function `pandas.core.frame.DataFrame.assign`"
-    },
-    {
-      "path": "src/pudl/analysis/record_linkage/eia_ferc1_inputs.py",
-      "name": "bad-argument-type",
-      "concise_description": "Keyword argument `year_in_date_range` with type `(x: DataFrame) -> DataFrame` is not assignable to parameter `**kwargs` with type `((DataFrame) -> ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None) | ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None` in function `pandas.core.frame.DataFrame.assign`"
-    },
-    {
       "path": "src/pudl/dagster/assets/raw/ferc_to_sqlite.py",
       "name": "missing-argument",
       "concise_description": "Missing argument `local_datapackage_path` in function `FercPaths.__init__`"
@@ -521,16 +466,6 @@
       "concise_description": "Object of class `spmatrix` has no attribute `columns`"
     },
     {
-      "path": "src/pudl/transform/eia860.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of type `Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` has no attribute `index`"
-    },
-    {
-      "path": "src/pudl/transform/eia860.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of type `Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` has no attribute `reset_index`"
-    },
-    {
       "path": "src/pudl/analysis/service_territory.py",
       "name": "bad-return",
       "concise_description": "Returned type `AssetsDefinition` is not assignable to declared return type `list[AssetsDefinition]`"
@@ -579,16 +514,6 @@
       "path": "src/pudl/analysis/record_linkage/name_cleaner.py",
       "name": "bad-return",
       "concise_description": "Returned type `Series` is not assignable to declared return type `DataFrame`"
-    },
-    {
-      "path": "src/pudl/extract/rus12.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` is not assignable to declared return type `str`"
-    },
-    {
-      "path": "src/pudl/extract/rus7.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` is not assignable to declared return type `str`"
     },
     {
       "path": "src/pudl/extract/extractor.py",
@@ -674,11 +599,6 @@
       "path": "src/pudl/scripts/dbt_helper.py",
       "name": "unsupported-operation",
       "concise_description": "`None` is not subscriptable"
-    },
-    {
-      "path": "src/pudl/analysis/state_demand.py",
-      "name": "bad-assignment",
-      "concise_description": "`Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` is not assignable to dict value type `str`"
     },
     {
       "path": "src/pudl/analysis/record_linkage/eia_ferc1_train.py",
