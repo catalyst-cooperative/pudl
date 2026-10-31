@@ -1650,7 +1650,7 @@ def _clean_emissions_control_dates(
 
     is_spot_fix = raw.isin(spot_fixes)
     # Apply table-specific corrections first so malformed one-offs don't need to be
-    # encoded in general parsing logic. Guard with .any() because pandas 3.0 refuses to
+    # encoded in general parsing logic. Guard with .any() because pandas 3 refuses to
     # set an empty / non-datetime RHS into a datetime64[ns] column.
     if is_spot_fix.any():
         out.loc[is_spot_fix] = pd.to_datetime(raw.loc[is_spot_fix].map(spot_fixes))

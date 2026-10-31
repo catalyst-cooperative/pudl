@@ -866,7 +866,7 @@ def core_eia176__yearly_gas_disposition_other(
     # disposition_type is a primary key column and can't be null. A small number of
     # 1997-2000 line 18.4 (Disposition to Other) continuation records never had a
     # free-text description recorded at all. (raw reference_state and
-    # mode_of_transportation are blank too for these years) As of pandas 3.0
+    # mode_of_transportation are blank too for these years) As of pandas 3
     # cleanstrings_series's astype(str) call correctly preserves these as a true NA
     # value instead of masking them as the literal text "nan", so we now have to
     # explicitly categorize them ourselves rather than relying on that accident. This is
