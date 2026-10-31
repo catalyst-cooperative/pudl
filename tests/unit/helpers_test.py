@@ -1816,7 +1816,7 @@ def _forensics_records() -> pd.DataFrame:
 
 def test_make_changelog_valid_until_is_per_column():
     """valid_until_date follows the next change in the same column, not other columns."""
-    out = make_changelog(_forensics_records(), ["plant_id_eia", "report_date"])
+    out = make_changelog(_forensics_records(), ["plant_id_eia"])
     valid_until = {
         (plant, column, value, start): end
         for plant, column, value, start, end in zip(
@@ -1845,9 +1845,9 @@ def test_make_changelog_valid_until_is_per_column():
 @pytest.mark.parametrize("seed", range(5))
 def test_make_changelog_is_order_independent(seed: int):
     """Shuffling the input rows must not change the changelog."""
-    ordered = make_changelog(_forensics_records(), ["plant_id_eia", "report_date"])
+    ordered = make_changelog(_forensics_records(), ["plant_id_eia"])
     shuffled_in = _forensics_records().sample(frac=1, random_state=seed)
-    shuffled = make_changelog(shuffled_in, ["plant_id_eia", "report_date"])
+    shuffled = make_changelog(shuffled_in, ["plant_id_eia"])
     assert_frame_equal(ordered.reset_index(drop=True), shuffled.reset_index(drop=True))
 
 
@@ -1876,8 +1876,8 @@ def test_make_changelog_handles_mixed_record_value_types():
             ),
         }
     )
-    idx = ["plant_id_eia", "report_date"]
-    out = make_changelog(df.copy(), idx).reset_index(drop=True)
+    id_cols = ["plant_id_eia"]
+    out = make_changelog(df.copy(), id_cols).reset_index(drop=True)
     # The unchanged operating date collapses to a single record.
     assert out.groupby("column_name").size().to_dict() == {
         "capacity": 2,
@@ -1891,7 +1891,7 @@ def test_make_changelog_handles_mixed_record_value_types():
     ]
     assert first_capacity.valid_until_date.iloc[0] == pd.Timestamp("2021-01-01")
     # Row order of the input doesn't matter.
-    shuffled = make_changelog(df.sample(frac=1, random_state=3), idx)
+    shuffled = make_changelog(df.sample(frac=1, random_state=3), id_cols)
     assert_frame_equal(out, shuffled.reset_index(drop=True))
 
 
@@ -1907,8 +1907,8 @@ def test_make_changelog_without_record_value_column():
             "county": ["Kenai", "Kodiak", "X", "X"],
         }
     )
-    idx = ["plant_id_eia", "report_date"]
-    out = make_changelog(df.copy(), idx).reset_index(drop=True)
+    id_cols = ["plant_id_eia"]
+    out = make_changelog(df.copy(), id_cols).reset_index(drop=True)
     assert "record_value" not in out.columns
     assert "column_name" not in out.columns
 
@@ -1935,7 +1935,7 @@ def test_make_changelog_without_record_value_column():
     }
 
     # Row order of the input doesn't matter.
-    shuffled = make_changelog(df.sample(frac=1, random_state=3), idx)
+    shuffled = make_changelog(df.sample(frac=1, random_state=3), id_cols)
     assert_frame_equal(out, shuffled.reset_index(drop=True))
 
 
@@ -1951,7 +1951,7 @@ def _gen_status_changelog(statuses: list[str | None]) -> pd.DataFrame:
             "operational_status_code": statuses,
         }
     )
-    return make_changelog(df, ["plant_id_eia", "generator_id", "report_date"])
+    return make_changelog(df, ["plant_id_eia", "generator_id"])
 
 
 @pytest.mark.parametrize(
@@ -1984,7 +1984,10 @@ def test_make_changelog_keeps_reverted_values(statuses, expected_months):
 
 
 def test_make_changelog_reverted_value_validity_periods():
-    """Each kept record is valid until the next one starts (the A, B, A case)."""
+    """Each kept record is valid until the next one starts.
+
+    The final value goes one month past the end of the series.
+    """
     out = _gen_status_changelog(["OP", "OA", "OP"])
     assert out["valid_until_date"].tolist() == list(
         pd.to_datetime(["2026-02-01", "2026-03-01", "2026-04-01"])
@@ -2003,7 +2006,7 @@ def test_make_changelog_reverted_value_in_tall_table():
             "record_value": ["AK", "WA", "AK", "X", "X", "X"],
         }
     )
-    out = make_changelog(df, ["plant_id_eia", "report_date"])
+    out = make_changelog(df, ["plant_id_eia"])
     kept = list(zip(out["column_name"], out["report_date"].dt.year, strict=True))
     assert kept == [("county", 2020), ("state", 2020), ("state", 2021), ("state", 2022)]
 
@@ -2020,7 +2023,7 @@ def test_make_changelog_multiple_records_per_series_and_date():
             "record_value": ["AK", "WA", "WA", "AK", "AK", "OR"],
         }
     )
-    out = make_changelog(df, ["plant_id_eia", "report_date"])
+    out = make_changelog(df, ["plant_id_eia"])
     # 2021 reports the same set as 2020 (in a different order), so it's not a change.
     assert out["report_date"].dt.year.tolist() == [2020, 2020, 2022, 2022]
     assert (out["valid_until_date"] > out["report_date"]).all()
