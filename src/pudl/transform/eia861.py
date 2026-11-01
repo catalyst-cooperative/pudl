@@ -856,13 +856,36 @@ def _harvest_associations(dfs: list[pd.DataFrame], cols: list[str]) -> pd.DataFr
     return assn
 
 
+def _is_numeric_valued(col: pd.Series) -> bool:
+    """Whether a column holds numbers (or nothing but nulls), whatever its dtype.
+
+    The raw EIA-861 spreadsheets mark missing values with placeholders like ``"."``, so
+    columns of numbers are often read as ``object``. Pandas 2 happened to downcast many
+    of them to ``float64`` when the placeholders were replaced, but pandas 3 does not, so
+    the dtype alone can't be trusted to say whether a column should be summed.
+    Booleans (numpy and nullable) are not numeric.
+    """
+    if pd.api.types.is_bool_dtype(col.dtype):
+        return False
+    if pd.api.types.is_numeric_dtype(col.dtype):
+        return True
+    return col.dtype == object and pd.api.types.infer_dtype(col) in {
+        "integer",
+        "floating",
+        "mixed-integer-float",
+        "empty",
+    }
+
+
 def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame:
     """Combine the data associated with 88888 utility_id_values.
 
-    This function sums the numeric columns of rows with a utility_id_eia of 88888 into a
-    single row per primary key. Null values are treated as compatible with non-null
-    values: they count as zero when summing numeric columns, and they don't conflict
-    with the single non-null value of a non-numeric column (which includes booleans).
+    This function sums the numeric columns (see :func:`_is_numeric_valued`) of rows with
+    a utility_id_eia of 88888 into a single row per primary key. Null values are treated
+    as compatible with non-null values: they are ignored when summing numeric columns
+    (a column that is null in every row of a group stays null rather than becoming
+    zero), and they don't conflict with the single non-null value of a non-numeric
+    column (which includes booleans).
     If a non-numeric column has more than one distinct non-null value within a primary
     key, the rows are impossible to combine. E.g.: boolean columns where one value is
     Y and the other is N. In that case only the first row (after sorting) is kept and
@@ -887,13 +910,15 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
     if 88888 not in df.utility_id_eia.unique():
         return df
 
-    # Split the non-key columns into those that can be summed and those that can't. Note
-    # that select_dtypes(exclude="number") treats boolean columns (numpy and nullable)
-    # as non-numeric, so they are compared across a group rather than summed.
-    non_num_cols = (
-        df.drop(columns=idx_cols).select_dtypes(exclude="number").columns.tolist()
+    # Split the non-key columns into those that can be summed and those that can't.
+    # Booleans are non-numeric, so they are compared across a group rather than summed.
+    value_cols = [col for col in df.columns if col not in idx_cols]
+    num_cols = [col for col in value_cols if _is_numeric_valued(df[col])]
+    non_num_cols = [col for col in value_cols if col not in num_cols]
+    # Numbers stored as object (see _is_numeric_valued) must be real numbers to be summed.
+    df = df.assign(
+        **{col: pd.to_numeric(df[col]) for col in num_cols if df[col].dtype == object}
     )
-    num_cols = df.columns.difference(idx_cols + non_num_cols, sort=False).tolist()
 
     # dropna=False keeps groups whose primary key contains nulls (e.g. no BA code).
     # Sort on every column so that which row is "first" in each group (and so which
@@ -933,11 +958,13 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
     else:
         combinable_labels = combined_rows.index
 
-    # Sum the numeric values of the combinable groups into their first row. Nulls count
-    # as zero. Non-combinable groups keep the numeric values of their first row.
+    # Sum the numeric values of the combinable groups into their first row, ignoring
+    # nulls. min_count=1 keeps a column that is null throughout a group null instead of
+    # reporting a withheld value as zero. Non-combinable groups keep the numeric values
+    # of their first row.
     if num_cols:
         combined_rows.loc[combinable_labels, num_cols] = grouped[num_cols].transform(
-            "sum"
+            "sum", min_count=1
         )
 
     recombined_df = pd.concat(
