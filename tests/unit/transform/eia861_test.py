@@ -200,7 +200,7 @@ def test__combine_88888_values__all_null_group_stays_null():
     out = eia861._combine_88888_values(df, ["report_date", "utility_id_eia", "state"])
     out = out.sort_values("report_date").reset_index(drop=True)
     assert len(out) == 2
-    assert pd.isna(out.loc[0, "customers"])
+    assert out["customers"].isna().tolist() == [True, False]
     assert out.loc[1, "customers"] == 3.0
 
 
