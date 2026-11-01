@@ -208,29 +208,28 @@ Pandas 3
 
 * Upgraded to ``pandas`` 3 (``pandas>=3.1,<4``) and ``pandas-stubs`` 3.1, adapting PUDL
   to the new string dtype, stricter ``setitem`` dtype rules, mandatory Copy-on-Write,
-  and ``groupby(...).apply`` no longer including grouping columns. We aimed to minimize
-  changes to the outputs, so that any difference in the data comes from a deliberate
-  decision rather than from the upgrade. Columns scaled by an ownership fraction in
-  :func:`pudl.helpers.scale_by_ownership` are now consistently nullable ``Float64``.
-  See PRs :pr:`5130`, :pr:`5718`, :pr:`5719`, :pr:`5720`, :pr:`5721` and :issue:`3737`.
-* Where pandas 3 would have changed a result, we kept the pandas 2 behavior: missing
-  EIA-860M ``generator_id`` and ``boiler_id`` values stay the string ``"nan"``
-  (:issue:`5645`), out-of-range dates like the year ``0006`` stay ``NaT``
-  (:issue:`5644`), and Unicode whitespace is still collapsed in strings (:issue:`5646`).
-* Fixed transforms that failed when only some years were processed (as in the fast
-  ETL), consolidated fragmented wide data frames that had caused thousands of warnings
-  and slow transforms, and removed pandas 2-only code and obsolete warning suppressions.
-  The ``copy`` parameter was removed from :func:`pudl.helpers.simplify_strings` and
-  :func:`pudl.helpers.convert_to_date`. See PR :pr:`5130`.
+  and ``groupby(...).apply`` no longer including grouping columns. We also fixed
+  transforms that failed when only some years were processed (as in the fast ETL),
+  removed pandas 2-only code and warning suppressions, and consolidated fragmented
+  wide data frames that had caused thousands of warnings and slow transforms. See PRs
+  :pr:`5130`, :pr:`5718`, :pr:`5719`, :pr:`5720`, :pr:`5721` and Epic :issue:`3737`.
+* We aimed to keep the outputs the same, so any difference comes from a deliberate
+  decision rather than from the upgrade. Where pandas 2 was correct or the right value
+  was unclear we preserved its behavior, e.g. missing EIA-860M ``generator_id`` and
+  ``boiler_id`` values stay the string ``"nan"`` (:issue:`5645`), out-of-range dates
+  stay ``NaT`` (:issue:`5644`), and Unicode whitespace is still collapsed in strings
+  (:issue:`5646`).
+* Where pandas 3 changed a value and the right one was clear, we fixed the data. This
+  affects a small number of values: EIA-861 rows for the withheld utility 88888 (and the
+  Texas state demand derived from them), the order of FERC 1 small plants rows and the
+  plant and fuel types that depend on it, one malformed EIA-860M date, the dtype of
+  ``supplier_code_rus`` in the RUS 7 energy purchased table, etc. See PR :pr:`5130`
+  and the commit messages for details.
 * For more on what changed in pandas 3, see the pandas `3.0 announcement
   <https://pandas.pydata.org/community/blog/pandas-3.0.html>`__, the `3.0.0
   <https://pandas.pydata.org/docs/whatsnew/v3.0.0.html>`__ and `3.1.0
   <https://pandas.pydata.org/docs/whatsnew/v3.1.0.html>`__ release notes, and the
-  `migration guides <https://pandas.pydata.org/docs/user_guide/migration.html>`__
-  (Copy-on-Write, `new string dtype
-  <https://pandas.pydata.org/docs/user_guide/migration-3-strings.html>`__).
-* For a list of all the issues that went into the Pandas 3 migration, see the Epic
-  :issue:`3737`.
+  `migration guides <https://pandas.pydata.org/docs/user_guide/migration.html>`__.
 
 .. _release-v2026.10.0:
 
