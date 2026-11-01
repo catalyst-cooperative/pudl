@@ -1821,6 +1821,46 @@ def select_current_year_annual_records_duration_xbrl(df: pd.DataFrame, table_nam
     return df
 
 
+def sort_xbrl_rows_by_order_number(df: pd.DataFrame) -> pd.DataFrame:
+    """Put the rows of each XBRL filing in the order the utility reported them.
+
+    The XBRL extractor does not preserve the order of the rows in a filing, e.g. the
+    rows of the small plants table come out alphabetized by plant name. Some tables
+    identify header, note and total rows, and the rows that belong together, by their
+    position, so they need the order recorded in the ``order_number`` column. The total
+    row of a filing goes last, because its ``order_number`` can repeat that of the first
+    row, which would put it between a header and the plants below it. Rows with the same
+    ``order_number`` keep their relative order, and rows without one go last, in their
+    original order.
+
+    Args:
+        df: XBRL data with ``utility_id_ferc1_xbrl``, ``report_year``, ``order_number``
+            and ``generating_plant_statistics`` columns.
+
+    Returns:
+        The rows sorted by utility, year, total row and ``order_number``, with a new
+        index.
+    """
+    if df.empty:
+        return df
+    is_total = (
+        df["generating_plant_statistics"]
+        .str.strip()
+        .str.lower()
+        .isin(["total", "grand total"])
+    )
+    return (
+        df.assign(_order=pd.to_numeric(df["order_number"]), _is_total=is_total)
+        .sort_values(
+            ["utility_id_ferc1_xbrl", "report_year", "_is_total", "_order"],
+            kind="stable",
+            na_position="last",
+        )
+        .drop(columns=["_order", "_is_total"])
+        .reset_index(drop=True)
+    )
+
+
 ################################################################################
 # FERC 1 transform helper functions. Probably to be integrated into a class
 # below as methods or moved to a different module once it's clear where they belong.
@@ -4138,6 +4178,22 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
         )
 
         return df
+
+    @cache_df(key="xbrl")
+    def process_xbrl(
+        self,
+        raw_xbrl_instant: pd.DataFrame,
+        raw_xbrl_duration: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """Process the XBRL data, then restore the order of the rows in each filing.
+
+        The header, note and total rows, and the multi-row plant records, of this table
+        are identified by their position in the filing. See
+        :func:`sort_xbrl_rows_by_order_number`.
+        """
+        return sort_xbrl_rows_by_order_number(
+            super().process_xbrl(raw_xbrl_instant, raw_xbrl_duration)
+        )
 
     def remove_messy_plant_name_duplicates(self, df: pd.DataFrame) -> pd.DataFrame:
         """Remove a small number of duplicate records from messy plant names.
