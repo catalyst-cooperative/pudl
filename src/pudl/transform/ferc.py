@@ -114,7 +114,14 @@ def filter_for_freshest_data_xbrl(
     if (not xbrl_table.empty) and primary_keys:
         filing_metadata_cols = {"publication_time", "filing_name"}
         xbrl_context_cols = [c for c in primary_keys if c not in filing_metadata_cols]
-        original = xbrl_table.sort_values("publication_time")
+        # The sort must be stable. Many rows share a publication_time (one filing has
+        # many rows) and the order of the rows is meaningful in some tables, e.g. the
+        # FERC 1 small plants table, whose multi-row plant records and header and note
+        # rows are identified by their position. Ties must keep the order in which they
+        # were extracted: the default sort scrambles them for object and datetime
+        # columns. (That extracted order is not always the order of the filing; see
+        # https://github.com/catalyst-cooperative/pudl/issues/5740)
+        original = xbrl_table.sort_values("publication_time", kind="stable")
         dupe_mask = original.duplicated(subset=xbrl_context_cols, keep=False)
         duped_groups = original.loc[dupe_mask].groupby(
             xbrl_context_cols, as_index=False, dropna=True

@@ -5,6 +5,7 @@ import itertools
 from io import StringIO
 
 import hypothesis
+import numpy as np
 import pandas as pd
 import pandera.pandas as pa
 import pytest
@@ -37,6 +38,7 @@ from pudl.transform.ferc1 import (
     read_dbf_to_xbrl_map,
     reconcile_one_type_of_table_calculations,
     select_current_year_annual_records_duration_xbrl,
+    sort_xbrl_rows_by_order_number,
     unexpected_total_components,
     unstack_balances_to_report_year_instant_xbrl,
     wide_to_tidy,
@@ -1305,6 +1307,66 @@ def test_filter_for_freshest_data_xbrl_simple():
 
     assert len(observed_table) == 1
     assert observed_table.str_factoid.to_numpy().item() == "updated 2021 EOY value"
+
+
+def test_filter_for_freshest_data_xbrl_preserves_row_order():
+    """Rows of a filing that share a publication time keep their original order."""
+    n = 200
+    df = pd.DataFrame(
+        {
+            "entity_id": "C000001",
+            "utility_type_axis": [f"plant_{i:03d}" for i in reversed(range(n))],
+            "filing_name": "Utility_Co_0001",
+            "date": dt.date(2021, 12, 31),
+            "publication_time": dt.datetime(2022, 2, 1),
+            "order_number": range(n),
+        }
+    )
+    observed = filter_for_freshest_data_xbrl(
+        df,
+        ["entity_id", "filing_name", "publication_time", "date", "utility_type_axis"],
+    )
+    assert observed.order_number.tolist() == list(range(n))
+
+
+def test_sort_xbrl_rows_by_order_number():
+    """Rows come out in filing order, which the extractor does not preserve."""
+    names = [
+        "Clinton",
+        "GAS TURBINE:",
+        "Grand Total",
+        "Highland",
+        "INTERNAL COMBUSTION:",
+    ]
+    df = pd.DataFrame(
+        {
+            "utility_id_ferc1_xbrl": "C000001",
+            "report_year": 2022,
+            "generating_plant_statistics": names,
+            "order_number": [4.0, 1.0, 1.0, 2.5, 3.0],
+        }
+    )
+    # A second utility whose rows have no order_number keeps its original order.
+    other = pd.DataFrame(
+        {
+            "utility_id_ferc1_xbrl": "C000002",
+            "report_year": 2022,
+            "generating_plant_statistics": ["b", "a"],
+            "order_number": [np.nan, np.nan],
+        }
+    )
+    out = sort_xbrl_rows_by_order_number(pd.concat([other, df]))
+    assert out.generating_plant_statistics.tolist() == [
+        "GAS TURBINE:",
+        "Highland",
+        "INTERNAL COMBUSTION:",
+        "Clinton",
+        "Grand Total",  # ties with the first row, but a total goes last
+        "b",
+        "a",
+    ]
+    assert out.index.tolist() == list(range(len(out)))
+    assert sort_xbrl_rows_by_order_number(df.iloc[:0]).empty
 
 
 example_schema = pa.DataFrameSchema(
