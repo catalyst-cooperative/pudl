@@ -16,6 +16,7 @@ import dagster as dg
 
 from pudl.dagster.assets.deploy.ferceqr import (
     DAGSTER_BACKFILL_TAG,
+    FERCEQR_DATAPACKAGE_ASSET_KEY,
     FERCEQR_SOURCE_PARTITIONS_TAG,
     FERCEQR_SOURCE_RUN_ID_TAG,
 )
@@ -126,10 +127,12 @@ def _evaluate_ferceqr_backfill_sensor_condition(
             f"{source_partitions}"
         )
         run_key_prefix = "ferceqr_deployment_failure_backfill"
-        asset_name = "handle_ferceqr_failure"
+        # Only trigger failure asset. Skip datapackage generation
+        asset_keys = [dg.AssetKey("handle_ferceqr_failure")]
     else:
         run_key_prefix = "ferceqr_deployment_success_backfill"
-        asset_name = "deploy_ferceqr"
+        # Trigger datapackage generation + deployment
+        asset_keys = [FERCEQR_DATAPACKAGE_ASSET_KEY, dg.AssetKey("deploy_ferceqr")]
 
     tags = {
         FERCEQR_SOURCE_RUN_ID_TAG: context.dagster_run.run_id,
@@ -139,7 +142,7 @@ def _evaluate_ferceqr_backfill_sensor_condition(
     return dg.RunRequest(
         run_key=f"{run_key_prefix}:{backfill_id}",
         tags=tags,
-        asset_selection=[dg.AssetKey(asset_name)],
+        asset_selection=asset_keys,
     )
 
 

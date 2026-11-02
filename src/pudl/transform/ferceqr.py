@@ -102,6 +102,24 @@ def rename_duckdb_columns(
     )
 
 
+def drop_duckdb_columns(
+    table_data: duckdb.DuckDBPyRelation, columns: list[str]
+) -> duckdb.DuckDBPyRelation:
+    """Drop whichever of ``columns`` are present in a DuckDB relation.
+
+    Columns that are not in the relation are ignored rather than raising an error, so
+    a column that is only reported in some raw filings can be dropped unconditionally.
+
+    Args:
+        table_data: DuckDB relation containing the columns to drop.
+        columns: Names of the columns to drop.
+    """
+    present = [col for col in columns if col in table_data.columns]
+    if not present:
+        return table_data
+    return table_data.select(duckdb.StarExpression(exclude=present))
+
+
 def apply_column_transforms(
     table_data: duckdb.DuckDBPyRelation,
     columns: list[str],
@@ -204,6 +222,10 @@ def core_ferceqr__quarterly_identity(
                 "company_identifier": "company_id_ferc",
             },
         )
+        # The raw ident table reports the filing quarter as the YYYYMM of the
+        # quarter's last month (e.g. 201309 for 2013q3). It's redundant with
+        # year_quarter, which we add during extraction, and isn't in the schema.
+        table_data = drop_duckdb_columns(table_data, ["filing_quarter"])
         table_data = apply_duckdb_dtypes(table_data, table_name, conn)
 
         return persist_table_as_parquet(
