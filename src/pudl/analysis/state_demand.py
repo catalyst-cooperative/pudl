@@ -65,6 +65,7 @@ def lookup_state(state: str | int) -> dict:
     if is_fips:
         state = str(int(state)).zfill(2)
         return {x["fips"]: x for x in STATES}[state]
+    state = str(state)
     key = "code" if len(state) == 2 else "name"
     return {x[key].lower(): x for x in STATES}[state.lower()]
 
@@ -180,7 +181,7 @@ def out_ferc714__hourly_estimated_state_demand(
 
     def prepare_county_respondents_with_demand(
         county_assign_ferc714: pd.DataFrame,
-        out_censusdp1tract__counties: pd.DataFrame,
+        out_censusdp1tract__counties: gpd.GeoDataFrame,
         hourly_demand: pl.LazyFrame,
     ) -> pl.LazyFrame:
         """Connect respondent- and state-county assignments to additional county data, keeping only respondent-years with nonzero demand."""

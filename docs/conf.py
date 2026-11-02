@@ -300,7 +300,7 @@ def data_dictionary_metadata_to_rst(app):
         resource.schema.fields = sorted(resource.schema.fields, key=lambda x: x.name)
     package.to_rst(
         docs_dir=PUDL_DOCS_PATH,
-        path=str(PUDL_DOCS_PATH / "data_dictionaries/pudl_db.rst"),
+        path=PUDL_DOCS_PATH / "data_dictionaries/pudl_db.rst",
     )
 
 
@@ -505,7 +505,7 @@ def static_dfs_to_rst(app):
     """Export static code labeling dataframes to RST for inclusion in documentation."""
     # Sphinx csv-table directive wants an absolute path relative to source directory,
     # but pandas to_csv wants a true absolute path
-    csv_subdir = "data_dictionaries/code_csvs"
+    csv_subdir = pathlib.Path("data_dictionaries/code_csvs")
     abs_csv_dir_path = PUDL_DOCS_PATH / csv_subdir
     abs_csv_dir_path.mkdir(parents=True, exist_ok=True)
     codemetadata = CodeMetadata.from_code_ids(sorted(CODE_METADATA.keys()))
