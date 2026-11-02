@@ -25,6 +25,10 @@ New Data
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+* :ref:`core_eia861__yearly_distribution_systems` now covers 2013-2015 as well as 2016
+  onward. The raw files were always in the archives, but our metadata marked them as
+  missing, so about 5,900 rows were never extracted. See :issue:`5289` and :pr:`5724`.
+
 EIA-860M
 ~~~~~~~~
 
@@ -125,6 +129,12 @@ Performance Improvements
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^
 
+* The hand-compiled files that describe the layout of our raw spreadsheets and CSVs are
+  now change logs: a year only needs a row when its layout differs from the year before,
+  and the gaps are filled in as the files load. That removed 83% of their rows, makes
+  annual updates less tedious, and standardizes ``-1`` as the marker for data that
+  doesn't exist. New tests check that the files agree with each other, and keep a list
+  of the mapping still left to do. See :issue:`5289` and :pr:`5724`.
 * Plant part record IDs for records with a null ``utility_id_eia`` now end in ``null``
   instead of ``<NA>`` (or ``<na>``), consistent with the rest of the ID. This changes
   ``record_id_eia`` and ``plant_part_id_eia`` in ``out_eia__yearly_plant_parts`` and the

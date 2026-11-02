@@ -151,11 +151,6 @@
       "concise_description": "Cannot set item in `dict[str, set[str]]`"
     },
     {
-      "path": "src/pudl/extract/excel.py",
-      "name": "bad-override-mutable-attribute",
-      "concise_description": "Class member `ExcelExtractor.METADATA` overrides parent class `GenericExtractor` in an inconsistent manner"
-    },
-    {
       "path": "src/pudl/metadata/classes.py",
       "name": "bad-override-mutable-attribute",
       "concise_description": "Class member `Resource.schema` overrides parent class `PudlMeta` in an inconsistent manner"
@@ -224,46 +219,6 @@
       "path": "src/pudl/validate/dbt.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `BaseResult` has no attribute `node`"
-    },
-    {
-      "path": "src/pudl/extract/excel.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `GenericMetadata` has no attribute `_page_part_map`"
-    },
-    {
-      "path": "src/pudl/extract/excel.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `GenericMetadata` has no attribute `get_file_name`"
-    },
-    {
-      "path": "src/pudl/extract/phmsagas.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `GenericMetadata` has no attribute `get_form`"
-    },
-    {
-      "path": "src/pudl/extract/eia923.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `GenericMetadata` has no attribute `get_sheet_name`"
-    },
-    {
-      "path": "src/pudl/extract/excel.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `GenericMetadata` has no attribute `get_sheet_name`"
-    },
-    {
-      "path": "src/pudl/extract/excel.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `GenericMetadata` has no attribute `get_skipfooter`"
-    },
-    {
-      "path": "src/pudl/extract/eia923.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `GenericMetadata` has no attribute `get_skiprows`"
-    },
-    {
-      "path": "src/pudl/extract/excel.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `GenericMetadata` has no attribute `get_skiprows`"
     },
     {
       "path": "src/pudl/transform/eia176.py",
@@ -346,16 +301,6 @@
       "concise_description": "Returned type `Series` is not assignable to declared return type `DataFrame`"
     },
     {
-      "path": "src/pudl/extract/rus12.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` is not assignable to declared return type `str`"
-    },
-    {
-      "path": "src/pudl/extract/rus7.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` is not assignable to declared return type `str`"
-    },
-    {
       "path": "src/pudl/extract/extractor.py",
       "name": "bad-return",
       "concise_description": "Returned type `defaultdict[str, list[Unknown]]` is not assignable to declared return type `dict[str, DataFrame]`"
@@ -374,16 +319,6 @@
       "path": "src/pudl/workspace/datastore.py",
       "name": "bad-argument-type",
       "concise_description": "Unpacked keyword argument `int | str` is not assignable to parameter `skip_optimally_cached` with type `bool` in function `Datastore.get_resources`"
-    },
-    {
-      "path": "src/pudl/extract/excel.py",
-      "name": "bad-assignment",
-      "concise_description": "`None` is not assignable to `ExcelMetadata`"
-    },
-    {
-      "path": "src/pudl/extract/extractor.py",
-      "name": "bad-assignment",
-      "concise_description": "`None` is not assignable to `GenericMetadata`"
     },
     {
       "path": "src/pudl/scripts/dbt_helper.py",

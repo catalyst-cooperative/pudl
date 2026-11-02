@@ -14,7 +14,7 @@ CSV_FILENAME = f"{DATASET}_{PARTITION_SELECTION}.csv"
 class FakeExtractor(CsvExtractor):
     def __init__(self, mocker):
         # TODO: Make these tests independent of the eia191 implementation
-        self.METADATA = GenericMetadata("eia191")
+        self._metadata = GenericMetadata("eia191")
         super().__init__(ds=mocker.MagicMock())
 
 

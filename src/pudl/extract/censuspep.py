@@ -19,7 +19,7 @@ class Extractor(excel.ExcelExtractor):
         Args:
             ds (:class:datastore.Datastore): Initialized datastore.
         """
-        self.METADATA = excel.ExcelMetadata("censuspep")
+        self._metadata = excel.ExcelMetadata("censuspep")
         self.cols_added = []
         super().__init__(*args, **kwargs)
 

@@ -7,7 +7,7 @@ from pudl.extract.phmsagas import Extractor
 
 class FakeExtractor(Extractor):
     def __init__(self, mocker):
-        self.METADATA = ExcelMetadata("phmsagas")
+        self._metadata = ExcelMetadata("phmsagas")
         super().__init__(ds=mocker.Mock())
         self._metadata = mocker.Mock()
 
