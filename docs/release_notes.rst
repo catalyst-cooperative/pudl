@@ -111,10 +111,6 @@ Bug Fixes & Data Cleaning
   string comparisons, which would otherwise have left spurious null energy sources,
   null primary keys, or unremoved bogus ownership records. See :issue:`5621`,
   :issue:`5622`, :issue:`5624` and :pr:`5721`.
-* Dropped the redundant ``filing_quarter`` column from
-  :ref:`core_ferceqr__quarterly_identity`. It was reported in the raw filings as the
-  ``YYYYMM`` of the quarter's last month, always agreed with ``year_quarter``, and was
-  not in the table's schema. See :issue:`5279` and :pr:`5735`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -132,15 +128,15 @@ Developer Experience
   plant/utility IDs missing from the manual PUDL ID mapping spreadsheet. CSVs are saved
   with other build outputs on ``builds.catalyst.coop`` and fail the ETL if they are
   non-empty. See issue :issue:`4338` and PR :pr:`5539`.
-* Added a ``DATAPACKAGES`` registry of every datapackage PUDL distributes, currently
-  ``PUDL_PACKAGE`` and ``FERCEQR_PACKAGE``, with ``all_resources()`` and
-  ``find_resource()`` helpers, so asset checks, the docs, the data dictionary and the
-  dbt tooling cover FERC EQR as well as the main PUDL tables. Each package's
-  ``<name>_datapackage`` asset is now followed by blocking asset checks that validate
-  the descriptor against the Frictionless spec, check that its unit strings can be
-  parsed, and compare the fields declared for each resource with the columns in its
-  Parquet files, which will catch unexpected extra columns. Parquet files are hashed in
-  parallel. See :issue:`5279` and :pr:`5735`.
+* Added a ``DATAPACKAGES`` registry of every datapackage PUDL distributes, with
+  ``all_resources()`` and ``find_resource()`` helpers, so asset checks, the docs, the
+  data dictionary, dbt tooling and a DuckDB views database per package cover FERC EQR as
+  well as the main PUDL tables. Every ``<name>_datapackage`` asset now has blocking
+  checks that validate its descriptor and compare the declared fields with the columns
+  in its Parquet files, and Pandera schemas are strict. This exposed a redundant
+  ``filing_quarter`` column in :ref:`core_ferceqr__quarterly_identity` which was
+  removed. The datapackage and ``deploy_ferceqr`` assets also record richer Dagster
+  metadata. See :issue:`5279` and :pr:`5735`.
 
 .. _release-v2026.10.0:
 
