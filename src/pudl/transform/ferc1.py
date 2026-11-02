@@ -4642,7 +4642,7 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
         # on object, comparisons like ``row_type != "note"`` return plain bools (True
         # for NA rows), which the .loc masks and cumsum() downstream rely on. On a
         # string dtype they would return NA, and .loc would skip those rows.
-        df.insert(3, "row_type", pd.NA)
+        df.insert(3, "row_type", pd.Series(pd.NA, index=df.index, dtype=object))
 
         # Label the row types
         df_labeled = (

@@ -22,7 +22,7 @@ from contextlib import contextmanager
 from functools import partial
 from io import BytesIO
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, NamedTuple
+from typing import TYPE_CHECKING, Any, Literal, NamedTuple, get_args
 
 import duckdb
 import geopandas as gpd  # noqa: ICN002
@@ -54,6 +54,12 @@ if there are some months where fuel consumption is reported as NA, but electrici
 generation is reported normally, then the fuel consumption for the year needs to be NA,
 otherwise we'll get unrealistic heat rates.
 """
+
+type AggregationFreq = Literal["YS", "MS"]
+"""Pandas frequency aliases for annual (year start) and monthly (month start) data."""
+
+AGGREGATION_FREQS: tuple[AggregationFreq, ...] = get_args(AggregationFreq.__value__)
+"""All of the :data:`AggregationFreq` values, for iterating over."""
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -1520,7 +1526,7 @@ def fillna_w_rolling_avg(
     return df_new.drop(columns=f"{data_col}_rollfilled")
 
 
-def groupby_agg_label_unique_source_or_mixed(x: pd.Series) -> str | None:
+def groupby_agg_label_unique_source_or_mixed(x: pd.Series) -> str | NAType:
     """Get either the unique source in a group or return mixed.
 
     Custom function for groupby.agg. Written specifically for
@@ -1785,7 +1791,7 @@ def standardize_percentages_ratio(
 
 def calc_capacity_factor(
     df: pd.DataFrame,
-    freq: Literal["YS", "MS"],
+    freq: AggregationFreq,
     min_cap_fact: float | None = None,
     max_cap_fact: float | None = None,
 ) -> pd.DataFrame:
@@ -3127,7 +3133,7 @@ def parse_address(addr: str):
             return (addr, None, None, None)
         tagged, addr_type = usaddress.tag(addr)
 
-        parsed = defaultdict(str)
+        parsed: defaultdict[str, str | None] = defaultdict(str)
         for key, val in tagged.items():
             parsed[key] = val.strip() if val else None
 
