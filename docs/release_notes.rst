@@ -55,7 +55,6 @@ New Data Tests & Validations
   files, and the FERC EQR deployment asset now runs the EQR validations before
   publishing. All FERC EQR tables get basic validation tests, including row counts. See
   :issue:`4864` and :pr:`5676`.
-
 * Validate that the net utility plant, total other property and investments, and total
   assets in :ref:`core_rus7__yearly_balance_sheet_assets` and
   :ref:`out_rus7__yearly_balance_sheet_assets` equal the sum of their subcomponents.
@@ -72,8 +71,6 @@ Bug Fixes & Data Cleaning
   :ref:`out_rus7__yearly_balance_sheet_assets`. A typo in the column map
   (``non_utility_property_asset``) meant the transform never picked it up. See
   :issue:`5566` and :pr:`5729`.
-* Added a missing territory entry to the :ref:`core_pudl__codes_subdivisions` table. See
-  :issue:`5696` and :pr:`5716`.
 * Added ``plant_function`` values to a few factoids in
   :ref:`out_ferc1__yearly_rate_base`. See :pr:`5690`.
 * Made transforms in FERC 1, FERC 714, SEC 10-K, PHMSA, RUS and the EIA API extractor
@@ -138,6 +135,15 @@ Developer Experience
   plant/utility IDs missing from the manual PUDL ID mapping spreadsheet. CSVs are saved
   with other build outputs on ``builds.catalyst.coop`` and fail the ETL if they are
   non-empty. See issue :issue:`4338` and PR :pr:`5539`.
+* Added a ``DATAPACKAGES`` registry of every datapackage PUDL distributes, with
+  ``all_resources()`` and ``find_resource()`` helpers, so asset checks, the docs, the
+  data dictionary, dbt tooling and a DuckDB views database per package cover FERC EQR as
+  well as the main PUDL tables. Every ``<name>_datapackage`` asset now has blocking
+  checks that validate its descriptor and compare the declared fields with the columns
+  in its Parquet files, and Pandera schemas are strict. This exposed a redundant
+  ``filing_quarter`` column in :ref:`core_ferceqr__quarterly_identity` which was
+  removed. The datapackage and ``deploy_ferceqr`` assets also record richer Dagster
+  metadata. See :issue:`5279` and :pr:`5735`.
 
 .. _release-v2026.10.0:
 
