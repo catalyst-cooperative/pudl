@@ -13,7 +13,7 @@ from typing import Annotated, Any
 import yaml
 from pydantic import BaseModel, BeforeValidator, ConfigDict
 
-from pudl.metadata.classes import PUDL_PACKAGE, Resource
+from pudl.metadata.classes import Resource
 
 _DESCRIPTION_WRAP_WIDTH = 88
 
@@ -232,7 +232,7 @@ class DbtTable(BaseModel):
     @classmethod
     def from_table_name(cls, table_name: str) -> DbtTable:
         """Construct configuration defining table from PUDL metadata."""
-        resource = PUDL_PACKAGE.get_resource(table_name)
+        resource = Resource.from_id(table_name)
         return cls(
             name=table_name,
             data_tests=_foreign_key_data_tests(resource),
@@ -266,7 +266,7 @@ class DbtSchema(BaseModel):
         return cls(
             sources=[
                 DbtSource(
-                    name=PUDL_PACKAGE.get_resource(table_name).dbt_source,
+                    name=Resource.from_id(table_name).dbt_source,
                     tables=[DbtTable.from_table_name(table_name)],
                 )
             ],

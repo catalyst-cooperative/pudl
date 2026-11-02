@@ -111,12 +111,12 @@ class FercPaths:
             }
 
         # Generate local paths
-        paths = {
+        path_kwargs: dict[str, Path | UPath] = {
             f"local_{key}_path": paths.pudl_output / name
             for key, name in filenames.items()
         }
         # Generate nightly paths
-        paths |= {
+        path_kwargs |= {
             f"nightly_{key}_path": PUDL_EEL_HOLE_BASE_PATH / name
             # SQLite and parquet nightly build outputs are in zip files
             if key not in ["sqlite", "parquet"]
@@ -124,7 +124,9 @@ class FercPaths:
             for key, name in filenames.items()
         }
 
-        return cls(**paths, data_format=data_format)
+        # Keys are built dynamically, so the local/nightly Path/UPath types can't be
+        # checked against the dataclass fields.
+        return cls(**path_kwargs, data_format=data_format)  # type: ignore[bad-argument-type]
 
 
 def _download_zipped_outputs(
