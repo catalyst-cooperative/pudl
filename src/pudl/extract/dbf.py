@@ -431,7 +431,7 @@ class FercDbfExtractor:
     def __init__(
         self,
         datastore: Datastore,
-        data_config: FercDbfToSqliteDataConfig,
+        data_config: FercToSqliteDataConfig,
         output_path: Path,
     ):
         """Constructs new instance of FercDbfExtractor.

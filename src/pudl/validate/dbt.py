@@ -149,6 +149,8 @@ def __get_compiled_sql_contexts(nodes: list[GenericTestNode]) -> list[NodeContex
     duckdb_path = PudlPaths().output_file("pudl_dbt_tests.duckdb")
     with duckdb.connect(duckdb_path) as con:
         for node in nodes:
+            if node.compiled_code is None:
+                raise ValueError(f"dbt test {node.name} has no compiled SQL.")
             con.execute(node.compiled_code)
             node_df = con.fetchdf()
             # tabulate can raise on pd.NA, so normalize nulls to a sentinel string.

@@ -172,7 +172,7 @@ jobs:
 
       - name: Set up uv
         if: ${{ env.SKIP_BUILD != 'true' }}
-        uses: astral-sh/setup-uv@v10.3.1
+        uses: astral-sh/setup-uv@v10.3.3
 
       # Deploy PUDL image to GCE
       # Dagster Postgres connection configured in builds/dagster.yaml - otherwise we get a str for port num

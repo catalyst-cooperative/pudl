@@ -352,7 +352,7 @@ class ZenodoFetcher:
             api_root = "https://zenodo.org/api"
         else:
             raise ValueError(f"Invalid Zenodo DOI: {doi}")
-        return f"{api_root}/records/{zenodo_id}/files"
+        return HttpUrl(f"{api_root}/records/{zenodo_id}/files")
 
     def _fetch_from_url(self: Self, url: HttpUrl) -> requests.Response:
         logger.info(f"Retrieving {url} from zenodo")
