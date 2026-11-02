@@ -21,6 +21,7 @@ from pandera.errors import SchemaErrors
 from shapely import Point
 
 from pudl.metadata.classes import (
+    DATAPACKAGES,
     FERCEQR_PACKAGE,
     PUDL_PACKAGE,
     DataSource,
@@ -29,6 +30,8 @@ from pudl.metadata.classes import (
     Package,
     PudlResourceDescriptor,
     Resource,
+    all_resources,
+    find_resource,
 )
 from pudl.metadata.descriptions import (
     PARTITION_OFFSETS,
@@ -37,6 +40,7 @@ from pudl.metadata.descriptions import (
 )
 from pudl.metadata.dtypes import (
     PudlDtypeBackend,
+    _get_resource_dtypes,
     apply_pudl_dtypes,
     apply_pudl_dtypes_polars,
     get_pudl_dtypes,
@@ -870,6 +874,18 @@ def test_resource_descriptors_can_encode_schemas(
             ),
             id="duplicate PK",
         ),
+        pytest.param(
+            "column 'unexpected' not in DataFrameSchema",
+            pl.DataFrame(
+                {
+                    "plant_id_eia": [12345],
+                    "city": ["Bloomington"],
+                    "capacity_mw": [1.3],
+                    "unexpected": ["extra column"],
+                }
+            ),
+            id="extra column",
+        ),
     ],
 )
 def test_resource_descriptor_schema_failures(error_msg, data, dummy_pandera_schema):
@@ -1032,6 +1048,65 @@ def test_multiple_path_resources(dummy_resource_dict):
     assert frictionless_resource.path == paths[0]
     assert set(frictionless_resource.extrapaths) == set(paths[1:])
     assert set(frictionless_resource.normpaths) == set(paths)
+
+
+def test_datapackages_registry_is_keyed_by_package_name_and_complete():
+    """Every defined resource is in at least one registered package.
+
+    This deliberately checks completeness only: a resource may belong to several
+    packages, so the packages are not required to be disjoint.
+    """
+    assert all(name == package.name for name, package in DATAPACKAGES.items())
+    assert {"pudl", "ferceqr"} == set(DATAPACKAGES)
+    registered = {
+        r.name for package in DATAPACKAGES.values() for r in package.resources
+    }
+    assert registered == set(RESOURCE_METADATA)
+    assert {r.name for r in all_resources()} == set(RESOURCE_METADATA)
+
+
+def test_each_resources_dbt_source_is_a_package_containing_it():
+    """A resource's ``dbt_source`` must name a registered package that has the table.
+
+    ``dbt_source`` is set by hand in the resource metadata, and dbt looks for the
+    table's model and Parquet files under it, so it must not drift from the packages.
+    """
+    for resource in all_resources():
+        assert resource.dbt_source in DATAPACKAGES, resource.name
+        package = DATAPACKAGES[resource.dbt_source]
+        assert resource.name in {r.name for r in package.resources}, resource.name
+
+
+def test_find_resource_searches_every_registered_package():
+    """Name-only lookups find PUDL and FERC EQR tables alike."""
+    assert find_resource("core_pudl__codes_subdivisions").name == (
+        "core_pudl__codes_subdivisions"
+    )
+    eqr = find_resource("core_ferceqr__contracts")
+    assert eqr is FERCEQR_PACKAGE.get_resource("core_ferceqr__contracts")
+    with pytest.raises(ValueError, match="not part of any registered data package"):
+        find_resource("not_a_table")
+
+
+def test_registry_tolerates_a_resource_in_several_packages(mocker):
+    """Overlapping packages give first-match lookups and listings unique by name."""
+    shared = "core_pudl__codes_subdivisions"
+    other = Package.from_resource_ids(resource_ids=(shared,), name="other")
+    before = [r.name for r in all_resources()]
+    mocker.patch.dict(DATAPACKAGES, {"other": other})
+
+    assert find_resource(shared) is PUDL_PACKAGE.get_resource(shared)
+    after = [r.name for r in all_resources()]
+    assert after == before
+    assert len(after) == len(set(after))
+
+
+def test_resource_dtypes_are_available_for_ferceqr_tables():
+    """Resource dtype lookups are not limited to the main PUDL package."""
+    dtypes = _get_resource_dtypes("core_ferceqr__contracts")
+    assert {f.name for f in find_resource("core_ferceqr__contracts").schema.fields} == (
+        set(dtypes)
+    )
 
 
 def test_from_resource_ids_etl_groups_exact_match():

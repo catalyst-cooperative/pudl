@@ -43,17 +43,148 @@ from dagster._core.definitions.asset_checks.asset_checks_definition import (
 from dagster._core.definitions.decorators.op_decorator import DecoratedOpFunction
 from shapely.geometry import Point
 
+import pudl.dagster.asset_checks as asset_checks
 from pudl.dagster.asset_checks import (
+    SCHEMA_CHECK_NAME,
     _build_registry_from_descriptor,
+    _validate_datapackage_parquet_columns,
     _validate_datapackage_unit_strings,
+    asset_check_from_packages,
     asset_check_from_schema,
+    default_asset_checks,
     group_mean_continuity_check,
     summarize_check_failures,
     unmapped_ids_check,
 )
+from pudl.dagster.assets import default_assets
 from pudl.helpers import ParquetData
-from pudl.metadata.classes import FERCEQR_PACKAGE, PUDL_PACKAGE, Package, Resource
+from pudl.metadata.classes import (
+    DATAPACKAGES,
+    FERCEQR_PACKAGE,
+    PUDL_PACKAGE,
+    Package,
+    Resource,
+    all_resources,
+)
 from pudl.metadata.units import PUDL_UNIT_DEFINITIONS
+
+
+def test_default_asset_checks_cover_every_registered_package() -> None:
+    """Every table in every registered package that has an asset gets a schema check.
+
+    Regression test: the checks used to be generated from ``PUDL_PACKAGE`` alone, so
+    the FERC EQR tables silently lost their checks when they moved to their own package.
+    """
+    checked_assets = {
+        key.asset_key.to_user_string()
+        for check in default_asset_checks
+        for key in check.check_keys
+    }
+    for package in DATAPACKAGES.values():
+        assert {r.name for r in package.resources} & checked_assets, package.name
+    assert {r.name for r in FERCEQR_PACKAGE.resources} <= checked_assets
+
+
+SCHEMA_CHECK_EXEMPTIONS: dict[str, str] = {}
+"""Resources allowed to lack a schema check, mapped to the reason they are exempt.
+
+This should stay empty unless there is a strong reason: the schema checks are how we
+catch tables whose outputs drift from their metadata.
+"""
+
+
+def test_every_resource_with_a_schema_has_a_schema_check() -> None:
+    """Every asset whose resource defines a schema must have a schema asset check.
+
+    Iterates over every resource in every registered datapackage, so a new package or
+    a resource that falls out of the check-generation code can't silently go
+    unchecked. A resource that has no asset at all is also an error, rather than being
+    skipped. Exemptions belong in ``SCHEMA_CHECK_EXEMPTIONS`` with a stated reason.
+    """
+    asset_names = {
+        spec.key.to_user_string()
+        for asset in default_assets
+        if isinstance(asset, dg.AssetsDefinition)
+        for spec in asset.specs
+    }
+    checked = {
+        (key.asset_key.to_user_string(), key.name)
+        for check in default_asset_checks
+        for key in check.check_keys
+    }
+    no_asset, no_check = [], []
+    for resource in all_resources():
+        if not resource.schema.fields or resource.name in SCHEMA_CHECK_EXEMPTIONS:
+            continue
+        if resource.name not in asset_names:
+            no_asset.append(resource.name)
+        elif (resource.name, SCHEMA_CHECK_NAME) not in checked:
+            no_check.append(resource.name)
+
+    assert not no_asset, f"Resources with a schema but no asset: {sorted(no_asset)}"
+    assert not no_check, f"Assets with a schema but no schema check: {sorted(no_check)}"
+
+
+def test_every_datapackage_asset_has_the_descriptor_checks() -> None:
+    """Each registered datapackage's descriptor asset is validated before use.
+
+    The descriptors are published alongside the data, so a malformed one should fail
+    its blocking checks. A package without a ``<name>_datapackage`` asset, or without
+    both checks on it, is an error.
+    """
+    asset_names = {
+        spec.key.to_user_string()
+        for asset in default_assets
+        if isinstance(asset, dg.AssetsDefinition)
+        for spec in asset.specs
+    }
+    checks = {
+        (key.asset_key.to_user_string(), key.name)
+        for check in default_asset_checks
+        for key in check.check_keys
+    }
+    # Look up the check names from the factories rather than hardcoding them.
+    descriptor_check_names = {
+        key.name
+        for factory in (
+            asset_checks.valid_datapackage_check,
+            asset_checks.valid_datapackage_unit_strings_check,
+        )
+        for key in factory("any_asset", description="").check_keys
+    }
+    assert len(descriptor_check_names) == 2
+
+    for package_name in DATAPACKAGES:
+        asset_name = f"{package_name}_datapackage"
+        assert asset_name in asset_names, f"No {asset_name} asset for {package_name}"
+        missing = {n for n in descriptor_check_names if (asset_name, n) not in checks}
+        assert not missing, f"{asset_name} is missing descriptor checks: {missing}"
+
+
+def test_asset_check_from_packages_uses_first_package_defining_the_asset(
+    mocker,
+) -> None:
+    """A resource in several packages gets one check; an unknown resource gets none."""
+    shared = "core_pudl__codes_subdivisions"
+    other = Package.from_resource_ids(resource_ids=(shared,), name="other")
+    key = dg.AssetKey([shared])
+    spy = mocker.spy(asset_checks, "asset_check_from_schema")
+
+    check = asset_check_from_packages(key, (PUDL_PACKAGE, other), duckdb_asset=False)
+
+    assert check is not None
+    # The first package defined the asset, so the second is never consulted.
+    assert spy.call_count == 1
+    assert spy.call_args.args[1] is PUDL_PACKAGE
+    assert asset_check_from_packages(key, (other,), duckdb_asset=False) is not None
+    assert (
+        asset_check_from_packages(
+            dg.AssetKey(["not_a_table"]),
+            (PUDL_PACKAGE, FERCEQR_PACKAGE),
+            duckdb_asset=False,
+        )
+        is None
+    )
 
 
 @pytest.mark.parametrize(
@@ -68,9 +199,9 @@ def test_asset_checks_preserve_runtime_input_types(
     asset_name: str, duckdb_asset: bool, expected_type: type
 ) -> None:
     """Generated checks should advertise the IO-manager input type they expect."""
-    check: AssetChecksDefinition | None = asset_check_from_schema(
+    check: AssetChecksDefinition | None = asset_check_from_packages(
         dg.AssetKey([asset_name]),
-        PUDL_PACKAGE if "ferceqr" not in asset_name else FERCEQR_PACKAGE,
+        tuple(DATAPACKAGES.values()),
         duckdb_asset=duckdb_asset,
     )
 
@@ -656,3 +787,48 @@ def test_unmapped_ids_check(df: pd.DataFrame, passed: bool) -> None:
     result = check.node_def.compute_fn.decorated_fn(df)  # type: ignore[missing-attribute]
     assert result.passed is passed
     assert result.metadata["n_unmapped_ids"].value == len(df)
+
+
+def _descriptor_for(name: str, fields: list[str], paths: list[str]) -> dict:
+    """Build a minimal descriptor with one (possibly partitioned) resource."""
+    return {
+        "resources": [
+            {
+                "name": name,
+                "path": paths[0],
+                "extrapaths": paths[1:],
+                "schema": {"fields": [{"name": field} for field in fields]},
+            }
+        ]
+    }
+
+
+def test_validate_datapackage_parquet_columns_matching(tmp_path) -> None:
+    """No errors when each file's columns are exactly the declared fields."""
+    pl.DataFrame({"a": [1], "b": ["x"]}).write_parquet(tmp_path / "t.parquet")
+    descriptor = _descriptor_for("t", ["a", "b"], ["t.parquet"])
+    errors, counts = _validate_datapackage_parquet_columns(descriptor, tmp_path)
+    assert errors == []
+    assert counts == {"checked": 1, "missing": 0}
+
+
+def test_validate_datapackage_parquet_columns_groups_mismatched_partitions(
+    tmp_path,
+) -> None:
+    """Extra and missing columns are reported once per resource, not per file."""
+    for part in ("2020q1", "2020q2"):
+        pl.DataFrame({"a": [1], "extra": [2]}).write_parquet(
+            tmp_path / f"{part}.parquet"
+        )
+    pl.DataFrame({"a": [1], "b": [2]}).write_parquet(tmp_path / "2020q3.parquet")
+    paths = [f"{part}.parquet" for part in ("2020q1", "2020q2", "2020q3", "2020q4")]
+    descriptor = _descriptor_for("t", ["a", "b"], paths)
+
+    errors, counts = _validate_datapackage_parquet_columns(descriptor, tmp_path)
+
+    # 2020q4 is not on disk: counted, but not an error.
+    assert counts == {"checked": 3, "missing": 1}
+    assert len(errors) == 1
+    assert "2 Parquet file(s)" in errors[0]
+    assert "Extra in file: ['extra']" in errors[0]
+    assert "Missing from file: ['b']" in errors[0]
