@@ -2,7 +2,7 @@
 
 import sys
 from pathlib import Path
-from typing import Literal
+from typing import Literal, get_args
 
 import click
 import pandas as pd
@@ -13,6 +13,8 @@ from pudl.helpers import get_parquet_table
 from pudl.logging_helpers import get_logger
 
 logger = get_logger(__name__)
+
+type GlueEntity = Literal["ferc1", "eia"]
 
 UTILITY_NAME_CLEANER = name_cleaner.CompanyNameCleaner(
     cleaning_rules_list=[
@@ -107,7 +109,7 @@ def get_false_matches():
 
 
 def drop_records_with_matches(
-    entity: Literal["ferc1", "eia"],
+    entity: GlueEntity,
     matches_new: pd.DataFrame,
     existing_glue_df: pd.DataFrame,
     matches_existing: pd.DataFrame,
@@ -314,7 +316,7 @@ def main(test_run: bool) -> int:
         )
     ]
 
-    for entity in ["ferc1", "eia"]:
+    for entity in get_args(GlueEntity.__value__):
         existing_glue_df = drop_records_with_matches(
             entity=entity,
             matches_new=matched_utilities,
