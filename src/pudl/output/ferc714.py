@@ -4,6 +4,7 @@ For a narrative overview of the timeseries imputation process, see the documenta
 at :doc:`/methodology/timeseries_imputation`
 """
 
+from collections.abc import Hashable
 from typing import Any
 
 import geopandas as gpd  # noqa: ICN002
@@ -264,9 +265,9 @@ The changes are applied locally to EIA 861 tables.
 
 
 def categorize_eia_code(
-    eia_codes: list[int],
-    ba_ids: list[int],
-    util_ids: list[int],
+    eia_codes: pd.Series,
+    ba_ids: pd.Series,
+    util_ids: pd.Series,
     priority: str = "balancing_authority",
 ) -> pd.DataFrame:
     """Categorize FERC 714 ``eia_codes`` as either balancing authority or utility IDs.
@@ -398,7 +399,7 @@ def filled_core_eia861__yearly_balancing_authority(
     dfi = df.set_index(index)
     eia861_years = set(df["report_date"].dt.year)
 
-    new_rows: list[dict[str, Any]] = []
+    new_rows: list[dict[Hashable, object]] = []
     for target_year, fixes in BA_FIXES.items():
         if target_year not in eia861_years:
             continue
@@ -715,8 +716,8 @@ def _out_ferc714__categorized_respondents(
     )
 
     categorized = categorize_eia_code(
-        core_ferc714__respondent_id.eia_code.dropna().unique(),
-        ba_ids=bal_auth.balancing_authority_id_eia.dropna().unique(),
+        core_ferc714__respondent_id.eia_code.dropna(),
+        ba_ids=bal_auth.balancing_authority_id_eia.dropna(),
         util_ids=utilids_all_eia.utility_id_eia,
         priority=priority,
     )

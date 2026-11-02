@@ -336,7 +336,8 @@ def get_full_records_with_overrides(best_match_df, inputs, experiment_tracker):
         plants_ferc1=inputs.get_plants_ferc1(),
     )
     _log_match_coverage(connected_df, experiment_tracker=experiment_tracker)
-    for match_set in ["all", "overrides"]:
+    match_sets: list[Literal["all", "overrides"]] = ["all", "overrides"]
+    for match_set in match_sets:
         check_match_consistency(
             connected_df,
             inputs.get_train_df(),
