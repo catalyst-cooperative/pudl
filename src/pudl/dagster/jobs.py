@@ -84,10 +84,7 @@ ferceqr_deployment_job = dg.define_asset_job(
     name="ferceqr_deployment",
     description="This job handles FERC EQR deployment success and failure actions.",
     config=default_execution_config,
-    selection=dg.AssetSelection.assets(
-        "deploy_ferceqr",
-        "handle_ferceqr_failure",
-    ),
+    selection=dg.AssetSelection.groups("ferceqr_deployment"),
 )
 
 default_jobs = [
