@@ -1,7 +1,5 @@
 """CLI for managing raw data inputs to the PUDL data processing pipeline."""
 
-from __future__ import annotations
-
 import pathlib
 import sys
 from typing import TYPE_CHECKING
@@ -11,6 +9,7 @@ import click
 from pudl.workspace.datastore import ZenodoDoiSettings
 
 if TYPE_CHECKING:
+    from pudl.logging_helpers import LogLevel
     from pudl.workspace.datastore import Datastore
 
 _KNOWN_DATASETS = sorted(ZenodoDoiSettings.model_fields)
@@ -144,8 +143,8 @@ def main(
     partition: dict[str, int | str],
     cloud_cache_path: str,
     bypass_local_cache: bool,
-    logfile: pathlib.Path,
-    loglevel: str,
+    logfile: pathlib.Path | None,
+    loglevel: LogLevel,
 ) -> int:
     """Manage the raw data inputs to the PUDL data processing pipeline.
 
@@ -183,9 +182,7 @@ def main(
     from pudl.workspace.setup import PudlPaths  # noqa: PLC0415
 
     logger = pudl.logging_helpers.get_logger(__name__)
-    pudl.logging_helpers.configure_root_logger(
-        logfile=str(logfile) if logfile else None, loglevel=loglevel
-    )
+    pudl.logging_helpers.configure_root_logger(logfile=logfile, loglevel=loglevel)
 
     if all_datasets and datasets:
         raise click.UsageError("Cannot combine --all with explicit DATASETS arguments.")

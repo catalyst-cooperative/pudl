@@ -148,9 +148,6 @@ from pudl.metadata.dtypes import apply_pudl_dtypes
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
-AllocationFrequency = Literal["YS", "MS"]
-"""The two frequencies at which generation & fuel data can be allocated."""
-
 IDX_GENS = ["report_date", "plant_id_eia", "generator_id"]
 """Primary key columns for generator records."""
 
@@ -208,7 +205,7 @@ MISSING_SENTINEL = 0.00001
 
 
 def allocate_gen_fuel_asset_factory(
-    freq: AllocationFrequency,
+    freq: pudl.helpers.AggregationFreq,
     io_manager_key: str | None = None,
 ) -> list[AssetsDefinition]:
     """Build yearly and monthly net generation & fuel consumption allocation assets."""
@@ -322,11 +319,9 @@ def allocate_gen_fuel_asset_factory(
     return assets
 
 
-ALLOCATION_FREQUENCIES: tuple[AllocationFrequency, ...] = ("YS", "MS")
-
 allocate_gen_fuel_assets = [
     allocated_net_gen_asset
-    for freq in ALLOCATION_FREQUENCIES
+    for freq in pudl.helpers.AGGREGATION_FREQS
     for allocated_net_gen_asset in allocate_gen_fuel_asset_factory(
         freq=freq,
         io_manager_key="parquet_io_manager",
@@ -340,7 +335,7 @@ def allocate_gen_fuel_by_generator_energy_source(
     gen: pd.DataFrame,
     bga: pd.DataFrame,
     gens: pd.DataFrame,
-    freq: AllocationFrequency,
+    freq: pudl.helpers.AggregationFreq,
     debug: bool = False,
 ) -> pd.DataFrame:
     """Allocate net gen from gen_fuel table to the generator/energy_source_code level.
@@ -489,7 +484,10 @@ def select_input_data(
 
 
 def standardize_input_frequency(
-    bf: pd.DataFrame, gens: pd.DataFrame, gen: pd.DataFrame, freq: AllocationFrequency
+    bf: pd.DataFrame,
+    gens: pd.DataFrame,
+    gen: pd.DataFrame,
+    freq: pudl.helpers.AggregationFreq,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Standardize the frequency of the input tables.
 
@@ -1791,7 +1789,7 @@ def distribute_annually_reported_data_to_months_if_annual(
     df: pd.DataFrame,
     key_columns: list[str],
     data_column_name: str,
-    freq: AllocationFrequency,
+    freq: pudl.helpers.AggregationFreq,
 ) -> pd.DataFrame:
     """Allocates annually-reported data from the gen or bf table to each month.
 

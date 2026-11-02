@@ -119,7 +119,7 @@ class UPathCache(AbstractCache):
         Returns:
             Dictionary of storage options to pass to UPath
         """
-        storage_options = {}
+        storage_options: dict[str, str | bool] = {}
 
         if self._protocol == "s3":
             # Check if AWS credentials are available
